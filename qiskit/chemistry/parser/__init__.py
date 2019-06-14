@@ -14,4 +14,4 @@
 
 from ._inputparser import InputParser
 
-__all__ = [ 'InputParser']
+__all__ = ['InputParser']
