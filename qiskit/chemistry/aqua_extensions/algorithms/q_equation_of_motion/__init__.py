@@ -2,7 +2,7 @@
 
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2019.
+# (C) Copyright IBM 2019
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Gaussian packages """
+""" q_equation_of_motion package """
 
-from .gaussiandriver import GaussianDriver
+from .q_equation_of_motion import QEquationOfMotion
 
-__all__ = ['GaussianDriver']
+__all__ = ['QEquationOfMotion']
