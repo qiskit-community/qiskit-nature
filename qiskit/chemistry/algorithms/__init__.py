@@ -14,10 +14,12 @@
 
 """ Extension Algorithms packages """
 
+from .adaptive import VQEAdapt
 from .q_equation_of_motion.q_eom_vqe import QEomVQE
 from .q_equation_of_motion.q_eom_ee import QEomEE
 
 __all__ = [
     'QEomVQE',
-    'QEomEE'
+    'QEomEE',
+    'VQEAdapt',
 ]

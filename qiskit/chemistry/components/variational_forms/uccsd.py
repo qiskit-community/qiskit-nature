@@ -165,9 +165,11 @@ class UCCSD(VariationalForm):
                                            active_occupied, active_unoccupied)
 
         self._hopping_ops, self._num_parameters = self._build_hopping_operators()
+        self._excitation_pool = None
         self._bounds = [(-np.pi, np.pi) for _ in range(self._num_parameters)]
 
         self._logging_construct_circuit = True
+        self._support_parameterized_circuit = True
 
     @property
     def single_excitations(self):
@@ -186,6 +188,15 @@ class UCCSD(VariationalForm):
             list[list[int]]: double excitation list
         """
         return self._double_excitations
+
+    @property
+    def excitation_pool(self):
+        """
+        Getter of full list of available excitations (called the pool)
+        Returns:
+            list[WeightedPauliOperator]: excitation pool
+        """
+        return self._excitation_pool
 
     def _build_hopping_operators(self):
         if logger.isEnabledFor(logging.DEBUG):
@@ -248,13 +259,54 @@ class UCCSD(VariationalForm):
                          'with symmetries', ','.join([str(x) for x in index]))
         return qubit_op, index
 
+    def manage_hopping_operators(self):
+        """
+        Triggers the adaptive behavior of this UCCSD instance.
+
+        This function is used by the Adaptive VQE algorithm. It stores the full list of available
+        hopping operators in a so called "excitation pool" and clears the previous list to be empty.
+        Furthermore, the depth is asserted to be 1 which is required by the Adaptive VQE algorithm.
+        """
+        # store full list of excitations as pool
+        self._excitation_pool = self._hopping_ops.copy()
+
+        # check depth parameter
+        if self._depth != 1:
+            logger.warning('The depth of the variational form was not 1 but %i which does not work \
+                    in the adaptive VQE algorithm. Thus, it has been reset to 1.')
+            self._depth = 1
+
+        # reset internal excitation list to be empty
+        self._hopping_ops = []
+        self._num_parameters = len(self._hopping_ops) * self._depth
+        self._bounds = [(-np.pi, np.pi) for _ in range(self._num_parameters)]
+
+    def push_hopping_operator(self, excitation):
+        """
+        Pushes a new hopping operator.
+
+        Args:
+            excitation (WeightedPauliOperator): the new hopping operator to be added
+        """
+        self._hopping_ops.append(excitation)
+        self._num_parameters = len(self._hopping_ops) * self._depth
+        self._bounds = [(-np.pi, np.pi) for _ in range(self._num_parameters)]
+
+    def pop_hopping_operator(self):
+        """
+        Pops the hopping operator that was added last.
+        """
+        self._hopping_ops.pop()
+        self._num_parameters = len(self._hopping_ops) * self._depth
+        self._bounds = [(-np.pi, np.pi) for _ in range(self._num_parameters)]
+
     def construct_circuit(self, parameters, q=None):
         """
         Construct the variational form, given its parameters.
 
         Args:
-            parameters (numpy.ndarray): circuit parameters
-            q (QuantumRegister): Quantum Register for the circuit.
+            parameters (Union(numpy.ndarray, list[Parameter], ParameterVector)): circuit parameters
+            q (QuantumRegister, optional): Quantum Register for the circuit.
 
         Returns:
             QuantumCircuit: a quantum circuit with given `parameters`
@@ -294,8 +346,12 @@ class UCCSD(VariationalForm):
     @staticmethod
     def _construct_circuit_for_one_excited_operator(qubit_op_and_param, qr, num_time_slices):
         qubit_op, param = qubit_op_and_param
-        qc = qubit_op.evolve(state_in=None, evo_time=param * -1j,
-                             num_time_slices=num_time_slices, quantum_registers=qr)
+        # TODO: need to put -1j in the coeff of pauli since the Parameter
+        # does not support complex number, but it can be removed if Parameter supports complex
+        qubit_op = qubit_op * -1j
+        qc = qubit_op.evolve(state_in=None, evo_time=param,
+                             num_time_slices=num_time_slices,
+                             quantum_registers=qr)
         return qc
 
     @property
@@ -374,8 +430,8 @@ class UCCSD(VariationalForm):
                     raise ValueError(
                         'Invalid index {} in active active_occ_list {}'.format(i, active_occ_list))
         else:
-            active_occ_list_alpha = [i for i in range(0, num_alpha)]
-            active_occ_list_beta = [i for i in range(0, num_beta)]
+            active_occ_list_alpha = list(range(0, num_alpha))
+            active_occ_list_beta = list(range(0, num_beta))
 
         if active_unocc_list is not None:
             active_unocc_list = [i + min(num_alpha, num_beta) if i >=
@@ -392,8 +448,8 @@ class UCCSD(VariationalForm):
                     raise ValueError('Invalid index {} in active active_unocc_list {}'
                                      .format(i, active_unocc_list))
         else:
-            active_unocc_list_alpha = [i for i in range(num_alpha, num_orbitals // 2)]
-            active_unocc_list_beta = [i for i in range(num_beta, num_orbitals // 2)]
+            active_unocc_list_alpha = list(range(num_alpha, num_orbitals // 2))
+            active_unocc_list_beta = list(range(num_beta, num_orbitals // 2))
 
         logger.debug('active_occ_list_alpha %s', active_occ_list_alpha)
         logger.debug('active_unocc_list_alpha %s', active_unocc_list_alpha)
