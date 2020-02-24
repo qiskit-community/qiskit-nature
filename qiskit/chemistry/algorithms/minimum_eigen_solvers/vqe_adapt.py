@@ -25,8 +25,7 @@ import numpy as np
 
 from qiskit import ClassicalRegister
 from qiskit.aqua import AquaError
-from qiskit.aqua.algorithms.adaptive.vq_algorithm import VQAlgorithm
-from qiskit.aqua.algorithms.adaptive.vqe.vqe import VQE
+from qiskit.aqua.algorithms import VQAlgorithm, VQE
 from qiskit.chemistry.components.variational_forms import UCCSD
 from qiskit.aqua.operators import TPBGroupedWeightedPauliOperator, WeightedPauliOperator
 from qiskit.aqua.utils.backend_utils import is_aer_statevector_backend
