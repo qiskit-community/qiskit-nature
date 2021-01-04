@@ -13,6 +13,7 @@
 """The Fermionic-particle Operator."""
 
 import copy
+import functools
 import itertools
 import numbers
 
@@ -20,6 +21,8 @@ from typing import Union
 
 import numpy as np
 
+from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from qiskit.opflow.primitive_ops import PauliSumOp
 from .particle_operator import ParticleOperator
 
 
@@ -262,6 +265,12 @@ class FermionicOperator(ParticleOperator):
             return False
 
         return True
+
+    def to_opflow(self, pauli_table):
+        """TODO"""
+        ret_op = functools.reduce(lambda x, y: x.add(y), [op.to_opflow(pauli_table)
+                                                          for op in self.operator_list])
+        return ret_op.reduce()
 
 
 class BaseFermionicOperator(ParticleOperator):
@@ -522,3 +531,53 @@ class BaseFermionicOperator(ParticleOperator):
                 phase *= (-1) ** (permute_through.count('+') + permute_through.count('-'))
 
         return BaseFermionicOperator(label=daggered_label, coeff=phase * np.conj(self.coeff))
+
+    def to_opflow(self, pauli_table):
+        """TODO"""
+        # TODO handle empty op
+        # if len(self) == 0 or self.coeff == 0:
+        #     return WeightedPauliOperator(paulis = [])
+
+        # 1. Initialize an operator list with the identity scaled by the `self.coeff`
+        all_false = np.asarray([False] * len(self), dtype=np.bool)
+
+        ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[self.coeff])
+
+        # Go through the label and replace the fermion operators by their qubit-equivalent, then
+        # save the respective Pauli string in the pauli_str list.
+        for position, char in enumerate(self.label):
+            # The creation operator is given by 0.5*(X + 1j*Y)
+            if char == '+':
+                real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
+                imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
+                ret_op *= real_part + imag_part
+
+            # The annihilation operator is given by 0.5*(X - 1j*Y)
+            elif char == '-':
+                real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
+                imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
+                ret_op *= real_part + imag_part
+
+            # The occupation number operator N is given by 0.5*(I + Z)
+            elif char == 'N':
+                offset_part = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[0.5])
+                z_part = SparsePauliOp(pauli_table[position][1] * pauli_table[position][0],
+                                       coeffs=[0.5])
+                ret_op *= offset_part + z_part
+
+            # The `emptiness number` operator I - N is given by 0.5*(I - Z)
+            elif char == 'E':
+                offset_part = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[0.5])
+                z_part = SparsePauliOp(pauli_table[position][1] * pauli_table[position][0],
+                                       coeffs=[-0.5])
+                ret_op *= offset_part + z_part
+
+            elif char == 'I':
+                continue
+
+            # catch any disallowed labels
+            else:
+                raise UserWarning("BaseFermionOperator label included '{}'. "
+                                  "Allowed characters: I, N, E, +, -".format(char))
+
+        return PauliSumOp(ret_op).reduce()

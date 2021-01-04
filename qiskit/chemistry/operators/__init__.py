@@ -17,7 +17,7 @@ Particle Operators (:mod:`qiskit.chemistry.operators`)
 from .bosonic_operator import BaseBosonicOperator, BosonicOperator
 from .fermionic_operator import BaseFermionicOperator, FermionicOperator
 from .particle_operator import ParticleOperator
-from .second_quantized_operator import SecondQuantizedOperator
+from .second_quantized_operator import MixedOperator, SecondQuantizedOperator
 from .spin_operator import SpinOperator
 
 __all__ = [
@@ -26,6 +26,7 @@ __all__ = [
     'BaseFermionicOperator',
     'FermionicOperator',
     'ParticleOperator',
+    'MixedOperator',
     'SecondQuantizedOperator',
     'SpinOperator',
 ]

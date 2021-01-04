@@ -48,3 +48,8 @@ class ParticleOperator(ABC):
     def dagger(self):
         """Returns the complex conjugate transpose (dagger) of self"""
         raise NotImplementedError
+
+    @abstractmethod
+    def to_opflow(self, pauli_table):
+        """TODO"""
+        raise NotImplementedError

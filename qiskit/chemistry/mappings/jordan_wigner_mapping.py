@@ -12,8 +12,11 @@
 
 """The Jordan-Wigner Mapping interface."""
 
-from qiskit.aqua.operators import PauliSumOp
-from qiskit.chemistry.operators import FermionicOperator, ParticleOperator, SecondQuantizedOperator
+import numpy as np
+
+from qiskit.quantum_info.operators import Pauli
+from qiskit.opflow.primitive_ops import PauliSumOp
+from qiskit.chemistry.operators import FermionicOperator, ParticleOperator
 
 from .qubit_mapping import QubitMapping
 
@@ -34,7 +37,7 @@ class JordanWignerMapping(QubitMapping):
             return True
         return False
 
-    def map(self, second_q_op: SecondQuantizedOperator) -> PauliSumOp:
+    def map(self, second_q_op: FermionicOperator) -> PauliSumOp:
         """Maps a `SecondQuantizedOperator` to a `PauliSumOp` using the Jordan-Wigner
         fermion-to-qubit mapping.
 
@@ -44,5 +47,17 @@ class JordanWignerMapping(QubitMapping):
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
         """
-        # TODO
-        raise NotImplementedError()
+        # number of modes/sites for the Jordan-Wigner transform (= number of fermionc modes)
+        nmodes = second_q_op.register_length
+        pauli_table = []
+        for i in range(nmodes):
+            a_z = np.asarray([1] * i + [0] + [0] * (nmodes - i - 1), dtype=np.bool)
+            a_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
+            b_z = np.asarray([1] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
+            b_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
+            # c_z = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
+            # c_x = np.asarray([0] * nmodes, dtype=np.bool)
+            pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
+            # TODO add Pauli 3-tuple to lookup table
+
+        return second_q_op.to_opflow(pauli_table)
