@@ -560,17 +560,25 @@ class BaseFermionicOperator(ParticleOperator):
 
             # The occupation number operator N is given by 0.5*(I + Z)
             elif char == 'N':
-                offset_part = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[0.5])
-                z_part = SparsePauliOp(pauli_table[position][1] * pauli_table[position][0],
-                                       coeffs=[0.5])
-                ret_op *= offset_part + z_part
+                # First, we apply a '+' operation
+                real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
+                imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
+                ret_op *= real_part + imag_part
+                # Then, we apply a '-' operation
+                real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
+                imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
+                ret_op *= real_part + imag_part
 
             # The `emptiness number` operator I - N is given by 0.5*(I - Z)
             elif char == 'E':
-                offset_part = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[0.5])
-                z_part = SparsePauliOp(pauli_table[position][1] * pauli_table[position][0],
-                                       coeffs=[-0.5])
-                ret_op *= offset_part + z_part
+                # First, we apply a '-' operation
+                real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
+                imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
+                ret_op *= real_part + imag_part
+                # Then, we apply a '+' operation
+                real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
+                imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
+                ret_op *= real_part + imag_part
 
             elif char == 'I':
                 continue
