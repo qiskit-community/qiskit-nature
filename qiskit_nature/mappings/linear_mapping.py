@@ -13,7 +13,9 @@
 """The Linear Mapping interface."""
 
 from qiskit.aqua.operators import PauliSumOp
-from qiskit.chemistry.operators import ParticleOperator, SecondQuantizedOperator, SpinOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
+from qiskit_nature.operators.second_quantization.primitives import (SpinOperator,
+                                                                    ParticleOperator)
 
 from .qubit_mapping import QubitMapping
 
@@ -34,12 +36,12 @@ class LinearMapping(QubitMapping):
             return True
         return False
 
-    def map(self, second_q_op: SecondQuantizedOperator) -> PauliSumOp:
-        """Maps a `SecondQuantizedOperator` to a `PauliSumOp` using the Linear spin-to-qubit
+    def map(self, second_q_op: SecondQuantizedSumOp) -> PauliSumOp:
+        """Maps a `SecondQuantizedSumOp` to a `PauliSumOp` using the Linear spin-to-qubit
         mapping.
 
         Args:
-            second_q_op: the `SecondQuantizedOperator` to be mapped.
+            second_q_op: the `SecondQuantizedSumOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.

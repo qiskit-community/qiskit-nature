@@ -15,11 +15,12 @@
 from abc import ABC, abstractmethod
 
 from qiskit.aqua.operators import PauliSumOp
-from qiskit.chemistry.operators import ParticleOperator, SecondQuantizedOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
+from qiskit_nature.operators.second_quantization.primitives import ParticleOperator
 
 
 class QubitMapping(ABC):
-    """The interface for implementing methods which map from a `SecondQuantizedOperator` to a
+    """The interface for implementing methods which map from a `SecondQuantizedSumOp` to a
     `PauliSumOp`.
     """
 
@@ -36,11 +37,11 @@ class QubitMapping(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def map(self, second_q_op: SecondQuantizedOperator) -> PauliSumOp:
-        """Maps a `SecondQuantizedOperator` to a `PauliSumOp`.
+    def map(self, second_q_op: SecondQuantizedSumOp) -> PauliSumOp:
+        """Maps a `SecondQuantizedSumOp` to a `PauliSumOp`.
 
         Args:
-            second_q_op: the `SecondQuantizedOperator` to be mapped.
+            second_q_op: the `SecondQuantizedSumOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.

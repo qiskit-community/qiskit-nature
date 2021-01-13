@@ -16,7 +16,8 @@ import numpy as np
 
 from qiskit.quantum_info.operators import Pauli
 from qiskit.opflow.primitive_ops import PauliSumOp
-from qiskit.chemistry.operators import FermionicOperator, ParticleOperator
+from qiskit_nature.operators.second_quantization.primitives import (FermionicOperator,
+                                                                    ParticleOperator)
 
 from .qubit_mapping import QubitMapping
 
@@ -37,12 +38,14 @@ class JordanWignerMapping(QubitMapping):
             return True
         return False
 
+    # TODO make this take a SecondQuantizedSumOp again
+    # this is currently only for the ease of testing
     def map(self, second_q_op: FermionicOperator) -> PauliSumOp:
-        """Maps a `SecondQuantizedOperator` to a `PauliSumOp` using the Jordan-Wigner
+        """Maps a `SecondQuantizedSumOp` to a `PauliSumOp` using the Jordan-Wigner
         fermion-to-qubit mapping.
 
         Args:
-            second_q_op: the `SecondQuantizedOperator` to be mapped.
+            second_q_op: the `SecondQuantizedSumOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
