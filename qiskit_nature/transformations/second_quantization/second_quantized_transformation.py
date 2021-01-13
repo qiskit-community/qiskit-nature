@@ -14,11 +14,11 @@
 
 from abc import ABC, abstractmethod
 
-from qiskit.chemistry.operators import SecondQuantizedOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
 
 
 class SecondQuantizedTransformation(ABC):
-    """The interface for implementing methods which map from one `SecondQuantizedOperator` to
+    """The interface for implementing methods which map from one `SecondQuantizedSumOp` to
     another. These methods may or may not affect the size of the Hilbert space underlying the
     operator.
     """
@@ -30,14 +30,14 @@ class SecondQuantizedTransformation(ABC):
     # produced energy offset to 0.
 
     @abstractmethod
-    def transform(self, second_q_op: SecondQuantizedOperator) -> SecondQuantizedOperator:
-        """Transforms one `SecondQuantizedOperator` into another one. This may or may not affect the
+    def transform(self, second_q_op: SecondQuantizedSumOp) -> SecondQuantizedSumOp:
+        """Transforms one `SecondQuantizedSumOp` into another one. This may or may not affect the
         size of the Hilbert space underlying the operator.
 
         Args:
-            second_q_op: the `SecondQuantizedOperator` to be transformed.
+            second_q_op: the `SecondQuantizedSumOp` to be transformed.
 
         Returns:
-            A new `SecondQuantizedOperator` instance.
+            A new `SecondQuantizedSumOp` instance.
         """
         raise NotImplementedError()

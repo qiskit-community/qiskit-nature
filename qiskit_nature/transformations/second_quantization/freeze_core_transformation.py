@@ -12,7 +12,7 @@
 
 """The Freeze-Core Transformation interface."""
 
-from qiskit.chemistry.operators import SecondQuantizedOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
 
 from .second_quantized_transformation import SecondQuantizedTransformation
 
@@ -20,14 +20,14 @@ from .second_quantized_transformation import SecondQuantizedTransformation
 class FreezeCoreTransformation(SecondQuantizedTransformation):
     """The Freeze-Core transformation."""
 
-    def transform(self, second_q_op: SecondQuantizedOperator) -> SecondQuantizedOperator:
-        """Transforms the given `SecondQuantizedOperator` according to the specified frozen core.
+    def transform(self, second_q_op: SecondQuantizedSumOp) -> SecondQuantizedSumOp:
+        """Transforms the given `SecondQuantizedSumOp` according to the specified frozen core.
 
         Args:
-            second_q_op: the `SecondQuantizedOperator` to be transformed.
+            second_q_op: the `SecondQuantizedSumOp` to be transformed.
 
         Returns:
-            A new `SecondQuantizedOperator` instance.
+            A new `SecondQuantizedSumOp` instance.
         """
         # TODO
         raise NotImplementedError()

@@ -12,7 +12,7 @@
 
 """The Seniority-Zero Transformation interface."""
 
-from qiskit.chemistry.operators import SecondQuantizedOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
 
 from .second_quantized_transformation import SecondQuantizedTransformation
 
@@ -20,15 +20,15 @@ from .second_quantized_transformation import SecondQuantizedTransformation
 class SeniorityZeroTransformation(SecondQuantizedTransformation):
     """The Seniority-Zero transformation."""
 
-    def transform(self, second_q_op: SecondQuantizedOperator) -> SecondQuantizedOperator:
-        """Transforms the given `SecondQuantizedOperator` into a seniority-zero (i.e.
+    def transform(self, second_q_op: SecondQuantizedSumOp) -> SecondQuantizedSumOp:
+        """Transforms the given `SecondQuantizedSumOp` into a seniority-zero (i.e.
         restricted-spin) variant.
 
         Args:
-            second_q_op: the `SecondQuantizedOperator` to be transformed.
+            second_q_op: the `SecondQuantizedSumOp` to be transformed.
 
         Returns:
-            A new `SecondQuantizedOperator` instance.
+            A new `SecondQuantizedSumOp` instance.
         """
         # TODO
         raise NotImplementedError()
