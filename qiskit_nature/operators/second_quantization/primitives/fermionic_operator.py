@@ -23,7 +23,6 @@ import numpy as np
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 from qiskit.opflow.primitive_ops import PauliSumOp
 from .particle_operator import ParticleOperator
-from ..fermionic_sum_op import FermionicSumOp
 
 
 class FermionicOperator(ParticleOperator):
@@ -144,7 +143,10 @@ class FermionicOperator(ParticleOperator):
 
         # Multiplication with a FermionicSumOp is implemented in the __rmul__ method of the
         # FermionicSumOp class
+        from ..fermionic_sum_op import FermionicSumOp
         if isinstance(other, FermionicSumOp):
+            # TODO: this should probably be something like:
+            # return other.__rmul__(self)
             raise NotImplementedError
 
         raise TypeError("Unsupported operand type(s) for *: 'FermionicOperator' and "
@@ -170,8 +172,9 @@ class FermionicOperator(ParticleOperator):
         raise TypeError("Unsupported operand type(s) for **: 'FermionicOperator' and "
                         "'{}'".format(type(power).__name__))
 
-    def __add__(self, other) -> Union[FermionicSumOp, 'FermionicOperator']:
+    def __add__(self, other) -> Union['FermionicSumOp', 'FermionicOperator']:
         """Returns a fermionic operator representing the sum of the given FermionicOperators"""
+        from ..fermionic_sum_op import FermionicSumOp
 
         if isinstance(other, FermionicOperator):
             # Case 1: `other` is a `FermionicOperator`.

@@ -24,7 +24,6 @@ import numbers
 import numpy as np
 
 from .particle_operator import ParticleOperator
-from ..spin_sum_op import SpinSumOp
 
 
 class SpinOperator(ParticleOperator):
@@ -175,6 +174,7 @@ class SpinOperator(ParticleOperator):
     def __add__(self, other):
         """Returns a SpinSumOp representing the sum of the given SpinOperators.
         """
+        from ..spin_sum_op import SpinSumOp
 
         if isinstance(other, SpinOperator):
             # If the operators have the same label, simply add coefficients:

@@ -20,15 +20,15 @@ from typing import List
 
 import numpy as np
 
-from .primitives.bosonic_operator import BosonicSumOp
-from .primitives.fermionic_operator import FermionicSumOp
+from .primitives.bosonic_operator import BosonicOperator
+from .primitives.fermionic_operator import FermionicOperator
 from .primitives.particle_operator import ParticleOperator
-from .primitives.spin_operator import SpinSumOp
+from .primitives.spin_operator import SpinOperator
 
 from .bosonic_sum_op import BosonicSumOp
 from .fermionic_sum_op import FermionicSumOp
-from .second_quantized_sum_op import SecondQuantizedSumOp
 from .spin_sum_op import SpinSumOp
+from .sum_op import SumOp
 
 
 class SecondQuantizedOperator:
@@ -45,7 +45,7 @@ class SecondQuantizedOperator:
             'Please provide a list of operators as input.'
 
         for operator in operator_list:
-            if not isinstance(operator, ParticleOperator):
+            if not isinstance(operator, ParticleOperator) and not isinstance(operator, SumOp):
                 raise UserWarning("Elements of `operator_list` must be of `ParticleOperator` type. "
                                   "Allowed operator types include `FermionicSumOp`, "
                                   "`BosonicSumOp`, `SpinSumOp`, and `SpinOperator`.")
@@ -120,9 +120,10 @@ class SecondQuantizedOperator:
 
         return new_mixed_operator
 
-    def __add__(self, other) -> SecondQuantizedSumOp:
+    def __add__(self, other) -> 'SecondQuantizedSumOp':
         """Returns a SecondQuantizedSumOp representing the sum of the given operators.
         """
+        from .second_quantized_sum_op import SecondQuantizedSumOp
         if isinstance(other, SecondQuantizedOperator):
             is_prop = self.is_proportional_to(other)
 
@@ -141,7 +142,7 @@ class SecondQuantizedOperator:
         """Overload unary -."""
         return self.__mul__(other=-1)
 
-    def __sub__(self, other) -> SecondQuantizedSumOp:
+    def __sub__(self, other) -> 'SecondQuantizedSumOp':
         """Returns a SecondQuantizedSumOp representing the difference to the given
         SecondQuantizedOperator.
         """

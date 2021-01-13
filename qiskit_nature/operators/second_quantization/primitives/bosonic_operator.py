@@ -24,7 +24,6 @@ from typing import Union
 import numpy as np
 
 from .particle_operator import ParticleOperator
-from ..bosonic_sum_op import BosonicSumOp
 
 
 class BosonicOperator(ParticleOperator):
@@ -145,7 +144,10 @@ class BosonicOperator(ParticleOperator):
 
         # Multiplication with a BosonicSumOp is implemented in the __rmul__ method of the
         # BosonicSumOp class
+        from ..bosonic_sum_op import BosonicSumOp
         if isinstance(other, BosonicSumOp):
+            # TODO: this should probably be something like:
+            # return other.__rmul__(self)
             raise NotImplementedError
 
         raise TypeError("Unsupported operand type(s) for *: 'BosonicOperator' and "
@@ -171,8 +173,9 @@ class BosonicOperator(ParticleOperator):
         raise TypeError("Unsupported operand type(s) for **: 'BosonicOperator' and "
                         "'{}'".format(type(power).__name__))
 
-    def __add__(self, other) -> Union[BosonicSumOp, 'BosonicOperator']:
+    def __add__(self, other) -> Union['BosonicSumOp', 'BosonicOperator']:
         """Returns a fermionic operator representing the sum of the given BosonicOperators"""
+        from ..bosonic_sum_op import BosonicSumOp
 
         if isinstance(other, BosonicOperator):
             # Case 1: `other` is a `BosonicOperator`.
