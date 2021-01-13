@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,163 +20,18 @@ from typing import List
 
 import numpy as np
 
-from .bosonic_operator import BosonicOperator, BaseBosonicOperator
-from .fermionic_operator import FermionicOperator, BaseFermionicOperator
-from .particle_operator import ParticleOperator
-from .spin_operator import SpinOperator, BaseSpinOperator
+from .primitives.bosonic_operator import BosonicSumOp
+from .primitives.fermionic_operator import FermionicSumOp
+from .primitives.particle_operator import ParticleOperator
+from .primitives.spin_operator import SpinSumOp
+
+from .bosonic_sum_op import BosonicSumOp
+from .fermionic_sum_op import FermionicSumOp
+from .second_quantized_sum_op import SecondQuantizedSumOp
+from .spin_sum_op import SpinSumOp
 
 
 class SecondQuantizedOperator:
-    """A general SecondQuantizedOperator.
-    This class represents sums of mixed operators, i.e. linear combinations of MixedOperators with
-    identical particle type registers.
-    """
-
-    def __init__(self, mixed_operator_list):
-
-        self._registers = mixed_operator_list[0].registers
-        self._register_lengths = {}
-        for register_type in self._registers:
-            self._register_lengths[register_type] = \
-                mixed_operator_list[0].register_length(register_type)
-
-        # Check if the elements of the mixed_operator_list are valid & compatible instances of the
-        # MixedOperator class
-        for mixed_operator in mixed_operator_list:
-            assert isinstance(mixed_operator, MixedOperator), \
-                'SecondQuantizedOperator must be built up from `MixedOperator` objects'
-            assert np.array_equal(mixed_operator.registers, self._registers), \
-                'SecondQuantizedOperator elements must act on the same particle type registers in' \
-                ' the same order'
-            for register_type in self._registers:
-                assert mixed_operator.register_length(register_type) == \
-                    self._register_lengths[register_type], "Cannot sum '{}' type operators acting" \
-                    " on registers of different length".format(register_type)
-
-        # TODO: Find a way to 'factorize' the operator, such that each element only appears once in
-        # the operator_list
-        self._operator_list = mixed_operator_list
-
-    @property
-    def operator_list(self):
-        """Returns the operator list."""
-        return self._operator_list
-
-    @property
-    def registers(self):
-        """Returns the register list."""
-        return self._registers
-
-    def register_length(self, register_type):
-        """Returns the length of the register with name `register_name`."""
-        assert register_type in self.registers, "The SecondQuantizedOperatpr does not contain a " \
-            "register of type '{}'".format(register_type)
-        return self._register_lengths[register_type]
-
-    def __repr__(self):
-        full_str = 'SecondQuantizedOperator acting on registers:'
-        for register_name in self.registers:
-            full_str += '\n{} :'.ljust(12).format(register_name) + \
-                str(self.register_length(register_name))
-        full_str += '\nTotal number of MixedOperators:  {}'.format(len(self.operator_list))
-        return full_str
-
-    def __add__(self, other):
-        """Returns a SecondQuantizedOperator representing the sum of the given operators.
-        """
-        if isinstance(other, MixedOperator):
-            new_operatorlist = copy.deepcopy(self.operator_list)
-            # If the operators are proportional to each other, simply update coefficients
-            for idx, operator in enumerate(new_operatorlist):
-                is_prop = operator.is_proportional_to(other)
-                if is_prop[0]:
-                    operator *= (1+is_prop[1])
-                    new_operatorlist[idx] = operator
-                    return SecondQuantizedOperator(new_operatorlist)
-            # Else, just append the new operator to the operator_list
-            new_operatorlist.append(other)
-            return SecondQuantizedOperator(new_operatorlist)
-
-        if isinstance(other, SecondQuantizedOperator):
-            new_operatorlist = copy.deepcopy(self.operator_list)
-            for elem in other.operator_list:
-                new_operatorlist.append(elem)
-                # If the operators are proportional to each other, simply update coefficients
-                for idx, operator in enumerate(new_operatorlist[:-1]):
-                    is_prop = operator.is_proportional_to(elem)
-                    if is_prop[0]:
-                        new_operatorlist.pop()
-                        operator *= (1 + is_prop[1])
-                        new_operatorlist[idx] = operator
-                        break
-                # Else, the new operator has been added to the operator_list
-            return SecondQuantizedOperator(new_operatorlist)
-
-        raise TypeError("Unsupported operand type(s) for +: 'SecondQuantizedOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __neg__(self):
-        """Overload unary -."""
-        return self.__mul__(other=-1)
-
-    def __sub__(self, other):
-        """
-        Returns a SecondQuantizedOperator representing the difference of the given MixedOperators
-        """
-        return self.__add__((-1) * other)
-
-    def __mul__(self, other):
-        """Overloads the multiplication operator `*` for self and other, where other is a
-        number-type.
-        """
-        if isinstance(other, numbers.Number):
-            # Create copy of the SpinOperator in which every BaseSpinOperator is multiplied by
-            # `other`.
-            new_operatorlist = [copy.deepcopy(mixed_operator) * other
-                                for mixed_operator in self.operator_list]
-            return SecondQuantizedOperator(new_operatorlist)
-
-        raise TypeError("Unsupported operand type(s) for *: 'SecondQuantizedOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __rmul__(self, other):
-        """Overloads the right multiplication operator `*` for multiplication with number-type
-        objects.
-        """
-        if isinstance(other, numbers.Number):
-            return self.__mul__(other)
-
-        raise TypeError("Unsupported operand type(s) for *: 'SecondQuantizedOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __truediv__(self, other):
-        """Overloads the division operator `/` for division by number-type objects.
-        """
-        if isinstance(other, numbers.Number):
-            return self.__mul__(1./other)
-
-        raise TypeError("Unsupported operand type(s) for /: 'SecondQuantizedOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    def dagger(self):
-        """Returns the complex conjugate transpose (dagger) of self."""
-        daggered_operator_list = [mixed_operator.dagger() for mixed_operator in self.operator_list]
-        return SecondQuantizedOperator(daggered_operator_list)
-
-    def copy(self):
-        """Returns a deepcopy of `self`."""
-        return copy.deepcopy(self)
-
-    def print_operators(self):
-        """Print the representations of the operators within the MixedOperator."""
-        full_str = 'SecondQuantizedOperator\n'
-
-        for operator in self.operator_list:
-            full_str += operator.print_operators() + '\n'
-        return full_str
-
-
-class MixedOperator:
     """A class to combine operators that act on different particle type registers. Currently
     supports the following registers: ['fermionic', 'bosonic', 'spin 0.5', 'spin 1.0', etc.]
     """
@@ -192,8 +47,8 @@ class MixedOperator:
         for operator in operator_list:
             if not isinstance(operator, ParticleOperator):
                 raise UserWarning("Elements of `operator_list` must be of `ParticleOperator` type. "
-                                  "Allowed operator types include `FermionicOperator`, "
-                                  "`BosonicOperator`, `SpinOperator`, and `BaseSpinOperator`.")
+                                  "Allowed operator types include `FermionicSumOp`, "
+                                  "`BosonicSumOp`, `SpinSumOp`, and `SpinOperator`.")
             register_name = operator.particle_type
             self[register_name] = operator
 
@@ -234,8 +89,8 @@ class MixedOperator:
                 operator.particle_type, register_name))
         # 2. Warn if an operator will be overwritten
         if register_name in self.registers:
-            warnings.warn("MixedOperator already has a '{}' register. Setting it overwrites "
-                          "it.".format(register_name))
+            warnings.warn("SecondQuantizedOperator already has a '{}' register. Setting it "
+                          "overwrites it.".format(register_name))
         else:
             self._registers.append(register_name)
 
@@ -251,7 +106,7 @@ class MixedOperator:
                 "into this register.".format(other.particle_type)
             new_mixed_operator[other.particle_type] = other
 
-        elif isinstance(other, MixedOperator):
+        elif isinstance(other, SecondQuantizedOperator):
             new_mixed_operator = copy.deepcopy(self)
             for register_name in other.registers:
                 assert register_name not in new_mixed_operator.registers, \
@@ -265,29 +120,30 @@ class MixedOperator:
 
         return new_mixed_operator
 
-    def __add__(self, other) -> 'SecondQuantizedOperator':
-        """Returns a SecondQuantizedOperator representing the sum of the given operators.
+    def __add__(self, other) -> SecondQuantizedSumOp:
+        """Returns a SecondQuantizedSumOp representing the sum of the given operators.
         """
-        if isinstance(other, MixedOperator):
+        if isinstance(other, SecondQuantizedOperator):
             is_prop = self.is_proportional_to(other)
 
             if is_prop[0]:
                 return self.__mul__(other=(1+is_prop[1]))
 
-            return SecondQuantizedOperator([self.copy(), other.copy()])
+            return SecondQuantizedSumOp([self.copy(), other.copy()])
 
-        if isinstance(other, SecondQuantizedOperator):
+        if isinstance(other, SecondQuantizedSumOp):
             return other.__add__(self)
 
-        raise TypeError("Unsupported operand type(s) for +: 'MixedOperator' and "
+        raise TypeError("Unsupported operand type(s) for +: 'SecondQuantizedOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def __neg__(self):
         """Overload unary -."""
         return self.__mul__(other=-1)
 
-    def __sub__(self, other) -> 'SecondQuantizedOperator':
-        """Returns a SecondQuantizedOperator representing the difference to the given MixedOperator.
+    def __sub__(self, other) -> SecondQuantizedSumOp:
+        """Returns a SecondQuantizedSumOp representing the difference to the given
+        SecondQuantizedOperator.
         """
         return self.__add__((-1) * other)
 
@@ -300,16 +156,16 @@ class MixedOperator:
             # any other register)
             first_register_type = self.registers[0]
             new_mixed_operator = copy.deepcopy(self)
-            # Catch the warning (from MixedOperator.__setitem__(...)) when a register is being
-            # updated.
+            # Catch the warning (from SecondQuantizedOperator.__setitem__(...)) when a register is
+            # being updated.
             with warnings.catch_warnings():
-                warnings.filterwarnings('ignore',
-                                        message="MixedOperator already has a '{}' register. "
-                                        "Setting it overwrites it.".format(first_register_type))
+                warnings.filterwarnings('ignore', message="SecondQuantizedOperator already has a "
+                                        "'{}' register. Setting it overwrites "
+                                        "it.".format(first_register_type))
                 new_mixed_operator[first_register_type] *= other
             return new_mixed_operator
 
-        raise TypeError("Unsupported operand type(s) for *: 'MixedOperator' and "
+        raise TypeError("Unsupported operand type(s) for *: 'SecondQuantizedOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def __rmul__(self, other):
@@ -319,7 +175,7 @@ class MixedOperator:
         if isinstance(other, numbers.Number):
             return self.__mul__(other)
 
-        raise TypeError("Unsupported operand type(s) for *: 'MixedOperator' and "
+        raise TypeError("Unsupported operand type(s) for *: 'SecondQuantizedOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def __truediv__(self, other):
@@ -328,16 +184,16 @@ class MixedOperator:
         if isinstance(other, numbers.Number):
             return self.__mul__(1./other)
 
-        raise TypeError("Unsupported operand type(s) for /: 'MixedOperator' and "
+        raise TypeError("Unsupported operand type(s) for /: 'SecondQuantizedOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def dagger(self):
         """Returns the complex conjugate transpose (dagger) of self."""
         daggered_operator_list = [self[register_type].dagger() for register_type in self.registers]
-        return MixedOperator(daggered_operator_list)
+        return SecondQuantizedOperator(daggered_operator_list)
 
     def __repr__(self):
-        full_str = 'MixedOperator acting on registers:'
+        full_str = 'SecondQuantizedOperator acting on registers:'
         for register_name in self.registers:
             full_str += '\n{} :'.ljust(12).format(register_name) + \
                 str(self.register_length(register_name))
@@ -349,18 +205,18 @@ class MixedOperator:
 
     @property
     def registers(self) -> List:
-        """Return the particle types that MixedOperator `self` acts on. The list order corresponds
-        to the order of the tensor product.
+        """Return the particle types that SecondQuantizedOperator `self` acts on. The list order
+        corresponds to the order of the tensor product.
 
         Returns:
-            The list of registers of different particle type that the MixedOperator acts on. This
-            order is also the tensor product order.
+            The list of registers of different particle type that the SecondQuantizedOperator acts
+            on. This order is also the tensor product order.
         """
         return self._registers
 
     def print_operators(self):
-        """Print the representations of the operators within the MixedOperator."""
-        full_str = 'MixedOperator\n'
+        """Print the representations of the operators within the SecondQuantizedOperator."""
+        full_str = 'SecondQuantizedOperator\n'
 
         for register in self.registers:
             full_str += (register + ': \n') + self[register].__repr__() + '\n'
@@ -386,7 +242,7 @@ class MixedOperator:
 
         Raises:
             UserWarning: if an disallowed register is encountered.
-            TypeError: if an invalid SpinOperator label is encountered.
+            TypeError: if an invalid SpinSumOp label is encountered.
         """
         if key == 'fermionic':
             return True
@@ -405,20 +261,22 @@ class MixedOperator:
 
     # pylint: disable=too-many-branches,too-many-locals
     def is_proportional_to(self, other) -> List:
-        """Checks whether two MixedOperators (M1, M2) are proportional to each other, c * M1 = M2,
-        where c is a complex number and M1 = `self` and M2 = `other`. (Used for adding two
-        MixedOperator type objects)
+        """Checks whether two SecondQuantizedOperators (M1, M2) are proportional to each other, c *
+        M1 = M2, where c is a complex number and M1 = `self` and M2 = `other`. (Used for adding two
+        SecondQuantizedOperator type objects)
 
         Args:
-            other (MixedOperator): a MixedOperator
+            other (SecondQuantizedOperator): a SecondQuantizedOperator
 
         Returns:
             Returns a list [bool, numbers.Number] with the corresponding factor of proportionality.
         """
         # Parse for validity and compatibility
-        assert isinstance(other, MixedOperator), '`other` must be a `MixedOperator` type object'
+        assert isinstance(other, SecondQuantizedOperator), \
+            '`other` must be a `SecondQuantizedOperator` type object'
         assert np.array_equal(other.registers, self.registers), \
-            'The two MixedOperators must act on the same particle type registers in the same order'
+            'The two SecondQuantizedOperators must act on the same particle type registers in the' \
+            ' same order'
         for register_type in self.registers:
             assert other.register_length(register_type) == self.register_length(register_type), \
                 "Cannot compare '{}' type operators acting on registers of different " \
@@ -427,29 +285,29 @@ class MixedOperator:
         # Check for proportionality and calculate the corresponding factor
         factor = 1.  # Define factor of proportionality
         for register_type in self.registers:
-            # 0. Convert BaseFermionicOperators to FermionicOperators, BaseBosonicOperators to
-            #    BosonicOperators and BaseSpinOperators to SpinOperators
-            if isinstance(self[register_type], BaseFermionicOperator):
+            # 0. Convert FermionicOperators to FermionicSumOps, BosonicOperators to
+            #    BosonicSumOps and SpinOperators to SpinSumOps
+            if isinstance(self[register_type], FermionicOperator):
                 register_1 = copy.deepcopy(self[register_type])
-                register_1 = FermionicOperator([register_1])
-            elif isinstance(self[register_type], BaseBosonicOperator):
+                register_1 = FermionicSumOp([register_1])
+            elif isinstance(self[register_type], BosonicOperator):
                 register_1 = copy.deepcopy(self[register_type])
-                register_1 = BosonicOperator([register_1])
-            elif isinstance(self[register_type], BaseSpinOperator):
+                register_1 = BosonicSumOp([register_1])
+            elif isinstance(self[register_type], SpinOperator):
                 register_1 = copy.deepcopy(self[register_type])
-                register_1 = SpinOperator([register_1])
+                register_1 = SpinSumOp([register_1])
             else:
                 register_1 = self[register_type]
 
-            if isinstance(other[register_type], BaseFermionicOperator):
+            if isinstance(other[register_type], FermionicOperator):
                 register_2 = copy.deepcopy(other[register_type])
-                register_2 = FermionicOperator([register_2])
-            if isinstance(other[register_type], BaseBosonicOperator):
+                register_2 = FermionicSumOp([register_2])
+            if isinstance(other[register_type], BosonicOperator):
                 register_2 = copy.deepcopy(other[register_type])
-                register_2 = BosonicOperator([register_2])
-            elif isinstance(other[register_type], BaseSpinOperator):
+                register_2 = BosonicSumOp([register_2])
+            elif isinstance(other[register_type], SpinOperator):
                 register_2 = copy.deepcopy(other[register_type])
-                register_2 = SpinOperator([register_2])
+                register_2 = SpinSumOp([register_2])
             else:
                 register_2 = other[register_type]
 
@@ -461,7 +319,7 @@ class MixedOperator:
             for op2 in register_2.operator_list:
                 operator_dict_2[op2.label] = op2.coeff
 
-            # 2. Check if all labels of the MixedOperators are equal
+            # 2. Check if all labels of the SecondQuantizedOperators are equal
             label_set_1 = set(operator_dict_1.keys())
             label_set_2 = set(operator_dict_2.keys())
             # 2.1 Check if the two label sets are equal

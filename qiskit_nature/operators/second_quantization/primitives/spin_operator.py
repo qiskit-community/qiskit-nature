@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,132 +24,10 @@ import numbers
 import numpy as np
 
 from .particle_operator import ParticleOperator
+from ..spin_sum_op import SpinSumOp
 
 
 class SpinOperator(ParticleOperator):
-    """
-    Spin type operators. This class represents sums of `spin strings`, i.e. linear combinations of
-    BaseSpinOperators with same spin and register length.
-    """
-
-    def __init__(self, operator_list):
-        # 1. Parse input
-        self._register_length = len(operator_list[0])
-        self.spin = operator_list[0].spin
-        for elem in operator_list:
-            assert isinstance(elem, BaseSpinOperator)
-            assert len(elem) == self._register_length, \
-                'Cannot sum operators acting on registers of different length'
-            assert elem.spin == self.spin, \
-                'Cannot sum operators with different spins.'
-
-        # 2. Initialize the operator list of `self`
-        self._operator_list = operator_list
-
-        # 3. Set the operators particle type to 'spin S' with S the spin value (as float with 1
-        # decimal).
-        ParticleOperator.__init__(self, particle_type='spin {0:.1f}'.format(self.spin))
-
-    @property
-    def register_length(self):
-        return self._register_length
-
-    def __repr__(self):
-        full_str = ''
-        for operator in self._operator_list:
-            full_str += '{1} \t {0}\n'.format(operator.coeff, operator.label)
-        return full_str
-
-    # TODO: Make this much more efficient by working with lists and label indices
-    def __add__(self, other):
-        """Returns a SpinOperator representing the sum of the given operators.
-        """
-        if isinstance(other, BaseSpinOperator):
-            new_operatorlist = copy.deepcopy(self.operator_list)
-            # If the operators have the same label, simply add coefficients:
-            for operator in new_operatorlist:
-                if other.label == operator.label:
-                    sum_coeff = operator.coeff + other.coeff
-                    operator._coeff = sum_coeff  # set the coeff of sum operator to sum_coeff
-                    # if the new coefficient is zero, remove the operator from the list
-                    if sum_coeff == 0:
-                        new_operatorlist.remove(operator)
-                    return SpinOperator(new_operatorlist)
-            new_operatorlist.append(other)
-            return SpinOperator(new_operatorlist)
-
-        if isinstance(other, SpinOperator):
-            new_operatorlist = copy.deepcopy(self.operator_list)
-            for elem in other.operator_list:
-                new_operatorlist.append(elem)
-                # If the operators have the same label, simply add coefficients:
-                for operator in new_operatorlist[:-1]:
-                    if elem.label == operator.label:
-                        new_operatorlist.pop()
-                        sum_coeff = operator.coeff + elem.coeff
-                        operator._coeff = sum_coeff  # set the coeff of sum operator to sum_coeff
-                        # if the new coefficient is zero, remove the operator from the list
-                        if sum_coeff == 0:
-                            new_operatorlist.remove(operator)
-                        break
-            return SpinOperator(new_operatorlist)
-
-        raise TypeError("Unsupported operand type(s) for +: 'SpinOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __neg__(self):
-        """Overload unary -."""
-        return self.__mul__(other=-1)
-
-    def __sub__(self, other):
-        """Returns a SpinOperator representing the difference of the given BaseSpinOperators.
-        """
-        return self.__add__((-1) * other)
-
-    def __mul__(self, other):
-        """Overloads the multiplication operator `*` for self and other, where other is a
-        number-type.
-        """
-        if isinstance(other, numbers.Number):
-            # Create copy of the SpinOperator in which every BaseSpinOperator is multiplied by
-            # `other`.
-            new_operatorlist = [copy.deepcopy(base_operator) * other
-                                for base_operator in self.operator_list]
-            return SpinOperator(new_operatorlist)
-
-        raise TypeError("Unsupported operand type(s) for *: 'SpinOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __rmul__(self, other):
-        """Overloads the right multiplication operator `*` for multiplication with number-type
-        objects.
-        """
-        if isinstance(other, numbers.Number):
-            return self.__mul__(other)
-
-        raise TypeError("Unsupported operand type(s) for *: 'SpinOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __truediv__(self, other):
-        """Overloads the division operator `/` for division by number-type objects.
-        """
-        if isinstance(other, numbers.Number):
-            return self.__mul__(1./other)
-
-        raise TypeError("Unsupported operand type(s) for /: 'SpinOperator' and "
-                        "'{}'".format(type(other).__name__))
-
-    @property
-    def operator_list(self):
-        return self._operator_list
-
-    def dagger(self):
-        """Returns the complex conjugate transpose (dagger) of self."""
-        daggered_operator_list = [operator.dagger() for operator in self.operator_list]
-        return SpinOperator(daggered_operator_list)
-
-
-class BaseSpinOperator(ParticleOperator):
     """A class for products and powers of XYZ-ordered Spin operators."""
 
     # pylint: disable=too-many-arguments
@@ -255,7 +133,7 @@ class BaseSpinOperator(ParticleOperator):
 
     def __eq__(self, other):
         """Overload == ."""
-        if not isinstance(other, BaseSpinOperator):
+        if not isinstance(other, SpinOperator):
             return False
 
         spin_equals = (self.spin == other.spin)
@@ -295,10 +173,10 @@ class BaseSpinOperator(ParticleOperator):
         return self.label
 
     def __add__(self, other):
-        """Returns a SpinOperator representing the sum of the given BaseSpinOperators.
+        """Returns a SpinSumOp representing the sum of the given SpinOperators.
         """
 
-        if isinstance(other, BaseSpinOperator):
+        if isinstance(other, SpinOperator):
             # If the operators have the same label, simply add coefficients:
             if other.label == self.label:
                 sum_coeff = self.coeff + other.coeff
@@ -307,17 +185,17 @@ class BaseSpinOperator(ParticleOperator):
                 # set the coeff of sum operator to sum_coeff
                 sum_operator._coeff = sum_coeff
                 return sum_operator
-            return SpinOperator([copy.deepcopy(self), copy.deepcopy(other)])
+            return SpinSumOp([copy.deepcopy(self), copy.deepcopy(other)])
 
-        if isinstance(other, SpinOperator):
+        if isinstance(other, SpinSumOp):
             #  In this case use the __add__ method of FermionicOperator.
             return other.__add__(self)
 
-        raise TypeError("Unsupported operand type(s) for +: 'BaseSpinOperator' and "
+        raise TypeError("Unsupported operand type(s) for +: 'SpinOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def __sub__(self, other):
-        """Returns a SpinOperator representing the difference of the given BaseSpinOperators.
+        """Returns a SpinSumOp representing the difference of the given SpinOperators.
         """
         return self.__add__((-1) * other)
 
@@ -328,7 +206,7 @@ class BaseSpinOperator(ParticleOperator):
         if isinstance(other, numbers.Number):
             return self.__mul__(other)
 
-        raise TypeError("Unsupported operand type(s) for *: 'BaseSpinOperator' and "
+        raise TypeError("Unsupported operand type(s) for *: 'SpinOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def __mul__(self, other):
@@ -341,7 +219,7 @@ class BaseSpinOperator(ParticleOperator):
             product_operator._coeff *= other
             return product_operator
 
-        raise TypeError("Unsupported operand type(s) for *: 'BaseSpinOperator' and "
+        raise TypeError("Unsupported operand type(s) for *: 'SpinOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def __truediv__(self, other):
@@ -350,15 +228,19 @@ class BaseSpinOperator(ParticleOperator):
         if isinstance(other, numbers.Number):
             return self.__mul__(1./other)
 
-        raise TypeError("Unsupported operand type(s) for /: 'BaseSpinOperator' and "
+        raise TypeError("Unsupported operand type(s) for /: 'SpinOperator' and "
                         "'{}'".format(type(other).__name__))
 
     def dagger(self):
         """Returns the complex conjugate transpose (dagger) of self"""
-        # Note: X, Y, Z are hermitian, therefore the dagger operation on a BaseSpinOperator amounts
+        # Note: X, Y, Z are hermitian, therefore the dagger operation on a SpinOperator amounts
         # to simply complex conjugating the coefficient.
         # create a copy of self (to also preserve pre-computed transforms)
         new_operator = copy.deepcopy(self)
         # pylint: disable=protected-access
         new_operator._coeff = np.conj(self.coeff)
         return new_operator
+
+    def to_opflow(self, pauli_table):
+        """TODO"""
+        raise NotImplementedError

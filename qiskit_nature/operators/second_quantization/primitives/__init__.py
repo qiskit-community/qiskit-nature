@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,22 +11,18 @@
 # that they have been altered from the originals.
 
 """
-Particle Operators (:mod:`qiskit.chemistry.operators`)
+Primitive Second-Quantization Particle Operators
+(:mod:`qiskit_nature.operators.second_quantization.primitives`)
 """
 
-from .bosonic_operator import BaseBosonicOperator, BosonicOperator
-from .fermionic_operator import BaseFermionicOperator, FermionicOperator
+from .bosonic_operator import BosonicOperator
+from .fermionic_operator import FermionicOperator
 from .particle_operator import ParticleOperator
-from .second_quantized_operator import MixedOperator, SecondQuantizedOperator
 from .spin_operator import SpinOperator
 
 __all__ = [
-    'BaseBosonicOperator',
     'BosonicOperator',
-    'BaseFermionicOperator',
     'FermionicOperator',
     'ParticleOperator',
-    'MixedOperator',
-    'SecondQuantizedOperator',
     'SpinOperator',
 ]
