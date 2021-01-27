@@ -1,0 +1,6 @@
+recursive-include qiskit_nature *.txt
+graft qiskit_nature/drivers/gaussiand/gauopen
+graft test
+prune docs
+prune tools
+global-exclude *.py[co] .DS_Store
