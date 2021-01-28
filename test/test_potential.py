@@ -16,10 +16,10 @@ import unittest
 from functools import partial
 import numpy as np
 
-from qiskit.chemistry.algorithms.pes_samplers.potentials.harmonic_potential import HarmonicPotential
-from qiskit.chemistry.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
-from qiskit.chemistry.constants import HARTREE_TO_J_PER_MOL
-from qiskit.chemistry.drivers.molecule import Molecule
+from qiskit_nature.algorithms.pes_samplers.potentials.harmonic_potential import HarmonicPotential
+from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
+from qiskit_nature.constants import HARTREE_TO_J_PER_MOL
+from qiskit_nature.drivers.molecule import Molecule
 
 
 class TestPotential(unittest.TestCase):

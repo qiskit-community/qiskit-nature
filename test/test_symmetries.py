@@ -19,13 +19,13 @@ from qiskit import BasicAer
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua.algorithms import VQE
 from qiskit.aqua.components.optimizers import SLSQP
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry.components.variational_forms import UCCSD
-from qiskit.chemistry.circuit.library import HartreeFock
-from qiskit.chemistry.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit.chemistry.core import TransformationType, QubitMappingType
-from qiskit.chemistry.transformations import FermionicTransformation
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.components.variational_forms import UCCSD
+from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.core import TransformationType, QubitMappingType
+from qiskit_nature.transformations import FermionicTransformation
 
 
 class TestSymmetries(QiskitNatureTestCase):
@@ -39,7 +39,7 @@ class TestSymmetries(QiskitNatureTestCase):
                                       charge=0,
                                       spin=0,
                                       basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         self.fermionic_transformation = FermionicTransformation(

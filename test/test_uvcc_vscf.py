@@ -16,13 +16,13 @@ import warnings
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
-from qiskit.chemistry import BosonicOperator
 
 from qiskit.aqua import aqua_globals, QuantumInstance
 from qiskit.aqua.algorithms import VQE
 from qiskit.aqua.components.optimizers import COBYLA
-from qiskit.chemistry.components.initial_states import VSCF
-from qiskit.chemistry.components.variational_forms import UVCC
+from qiskit_nature import BosonicOperator
+from qiskit_nature.components.initial_states import VSCF
+from qiskit_nature.components.variational_forms import UVCC
 
 
 class TestUVCCVSCF(QiskitNatureTestCase):

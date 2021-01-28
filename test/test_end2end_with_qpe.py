@@ -22,9 +22,9 @@ from qiskit.aqua.utils import decimal_to_binary
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua.algorithms import QPE, NumPyMinimumEigensolver
 from qiskit.aqua.operators import Z2Symmetries
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry import FermionicOperator, QiskitChemistryError
-from qiskit.chemistry.circuit.library import HartreeFock
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature import FermionicOperator, QiskitNatureError
+from qiskit_nature.circuit.library import HartreeFock
 
 
 @ddt
@@ -42,7 +42,7 @@ class TestEnd2EndWithQPE(QiskitNatureTestCase):
                                  charge=0,
                                  spin=0,
                                  basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         molecule = driver.run()

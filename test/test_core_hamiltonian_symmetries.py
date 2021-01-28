@@ -20,11 +20,11 @@ import numpy as np
 from qiskit import BasicAer
 from qiskit.aqua.algorithms import NumPyMinimumEigensolver, VQE
 from qiskit.aqua.components.optimizers import SLSQP
-from qiskit.chemistry.components.initial_states import HartreeFock
-from qiskit.chemistry.components.variational_forms import UCCSD
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry.core import Hamiltonian, TransformationType, QubitMappingType
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.components.initial_states import HartreeFock
+from qiskit_nature.components.variational_forms import UCCSD
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
+from qiskit_nature import QiskitNatureError
 
 
 class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
@@ -38,7 +38,7 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
                                  charge=0,
                                  spin=0,
                                  basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
         self.qmolecule = driver.run()
 
@@ -110,7 +110,7 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
 
     def test_given_symmetry_fail_len(self):
         """ Supplied symmetry reduction invalid len """
-        with self.assertRaises(QiskitChemistryError):
+        with self.assertRaises(QiskitNatureError):
             warnings.filterwarnings('ignore', category=DeprecationWarning)
             core = Hamiltonian(transformation=TransformationType.FULL,
                                qubit_mapping=QubitMappingType.JORDAN_WIGNER,
@@ -123,7 +123,7 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
 
     def test_given_symmetry_fail_values(self):
         """ Supplied symmetry reduction invalid values """
-        with self.assertRaises(QiskitChemistryError):
+        with self.assertRaises(QiskitNatureError):
             warnings.filterwarnings('ignore', category=DeprecationWarning)
             core = Hamiltonian(transformation=TransformationType.FULL,
                                qubit_mapping=QubitMappingType.JORDAN_WIGNER,

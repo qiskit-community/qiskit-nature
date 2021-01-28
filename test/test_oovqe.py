@@ -14,17 +14,17 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.chemistry.drivers import HDF5Driver
 from qiskit.providers.basicaer import BasicAer
 from qiskit.circuit.library import RealAmplitudes
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua import AquaError
 from qiskit.aqua.algorithms import VQE
 from qiskit.aqua.components.optimizers import COBYLA
-from qiskit.chemistry.algorithms.ground_state_solvers import OrbitalOptimizationVQE
-from qiskit.chemistry.transformations import FermionicTransformation
-from qiskit.chemistry.transformations.fermionic_transformation import FermionicQubitMappingType
-from qiskit.chemistry.algorithms.ground_state_solvers.minimum_eigensolver_factories.\
+from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.algorithms.ground_state_solvers import OrbitalOptimizationVQE
+from qiskit_nature.transformations import FermionicTransformation
+from qiskit_nature.transformations.fermionic_transformation import FermionicQubitMappingType
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories.\
             vqe_uccsd_factory import VQEUCCSDFactory
 
 

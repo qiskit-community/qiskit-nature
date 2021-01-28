@@ -16,15 +16,15 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
+from qiskit.circuit.library import ExcitationPreserving
 from qiskit.aqua import QuantumInstance, aqua_globals
 from qiskit.aqua.algorithms import VQE
 from qiskit.aqua.components.optimizers import SLSQP
-from qiskit.chemistry.circuit.library import HartreeFock
-from qiskit.chemistry.core import QubitMappingType
-from qiskit.chemistry.drivers import HDF5Driver
-from qiskit.chemistry.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit.chemistry.transformations import FermionicTransformation
-from qiskit.circuit.library import ExcitationPreserving
+from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.core import QubitMappingType
+from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.transformations import FermionicTransformation
 
 
 class TestExcitationPreserving(QiskitNatureTestCase):

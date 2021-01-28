@@ -19,7 +19,7 @@ the issue then ensure changes are made to readme too.
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature import QiskitNatureError
 
 
 class TestReadmeSample(QiskitNatureTestCase):
@@ -29,9 +29,9 @@ class TestReadmeSample(QiskitNatureTestCase):
         super().setUp()
         try:
             # pylint: disable=import-outside-toplevel
-            from qiskit.chemistry.drivers import PySCFDriver
+            from qiskit_nature.drivers import PySCFDriver
             PySCFDriver(atom='Li .0 .0 .0; H .0 .0 1.6')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         try:
@@ -53,8 +53,8 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         # --- Exact copy of sample code ----------------------------------------
 
-        from qiskit.chemistry import FermionicOperator
-        from qiskit.chemistry.drivers import PySCFDriver, UnitsType
+        from qiskit_nature import FermionicOperator
+        from qiskit_nature.drivers import PySCFDriver, UnitsType
         from qiskit.aqua.operators import Z2Symmetries
 
         # Use PySCF, a classical computational chemistry software
@@ -79,7 +79,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         optimizer = L_BFGS_B()
 
         # setup the initial state for the variational form
-        from qiskit.chemistry.circuit.library import HartreeFock
+        from qiskit_nature.circuit.library import HartreeFock
         init_state = HartreeFock(num_spin_orbitals, num_particles)
 
         # setup the variational form for VQE

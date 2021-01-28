@@ -18,12 +18,12 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 from ddt import ddt, idata, unpack
-from qiskit.chemistry.components.initial_states import HartreeFock
 from qiskit.aqua.operators import StateFn
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry.core import TransformationType, QubitMappingType
-from qiskit.chemistry.transformations import FermionicTransformation
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.components.initial_states import HartreeFock
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.core import TransformationType, QubitMappingType
+from qiskit_nature.transformations import FermionicTransformation
 
 
 @ddt
@@ -102,7 +102,7 @@ class TestInitialStateHartreeFock(QiskitNatureTestCase):
                                  charge=0,
                                  spin=0,
                                  basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         fermionic_transformation = FermionicTransformation(transformation=TransformationType.FULL,

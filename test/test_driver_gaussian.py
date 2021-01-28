@@ -16,8 +16,8 @@ import unittest
 
 from test import QiskitNatureTestCase
 from test.test_driver import TestDriver
-from qiskit.chemistry.drivers import GaussianDriver
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import GaussianDriver
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
@@ -36,7 +36,7 @@ class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
                  'H   0.0  0.0    0.735',
                  ''
                  ])
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('GAUSSIAN driver does not appear to be installed')
         self.qmolecule = driver.run()
 
@@ -48,7 +48,7 @@ class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
         super().setUp()
         try:
             driver = GaussianDriver(molecule=TestDriver.MOLECULE)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('GAUSSIAN driver does not appear to be installed')
         self.qmolecule = driver.run()
 

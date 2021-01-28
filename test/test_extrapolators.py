@@ -17,11 +17,11 @@ parameter pairs.
 
 import unittest
 from sklearn import linear_model
-from qiskit.chemistry.algorithms.pes_samplers.extrapolator import Extrapolator, \
+from qiskit.aqua import AquaError
+from qiskit_nature.algorithms.pes_samplers.extrapolator import Extrapolator, \
     WindowExtrapolator, PolynomialExtrapolator, DifferentialExtrapolator, \
     PCAExtrapolator, SieveExtrapolator
 
-from qiskit.aqua import AquaError
 
 PARAM_DICT = {
     0.5: [0.07649726233077458, 1.2340960400591198e-07, 2.719308771599091e-08,

@@ -20,13 +20,13 @@ from qiskit import BasicAer
 from qiskit.aqua import aqua_globals, QuantumInstance
 
 from qiskit.aqua.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry.transformations import (FermionicTransformation,
-                                              FermionicQubitMappingType)
-from qiskit.chemistry.algorithms.ground_state_solvers import (GroundStateEigensolver,
-                                                              VQEUCCSDFactory)
-from qiskit.chemistry.algorithms.excited_states_solvers import (
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.transformations import (FermionicTransformation,
+                                           FermionicQubitMappingType)
+from qiskit_nature.algorithms.ground_state_solvers import (GroundStateEigensolver,
+                                                           VQEUCCSDFactory)
+from qiskit_nature.algorithms.excited_states_solvers import (
     NumPyEigensolverFactory, ExcitedStatesEigensolver, QEOM
 )
 
@@ -43,7 +43,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                                       charge=0,
                                       spin=0,
                                       basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         self.reference_energies = [-1.8427016, -1.8427016 + 0.5943372, -1.8427016 + 0.95788352,

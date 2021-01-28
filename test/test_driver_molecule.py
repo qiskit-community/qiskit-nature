@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 from functools import partial
 import numpy as np
 
-from qiskit.chemistry.drivers import Molecule
+from qiskit_nature.drivers import Molecule
 
 
 class TestMolecule(QiskitNatureTestCase):

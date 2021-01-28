@@ -16,7 +16,7 @@ import unittest
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit.chemistry.drivers import FCIDumpDriver
+from qiskit_nature.drivers import FCIDumpDriver
 
 
 class BaseTestDriverFCIDump(ABC):

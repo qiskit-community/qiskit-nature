@@ -15,7 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit.chemistry.drivers import GaussianDriver
+from qiskit_nature.drivers import GaussianDriver
 
 
 # We need to have an instance so we can test function but constructor calls

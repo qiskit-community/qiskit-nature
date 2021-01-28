@@ -20,12 +20,12 @@ from qiskit.aqua import aqua_globals
 from qiskit.aqua.components.optimizers import L_BFGS_B
 from qiskit.aqua.operators.legacy.op_converter import to_weighted_pauli_operator
 from qiskit.aqua.operators.legacy.weighted_pauli_operator import Z2Symmetries
-from qiskit.chemistry import FermionicOperator
-from qiskit.chemistry.algorithms import VQEAdapt
-from qiskit.chemistry.circuit.library import HartreeFock
-from qiskit.chemistry.components.variational_forms import UCCSD
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature import FermionicOperator
+from qiskit_nature.algorithms import VQEAdapt
+from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.components.variational_forms import UCCSD
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature import QiskitNatureError
 
 
 class TestVQEAdaptUCCSD(QiskitNatureTestCase):
@@ -40,7 +40,7 @@ class TestVQEAdaptUCCSD(QiskitNatureTestCase):
             driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
                                  unit=UnitsType.ANGSTROM,
                                  basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
             return
 

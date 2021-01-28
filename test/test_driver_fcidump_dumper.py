@@ -17,8 +17,8 @@ import unittest
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import FCIDumpDriver, PySCFDriver, UnitsType
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import FCIDumpDriver, PySCFDriver, UnitsType
 
 
 class BaseTestDriverFCIDumpDumper(ABC):
@@ -123,7 +123,7 @@ class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper)
             self.dumped = pyscf_fcidump.read(dump.name)
 
             dump.close()
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed.')
         except ImportError:
             self.skipTest('PYSCF driver does not appear to be installed.')

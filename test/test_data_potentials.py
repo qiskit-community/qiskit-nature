@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from qiskit.chemistry.constants import HARTREE_TO_J_PER_MOL
+from qiskit_nature.constants import HARTREE_TO_J_PER_MOL
 
 X_DATA = np.array([0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25, 2.55, 2.85, 3.15,
                    3.45, 3.75, 4.05, 4.35, 4.65, 4.95, 5.25, 0.45, 0.75, 1.05,

@@ -15,8 +15,8 @@
 import unittest
 from test import QiskitNatureTestCase
 from test.test_driver import TestDriver
-from qiskit.chemistry.drivers import PyQuanteDriver, UnitsType, BasisType
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import PyQuanteDriver, UnitsType, BasisType
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
@@ -30,7 +30,7 @@ class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
                                     charge=0,
                                     multiplicity=1,
                                     basis=BasisType.BSTO3G)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYQUANTE driver does not appear to be installed')
         self.qmolecule = driver.run()
 
@@ -42,7 +42,7 @@ class TestDriverPyQuanteMolecule(QiskitNatureTestCase, TestDriver):
         super().setUp()
         try:
             driver = PyQuanteDriver(molecule=TestDriver.MOLECULE)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYQUANTE driver does not appear to be installed')
         self.qmolecule = driver.run()
 

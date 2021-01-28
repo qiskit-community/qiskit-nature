@@ -15,7 +15,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-from qiskit.chemistry.drivers import Molecule
+from qiskit_nature.drivers import Molecule
 
 
 class TestDriver(ABC):

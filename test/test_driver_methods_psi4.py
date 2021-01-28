@@ -15,8 +15,8 @@
 import unittest
 
 from test.test_driver_methods_gsc import TestDriverMethods
-from qiskit.chemistry.drivers import PSI4Driver
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import PSI4Driver
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverMethodsPSI4(TestDriverMethods):
@@ -54,7 +54,7 @@ set {{
         super().setUp()
         try:
             PSI4Driver(config=self.psi4_lih_config.format('rhf'))
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PSI4 driver does not appear to be installed')
 
     def test_lih_rhf(self):

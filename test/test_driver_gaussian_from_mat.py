@@ -16,8 +16,8 @@ import unittest
 
 from test import QiskitNatureTestCase
 from test.test_driver import TestDriver
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import GaussianDriver
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import GaussianDriver
 
 
 # We need to have an instance so we can test function but constructor calls
@@ -42,7 +42,7 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
         matfile = self.get_resource_path('test_driver_gaussian_from_mat.mat')
         try:
             self.qmolecule = g16._parse_matrix_file(matfile)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.tearDown()
             self.skipTest('GAUSSIAN qcmatrixio not found')
 

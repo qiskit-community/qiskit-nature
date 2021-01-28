@@ -66,8 +66,8 @@ Let's try a chemistry application experiment using VQE (Variational Quantum Eige
 to compute the ground-state (minimum) energy of a molecule.
 
 ```python
-from qiskit.chemistry import FermionicOperator
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
+from qiskit_nature import FermionicOperator
+from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit.aqua.operators import Z2Symmetries
 
 # Use PySCF, a classical computational chemistry software
@@ -92,7 +92,7 @@ from qiskit.aqua.components.optimizers import L_BFGS_B
 optimizer = L_BFGS_B()
 
 # setup the initial state for the variational form
-from qiskit.chemistry.circuit.library import HartreeFock
+from qiskit_nature.circuit.library import HartreeFock
 init_state = HartreeFock(num_spin_orbitals, num_particles)
 
 # setup the variational form for VQE
