@@ -18,18 +18,18 @@ from test import QiskitNatureTestCase
 from qiskit import BasicAer
 from qiskit.aqua import aqua_globals, QuantumInstance
 from qiskit.aqua.components.optimizers import COBYLA
-from qiskit.chemistry import WatsonHamiltonian
-from qiskit.chemistry.drivers import BaseDriver
-from qiskit.chemistry.algorithms.ground_state_solvers import (
+from qiskit_nature import WatsonHamiltonian
+from qiskit_nature.drivers import BaseDriver
+from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory,
     VQEUVCCSDFactory
 )
-from qiskit.chemistry.algorithms.excited_states_solvers import (
+from qiskit_nature.algorithms.excited_states_solvers import (
     QEOM, ExcitedStatesEigensolver, NumPyEigensolverFactory
 )
-from qiskit.chemistry.transformations import (BosonicTransformation,
-                                              BosonicTransformationType,
-                                              BosonicQubitMappingType)
+from qiskit_nature.transformations import (BosonicTransformation,
+                                           BosonicTransformationType,
+                                           BosonicQubitMappingType)
 
 
 class _DummyBosonicDriver(BaseDriver):

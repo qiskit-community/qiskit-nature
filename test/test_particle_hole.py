@@ -17,8 +17,8 @@ import unittest
 from test import QiskitNatureTestCase
 from ddt import ddt, idata, unpack
 from qiskit.aqua.algorithms import NumPyMinimumEigensolver
-from qiskit.chemistry import FermionicOperator, QiskitChemistryError
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType, HFMethodType
+from qiskit_nature import FermionicOperator, QiskitNatureError
+from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
 
 
 @ddt
@@ -53,7 +53,7 @@ class TestParticleHole(QiskitNatureTestCase):
                                  spin=spin,
                                  basis=basis,
                                  hf_method=hf_method)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         config = '{}, charge={}, spin={}, basis={}, {}'.format(atom, charge,

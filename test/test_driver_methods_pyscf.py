@@ -15,9 +15,9 @@
 import unittest
 
 from test.test_driver_methods_gsc import TestDriverMethods
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType, HFMethodType
-from qiskit.chemistry.core import TransformationType, QubitMappingType
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
+from qiskit_nature.core import TransformationType, QubitMappingType
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverMethodsPySCF(TestDriverMethods):
@@ -27,7 +27,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         super().setUp()
         try:
             PySCFDriver(atom=self.lih)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PySCF driver does not appear to be installed')
 
     def test_lih_rhf(self):

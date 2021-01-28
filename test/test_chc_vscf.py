@@ -21,9 +21,9 @@ from qiskit import BasicAer
 from qiskit.aqua import QuantumInstance, aqua_globals
 from qiskit.aqua.algorithms import VQE
 from qiskit.aqua.components.optimizers import COBYLA
-from qiskit.chemistry import BosonicOperator
-from qiskit.chemistry.components.initial_states import VSCF
-from qiskit.chemistry.components.variational_forms import UVCC, CHC
+from qiskit_nature import BosonicOperator
+from qiskit_nature.components.initial_states import VSCF
+from qiskit_nature.components.variational_forms import UVCC, CHC
 
 
 class TestCHCVSCF(QiskitNatureTestCase):

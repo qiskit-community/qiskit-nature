@@ -16,8 +16,8 @@ import unittest
 
 from test import QiskitNatureTestCase
 
-from qiskit.chemistry.drivers import GaussianForcesDriver, Molecule
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import GaussianForcesDriver, Molecule
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverGaussianForces(QiskitNatureTestCase):
@@ -41,7 +41,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             result = driver.run()
             self._check_driver_result(result)
 
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('GAUSSIAN driver does not appear to be installed')
 
     def test_driver_molecule(self):
@@ -57,7 +57,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             result = driver.run()
             self._check_driver_result(result)
 
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('GAUSSIAN driver does not appear to be installed')
 
     def test_driver_logfile(self):

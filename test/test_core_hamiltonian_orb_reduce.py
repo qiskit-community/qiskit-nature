@@ -17,9 +17,9 @@ import unittest
 
 from test import QiskitNatureTestCase
 from qiskit.aqua.operators import WeightedPauliOperator
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry.core import Hamiltonian, TransformationType, QubitMappingType
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
+from qiskit_nature import QiskitNatureError
 
 
 class TestCoreHamiltonianOrbReduce(QiskitNatureTestCase):
@@ -33,7 +33,7 @@ class TestCoreHamiltonianOrbReduce(QiskitNatureTestCase):
                                  charge=0,
                                  spin=0,
                                  basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
         self.qmolecule = driver.run()
 

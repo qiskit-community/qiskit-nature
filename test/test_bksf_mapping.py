@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from qiskit.quantum_info import Pauli
 from qiskit.aqua.operators import WeightedPauliOperator
-from qiskit.chemistry.bksf import edge_operator_aij, edge_operator_bi
+from qiskit_nature.bksf import edge_operator_aij, edge_operator_bi
 
 
 class TestBKSFMapping(QiskitNatureTestCase):

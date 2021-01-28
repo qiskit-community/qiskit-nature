@@ -14,8 +14,8 @@
 
 import unittest
 from test import QiskitNatureTestCase
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverPySCFExtra(QiskitNatureTestCase):
@@ -29,7 +29,7 @@ class TestDriverPySCFExtra(QiskitNatureTestCase):
                         charge=0,
                         spin=0,
                         basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
     def test_h3(self):
@@ -48,7 +48,7 @@ class TestDriverPySCFExtra(QiskitNatureTestCase):
 
     def test_invalid_atom_type(self):
         """ Atom is string with ; separator or list of string """
-        with self.assertRaises(QiskitChemistryError):
+        with self.assertRaises(QiskitNatureError):
             PySCFDriver(atom=('H', 0, 0, 0))
 
     def test_list_atom(self):

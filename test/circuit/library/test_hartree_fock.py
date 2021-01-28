@@ -17,8 +17,8 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.chemistry.circuit.library import HartreeFock
-from qiskit.chemistry.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
 
 
 class TestHartreeFock(QiskitNatureTestCase):

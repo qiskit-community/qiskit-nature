@@ -16,7 +16,7 @@ import unittest
 
 from test import QiskitNatureTestCase
 from test.test_driver_methods_gsc import TestDriverMethods
-from qiskit.chemistry.drivers import FCIDumpDriver
+from qiskit_nature.drivers import FCIDumpDriver
 
 
 class TestDriverMethodsFCIDump(TestDriverMethods):
@@ -36,21 +36,21 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
 
     def test_lih_freeze_core(self):
         """ LiH freeze core test """
-        with self.assertLogs('qiskit.chemistry', level='WARNING') as log:
+        with self.assertLogs('qiskit_nature', level='WARNING') as log:
             driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_lih.fcidump'))
             result = self._run_driver(driver, freeze_core=True)
             self._assert_energy(result, 'lih')
-        warning = 'WARNING:qiskit.chemistry.qmolecule:' + \
+        warning = 'WARNING:qiskit_nature.qmolecule:' + \
                   'Missing molecule information! Returning empty core orbital list.'
         self.assertIn(warning, log.output)
 
     def test_oh_freeze_core(self):
         """ OH freeze core test """
-        with self.assertLogs('qiskit.chemistry', level='WARNING') as log:
+        with self.assertLogs('qiskit_nature', level='WARNING') as log:
             driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_oh.fcidump'))
             result = self._run_driver(driver, freeze_core=True)
             self._assert_energy(result, 'oh')
-        warning = 'WARNING:qiskit.chemistry.qmolecule:' + \
+        warning = 'WARNING:qiskit_nature.qmolecule:' + \
                   'Missing molecule information! Returning empty core orbital list.'
         self.assertIn(warning, log.output)
 
@@ -75,14 +75,14 @@ class TestFCIDumpDriverQMolecule(QiskitNatureTestCase):
     def test_qmolecule_log(self):
         """Test QMolecule log function."""
         qmolecule = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_h2.fcidump')).run()
-        with self.assertLogs('qiskit.chemistry', level='DEBUG') as _:
+        with self.assertLogs('qiskit_nature', level='DEBUG') as _:
             qmolecule.log()
 
     def test_qmolecule_log_with_atoms(self):
         """Test QMolecule log function."""
         qmolecule = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_h2.fcidump'),
                                   atoms=['H', 'H']).run()
-        with self.assertLogs('qiskit.chemistry', level='DEBUG') as _:
+        with self.assertLogs('qiskit_nature', level='DEBUG') as _:
             qmolecule.log()
 
 

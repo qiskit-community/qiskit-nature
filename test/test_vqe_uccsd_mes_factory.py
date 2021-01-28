@@ -20,11 +20,11 @@ from qiskit import BasicAer
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua.operators import AerPauliExpectation
 from qiskit.aqua.components.optimizers import COBYLA
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry.transformations import FermionicTransformation
-from qiskit.chemistry.transformations.fermionic_transformation import FermionicQubitMappingType
-from qiskit.chemistry.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.transformations import FermionicTransformation
+from qiskit_nature.transformations.fermionic_transformation import FermionicQubitMappingType
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
     VQEUCCSDFactory
 
 
@@ -39,7 +39,7 @@ class TestVQEUCCSDMESFactory(QiskitNatureTestCase):
                                       charge=0,
                                       spin=0,
                                       basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         self.reference_energy = -1.137306

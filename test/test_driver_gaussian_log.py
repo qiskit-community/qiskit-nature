@@ -16,8 +16,8 @@ import unittest
 
 from test import QiskitNatureTestCase
 
-from qiskit.chemistry.drivers import GaussianLogDriver, GaussianLogResult
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import GaussianLogDriver, GaussianLogResult
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverGaussianLog(QiskitNatureTestCase):
@@ -49,7 +49,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
                         ('3a', '3a', 462.61566, 0.12609, 0.0081),
                         ('3b', '3b', 462.61566, 0.12609, 0.0081)]
             self.assertListEqual(qfc, expected)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('GAUSSIAN driver does not appear to be installed')
 
     # These tests check the gaussian log result and the parsing from a partial log file that is

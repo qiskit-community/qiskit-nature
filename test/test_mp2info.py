@@ -15,8 +15,8 @@
 import unittest
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit.chemistry import QiskitChemistryError, MP2Info
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
+from qiskit_nature import QiskitNatureError, MP2Info
+from qiskit_nature.drivers import PySCFDriver, UnitsType
 
 
 class TestMP2Info(QiskitNatureTestCase):
@@ -30,7 +30,7 @@ class TestMP2Info(QiskitNatureTestCase):
                                  charge=0,
                                  spin=0,
                                  basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
         self.qmolecule = driver.run()
         self.mp2info = MP2Info(self.qmolecule)

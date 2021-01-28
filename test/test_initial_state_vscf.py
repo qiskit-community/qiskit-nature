@@ -16,7 +16,7 @@ import unittest
 import warnings
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit.chemistry.components.initial_states import VSCF
+from qiskit_nature.components.initial_states import VSCF
 
 
 class TestInitialStateVSCF(QiskitNatureTestCase):

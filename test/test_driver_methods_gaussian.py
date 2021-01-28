@@ -15,8 +15,8 @@
 import unittest
 
 from test.test_driver_methods_gsc import TestDriverMethods
-from qiskit.chemistry.drivers import GaussianDriver
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import GaussianDriver
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverMethodsGaussian(TestDriverMethods):
@@ -48,7 +48,7 @@ H   0.0  0.0    0.9697
         super().setUp()
         try:
             GaussianDriver(config=self.g16_lih_config.format('rhf'))
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('GAUSSIAN driver does not appear to be installed')
 
     def test_lih_rhf(self):

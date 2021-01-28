@@ -17,18 +17,18 @@ from functools import partial
 
 import numpy as np
 from qiskit import BasicAer
+from qiskit.circuit.library import RealAmplitudes
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua import aqua_globals
 from qiskit.aqua.algorithms import VQE, NumPyMinimumEigensolver
 from qiskit.aqua.components.optimizers import AQGD
 from qiskit.aqua.operators import PauliExpectation
-from qiskit.chemistry.algorithms.pes_samplers.bopes_sampler import BOPESSampler
-from qiskit.chemistry.circuit.library import HartreeFock
-from qiskit.chemistry.drivers import Molecule, PySCFDriver
-from qiskit.chemistry.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit.chemistry.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
-from qiskit.chemistry.transformations import FermionicTransformation
-from qiskit.circuit.library import RealAmplitudes
+from qiskit_nature.algorithms.pes_samplers.bopes_sampler import BOPESSampler
+from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.drivers import Molecule, PySCFDriver
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
+from qiskit_nature.transformations import FermionicTransformation
 
 
 class TestBOPES(unittest.TestCase):

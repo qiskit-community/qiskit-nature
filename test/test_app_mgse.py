@@ -23,12 +23,12 @@ from qiskit.circuit.library import TwoLocal
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua.algorithms import NumPyMinimumEigensolver, VQE, IQPE
 from qiskit.aqua.components.optimizers import SLSQP
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.applications import MolecularGroundStateEnergy
-from qiskit.chemistry.circuit.library import HartreeFock
-from qiskit.chemistry.components.variational_forms import UCCSD
-from qiskit.chemistry.core import QubitMappingType
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.applications import MolecularGroundStateEnergy
+from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.components.variational_forms import UCCSD
+from qiskit_nature.core import QubitMappingType
+from qiskit_nature.drivers import PySCFDriver, UnitsType
 
 
 class TestAppMGSE(QiskitNatureTestCase):
@@ -42,7 +42,7 @@ class TestAppMGSE(QiskitNatureTestCase):
                                       charge=0,
                                       spin=0,
                                       basis='sto3g')
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
         self.npme = NumPyMinimumEigensolver()
@@ -87,7 +87,7 @@ class TestAppMGSE(QiskitNatureTestCase):
         """ Test Molecular Ground State Energy setting solver """
         warnings.filterwarnings('ignore', category=DeprecationWarning)
         mgse = MolecularGroundStateEnergy(self.driver)
-        with self.assertRaises(QiskitChemistryError):
+        with self.assertRaises(QiskitNatureError):
             _ = mgse.compute_energy()
 
         mgse.solver = self.npme

@@ -15,8 +15,8 @@
 import unittest
 
 from test.test_driver_methods_gsc import TestDriverMethods
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import PyQuanteDriver, UnitsType, BasisType, HFMethodType
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import PyQuanteDriver, UnitsType, BasisType, HFMethodType
 
 
 class TestDriverMethodsPyquante(TestDriverMethods):
@@ -26,7 +26,7 @@ class TestDriverMethodsPyquante(TestDriverMethods):
         super().setUp()
         try:
             PyQuanteDriver(atoms=self.lih)
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PyQuante driver does not appear to be installed')
 
     def test_lih_rhf(self):

@@ -17,8 +17,8 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.chemistry.circuit.library import VSCF
-from qiskit.chemistry.circuit.library.initial_states.vscf import vscf_bitstring
+from qiskit_nature.circuit.library import VSCF
+from qiskit_nature.circuit.library.initial_states.vscf import vscf_bitstring
 
 
 class TestVSCF(QiskitNatureTestCase):

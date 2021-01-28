@@ -15,8 +15,8 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit.chemistry.drivers import PSI4Driver
-from qiskit.chemistry import QiskitChemistryError
+from qiskit_nature.drivers import PSI4Driver
+from qiskit_nature import QiskitNatureError
 
 
 class TestDriverPSI4Extra(QiskitNatureTestCase):
@@ -26,7 +26,7 @@ class TestDriverPSI4Extra(QiskitNatureTestCase):
         super().setUp()
         try:
             PSI4Driver._check_valid()
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PSI4 driver does not appear to be installed')
 
     def test_input_format_list(self):
@@ -69,7 +69,7 @@ scf_type pk
 
     def test_input_format_fail(self):
         """ input type failure """
-        with self.assertRaises(QiskitChemistryError):
+        with self.assertRaises(QiskitNatureError):
             _ = PSI4Driver(1.000)
 
     def test_psi4_failure(self):
@@ -89,7 +89,7 @@ scf_type unknown
 }
 """
         driver = PSI4Driver(bad_cfg)
-        with self.assertRaises(QiskitChemistryError) as ctxmgr:
+        with self.assertRaises(QiskitNatureError) as ctxmgr:
             _ = driver.run()
         self.assertTrue(str(ctxmgr.exception).startswith("'psi4 process return code"))
 

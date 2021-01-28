@@ -20,11 +20,11 @@ from qiskit import BasicAer
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua.operators import WeightedPauliOperator
 from qiskit.aqua.components.optimizers import COBYLA
-from qiskit.chemistry.transformations import (BosonicTransformation,
-                                              BosonicTransformationType,
-                                              BosonicQubitMappingType)
-from qiskit.chemistry.drivers import GaussianForcesDriver
-from qiskit.chemistry.algorithms.ground_state_solvers import (
+from qiskit_nature.transformations import (BosonicTransformation,
+                                           BosonicTransformationType,
+                                           BosonicQubitMappingType)
+from qiskit_nature.drivers import GaussianForcesDriver
+from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory, VQEUVCCSDFactory
 )
 

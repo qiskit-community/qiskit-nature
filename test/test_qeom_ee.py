@@ -20,10 +20,10 @@ import numpy as np
 
 from qiskit.aqua.algorithms import NumPyEigensolver
 from qiskit.aqua.operators import Z2Symmetries
-from qiskit.chemistry import QiskitChemistryError
-from qiskit.chemistry.drivers import PySCFDriver, UnitsType
-from qiskit.chemistry.core import Hamiltonian, TransformationType, QubitMappingType
-from qiskit.chemistry.algorithms import QEomEE
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
+from qiskit_nature.algorithms import QEomEE
 
 
 class TestEomEE(QiskitNatureTestCase):
@@ -47,7 +47,7 @@ class TestEomEE(QiskitNatureTestCase):
             exact_eigensolver = NumPyEigensolver(qubit_op, k=2 ** qubit_op.num_qubits)
             result = exact_eigensolver.run()
             self.reference = result.eigenvalues.real
-        except QiskitChemistryError:
+        except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
     def test_h2_four_qubits(self):
