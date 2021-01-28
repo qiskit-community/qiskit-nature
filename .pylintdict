@@ -1,4 +1,5 @@
 adag
+adjoint
 aer
 aij
 al
@@ -45,10 +46,12 @@ das
 dat
 dataset
 debye
+deepcopy
 diagonalizing
 dimens
 dimensionality
 discoverable
+dtype
 ee
 eigen
 eigensolution
@@ -73,6 +76,8 @@ extrapolator's
 extrapolators
 fcidump
 fcompiler
+fermion
+fermionc
 fermionic
 fermionicdriver
 fermionicoperator
@@ -101,6 +106,7 @@ hijs
 ia
 iajb
 ifdef
+iff
 ifortvars
 ij
 ijkl
@@ -154,11 +160,13 @@ namelist
 nan
 ndarray
 nelec
+nmodes
 noint
 norb
 norbs
 nosignatures
 np
+nsplits
 num
 numpy
 nxn
@@ -170,6 +178,7 @@ onee
 onwards
 oo
 orbsym
+otimes
 outpath
 parametrized
 params
@@ -222,6 +231,7 @@ statevector
 statevectors
 stdout
 str
+subclasses
 submodules
 substrings
 succ
@@ -233,12 +243,14 @@ sys
 sysctl
 tbd
 temme
+tensorproduct
 th
 tiajb
 tibja
 toctree
 tol
 tran
+transcorrelated
 tranter
 über
 ucc
@@ -246,6 +258,7 @@ uccd
 uccs
 uccsd
 ulimit
+unary
 uncomment
 untapered
 uvcc
@@ -263,9 +276,12 @@ wavefunction
 wavefunctions
 weightedpaulioperator
 whitespace
+whitespaces
 wigner
 xdata
 xyz
 ydata
+yi
 yu
+zi
 zmatrix

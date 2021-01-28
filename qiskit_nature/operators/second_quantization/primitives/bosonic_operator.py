@@ -173,8 +173,9 @@ class BosonicOperator(ParticleOperator):
         raise TypeError("Unsupported operand type(s) for **: 'BosonicOperator' and "
                         "'{}'".format(type(power).__name__))
 
-    def __add__(self, other) -> Union['BosonicSumOp', 'BosonicOperator']:
+    def __add__(self, other) -> Union['BosonicSumOp', 'BosonicOperator']:  # type: ignore
         """Returns a fermionic operator representing the sum of the given BosonicOperators"""
+        # pylint: disable=cyclic-import,import-outside-toplevel
         from ..bosonic_sum_op import BosonicSumOp
 
         if isinstance(other, BosonicOperator):

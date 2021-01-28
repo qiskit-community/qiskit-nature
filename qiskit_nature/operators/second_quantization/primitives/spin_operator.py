@@ -174,6 +174,7 @@ class SpinOperator(ParticleOperator):
     def __add__(self, other):
         """Returns a SpinSumOp representing the sum of the given SpinOperators.
         """
+        # pylint: disable=cyclic-import,import-outside-toplevel
         from ..spin_sum_op import SpinSumOp
 
         if isinstance(other, SpinOperator):

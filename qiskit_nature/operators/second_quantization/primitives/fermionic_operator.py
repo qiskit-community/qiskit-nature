@@ -172,8 +172,9 @@ class FermionicOperator(ParticleOperator):
         raise TypeError("Unsupported operand type(s) for **: 'FermionicOperator' and "
                         "'{}'".format(type(power).__name__))
 
-    def __add__(self, other) -> Union['FermionicSumOp', 'FermionicOperator']:
+    def __add__(self, other) -> Union['FermionicSumOp', 'FermionicOperator']:  # type: ignore
         """Returns a fermionic operator representing the sum of the given FermionicOperators"""
+        # pylint: disable=cyclic-import,import-outside-toplevel
         from ..fermionic_sum_op import FermionicSumOp
 
         if isinstance(other, FermionicOperator):

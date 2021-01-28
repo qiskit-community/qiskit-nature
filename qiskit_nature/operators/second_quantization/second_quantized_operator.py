@@ -120,9 +120,10 @@ class SecondQuantizedOperator:
 
         return new_mixed_operator
 
-    def __add__(self, other) -> 'SecondQuantizedSumOp':
+    def __add__(self, other) -> 'SecondQuantizedSumOp':  # type: ignore
         """Returns a SecondQuantizedSumOp representing the sum of the given operators.
         """
+        # pylint: disable=cyclic-import,import-outside-toplevel
         from .second_quantized_sum_op import SecondQuantizedSumOp
         if isinstance(other, SecondQuantizedOperator):
             is_prop = self.is_proportional_to(other)
@@ -142,7 +143,7 @@ class SecondQuantizedOperator:
         """Overload unary -."""
         return self.__mul__(other=-1)
 
-    def __sub__(self, other) -> 'SecondQuantizedSumOp':
+    def __sub__(self, other) -> 'SecondQuantizedSumOp':  # type: ignore
         """Returns a SecondQuantizedSumOp representing the difference to the given
         SecondQuantizedOperator.
         """
