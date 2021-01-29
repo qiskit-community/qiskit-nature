@@ -13,9 +13,9 @@
 """The Logarithmic Mapping interface."""
 
 from qiskit.aqua.operators import PauliSumOp
-from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
-from qiskit_nature.operators.second_quantization.primitives import (SpinOperator,
-                                                                    ParticleOperator)
+
+from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 
 from .qubit_mapping import QubitMapping
 
@@ -23,7 +23,7 @@ from .qubit_mapping import QubitMapping
 class LogarithmicMapping(QubitMapping):
     """The Logarithmic spin-to-qubit mapping. """
 
-    def supports_particle_type(self, particle_type: ParticleOperator) -> bool:
+    def supports_particle_type(self, particle_type: ParticleOp) -> bool:
         """Returns whether the queried particle-type operator is supported by this mapping.
 
         Args:
@@ -32,16 +32,14 @@ class LogarithmicMapping(QubitMapping):
         Returns:
             A boolean indicating whether the queried particle-type is supported.
         """
-        if isinstance(particle_type, SpinOperator):
-            return True
-        return False
+        return isinstance(particle_type, SpinOp)
 
-    def map(self, second_q_op: SecondQuantizedSumOp) -> PauliSumOp:
-        """Maps a `SecondQuantizedSumOp` to a `PauliSumOp` using the Logarithmic spin-to-qubit
+    def map(self, second_q_op: ParticleOp) -> PauliSumOp:
+        """Maps a `ParticleOp` to a `PauliSumOp` using the Logarithmic spin-to-qubit
         mapping.
 
         Args:
-            second_q_op: the `SecondQuantizedSumOp` to be mapped.
+            second_q_op: the `ParticleOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.

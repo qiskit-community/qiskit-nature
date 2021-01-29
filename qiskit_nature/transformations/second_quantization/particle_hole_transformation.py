@@ -12,7 +12,7 @@
 
 """The Particle/Hole Transformation interface."""
 
-from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
+from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 from .second_quantized_transformation import SecondQuantizedTransformation
 
@@ -20,14 +20,14 @@ from .second_quantized_transformation import SecondQuantizedTransformation
 class ParticleHoleTransformation(SecondQuantizedTransformation):
     """The Particle/Hole transformation."""
 
-    def transform(self, second_q_op: SecondQuantizedSumOp) -> SecondQuantizedSumOp:
-        """Transforms the given `SecondQuantizedSumOp` into the particle/hole view.
+    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
+        """Transforms the given `ParticleOp` into the particle/hole view.
 
         Args:
-            second_q_op: the `SecondQuantizedSumOp` to be transformed.
+            second_q_op: the `ParticleOp` to be transformed.
 
         Returns:
-            A new `SecondQuantizedSumOp` instance.
+            A new `ParticleOp` instance.
         """
         # TODO
         raise NotImplementedError()

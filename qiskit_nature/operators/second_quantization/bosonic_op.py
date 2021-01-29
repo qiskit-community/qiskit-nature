@@ -21,17 +21,17 @@ import numbers
 import numpy as np
 
 from .primitives.bosonic_operator import BosonicOperator
-from .sum_op import SumOp
+from .particle_op import ParticleOp
 
 
-class BosonicSumOp(SumOp):
+class BosonicOp(ParticleOp):
     """
     Bosonic type operators
 
     The abstract fermionic registers are implemented in two subclasses, BosonicOperator and
-    BosonicSumOp, inspired by the implementation of Pauli operators in qiskit. A
+    BosonicOp, inspired by the implementation of Pauli operators in qiskit. A
     BosonicOperator is the equivalent of a single Pauli string on a qubit register. The
-    BosonicSumOp represents a sum of multiple BosonicOperators. They act on fermionic
+    BosonicOp represents a sum of multiple BosonicOperators. They act on fermionic
     registers of a fixed length determined at the time of initialization.
     """
 
@@ -41,7 +41,7 @@ class BosonicSumOp(SumOp):
         if not any(True for _ in operator_list):
             # Treat case of zero operator (empty operator_list)
             assert isinstance(register_length, int), \
-                'When instantiating the zero BosonicSumOp, a register length must be provided.'
+                'When instantiating the zero BosonicOp, a register length must be provided.'
             self._register_length = register_length
         else:
             # Treat case of nonzero operator_list
@@ -78,7 +78,7 @@ class BosonicSumOp(SumOp):
                     self._operator_dict.pop(operator_label)
 
         # 3. Set the particle type
-        SumOp.__init__(self, particle_type='fermionic')
+        # SumOp.__init__(self, particle_type='fermionic')
 
     def __repr__(self):
         """Sets the representation of `self` in the console."""
@@ -95,31 +95,31 @@ class BosonicSumOp(SumOp):
 
     def __mul__(self, other):
         """Overloads the multiplication operator `*` for self and other, where other is a
-        number-type, a BosonicOperator or a BosonicSumOp.
+        number-type, a BosonicOperator or a BosonicOp.
         """
-        # Catch the case of a zero BosonicSumOp (for `self`)
+        # Catch the case of a zero BosonicOp (for `self`)
         if not any(True for _ in self._operator_dict):
             if isinstance(other, BosonicOperator):
                 assert self._register_length == len(other), \
                     'Operators act on Fermion Registers of different length'
-            elif isinstance(other, BosonicSumOp):
+            elif isinstance(other, BosonicOp):
                 assert self._register_length == other._register_length, \
                     'Operators act on Fermion Registers of different length'
             # return BosonicOperator('I'*self._register_length, coeff = 0.)
             return self
 
         if isinstance(other, (numbers.Number, BosonicOperator)):
-            # Create copy of the BosonicSumOp in which every BosonicOperator is
+            # Create copy of the BosonicOp in which every BosonicOperator is
             # multiplied by `other`.
             new_operatorlist = [copy.deepcopy(base_operator) * other
                                 for base_operator in self.operator_list]
-            return BosonicSumOp(new_operatorlist)
+            return BosonicOp(new_operatorlist)
 
-        if isinstance(other, BosonicSumOp):
+        if isinstance(other, BosonicOp):
             # Initialize new operator_list for the returned Bosonic operator
             new_operatorlist = []
 
-            # Catch the case of a zero BosonicSumOp (for `other`)
+            # Catch the case of a zero BosonicOp (for `other`)
             if not any(True for _ in other._operator_dict):
                 assert self._register_length == other._register_length, \
                     'Operators act on Fermion Registers of different length'
@@ -130,16 +130,16 @@ class BosonicSumOp(SumOp):
             for op1 in self.operator_list:
                 for op2 in other.operator_list:
                     new_operatorlist.append(op1 * op2)
-            return BosonicSumOp(new_operatorlist)
+            return BosonicOp(new_operatorlist)
 
-        raise TypeError("Unsupported operand type(s) for *: 'BosonicSumOp' and "
+        raise TypeError("Unsupported operand type(s) for *: 'BosonicOp' and "
                         "'{}'".format(type(other).__name__))
 
     def __rmul__(self, other):
         """Overloads the right multiplication operator `*` for multiplication with number-type
         objects or BosonicOperators.
         """
-        # Catch the case of a zero BosonicSumOp (for `self`)
+        # Catch the case of a zero BosonicOp (for `self`)
         if not any(True for _ in self._operator_dict):
             if isinstance(other, BosonicOperator):
                 assert self._register_length == len(other), \
@@ -151,13 +151,13 @@ class BosonicSumOp(SumOp):
             return self.__mul__(other)
 
         if isinstance(other, BosonicOperator):
-            # Create copy of the BosonicSumOp in which `other` is multiplied by every
+            # Create copy of the BosonicOp in which `other` is multiplied by every
             # BosonicOperator
             new_operatorlist = [other * copy.deepcopy(base_operator)
                                 for base_operator in self.operator_list]
-            return BosonicSumOp(new_operatorlist)
+            return BosonicOp(new_operatorlist)
 
-        raise TypeError("Unsupported operand type(s) for *: 'BosonicSumOp' and "
+        raise TypeError("Unsupported operand type(s) for *: 'BosonicOp' and "
                         "'{}'".format(type(other).__name__))
 
     def __truediv__(self, other):
@@ -165,15 +165,15 @@ class BosonicSumOp(SumOp):
         if isinstance(other, numbers.Number):
             return self.__mul__(1./other)
 
-        raise TypeError("Unsupported operand type(s) for /: 'BosonicSumOp' and "
+        raise TypeError("Unsupported operand type(s) for /: 'BosonicOp' and "
                         "'{}'".format(type(other).__name__))
 
     def __add__(self, other):
-        """Returns a `BosonicSumOp` representing the sum of the given base fermionic
+        """Returns a `BosonicOp` representing the sum of the given base fermionic
         operators.
         """
         if isinstance(other, BosonicOperator):
-            # Create copy of the BosonicSumOp
+            # Create copy of the BosonicOp
             new_operatorlist = copy.deepcopy(self.operator_list)
 
             # Only add the new operator if it has a nonzero-coefficient.
@@ -182,9 +182,9 @@ class BosonicSumOp(SumOp):
                 assert self._is_compatible(other), "Incompatible register lengths for '+'. "
                 new_operatorlist.append(other)
 
-            return BosonicSumOp(new_operatorlist)
+            return BosonicOp(new_operatorlist)
 
-        if isinstance(other, BosonicSumOp):
+        if isinstance(other, BosonicOp):
             new_operatorlist = copy.deepcopy(self.operator_list)
             other_operatorlist = copy.deepcopy(other.operator_list)
 
@@ -193,19 +193,19 @@ class BosonicSumOp(SumOp):
 
             new_operatorlist += other_operatorlist
 
-            return BosonicSumOp(new_operatorlist)
+            return BosonicOp(new_operatorlist)
 
-        raise TypeError("Unsupported operand type(s) for +: 'BosonicSumOp' and "
+        raise TypeError("Unsupported operand type(s) for +: 'BosonicOp' and "
                         "'{}'".format(type(other).__name__))
 
     def __sub__(self, other):
-        """Returns a `BosonicSumOp` representing the difference of the given fermionic
+        """Returns a `BosonicOp` representing the difference of the given fermionic
         operators.
         """
-        if isinstance(other, (BosonicOperator, BosonicSumOp)):
+        if isinstance(other, (BosonicOperator, BosonicOp)):
             return self.__add__(-1 * other)
 
-        raise TypeError("Unsupported operand type(s) for -: 'BosonicSumOp' and "
+        raise TypeError("Unsupported operand type(s) for -: 'BosonicOp' and "
                         "'{}'".format(type(other).__name__))
 
     def __pow__(self, power):
@@ -217,7 +217,7 @@ class BosonicSumOp(SumOp):
                 raise UserWarning("The input `power` must be a non-negative integer")
 
             if power == 0:
-                identity = BosonicSumOp([BosonicOperator('I' * self._register_length)])
+                identity = BosonicOp([BosonicOperator('I' * self._register_length)])
                 return identity
 
             operator = copy.deepcopy(self)
@@ -225,7 +225,7 @@ class BosonicSumOp(SumOp):
                 operator *= operator
             return operator
 
-        raise TypeError("Unsupported operand type(s) for **: 'BosonicSumOp' and "
+        raise TypeError("Unsupported operand type(s) for **: 'BosonicOp' and "
                         "'{}'".format(type(power).__name__))
 
     @property
@@ -235,7 +235,7 @@ class BosonicSumOp(SumOp):
 
     @property
     def register_length(self):
-        """Getter for the length of the fermionic register that the BosonicSumOp `self` acts
+        """Getter for the length of the fermionic register that the BosonicOp `self` acts
         on.
         """
         return self._register_length
@@ -243,26 +243,29 @@ class BosonicSumOp(SumOp):
     def dagger(self):
         """Returns the complex conjugate transpose (dagger) of `self`."""
         daggered_operator_list = [operator.dagger() for operator in self.operator_list]
-        return BosonicSumOp(daggered_operator_list)
+        return BosonicOp(daggered_operator_list)
 
     def _is_compatible(self, operator) -> bool:
         """
         Checks whether the `operator` is compatible (same shape and
 
         Args:
-            operator (BosonicOperator/BosonicSumOp): a bosonic operator
+            operator (BosonicOperator/BosonicOp): a bosonic operator
 
         Returns:
             True iff `operator` is compatible with `self`.
         """
         same_length = (self.register_length == operator.register_length)
-        compatible_type = isinstance(operator, (BosonicOperator, BosonicSumOp))
+        compatible_type = isinstance(operator, (BosonicOperator, BosonicOp))
 
         if not compatible_type or not same_length:
             return False
 
         return True
 
-    def to_opflow(self, pauli_table):
+    def to_opflow(self, method):
         """TODO"""
+        raise NotImplementedError
+
+    def __matmul__(self, other):
         raise NotImplementedError

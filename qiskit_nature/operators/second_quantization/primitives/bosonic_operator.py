@@ -142,10 +142,11 @@ class BosonicOperator(ParticleOperator):
 
             return BosonicOperator(new_label, new_coeff)
 
-        # Multiplication with a BosonicSumOp is implemented in the __rmul__ method of the
-        # BosonicSumOp class
-        from ..bosonic_sum_op import BosonicSumOp
-        if isinstance(other, BosonicSumOp):
+        # Multiplication with a BosonicOp is implemented in the __rmul__ method of the
+        # BosonicOp class
+        # pylint: disable=cyclic-import
+        from ..bosonic_op import BosonicOp
+        if isinstance(other, BosonicOp):
             # TODO: this should probably be something like:
             # return other.__rmul__(self)
             raise NotImplementedError
@@ -173,10 +174,10 @@ class BosonicOperator(ParticleOperator):
         raise TypeError("Unsupported operand type(s) for **: 'BosonicOperator' and "
                         "'{}'".format(type(power).__name__))
 
-    def __add__(self, other) -> Union['BosonicSumOp', 'BosonicOperator']:  # type: ignore
+    def __add__(self, other) -> Union['BosonicOp', 'BosonicOperator']:  # type: ignore
         """Returns a fermionic operator representing the sum of the given BosonicOperators"""
         # pylint: disable=cyclic-import,import-outside-toplevel
-        from ..bosonic_sum_op import BosonicSumOp
+        from ..bosonic_op import BosonicOp
 
         if isinstance(other, BosonicOperator):
             # Case 1: `other` is a `BosonicOperator`.
@@ -192,11 +193,11 @@ class BosonicOperator(ParticleOperator):
             if self.label == other.label:
                 return BosonicOperator(self.label, self.coeff + other.coeff)
 
-            return BosonicSumOp([copy.deepcopy(self), copy.deepcopy(other)])
+            return BosonicOp([copy.deepcopy(self), copy.deepcopy(other)])
 
-        if isinstance(other, BosonicSumOp):
-            # Case 2: `other` is a `BosonicSumOp`.
-            #  In this case use the __add__ method of BosonicSumOp.
+        if isinstance(other, BosonicOp):
+            # Case 2: `other` is a `BosonicOp`.
+            #  In this case use the __add__ method of BosonicOp.
             return other.__add__(self)
 
         # Case 3: `other` is any other type. In this case we raise an error.

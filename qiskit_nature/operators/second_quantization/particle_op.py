@@ -12,25 +12,19 @@
 
 """The Sum Operator base interface."""
 
-import copy
 from abc import ABC, abstractmethod
-from typing import Any, List
+
+from qiskit.opflow import PauliSumOp
+
+from .star_algebra_mixin import StarAlgebraMixin
 
 
-class SumOp(ABC):
-    """The Sum Operator base interface.
+class ParticleOp(StarAlgebraMixin, ABC):
+    """The Second Quantized Operator base interface.
 
     This interface should be implemented by all creation- and annihilation-type particle operators
     in the second-quantized formulation.
     """
-
-    def __init__(self, particle_type):
-        self._particle_type = particle_type
-
-    @property
-    def particle_type(self):
-        """Return the particle type"""
-        return copy.deepcopy(self._particle_type)
 
     @property
     @abstractmethod
@@ -38,18 +32,7 @@ class SumOp(ABC):
         """Getter for the length of the particle register that the SumOp acts on."""
         raise NotImplementedError
 
-    @property
     @abstractmethod
-    def operator_list(self) -> List[Any]:
-        """Getter for the operator_list of the `SumOp`"""
-        raise NotImplementedError
-
-    @abstractmethod
-    def dagger(self):
-        """Returns the complex conjugate transpose (dagger) of self"""
-        raise NotImplementedError
-
-    @abstractmethod
-    def to_opflow(self, pauli_table):
+    def to_opflow(self, method) -> PauliSumOp:
         """TODO"""
         raise NotImplementedError

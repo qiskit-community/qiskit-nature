@@ -13,9 +13,9 @@
 """The Parity Mapping interface."""
 
 from qiskit.aqua.operators import PauliSumOp
-from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
-from qiskit_nature.operators.second_quantization.primitives import (FermionicOperator,
-                                                                    ParticleOperator)
+
+from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
+from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 from .qubit_mapping import QubitMapping
 
@@ -23,7 +23,7 @@ from .qubit_mapping import QubitMapping
 class ParityMapping(QubitMapping):
     """The Parity fermion-to-qubit mapping. """
 
-    def supports_particle_type(self, particle_type: ParticleOperator) -> bool:
+    def supports_particle_type(self, particle_type: ParticleOp) -> bool:
         """Returns whether the queried particle-type operator is supported by this mapping.
 
         Args:
@@ -32,16 +32,14 @@ class ParityMapping(QubitMapping):
         Returns:
             A boolean indicating whether the queried particle-type is supported.
         """
-        if isinstance(particle_type, FermionicOperator):
-            return True
-        return False
+        return isinstance(particle_type, FermionicOp)
 
-    def map(self, second_q_op: SecondQuantizedSumOp) -> PauliSumOp:
-        """Maps a `SecondQuantizedSumOp` to a `PauliSumOp` using the Parity fermion-to-qubit
+    def map(self, second_q_op: ParticleOp) -> PauliSumOp:
+        """Maps a `ParticleOp` to a `PauliSumOp` using the Parity fermion-to-qubit
         mapping.
 
         Args:
-            second_q_op: the `SecondQuantizedSumOp` to be mapped.
+            second_q_op: the `ParticleOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
