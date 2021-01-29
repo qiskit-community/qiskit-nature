@@ -66,7 +66,7 @@ html:
 
 doctest:
 	make -C docs doctest SPHINXOPTS=$(SPHINXOPTS)
-
+	
 coverage:
 	coverage3 run --source qiskit_nature --omit */gauopen/* -m unittest discover -s test -q
 	coverage3 report
