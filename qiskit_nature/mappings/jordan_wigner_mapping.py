@@ -54,12 +54,12 @@ class JordanWignerMapping(QubitMapping):
         nmodes = second_q_op.register_length
         pauli_table = []
         for i in range(nmodes):
-            a_z = np.asarray([1] * i + [0] + [0] * (nmodes - i - 1), dtype=np.bool)
-            a_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
-            b_z = np.asarray([1] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
-            b_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
-            # c_z = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=np.bool)
-            # c_x = np.asarray([0] * nmodes, dtype=np.bool)
+            a_z = np.asarray([1] * i + [0] + [0] * (nmodes - i - 1), dtype=bool)
+            a_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
+            b_z = np.asarray([1] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
+            b_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
+            # c_z = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
+            # c_x = np.asarray([0] * nmodes, dtype=bool)
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
             # TODO add Pauli 3-tuple to lookup table
 

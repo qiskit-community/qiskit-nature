@@ -155,7 +155,7 @@ def bravyi_kitaev_fast_edge_list(fer_op):
     h_1 = fer_op.h1
     h_2 = fer_op.h2
     modes = fer_op.modes
-    edge_matrix = np.zeros((modes, modes), dtype=np.bool)
+    edge_matrix = np.zeros((modes, modes), dtype=bool)
 
     for p, q in itertools.product(range(modes), repeat=2):  # pylint: disable=invalid-name
 

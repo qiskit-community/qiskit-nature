@@ -315,7 +315,7 @@ class FermionicOperator(ParticleOperator):
             return prod
 
         # 1. Initialize an operator list with the identity scaled by the `self.coeff`
-        all_false = np.asarray([False] * len(self), dtype=np.bool)
+        all_false = np.asarray([False] * len(self), dtype=bool)
 
         ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[self.coeff])
 
