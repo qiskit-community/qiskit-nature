@@ -264,7 +264,7 @@ class BosonicTransformation(Transformation):
 
         hml[-1].append([tmp, 1])
 
-        dummpy_op = BosonicOperator(np.asarray(hml, dtype=object), basis)
+        dummpy_op = BosonicOperator(np.asarray(hml, dtype=object), basis)  # type: ignore
         qubit_op = dummpy_op.mapping(qubit_mapping)
         if len(qubit_op.paulis) == 0:
             qubit_op = None

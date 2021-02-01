@@ -191,7 +191,7 @@ class QMolecule:
             with h5py.File(self._filename, "r") as file:
                 def read_array(name):
                     _data = file[name][...]
-                    if _data.dtype == numpy.bool and _data.size == 1 and not _data:
+                    if _data.dtype == numpy.bool_ and _data.size == 1 and not _data:
                         _data = None
                     return _data
 

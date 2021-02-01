@@ -240,8 +240,8 @@ class HarmonicPotential(PotentialBase):
             the processed data that fit better to a harmonic potential
         """
         sort_ind = np.argsort(xdata)
-        ydata_s = ydata[sort_ind]
-        xdata_s = xdata[sort_ind]
+        ydata_s = ydata[sort_ind]  # type: ignore
+        xdata_s = xdata[sort_ind]  # type: ignore
         min_y = min(ydata_s)
 
         # array of indices for X for which Y is min
