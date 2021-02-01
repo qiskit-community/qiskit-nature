@@ -27,7 +27,7 @@ def h2_transform_slow(h2_, unitary_matrix):
     Transform h2 based on unitary matrix, and overwrite original property.
     #MARK: A naive implementation based on MATLAB implementation.
     Args:
-        unitary_matrix (numpy 2-D array, np.float or np.complex):
+        unitary_matrix (numpy 2-D array, float or complex):
                     Unitary matrix for h2 transformation.
     Returns:
         temp_ret: matrix
