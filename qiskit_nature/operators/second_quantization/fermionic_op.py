@@ -71,6 +71,7 @@ class FermionicOp(ParticleOp):
             if not data and register_length:
                 self._labels = ["I" * register_length]
                 self._coeffs = [0]
+                self._register_length = register_length
             elif not data:
                 raise QiskitNatureError(
                     "Empty data requires register_length parameter."
@@ -107,7 +108,7 @@ class FermionicOp(ParticleOp):
     def __mul__(self, other):
         if not isinstance(other, Number):
             raise TypeError(
-                f"Unsupported operand type(s) for *: 'FermionicSumOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
         return FermionicOp(
             list(zip(self._labels, [coeff * other for coeff in self._coeffs]))
