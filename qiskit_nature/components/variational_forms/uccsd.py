@@ -452,7 +452,7 @@ class UCCSD(VariationalForm):
         if self._initial_state is None:
             return None
         else:
-            return np.zeros(self._num_parameters, dtype=np.float)
+            return np.zeros(self._num_parameters, dtype=float)
 
     @staticmethod
     def compute_excitation_lists(num_particles, num_orbitals, active_occ_list=None,
