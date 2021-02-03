@@ -71,10 +71,11 @@ class SecondQuantizedOp(StarAlgebraMixin):
                             "'{}'".format(type(other).__name__))
         # TODO: implement
 
+    @property
     def dagger(self):
         daggered_operator_list = []
         if self._fermion is not None:
-            daggered_operator_list.append(self._fermion.dagger())
+            daggered_operator_list.append(self._fermion.dagger)
 
         return SecondQuantizedOp(daggered_operator_list)
 

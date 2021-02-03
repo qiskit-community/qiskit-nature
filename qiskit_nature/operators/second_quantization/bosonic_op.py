@@ -93,7 +93,7 @@ class BosonicOp(ParticleOp):
             full_str += '{1} \t {0}\n'.format(operator.coeff, operator.label)
         return full_str
 
-    def __mul__(self, other):
+    def mul(self, other):
         """Overloads the multiplication operator `*` for self and other, where other is a
         number-type, a BosonicOperator or a BosonicOp.
         """
@@ -168,7 +168,7 @@ class BosonicOp(ParticleOp):
         raise TypeError("Unsupported operand type(s) for /: 'BosonicOp' and "
                         "'{}'".format(type(other).__name__))
 
-    def __add__(self, other):
+    def add(self, other):
         """Returns a `BosonicOp` representing the sum of the given base fermionic
         operators.
         """
@@ -240,7 +240,7 @@ class BosonicOp(ParticleOp):
         """
         return self._register_length
 
-    def dagger(self):
+    def adjoint(self):
         """Returns the complex conjugate transpose (dagger) of `self`."""
         daggered_operator_list = [operator.dagger() for operator in self.operator_list]
         return BosonicOp(daggered_operator_list)
@@ -267,5 +267,5 @@ class BosonicOp(ParticleOp):
         """TODO"""
         raise NotImplementedError
 
-    def __matmul__(self, other):
+    def compose(self, other):
         raise NotImplementedError

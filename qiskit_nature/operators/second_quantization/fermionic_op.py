@@ -88,7 +88,7 @@ class FermionicOp(ParticleOp):
                 if not all(self._validate_label(label) for label in self._labels):
                     raise QiskitNatureError("Invalid labels are given.")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if len(self) == 1:
             if self._coeffs == 1:
                 return f"FermionicOp('{self._labels[0]}')"
@@ -96,7 +96,7 @@ class FermionicOp(ParticleOp):
                 return f"FermionicOp(('{self._labels[0]}', {self._coeffs[0]}))"
         return f"FermionicOp({self.to_list()})"  # TODO truncate
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
 
         # 1. Treat the case of the zero-operator:
@@ -111,7 +111,7 @@ class FermionicOp(ParticleOp):
             [f"{label} * {coeff}" for label, coeff in self.to_list()]
         )
 
-    def __mul__(self, other):
+    def mul(self, other: complex) -> "FermionicOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
@@ -120,7 +120,7 @@ class FermionicOp(ParticleOp):
             list(zip(self._labels, [coeff * other for coeff in self._coeffs]))
         )
 
-    def __matmul__(self, other) -> "FermionicOp":
+    def compose(self, other: "FermionicOp") -> "FermionicOp":
         """Overloads the multiplication operator `@` for self and other, where other is a
         number-type, a FermionicOperator or a FermionicOp.
         """
@@ -149,7 +149,7 @@ class FermionicOp(ParticleOp):
         )
 
     @staticmethod
-    def _single_mul(label1, label2) -> Tuple[str, complex]:
+    def _single_mul(label1: str, label2: str) -> Tuple[str, complex]:
         assert len(label1) == len(
             label2
         ), "Operators act on Fermion Registers of different length"
@@ -208,7 +208,7 @@ class FermionicOp(ParticleOp):
 
         return new_label, new_coeff
 
-    def __add__(self, other):
+    def add(self, other: "FermionicOp") -> "FermionicOp":
         """Returns a `FermionicOp` representing the sum of the given base fermionic
         operators.
         """
@@ -232,13 +232,13 @@ class FermionicOp(ParticleOp):
         return list(zip(self._labels, self._coeffs))
 
     @property
-    def register_length(self):
+    def register_length(self) -> int:
         """Getter for the length of the fermionic register that the FermionicOp `self` acts
         on.
         """
         return self._register_length
 
-    def dagger(self):
+    def adjoint(self) -> "FermionicOp":
         """Returns the complex conjugate transpose (dagger) of `self`."""
 
         dagger_map = {"+": "-", "-": "+", "I": "I", "N": "N", "E": "E"}
@@ -293,5 +293,5 @@ class FermionicOp(ParticleOp):
         return JordanWignerMapping().map(self)
 
     @staticmethod
-    def _validate_label(label):
+    def _validate_label(label: str) -> bool:
         return all(char in ["I", "+", "-", "N", "E"] for char in label)

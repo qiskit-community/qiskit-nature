@@ -12,66 +12,88 @@
 
 """The Sum Operator base interface."""
 
-import copy
+from typing import Union
 from abc import ABC, abstractmethod
-
-import numpy as np
 
 
 class StarAlgebraMixin(ABC):
-    """The Second Quantized Operator base interface.
+    """The star algebra mixin class.
 
-    This interface should be implemented by all creation- and annihilation-type particle operators
-    in the second-quantized formulation.
+    Star algebra means algebra with adjoint (dagger).
     """
 
     @abstractmethod
-    def __add__(self, other):
+    def mul(self, other: complex):
+        """Scalar multiplication."""
         raise NotImplementedError
 
-    @abstractmethod
-    def __mul__(self, other):
-        raise NotImplementedError
+    def __mul__(self, other: complex):
+        return self.mul(other)
 
-    @abstractmethod
-    def __matmul__(self, other):
-        raise NotImplementedError
+    def __rmul__(self, other: complex):
+        return self.mul(other)
 
-    @abstractmethod
-    def dagger(self):
-        """Returns the complex conjugate transpose (dagger) of self"""
-        raise NotImplementedError
-
-    def __sub__(self, other):
-        return self + (-other)
-
-    def __rmul__(self, other):
-        return self * other
-
-    def __truediv__(self, other):
+    def __truediv__(self, other: complex):
         """Overloads the division operator `/` for division by number-type objects."""
-        return self * (1 / other)
+        return self.mul(1 / other)
 
     def __neg__(self):
-        return -1 * self
+        return self.mul(-1)
 
-    def __pow__(self, power):
+    @abstractmethod
+    def add(self, other):
+        r""" Return Operator addition of self and other, overloaded by ``+``.
+        """
+        raise NotImplementedError
+
+    def __add__(self, other):
+        return self.add(other)
+
+    def __sub__(self, other):
+        return self.add(other.mul(-1))
+
+    @abstractmethod
+    def compose(self, other):
+        r""" Return Operator Composition between self and other (linear algebra-style:
+        A@B(x) = A(B(x))), overloaded by ``@``.
+
+        Note: You must be conscious of Quantum Circuit vs. Linear Algebra ordering
+        conventions. Meaning, X.compose(Y)
+        produces an X∘Y on qubit 0, but would produce a QuantumCircuit which looks like
+
+            -[Y]-[X]-
+
+        Because Qiskit prints circuits with the initial state at the left side of the circuit.
+        """
+        raise NotImplementedError
+
+    def __matmul__(self, other):
+        return self.compose(other)
+
+    def __pow__(self, power: int):
         """Overloads the power operator `**` for applying an operator `self`, `power` number of
         times, e.g. op^{power} where `power` is a positive integer.
         """
-        if isinstance(power, (int, np.integer)):
-            if power < 0:
-                raise UserWarning("The input `power` must be a non-negative integer")
+        if not isinstance(power, int):
+            raise TypeError(
+                f"Unsupported operand type(s) for **: '{type(self).__name__}' and "
+                f"'{type(power).__name__}'"
+            )
 
-            if power == 0:
-                return self.__class__("I" * self.register_length)
+        if power < 1:
+            raise UserWarning("The input `power` must be a positive integer")
 
-            operator = copy.deepcopy(self)
-            for _ in range(power - 1):
-                operator @= self
-            return operator
+        res = self
+        for _ in range(1, power):
+            res = res.compose(self)
+        return res
 
-        raise TypeError(
-            f"Unsupported operand type(s) for **: '{self.__class__.__name__}' and "
-            "'{}'".format(type(power).__name__)
-        )
+    @abstractmethod
+    def adjoint(self):
+        """Returns the complex conjugate transpose (dagger) of self"""
+        raise NotImplementedError
+
+    @property
+    def dagger(self):
+        """Returns the complex conjugate transpose (dagger) of self"""
+        return self.adjoint()

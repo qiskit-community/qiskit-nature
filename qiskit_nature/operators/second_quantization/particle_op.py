@@ -36,3 +36,9 @@ class ParticleOp(StarAlgebraMixin, ABC):
     def to_opflow(self, method) -> PauliSumOp:
         """TODO"""
         raise NotImplementedError
+
+    def __pow__(self, power):
+        if power == 0:
+            return self.__class__("I" * self.register_length)
+
+        return super().__pow__(power)

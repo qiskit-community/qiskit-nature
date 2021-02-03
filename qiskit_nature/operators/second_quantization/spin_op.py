@@ -60,7 +60,7 @@ class SpinOp(ParticleOp):
         return full_str
 
     # TODO: Make this much more efficient by working with lists and label indices
-    def __add__(self, other):
+    def add(self, other):
         """Returns a SpinOp representing the sum of the given operators.
         """
         if isinstance(other, SpinOperator):
@@ -96,10 +96,10 @@ class SpinOp(ParticleOp):
         raise TypeError("Unsupported operand type(s) for +: 'SpinOp' and "
                         "'{}'".format(type(other).__name__))
 
-    def __matmul__(self, other):
+    def compose(self, other):
         raise NotImplementedError()
 
-    def __mul__(self, other):
+    def mul(self, other):
         """Overloads the multiplication operator `*` for self and other, where other is a
         number-type.
         """
@@ -118,7 +118,7 @@ class SpinOp(ParticleOp):
         """operator list"""
         return self._operator_list
 
-    def dagger(self):
+    def adjoint(self):
         """Returns the complex conjugate transpose (dagger) of self."""
         daggered_operator_list = [operator.dagger() for operator in self.operator_list]
         return SpinOp(daggered_operator_list)
