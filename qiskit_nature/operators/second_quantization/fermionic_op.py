@@ -12,7 +12,6 @@
 
 """The Fermionic-particle Operator."""
 
-from numbers import Number
 from typing import cast, Dict, List, Tuple, Union
 
 import numpy as np
@@ -34,25 +33,32 @@ class FermionicOp(ParticleOp):
     registers of a fixed length determined at the time of initialization.
     """
 
-    def __init__(self, data, coeff=1, register_length=None):
+    def __init__(self, data, register_length=None):
         if not isinstance(data, (tuple, list, str)):
             raise QiskitNatureError("Invalid input data for FermionicOp.")
 
+        if register_length is not None:
+            if not isinstance(register_length, int):
+                raise QiskitNatureError(
+                    f"`register_length` must be int, not {type(register_length)}."
+                )
+            if register_length <= 0:
+                raise QiskitNatureError(f"`register_length` must be positive integer.")
+
         if isinstance(data, tuple):
-            if isinstance(data[0], str) and isinstance(data[1], Number):
+            if isinstance(data[0], str) and isinstance(data[1], (int, float, complex)):
                 label = data[0]
                 if not self._validate_label(label):
                     raise QiskitNatureError(
                         "Label must be a string consisting only of "
                         f"['I','+','-','N','E'] not: {label}"
                     )
-                coeff = data[1]
                 self._register_length = len(label)
                 self._labels = [label]
-                self._coeffs = [coeff]
+                self._coeffs = [data[1]]
             else:
                 raise QiskitNatureError(
-                    "Data tuple must be (str, Number), "
+                    "Data tuple must be (str, number), "
                     f"but ({type(data[0])}, {type(data[1])}) is given."
                 )
 
@@ -65,7 +71,7 @@ class FermionicOp(ParticleOp):
                 )
             self._register_length = len(label)
             self._labels = [label]
-            self._coeffs = [coeff]
+            self._coeffs = [1]
 
         elif isinstance(data, list):
             if not data and register_length:
@@ -87,8 +93,8 @@ class FermionicOp(ParticleOp):
             if self._coeffs == 1:
                 return f"FermionicOp('{self._labels[0]}')"
             else:
-                return f"FermionicOp('{self._labels[0]}', coeff={self._coeffs[0]})"
-        return f"FermionicOp({self.to_list()})"
+                return f"FermionicOp(('{self._labels[0]}', {self._coeffs[0]}))"
+        return f"FermionicOp({self.to_list()})"  # TODO truncate
 
     def __str__(self):
         """Sets the representation of `self` in the console."""
@@ -106,7 +112,7 @@ class FermionicOp(ParticleOp):
         )
 
     def __mul__(self, other):
-        if not isinstance(other, Number):
+        if not isinstance(other, (int, float, complex)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
@@ -213,12 +219,13 @@ class FermionicOp(ParticleOp):
             )
 
         # Check compatibility (i.e. operators act on same register length)
-        assert self._is_compatible(other), "Incompatible register lengths for '+'. "
+        if self.register_length != other.register_length:
+            raise TypeError("Incompatible register lengths for '+'.")
 
         label1, coeffs1 = zip(*self.to_list())
         label2, coeffs2 = zip(*other.to_list())
 
-        return FermionicOp(list(zip(label1 + label2, coeffs1 + coeffs2))).reduce()
+        return FermionicOp(list(zip(label1 + label2, coeffs1 + coeffs2)))
 
     def to_list(self) -> List[Tuple[str, complex]]:
         """Getter for the operator_list of `self`"""
@@ -255,21 +262,6 @@ class FermionicOp(ParticleOp):
 
         return FermionicOp(list(zip(label_list, coeff_list)))
 
-    def _is_compatible(self, operator) -> bool:
-        """
-        Checks whether the `operator` is compatible (same shape and
-
-        Args:
-            operator (FermionicOperator/FermionicOp): a fermionic operator
-
-        Returns:
-            True iff `operator` is compatible with `self`.
-        """
-        return (
-            isinstance(operator, FermionicOp)
-            and self.register_length == operator.register_length
-        )
-
     def reduce(self) -> "FermionicOp":
         """
         Reduce
@@ -286,7 +278,7 @@ class FermionicOp(ParticleOp):
         label_list = label_list[non_zero]
         coeff_list = coeff_list[non_zero]
         if not non_zero:
-            return FermionicOp("I" * self.register_length, coeff=0)
+            return FermionicOp(("I" * self.register_length, 0))
         return FermionicOp(list(zip(label_list, coeff_list)))
 
     def __len__(self):
