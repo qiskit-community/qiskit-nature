@@ -111,7 +111,7 @@ class FermionicOp(ParticleOp):
             [f"{label} * {coeff}" for label, coeff in self.to_list()]
         )
 
-    def mul(self, other: complex) -> "FermionicOp":
+    def _multiply(self, other: complex) -> "FermionicOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
@@ -120,7 +120,7 @@ class FermionicOp(ParticleOp):
             list(zip(self._labels, [coeff * other for coeff in self._coeffs]))
         )
 
-    def compose(self, other: "FermionicOp") -> "FermionicOp":
+    def _compose(self, other: "FermionicOp") -> "FermionicOp":
         """Overloads the multiplication operator `@` for self and other, where other is a
         number-type, a FermionicOperator or a FermionicOp.
         """
@@ -208,7 +208,7 @@ class FermionicOp(ParticleOp):
 
         return new_label, new_coeff
 
-    def add(self, other: "FermionicOp") -> "FermionicOp":
+    def _add(self, other: "FermionicOp") -> "FermionicOp":
         """Returns a `FermionicOp` representing the sum of the given base fermionic
         operators.
         """
