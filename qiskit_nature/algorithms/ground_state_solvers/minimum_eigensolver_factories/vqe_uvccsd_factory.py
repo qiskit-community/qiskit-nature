@@ -76,22 +76,22 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
         self._quantum_instance = q_instance
 
     @property
-    def optimizer(self) -> Optimizer:
+    def optimizer(self) -> Optional[Optimizer]:
         """Getter of the optimizer."""
         return self._optimizer
 
     @optimizer.setter
-    def optimizer(self, optimizer: Optimizer) -> None:
+    def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """Setter of the optimizer."""
         self._optimizer = optimizer
 
     @property
-    def initial_point(self) -> np.ndarray:
+    def initial_point(self) -> Optional[np.ndarray]:
         """Getter of the initial point."""
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: np.ndarray) -> None:
+    def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
         """Setter of the initial point."""
         self._initial_point = initial_point
 
@@ -106,12 +106,12 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
         self._gradient = gradient
 
     @property
-    def expectation(self) -> ExpectationBase:
+    def expectation(self) -> Optional[ExpectationBase]:
         """Getter of the expectation."""
         return self._expectation
 
     @expectation.setter
-    def expectation(self, expectation: ExpectationBase) -> None:
+    def expectation(self, expectation: Optional[ExpectationBase]) -> None:
         """Setter of the expectation."""
         self._expectation = expectation
 
