@@ -49,7 +49,7 @@ class SecondQuantizedOp(StarAlgebraMixin):
     def __repr__(self):
         return f"SecondQuantizedOp([{repr(self._fermion)}])"
 
-    def __mul__(self, other):
+    def mul(self, other):
         if not isinstance(other, Number):
             raise TypeError("Unsupported operand type(s) for *: 'SecondQuantizedOperator' and "
                             "'{}'".format(type(other).__name__))
@@ -60,19 +60,18 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
         return SecondQuantizedOp(operator_list)
 
-    def __matmul__(self, other):
+    def compose(self, other):
         if not isinstance(other, SecondQuantizedOp):
             raise TypeError("Unsupported operand type(s) for @: 'SecondQuantizedSumOp' and "
                             "'{}'".format(type(other).__name__))
 
-    def __add__(self, other):
+    def add(self, other):
         if not isinstance(other, SecondQuantizedOp):
             raise TypeError("Unsupported operand type(s) for +: 'SecondQuantizedSumOp' and "
                             "'{}'".format(type(other).__name__))
         # TODO: implement
 
-    @property
-    def dagger(self):
+    def adjoint(self):
         daggered_operator_list = []
         if self._fermion is not None:
             daggered_operator_list.append(self._fermion.dagger)
