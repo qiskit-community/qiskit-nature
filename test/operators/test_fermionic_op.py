@@ -49,7 +49,7 @@ class TestFermionicOp(QiskitNatureTestCase):
         labels = [("N", 2), ("-", 3.14)]
         self.assertListEqual(FermionicOp(labels).to_list(), labels)
 
-    def test_init_invelid(self):
+    def test_init_invalid(self):
         """Test invalid __init__"""
         with self.assertRaises(QiskitNatureError):
             FermionicOp("test")
