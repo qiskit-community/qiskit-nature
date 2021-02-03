@@ -12,7 +12,7 @@
 
 """The Fermionic-particle Operator."""
 
-from typing import cast, Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from qiskit.opflow import PauliSumOp
@@ -33,7 +33,7 @@ class FermionicOp(ParticleOp):
     registers of a fixed length determined at the time of initialization.
     """
 
-    def __init__(self, data, register_length=None):
+    def __init__(self, data, register_length: Optional[int] = None):
         if not isinstance(data, (tuple, list, str)):
             raise QiskitNatureError("Invalid input data for FermionicOp.")
 
@@ -43,7 +43,7 @@ class FermionicOp(ParticleOp):
                     f"`register_length` must be int, not {type(register_length)}."
                 )
             if register_length <= 0:
-                raise QiskitNatureError(f"`register_length` must be positive integer.")
+                raise QiskitNatureError("`register_length` must be positive integer.")
 
         if isinstance(data, tuple):
             if isinstance(data[0], str) and isinstance(data[1], (int, float, complex)):
@@ -82,11 +82,16 @@ class FermionicOp(ParticleOp):
                 raise QiskitNatureError(
                     "Empty data requires register_length parameter."
                 )
-            else:
+            elif all(
+                    isinstance(datum[0], str) and isinstance(datum[1], (int, float, complex))
+                    for datum in data
+            ):
                 self._register_length = len(data[0][0])
-                self._labels, self._coeffs = zip(*data)
+                self._labels, self._coeffs = zip(*data)  # type: ignore
                 if not all(self._validate_label(label) for label in self._labels):
                     raise QiskitNatureError("Invalid labels are given.")
+            else:
+                raise QiskitNatureError("Data list must be [(str, number)].")
 
     def __repr__(self) -> str:
         if len(self) == 1:
@@ -262,19 +267,30 @@ class FermionicOp(ParticleOp):
 
         return FermionicOp(list(zip(label_list, coeff_list)))
 
-    def reduce(self) -> "FermionicOp":
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "FermionicOp":
         """
-        Reduce
+        Reduce the FermionicOp.
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
 
         Returns:
             The reduced `FermionicOp`
         """
-        # TODO: atol, rtol
+        if atol is None:
+            atol = self.atol
+        if rtol is None:
+            rtol = self.rtol
+
         label_list, indexes = np.unique(self._labels, return_inverse=True, axis=0)
         coeff_list = np.zeros(len(self._coeffs))
         for i, val in zip(indexes, self._coeffs):
             coeff_list[i] += val
-        non_zero = [i for i, v in enumerate(coeff_list) if not v == 0]
+        non_zero = [
+            i for i, v in enumerate(coeff_list)
+            if not np.isclose(v, 0, atol=atol, rtol=rtol)
+        ]
         label_list = label_list[non_zero]
         coeff_list = coeff_list[non_zero]
         if not non_zero:
@@ -289,7 +305,9 @@ class FermionicOp(ParticleOp):
         # if method == "JW":
 
         # pylint: disable=cyclic-import
-        from qiskit_nature.mappings.jordan_wigner_mapping import JordanWignerMapping
+        from qiskit_nature.mappings.jordan_wigner_mapping import \
+            JordanWignerMapping
+
         return JordanWignerMapping().map(self)
 
     @staticmethod

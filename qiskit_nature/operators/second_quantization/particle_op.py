@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 
 from qiskit.opflow import PauliSumOp
 
-from .star_algebra_mixin import StarAlgebraMixin
+from .star_algebra import StarAlgebraMixin
 
 
 class ParticleOp(StarAlgebraMixin, ABC):

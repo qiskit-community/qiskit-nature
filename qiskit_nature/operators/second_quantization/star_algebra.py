@@ -13,7 +13,6 @@
 """The Sum Operator base interface."""
 
 from abc import ABC, abstractmethod
-from typing import Union
 
 from .multiply import MultiplyMixin
 from .tolerances import TolerancesMixin

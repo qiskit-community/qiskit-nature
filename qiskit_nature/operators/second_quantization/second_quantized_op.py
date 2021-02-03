@@ -20,7 +20,7 @@ from qiskit_nature import QiskitNatureError
 from .particle_op import ParticleOp
 from .fermionic_op import FermionicOp
 from .spin_op import SpinOp
-from .star_algebra_mixin import StarAlgebraMixin
+from .star_algebra import StarAlgebraMixin
 
 
 class SecondQuantizedOp(StarAlgebraMixin):

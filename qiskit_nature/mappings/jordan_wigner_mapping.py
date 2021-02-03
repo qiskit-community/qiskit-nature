@@ -88,7 +88,7 @@ class JordanWignerMapping(QubitMapping):
             return prod
 
         # 1. Initialize an operator list with the identity scaled by the `self.coeff`
-        all_false = np.asarray([False] * nmodes, dtype=np.bool)
+        all_false = np.asarray([False] * nmodes, dtype=bool)
 
         ret_op_list = []
 
