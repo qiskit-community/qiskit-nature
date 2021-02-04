@@ -85,7 +85,7 @@ class FermionicOp(ParticleOp):
       print("Dagger")
       print(FermionicOp("+").dagger)
 
-    Basically, additiion is defined between the :class:`FermionicOp`, but only `0 + FermionicOp` is
+    Basically, addition is defined between the :class:`FermionicOp`, but only `0 + FermionicOp` is
     allowed as an exception. This is because it makes sum (in above example) valid, and because it
     is useful in the following use cases.
 
