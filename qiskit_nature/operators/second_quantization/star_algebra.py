@@ -15,10 +15,9 @@
 from abc import ABC, abstractmethod
 
 from .multiply import MultiplyMixin
-from .tolerances import TolerancesMixin
 
 
-class StarAlgebraMixin(MultiplyMixin, TolerancesMixin, ABC):
+class StarAlgebraMixin(MultiplyMixin, ABC):
     """The star algebra mixin class.
 
     Star algebra means an algebra with adjoint (dagger).

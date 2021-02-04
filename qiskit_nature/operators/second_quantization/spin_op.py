@@ -126,3 +126,6 @@ class SpinOp(ParticleOp):
     def to_opflow(self, method):
         """TODO"""
         raise NotImplementedError
+
+    def reduce(self, atol, rtol):
+        raise NotImplementedError

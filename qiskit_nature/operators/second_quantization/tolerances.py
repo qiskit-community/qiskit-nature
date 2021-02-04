@@ -21,7 +21,7 @@ from qiskit.quantum_info.operators.predicates import ATOL_DEFAULT, RTOL_DEFAULT
 
 
 class TolerancesMeta(ABCMeta):
-    """Metaclass to handle tolerances"""
+    """Meta class to handle tolerances"""
     def __init__(cls, *args, **kwargs):
         cls._ATOL_DEFAULT = ATOL_DEFAULT
         cls._RTOL_DEFAULT = RTOL_DEFAULT

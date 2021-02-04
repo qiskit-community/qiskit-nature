@@ -268,16 +268,6 @@ class FermionicOp(ParticleOp):
         return FermionicOp(list(zip(label_list, coeff_list)))
 
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "FermionicOp":
-        """
-        Reduce the FermionicOp.
-
-        Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
-
-        Returns:
-            The reduced `FermionicOp`
-        """
         if atol is None:
             atol = self.atol
         if rtol is None:

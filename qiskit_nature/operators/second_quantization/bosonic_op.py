@@ -269,3 +269,6 @@ class BosonicOp(ParticleOp):
 
     def _compose(self, other):
         raise NotImplementedError
+
+    def reduce(self, atol, rtol):
+        raise NotImplementedError

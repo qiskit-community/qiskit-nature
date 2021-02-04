@@ -17,9 +17,10 @@ from abc import ABC, abstractmethod
 from qiskit.opflow import PauliSumOp
 
 from .star_algebra import StarAlgebraMixin
+from .tolerances import TolerancesMixin
 
 
-class ParticleOp(StarAlgebraMixin, ABC):
+class ParticleOp(StarAlgebraMixin, TolerancesMixin, ABC):
     """The Second Quantized Operator base interface.
 
     This interface should be implemented by all creation- and annihilation-type particle operators
@@ -42,3 +43,17 @@ class ParticleOp(StarAlgebraMixin, ABC):
             return self.__class__("I" * self.register_length)
 
         return super().__pow__(power)
+
+    @abstractmethod
+    def reduce(self, atol, rtol):
+        """
+        Reduce the {cls}.
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
+
+        Returns:
+            The reduced `{cls}`
+        """.format(cls=type(self).__name__)
+        raise NotImplementedError
