@@ -85,6 +85,17 @@ class FermionicOp(ParticleOp):
       print("Dagger")
       print(FermionicOp("+").dagger)
 
+    Basically, additiion is defined between the :class:`FermionicOp`, but only `0 + FermionicOp` is
+    allowed as an exception. This is because it makes sum (in above example) valid, and because it
+    is useful in the following use cases.
+
+    .. code-block:: python
+
+        fermion = 0
+        for i in some_iterable:
+            some processing
+            fermion += FermionicOp(somedata)
+
     """
 
     def __init__(
