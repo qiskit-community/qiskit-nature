@@ -15,6 +15,7 @@
 from abc import ABC, abstractmethod
 
 from .multiply import MultiplyMixin
+# TODO: Move import path after Terra#5617 is merged.
 
 
 class StarAlgebraMixin(MultiplyMixin, ABC):
@@ -53,7 +54,7 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
     @abstractmethod
     def add(self, other):
         r""" Return Operator addition of self and other, overloaded by ``+``."""
-        return self._add(other)
+        return NotImplementedError
 
     def __add__(self, other):
         return self.add(other)
@@ -64,7 +65,10 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
         return self.add(other)
 
     def __sub__(self, other):
-        return self + (-other)
+        return self.add(-other)
+
+    def _add(self, other):
+        return self.add(other)
 
     # Operator multiplication
 
@@ -72,14 +76,6 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
     def compose(self, other):
         r"""Return Operator Composition between self and other (linear algebra-style:
         A@B(x) = A(B(x))), overloaded by ``@``.
-
-        Note: You must be conscious of Quantum Circuit vs. Linear Algebra ordering
-        conventions. Meaning, X.compose(Y)
-        produces an X∘Y on qubit 0, but would produce a QuantumCircuit which looks like
-
-            -[Y]-[X]-
-
-        Because Qiskit prints circuits with the initial state at the left side of the circuit.
         """
         raise NotImplementedError
 

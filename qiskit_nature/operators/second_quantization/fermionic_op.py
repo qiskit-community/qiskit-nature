@@ -20,6 +20,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import QiskitNatureError
 
 from .particle_op import ParticleOp
+# TODO: Remove this after Terra#5617 is merged.
 
 
 class FermionicOp(ParticleOp):
@@ -57,13 +58,13 @@ class FermionicOp(ParticleOp):
     The FermionicOp can be initialized in several ways:
 
         `FermionicOp(label)`
-          The label consists of the allowed characters above.
+          The labels consists of the characters above.
 
         `FermionicOp(tuple)`
-          The tuple is the form `(label, coeff)`. Coefficients are int, float, or complex.
+          The tuples are the form `(label, coeff)`. Coeff is int, float, or complex.
 
         `FermionicOp(list)`
-          The list is the form `[(label, coeff)]`, that is list of above tuple.
+          The lists are the form `[(label, coeff)]`. That is, lists of above tuples are allowed.
 
     **Algebra**
 
