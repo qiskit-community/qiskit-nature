@@ -64,7 +64,7 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
         return self.add(other)
 
     def __sub__(self, other):
-        return self.add(other.mul(-1))
+        return self + (-other)
 
     # Operator multiplication
 
