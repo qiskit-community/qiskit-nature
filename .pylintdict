@@ -80,6 +80,7 @@ fcompiler
 fermion
 fermionc
 fermionic
+fermionicop
 fermionicdriver
 fermionicoperator
 fermions
@@ -128,6 +129,7 @@ jcf
 ji
 jl
 jordan
+jupyter
 jw
 kaicher
 kanav
@@ -156,6 +158,7 @@ mohijkl
 mol
 moller
 morse
+mul
 multinomial
 multiprocess
 mypy
