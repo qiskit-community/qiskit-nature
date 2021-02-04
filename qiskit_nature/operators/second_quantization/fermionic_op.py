@@ -101,28 +101,18 @@ class FermionicOp(ParticleOp):
     def __init__(
             self,
             data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
-            register_length: Optional[int] = None,
     ):
         """Initialize the FermionicOp.
 
         Args:
             data: Input data for FermionicOp. The allowed data is label str,
                   tuple (label, coeff), or list [(label, coeff)].
-            register_length: The size of operator.
 
         Raises:
             QiskitNatureError: given data is invalid.
         """
         if not isinstance(data, (tuple, list, str)):
             raise QiskitNatureError("Invalid input data for FermionicOp.")
-
-        if register_length is not None:
-            if not isinstance(register_length, int):
-                raise QiskitNatureError(
-                    f"`register_length` must be int, not {type(register_length)}."
-                )
-            if register_length <= 0:
-                raise QiskitNatureError("`register_length` must be positive integer.")
 
         if isinstance(data, tuple):
             if isinstance(data[0], str) and isinstance(data[1], (int, float, complex)):
@@ -153,15 +143,7 @@ class FermionicOp(ParticleOp):
             self._coeffs = [1]
 
         elif isinstance(data, list):
-            if not data and register_length:
-                self._labels = ["I" * register_length]
-                self._coeffs = [0]
-                self._register_length = register_length
-            elif not data:
-                raise QiskitNatureError(
-                    "Empty data requires register_length parameter."
-                )
-            elif all(
+            if all(
                     isinstance(datum[0], str)
                     and isinstance(datum[1], (int, float, complex))
                     for datum in data

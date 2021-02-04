@@ -38,12 +38,6 @@ class TestFermionicOp(QiskitNatureTestCase):
         """Test __init__"""
         self.assertListEqual(FermionicOp(label).to_list(), [(label, 1)])
 
-    @data(1, 2, 3)
-    def test_init_empty_list(self, length):
-        """Test __init__ of empty list"""
-        fer_op = FermionicOp([], register_length=length)
-        self.assertEqual(fer_op.to_list(), [("I" * length, 0)])
-
     def test_init_multiterm(self):
         """Test __init__ with multi terms"""
         labels = [("N", 2), ("-", 3.14)]
