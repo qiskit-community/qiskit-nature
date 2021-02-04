@@ -23,17 +23,84 @@ from .particle_op import ParticleOp
 
 
 class FermionicOp(ParticleOp):
-    """
-    Fermionic type operators
+    r"""
+    N-mode Fermionic operator.
 
-    The abstract fermionic registers are implemented in two subclasses, FermionicOperator and
-    FermionicOp, inspired by the implementation of Pauli operators in qiskit. A
-    FermionicOperator is the equivalent of a single Pauli string on a qubit register.
-    The FermionicOp represents a sum of multiple FermionicOperators. They act on fermionic
-    registers of a fixed length determined at the time of initialization.
+    **Label**
+
+    Allowed characters for the label are `I`, `-`, `+`, `N`, and, `E`.
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Label
+          - Mathematical Representation
+          - Mean
+        * - `I`
+          - :math:`I`
+          - Identity operator
+        * - `-`
+          - :math:`c`
+          - Annihilation operator
+        * - `+`
+          - :math:`c^\dagger`
+          - Creation operator
+        * - `N`
+          - :math:`n = c^\dagger c`
+          - Number operator
+        * - `E`
+          - :math:`I - n = c c^\dagger`
+          - Hole number
+
+    **Initialization**
+
+    The FermionicOp can be initialized in several ways:
+
+        `FermionicOp(label)`
+          The label consists of the allowed characters above.
+
+        `FermionicOp(tuple)`
+          The tuple is the form `(label, coeff)`. Coefficients are int, float, or complex.
+
+        `FermionicOp(list)`
+          The list is the form `[(label, coeff)]`, that is list of above tuple.
+
+    **Algebra**
+
+    FermionicOp supports some basic algebras: addition, subtraction, scalar multiplication,
+    operator multiplication, and dagger(adjoint).
+    For example,
+
+    .. jupyter-execute::
+
+      from qiskit_nature.operators import FermionicOp
+
+      print("Addition")
+      print(0.5 * FermionicOp("I+") + FermionicOp("+I"))
+      print("Sum")
+      print(0.25 * sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN']))
+      print("Operator multiplication")
+      print(FermionicOp("+-") @ FermionicOp("E+"))
+      print("Dagger")
+      print(FermionicOp("+").dagger)
+
     """
 
-    def __init__(self, data, register_length: Optional[int] = None):
+    def __init__(
+            self,
+            data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
+            register_length: Optional[int] = None,
+    ):
+        """Initialize the FermionicOp.
+
+        Args:
+            data: Input data for FermionicOp. The allowed data is label str,
+                  tuple (label, coeff), or list [(label, coeff)].
+            register_length: The size of operator.
+
+        Raises:
+            QiskitNatureError: given data is invalid.
+        """
         if not isinstance(data, (tuple, list, str)):
             raise QiskitNatureError("Invalid input data for FermionicOp.")
 
@@ -83,7 +150,8 @@ class FermionicOp(ParticleOp):
                     "Empty data requires register_length parameter."
                 )
             elif all(
-                    isinstance(datum[0], str) and isinstance(datum[1], (int, float, complex))
+                    isinstance(datum[0], str)
+                    and isinstance(datum[1], (int, float, complex))
                     for datum in data
             ):
                 self._register_length = len(data[0][0])
@@ -278,7 +346,8 @@ class FermionicOp(ParticleOp):
         for i, val in zip(indexes, self._coeffs):
             coeff_list[i] += val
         non_zero = [
-            i for i, v in enumerate(coeff_list)
+            i
+            for i, v in enumerate(coeff_list)
             if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         label_list = label_list[non_zero]

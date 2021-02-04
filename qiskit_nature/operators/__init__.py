@@ -12,6 +12,20 @@
 
 """
 Operators for Qiskit Nature (:mod:`qiskit_nature.operators`)
+=======================================================================
+
+.. currentmodule:: qiskit_nature.operators
+
+Operators
+==========
+
+Second-Quantization Operators
+++++++++++++++++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   FermionicOp
 """
 
 from .second_quantization import FermionicOp

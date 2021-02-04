@@ -77,6 +77,9 @@ class TestFermionicOp(QiskitNatureTestCase):
         fer_op = 3 * FermionicOp("+N") + FermionicOp("E-")
         self.assertListEqual(fer_op.to_list(), [("+N", 3), ("E-", 1)])
 
+        fer_op = sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN'])
+        self.assertListEqual(fer_op.to_list(), [('NIII', 1), ('INII', 1), ('IINI', 1), ('IIIN', 1)])
+
     def test_sub(self):
         """Test __sub__"""
         fer_op = 3 * FermionicOp("++") - 2 * FermionicOp("--")

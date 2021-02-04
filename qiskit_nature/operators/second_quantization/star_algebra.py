@@ -25,11 +25,19 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
     @abstractmethod
     def _add(self, other):
-        r""" Return Operator addition of self and other, overloaded by ``+``.
-        """
         raise NotImplementedError
 
+    def add(self, other):
+        r""" Return Operator addition of self and other, overloaded by ``+``.
+        """
+        return self._add(other)
+
     def __add__(self, other):
+        return self._add(other)
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
         return self._add(other)
 
     def __sub__(self, other):
