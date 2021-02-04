@@ -35,7 +35,7 @@ class FermionicOp(ParticleOp):
 
         * - Label
           - Mathematical Representation
-          - Mean
+          - Meaning
         * - `I`
           - :math:`I`
           - Identity operator
