@@ -20,7 +20,6 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import QiskitNatureError
 
 from .particle_op import ParticleOp
-# TODO: Remove this after Terra#5617 is merged.
 
 
 class FermionicOp(ParticleOp):
@@ -58,17 +57,17 @@ class FermionicOp(ParticleOp):
     The FermionicOp can be initialized in several ways:
 
         `FermionicOp(label)`
-          The labels consists of the characters above.
+          A label consists of the permitted characters listed above.
 
         `FermionicOp(tuple)`
-          The tuples are the form `(label, coeff)`. Coeff is int, float, or complex.
+          Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`, or `complex`.
 
         `FermionicOp(list)`
-          The lists are the form `[(label, coeff)]`. That is, lists of above tuples are allowed.
+          The list must be a list of valid tuples as explained above.
 
     **Algebra**
 
-    FermionicOp supports some basic algebras: addition, subtraction, scalar multiplication,
+    `FermionicOp` supports the following basic arithmetic operations: addition, subtraction, scalar multiplication,
     operator multiplication, and dagger(adjoint).
     For example,
 
@@ -85,9 +84,8 @@ class FermionicOp(ParticleOp):
       print("Dagger")
       print(FermionicOp("+").dagger)
 
-    Basically, addition is defined between the :class:`FermionicOp`, but only `0 + FermionicOp` is
-    allowed as an exception. This is because it makes sum (in above example) valid, and because it
-    is useful in the following use cases.
+    In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the addition of `0 + FermionicOp`.
+    This makes the `sum` operation from the example above possible and it is useful in the following scenario:
 
     .. code-block:: python
 

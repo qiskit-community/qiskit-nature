@@ -24,10 +24,9 @@ from .star_algebra import StarAlgebraMixin
 
 
 class SecondQuantizedOp(StarAlgebraMixin):
-    """A general SecondQuantizedSumOp.
+    """A general second-quantized operator.
 
-    This class represents sums of mixed operators, i.e. linear combinations of
-    SecondQuantizedOperators with identical particle type registers.
+    This class is used to combine operators of different particle type.
     """
     def __init__(self, operator_list: List[ParticleOp]):
         """
@@ -62,7 +61,7 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
     def compose(self, other):
         if not isinstance(other, SecondQuantizedOp):
-            raise TypeError("Unsupported operand type(s) for @: 'SecondQuantizedSumOp' and "
+            raise TypeError("Unsupported operand type(s) for @: 'SecondQuantizedOp' and "
                             "'{}'".format(type(other).__name__))
 
     def add(self, other):
