@@ -15,6 +15,7 @@
 # search-and-replaced with "Bosonic". Thus, the math needs to be updated to correctly reflect
 # bosonic properties!
 
+from typing import Optional
 import copy
 import numbers
 
@@ -263,12 +264,8 @@ class BosonicOp(ParticleOp):
 
         return True
 
-    def to_opflow(self, method):
-        """TODO"""
-        raise NotImplementedError
-
     def compose(self, other):
         raise NotImplementedError
 
-    def reduce(self, atol, rtol):
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
         raise NotImplementedError

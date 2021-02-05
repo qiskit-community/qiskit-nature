@@ -18,6 +18,7 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
 """
 
+from typing import Optional
 import copy
 import numbers
 
@@ -123,9 +124,5 @@ class SpinOp(ParticleOp):
         daggered_operator_list = [operator.dagger() for operator in self.operator_list]
         return SpinOp(daggered_operator_list)
 
-    def to_opflow(self, method):
-        """TODO"""
-        raise NotImplementedError
-
-    def reduce(self, atol, rtol):
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
         raise NotImplementedError

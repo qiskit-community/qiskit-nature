@@ -15,7 +15,6 @@
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
-from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
 
@@ -60,15 +59,16 @@ class FermionicOp(ParticleOp):
           A label consists of the permitted characters listed above.
 
         `FermionicOp(tuple)`
-          Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`, or `complex`.
+          Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`,
+          or `complex`.
 
         `FermionicOp(list)`
           The list must be a list of valid tuples as explained above.
 
     **Algebra**
 
-    `FermionicOp` supports the following basic arithmetic operations: addition, subtraction, scalar multiplication,
-    operator multiplication, and dagger(adjoint).
+    `FermionicOp` supports the following basic arithmetic operations: addition, subtraction, scalar
+    multiplication, operator multiplication, and dagger(adjoint).
     For example,
 
     .. jupyter-execute::
@@ -84,8 +84,9 @@ class FermionicOp(ParticleOp):
       print("Dagger")
       print(FermionicOp("+").dagger)
 
-    In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the addition of `0 + FermionicOp`.
-    This makes the `sum` operation from the example above possible and it is useful in the following scenario:
+    In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
+    addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
+    and it is useful in the following scenario:
 
     .. code-block:: python
 
@@ -186,9 +187,6 @@ class FermionicOp(ParticleOp):
         )
 
     def compose(self, other: "FermionicOp") -> "FermionicOp":
-        """Overloads the multiplication operator `@` for self and other, where other is a
-        number-type, a FermionicOperator or a FermionicOp.
-        """
         if isinstance(other, FermionicOp):
             # Initialize new operator_list for the returned Fermionic operator
             new_data = []
@@ -274,9 +272,6 @@ class FermionicOp(ParticleOp):
         return new_label, new_coeff
 
     def add(self, other: "FermionicOp") -> "FermionicOp":
-        """Returns a `FermionicOp` representing the sum of the given base fermionic
-        operators.
-        """
         if not isinstance(other, FermionicOp):
             raise TypeError(
                 "Unsupported operand type(s) for +: 'FermionicOp' and "
@@ -304,8 +299,6 @@ class FermionicOp(ParticleOp):
         return self._register_length
 
     def adjoint(self) -> "FermionicOp":
-        """Returns the complex conjugate transpose (dagger) of `self`."""
-
         dagger_map = {"+": "-", "-": "+", "I": "I", "N": "N", "E": "E"}
         label_list = []
         coeff_list = []
@@ -350,16 +343,6 @@ class FermionicOp(ParticleOp):
 
     def __len__(self):
         return len(self._labels)
-
-    def to_opflow(self, method: str = "JW") -> PauliSumOp:
-        # TODO: other mappings
-        # if method == "JW":
-
-        # pylint: disable=cyclic-import
-        from qiskit_nature.mappings.jordan_wigner_mapping import \
-            JordanWignerMapping
-
-        return JordanWignerMapping().map(self)
 
     @staticmethod
     def _validate_label(label: str) -> bool:

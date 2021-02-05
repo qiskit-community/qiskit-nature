@@ -141,11 +141,16 @@ class TestFermionicOp(QiskitNatureTestCase):
         fer_op = FermionicOp([("+N", 3), ("E-", 1)]) ** 0
         self.assertListEqual(fer_op.to_list(), [("II", 1)])
 
-    def test_dagger(self):
+    def test_adjoint(self):
         """Test dagger"""
-        fer_op = FermionicOp([("+N", 3), ("N-", 1), ("--", 2 + 4j)]).dagger
+        fer_op = FermionicOp([("+N", 3), ("N-", 1), ("--", 2 + 4j)]).adjoint()
         self.assertListEqual(
             fer_op.to_list(), [("-N", 3), ("N+", 1), ("++", (-2 + 4j))]
+        )
+
+        fer_op = FermionicOp([("+-", 1), ("II", 2j)]).dagger
+        self.assertListEqual(
+            fer_op.to_list(), [('-+', -1), ('II', -2j)]
         )
 
     def test_reduce(self):

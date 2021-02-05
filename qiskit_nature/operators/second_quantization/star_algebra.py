@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Sum Operator base interface."""
+"""The star algebra mixin abstract base class."""
 
 from abc import ABC, abstractmethod
 
@@ -21,7 +21,7 @@ from .multiply import MultiplyMixin
 class StarAlgebraMixin(MultiplyMixin, ABC):
     """The star algebra mixin class.
 
-    Star algebra is an algebra with adjoint (dagger).
+    Star algebra is an algebra with an adjoint.
 
     This class overrides:
 
@@ -40,7 +40,7 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
     @abstractmethod
     def mul(self, other: complex):
-        r""" Return scalar multiplication of self and other, overloaded by ``*``."""
+        """ Return scalar multiplication of self and other, overloaded by `*`."""
         return NotImplementedError
 
     def __mul__(self, other: complex):
@@ -53,7 +53,7 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
     @abstractmethod
     def add(self, other):
-        r""" Return Operator addition of self and other, overloaded by ``+``."""
+        """ Return Operator addition of self and other, overloaded by `+`."""
         return NotImplementedError
 
     def __add__(self, other):
@@ -67,15 +67,14 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
     def __sub__(self, other):
         return self.add(-other)
 
-    def _add(self, other):
-        return self.add(other)
-
     # Operator multiplication
 
     @abstractmethod
     def compose(self, other):
-        r"""Return Operator Composition between self and other (linear algebra-style:
-        A@B(x) = A(B(x))), overloaded by ``@``.
+        """Overloads the matrix multiplication operator `@` for self and other.
+
+        `Compose` computes operator composition between self and other (linear algebra-style:
+        A@B(x) = A(B(x))).
         """
         raise NotImplementedError
 
@@ -109,5 +108,5 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
     @property
     def dagger(self):
-        """Alias of `adjoint()`"""
+        """Alias of :meth:`adjoint()`"""
         return self.adjoint()

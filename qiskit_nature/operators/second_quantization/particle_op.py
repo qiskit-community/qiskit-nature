@@ -13,8 +13,7 @@
 """The Sum Operator base interface."""
 
 from abc import ABC, abstractmethod
-
-from qiskit.opflow import PauliSumOp
+from typing import Optional
 
 from .star_algebra import StarAlgebraMixin
 from .tolerances import TolerancesMixin
@@ -33,11 +32,6 @@ class ParticleOp(StarAlgebraMixin, TolerancesMixin, ABC):
         """Getter for the length of the particle register that the SumOp acts on."""
         raise NotImplementedError
 
-    @abstractmethod
-    def to_opflow(self, method) -> PauliSumOp:
-        """TODO"""
-        raise NotImplementedError
-
     def __pow__(self, power):
         if power == 0:
             return self.__class__("I" * self.register_length)
@@ -45,15 +39,17 @@ class ParticleOp(StarAlgebraMixin, TolerancesMixin, ABC):
         return super().__pow__(power)
 
     @abstractmethod
-    def reduce(self, atol, rtol):
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
         """
-        Reduce the {cls}.
+        Reduce the operator.
+
+        `Reduce` merges terms with same labels and chops terms with coefficients close to 0.
 
         Args:
             atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
             rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
 
         Returns:
-            The reduced `{cls}`
-        """.format(cls=type(self).__name__)
+            The reduced operator`
+        """
         raise NotImplementedError

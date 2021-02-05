@@ -76,15 +76,3 @@ class SecondQuantizedOp(StarAlgebraMixin):
             daggered_operator_list.append(self._fermion.dagger)
 
         return SecondQuantizedOp(daggered_operator_list)
-
-    def map(self):
-        """
-        Mapping from SecondQuantizedOp to PauliSumOp
-        """
-        raise NotImplementedError
-
-    def transform(self):
-        """
-        Transformation from SecondQuantizedOp to SecondQuantizedOp
-        """
-        raise NotImplementedError
