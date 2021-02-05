@@ -252,6 +252,12 @@ class FermionicOp(ParticleOp):
         }
 
         for i, char1, char2 in zip(range(len(label1)), label1, label2):
+            # Check what happens to the symbol
+            new_char = mapping[char1 + char2]
+            if new_char == 0:
+                return "I" * len(label1), 0
+            new_label += cast(str, new_char)
+
             # if char2 is one of `-`, `+` we pick up a phase when commuting it to the position
             # of char1
             if char2 in ["-", "+"]:
@@ -262,12 +268,6 @@ class FermionicOp(ParticleOp):
                     "-"
                 )
                 new_coeff *= (-1) ** ncommutations
-
-            # Check what happens to the symbol
-            new_char = mapping[char1 + char2]
-            if new_char == 0:
-                return "I" * len(label1), 0
-            new_label += cast(str, new_char)
 
         return new_label, new_coeff
 
