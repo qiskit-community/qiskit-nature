@@ -142,7 +142,7 @@ class TestFermionicOp(QiskitNatureTestCase):
         self.assertListEqual(fer_op.to_list(), [("II", 1)])
 
     def test_adjoint(self):
-        """Test dagger"""
+        """Test adjoint method and dagger property"""
         fer_op = FermionicOp([("+N", 3), ("N-", 1), ("--", 2 + 4j)]).adjoint()
         self.assertListEqual(
             fer_op.to_list(), [("-N", 3), ("N+", 1), ("++", (-2 + 4j))]
