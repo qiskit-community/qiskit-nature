@@ -217,7 +217,7 @@ class FermionicOp(ParticleOp):
             label2
         ), "Operators act on Fermion Registers of different length"
 
-        new_label = ""
+        new_label = ["I"] * len(label1)
         new_coeff = 1
 
         # Map the products of two operators on a single fermionic mode to their result.
@@ -256,7 +256,7 @@ class FermionicOp(ParticleOp):
             new_char = mapping[char1 + char2]
             if new_char == 0:
                 return "I" * len(label1), 0
-            new_label += cast(str, new_char)
+            new_label[i] = new_char
 
             # if char2 is one of `-`, `+` we pick up a phase when commuting it to the position
             # of char1
@@ -269,7 +269,7 @@ class FermionicOp(ParticleOp):
                 )
                 new_coeff *= (-1) ** ncommutations
 
-        return new_label, new_coeff
+        return ''.join(new_label), new_coeff
 
     def add(self, other: "FermionicOp") -> "FermionicOp":
         if not isinstance(other, FermionicOp):
