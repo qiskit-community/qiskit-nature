@@ -12,7 +12,7 @@
 
 """The Fermionic-particle Operator."""
 
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -263,7 +263,9 @@ class FermionicOp(ParticleOp):
             new_char = mapping[char1 + char2]
             if new_char == 0:
                 return "I" * len(label1), 0
-            new_label[i] = new_char
+            new_label[i] = new_char  # type: ignore
+            # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught
+            # by the `if`-statement above.
 
             # If char2 is one of `+` or `-` we pick up a phase when commuting it to the position
             # of char1. However, we only care about this if the number of permutations has odd
