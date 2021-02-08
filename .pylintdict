@@ -11,6 +11,7 @@ ao
 aos
 äquivalenzverbot
 args
+atol
 autosummary
 babbush
 backend
@@ -79,6 +80,7 @@ fcompiler
 fermion
 fermionc
 fermionic
+fermionicop
 fermionicdriver
 fermionicoperator
 fermions
@@ -118,6 +120,7 @@ interatomic
 internuclear
 ints
 iqpe
+isinstance
 iso
 isym
 iteratively
@@ -126,6 +129,7 @@ jcf
 ji
 jl
 jordan
+jupyter
 jw
 kaicher
 kanav
@@ -147,12 +151,14 @@ maxiters
 mcardle
 mezzacapo
 mintert
+mixin
 moc
 mohij
 mohijkl
 mol
 moller
 morse
+mul
 multinomial
 multiprocess
 mypy
@@ -217,6 +223,7 @@ renormalize
 rhf
 rohf
 rsgtu
+rtol
 runtime
 scf
 scikit

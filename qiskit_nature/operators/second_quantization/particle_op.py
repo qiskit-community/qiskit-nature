@@ -12,25 +12,19 @@
 
 """The Sum Operator base interface."""
 
-import copy
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import Optional
+
+from .star_algebra import StarAlgebraMixin
+from .tolerances import TolerancesMixin
 
 
-class SumOp(ABC):
-    """The Sum Operator base interface.
+class ParticleOp(StarAlgebraMixin, TolerancesMixin, ABC):
+    """The Second Quantized Operator base interface.
 
     This interface should be implemented by all creation- and annihilation-type particle operators
     in the second-quantized formulation.
     """
-
-    def __init__(self, particle_type):
-        self._particle_type = particle_type
-
-    @property
-    def particle_type(self):
-        """Return the particle type"""
-        return copy.deepcopy(self._particle_type)
 
     @property
     @abstractmethod
@@ -38,18 +32,24 @@ class SumOp(ABC):
         """Getter for the length of the particle register that the SumOp acts on."""
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def operator_list(self) -> List[Any]:
-        """Getter for the operator_list of the `SumOp`"""
-        raise NotImplementedError
+    def __pow__(self, power):
+        if power == 0:
+            return self.__class__("I" * self.register_length)
+
+        return super().__pow__(power)
 
     @abstractmethod
-    def dagger(self):
-        """Returns the complex conjugate transpose (dagger) of self"""
-        raise NotImplementedError
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
+        """
+        Reduce the operator.
 
-    @abstractmethod
-    def to_opflow(self, pauli_table):
-        """TODO"""
+        `Reduce` merges terms with same labels and chops terms with coefficients close to 0.
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
+
+        Returns:
+            The reduced operator`
+        """
         raise NotImplementedError

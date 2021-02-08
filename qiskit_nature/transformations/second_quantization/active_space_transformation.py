@@ -14,7 +14,7 @@
 
 from typing import Optional
 
-from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
+from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 from .second_quantized_transformation import SecondQuantizedTransformation
 
@@ -34,14 +34,14 @@ class ActiveSpaceTransformation(SecondQuantizedTransformation):
         self.num_orbitals = num_orbitals
         self.num_alpha = num_alpha
 
-    def transform(self, second_q_op: SecondQuantizedSumOp) -> SecondQuantizedSumOp:
-        """Reduces the given `SecondQuantizedSumOp` to a given active space.
+    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
+        """Reduces the given `ParticleOp` to a given active space.
 
         Args:
-            second_q_op: the `SecondQuantizedSumOp` to be transformed.
+            second_q_op: the `ParticleOp` to be transformed.
 
         Returns:
-            A new `SecondQuantizedSumOp` instance.
+            A new `ParticleOp` instance.
         """
         # TODO
         raise NotImplementedError()

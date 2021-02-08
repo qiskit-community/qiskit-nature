@@ -13,9 +13,9 @@
 """The Direct Mapping interface."""
 
 from qiskit.aqua.operators import PauliSumOp
-from qiskit_nature.operators.second_quantization import SecondQuantizedSumOp
-from qiskit_nature.operators.second_quantization.primitives import (BosonicOperator,
-                                                                    ParticleOperator)
+
+from qiskit_nature.operators.second_quantization.bosonic_op import BosonicOp
+from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 from .qubit_mapping import QubitMapping
 
@@ -23,7 +23,7 @@ from .qubit_mapping import QubitMapping
 class DirectMapping(QubitMapping):
     """The Direct boson-to-qubit mapping. """
 
-    def supports_particle_type(self, particle_type: ParticleOperator) -> bool:
+    def supports_particle_type(self, particle_type: ParticleOp) -> bool:
         """Returns whether the queried particle-type operator is supported by this mapping.
 
         Args:
@@ -32,16 +32,14 @@ class DirectMapping(QubitMapping):
         Returns:
             A boolean indicating whether the queried particle-type is supported.
         """
-        if isinstance(particle_type, BosonicOperator):
-            return True
-        return False
+        return isinstance(particle_type, BosonicOp)
 
-    def map(self, second_q_op: SecondQuantizedSumOp) -> PauliSumOp:
-        """Maps a `SecondQuantizedSumOp` to a `PauliSumOp` using the Direct boson-to-qubit
+    def map(self, second_q_op: ParticleOp) -> PauliSumOp:
+        """Maps a `ParticleOp` to a `PauliSumOp` using the Direct boson-to-qubit
         mapping.
 
         Args:
-            second_q_op: the `SecondQuantizedSumOp` to be mapped.
+            second_q_op: the `ParticleOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.

@@ -18,14 +18,15 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
 """
 
+from typing import Optional
 import copy
 import numbers
 
 from .primitives.spin_operator import SpinOperator
-from .sum_op import SumOp
+from .particle_op import ParticleOp
 
 
-class SpinSumOp(SumOp):
+class SpinOp(ParticleOp):
     """
     Spin type operators. This class represents sums of `spin strings`, i.e. linear combinations of
     SpinOperators with same spin and register length.
@@ -47,7 +48,7 @@ class SpinSumOp(SumOp):
 
         # 3. Set the operators particle type to 'spin S' with S the spin value (as float with 1
         # decimal).
-        SumOp.__init__(self, particle_type='spin {0:.1f}'.format(self.spin))
+        # SumOp.__init__(self, particle_type='spin {0:.1f}'.format(self.spin))
 
     @property
     def register_length(self):
@@ -60,8 +61,8 @@ class SpinSumOp(SumOp):
         return full_str
 
     # TODO: Make this much more efficient by working with lists and label indices
-    def __add__(self, other):
-        """Returns a SpinSumOp representing the sum of the given operators.
+    def add(self, other):
+        """Returns a SpinOp representing the sum of the given operators.
         """
         if isinstance(other, SpinOperator):
             new_operatorlist = copy.deepcopy(self.operator_list)
@@ -73,11 +74,11 @@ class SpinSumOp(SumOp):
                     # if the new coefficient is zero, remove the operator from the list
                     if sum_coeff == 0:
                         new_operatorlist.remove(operator)
-                    return SpinSumOp(new_operatorlist)
+                    return SpinOp(new_operatorlist)
             new_operatorlist.append(other)
-            return SpinSumOp(new_operatorlist)
+            return SpinOp(new_operatorlist)
 
-        if isinstance(other, SpinSumOp):
+        if isinstance(other, SpinOp):
             new_operatorlist = copy.deepcopy(self.operator_list)
             for elem in other.operator_list:
                 new_operatorlist.append(elem)
@@ -91,62 +92,37 @@ class SpinSumOp(SumOp):
                         if sum_coeff == 0:
                             new_operatorlist.remove(operator)
                         break
-            return SpinSumOp(new_operatorlist)
+            return SpinOp(new_operatorlist)
 
-        raise TypeError("Unsupported operand type(s) for +: 'SpinSumOp' and "
+        raise TypeError("Unsupported operand type(s) for +: 'SpinOp' and "
                         "'{}'".format(type(other).__name__))
 
-    def __neg__(self):
-        """Overload unary -."""
-        return self.__mul__(other=-1)
+    def compose(self, other):
+        raise NotImplementedError()
 
-    def __sub__(self, other):
-        """Returns a SpinSumOp representing the difference of the given SpinOperators.
-        """
-        return self.__add__((-1) * other)
-
-    def __mul__(self, other):
+    def mul(self, other):
         """Overloads the multiplication operator `*` for self and other, where other is a
         number-type.
         """
         if isinstance(other, numbers.Number):
-            # Create copy of the SpinSumOp in which every SpinOperator is multiplied by
+            # Create copy of the SpinOp in which every SpinOperator is multiplied by
             # `other`.
             new_operatorlist = [copy.deepcopy(base_operator) * other
                                 for base_operator in self.operator_list]
-            return SpinSumOp(new_operatorlist)
+            return SpinOp(new_operatorlist)
 
-        raise TypeError("Unsupported operand type(s) for *: 'SpinSumOp' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __rmul__(self, other):
-        """Overloads the right multiplication operator `*` for multiplication with number-type
-        objects.
-        """
-        if isinstance(other, numbers.Number):
-            return self.__mul__(other)
-
-        raise TypeError("Unsupported operand type(s) for *: 'SpinSumOp' and "
-                        "'{}'".format(type(other).__name__))
-
-    def __truediv__(self, other):
-        """Overloads the division operator `/` for division by number-type objects.
-        """
-        if isinstance(other, numbers.Number):
-            return self.__mul__(1./other)
-
-        raise TypeError("Unsupported operand type(s) for /: 'SpinSumOp' and "
+        raise TypeError("Unsupported operand type(s) for *: 'SpinOp' and "
                         "'{}'".format(type(other).__name__))
 
     @property
     def operator_list(self):
+        """operator list"""
         return self._operator_list
 
-    def dagger(self):
+    def adjoint(self):
         """Returns the complex conjugate transpose (dagger) of self."""
         daggered_operator_list = [operator.dagger() for operator in self.operator_list]
-        return SpinSumOp(daggered_operator_list)
+        return SpinOp(daggered_operator_list)
 
-    def to_opflow(self, pauli_table):
-        """TODO"""
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
         raise NotImplementedError

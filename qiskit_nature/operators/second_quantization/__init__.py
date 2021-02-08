@@ -14,18 +14,7 @@
 Second-Quantization Operators (:mod:`qiskit_nature.operators.second_quantization`)
 """
 
-from .bosonic_sum_op import BosonicSumOp
-from .fermionic_sum_op import FermionicSumOp
-from .second_quantized_operator import SecondQuantizedOperator
-from .second_quantized_sum_op import SecondQuantizedSumOp
-from .spin_sum_op import SpinSumOp
-from .sum_op import SumOp
-
-__all__ = [
-    'BosonicSumOp',
-    'FermionicSumOp',
-    'SecondQuantizedOperator',
-    'SecondQuantizedSumOp',
-    'SpinSumOp',
-    'SumOp',
-]
+from .bosonic_op import BosonicOp
+from .fermionic_op import FermionicOp
+from .spin_op import SpinOp
+from .second_quantized_op import SecondQuantizedOp

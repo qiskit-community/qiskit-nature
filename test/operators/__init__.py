@@ -9,23 +9,3 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""
-Operators for Qiskit Nature (:mod:`qiskit_nature.operators`)
-=======================================================================
-
-.. currentmodule:: qiskit_nature.operators
-
-Operators
-==========
-
-Second-Quantization Operators
-++++++++++++++++++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   FermionicOp
-"""
-
-from .second_quantization import FermionicOp

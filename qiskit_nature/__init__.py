@@ -152,6 +152,7 @@ Submodules
    components
    core
    drivers
+   operators
    results
    transformations
 

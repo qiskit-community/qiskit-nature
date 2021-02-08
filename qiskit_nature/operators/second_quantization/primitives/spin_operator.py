@@ -172,10 +172,10 @@ class SpinOperator(ParticleOperator):
         return self.label
 
     def __add__(self, other):
-        """Returns a SpinSumOp representing the sum of the given SpinOperators.
+        """Returns a SpinOp representing the sum of the given SpinOperators.
         """
         # pylint: disable=cyclic-import,import-outside-toplevel
-        from ..spin_sum_op import SpinSumOp
+        from ..spin_op import SpinOp
 
         if isinstance(other, SpinOperator):
             # If the operators have the same label, simply add coefficients:
@@ -186,9 +186,9 @@ class SpinOperator(ParticleOperator):
                 # set the coeff of sum operator to sum_coeff
                 sum_operator._coeff = sum_coeff
                 return sum_operator
-            return SpinSumOp([copy.deepcopy(self), copy.deepcopy(other)])
+            return SpinOp([copy.deepcopy(self), copy.deepcopy(other)])
 
-        if isinstance(other, SpinSumOp):
+        if isinstance(other, SpinOp):
             #  In this case use the __add__ method of FermionicOperator.
             return other.__add__(self)
 
@@ -196,7 +196,7 @@ class SpinOperator(ParticleOperator):
                         "'{}'".format(type(other).__name__))
 
     def __sub__(self, other):
-        """Returns a SpinSumOp representing the difference of the given SpinOperators.
+        """Returns a SpinOp representing the difference of the given SpinOperators.
         """
         return self.__add__((-1) * other)
 
