@@ -17,4 +17,3 @@ Primitive Second-Quantization Particle Operators
 
 from .bosonic_operator import BosonicOperator
 from .particle_operator import ParticleOperator
-from .spin_operator import SpinOperator
