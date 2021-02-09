@@ -15,8 +15,9 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from qiskit.quantum_info.operators.mixins import TolerancesMixin
+
 from .star_algebra import StarAlgebraMixin
-from .tolerances import TolerancesMixin
 
 
 class ParticleOp(StarAlgebraMixin, TolerancesMixin, ABC):
