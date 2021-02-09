@@ -14,8 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from .multiply import MultiplyMixin
-# TODO: Move import path after Terra#5617 is merged.
+from qiskit.quantum_info.operators.mixins import MultiplyMixin
 
 
 class StarAlgebraMixin(MultiplyMixin, ABC):
@@ -109,4 +108,12 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
     @property
     def dagger(self):
         """Alias of :meth:`adjoint()`"""
+        return self.adjoint()
+
+    def __invert__(self) -> 'OperatorBase':
+        r""" Overload unary ``~`` to return Operator adjoint.
+
+        Returns:
+            An operator equivalent to the adjoint of self.
+        """
         return self.adjoint()
