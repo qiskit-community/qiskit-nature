@@ -110,7 +110,7 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
         """Alias of :meth:`adjoint()`"""
         return self.adjoint()
 
-    def __invert__(self) -> 'OperatorBase':
+    def __invert__(self):
         r""" Overload unary ``~`` to return Operator adjoint.
 
         Returns:
