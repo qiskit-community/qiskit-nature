@@ -111,9 +111,5 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
         return self.adjoint()
 
     def __invert__(self):
-        r""" Overload unary ``~`` to return Operator adjoint.
-
-        Returns:
-            An operator equivalent to the adjoint of self.
-        """
+        """ Overload unary `~` to return Operator adjoint."""
         return self.adjoint()
