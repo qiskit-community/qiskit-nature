@@ -13,7 +13,7 @@
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.transformations.second_quantization.molecular.molecular_problem import MolecularProblem
+from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
 from test import QiskitNatureTestCase
 
 
