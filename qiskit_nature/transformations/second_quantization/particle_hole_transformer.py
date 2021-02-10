@@ -12,22 +12,21 @@
 
 """The Particle/Hole Transformation interface."""
 
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from .second_quantized_transformer import BaseTransformer
+from ... import QMolecule
 
-from .second_quantized_transformation import SecondQuantizedTransformation
 
-
-class ParticleHoleTransformation(SecondQuantizedTransformation):
+class ParticleHoleTransformer(BaseTransformer):
     """The Particle/Hole transformation."""
 
-    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
-        """Transforms the given `ParticleOp` into the particle/hole view.
+    def transform(self, q_molecule: QMolecule) -> QMolecule:
+        """Transforms the given `QMolecule` into the particle/hole view.
 
         Args:
-            second_q_op: the `ParticleOp` to be transformed.
+            q_molecule: the `QMolecule` to be transformed.
 
         Returns:
-            A new `ParticleOp` instance.
+            A new `QMolecule` instance.
         """
         # TODO
         raise NotImplementedError()

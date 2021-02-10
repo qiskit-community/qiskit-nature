@@ -12,19 +12,21 @@
 
 """ Gaussian Driver """
 
-from typing import Union, List, Optional
-import sys
 import io
 import logging
 import os
+import sys
 import tempfile
+from typing import Union, List, Optional
+
 import numpy as np
-from ..units_type import UnitsType
-from ..fermionic_driver import FermionicDriver, HFMethodType
-from ...exceptions import QiskitNatureError
-from ..molecule import Molecule
-from ...qmolecule import QMolecule
+
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .gaussian_utils import check_valid, run_g16
+from ..fermionic_driver import FermionicDriver, HFMethodType
+from ..molecule import Molecule
+from ..units_type import UnitsType
+from ...exceptions import QiskitNatureError
 
 logger = logging.getLogger(__name__)
 

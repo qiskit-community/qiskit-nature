@@ -10,24 +10,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Freeze-Core Transformation interface."""
+"""The Transcorrelated Hamiltonian Transformation interface."""
 
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from .second_quantized_transformer import BaseTransformer
+from ... import QMolecule
 
-from .second_quantized_transformation import SecondQuantizedTransformation
 
+class TranscorrelatedTransformer(BaseTransformer):
+    """The Transcorrelated Hamiltonian transformation."""
 
-class FreezeCoreTransformation(SecondQuantizedTransformation):
-    """The Freeze-Core transformation."""
-
-    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
-        """Transforms the given `ParticleOp` according to the specified frozen core.
+    def transform(self, q_molecule: QMolecule) -> QMolecule:
+        """Transforms the given `QMolecule` into a transcorrelated Hamiltonian
+        variant.
 
         Args:
-            second_q_op: the `ParticleOp` to be transformed.
+            q_molecule: the `QMolecule` to be transformed.
 
         Returns:
-            A new `ParticleOp` instance.
+            A new `QMolecule` instance.
         """
         # TODO
         raise NotImplementedError()
