@@ -12,13 +12,12 @@
 
 """The Second-Quantized Operator."""
 
-from typing import List, Dict
 from numbers import Number
+from typing import List, Dict
 
 from qiskit_nature import QiskitNatureError
-
-from .particle_op import ParticleOp
 from .fermionic_op import FermionicOp
+from .particle_op import ParticleOp
 from .spin_op import SpinOp
 from .star_algebra import StarAlgebraMixin
 
@@ -31,7 +30,7 @@ class SecondQuantizedOp(StarAlgebraMixin):
     def __init__(self, operator_list: List[ParticleOp]):
         """
         """
-        # TOOD: validation of operator_list
+        # TODO: validation of operator_list
 
         self._fermion = None
         self._boson = None
