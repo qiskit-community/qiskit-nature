@@ -12,10 +12,11 @@
 
 """ HDF5 Driver """
 
-import os
 import logging
+import os
+
+from qiskit_nature.drivers.qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver
-from ...qmolecule import QMolecule
 
 logger = logging.getLogger(__name__)
 

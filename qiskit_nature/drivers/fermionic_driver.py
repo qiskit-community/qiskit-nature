@@ -17,7 +17,7 @@ This module implements the abstract base class for fermionic driver modules.
 from abc import abstractmethod
 from enum import Enum
 
-from ..qmolecule import QMolecule
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .base_driver import BaseDriver
 
 

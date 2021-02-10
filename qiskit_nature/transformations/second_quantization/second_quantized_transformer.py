@@ -14,10 +14,10 @@
 
 from abc import ABC, abstractmethod
 
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from qiskit_nature import QMolecule
 
 
-class SecondQuantizedTransformation(ABC):
+class BaseTransformer(ABC):
     """The interface for implementing methods which map from one `ParticleOp` to
     another. These methods may or may not affect the size of the Hilbert space underlying the
     operator.
@@ -30,14 +30,15 @@ class SecondQuantizedTransformation(ABC):
     # produced energy offset to 0.
 
     @abstractmethod
-    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
-        """Transforms one `ParticleOp` into another one. This may or may not affect the
+    def transform(self, q_molecule: QMolecule) -> QMolecule:
+        """Transforms one `QMolecule` into another one. This may or may not affect the
         size of the Hilbert space underlying the operator.
 
         Args:
-            second_q_op: the `ParticleOp` to be transformed.
+            q_molecule: the `QMolecule` to be transformed.
 
         Returns:
-            A new `ParticleOp` instance.
+            A new `QMolecule` instance.
         """
+        # TODO
         raise NotImplementedError()

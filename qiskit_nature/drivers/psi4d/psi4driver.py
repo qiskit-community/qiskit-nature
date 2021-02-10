@@ -12,18 +12,19 @@
 
 """ PSI4 Driver """
 
-from typing import Union, List, Optional
-import tempfile
+import logging
 import os
 import subprocess
-import logging
 import sys
+import tempfile
 from shutil import which
-from ..units_type import UnitsType
+from typing import Union, List, Optional
+
+from qiskit_nature.drivers.qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver, HFMethodType
-from ...exceptions import QiskitNatureError
 from ..molecule import Molecule
-from ...qmolecule import QMolecule
+from ..units_type import UnitsType
+from ...exceptions import QiskitNatureError
 
 logger = logging.getLogger(__name__)
 
