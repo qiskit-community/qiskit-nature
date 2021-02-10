@@ -84,7 +84,6 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         Returns:
             str: the absolute path to the resource.
         """
-        if path is None:
-            path = os.path.dirname(self._class_location)
-
+        root = os.path.dirname(self._class_location)
+        path = root if path is None else os.path.join(root, path)
         return os.path.normpath(os.path.join(path, filename))
