@@ -16,14 +16,14 @@ from qiskit_nature import QMolecule
 from qiskit_nature.operators import FermionicOp
 
 
-def create_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
+def build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
     one_body_ints = q_molecule.one_body_integrals
     two_body_ints = q_molecule.two_body_integrals
 
-    return create_fermionic_op_from_integrals(one_body_ints, two_body_ints)
+    return build_fermionic_op_from_integrals(one_body_ints, two_body_ints)
 
 
-def create_fermionic_op_from_integrals(one_body_integrals, two_body_integrals=None) -> FermionicOp:
+def build_fermionic_op_from_integrals(one_body_integrals, two_body_integrals=None) -> FermionicOp:
     fermionic_op = FermionicOp('I' * len(one_body_integrals))
     fermionic_op = _populate_fermionic_op_with_one_body_integrals(fermionic_op, one_body_integrals)
     if two_body_integrals is not None:
