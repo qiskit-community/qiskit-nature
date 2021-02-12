@@ -32,20 +32,20 @@ class SecondQuantizedOp(StarAlgebraMixin):
         """
         # TODO: validation of operator_list
 
-        self._fermion = None
-        self._boson = None
-        self._spin: Dict[int, SpinOp] = {}
+        self.fermion = None
+        self.boson = None
+        self.spin: Dict[int, SpinOp] = {}
 
         for op in operator_list:
-            if isinstance(op, FermionicOp) and self._fermion is None:
-                self._fermion = op
-            elif isinstance(op, FermionicOp) and self._fermion is not None:
+            if isinstance(op, FermionicOp) and self.fermion is None:
+                self.fermion = op
+            elif isinstance(op, FermionicOp) and self.fermion is not None:
                 raise QiskitNatureError("Only one FermionicOp can be set in initializer.")
             # if isinstance(op, BosonicOp):
             # if isinstance(op, SpinOp):
 
     def __repr__(self):
-        return f"SecondQuantizedOp([{repr(self._fermion)}])"
+        return f"SecondQuantizedOp([{repr(self.fermion)}])"
 
     def mul(self, other):
         if not isinstance(other, Number):
@@ -53,8 +53,8 @@ class SecondQuantizedOp(StarAlgebraMixin):
                             "'{}'".format(type(other).__name__))
 
         operator_list = []
-        if self._fermion is not None:
-            operator_list.append(other * self._fermion)
+        if self.fermion is not None:
+            operator_list.append(other * self.fermion)
 
         return SecondQuantizedOp(operator_list)
 
@@ -71,7 +71,7 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
     def adjoint(self):
         daggered_operator_list = []
-        if self._fermion is not None:
-            daggered_operator_list.append(self._fermion.dagger)
+        if self.fermion is not None:
+            daggered_operator_list.append(self.fermion.dagger)
 
         return SecondQuantizedOp(daggered_operator_list)
