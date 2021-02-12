@@ -12,7 +12,7 @@
 
 """The Fermionic-particle Operator."""
 
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -217,7 +217,7 @@ class FermionicOp(ParticleOp):
             label2
         ), "Operators act on Fermion Registers of different length"
 
-        new_label = ""
+        new_label = ["I"] * len(label1)
         new_coeff = 1
 
         # Map the products of two operators on a single fermionic mode to their result.
@@ -251,25 +251,29 @@ class FermionicOp(ParticleOp):
             "EE": "E",
         }
 
+        # count the number of `+` and `-` in the first label ahead of time
+        count = label1.count("+") + label1.count("-")
+
         for i, char1, char2 in zip(range(len(label1)), label1, label2):
-            # if char2 is one of `-`, `+` we pick up a phase when commuting it to the position
-            # of char1
-            if char2 in ["-", "+"]:
-                # Construct the string through which we have to commute
-                permuting_through = label1[i + 1:]
-                # Count the number of times we pick up a minus sign when commuting
-                ncommutations = permuting_through.count("+") + permuting_through.count(
-                    "-"
-                )
-                new_coeff *= (-1) ** ncommutations
+            # update the count as we progress
+            if char1 in "+-":
+                count -= 1
 
             # Check what happens to the symbol
             new_char = mapping[char1 + char2]
             if new_char == 0:
                 return "I" * len(label1), 0
-            new_label += cast(str, new_char)
+            new_label[i] = new_char  # type: ignore
+            # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught
+            # by the `if`-statement above.
 
-        return new_label, new_coeff
+            # If char2 is one of `+` or `-` we pick up a phase when commuting it to the position
+            # of char1. However, we only care about this if the number of permutations has odd
+            # parity.
+            if count % 2 and char2 in "+-":
+                new_coeff *= -1
+
+        return ''.join(new_label), new_coeff
 
     def add(self, other: "FermionicOp") -> "FermionicOp":
         if not isinstance(other, FermionicOp):

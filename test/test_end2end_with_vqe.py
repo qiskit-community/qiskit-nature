@@ -32,7 +32,8 @@ class TestEnd2End(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5'))
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
+                                                              'drivers/hdf5d'))
         self.qmolecule = driver.run()
 
         warnings.filterwarnings('ignore', category=DeprecationWarning)
