@@ -20,8 +20,8 @@ from qiskit_nature import QMolecule
 from qiskit_nature.drivers import FermionicDriver
 from qiskit_nature.operators import FermionicOp
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.molecular.fermionic_op_factory import create_fermionic_op, \
-    create_fermionic_op_from_integrals
+from qiskit_nature.problems.second_quantization.molecular.fermionic_op_builder import build_fermionic_op, \
+    build_fermionic_op_from_integrals
 from qiskit_nature.transformations.second_quantization import BaseTransformer
 
 
@@ -50,7 +50,7 @@ class MolecularProblem:
 
         q_molecule_transformed = self._transform_q_molecule()
 
-        electronic_fermionic_op = create_fermionic_op(q_molecule_transformed)
+        electronic_fermionic_op = build_fermionic_op(q_molecule_transformed)
         total_magnetization_fermionic_op = self._create_total_magnetization_operator()
         total_angular_momentum_fermionic_op = self._create_total_angular_momentum_operator()
         total_particle_number_fermionic_op = self._create_total_particle_number_operator()
@@ -84,16 +84,16 @@ class MolecularProblem:
         return x_dipole_operator, y_dipole_operator, z_dipole_operator
 
     def _create_dipole_operator(self, dipole_integrals: np.ndarray) -> FermionicOp:
-        return create_fermionic_op_from_integrals(dipole_integrals)
+        return build_fermionic_op_from_integrals(dipole_integrals)
 
     def _create_total_magnetization_operator(self):
-        return create_fermionic_op_from_integrals(*self._calculate_total_magnetization_integrals())
+        return build_fermionic_op_from_integrals(*self._calculate_total_magnetization_integrals())
 
     def _create_total_angular_momentum_operator(self):
-        return create_fermionic_op_from_integrals(*self._calculate_total_angular_momentum_integrals())
+        return build_fermionic_op_from_integrals(*self._calculate_total_angular_momentum_integrals())
 
     def _create_total_particle_number_operator(self):
-        return create_fermionic_op_from_integrals(*self._calculate_total_particle_number_integrals())
+        return build_fermionic_op_from_integrals(*self._calculate_total_particle_number_integrals())
 
     def _calculate_total_magnetization_integrals(self):
         modes = self._num_modes
