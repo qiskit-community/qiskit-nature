@@ -11,13 +11,11 @@
 # that they have been altered from the originals.
 
 """The Molecular Problem class."""
-import itertools
 from typing import List, Optional
 
-from qiskit_nature import QMolecule
 from qiskit_nature.drivers import FermionicDriver
-from qiskit_nature.operators import FermionicOp
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.problems.second_quantization.molecular.fermionic_op_factory import create_fermionic_op
 from qiskit_nature.transformations.second_quantization import BaseTransformer
 
 
@@ -44,50 +42,8 @@ class MolecularProblem:
         q_molecule = self.driver.run()
         for transformer in self.transformers:
             q_molecule = transformer.transform(q_molecule)
-        fermionic_op = self.__create_fermionic_op(q_molecule)
+        fermionic_op = create_fermionic_op(q_molecule)
 
         return [SecondQuantizedOp([fermionic_op])]  # TODO support aux operators
 
-    def __create_fermionic_op(self, q_molecule: QMolecule) -> FermionicOp:
-        one_body_ints = q_molecule.one_body_integrals
-        two_body_ints = q_molecule.two_body_integrals
-        fermionic_op = FermionicOp('I' * len(one_body_ints))
-        fermionic_op = self.__populate_fermionic_op_with_one_body_integrals(fermionic_op, one_body_ints)
-        fermionic_op = self.__populate_fermionic_op_with_two_body_integrals(fermionic_op, two_body_ints)
 
-        fermionic_op = fermionic_op.reduce()
-
-        return fermionic_op
-
-    # TODO might likely be extracted to a separate module
-    @staticmethod
-    def __populate_fermionic_op_with_one_body_integrals(fermionic_op: FermionicOp, one_body_integrals):
-        for idx in itertools.product(range(len(one_body_integrals)), repeat=2):
-            coeff = one_body_integrals[idx]
-            if not coeff:
-                continue
-            label = ['I'] * len(one_body_integrals)
-            base_op = coeff * FermionicOp(''.join(label))
-            for i, op in [(idx[0], '+'), (idx[1], '-')]:
-                label_i = label.copy()
-                label_i[i] = op
-                base_op @= FermionicOp(''.join(label_i))
-            fermionic_op += base_op
-        return fermionic_op
-
-    # TODO might likely be extracted to a separate module
-    @staticmethod
-    def __populate_fermionic_op_with_two_body_integrals(fermionic_op: FermionicOp, two_body_integrals):
-        for idx in itertools.product(range(len(two_body_integrals)), repeat=4):
-            coeff = two_body_integrals[idx]
-            if not coeff:
-                continue
-            label = ['I'] * len(two_body_integrals)
-            base_op = coeff * FermionicOp(''.join(label))
-            for i, op in [(idx[0], '+'), (idx[2], '+'), (idx[3], '-'), (idx[1], '-')]:
-                label_i = label.copy()
-                label_i[i] = op
-                base_op @= FermionicOp(''.join(label_i))
-            base_op.reduce()
-            fermionic_op += base_op
-        return fermionic_op

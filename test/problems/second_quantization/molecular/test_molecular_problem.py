@@ -36,4 +36,9 @@ class TestMolecularProblem(QiskitNatureTestCase):
 
     def test_second_q_ops(self):
         second_quantized_ops = self.molecular_problem.second_q_ops()
-        assert isinstance(second_quantized_ops[0], SecondQuantizedOp)
+        main_second_quantized_op = second_quantized_ops[0]
+
+        assert main_second_quantized_op.boson is None
+        assert main_second_quantized_op.spin == {}
+        assert isinstance(main_second_quantized_op, SecondQuantizedOp)
+        assert len(main_second_quantized_op.fermion) == 631
