@@ -35,10 +35,14 @@ class TestMolecularProblem(QiskitNatureTestCase):
             self.skipTest('PYSCF driver does not appear to be installed')
 
     def test_second_q_ops(self):
-        second_quantized_ops = self.molecular_problem.second_q_ops()
-        main_second_quantized_op = second_quantized_ops[0]
+        expected_number_of_electronic_terms = 631
+        expected_number_of_second_quantized_ops = 7
 
-        assert main_second_quantized_op.boson is None
-        assert main_second_quantized_op.spin == {}
-        assert isinstance(main_second_quantized_op, SecondQuantizedOp)
-        assert len(main_second_quantized_op.fermion) == 631
+        second_quantized_ops = self.molecular_problem.second_q_ops()
+        electronic_second_quantized_op = second_quantized_ops[0]
+        assert electronic_second_quantized_op.boson is None
+        assert electronic_second_quantized_op.spin == {}
+        assert len(second_quantized_ops) == expected_number_of_second_quantized_ops
+        for second_quantized_op in second_quantized_ops:
+            assert isinstance(second_quantized_op, SecondQuantizedOp)
+        assert len(electronic_second_quantized_op.fermion) == expected_number_of_electronic_terms

@@ -12,11 +12,13 @@
 
 """The Molecular Problem class."""
 import itertools
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 
+from qiskit_nature import QMolecule
 from qiskit_nature.drivers import FermionicDriver
+from qiskit_nature.operators import FermionicOp
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.molecular.fermionic_op_factory import create_fermionic_op, \
     create_fermionic_op_from_integrals
@@ -45,20 +47,45 @@ class MolecularProblem:
         Returns:
             A list of `SecondQuantizedOp`.
         """
-        q_molecule = self._q_molecule
-        for transformer in self.transformers:
-            q_molecule = transformer.transform(q_molecule)
 
-        electronic_fermionic_op = create_fermionic_op(q_molecule)
+        q_molecule_transformed = self._transform_q_molecule()
+
+        electronic_fermionic_op = create_fermionic_op(q_molecule_transformed)
         total_magnetization_fermionic_op = self._create_total_magnetization_operator()
         total_angular_momentum_fermionic_op = self._create_total_angular_momentum_operator()
         total_particle_number_fermionic_op = self._create_total_particle_number_operator()
 
-        return [SecondQuantizedOp([electronic_fermionic_op]), SecondQuantizedOp([total_magnetization_fermionic_op]),
-                SecondQuantizedOp([total_angular_momentum_fermionic_op]),
-                SecondQuantizedOp([total_particle_number_fermionic_op])]
+        second_quantized_operators_list = [SecondQuantizedOp([electronic_fermionic_op]),
+                                           SecondQuantizedOp([total_magnetization_fermionic_op]),
+                                           SecondQuantizedOp([total_angular_momentum_fermionic_op]),
+                                           SecondQuantizedOp([total_particle_number_fermionic_op])]
+
+        if q_molecule_transformed.has_dipole_integrals():
+            x_dipole_operator, y_dipole_operator, z_dipole_operator = self._create_dipole_operators(
+                q_molecule_transformed)
+            second_quantized_operators_list += [SecondQuantizedOp([x_dipole_operator]),
+                                                SecondQuantizedOp([y_dipole_operator]),
+                                                SecondQuantizedOp([z_dipole_operator])]
+
+        return second_quantized_operators_list
+
+    def _transform_q_molecule(self) -> QMolecule:
+        q_molecule = self._q_molecule
+        for transformer in self.transformers:
+            q_molecule = transformer.transform(q_molecule)
+        return q_molecule
 
     # TODO likely extract all below to separate classes
+    def _create_dipole_operators(self, q_molecule: QMolecule) -> Tuple[FermionicOp, FermionicOp, FermionicOp]:
+        x_dipole_operator = self._create_dipole_operator(q_molecule.x_dipole_integrals)
+        y_dipole_operator = self._create_dipole_operator(q_molecule.y_dipole_integrals)
+        z_dipole_operator = self._create_dipole_operator(q_molecule.z_dipole_integrals)
+
+        return x_dipole_operator, y_dipole_operator, z_dipole_operator
+
+    def _create_dipole_operator(self, dipole_integrals: np.ndarray) -> FermionicOp:
+        return create_fermionic_op_from_integrals(dipole_integrals)
+
     def _create_total_magnetization_operator(self):
         return create_fermionic_op_from_integrals(*self._calculate_total_magnetization_integrals())
 
