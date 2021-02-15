@@ -25,7 +25,8 @@ class HDF5Driver(FermionicDriver):
     """
     Qiskit chemistry driver reading an HDF5 file.
 
-    The HDF5 file is as saved from a :class:`~qiskit_nature.QMolecule` instance.
+    The HDF5 file is as saved from
+    a :class:`~qiskit_nature.drivers.QMolecule` instance.
     """
 
     def __init__(self,

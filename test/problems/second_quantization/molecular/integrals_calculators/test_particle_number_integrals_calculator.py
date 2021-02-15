@@ -11,9 +11,10 @@
 # that they have been altered from the originals.
 
 """Tests total particle number integrals calculator."""
+from test import QiskitNatureTestCase
+
 import numpy as np
 
-from test import QiskitNatureTestCase
 from qiskit_nature.problems.second_quantization.molecular.integrals_calculators \
     .particle_number_integrals_calculator import \
     calc_total_particle_num_ints
