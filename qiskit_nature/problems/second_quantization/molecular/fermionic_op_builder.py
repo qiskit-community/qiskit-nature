@@ -14,7 +14,7 @@
 
 import itertools
 
-from qiskit_nature import QMolecule
+from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.operators import FermionicOp
 
 
