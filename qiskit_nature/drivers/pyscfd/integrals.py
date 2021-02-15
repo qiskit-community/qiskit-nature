@@ -15,9 +15,11 @@
 import logging
 import tempfile
 import os
+
 import numpy as np
+
 from qiskit_nature import QiskitNatureError
-from qiskit_nature import QMolecule
+from qiskit_nature.drivers.qmolecule import QMolecule
 
 logger = logging.getLogger(__name__)
 

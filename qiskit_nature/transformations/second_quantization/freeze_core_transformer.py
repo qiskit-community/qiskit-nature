@@ -12,8 +12,8 @@
 
 """The Freeze-Core Transformation interface."""
 
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .second_quantized_transformer import BaseTransformer
-from ... import QMolecule
 
 
 class FreezeCoreTransformer(BaseTransformer):

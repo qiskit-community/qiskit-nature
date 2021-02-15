@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from qiskit_nature import QMolecule
+from qiskit_nature.drivers.qmolecule import QMolecule
 
 
 class BaseTransformer(ABC):

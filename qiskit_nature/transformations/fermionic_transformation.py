@@ -21,18 +21,18 @@ import logging
 from enum import Enum
 
 import numpy as np
-
 from qiskit.tools import parallel_map
 from qiskit.aqua import AquaError, aqua_globals
 from qiskit.aqua.operators import Z2Symmetries, WeightedPauliOperator, OperatorBase
 from qiskit.aqua.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit_nature import QiskitNatureError, QMolecule
+
 from qiskit_nature.fermionic_operator import FermionicOperator
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.results import DipoleTuple, EigenstateResult, ElectronicStructureResult
 from qiskit_nature.components.variational_forms import UCCSD
-
 from .transformation import Transformation
+from .. import QiskitNatureError
+from ..drivers.qmolecule import QMolecule
 
 logger = logging.getLogger(__name__)
 

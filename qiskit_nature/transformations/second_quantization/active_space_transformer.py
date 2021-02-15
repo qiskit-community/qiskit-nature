@@ -14,8 +14,8 @@
 
 from typing import Optional
 
+from ...drivers.qmolecule import QMolecule
 from .second_quantized_transformer import BaseTransformer
-from ... import QMolecule
 
 
 class ActiveSpaceTransformer(BaseTransformer):
