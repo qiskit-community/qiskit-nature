@@ -23,7 +23,7 @@ def calc_total_particle_num_ints(num_modes):
         num_modes (int): Number of modes.
 
     Returns:
-        Tuple(list, list): Tuple of 1- and 2-body integrals for a total particle number.
+        Tuple(ndarray, ndarray): Tuple of 1- and 2-body integrals for a total particle number.
     """
     modes = num_modes
     h_1 = np.eye(modes, dtype=complex)
