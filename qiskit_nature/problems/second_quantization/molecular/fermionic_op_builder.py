@@ -20,21 +20,21 @@ def build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
     one_body_ints = q_molecule.one_body_integrals
     two_body_ints = q_molecule.two_body_integrals
 
-    return build_fermionic_op_from_integrals(one_body_ints, two_body_ints)
+    return build_ferm_op_from_ints(one_body_ints, two_body_ints)
 
 
-def build_fermionic_op_from_integrals(one_body_integrals, two_body_integrals=None) -> FermionicOp:
+def build_ferm_op_from_ints(one_body_integrals, two_body_integrals=None) -> FermionicOp:
     fermionic_op = FermionicOp('I' * len(one_body_integrals))
-    fermionic_op = _populate_fermionic_op_with_one_body_integrals(fermionic_op, one_body_integrals)
+    fermionic_op = _fill_ferm_op_one_body_ints(fermionic_op, one_body_integrals)
     if two_body_integrals is not None:
-        fermionic_op = _populate_fermionic_op_with_two_body_integrals(fermionic_op, two_body_integrals)
+        fermionic_op = _fill_ferm_op_two_body_ints(fermionic_op, two_body_integrals)
 
     fermionic_op = fermionic_op.reduce()
 
     return fermionic_op
 
 
-def _populate_fermionic_op_with_one_body_integrals(fermionic_op: FermionicOp, one_body_integrals):
+def _fill_ferm_op_one_body_ints(fermionic_op: FermionicOp, one_body_integrals):
     for idx in itertools.product(range(len(one_body_integrals)), repeat=2):
         coeff = one_body_integrals[idx]
         if not coeff:
@@ -49,7 +49,7 @@ def _populate_fermionic_op_with_one_body_integrals(fermionic_op: FermionicOp, on
     return fermionic_op
 
 
-def _populate_fermionic_op_with_two_body_integrals(fermionic_op: FermionicOp, two_body_integrals):
+def _fill_ferm_op_two_body_ints(fermionic_op: FermionicOp, two_body_integrals):
     for idx in itertools.product(range(len(two_body_integrals)), repeat=4):
         coeff = two_body_integrals[idx]
         if not coeff:
