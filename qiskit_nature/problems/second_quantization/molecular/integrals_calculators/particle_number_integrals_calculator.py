@@ -10,10 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+""" Calculator of 1- and 2-body integrals for a total particle number."""
+
 import numpy as np
 
 
 def calc_total_particle_num_ints(num_modes):
+    """
+    Calculates 1- and 2-body integrals for a total particle number.
+
+    Args:
+        num_modes (int): Number of modes.
+
+    Returns:
+        Tuple(list, list): Tuple of 1- and 2-body integrals for a total particle number.
+    """
     modes = num_modes
     h_1 = np.eye(modes, dtype=complex)
     h_2 = np.zeros((modes, modes, modes, modes))

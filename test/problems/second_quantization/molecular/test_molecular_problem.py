@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Tests Molecular Problem."""
+
 from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
@@ -18,7 +20,7 @@ from qiskit_nature.problems.second_quantization.molecular.molecular_problem impo
 
 
 class TestMolecularProblem(QiskitNatureTestCase):
-    """Molecular Problem tests."""
+    """Tests Molecular Problem."""
 
     def setUp(self):
         super().setUp()
@@ -35,6 +37,8 @@ class TestMolecularProblem(QiskitNatureTestCase):
             self.skipTest('PYSCF driver does not appear to be installed')
 
     def test_second_q_ops(self):
+        """Tests that the list of second quantized operators is created if no transformers
+        provided."""
         expected_num_of_electr_terms = 631
         expected_num_of_sec_quant_ops = 7
 

@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+""" Fermionic operator builder. """
+
 import itertools
 
 from qiskit_nature import QMolecule
@@ -17,6 +19,16 @@ from qiskit_nature.operators import FermionicOp
 
 
 def build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
+    """
+    Builds a fermionic operator based on a QMolecule object.
+
+    Args:
+        q_molecule (QMolecule): QMolecule instance with 1- and/or 2-body integrals.
+
+    Returns:
+        FermionicOp: FermionicOp built from a QMolecule object.
+    """
+
     one_body_ints = q_molecule.one_body_integrals
     two_body_ints = q_molecule.two_body_integrals
 
@@ -24,6 +36,17 @@ def build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
 
 
 def build_ferm_op_from_ints(one_body_integrals, two_body_integrals=None) -> FermionicOp:
+    """
+    Builds a fermionic operator based on 1- and/or 2-body integrals.
+
+    Args:
+        one_body_integrals (...): One-body integrals.
+        two_body_integrals (...): Two-body integrals.
+
+    Returns:
+        FermionicOp: FermionicOp built from 1- and/or 2-body integrals.
+    """
+
     fermionic_op = FermionicOp('I' * len(one_body_integrals))
     fermionic_op = _fill_ferm_op_one_body_ints(fermionic_op, one_body_integrals)
     if two_body_integrals is not None:
