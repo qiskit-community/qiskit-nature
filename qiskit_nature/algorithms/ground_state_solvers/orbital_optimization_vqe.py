@@ -452,7 +452,8 @@ class OrbitalRotation:
         Args:
             num_qubits: number of qubits necessary to simulate a particular system.
             transformation: a fermionic driver to operator transformation strategy.
-            qmolecule: instance of the :class:`~qiskit_nature.QMolecule` class which has methods
+            qmolecule: instance of the :class:`~qiskit_nature.drivers.QMolecule`
+                class which has methods
                 needed to recompute one-/two-electron/dipole integrals after orbital rotation
                 (C = C0 * exp(-kappa)). It is not required but can be used if user wished to
                 provide custom integrals for instance.

@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 """Tests total angular momentum integrals calculator."""
+from test import QiskitNatureTestCase
 import numpy as np
 
-from test import QiskitNatureTestCase
 from qiskit_nature.problems.second_quantization.molecular.integrals_calculators \
     .angular_momentum_integrals_calculator import \
     calc_total_ang_momentum_ints
