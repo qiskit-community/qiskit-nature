@@ -87,8 +87,8 @@ class MolecularProblem:
             q_molecule = transformer.transform(q_molecule)
         return q_molecule
 
-    def _create_dipole_operators(self, q_molecule: QMolecule) -> Tuple[
-        FermionicOp, FermionicOp, FermionicOp]:
+    def _create_dipole_operators(self, q_molecule: QMolecule) -> \
+            Tuple[FermionicOp, FermionicOp, FermionicOp]:
         x_dipole_operator = self._create_dipole_operator(q_molecule.x_dipole_integrals)
         y_dipole_operator = self._create_dipole_operator(q_molecule.y_dipole_integrals)
         z_dipole_operator = self._create_dipole_operator(q_molecule.z_dipole_integrals)

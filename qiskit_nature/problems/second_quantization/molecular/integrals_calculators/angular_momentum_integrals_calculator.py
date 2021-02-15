@@ -10,12 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+""" Calculator of 1- and 2-body integrals for a total angular momentum."""
+
 import itertools
 
 import numpy as np
 
 
 def calc_total_ang_momentum_ints(num_modes):
+    """
+    Calculates 1- and 2-body integrals for a total angular momentum.
+
+    Args:
+        num_modes (int): Number of modes.
+
+    Returns:
+        Tuple(list, list): Tuple of 1- and 2-body integrals for a total angular momentum.
+    """
     x_h1, x_h2 = _calc_s_x_squared_ints(num_modes)
     y_h1, y_h2 = _calc_s_y_squared_ints(num_modes)
     z_h1, z_h2 = _calc_s_z_squared_ints(num_modes)
