@@ -134,7 +134,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             fock_inactive_b = hcore_b + coulomb_inactive + coulomb_inactive_b - exchange_inactive_b
 
         # compute inactive energy
-        e_inactive = q_molecule.nuclear_repulsion_energy
+        e_inactive = 0.0
         if not beta and mo_coeff_inactive.size > 0:
             e_inactive += 0.5 * np.einsum('ij,ji', density_inactive, hcore+fock_inactive)
         elif beta and mo_coeff_inactive_b.size > 0:
