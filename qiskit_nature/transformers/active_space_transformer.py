@@ -156,7 +156,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                                  mo_coeff_active_b, mo_coeff_active, mo_coeff_active,
                                  optimize=True)
 
-        # TODO: maybe deep-copying and overwriding fields is less prone to information loss
+        # TODO: maybe deep-copying and overwriting fields is less prone to information loss
         # construct new QMolecule
         q_molecule_reduced = QMolecule()
         # Driver origin from which this QMolecule was created
