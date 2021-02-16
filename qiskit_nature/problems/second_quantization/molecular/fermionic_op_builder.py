@@ -40,8 +40,8 @@ def build_ferm_op_from_ints(one_body_integrals, two_body_integrals=None) -> Ferm
     Builds a fermionic operator based on 1- and/or 2-body integrals.
 
     Args:
-        one_body_integrals (...): One-body integrals.
-        two_body_integrals (...): Two-body integrals.
+        one_body_integrals (numpy.ndarray): One-body integrals.
+        two_body_integrals (numpy.ndarray): Two-body integrals.
 
     Returns:
         FermionicOp: FermionicOp built from 1- and/or 2-body integrals.

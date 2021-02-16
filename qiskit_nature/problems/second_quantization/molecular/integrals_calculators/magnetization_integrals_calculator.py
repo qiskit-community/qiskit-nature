@@ -22,7 +22,8 @@ def calc_total_magnetization_ints(num_modes: int):
         num_modes (int): Number of modes.
 
     Returns:
-        Tuple(list, list): Tuple of 1- and 2-body integrals for a total magnetization.
+        Tuple(numpy.ndarray, numpy.ndarray): Tuple of 1- and 2-body integrals for a total
+        magnetization.
     """
     modes = num_modes
     h_1 = np.eye(modes, dtype=complex) * 0.5

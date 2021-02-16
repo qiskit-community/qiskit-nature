@@ -25,7 +25,8 @@ def calc_total_ang_momentum_ints(num_modes):
         num_modes (int): Number of modes.
 
     Returns:
-        Tuple(list, list): Tuple of 1- and 2-body integrals for a total angular momentum.
+        Tuple(numpy.ndarray, numpy.ndarray): Tuple of 1- and 2-body integrals for a total angular
+        momentum.
     """
     x_h1, x_h2 = _calc_s_x_squared_ints(num_modes)
     y_h1, y_h2 = _calc_s_y_squared_ints(num_modes)
