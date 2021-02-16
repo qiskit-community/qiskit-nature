@@ -74,6 +74,8 @@ class QMolecule:
         self.orbital_energies = None
         self.orbital_energies_b = None  # v2
 
+        self.energy_shift = 0.0
+
         # Molecule geometry. xyz coords are in Bohr
         self.molecular_charge = None
         self.multiplicity = None
@@ -325,6 +327,7 @@ class QMolecule:
             g_energy = file.create_group("energy")
             create_dataset(g_energy, "hf_energy", self.hf_energy)
             create_dataset(g_energy, "nuclear_repulsion_energy", self.nuclear_repulsion_energy)
+            create_dataset(g_energy, "energy_shift", self.energy_shift)
 
             # Orbitals
             g_orbitals = file.create_group("orbitals")
@@ -569,6 +572,7 @@ class QMolecule:
 
             logger.info("Computed Hartree-Fock energy: %s", self.hf_energy)
             logger.info("Nuclear repulsion energy: %s", self.nuclear_repulsion_energy)
+            logger.info("Energy shift due to transformations: %s", self.energy_shift)
             if None not in (self.hf_energy, self.nuclear_repulsion_energy):
                 logger.info("One and two electron Hartree-Fock energy: %s",
                             self.hf_energy - self.nuclear_repulsion_energy)
