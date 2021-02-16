@@ -89,8 +89,8 @@ class ActiveSpaceTransformer(BaseTransformer):
             norbs_inactive = nelec_inactive // 2
             if norbs_inactive + self.num_orbitals > q_molecule.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
-            inactive_orbs_idxs = range(norbs_inactive)
-            active_orbs_idxs = range(norbs_inactive, norbs_inactive+self.num_orbitals)
+            inactive_orbs_idxs = list(range(norbs_inactive))
+            active_orbs_idxs = list(range(norbs_inactive, norbs_inactive+self.num_orbitals))
         else:
             if self.num_orbitals != len(self.active_orbitals):
                 raise QiskitNatureError("The number of selected active orbital indices does not "
