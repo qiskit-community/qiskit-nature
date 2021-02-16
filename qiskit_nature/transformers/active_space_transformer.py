@@ -53,7 +53,9 @@ class ActiveSpaceTransformer(BaseTransformer):
             A new `QMolecule` instance.
 
         Raises:
-            QiskitNatureError: If more orbitals are requested than are available.
+            QiskitNatureError: If more electrons or orbitals are requested than are available, if an
+                               uneven number of inactive electrons remains, or if the number of
+                               selected active orbital indices does not match `num_orbitals`.
         """
         # get molecular orbital coefficients
         mo_coeff_full = q_molecule.mo_coeff
@@ -77,7 +79,10 @@ class ActiveSpaceTransformer(BaseTransformer):
         else:
             num_beta = (self.num_electrons - (q_molecule.multiplicity - 1)) // 2
             num_alpha = self.num_electrons - num_beta
-        assert nelec_inactive % 2 == 0
+        if nelec_inactive < 0:
+            raise QiskitNatureError("More electrons requested than available.")
+        if nelec_inactive % 2 != 0:
+            raise QiskitNatureError("The number of inactive electrons must be even.")
 
         # determine active and inactive orbital indices
         if self.active_orbitals is None:
@@ -87,7 +92,9 @@ class ActiveSpaceTransformer(BaseTransformer):
             inactive_orbs_idxs = range(norbs_inactive)
             active_orbs_idxs = range(norbs_inactive, norbs_inactive+self.num_orbitals)
         else:
-            assert self.num_orbitals == len(self.active_orbitals)
+            if self.num_orbitals != len(self.active_orbitals):
+                raise QiskitNatureError("The number of selected active orbital indices does not "
+                                        "match the specified number of active orbitals.")
             if max(self.active_orbitals) >= q_molecule.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
             active_orbs_idxs = self.active_orbitals
