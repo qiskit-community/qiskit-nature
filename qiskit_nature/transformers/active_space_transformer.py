@@ -14,12 +14,12 @@
 
 from typing import Optional
 
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from qiskit_nature import QMolecule
 
-from .second_quantized_transformation import SecondQuantizedTransformation
+from .base_transformer import BaseTransformer
 
 
-class ActiveSpaceTransformation(SecondQuantizedTransformation):
+class ActiveSpaceTransformer(BaseTransformer):
     """The Active-Space reduction."""
 
     def __init__(self, num_electrons: int, num_orbitals: int, num_alpha: Optional[int] = None):
@@ -34,14 +34,14 @@ class ActiveSpaceTransformation(SecondQuantizedTransformation):
         self.num_orbitals = num_orbitals
         self.num_alpha = num_alpha
 
-    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
-        """Reduces the given `ParticleOp` to a given active space.
+    def transform(self, q_molecule: QMolecule) -> QMolecule:
+        """Reduces the given `QMolecule` to a given active space.
 
         Args:
-            second_q_op: the `ParticleOp` to be transformed.
+            q_molecule: the `QMolecule` to be transformed.
 
         Returns:
-            A new `ParticleOp` instance.
+            A new `QMolecule` instance.
         """
         # TODO
         raise NotImplementedError()

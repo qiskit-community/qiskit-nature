@@ -10,24 +10,25 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Freeze-Core Transformation interface."""
+"""The Seniority-Zero Transformer interface."""
 
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from qiskit_nature import QMolecule
 
-from .second_quantized_transformation import SecondQuantizedTransformation
+from .base_transformer import BaseTransformer
 
 
-class FreezeCoreTransformation(SecondQuantizedTransformation):
-    """The Freeze-Core transformation."""
+class SeniorityZeroTransformer(BaseTransformer):
+    """The Seniority-Zero transformer."""
 
-    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
-        """Transforms the given `ParticleOp` according to the specified frozen core.
+    def transform(self, q_molecule: QMolecule) -> QMolecule:
+        """Transforms the given `QMolecule` into a seniority-zero (i.e.
+        restricted-spin) variant.
 
         Args:
-            second_q_op: the `ParticleOp` to be transformed.
+            q_molecule: the `QMolecule` to be transformed.
 
         Returns:
-            A new `ParticleOp` instance.
+            A new `QMolecule` instance.
         """
         # TODO
         raise NotImplementedError()
