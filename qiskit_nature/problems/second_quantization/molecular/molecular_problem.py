@@ -13,8 +13,6 @@
 """The Molecular Problem class."""
 from typing import List, Optional, Tuple
 
-import numpy as np
-
 from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.drivers import FermionicDriver
 from qiskit_nature.operators import FermionicOp
@@ -39,16 +37,15 @@ class MolecularProblem:
     """Molecular Problem"""
 
     def __init__(self, fermionic_driver: FermionicDriver,
-                 second_quantized_transformations: Optional[List[BaseTransformer]]):
+                 q_molecule_transformers: Optional[List[BaseTransformer]]):
         """
 
         Args:
             fermionic_driver: A fermionic driver encoding the molecule information.
-            second_quantized_transformations: A list of second quantized transformations to be
-            applied to the molecule.
+            q_molecule_transformers: A list of transformations to be applied to the molecule.
         """
         self.driver = fermionic_driver
-        self.transformers = second_quantized_transformations
+        self.transformers = q_molecule_transformers
         self._q_molecule = self.driver.run()
         self._num_modes = self._q_molecule.one_body_integrals.shape[0]
 
@@ -89,23 +86,20 @@ class MolecularProblem:
 
     def _create_dipole_operators(self, q_molecule: QMolecule) -> \
             Tuple[FermionicOp, FermionicOp, FermionicOp]:
-        x_dipole_operator = self._create_dipole_operator(q_molecule.x_dipole_integrals)
-        y_dipole_operator = self._create_dipole_operator(q_molecule.y_dipole_integrals)
-        z_dipole_operator = self._create_dipole_operator(q_molecule.z_dipole_integrals)
+        x_dipole_operator = build_ferm_op_from_ints(q_molecule.x_dipole_integrals)
+        y_dipole_operator = build_ferm_op_from_ints(q_molecule.y_dipole_integrals)
+        z_dipole_operator = build_ferm_op_from_ints(q_molecule.z_dipole_integrals)
 
         return x_dipole_operator, y_dipole_operator, z_dipole_operator
 
-    def _create_dipole_operator(self, dipole_integrals: np.ndarray) -> FermionicOp:
-        return build_ferm_op_from_ints(dipole_integrals)
-
-    def _create_total_magnetization_operator(self):
+    def _create_total_magnetization_operator(self) -> FermionicOp:
         return build_ferm_op_from_ints(
-            *calc_total_magnetization_ints(self._num_modes))
+            calc_total_magnetization_ints(self._num_modes))
 
-    def _create_total_angular_momentum_operator(self):
+    def _create_total_angular_momentum_operator(self) -> FermionicOp:
         return build_ferm_op_from_ints(
             *calc_total_ang_momentum_ints(self._num_modes))
 
-    def _create_total_particle_number_operator(self):
+    def _create_total_particle_number_operator(self) -> FermionicOp:
         return build_ferm_op_from_ints(
-            *calc_total_particle_num_ints(self._num_modes))
+            calc_total_particle_num_ints(self._num_modes))

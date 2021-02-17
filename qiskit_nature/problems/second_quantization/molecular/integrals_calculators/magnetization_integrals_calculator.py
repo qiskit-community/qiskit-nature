@@ -10,24 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Calculator of 1- and 2-body integrals for a total magnetization."""
+""" Calculator of 1-body integrals for a total magnetization."""
+
 import numpy as np
 
 
-def calc_total_magnetization_ints(num_modes: int):
+def calc_total_magnetization_ints(num_modes: int) -> np.ndarray:
     """
-    Calculates 1- and 2-body integrals for a total magnetization.
+    Calculates 1-body integrals for a total magnetization.
 
     Args:
         num_modes (int): Number of modes.
 
     Returns:
-        Tuple(numpy.ndarray, numpy.ndarray): Tuple of 1- and 2-body integrals for a total
-        magnetization.
+        numpy.ndarray: 1-body integrals for a total magnetization.
     """
     modes = num_modes
     h_1 = np.eye(modes, dtype=complex) * 0.5
     h_1[modes // 2:, modes // 2:] *= -1.0
-    h_2 = np.zeros((modes, modes, modes, modes))
 
-    return h_1, h_2
+    return h_1

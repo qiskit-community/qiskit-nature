@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 """Tests total angular momentum integrals calculator."""
-from test import QiskitNatureTestCase
 import numpy as np
 
+from test import QiskitNatureTestCase
 from qiskit_nature.problems.second_quantization.molecular.integrals_calculators \
     .angular_momentum_integrals_calculator import \
     calc_total_ang_momentum_ints
@@ -27,8 +27,9 @@ class TestMolecularProblem(QiskitNatureTestCase):
         """Tests that one- and two-body integrals for total angular momentum are calculated
         correctly."""
         num_modes = 1
-
+        expected_h1 = [[0.]]
+        expected_h2 = [[[[0.]]]]
         h_1, h_2 = calc_total_ang_momentum_ints(num_modes)
 
-        assert isinstance(h_1, np.ndarray)
-        assert isinstance(h_2, np.ndarray)
+        assert np.allclose(h_1, expected_h1)
+        assert np.allclose(h_2, expected_h2)

@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 """Tests total magnetization integrals calculator."""
-from test import QiskitNatureTestCase
 import numpy as np
 
+from test import QiskitNatureTestCase
 from qiskit_nature.problems.second_quantization.molecular.integrals_calculators \
     .magnetization_integrals_calculator import \
     calc_total_magnetization_ints
@@ -24,11 +24,9 @@ class TestMolecularProblem(QiskitNatureTestCase):
     """Tests total magnetization integrals calculator."""
 
     def test_calc_total_magnetization_ints(self):
-        """Tests that one- and two-body integrals for total magnetization are calculated
-        correctly."""
+        """Tests that one-body integrals for total magnetization are calculated correctly."""
         num_modes = 1
+        expected_h_1 = [[-0.5 + 0.j]]
+        h_1 = calc_total_magnetization_ints(num_modes)
 
-        h_1, h_2 = calc_total_magnetization_ints(num_modes)
-
-        assert isinstance(h_1, np.ndarray)
-        assert isinstance(h_2, np.ndarray)
+        assert np.allclose(h_1, expected_h_1)
