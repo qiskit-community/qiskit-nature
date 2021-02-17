@@ -18,6 +18,7 @@ the issue then ensure changes are made to readme too.
 
 import unittest
 
+from qiskit_nature.mappings.mapped_ops_builder import mapping
 from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 
@@ -45,6 +46,7 @@ class TestReadmeSample(QiskitNatureTestCase):
 
     def test_readme_sample(self):
         """ readme sample test """
+
         # pylint: disable=import-outside-toplevel,redefined-builtin
 
         def print(*args):
@@ -71,7 +73,9 @@ class TestReadmeSample(QiskitNatureTestCase):
         # Build the qubit operator, which is the input to the VQE algorithm in Aqua
         ferm_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
         map_type = 'PARITY'
-        qubit_op = ferm_op.mapping(map_type)
+        qubit_op = mapping(map_type, num_modes=ferm_op.modes,
+                           h1=ferm_op.h1, h2=ferm_op.h2,
+                           ph_trans_shift=ferm_op._ph_trans_shift)
         qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
         num_qubits = qubit_op.num_qubits
 

@@ -14,12 +14,14 @@
 
 import warnings
 import unittest
-from test import QiskitNatureTestCase
 
 from qiskit.aqua import aqua_globals
 from qiskit.aqua.components.optimizers import L_BFGS_B
 from qiskit.aqua.operators.legacy.op_converter import to_weighted_pauli_operator
 from qiskit.aqua.operators.legacy.weighted_pauli_operator import Z2Symmetries
+
+from qiskit_nature.mappings.mapped_ops_builder import mapping
+from test import QiskitNatureTestCase
 from qiskit_nature import FermionicOperator
 from qiskit_nature.algorithms import VQEAdapt
 from qiskit_nature.circuit.library import HartreeFock
@@ -49,7 +51,9 @@ class TestVQEAdaptUCCSD(QiskitNatureTestCase):
         self.num_spin_orbitals = molecule.num_orbitals * 2
         fer_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
         map_type = 'PARITY'
-        qubit_op = fer_op.mapping(map_type)
+        qubit_op = mapping(map_type, num_modes=fer_op.modes,
+                           h1=fer_op.h1, h2=fer_op.h2,
+                           ph_trans_shift=fer_op._ph_trans_shift)
         self.qubit_op = Z2Symmetries.two_qubit_reduction(to_weighted_pauli_operator(qubit_op),
                                                          self.num_particles)
         self.num_qubits = self.qubit_op.num_qubits

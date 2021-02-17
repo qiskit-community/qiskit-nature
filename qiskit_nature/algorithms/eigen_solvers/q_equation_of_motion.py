@@ -28,17 +28,19 @@ from qiskit.aqua.operators import (LegacyBaseOperator,
                                    WeightedPauliOperator,
                                    Z2Symmetries,
                                    TPBGroupedWeightedPauliOperator,
-                                   commutator)
+                                   commutator, )
 from qiskit.aqua.operators.legacy import op_converter
 
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature import FermionicOperator
+from qiskit_nature.mappings.mapped_ops_builder import mapping
 
 logger = logging.getLogger(__name__)
 
 
 class QEquationOfMotion:
     """ QEquationOfMotion algorithm """
+
     def __init__(self, operator: LegacyBaseOperator,
                  num_orbitals: int,
                  num_particles: Union[List[int], int],
@@ -487,7 +489,9 @@ class QEquationOfMotion:
             i, j, k, m = index
             h_2[i, j, k, m] = 16.0
         fer_op = FermionicOperator(h_1, h_2)
-        qubit_op = fer_op.mapping(qubit_mapping)
+        qubit_op = mapping(qubit_mapping, num_modes=fer_op.modes,
+                           h1=fer_op.h1, h2=fer_op.h2,
+                           ph_trans_shift=fer_op._ph_trans_shift)
         if two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
 

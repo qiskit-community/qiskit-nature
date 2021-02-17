@@ -13,7 +13,7 @@
 """ Test End to End with QPE """
 
 import unittest
-from test import QiskitNatureTestCase
+
 import numpy as np
 from ddt import ddt, data
 import qiskit
@@ -22,6 +22,9 @@ from qiskit.aqua.utils import decimal_to_binary
 from qiskit.aqua import QuantumInstance
 from qiskit.aqua.algorithms import QPE, NumPyMinimumEigensolver
 from qiskit.aqua.operators import Z2Symmetries
+
+from qiskit_nature.mappings.mapped_ops_builder import mapping
+from test import QiskitNatureTestCase
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature import FermionicOperator, QiskitNatureError
 from qiskit_nature.circuit.library import HartreeFock
@@ -49,7 +52,9 @@ class TestEnd2EndWithQPE(QiskitNatureTestCase):
         qubit_mapping = 'parity'
         fer_op = FermionicOperator(
             h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
-        qubit_op = fer_op.mapping(map_type=qubit_mapping, threshold=1e-10)
+        qubit_op = mapping(map_type=qubit_mapping, num_modes=fer_op.modes,
+                           h1=fer_op.h1, h2=fer_op.h2,
+                           ph_trans_shift=fer_op._ph_trans_shift, threshold=1e-10)
         qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, 2)
 
         exact_eigensolver = NumPyMinimumEigensolver(qubit_op)

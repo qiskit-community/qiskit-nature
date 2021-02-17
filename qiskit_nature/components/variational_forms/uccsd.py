@@ -28,12 +28,13 @@ from qiskit.aqua.utils.validation import validate_min, validate_in_set
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-
 from qiskit.aqua import aqua_globals
 from qiskit.aqua.components.initial_states import InitialState
 from qiskit.aqua.operators import WeightedPauliOperator, Z2Symmetries
 from qiskit.aqua.components.variational_forms import VariationalForm
+
 from qiskit_nature.fermionic_operator import FermionicOperator
+from qiskit_nature.mappings.mapped_ops_builder import mapping
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +151,7 @@ class UCCSD(VariationalForm):
                                            same_spin_doubles=self.same_spin_doubles,
                                            method_singles=self._method_singles,
                                            method_doubles=self._method_doubles,
-                                           excitation_type=self._excitation_type,)
+                                           excitation_type=self._excitation_type, )
 
         self._hopping_ops, self._num_parameters = self._build_hopping_operators()
         self._excitation_pool = None  # type: Optional[List[WeightedPauliOperator]]
@@ -301,7 +302,9 @@ class UCCSD(VariationalForm):
             h_2[m, k, j, i] = -1.0
 
         dummpy_fer_op = FermionicOperator(h1=h_1, h2=h_2)
-        qubit_op = dummpy_fer_op.mapping(qubit_mapping)
+        qubit_op = mapping(qubit_mapping, num_modes=dummpy_fer_op.modes,
+                           h1=dummpy_fer_op.h1, h2=dummpy_fer_op.h2,
+                           ph_trans_shift=dummpy_fer_op._ph_trans_shift, )
         if two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
 

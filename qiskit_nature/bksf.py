@@ -141,48 +141,35 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
     return qubit_op
 
 
-def bravyi_kitaev_fast_edge_list(fer_op):
-    """
-    Construct edge list required for the bksf algorithm.
+def bravyi_kitaev_fast_edge_list_ints(h_1, h_2, num_modes):
+    edge_matrix = np.zeros((num_modes, num_modes), dtype=bool)
 
-    Args:
-        fer_op (FeriomicOperator): the fermionic operator in the second quantized form
-
-    Returns:
-        numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edge
-                        and each pair denotes (from, to)
-    """
-    h_1 = fer_op.h1
-    h_2 = fer_op.h2
-    modes = fer_op.modes
-    edge_matrix = np.zeros((modes, modes), dtype=bool)
-
-    for p, q in itertools.product(range(modes), repeat=2):  # pylint: disable=invalid-name
+    for p, q in itertools.product(range(num_modes), repeat=2):  # pylint: disable=invalid-name
 
         if h_1[p, q] != 0.0 and p >= q:
             edge_matrix[p, q] = True
 
-        for r, s in itertools.product(range(modes), repeat=2):  # pylint: disable=invalid-name
+        for r, s in itertools.product(range(num_modes), repeat=2):  # pylint: disable=invalid-name
             if h_2[p, q, r, s] == 0.0:  # skip zero terms
                 continue
 
             # Identify and skip one of the complex conjugates.
             if [p, q, r, s] != [s, r, q, p]:
-                if len(set([p, q, r, s])) == 4:
+                if len({p, q, r, s}) == 4:
                     if min(r, s) < min(p, q):
                         continue
                 elif p != r and q < p:
                     continue
 
             # Handle case of four unique indices.
-            if len(set([p, q, r, s])) == 4:
+            if len({p, q, r, s}) == 4:
                 if p >= q:
                     edge_matrix[p, q] = True
                     a_i, b = sorted([r, s])
                     edge_matrix[b, a_i] = True
 
             # Handle case of three unique indices.
-            elif len(set([p, q, r, s])) == 3:
+            elif len({p, q, r, s}) == 3:
                 # Identify equal tensor factors.
                 if p == r:
                     a_i, b = sorted([q, s])
@@ -198,6 +185,24 @@ def bravyi_kitaev_fast_edge_list(fer_op):
 
     edge_list = np.asarray(np.nonzero(np.triu(edge_matrix.T) ^ np.diag(np.diag(edge_matrix.T))))
     return edge_list
+
+
+def bravyi_kitaev_fast_edge_list(fer_op):
+    """
+    Construct edge list required for the bksf algorithm.
+
+    Args:
+        fer_op (FeriomicOperator): the fermionic operator in the second quantized form
+
+    Returns:
+        numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edge
+                        and each pair denotes (from, to)
+    """
+    h_1 = fer_op.h1
+    h_2 = fer_op.h2
+    modes = fer_op.modes
+
+    return bravyi_kitaev_fast_edge_list_ints(h_1, h_2, modes)
 
 
 def edge_operator_aij(edge_list, i, j):
@@ -285,6 +290,49 @@ def edge_operator_bi(edge_list, i):
     return qubit_op
 
 
+def bksf_mapping_ints(num_modes, h1, h2):
+    # bksf mapping works with the 'physicist' notation.
+    h2 = np.einsum('ijkm->ikmj', h2)
+
+    # Initialize qubit operator as constant.
+    qubit_op = WeightedPauliOperator(paulis=[])
+    edge_list = bravyi_kitaev_fast_edge_list_ints(h1, h2, num_modes)
+    # Loop through all indices.
+    for p in range(num_modes):  # pylint: disable=invalid-name
+        for q in range(num_modes):
+            # Handle one-body terms.
+            h1_pq = h1[p, q]
+
+            if h1_pq != 0.0 and p >= q:
+                qubit_op += _one_body(edge_list, p, q, h1_pq)
+
+            # Keep looping for the two-body terms.
+            for r in range(num_modes):
+                for s in range(num_modes):  # pylint: disable=invalid-name
+                    h2_pqrs = h2[p, q, r, s]
+
+                    # Skip zero terms.
+                    if (h2_pqrs == 0.0) or (p == q) or (r == s):
+                        continue
+
+                    # Identify and skip one of the complex conjugates.
+                    if [p, q, r, s] != [s, r, q, p]:
+                        if len({p, q, r, s}) == 4:
+                            if min(r, s) < min(p, q):
+                                continue
+                        # Handle case of 3 unique indices
+                        elif len({p, q, r, s}) == 3:
+                            qubit_op += _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
+                            continue
+                        elif p != r and q < p:
+                            continue
+
+                    qubit_op += _two_body(edge_list, p, q, r, s, h2_pqrs)
+
+    qubit_op.simplify()
+    return qubit_op
+
+
 def bksf_mapping(fer_op):
     """
     Transform from InteractionOpeator to QubitOperator for Bravyi-Kitaev fast algorithm.
@@ -318,46 +366,7 @@ def bksf_mapping(fer_op):
         WeightedPauliOperator: mapped qubit operator
     """
     fer_op = copy.deepcopy(fer_op)
-    # bksf mapping works with the 'physicist' notation.
-    fer_op.h2 = np.einsum('ijkm->ikmj', fer_op.h2)
-    modes = fer_op.modes
-    # Initialize qubit operator as constant.
-    qubit_op = WeightedPauliOperator(paulis=[])
-    edge_list = bravyi_kitaev_fast_edge_list(fer_op)
-    # Loop through all indices.
-    for p in range(modes):  # pylint: disable=invalid-name
-        for q in range(modes):
-            # Handle one-body terms.
-            h1_pq = fer_op.h1[p, q]
-
-            if h1_pq != 0.0 and p >= q:
-                qubit_op += _one_body(edge_list, p, q, h1_pq)
-
-            # Keep looping for the two-body terms.
-            for r in range(modes):
-                for s in range(modes):  # pylint: disable=invalid-name
-                    h2_pqrs = fer_op.h2[p, q, r, s]
-
-                    # Skip zero terms.
-                    if (h2_pqrs == 0.0) or (p == q) or (r == s):
-                        continue
-
-                    # Identify and skip one of the complex conjugates.
-                    if [p, q, r, s] != [s, r, q, p]:
-                        if len(set([p, q, r, s])) == 4:
-                            if min(r, s) < min(p, q):
-                                continue
-                        # Handle case of 3 unique indices
-                        elif len(set([p, q, r, s])) == 3:
-                            qubit_op += _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
-                            continue
-                        elif p != r and q < p:
-                            continue
-
-                    qubit_op += _two_body(edge_list, p, q, r, s, h2_pqrs)
-
-    qubit_op.simplify()
-    return qubit_op
+    return bksf_mapping_ints(fer_op.modes, fer_op.h1, fer_op.h2)
 
 
 def vacuum_operator(fer_op):
@@ -430,7 +439,7 @@ def generate_fermions(fer_op, i, j):
     """
     edge_list = bravyi_kitaev_fast_edge_list(fer_op)
     gen_fer_operator = edge_operator_aij(edge_list, i, j) * edge_operator_bi(edge_list, j) \
-        - edge_operator_bi(edge_list, i) * edge_operator_aij(edge_list, i, j)
+                       - edge_operator_bi(edge_list, i) * edge_operator_aij(edge_list, i, j)
 
     gen_fer_operator = -0.5j * gen_fer_operator
     return gen_fer_operator

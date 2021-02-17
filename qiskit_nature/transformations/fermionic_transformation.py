@@ -33,6 +33,8 @@ from qiskit_nature.components.variational_forms import UCCSD
 from .transformation import Transformation
 from .. import QiskitNatureError
 from ..drivers.qmolecule import QMolecule
+from ..mappings import mapped_ops_builder
+from ..mappings.mapped_ops_builder import mapping
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +250,7 @@ class FermionicTransformation(Transformation):
                 FermionicTransformation._try_reduce_fermionic_operator(
                     op, freeze_list, remove_list)[0]
                 for op in aux_operators
-                ]
+            ]
 
         if did_shift:
             logger.info("Frozen orbital energy shift: %s", self._energy_shift)
@@ -263,12 +265,12 @@ class FermionicTransformation(Transformation):
                 aux_operators = [
                     op.particle_hole_transformation(new_nel)[0]
                     for op in aux_operators
-                    ]
+                ]
 
         logger.debug('Converting to qubit using %s mapping', self._qubit_mapping)
         qubit_op = FermionicTransformation._map_fermionic_operator_to_qubit(
             fer_op, self._qubit_mapping, new_nel, self._two_qubit_reduction
-            )
+        )
         qubit_op.name = 'Fermionic Operator'
 
         logger.debug('  num paulis: %s, num qubits: %s', len(qubit_op.paulis), qubit_op.num_qubits)
@@ -286,7 +288,7 @@ class FermionicTransformation(Transformation):
             """
             aux_qop = FermionicTransformation._map_fermionic_operator_to_qubit(
                 aux_op, self._qubit_mapping, new_nel, self._two_qubit_reduction
-                )
+            )
             aux_qop.name = name
 
             aux_ops.append(aux_qop)
@@ -429,7 +431,7 @@ class FermionicTransformation(Transformation):
                     qubit_mapping=self._qubit_mapping,
                     two_qubit_reduction=self._two_qubit_reduction,
                     num_particles=self._molecule_info['num_particles']
-                    )
+                )
                 z2_symmetries = FermionicTransformation._pick_sector(z2_symmetries, hf_bitstr)
             else:
                 if len(self._z2symmetry_reduction) != len(z2_symmetries.symmetries):
@@ -441,7 +443,7 @@ class FermionicTransformation(Transformation):
                 if not valid:
                     raise QiskitNatureError('z2symmetry_reduction tapering values list must '
                                             'contain -1\'s and/or 1\'s only was {}'.
-                                            format(self._z2symmetry_reduction,))
+                                            format(self._z2symmetry_reduction, ))
                 z2_symmetries.tapering_values = self._z2symmetry_reduction
 
             logger.debug('Apply symmetry with tapering values %s', z2_symmetries.tapering_values)
@@ -493,7 +495,7 @@ class FermionicTransformation(Transformation):
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
             return np.isclose(sum(self.molecule_info['num_particles']), num_particles_aux) and \
-                np.isclose(0., total_angular_momentum_aux)
+                   np.isclose(0., total_angular_momentum_aux)
 
         return partial(filter_criterion, self)
 
@@ -645,7 +647,11 @@ class FermionicTransformation(Transformation):
             qubit operator
         """
 
-        qubit_op = fer_op.mapping(map_type=qubit_mapping, threshold=0.00000001)
+        # qubit_op = fer_op.mapping(map_type=qubit_mapping, threshold=0.00000001)
+        qubit_op = mapped_ops_builder.mapping(map_type=qubit_mapping, num_modes=fer_op.modes,
+                                              h1=fer_op.h1, h2=fer_op.h2,
+                                              ph_trans_shift=fer_op._ph_trans_shift,
+                                              threshold=0.00000001)
         if qubit_mapping == 'parity' and two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
         return qubit_op
@@ -663,7 +669,9 @@ class FermionicTransformation(Transformation):
             i, j, k, m = index
             h_2[i, j, k, m] = 16.0
         fer_op = FermionicOperator(h_1, h_2)
-        qubit_op = fer_op.mapping(qubit_mapping)
+        qubit_op = mapping(qubit_mapping, num_modes=fer_op.modes,
+                           h1=fer_op.h1, h2=fer_op.h2,
+                           ph_trans_shift=fer_op._ph_trans_shift)
         if qubit_mapping == 'parity' and two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
 
@@ -707,7 +715,7 @@ class FermionicTransformation(Transformation):
         if isinstance(excitations, str):
             se_list, de_list = UCCSD.compute_excitation_lists([num_alpha, num_beta], num_orbitals,
                                                               excitation_type=excitations)
-            excitations_list = se_list+de_list
+            excitations_list = se_list + de_list
         else:
             excitations_list = excitations
 

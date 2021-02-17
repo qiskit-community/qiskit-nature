@@ -22,6 +22,7 @@ import numpy as np
 from qiskit.aqua.algorithms import MinimumEigensolverResult, EigensolverResult
 from qiskit.aqua.operators import Z2Symmetries, WeightedPauliOperator
 
+import qiskit_nature.mappings.mapped_ops_builder
 from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.fermionic_operator import FermionicOperator
 from .chemistry_operator import (ChemistryOperator,
@@ -311,7 +312,7 @@ class Hamiltonian(ChemistryOperator):
                     qubit_mapping=self._qubit_mapping,
                     two_qubit_reduction=self._two_qubit_reduction,
                     num_particles=self._molecule_info['num_particles']
-                    )
+                )
                 z2_symmetries = Hamiltonian._pick_sector(z2_symmetries, hf_bitstr)
             else:
                 if len(self._z2symmetry_reduction) != len(z2_symmetries.symmetries):
@@ -323,7 +324,7 @@ class Hamiltonian(ChemistryOperator):
                 if not valid:
                     raise QiskitNatureError('z2symmetry_reduction tapering values list must '
                                             'contain -1\'s and/or 1\'s only was {}'.
-                                            format(self._z2symmetry_reduction,))
+                                            format(self._z2symmetry_reduction, ))
                 z2_symmetries.tapering_values = self._z2symmetry_reduction
 
             logger.debug('Apply symmetry with tapering values %s', z2_symmetries.tapering_values)
@@ -395,7 +396,7 @@ class Hamiltonian(ChemistryOperator):
             if len(aux_ops_vals) > dipole_idx:
                 mgsr.reverse_dipole_sign = self._reverse_dipole_sign
                 dipm = []
-                for i in range(dipole_idx, dipole_idx+3):  # Gets X, Y and Z components
+                for i in range(dipole_idx, dipole_idx + 3):  # Gets X, Y and Z components
                     dipm.append(aux_ops_vals[i][0].real if aux_ops_vals[i] is not None else None)
                 mgsr.computed_dipole_moment = cast(DipoleTuple, tuple(dipm))
                 mgsr.ph_extracted_dipole_moment = (self._ph_x_dipole_shift,
@@ -478,7 +479,8 @@ class Hamiltonian(ChemistryOperator):
                         m = aux_ops[2][0]
                         lines.append(
                             '  {:>3}: {: 16.12f}, {: 16.12f},     {:5.3f},   {:5.3f},  {:8.5f}'.
-                            format(i, exste[i], algo_result['energies'][i], num_particles, spin, m))
+                                format(i, exste[i], algo_result['energies'][i], num_particles, spin,
+                                       m))
         else:
             result['energies'] = [result['energy']]
 
@@ -542,7 +544,11 @@ class Hamiltonian(ChemistryOperator):
 
     @staticmethod
     def _map_fermionic_operator_to_qubit(fer_op, qubit_mapping, num_particles, two_qubit_reduction):
-        qubit_op = fer_op.mapping(map_type=qubit_mapping, threshold=0.00000001)
+        qubit_op = qiskit_nature.mappings.mapped_ops_builder.mapping(map_type=qubit_mapping,
+                                                                     num_modes=fer_op.modes,
+                                                                     h1=fer_op.h1, h2=fer_op.h2,
+                                                                     ph_trans_shift=fer_op._ph_trans_shift,
+                                                                     threshold=0.00000001)
         if qubit_mapping == 'parity' and two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
         return qubit_op
