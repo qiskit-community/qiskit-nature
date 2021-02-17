@@ -46,8 +46,6 @@ class MolecularProblem:
         """
         self.driver = fermionic_driver
         self.transformers = q_molecule_transformers
-        self._q_molecule = self.driver.run()
-        self._num_modes = self._q_molecule.one_body_integrals.shape[0]
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -56,13 +54,14 @@ class MolecularProblem:
         Returns:
             A list of `SecondQuantizedOp`.
         """
-
-        q_molecule_transformed = self._transform_q_molecule()
+        q_molecule = self.driver.run()
+        q_molecule_transformed = self._transform_q_molecule(q_molecule)
+        num_modes = q_molecule_transformed.one_body_integrals.shape[0]
 
         electronic_fermionic_op = build_fermionic_op(q_molecule_transformed)
-        total_magnetization_ferm_op = self._create_total_magnetization_operator()
-        total_angular_momentum_ferm_op = self._create_total_angular_momentum_operator()
-        total_particle_number_ferm_op = self._create_total_particle_number_operator()
+        total_magnetization_ferm_op = self._create_total_magnetization_operator(num_modes)
+        total_angular_momentum_ferm_op = self._create_total_angular_momentum_operator(num_modes)
+        total_particle_number_ferm_op = self._create_total_particle_number_operator(num_modes)
 
         second_quantized_ops_list = [SecondQuantizedOp([electronic_fermionic_op]),
                                      SecondQuantizedOp([total_magnetization_ferm_op]),
@@ -78,8 +77,7 @@ class MolecularProblem:
 
         return second_quantized_ops_list
 
-    def _transform_q_molecule(self) -> QMolecule:
-        q_molecule = self._q_molecule
+    def _transform_q_molecule(self, q_molecule) -> QMolecule:
         for transformer in self.transformers:
             q_molecule = transformer.transform(q_molecule)
         return q_molecule
@@ -92,14 +90,11 @@ class MolecularProblem:
 
         return x_dipole_operator, y_dipole_operator, z_dipole_operator
 
-    def _create_total_magnetization_operator(self) -> FermionicOp:
-        return build_ferm_op_from_ints(
-            calc_total_magnetization_ints(self._num_modes))
+    def _create_total_magnetization_operator(self, num_modes) -> FermionicOp:
+        return build_ferm_op_from_ints(calc_total_magnetization_ints(num_modes))
 
-    def _create_total_angular_momentum_operator(self) -> FermionicOp:
-        return build_ferm_op_from_ints(
-            *calc_total_ang_momentum_ints(self._num_modes))
+    def _create_total_angular_momentum_operator(self, num_modes) -> FermionicOp:
+        return build_ferm_op_from_ints(*calc_total_ang_momentum_ints(num_modes))
 
-    def _create_total_particle_number_operator(self) -> FermionicOp:
-        return build_ferm_op_from_ints(
-            calc_total_particle_num_ints(self._num_modes))
+    def _create_total_particle_number_operator(self, num_modes) -> FermionicOp:
+        return build_ferm_op_from_ints(calc_total_particle_num_ints(num_modes))
