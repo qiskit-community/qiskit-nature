@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 """Tests total magnetization integrals calculator."""
+from test import QiskitNatureTestCase
 import numpy as np
 
-from test import QiskitNatureTestCase
 from qiskit_nature.problems.second_quantization.molecular.integrals_calculators \
     .magnetization_integrals_calculator import \
     calc_total_magnetization_ints
