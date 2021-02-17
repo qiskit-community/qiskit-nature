@@ -22,7 +22,6 @@ runs:
           conda activate
         fi
         pip install https://github.com/Qiskit/qiskit-terra/archive/master.zip
-        pip install https://github.com/Qiskit/qiskit-ignis/archive/master.zip
         pip install https://github.com/Qiskit/qiskit-aer/archive/master.zip
         # install Aqua until code is converted to use qiskit-terra
         pip install https://github.com/Qiskit/qiskit-aqua/archive/master.zip
