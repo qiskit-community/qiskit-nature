@@ -13,11 +13,12 @@
 """ Calculator of 1- and 2-body integrals for a total angular momentum."""
 
 import itertools
+from typing import Tuple
 
 import numpy as np
 
 
-def calc_total_ang_momentum_ints(num_modes):
+def calc_total_ang_momentum_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
     """
     Calculates 1- and 2-body integrals for a total angular momentum.
 
@@ -39,7 +40,7 @@ def calc_total_ang_momentum_ints(num_modes):
 
 # TODO eliminate code duplication below
 
-def _calc_s_x_squared_ints(num_modes):
+def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
     num_modes_2 = num_modes // 2
     h_1 = np.zeros((num_modes, num_modes))
     h_2 = np.zeros((num_modes, num_modes, num_modes, num_modes))
@@ -64,7 +65,7 @@ def _calc_s_x_squared_ints(num_modes):
     return h_1, h_2
 
 
-def _calc_s_y_squared_ints(num_modes):
+def _calc_s_y_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
     num_modes_2 = num_modes // 2
     h_1 = np.zeros((num_modes, num_modes))
     h_2 = np.zeros((num_modes, num_modes, num_modes, num_modes))
@@ -89,7 +90,7 @@ def _calc_s_y_squared_ints(num_modes):
     return h_1, h_2
 
 
-def _calc_s_z_squared_ints(num_modes):
+def _calc_s_z_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
     num_modes_2 = num_modes // 2
     h_1 = np.zeros((num_modes, num_modes))
     h_2 = np.zeros((num_modes, num_modes, num_modes, num_modes))

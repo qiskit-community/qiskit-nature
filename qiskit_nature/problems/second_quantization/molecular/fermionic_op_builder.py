@@ -14,6 +14,8 @@
 
 import itertools
 
+import numpy as np
+
 from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.operators import FermionicOp
 
@@ -35,7 +37,8 @@ def build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
     return build_ferm_op_from_ints(one_body_ints, two_body_ints)
 
 
-def build_ferm_op_from_ints(one_body_integrals, two_body_integrals=None) -> FermionicOp:
+def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
+                            two_body_integrals: np.ndarray = None) -> FermionicOp:
     """
     Builds a fermionic operator based on 1- and/or 2-body integrals.
 
@@ -57,7 +60,8 @@ def build_ferm_op_from_ints(one_body_integrals, two_body_integrals=None) -> Ferm
     return fermionic_op
 
 
-def _fill_ferm_op_one_body_ints(fermionic_op: FermionicOp, one_body_integrals):
+def _fill_ferm_op_one_body_ints(fermionic_op: FermionicOp,
+                                one_body_integrals: np.ndarray) -> FermionicOp:
     for idx in itertools.product(range(len(one_body_integrals)), repeat=2):
         coeff = one_body_integrals[idx]
         if not coeff:
@@ -72,7 +76,8 @@ def _fill_ferm_op_one_body_ints(fermionic_op: FermionicOp, one_body_integrals):
     return fermionic_op
 
 
-def _fill_ferm_op_two_body_ints(fermionic_op: FermionicOp, two_body_integrals):
+def _fill_ferm_op_two_body_ints(fermionic_op: FermionicOp,
+                                two_body_integrals: np.ndarray) -> FermionicOp:
     for idx in itertools.product(range(len(two_body_integrals)), repeat=4):
         coeff = two_body_integrals[idx]
         if not coeff:
