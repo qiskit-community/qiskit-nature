@@ -19,6 +19,7 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 """
 
 from typing import List, Optional, Tuple, Union
+
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -27,27 +28,81 @@ from .particle_op import ParticleOp
 
 
 class SpinOp(ParticleOp):
-    """Spin type operators. A class for products and powers of XYZ-ordered Spin operators."""
+    """Spin type operators. A class for products and powers of XYZ-ordered Spin operators.
+
+    **Initialization**
+
+    The :class:`SpinOp` can be initialized by the list of tuples.
+    For example,
+
+    .. code-block:: python
+
+        x = SpinOp([([1], [0], [0], 1)], spin=3/2)
+        y = SpinOp([([0], [1], [0], 1)], spin=3/2)
+        z = SpinOp([([0], [0], [1], 1)], spin=3/2)
+
+    are :math:`S_x, S_y, S_z` for spin 3/2 system.
+    Two qutrit Heisenberg model with transverse magnetic field is
+
+    .. code-block:: python
+
+        SpinOp([
+            ([1, 1], [0, 0], [0, 0], -1),
+            ([0, 0], [1, 1], [0, 0], -1),
+            ([0, 0], [0, 0], [1, 1], -1),
+            ([0, 0], [0, 0], [1, 0], -0.3),
+            ([0, 0], [0, 0], [0, 1], -0.3),
+            ],
+            spin=1
+        )
+
+    This means :math:`- X_1 X_0 - Y_1 Y_0 - Z_1 Z_0 - 0.3 Z_0 - 0.3 Z_1`.
+
+    **Algebra**
+
+    :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
+    scalar multiplication, and dagger(adjoint).
+    For example,
+
+    .. jupyter-execute::
+
+        from qiskit_nature.operators import SpinOp
+
+        x = SpinOp([([1], [0], [0], 1)], spin=3/2)
+        y = SpinOp([([0], [1], [0], 1)], spin=3/2)
+        z = SpinOp([([0], [0], [1], 1)], spin=3/2)
+
+        print("Ladder operator (plus):")
+        print(x + 1j * y)
+        print("Ladder operator (minus):")
+        print(x - 1j * y)
+
+        print("Dagger")
+        print(~(1j * z))
+
+    """
 
     def __init__(
             self,
             data: Union[
                 List[Tuple[List[int], List[int], List[int], complex]],
-                Tuple[np.ndarray, List[complex]]
-                ],
-            spin: float = 1/2
+                Tuple[np.ndarray, List[complex]],
+            ],
+            spin: float = 1 / 2,
     ):
-        """ Initialize ``SpinOp``
+        r"""Initialize ``SpinOp``.
+
         Args:
             spin: positive integer or half-integer which represents spin
-            data: TODO: write here
+            data: list of tuple (x-spin, y-spin, z-spin, coeff) where each spin is a list
+                  of non-negative integer.
 
         Raises:
-            QiskitNatureError: invalid data is given
+            QiskitNatureError: invalid data is given.
         """
         # 1. Parse input
         if (round(2 * spin) != 2 * spin) or (spin <= 0):
-            raise QiskitNatureError('spin must be a positive integer or half-integer')
+            raise QiskitNatureError("spin must be a positive integer or half-integer")
         self._dim = int(round(2 * spin)) + 1
 
         # TODO: validation
@@ -59,13 +114,14 @@ class SpinOp(ParticleOp):
         #        'Cannot sum operators with different spins.'
         if isinstance(data, tuple):
             self._spin_array = data[0]
-            self._register_length = self._spin_array.shape[1]//3
+            self._register_length = self._spin_array.shape[1] // 3
             self._coeffs = data[1]
 
         if isinstance(data, list):
             self._register_length = len(data[0][0])
-            array, self._coeffs = zip(*[(d[0] + d[1] + d[2], d[3]) for d in data])  # type: ignore
+            array, coeffs = zip(*[(d[0] + d[1] + d[2], d[3]) for d in data])  # type: ignore
             self._spin_array = np.array(array, dtype=np.uint8)
+            self._coeffs = list(coeffs)
 
     @property
     def register_length(self):
@@ -86,7 +142,7 @@ class SpinOp(ParticleOp):
         I.e. [0, 4, 2] corresponds to X0^0 \\otimes X1^4 \\otimes X2^2, where Xi acts on the i-th
         spin system in the register.
         """
-        return self._spin_array[:, 0:self.register_length]
+        return self._spin_array[:, 0: self.register_length]
 
     @property
     def y(self) -> np.ndarray:
@@ -95,7 +151,7 @@ class SpinOp(ParticleOp):
         spin system in the register.
         """
         reg_len = self.register_length
-        return self._spin_array[:, reg_len:2 * reg_len]
+        return self._spin_array[:, reg_len: 2 * reg_len]
 
     @property
     def z(self) -> np.ndarray:
@@ -104,7 +160,7 @@ class SpinOp(ParticleOp):
         spin system in the register.
         """
         reg_len = self.register_length
-        return self._spin_array[:, 2*reg_len:3*reg_len]
+        return self._spin_array[:, 2 * reg_len: 3 * reg_len]
 
     def __repr__(self) -> str:
         data = [
@@ -117,14 +173,13 @@ class SpinOp(ParticleOp):
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{label} * {coeff}"
-        return "  " + "\n+ ".join(
-            [f"{label} * {coeff}" for label, coeff in self.to_list()]
-        )
+        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
 
     def add(self, other: "SpinOp") -> "SpinOp":
         if not isinstance(other, SpinOp):
-            raise TypeError("Unsupported operand type(s) for +: 'SpinOp' and "
-                            f"'{type(other).__name__}'")
+            raise TypeError(
+                "Unsupported operand type(s) for +: 'SpinOp' and " f"'{type(other).__name__}'"
+            )
 
         if self.register_length != other.register_length:
             raise TypeError("Incompatible register lengths for '+'.")
@@ -142,8 +197,9 @@ class SpinOp(ParticleOp):
 
     def mul(self, other: complex):
         if not isinstance(other, (int, float, complex)):
-            raise TypeError("Unsupported operand type(s) for *: 'SpinOp' and "
-                            f"'{type(other).__name__}'")
+            raise TypeError(
+                "Unsupported operand type(s) for *: 'SpinOp' and " f"'{type(other).__name__}'"
+            )
 
         coeffs = [coeff * other for coeff in self._coeffs]
         return SpinOp((self._spin_array, coeffs), spin=self.spin)
@@ -154,26 +210,39 @@ class SpinOp(ParticleOp):
         coeffs = [coeff.conjugate() for coeff in self._coeffs]
         return SpinOp((self._spin_array, coeffs), spin=self.spin)
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
-        raise NotImplementedError
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
+        if atol is None:
+            atol = self.atol
+        if rtol is None:
+            rtol = self.rtol
+
+        spin_array, indexes = np.unique(self._spin_array, return_inverse=True, axis=0)
+        coeff_list = np.zeros(len(self._coeffs), dtype=complex)
+        for i, val in zip(indexes, self._coeffs):
+            coeff_list[i] += val
+        non_zero = [
+            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
+        ]
+        spin_array = spin_array[non_zero]
+        coeff_list = coeff_list[non_zero]
+        if not non_zero:
+            return SpinOp((np.zeros((1, self.register_length * 3), dtype=np.int8), [0]))
+        return SpinOp((spin_array, coeff_list.tolist()))
 
     def _generate_label(self, i):
         """Generates the string description of `self`."""
         labels_list = []
         for pos, (n_x, n_y, n_z) in enumerate(zip(self.x[i], self.y[i], self.z[i])):
-            label = []
+            rev_pos = self.register_length - pos - 1
             if n_x > 0:
-                label.append(f'X^{n_x}')
+                labels_list.append(f"X_{rev_pos}^{n_x}")
             if n_y > 0:
-                label.append(f'Y^{n_y}')
+                labels_list.append(f"Y_{rev_pos}^{n_y}")
             if n_z > 0:
-                label.append(f'Z^{n_z}')
-            if not label:
-                label.append(f'I')
-            labels_list.append(' '.join(label) + f'[{self.register_length - pos - 1}]')
-        return ' | '.join(labels_list)
+                labels_list.append(f"Z_{rev_pos}^{n_z}")
+        return " ".join(labels_list) if labels_list else "I"
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self._coeffs)
 
     def to_list(self) -> List[Tuple[str, complex]]:
