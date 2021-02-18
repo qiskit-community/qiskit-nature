@@ -140,6 +140,11 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             ActiveSpaceTransformer(num_electrons=2, num_orbitals=2,
                                    active_orbitals=[0, 1, 2]).transform(q_molecule)
 
+        with self.assertRaises(QiskitNatureError,
+                               msg="The number of active electrons do not match."):
+            ActiveSpaceTransformer(num_electrons=2, num_orbitals=2,
+                                   active_orbitals=[1, 2]).transform(q_molecule)
+
 
 if __name__ == "__main__":
     unittest.main()

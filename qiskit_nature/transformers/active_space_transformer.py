@@ -81,7 +81,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             num_alpha = self.num_electrons - num_beta
 
         self._validate_num_electrons(nelec_inactive)
-        self._validate_num_orbitals(nelec_inactive, q_molecule)
+        self._validate_num_orbitals(nelec_inactive, q_molecule, mo_occ_total)
 
         # determine active and inactive orbital indices
         if self.active_orbitals is None:
@@ -165,12 +165,16 @@ class ActiveSpaceTransformer(BaseTransformer):
         if nelec_inactive % 2 != 0:
             raise QiskitNatureError("The number of inactive electrons must be even.")
 
-    def _validate_num_orbitals(self, nelec_inactive: int, q_molecule: QMolecule):
+    def _validate_num_orbitals(self,
+                               nelec_inactive: int,
+                               q_molecule: QMolecule,
+                               mo_occ_total: Tuple[np.ndarray, Optional[np.ndarray]]):
         """Validates the number of orbitals.
 
         Args:
             nelec_inactive: the computed number of inactive electrons.
             q_molecule: the `QMolecule` to be transformed.
+            mo_occ_total: the alpha- and beta-spin MO occupation vector pair.
 
         Raises:
             QiskitNatureError: if more orbitals were requested than are available in total or if the
@@ -187,6 +191,9 @@ class ActiveSpaceTransformer(BaseTransformer):
                                         "match the specified number of active orbitals.")
             if max(self.active_orbitals) >= q_molecule.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
+            if sum(mo_occ_total[self.active_orbitals]) != self.num_electrons:
+                raise QiskitNatureError("The number of electrons in the selected active orbitals "
+                                        "does not match the specified number of active electrons.")
 
     def _compute_inactive_density_matrix(self,
                                          mo_occ_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
@@ -195,8 +202,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         """Computes the inactive density matrix.
 
         Args:
-            mo_occ_inactive: the alpha- and beta-spin MO occupation vector pair.
-            mo_coeff_inactive: the alpha- and beta-spin MO coefficient matrix pair.
+            mo_occ_inactive: the alpha- and beta-spin inactive MO occupation vector pair.
+            mo_coeff_inactive: the alpha- and beta-spin inactive MO coefficient matrix pair.
 
         Returns:
             The pair of alpha- and beta-spin inactive density matrices.
