@@ -310,6 +310,10 @@ class QMolecule:
 
                 if is_float(value):
                     group.create_dataset(name, data=value, dtype="float64")
+                elif isinstance(value, dict):
+                    sub_group = group.create_group(name)
+                    for k, v in value.items():
+                        sub_group.create_dataset(k, data=v)
                 else:
                     group.create_dataset(name, data=(value if value is not None else False))
 
