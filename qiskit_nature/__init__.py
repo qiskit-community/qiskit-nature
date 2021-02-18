@@ -47,7 +47,7 @@ energy this can be combined with the nuclear repulsion energy in the QMolecule.
 
 Instead of using the FermionicOperator the :class:`.core.Hamiltonian` may be used. This
 itself uses the FermionicOperator but provides a higher level of function to simplify use. For
-instance the FermionicOperator supports particle-hole transformation and different mappings. And to
+instance the FermionicOperator supports particle-hole transformation and different mapping. And to
 compute dipole moments each of the X, Y and Z dipole integrals must be prepared, as individual
 FermionicOperators, in a like manner to the main electronic energy one, i.e. same transformations,
 and eventually same qubit mapping. The core.Hamiltonian class does all this and more, such as
@@ -77,7 +77,7 @@ it to form this high level application.
 Mappings
 ++++++++
 To map the FermionicOperator to a qubit operator the chemistry module supports the following
-mappings:
+mapping:
 
 Jordan Wigner
     The `Jordan-Wigner transformation <https://rd.springer.com/article/10.1007%2FBF01331938>`__,

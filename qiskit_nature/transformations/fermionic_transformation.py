@@ -20,6 +20,7 @@ from typing import Optional, List, Union, cast, Tuple, Dict, Any, Callable
 import logging
 from enum import Enum
 
+from .. import QiskitNatureError
 import numpy as np
 from qiskit.tools import parallel_map
 from qiskit.aqua import AquaError, aqua_globals
@@ -31,10 +32,10 @@ from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.results import DipoleTuple, EigenstateResult, ElectronicStructureResult
 from qiskit_nature.components.variational_forms import UCCSD
 from .transformation import Transformation
-from .. import QiskitNatureError
 from ..drivers.qmolecule import QMolecule
-from ..mappings import mapped_ops_builder
-from ..mappings.mapped_ops_builder import mapping
+from ..mapping import mapped_ops_builder
+from qiskit_nature.mapping.enums.ferm_mapping_type_enum import FermionicQubitMappingType
+from ..mapping.mapped_ops_builder import mapping
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +44,6 @@ class FermionicTransformationType(Enum):
     """ Electronic Transformation Type enum """
     FULL = 'full'
     PARTICLE_HOLE = 'particle_hole'
-
-
-class FermionicQubitMappingType(Enum):
-    """ FermionicQubitMappingType enum """
-    JORDAN_WIGNER = 'jordan_wigner'
-    PARITY = 'parity'
-    BRAVYI_KITAEV = 'bravyi_kitaev'
 
 
 class FermionicTransformation(Transformation):
@@ -649,7 +643,7 @@ class FermionicTransformation(Transformation):
 
         # qubit_op = fer_op.mapping(map_type=qubit_mapping, threshold=0.00000001)
         qubit_op = mapped_ops_builder.mapping(map_type=qubit_mapping, num_modes=fer_op.modes,
-                                              h1=fer_op.h1, h2=fer_op.h2,
+                                              h_1=fer_op.h1, h_2=fer_op.h2,
                                               ph_trans_shift=fer_op._ph_trans_shift,
                                               threshold=0.00000001)
         if qubit_mapping == 'parity' and two_qubit_reduction:
@@ -670,7 +664,7 @@ class FermionicTransformation(Transformation):
             h_2[i, j, k, m] = 16.0
         fer_op = FermionicOperator(h_1, h_2)
         qubit_op = mapping(qubit_mapping, num_modes=fer_op.modes,
-                           h1=fer_op.h1, h2=fer_op.h2,
+                           h_1=fer_op.h1, h_2=fer_op.h2,
                            ph_trans_shift=fer_op._ph_trans_shift)
         if qubit_mapping == 'parity' and two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)

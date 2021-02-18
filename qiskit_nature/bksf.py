@@ -290,18 +290,18 @@ def edge_operator_bi(edge_list, i):
     return qubit_op
 
 
-def bksf_mapping_ints(num_modes, h1, h2):
+def bksf_mapping_ints(num_modes, h_1, h_2):
     # bksf mapping works with the 'physicist' notation.
-    h2 = np.einsum('ijkm->ikmj', h2)
+    h_2 = np.einsum('ijkm->ikmj', h_2)
 
     # Initialize qubit operator as constant.
     qubit_op = WeightedPauliOperator(paulis=[])
-    edge_list = bravyi_kitaev_fast_edge_list_ints(h1, h2, num_modes)
+    edge_list = bravyi_kitaev_fast_edge_list_ints(h_1, h_2, num_modes)
     # Loop through all indices.
     for p in range(num_modes):  # pylint: disable=invalid-name
         for q in range(num_modes):
             # Handle one-body terms.
-            h1_pq = h1[p, q]
+            h1_pq = h_1[p, q]
 
             if h1_pq != 0.0 and p >= q:
                 qubit_op += _one_body(edge_list, p, q, h1_pq)
@@ -309,7 +309,7 @@ def bksf_mapping_ints(num_modes, h1, h2):
             # Keep looping for the two-body terms.
             for r in range(num_modes):
                 for s in range(num_modes):  # pylint: disable=invalid-name
-                    h2_pqrs = h2[p, q, r, s]
+                    h2_pqrs = h_2[p, q, r, s]
 
                     # Skip zero terms.
                     if (h2_pqrs == 0.0) or (p == q) or (r == s):

@@ -34,7 +34,7 @@ from qiskit.aqua.operators import WeightedPauliOperator, Z2Symmetries
 from qiskit.aqua.components.variational_forms import VariationalForm
 
 from qiskit_nature.fermionic_operator import FermionicOperator
-from qiskit_nature.mappings.mapped_ops_builder import mapping
+from qiskit_nature.mapping.mapped_ops_builder import mapping
 
 logger = logging.getLogger(__name__)
 
@@ -303,7 +303,7 @@ class UCCSD(VariationalForm):
 
         dummpy_fer_op = FermionicOperator(h1=h_1, h2=h_2)
         qubit_op = mapping(qubit_mapping, num_modes=dummpy_fer_op.modes,
-                           h1=dummpy_fer_op.h1, h2=dummpy_fer_op.h2,
+                           h_1=dummpy_fer_op.h1, h_2=dummpy_fer_op.h2,
                            ph_trans_shift=dummpy_fer_op._ph_trans_shift, )
         if two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)

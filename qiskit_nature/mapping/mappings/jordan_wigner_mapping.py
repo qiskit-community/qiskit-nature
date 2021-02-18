@@ -20,7 +20,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
-from .qubit_mapping import QubitMapping
+from qiskit_nature.mapping.mappings.qubit_mapping import QubitMapping
 
 
 class JordanWignerMapping(QubitMapping):

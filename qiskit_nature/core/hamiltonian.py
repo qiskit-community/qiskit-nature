@@ -22,13 +22,13 @@ import numpy as np
 from qiskit.aqua.algorithms import MinimumEigensolverResult, EigensolverResult
 from qiskit.aqua.operators import Z2Symmetries, WeightedPauliOperator
 
-import qiskit_nature.mappings.mapped_ops_builder
 from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.fermionic_operator import FermionicOperator
 from .chemistry_operator import (ChemistryOperator,
                                  MolecularGroundStateResult,
                                  DipoleTuple, )
 from .. import QiskitNatureError
+from ..mapping import mapped_ops_builder
 
 logger = logging.getLogger(__name__)
 
@@ -544,11 +544,11 @@ class Hamiltonian(ChemistryOperator):
 
     @staticmethod
     def _map_fermionic_operator_to_qubit(fer_op, qubit_mapping, num_particles, two_qubit_reduction):
-        qubit_op = qiskit_nature.mappings.mapped_ops_builder.mapping(map_type=qubit_mapping,
-                                                                     num_modes=fer_op.modes,
-                                                                     h1=fer_op.h1, h2=fer_op.h2,
-                                                                     ph_trans_shift=fer_op._ph_trans_shift,
-                                                                     threshold=0.00000001)
+        qubit_op = mapped_ops_builder.mapping(map_type=qubit_mapping,
+                                              num_modes=fer_op.modes,
+                                              h_1=fer_op.h1, h_2=fer_op.h2,
+                                              ph_trans_shift=fer_op._ph_trans_shift,
+                                              threshold=0.00000001)
         if qubit_mapping == 'parity' and two_qubit_reduction:
             qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
         return qubit_op

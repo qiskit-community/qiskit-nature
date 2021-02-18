@@ -18,7 +18,7 @@ the issue then ensure changes are made to readme too.
 
 import unittest
 
-from qiskit_nature.mappings.mapped_ops_builder import mapping
+from qiskit_nature.mapping.mapped_ops_builder import mapping
 from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 
@@ -74,7 +74,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         ferm_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
         map_type = 'PARITY'
         qubit_op = mapping(map_type, num_modes=ferm_op.modes,
-                           h1=ferm_op.h1, h2=ferm_op.h2,
+                           h_1=ferm_op.h1, h_2=ferm_op.h2,
                            ph_trans_shift=ferm_op._ph_trans_shift)
         qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
         num_qubits = qubit_op.num_qubits

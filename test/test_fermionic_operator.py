@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.aqua.utils import random_unitary
 from qiskit.aqua.operators.legacy import op_converter
 
-from qiskit_nature.mappings.mapped_ops_builder import mapping
+from qiskit_nature.mapping.mapped_ops_builder import mapping
 from test import QiskitNatureTestCase
 from qiskit_nature import FermionicOperator, QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
@@ -136,11 +136,11 @@ class TestFermionicOperator(QiskitNatureTestCase):
         fer_op = FermionicOperator(h1=molecule.one_body_integrals,
                                    h2=molecule.two_body_integrals)
         jw_op = mapping('jordan_wigner', num_modes=fer_op.modes,
-                        h1=fer_op.h1, h2=fer_op.h2,
+                        h_1=fer_op.h1, h_2=fer_op.h2,
                         ph_trans_shift=fer_op._ph_trans_shift)
 
         bksf_op = mapping('bksf', num_modes=fer_op.modes,
-                          h1=fer_op.h1, h2=fer_op.h2,
+                          h_1=fer_op.h1, h_2=fer_op.h2,
                           ph_trans_shift=fer_op._ph_trans_shift)
 
         jw_op = op_converter.to_matrix_operator(jw_op)

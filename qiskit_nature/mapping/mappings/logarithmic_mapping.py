@@ -10,17 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Super-Fast Bravyi-Kitaev Mapping interface."""
+"""The Logarithmic Mapping interface."""
 
 from qiskit.aqua.operators import PauliSumOp
+
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
-from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
+from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 
-from .qubit_mapping import QubitMapping
+from qiskit_nature.mapping.mappings.qubit_mapping import QubitMapping
 
 
-class BravyiKitaevSuperFastMapping(QubitMapping):
-    """The Super-Fast Bravyi-Kitaev fermion-to-qubit mapping. """
+class LogarithmicMapping(QubitMapping):
+    """The Logarithmic spin-to-qubit mapping. """
 
     def supports_particle_type(self, particle_type: ParticleOp) -> bool:
         """Returns whether the queried particle-type operator is supported by this mapping.
@@ -31,11 +32,11 @@ class BravyiKitaevSuperFastMapping(QubitMapping):
         Returns:
             A boolean indicating whether the queried particle-type is supported.
         """
-        return isinstance(particle_type, FermionicOp)
+        return isinstance(particle_type, SpinOp)
 
     def map(self, second_q_op: ParticleOp) -> PauliSumOp:
-        """Maps a `ParticleOp` to a `PauliSumOp` using the Super-Fast Bravyi-Kitaev
-        fermion-to-qubit mapping.
+        """Maps a `ParticleOp` to a `PauliSumOp` using the Logarithmic spin-to-qubit
+        mapping.
 
         Args:
             second_q_op: the `ParticleOp` to be mapped.
