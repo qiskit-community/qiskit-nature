@@ -13,17 +13,16 @@
 """The Molecular Problem class."""
 from typing import List, Optional, Tuple
 
-from ....drivers.qmolecule import QMolecule
-from ....drivers import FermionicDriver
-from ....operators import FermionicOp
-from ....operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.drivers.qmolecule import QMolecule
+from qiskit_nature.drivers import FermionicDriver
+from qiskit_nature.operators import FermionicOp
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from .integrals_calculators.angular_momentum_integrals_calculator import \
     calc_total_ang_momentum_ints
-from ....problems.second_quantization.molecular.fermionic_op_builder import \
-    build_fermionic_op, build_ferm_op_from_ints
+from .fermionic_op_builder import build_fermionic_op, build_ferm_op_from_ints
 from .integrals_calculators.magnetization_integrals_calculator import calc_total_magnetization_ints
 from .integrals_calculators.particle_number_integrals_calculator import calc_total_particle_num_ints
-from ....transformations.second_quantization import BaseTransformer
+from qiskit_nature.transformations.second_quantization import BaseTransformer
 
 
 class MolecularProblem:
