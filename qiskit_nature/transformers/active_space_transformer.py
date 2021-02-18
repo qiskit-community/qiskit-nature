@@ -100,7 +100,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         # get molecular orbital occupation numbers
         mo_occ_full = (q_molecule.mo_occ, q_molecule.mo_occ_b)
         beta = mo_coeff_full[1] is not None
-        mo_occ_total = sum(mo_occ_full) if beta else mo_occ_full[0]
+        mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if beta else mo_occ_full[0]
 
         # compute number of inactive electrons
         nelec_total = q_molecule.num_alpha + q_molecule.num_beta
@@ -205,7 +205,7 @@ class ActiveSpaceTransformer(BaseTransformer):
     def _validate_num_orbitals(self,
                                nelec_inactive: int,
                                q_molecule: QMolecule,
-                               mo_occ_total: Tuple[np.ndarray, Optional[np.ndarray]]):
+                               mo_occ_total: np.ndarray):
         """Validates the number of orbitals.
 
         Args:
