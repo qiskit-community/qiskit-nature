@@ -19,7 +19,7 @@ from typing import Union, List, Optional
 
 from qiskit.aqua.utils.validation import validate_min
 
-from qiskit_nature.drivers.qmolecule import QMolecule
+from ..qmolecule import QMolecule
 from .integrals import compute_integrals
 from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule

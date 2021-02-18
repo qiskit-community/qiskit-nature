@@ -21,7 +21,7 @@ from typing import Union, List, Optional
 
 import numpy as np
 
-from qiskit_nature.drivers.qmolecule import QMolecule
+from ..qmolecule import QMolecule
 from .gaussian_utils import check_valid, run_g16
 from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule

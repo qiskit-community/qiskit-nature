@@ -14,7 +14,7 @@
 
 from typing import Optional
 
-from ...drivers.qmolecule import QMolecule
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .second_quantized_transformer import BaseTransformer
 
 
