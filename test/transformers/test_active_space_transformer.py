@@ -36,7 +36,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         assert np.allclose(q_molecule_reduced.mo_onee_ints, q_molecule.mo_onee_ints)
         assert np.allclose(q_molecule_reduced.mo_eri_ints, q_molecule.mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift, 0.0)
+        assert np.isclose(q_molecule_reduced.energy_shift['inactive_energy'], 0.0)
 
     def test_minimal_active_space(self):
         """Test a minimal active space manually."""
@@ -54,7 +54,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         assert np.allclose(q_molecule_reduced.mo_onee_ints, expected_mo_onee_ints)
         assert np.allclose(q_molecule_reduced.mo_eri_ints, expected_mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift, 0.0)
+        assert np.isclose(q_molecule_reduced.energy_shift['inactive_energy'], 0.0)
 
     def test_unpaired_electron_active_space(self):
         """Test an active space with an unpaired electron."""
@@ -98,7 +98,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         assert np.allclose(q_molecule_reduced.mo_onee_ints, expected_mo_onee_ints)
         assert np.allclose(q_molecule_reduced.mo_eri_ints, expected_mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift, -14.2538029231)
+        assert np.isclose(q_molecule_reduced.energy_shift['inactive_energy'], -14.2538029231)
 
     def test_arbitrary_active_orbitals(self):
         """Test manual selection of active orbital indices."""
@@ -116,7 +116,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         assert np.allclose(q_molecule_reduced.mo_onee_ints, expected_mo_onee_ints)
         assert np.allclose(q_molecule_reduced.mo_eri_ints, expected_mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift, 0.0)
+        assert np.isclose(q_molecule_reduced.energy_shift['inactive_energy'], 0.0)
 
     def test_error_raising(self):
         """Test errors are being raised in certain scenarios."""

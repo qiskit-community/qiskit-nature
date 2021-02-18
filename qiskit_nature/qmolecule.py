@@ -76,7 +76,7 @@ class QMolecule:
         self.mo_occ = None  # v3
         self.mo_occ_b = None  # v3
 
-        self.energy_shift = 0.0  # v3
+        self.energy_shift = {}  # v3
 
         # Molecule geometry. xyz coords are in Bohr
         self.molecular_charge = None
