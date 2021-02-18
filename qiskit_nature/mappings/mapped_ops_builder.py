@@ -50,6 +50,8 @@ def mapping(map_type, num_modes, h1, h2, ph_trans_shift,
     # ###################################################################
 
     a_list = _define_mapped_ferm_ops(map_type, num_modes, h1, h2)
+    if map_type == 'bksf':
+        return a_list
 
     # ###################################################################
     # ###########    BUILDING THE MAPPED HAMILTONIAN     ################
@@ -86,6 +88,7 @@ def _map_one_body_terms(a_list, h1, num_modes, threshold):
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("Mapping one-body terms to Qubit Hamiltonian:")
         TextProgressBar(output_handler=sys.stderr)
+
     results = parallel_map(_one_body_mapping, [(h1[i, j], a_list[i], a_list[j])
                                                for i, j in
                                                itertools.product(range(num_modes), repeat=2)
