@@ -20,7 +20,7 @@ import tempfile
 from shutil import which
 from typing import Union, List, Optional
 
-from qiskit_nature.drivers.qmolecule import QMolecule
+from ..qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType

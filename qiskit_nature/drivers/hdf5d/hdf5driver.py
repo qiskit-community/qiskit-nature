@@ -15,7 +15,7 @@
 import logging
 import os
 
-from qiskit_nature.drivers.qmolecule import QMolecule
+from ..qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver
 
 logger = logging.getLogger(__name__)

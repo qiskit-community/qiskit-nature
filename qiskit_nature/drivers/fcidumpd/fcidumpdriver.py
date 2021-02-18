@@ -14,7 +14,7 @@
 
 from typing import List, Optional
 
-from qiskit_nature.drivers.qmolecule import QMolecule
+from ..qmolecule import QMolecule
 from .dumper import dump
 from .parser import parse
 from ..fermionic_driver import FermionicDriver
