@@ -220,24 +220,24 @@ class FermionicOp(ParticleOp):
         ("I", "N"): "N",
         ("I", "E"): "E",
         ("+", "I"): "+",
-        ("+", "+"): 0,
+        ("+", "+"): "0",
         ("+", "-"): "N",
-        ("+", "N"): 0,
+        ("+", "N"): "0",
         ("+", "E"): "+",
         ("-", "I"): "-",
         ("-", "+"): "E",
-        ("-", "-"): 0,
+        ("-", "-"): "0",
         ("-", "N"): "-",
-        ("-", "E"): 0,
+        ("-", "E"): "0",
         ("N", "I"): "N",
         ("N", "+"): "+",
-        ("N", "-"): 0,
+        ("N", "-"): "0",
         ("N", "N"): "N",
-        ("N", "E"): 0,
+        ("N", "E"): "0",
         ("E", "I"): "E",
-        ("E", "+"): 0,
+        ("E", "+"): "0",
         ("E", "-"): "-",
-        ("E", "N"): 0,
+        ("E", "N"): "0",
         ("E", "E"): "E",
     }
 
@@ -260,7 +260,7 @@ class FermionicOp(ParticleOp):
 
             # Check what happens to the symbol
             new_char = cls._MAPPING[pair]
-            if new_char == 0:
+            if new_char == "0":
                 return "I" * len(label1), 0
             new_label.append(new_char)
             # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught
