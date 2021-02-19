@@ -308,17 +308,16 @@ class FermionicOp(ParticleOp):
         for label, coeff in zip(self._labels, self._coeffs):
             conjugated_coeff = coeff.conjugate()
 
-            daggered_label = ""
+            daggered_label = []
+            count = label.count("+") + label.count("-")
+            for char in label:
+                daggered_label.append(dagger_map[char])
+                if char in "+-":
+                    count -= 1
+                    if count % 2 == 1:
+                        conjugated_coeff *= -1
 
-            for i, char in enumerate(label):
-                daggered_label += dagger_map[char]
-                if char in ["+", "-"]:
-                    permute_through = label[i + 1:]
-                    conjugated_coeff *= (-1) ** (
-                            permute_through.count("+") + permute_through.count("-")
-                    )
-
-            label_list.append(daggered_label)
+            label_list.append(''.join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
         return FermionicOp(list(zip(label_list, coeff_list)))
