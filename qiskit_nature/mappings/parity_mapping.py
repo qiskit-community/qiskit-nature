@@ -12,7 +12,10 @@
 
 """The Parity Mapping interface."""
 
-from qiskit.aqua.operators import PauliSumOp
+import numpy as np
+
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
@@ -43,6 +46,29 @@ class ParityMapping(QubitMapping):
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-        """
-        # TODO
-        raise NotImplementedError()
+
+        Raises:
+            QiskitNatureError: FermionicOp has a invalid label.
+            TypeError: Type of second_q_op is not FermionicOp.
+       """
+        if not isinstance(second_q_op, FermionicOp):
+            raise TypeError(
+                f"Parity mapper only maps from FermionicOp, not {type(second_q_op)}"
+            )
+
+        # number of modes/sites for the Parity transform (= number of fermionc modes)
+        nmodes = second_q_op.register_length
+
+        pauli_table = []
+        for i in range(nmodes):
+            a_z = [0] * (i - 1) + [1] if i > 0 else []
+            a_x = [0] * (i - 1) + [0] if i > 0 else []
+            b_z = [0] * (i - 1) + [0] if i > 0 else []
+            b_x = [0] * (i - 1) + [0] if i > 0 else []
+            a_z = np.asarray(a_z + [0] + [0] * (nmodes - i - 1), dtype=bool)
+            a_x = np.asarray(a_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
+            b_z = np.asarray(b_z + [1] + [0] * (nmodes - i - 1), dtype=bool)
+            b_x = np.asarray(b_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
+            pauli_table.append((Pauli(a_z, a_x), Pauli(b_z, b_x)))
+
+        return QubitMapping.mode_based_mapping(second_q_op, pauli_table)
