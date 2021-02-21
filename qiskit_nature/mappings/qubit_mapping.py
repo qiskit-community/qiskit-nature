@@ -56,6 +56,15 @@ class QubitMapping(ABC):
     @staticmethod
     def mode_based_mapping(second_q_op: ParticleOp,
                            pauli_table: List[Tuple[Pauli, Pauli]]) -> PauliSumOp:
+        """Utility method to map a `ParticleOp` to a `PauliSumOp` using a pauli table.
+
+        Args:
+            second_q_op: the `ParticleOp` to be mapped.
+            pauli_table: a table of paulis built according to the modes of the operator
+
+        Returns:
+            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
+        """
         nmodes = len(pauli_table)
         if nmodes != second_q_op.register_length:
             raise QiskitNatureError(f"Pauli table len {nmodes} does not match"
