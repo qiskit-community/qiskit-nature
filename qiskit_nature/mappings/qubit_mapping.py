@@ -64,6 +64,10 @@ class QubitMapping(ABC):
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
+
+        Raises:
+            QiskitNatureError: If number length of pauli table does not match the number
+                of operator modes, or if the operator has unexpected label content
         """
         nmodes = len(pauli_table)
         if nmodes != second_q_op.register_length:
@@ -94,6 +98,9 @@ class QubitMapping(ABC):
 
         ret_op_list = []
 
+        # TODO to_list() is not an attribute of ParticleOp. Change the former to have this or
+        #   change the signature above to take FermionicOp?
+        #
         for label, coeff in second_q_op.to_list():
 
             ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[coeff])
