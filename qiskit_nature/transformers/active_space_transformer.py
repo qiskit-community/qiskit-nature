@@ -97,9 +97,21 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         # get molecular orbital coefficients
         mo_coeff_full = (q_molecule.mo_coeff, q_molecule.mo_coeff_b)
+        beta = mo_coeff_full[1] is not None
         # get molecular orbital occupation numbers
         mo_occ_full = (q_molecule.mo_occ, q_molecule.mo_occ_b)
-        beta = mo_coeff_full[1] is not None
+        if mo_occ_full[0] is None:
+            # QMolecule provided by driver without `mo_occ` information available. Constructing
+            # occupation numbers based on ground state HF case.
+            occ_alpha = [1.] * q_molecule.num_alpha + [0.] * (q_molecule.num_orbitals -
+                                                              q_molecule.num_alpha)
+            if beta:
+                occ_beta = [1.] * q_molecule.num_beta + [0.] * (q_molecule.num_orbitals -
+                                                                q_molecule.num_beta)
+            else:
+                occ_alpha[:q_molecule.num_beta] = [o + 1 for o in occ_alpha[:q_molecule.num_beta]]
+                occ_beta = None
+            mo_occ_full = (np.asarray(occ_alpha), np.asarray(occ_beta))
         mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if beta else mo_occ_full[0]
 
         # compute number of inactive electrons

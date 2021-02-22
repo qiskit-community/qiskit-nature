@@ -138,6 +138,18 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                                    num_orbitals=num_orbitals,
                                    active_orbitals=active_orbitals).transform(q_molecule)
 
+    def test_active_space_for_q_molecule_v2(self):
+        """Test based on QMolecule v2 (mo_occ not available)."""
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_sto3g_v2.hdf5', 'transformers'))
+        q_molecule = driver.run()
+
+        trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
+        q_molecule_reduced = trafo.transform(q_molecule)
+
+        assert np.allclose(q_molecule_reduced.mo_onee_ints, q_molecule.mo_onee_ints)
+        assert np.allclose(q_molecule_reduced.mo_eri_ints, q_molecule.mo_eri_ints)
+        assert np.isclose(q_molecule_reduced.energy_shift['inactive_energy'], 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()
