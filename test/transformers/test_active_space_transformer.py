@@ -16,6 +16,7 @@ import unittest
 
 from test import QiskitNatureTestCase
 
+from ddt import ddt, idata, unpack
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -23,6 +24,7 @@ from qiskit_nature.drivers import PySCFDriver
 from qiskit_nature.transformers import ActiveSpaceTransformer
 
 
+@ddt
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""
 
@@ -118,33 +120,24 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         assert np.allclose(q_molecule_reduced.mo_eri_ints, expected_mo_eri_ints)
         assert np.isclose(q_molecule_reduced.energy_shift['inactive_energy'], 0.0)
 
-    def test_error_raising(self):
+    @idata([
+        [2, 3, None, "More active orbitals requested than available in total."],
+        [3, 2, None, "More active electrons requested than available in total."],
+        [1, 2, None, "The number of inactive electrons may not be odd."],
+        [2, 2, [0, 1, 2], "The number of active orbitals do not match."],
+        [2, 2, [1, 2], "The number of active electrons do not match."],
+    ])
+    @unpack
+    def test_error_raising(self, num_electrons, num_orbitals, active_orbitals, message):
         """Test errors are being raised in certain scenarios."""
         driver = PySCFDriver(atom='H 0 0 0; H 0 0 0.735', basis='sto3g')
         q_molecule = driver.run()
 
-        with self.assertRaises(QiskitNatureError,
-                               msg="More active orbitals requested than available in total."):
-            ActiveSpaceTransformer(num_electrons=2, num_orbitals=3).transform(q_molecule)
-
-        with self.assertRaises(QiskitNatureError,
-                               msg="More active electrons requested than available in total."):
-            ActiveSpaceTransformer(num_electrons=3, num_orbitals=2).transform(q_molecule)
-
-        with self.assertRaises(QiskitNatureError,
-                               msg="The number of inactive electrons may not be odd."):
-            ActiveSpaceTransformer(num_electrons=1, num_orbitals=2).transform(q_molecule)
-
-        with self.assertRaises(QiskitNatureError,
-                               msg="The number of active orbitals do not match."):
-            ActiveSpaceTransformer(num_electrons=2, num_orbitals=2,
-                                   active_orbitals=[0, 1, 2]).transform(q_molecule)
-
-        with self.assertRaises(QiskitNatureError,
-                               msg="The number of active electrons do not match."):
-            ActiveSpaceTransformer(num_electrons=2, num_orbitals=2,
-                                   active_orbitals=[1, 2]).transform(q_molecule)
+        with self.assertRaises(QiskitNatureError, msg=message):
+            ActiveSpaceTransformer(num_electrons=num_electrons,
+                                   num_orbitals=num_orbitals,
+                                   active_orbitals=active_orbitals).transform(q_molecule)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
