@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,25 +10,25 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Seniority-Zero Transformation interface."""
+"""The Seniority-Zero Transformer interface."""
 
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from qiskit_nature import QMolecule
 
-from .second_quantized_transformation import SecondQuantizedTransformation
+from .base_transformer import BaseTransformer
 
 
-class SeniorityZeroTransformation(SecondQuantizedTransformation):
-    """The Seniority-Zero transformation."""
+class SeniorityZeroTransformer(BaseTransformer):
+    """The Seniority-Zero transformer."""
 
-    def transform(self, second_q_op: ParticleOp) -> ParticleOp:
-        """Transforms the given `ParticleOp` into a seniority-zero (i.e.
+    def transform(self, q_molecule: QMolecule) -> QMolecule:
+        """Transforms the given `QMolecule` into a seniority-zero (i.e.
         restricted-spin) variant.
 
         Args:
-            second_q_op: the `ParticleOp` to be transformed.
+            q_molecule: the `QMolecule` to be transformed.
 
         Returns:
-            A new `ParticleOp` instance.
+            A new `QMolecule` instance.
         """
         # TODO
         raise NotImplementedError()
