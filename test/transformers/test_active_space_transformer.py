@@ -20,7 +20,7 @@ from ddt import ddt, idata, unpack
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import PySCFDriver
+from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.transformers import ActiveSpaceTransformer
 
 
@@ -30,7 +30,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_full_active_space(self):
         """Test that transformer has no effect when all orbitals are active."""
-        driver = PySCFDriver(atom='H 0 0 0; H 0 0 0.735', basis='sto3g')
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
@@ -42,7 +42,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_minimal_active_space(self):
         """Test a minimal active space manually."""
-        driver = PySCFDriver(atom='H 0 0 0; H 0 0 0.735', basis='6-31g')
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
@@ -60,7 +60,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_unpaired_electron_active_space(self):
         """Test an active space with an unpaired electron."""
-        driver = PySCFDriver(atom='H 0 0 0; Be 0 0 1.3', basis='sto3g', spin=1)
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=3, num_orbitals=3, num_alpha=2)
@@ -104,7 +104,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_arbitrary_active_orbitals(self):
         """Test manual selection of active orbital indices."""
-        driver = PySCFDriver(atom='H 0 0 0; H 0 0 0.735', basis='6-31g')
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2, active_orbitals=[0, 2])
@@ -130,7 +130,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
     @unpack
     def test_error_raising(self, num_electrons, num_orbitals, active_orbitals, message):
         """Test errors are being raised in certain scenarios."""
-        driver = PySCFDriver(atom='H 0 0 0; H 0 0 0.735', basis='sto3g')
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
         with self.assertRaises(QiskitNatureError, msg=message):

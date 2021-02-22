@@ -40,7 +40,7 @@ class QMolecule:
     This class provides methods to save it and load it again from an HDF5 file
     """
 
-    QMOLECULE_VERSION = 2
+    QMOLECULE_VERSION = 3
 
     def __init__(self, filename=None):
         self._filename = filename
