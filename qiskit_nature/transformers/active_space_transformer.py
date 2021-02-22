@@ -166,7 +166,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new QMolecule
         q_molecule_reduced = copy.deepcopy(q_molecule)
         # Energies and orbits
-        q_molecule_reduced.energy_shift['inactive_energy'] = e_inactive
+        q_molecule_reduced.energy_shift['ActiveSpaceTransformer'] = e_inactive
         q_molecule_reduced.num_orbitals = self.num_orbitals
         q_molecule_reduced.num_alpha = num_alpha
         q_molecule_reduced.num_beta = num_beta
