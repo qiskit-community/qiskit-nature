@@ -150,7 +150,7 @@ class HarmonicBasis(BosonicBasis):
 
             # Note: these negative indices as detected below are explicitly generated in
             # _compute_modes for other potential uses. They are not wanted by this logic.
-            if any([index < 0 for index in indices]):
+            if any(index < 0 for index in indices):
                 kinetic_term = True
                 indices = np.absolute(indices)
             indexes = {}  # type: Dict[int, int]
