@@ -12,6 +12,7 @@
 
 """The Parity Mapping interface."""
 
+from typing import Union, List
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
@@ -61,10 +62,10 @@ class ParityMapping(QubitMapping):
 
         pauli_table = []
         for i in range(nmodes):
-            a_z = [0] * (i - 1) + [1] if i > 0 else []
-            a_x = [0] * (i - 1) + [0] if i > 0 else []
-            b_z = [0] * (i - 1) + [0] if i > 0 else []
-            b_x = [0] * (i - 1) + [0] if i > 0 else []
+            a_z: Union[List[int], np.ndarray] = [0] * (i - 1) + [1] if i > 0 else []
+            a_x: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
+            b_z: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
+            b_x: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
             a_z = np.asarray(a_z + [0] + [0] * (nmodes - i - 1), dtype=bool)
             a_x = np.asarray(a_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
             b_z = np.asarray(b_z + [1] + [0] * (nmodes - i - 1), dtype=bool)
