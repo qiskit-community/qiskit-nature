@@ -238,6 +238,6 @@ def _permute_2e_ints(hijkl: np.ndarray,
         for perm in {e1 + e2 for e1, e2 in permutations}:
             if perm in elements:
                 continue
-            hijkl[shifted] = hijkl[tuple([e-((e >= norb) * norb) for e in perm])]
+            hijkl[shifted] = hijkl[tuple(e - (e >= norb) * norb for e in perm)]
             elements.remove(elem)
             break

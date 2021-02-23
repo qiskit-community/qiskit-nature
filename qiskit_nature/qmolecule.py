@@ -40,7 +40,7 @@ class QMolecule:
     This class provides methods to save it and load it again from an HDF5 file
     """
 
-    QMOLECULE_VERSION = 2
+    QMOLECULE_VERSION = 3
 
     def __init__(self, filename=None):
         self._filename = filename
@@ -73,6 +73,10 @@ class QMolecule:
         self.mo_coeff_b = None  # v2
         self.orbital_energies = None
         self.orbital_energies_b = None  # v2
+        self.mo_occ = None  # v3
+        self.mo_occ_b = None  # v3
+
+        self.energy_shift = {}  # v3
 
         # Molecule geometry. xyz coords are in Bohr
         self.molecular_charge = None
@@ -230,6 +234,8 @@ class QMolecule:
                 self.orbital_energies = read_array("orbitals/orbital_energies")
                 self.orbital_energies_b = \
                     read_array("orbitals/orbital_energies_B") if version > 1 else None
+                self.mo_occ = read_array("orbitals/mo_occ") if version > 2 else None
+                self.mo_occ_b = read_array("orbitals/mo_occ_B") if version > 2 else None
 
                 # Molecule geometry
                 data = file["geometry/molecular_charge"][...]
@@ -304,6 +310,10 @@ class QMolecule:
 
                 if is_float(value):
                     group.create_dataset(name, data=value, dtype="float64")
+                elif isinstance(value, dict):
+                    sub_group = group.create_group(name)
+                    for k, v in value.items():
+                        sub_group.create_dataset(k, data=v)
                 else:
                     group.create_dataset(name, data=(value if value is not None else False))
 
@@ -325,6 +335,7 @@ class QMolecule:
             g_energy = file.create_group("energy")
             create_dataset(g_energy, "hf_energy", self.hf_energy)
             create_dataset(g_energy, "nuclear_repulsion_energy", self.nuclear_repulsion_energy)
+            create_dataset(g_energy, "energy_shift", self.energy_shift)
 
             # Orbitals
             g_orbitals = file.create_group("orbitals")
@@ -335,6 +346,8 @@ class QMolecule:
             create_dataset(g_orbitals, "mo_coeff_B", self.mo_coeff_b)
             create_dataset(g_orbitals, "orbital_energies", self.orbital_energies)
             create_dataset(g_orbitals, "orbital_energies_B", self.orbital_energies_b)
+            create_dataset(g_orbitals, "mo_occ", self.mo_occ)
+            create_dataset(g_orbitals, "mo_occ_B", self.mo_occ_b)
 
             # Molecule geometry
             g_geometry = file.create_group("geometry")
@@ -569,6 +582,7 @@ class QMolecule:
 
             logger.info("Computed Hartree-Fock energy: %s", self.hf_energy)
             logger.info("Nuclear repulsion energy: %s", self.nuclear_repulsion_energy)
+            logger.info("Energy shift due to transformations: %s", self.energy_shift)
             if None not in (self.hf_energy, self.nuclear_repulsion_energy):
                 logger.info("One and two electron Hartree-Fock energy: %s",
                             self.hf_energy - self.nuclear_repulsion_energy)
@@ -592,6 +606,12 @@ class QMolecule:
                 logger.info("Orbital energies A: %s", self.orbital_energies)
             if self.orbital_energies_b is not None:
                 logger.info("Orbital energies B: %s", self.orbital_energies_b)
+            if self.mo_occ is not None:
+                logger.info("MO occupation numbers A: %s", self.mo_occ.shape)
+                logger.debug("\n%s", self.mo_occ)
+            if self.mo_occ_b is not None:
+                logger.info("MO occupation numbers B: %s", self.mo_occ_b.shape)
+                logger.debug("\n%s", self.mo_occ_b)
 
             if self.hcore is not None:
                 logger.info("hcore integrals: %s", self.hcore.shape)

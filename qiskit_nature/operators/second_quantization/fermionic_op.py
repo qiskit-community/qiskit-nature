@@ -12,10 +12,9 @@
 
 """The Fermionic-particle Operator."""
 
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
-
 from qiskit_nature import QiskitNatureError
 
 from .particle_op import ParticleOp
@@ -196,10 +195,10 @@ class FermionicOp(ParticleOp):
             # are FermionicOperators
             for label1, cf1 in self.to_list():
                 for label2, cf2 in other.to_list():
-                    new_label, new_coeff = self._single_mul(label1, label2)
-                    if new_coeff == 0:
+                    new_label, sign = self._single_mul(label1, label2)
+                    if sign == 0:
                         continue
-                    new_data.append((new_label, cf1 * cf2 * new_coeff))
+                    new_data.append((new_label, cf1 * cf2 * sign))
 
             if not new_data:
                 return FermionicOp(("I" * self._register_length, 0))
@@ -211,65 +210,69 @@ class FermionicOp(ParticleOp):
             "'{}'".format(type(other).__name__)
         )
 
-    @staticmethod
-    def _single_mul(label1: str, label2: str) -> Tuple[str, complex]:
-        assert len(label1) == len(
-            label2
-        ), "Operators act on Fermion Registers of different length"
+    # Map the products of two operators on a single fermionic mode to their result.
+    _MAPPING = {
+        # 0                   - if product vanishes,
+        # new label           - if product does not vanish
+        ("I", "I"): "I",
+        ("I", "+"): "+",
+        ("I", "-"): "-",
+        ("I", "N"): "N",
+        ("I", "E"): "E",
+        ("+", "I"): "+",
+        ("+", "+"): "0",
+        ("+", "-"): "N",
+        ("+", "N"): "0",
+        ("+", "E"): "+",
+        ("-", "I"): "-",
+        ("-", "+"): "E",
+        ("-", "-"): "0",
+        ("-", "N"): "-",
+        ("-", "E"): "0",
+        ("N", "I"): "N",
+        ("N", "+"): "+",
+        ("N", "-"): "0",
+        ("N", "N"): "N",
+        ("N", "E"): "0",
+        ("E", "I"): "E",
+        ("E", "+"): "0",
+        ("E", "-"): "-",
+        ("E", "N"): "0",
+        ("E", "E"): "E",
+    }
 
-        new_label = ""
-        new_coeff = 1
+    @classmethod
+    def _single_mul(cls, label1: str, label2: str) -> Tuple[str, complex]:
+        if len(label1) != len(label2):
+            raise QiskitNatureError("Operators act on Fermion Registers of different length")
 
-        # Map the products of two operators on a single fermionic mode to their result.
-        mapping: Dict[str, Union[str, int]] = {
-            # 0                   - if product vanishes,
-            # new label           - if product does not vanish
-            "II": "I",
-            "I+": "+",
-            "I-": "-",
-            "IN": "N",
-            "IE": "E",
-            "+I": "+",
-            "++": 0,
-            "+-": "N",
-            "+N": 0,
-            "+E": "+",
-            "-I": "-",
-            "-+": "E",
-            "--": 0,
-            "-N": "-",
-            "-E": 0,
-            "NI": "N",
-            "N+": "+",
-            "N-": 0,
-            "NN": "N",
-            "NE": 0,
-            "EI": "E",
-            "E+": 0,
-            "E-": "-",
-            "EN": 0,
-            "EE": "E",
-        }
+        new_label = []
+        sign = 1
 
-        for i, char1, char2 in zip(range(len(label1)), label1, label2):
-            # if char2 is one of `-`, `+` we pick up a phase when commuting it to the position
-            # of char1
-            if char2 in ["-", "+"]:
-                # Construct the string through which we have to commute
-                permuting_through = label1[i + 1:]
-                # Count the number of times we pick up a minus sign when commuting
-                ncommutations = permuting_through.count("+") + permuting_through.count(
-                    "-"
-                )
-                new_coeff *= (-1) ** ncommutations
+        # count the number of `+` and `-` in the first label ahead of time
+        count = label1.count("+") + label1.count("-")
+
+        for pair in zip(label1, label2):
+            # update the count as we progress
+            char1, char2 = pair
+            if char1 in "+-":
+                count -= 1
 
             # Check what happens to the symbol
-            new_char = mapping[char1 + char2]
-            if new_char == 0:
+            new_char = cls._MAPPING[pair]
+            if new_char == "0":
                 return "I" * len(label1), 0
-            new_label += cast(str, new_char)
+            new_label.append(new_char)
+            # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught
+            # by the `if`-statement above.
 
-        return new_label, new_coeff
+            # If char2 is one of `+` or `-` we pick up a phase when commuting it to the position
+            # of char1. However, we only care about this if the number of permutations has odd
+            # parity.
+            if count % 2 and char2 in "+-":
+                sign *= -1
+
+        return ''.join(new_label), sign
 
     def add(self, other: "FermionicOp") -> "FermionicOp":
         if not isinstance(other, FermionicOp):
@@ -305,17 +308,16 @@ class FermionicOp(ParticleOp):
         for label, coeff in zip(self._labels, self._coeffs):
             conjugated_coeff = coeff.conjugate()
 
-            daggered_label = ""
+            daggered_label = []
+            count = label.count("+") + label.count("-")
+            for char in label:
+                daggered_label.append(dagger_map[char])
+                if char in "+-":
+                    count -= 1
+                    if count % 2 == 1:
+                        conjugated_coeff *= -1
 
-            for i, char in enumerate(label):
-                daggered_label += dagger_map[char]
-                if char in ["+", "-"]:
-                    permute_through = label[i + 1:]
-                    conjugated_coeff *= (-1) ** (
-                        permute_through.count("+") + permute_through.count("-")
-                    )
-
-            label_list.append(daggered_label)
+            label_list.append(''.join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
         return FermionicOp(list(zip(label_list, coeff_list)))
@@ -346,4 +348,4 @@ class FermionicOp(ParticleOp):
 
     @staticmethod
     def _validate_label(label: str) -> bool:
-        return all(char in ["I", "+", "-", "N", "E"] for char in label)
+        return set(label).issubset({"I", "+", "-", "N", "E"})

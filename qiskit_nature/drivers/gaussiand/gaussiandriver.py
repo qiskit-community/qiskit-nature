@@ -364,6 +364,6 @@ class GaussianDriver(FermionicDriver):
         m_x = mel.matlist.get(name)
         if m_x is None:
             return None
-        dims = tuple([abs(i) for i in m_x.dimens])
+        dims = tuple(abs(i) for i in m_x.dimens)
         mat = np.reshape(m_x.expand(), dims, order='F')
         return mat
