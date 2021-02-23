@@ -127,9 +127,7 @@ class TestFermionicOp(QiskitNatureTestCase):
         fer_op = FermionicOp("+-") @ FermionicOp("-I")
         self.assertListEqual(fer_op.to_list(), [("N-", -1)])
 
-        fer_op = (FermionicOp("+N") + FermionicOp("E-")) @ (
-            FermionicOp("II") + FermionicOp("-+")
-        )
+        fer_op = (FermionicOp("+N") + FermionicOp("E-")) @ (FermionicOp("II") + FermionicOp("-+"))
         self.assertListEqual(
             fer_op.to_list(), [("+N", 1), ("N+", 1), ("E-", 1), ("-E", -1)]
         )
@@ -165,6 +163,10 @@ class TestFermionicOp(QiskitNatureTestCase):
         fer_op = FermionicOp("N") + FermionicOp("E") + FermionicOp("N")
         reduced_op = fer_op.reduce()
         self.assertSetEqual(frozenset(reduced_op.to_list()), frozenset([("N", 2), ("E", 1)]))
+
+        fer_op = FermionicOp(("+", 1)) + FermionicOp(("-", 1j)) + FermionicOp(("+", 1j))
+        reduced_op = fer_op.reduce()
+        self.assertSetEqual(frozenset(reduced_op.to_list()), frozenset([("+", 1 + 1j), ("-", 1j)]))
 
 
 if __name__ == "__main__":
