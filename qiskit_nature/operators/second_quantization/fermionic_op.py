@@ -15,8 +15,8 @@
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-from qiskit_nature import QiskitNatureError
 
+from qiskit_nature import QiskitNatureError
 from .particle_op import ParticleOp
 
 
@@ -337,11 +337,11 @@ class FermionicOp(ParticleOp):
             for i, v in enumerate(coeff_list)
             if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
-        label_list = label_list[non_zero]
-        coeff_list = np.array(coeff_list)[non_zero]
         if not non_zero:
             return FermionicOp(("I" * self.register_length, 0))
-        return FermionicOp(list(zip(label_list.tolist(), coeff_list.tolist())))
+        new_labels = label_list[non_zero].tolist()
+        new_coeffs = np.array(coeff_list)[non_zero].tolist()
+        return FermionicOp(list(zip(new_labels, new_coeffs)))
 
     def __len__(self):
         return len(self._labels)
