@@ -329,7 +329,7 @@ class FermionicOp(ParticleOp):
             rtol = self.rtol
 
         label_list, indexes = np.unique(self._labels, return_inverse=True, axis=0)
-        coeff_list = np.zeros(len(self._coeffs))
+        coeff_list = [0] * len(self._coeffs)
         for i, val in zip(indexes, self._coeffs):
             coeff_list[i] += val
         non_zero = [
@@ -338,10 +338,10 @@ class FermionicOp(ParticleOp):
             if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         label_list = label_list[non_zero]
-        coeff_list = coeff_list[non_zero]
+        coeff_list = np.array(coeff_list)[non_zero]
         if not non_zero:
             return FermionicOp(("I" * self.register_length, 0))
-        return FermionicOp(list(zip(label_list, coeff_list)))
+        return FermionicOp(list(zip(label_list.tolist(), coeff_list.tolist())))
 
     def __len__(self):
         return len(self._labels)

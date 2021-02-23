@@ -166,6 +166,9 @@ class TestFermionicOp(QiskitNatureTestCase):
         reduced_op = fer_op.reduce()
         self.assertSetEqual(frozenset(reduced_op.to_list()), frozenset([("N", 2), ("E", 1)]))
 
+        fer_op = FermionicOp(("+", 1)) + FermionicOp(("-", 1j)) + FermionicOp(("+", 1j))
+        reduced_op = fer_op.reduce()
+        self.assertSetEqual(frozenset(reduced_op.to_list()), frozenset([("+", 1+1j), ("-", 1j)]))
 
 if __name__ == "__main__":
     unittest.main()
