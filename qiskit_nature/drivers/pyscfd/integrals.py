@@ -137,21 +137,21 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     if isinstance(m_f.mo_coeff, tuple):
         mo_coeff = m_f.mo_coeff[0]
         mo_coeff_b = m_f.mo_coeff[1]
-        # mo_occ   = m_f.mo_occ[0]
-        # mo_occ_b = m_f.mo_occ[1]
+        mo_occ = m_f.mo_occ[0]
+        mo_occ_b = m_f.mo_occ[1]
     else:
         # With PySCF 1.6.2, instead of a tuple of 2 dimensional arrays, its a 3 dimensional
         # array with the first dimension indexing to the coeff arrays for alpha and beta
         if len(m_f.mo_coeff.shape) > 2:
             mo_coeff = m_f.mo_coeff[0]
             mo_coeff_b = m_f.mo_coeff[1]
-            # mo_occ   = m_f.mo_occ[0]
-            # mo_occ_b = m_f.mo_occ[1]
+            mo_occ = m_f.mo_occ[0]
+            mo_occ_b = m_f.mo_occ[1]
         else:
             mo_coeff = m_f.mo_coeff
             mo_coeff_b = None
-            # mo_occ   = mf.mo_occ
-            # mo_occ_b = None
+            mo_occ = m_f.mo_occ
+            mo_occ_b = None
     norbs = mo_coeff.shape[0]
 
     if isinstance(m_f.mo_energy, tuple):
@@ -229,6 +229,8 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     _q_.mo_coeff_b = mo_coeff_b
     _q_.orbital_energies = orbs_energy
     _q_.orbital_energies_b = orbs_energy_b
+    _q_.mo_occ = mo_occ
+    _q_.mo_occ_b = mo_occ_b
     # Molecule geometry
     _q_.molecular_charge = mol.charge
     _q_.multiplicity = mol.spin + 1

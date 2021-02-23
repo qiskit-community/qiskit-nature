@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM , 2021.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,12 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The `SecondQuantizedOperator` Transformations."""
+"""The `QMolecule` Transformers."""
 
+from .active_space_transformer import ActiveSpaceTransformer
+from .base_transformer import BaseTransformer
+from .freeze_core_transformer import FreezeCoreTransformer
 from .particle_hole_transformer import ParticleHoleTransformer
-from .second_quantized_transformer import BaseTransformer
-
-__all__ = [
-    'ParticleHoleTransformer',
-    'BaseTransformer',
-    ]
+from .seniority_zero_transformer import SeniorityZeroTransformer

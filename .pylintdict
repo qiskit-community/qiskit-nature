@@ -103,6 +103,7 @@ hamiltonians
 hardcoded
 hartree
 hartrees
+hcore
 hijkls
 hijs
 ia
@@ -110,6 +111,7 @@ iajb
 ifdef
 iff
 ifortvars
+iipq
 ij
 ijkl
 ik
@@ -120,6 +122,7 @@ interatomic
 internuclear
 ints
 iqpe
+iqpi
 isinstance
 iso
 isym
@@ -127,6 +130,7 @@ iteratively
 jb
 jcf
 ji
+jj
 jl
 jordan
 jupyter
@@ -196,6 +200,7 @@ pca
 ph
 plesset
 popovas
+pq
 pre
 prebuilt
 prepend
@@ -222,6 +227,7 @@ readme
 renormalize
 rhf
 rohf
+rossmannek
 rsgtu
 rtol
 runtime
@@ -248,6 +254,7 @@ superfast
 symm
 sys
 sysctl
+tavernelli
 tbd
 temme
 tensorproduct
