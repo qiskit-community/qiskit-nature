@@ -111,7 +111,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-psi4
-        if: ${{ matrix.python-version == 3.7 }}
+        with:
+          python-version: ${{ matrix.python-version }}
+        if: ${{ matrix.python-version < 3.8 }}
       - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-master-dependencies
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') }}
@@ -121,8 +123,10 @@ jobs:
           if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
             source "$HOME/miniconda/etc/profile.d/conda.sh"
             conda activate
-            pip install https://github.com/rpmuller/pyquante2/archive/master.zip
           fi
+          pip install -U Cython
+          pip install https://github.com/rpmuller/pyquante2/archive/master.zip
+        if: ${{ matrix.python-version < 3.9 }}
         shell: bash
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
         uses: ./.github/actions/run-tests
@@ -216,6 +220,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: actions/download-artifact@v2
         with:
+          name: nature3.6
+          path: /tmp/n36
+      - uses: actions/download-artifact@v2
+        with:
           name: nature3.7
           path: /tmp/n37
       - uses: actions/download-artifact@v2
@@ -231,7 +239,7 @@ jobs:
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/n37/nat.dep /tmp/n38/nat.dep /tmp/n39/nat.dep || true
+          sort -f -u /tmp/n36/nat.dep /tmp/n37/nat.dep /tmp/n38/nat.dep /tmp/n39/nat.dep || true
         shell: bash
       - name: Coverage combine
         run: coverage3 combine /tmp/n37/nat.dat
