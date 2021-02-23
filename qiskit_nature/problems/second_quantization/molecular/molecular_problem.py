@@ -17,7 +17,7 @@ from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.drivers import FermionicDriver
 from qiskit_nature.operators import FermionicOp
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.transformations.second_quantization import BaseTransformer
+from qiskit_nature.transformers import BaseTransformer
 from .integrals_calculators.angular_momentum_integrals_calculator import \
     calc_total_ang_momentum_ints
 from .fermionic_op_builder import build_fermionic_op, build_ferm_op_from_ints
