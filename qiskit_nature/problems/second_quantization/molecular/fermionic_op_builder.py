@@ -41,10 +41,23 @@ def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
                             two_body_integrals: np.ndarray = None) -> FermionicOp:
     """
     Builds a fermionic operator based on 1- and/or 2-body integrals.
+    This method requires the integrals stored in the '*chemist*' notation
+             h2(i,j,k,l) --> adag_i adag_k a_l a_j
+    and the integral values are used for the coefficients of the second-quantized
+    Hamiltonian that is built. The integrals input here should be in block spin
+    format and also have indexes reordered as follows 'ijkl->ljik'
+    There is another popular notation, the '*physicist*' notation
+             h2(i,j,k,l) --> adag_i adag_j a_k a_l
+    If you are using the '*physicist*' notation, you need to convert it to
+    the '*chemist*' notation. E.g. h2=numpy.einsum('ikmj->ijkm', h2)
+    The :class:`~qiskit_nature.QMolecule` class has
+    :attr:`~qiskit_nature.QMolecule.one_body_integrals` and
+    :attr:`~qiskit_nature.QMolecule.two_body_integrals` properties that can be
+    directly supplied to the `h1` and `h2` parameters here respectively.
 
     Args:
-        one_body_integrals (numpy.ndarray): One-body integrals.
-        two_body_integrals (numpy.ndarray): Two-body integrals.
+        one_body_integrals (numpy.ndarray): One-body integrals stored in the chemist notation.
+        two_body_integrals (numpy.ndarray): Two-body integrals stored in the chemist notation.
 
     Returns:
         FermionicOp: FermionicOp built from 1- and/or 2-body integrals.
