@@ -20,6 +20,7 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 
 import re
 from functools import lru_cache, reduce
+from itertools import product
 from typing import cast, List, Optional, Tuple, Union
 
 import numpy as np
@@ -34,13 +35,64 @@ class SpinOp(ParticleOp):
 
     **Label**
 
-    There are two label modes for `SpinOp`.
+    Allowed characters for primitives of labels are I, X, Y, Z, +, and -.
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Label
+          - Mathematical Representation
+          - Meaning
+        * - `I`
+          - :math:`I`
+          - Identity operator
+        * - `X`
+          - :math:`S_x`
+          - :math:`x`-component of the spin operator
+        * - `Y`
+          - :math:`S_y`
+          - :math:`y`-component of the spin operator
+        * - `Z`
+          - :math:`S_z`
+          - :math:`z`-component of the spin operator
+        * - `+`
+          - :math:`S_+`
+          - Raising operator
+        * - `-`
+          - :math:`S_-`
+          - Lowering operator
+
+    There are two types of label modes for :class:`SpinOp`.
 
     1. Sparse Label (default)
 
+    Sparse label mode is space-separated label.
+    Each element is string consisting of :code:`[XYZI+-]_<index>^<power>`,
+    where the :code:`<index>` is non-negative integer and the :code:`<power>` is positive integer.
+    If :code:`<power>` is 1, it can be omitted.
+    For example,
+
+    .. code-block:: python
+
+        "X_0"
+        "Y_0^2"
+        "Y_1^2 Z_1^3 X_0^1 Y_0^2 Z_0^2"
+
+    are possible labels.
+    `X`, `Y`, `Z` must be in this order for each index, so :code:`"Z_0 X_0"` is invalid.
+
     2. Dense Label
 
-    # TODO: explanation of labels
+    Dense label is a representation where one character corresponds to one register.
+    For example,
+
+    .. code-block:: python
+
+        "X"
+        "IIYYZ-IX++"
+
+    are possible labels.
+    Note that dense label cannot represent all of SpinOp.
 
     **Initialization**
 
@@ -58,12 +110,13 @@ class SpinOp(ParticleOp):
 
     .. code-block:: python
 
-        SpinOp([
-            ("X_1 X_0", -1),
-            ("Y_1 Y_0", -1),
-            ("Z_1 Z_0", -1),
-            ("Z_1", -0.3),
-            ("Z_0", -0.3),
+        SpinOp(
+            [
+                ("X_1 X_0", -1),
+                ("Y_1 Y_0", -1),
+                ("Z_1 Z_0", -1),
+                ("Z_1", -0.3),
+                ("Z_0", -0.3),
             ],
             spin=1
         )
@@ -84,9 +137,9 @@ class SpinOp(ParticleOp):
         y = SpinOp([("Y_0", 1)], spin=3/2)
         z = SpinOp([("Z_0", 1)], spin=3/2)
 
-        print("Ladder operator (plus):")
+        print("Raising operator:")
         print(x + 1j * y)
-        print("Ladder operator (minus):")
+        print("Lowering operator:")
         print(x - 1j * y)
 
         print("Dagger")
@@ -132,12 +185,13 @@ class SpinOp(ParticleOp):
             self._coeffs = np.array(data[1], dtype=np.complex128)
 
         if isinstance(data, list):
+            data = self._parse_ladder(data)
             labels, coeffs = zip(*data)
             self._coeffs = np.array(coeffs, np.complex128)
             if label_mode == "sparse":
-                self._from_sparse_label(labels)
+                self._parse_sparse_label(labels)
             elif label_mode == "dense":
-                self._from_dense_label(labels)
+                self._parse_dense_label(labels)
 
     @property
     def register_length(self):
@@ -245,6 +299,18 @@ class SpinOp(ParticleOp):
             ))
         return SpinOp((spin_array, coeff_list))
 
+    def __len__(self):
+        return len(self._coeffs)
+
+    def to_list(self) -> List[Tuple[str, complex]]:
+        """Getter for the list which represents `self`
+
+        Returns:
+            The list [(label, coeff)]
+        """
+        coeff_list = self._coeffs.tolist()
+        return [(self._generate_label(i), coeff_list[i]) for i in range(len(self))]
+
     def _generate_label(self, i):
         """Generates the string description of `self`."""
         labels_list = []
@@ -262,19 +328,9 @@ class SpinOp(ParticleOp):
                 labels_list.append(f"Z_{rev_pos}^{n_z}")
             elif n_z == 1:
                 labels_list.append(f"Z_{rev_pos}")
+            if n_x == n_y == n_z == 0:
+                labels_list.append(f"I_{rev_pos}")
         return " ".join(labels_list) if labels_list else f"I_{self.register_length - 1}"
-
-    def __len__(self):
-        return len(self._coeffs)
-
-    def to_list(self) -> List[Tuple[str, complex]]:
-        """Getter for the list which represents `self`
-
-        Returns:
-            The list [(label, coeff)]
-        """
-        coeff_list = self._coeffs.tolist()
-        return [(self._generate_label(i), coeff_list[i]) for i in range(len(self))]
 
     def to_matrix(self) -> np.ndarray:
         """Convert to dense matrix
@@ -357,7 +413,7 @@ class SpinOp(ParticleOp):
             dtype=np.complex128,
         )
 
-    def _from_sparse_label(self, labels):
+    def _parse_sparse_label(self, labels):
         xyz_dict = {"I": 0, "X": 1, "Y": 2, "Z": 3}
         re_index = re.compile(r"(?<=[IXYZ]_)\d+((?=\^)|$)")
         num_terms = len(labels)
@@ -367,7 +423,7 @@ class SpinOp(ParticleOp):
             parsed_data_term = []
             label_list = label.split()
             for single in label_list:
-                if single[0] not in xyz_dict.keys():
+                if single[0] not in xyz_dict:
                     raise ValueError(f"Given label {single} must be X, Y, Z, or I.")
                 xyz_num = xyz_dict[single[0]]
                 match_index = re_index.search(single)
@@ -415,7 +471,7 @@ class SpinOp(ParticleOp):
                     raise ValueError("Duplicate label.")
                 self._spin_array[i][datum[0] * self._register_length - datum[1] - 1] = datum[2]
 
-    def _from_dense_label(self, labels):
+    def _parse_dense_label(self, labels):
         self._register_length = len(labels[0])
         num_terms = len(labels)
         self._spin_array = np.zeros((num_terms, self._register_length * 3), dtype=np.uint8)
@@ -427,3 +483,28 @@ class SpinOp(ParticleOp):
                     self._spin_array[i][self._register_length + pos] = 1
                 elif char == "Z":
                     self._spin_array[i][2 * self._register_length + pos] = 1
+
+    def _parse_ladder(self, data):
+        allowed_str = 'XYZI_^+-0123456789 '
+        pattern_plus = re.compile(r'\+')
+        pattern_minus = re.compile(r'-')
+        new_data = []
+        for label, coeff in data:
+            if not all(char in allowed_str for char in label):
+                raise ValueError(
+                    f"Invalid label: {label}."
+                    "Label must consist of X, Y, Z, I , +, -, ^, _, 0-9, and spaces."
+                )
+            plus_indices = [m.start() for m in pattern_plus.finditer(label)]
+            minus_indices = [m.start() for m in pattern_minus.finditer(label)]
+            len_plus = len(plus_indices)
+            len_minus = len(minus_indices)
+            pm_indices = plus_indices + minus_indices
+            label_list = list(label)
+            for indices in product(["X", "Y"], repeat=len_plus+len_minus):
+                for i, index in enumerate(indices):
+                    label_list[pm_indices[i]] = index
+                phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
+                new_data.append((''.join(label_list), coeff * 1j ** phase))
+
+        return new_data

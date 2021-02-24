@@ -55,6 +55,37 @@ class TestSpinOp(QiskitNatureTestCase):
         spin = SpinOp([(f"{label}_0", 1)])
         self.assertListEqual(spin.to_list(), [(f"{label}_0", 1)])
 
+    @data(*spin_labels(2))
+    def test_init_len2_label(self, label):
+        """Test __init__"""
+        spin = SpinOp([(f"{label[1]}_1 {label[0]}_0", 1)])
+        self.assertListEqual(spin.to_list(), [(f"{label[1]}_1 {label[0]}_0", 1)])
+
+    def test_init_pm_label(self):
+        """Test __init__ with plus and minus label"""
+        plus = SpinOp([("+_0", 2)])
+        desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
+        self.assertListEqual(plus.to_list(), desired.to_list())
+
+        minus = SpinOp([("-_0", 2)])
+        desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
+        self.assertListEqual(minus.to_list(), desired.to_list())
+
+        actual = SpinOp([("+_1 -_0", 3)])
+        desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
+        self.assertSetEqual(frozenset(actual.to_list()), frozenset(desired.to_list()))
+
+    @data(*spin_labels(1), *spin_labels(2))
+    def test_init_dense_label(self, label):
+        """Test __init__ for label_mode=dense"""
+        if len(label) == 1:
+            actual = SpinOp([(f"{label}", 1 + 1j)], label_mode="dense")
+            desired = SpinOp([(f"{label}_0", 1 + 1j)])
+        elif len(label) == 2:
+            actual = SpinOp([(f"{label}", 1)], label_mode="dense")
+            desired = SpinOp([(f"{label[0]}_1 {label[1]}_0", 1)])
+        self.assertListEqual(actual.to_list(), desired.to_list())
+
     def test_neg(self):
         """Test __neg__"""
         actual = -self.heisenberg
@@ -89,7 +120,7 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_reduce(self):
         """Test reduce"""
         actual = (self.heisenberg - self.heisenberg).reduce()
-        self.assertListEqual(actual.to_list(), [("I_1", 0)])
+        self.assertListEqual(actual.to_list(), [("I_1 I_0", 0)])
 
 
 if __name__ == "__main__":
