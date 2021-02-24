@@ -9,18 +9,3 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-name: 'Install Libraries'
-description: 'Installs Python and Binary Libraries'
-
-runs:
-  using: "composite"
-  steps: 
-    - run : |
-        if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          conda activate
-        fi
-        pip install -U pip
-        pip install -U setuptools wheel
-      shell: bash
