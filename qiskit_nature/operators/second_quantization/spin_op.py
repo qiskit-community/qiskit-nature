@@ -101,9 +101,9 @@ class SpinOp(ParticleOp):
 
     .. code-block:: python
 
-        x = SpinOp([("X_0", 1)], spin=3/2)
-        y = SpinOp([("Y_0", 1)], spin=3/2)
-        z = SpinOp([("Z_0", 1)], spin=3/2)
+        x = SpinOp("X_0", spin=3/2)
+        y = SpinOp("Y_0", spin=3/2)
+        z = SpinOp("Z_0", spin=3/2)
 
     are :math:`S_x, S_y, S_z` for spin 3/2 system.
     Two qutrit Heisenberg model with transverse magnetic field is
@@ -133,9 +133,9 @@ class SpinOp(ParticleOp):
 
         from qiskit_nature.operators import SpinOp
 
-        x = SpinOp([("X_0", 1)], spin=3/2)
-        y = SpinOp([("Y_0", 1)], spin=3/2)
-        z = SpinOp([("Z_0", 1)], spin=3/2)
+        x = SpinOp("X_0", spin=3/2)
+        y = SpinOp("Y_0", spin=3/2)
+        z = SpinOp("Z_0", spin=3/2)
 
         print("Raising operator:")
         print(x + 1j * y)
@@ -150,6 +150,7 @@ class SpinOp(ParticleOp):
     def __init__(
             self,
             data: Union[
+                str,
                 List[Tuple[str, complex]],
                 Tuple[np.ndarray, np.ndarray],
             ],
@@ -159,10 +160,10 @@ class SpinOp(ParticleOp):
         r"""Initialize ``SpinOp``.
 
         Args:
-            spin: positive integer or half-integer which represents spin
-            data: list of tuple (x-spin, y-spin, z-spin, coeff) where each spin is a list
-                  of non-negative integer.
-            label_mode: The mode of label. (`sparse` (default) or sparse)
+            data: label string or list of labels and coefficients. See documentation of SpinOp for
+                  more details.
+            spin: positive integer or half-integer which represents spin.
+            label_mode: The mode of label. (`sparse` (default) or `dense`)
 
         Raises:
             QiskitNatureError: invalid data is given.
@@ -183,6 +184,9 @@ class SpinOp(ParticleOp):
             self._spin_array = np.array(data[0], dtype=np.uint8)
             self._register_length = self._spin_array.shape[1] // 3
             self._coeffs = np.array(data[1], dtype=np.complex128)
+
+        if isinstance(data, str):
+            data = [(data, 1)]
 
         if isinstance(data, list):
             data = self._parse_ladder(data)

@@ -19,6 +19,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import data, ddt
 
+from qiskit.quantum_info import Pauli
 from qiskit_nature.operators import SpinOp
 
 
@@ -52,28 +53,31 @@ class TestSpinOp(QiskitNatureTestCase):
     @data(*spin_labels(1))
     def test_init_label(self, label):
         """Test __init__"""
-        spin = SpinOp([(f"{label}_0", 1)])
+        spin = SpinOp(f"{label}_0")
         self.assertListEqual(spin.to_list(), [(f"{label}_0", 1)])
 
     @data(*spin_labels(2))
     def test_init_len2_label(self, label):
         """Test __init__"""
-        spin = SpinOp([(f"{label[1]}_1 {label[0]}_0", 1)])
+        spin = SpinOp(f"{label[1]}_1 {label[0]}_0")
         self.assertListEqual(spin.to_list(), [(f"{label[1]}_1 {label[0]}_0", 1)])
 
     def test_init_pm_label(self):
         """Test __init__ with plus and minus label"""
-        plus = SpinOp([("+_0", 2)])
-        desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
-        self.assertListEqual(plus.to_list(), desired.to_list())
+        with self.subTest("plus"):
+            plus = SpinOp([("+_0", 2)])
+            desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
+            self.assertListEqual(plus.to_list(), desired.to_list())
 
-        minus = SpinOp([("-_0", 2)])
-        desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
-        self.assertListEqual(minus.to_list(), desired.to_list())
+        with self.subTest("minus"):
+            minus = SpinOp([("-_0", 2)])
+            desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
+            self.assertListEqual(minus.to_list(), desired.to_list())
 
-        actual = SpinOp([("+_1 -_0", 3)])
-        desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
-        self.assertSetEqual(frozenset(actual.to_list()), frozenset(desired.to_list()))
+        with self.subTest("plus tensor minus"):
+            actual = SpinOp([("+_1 -_0", 3)])
+            desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
+            self.assertSetEqual(frozenset(actual.to_list()), frozenset(desired.to_list()))
 
     @data(*spin_labels(1), *spin_labels(2))
     def test_init_dense_label(self, label):
@@ -121,6 +125,12 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test reduce"""
         actual = (self.heisenberg - self.heisenberg).reduce()
         self.assertListEqual(actual.to_list(), [("I_1 I_0", 0)])
+
+    def test_to_matrix(self):
+        """Test to_matrix()"""
+        actual = SpinOp([("X_2 Y_1 Z_0", 1)]).to_matrix()
+        desired = Pauli("XYZ").to_matrix() / 8
+        np.testing.assert_array_almost_equal(actual, desired)
 
 
 if __name__ == "__main__":
