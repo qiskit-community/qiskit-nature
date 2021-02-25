@@ -26,7 +26,6 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
-        print(len(fermionic_op))
         assert isinstance(fermionic_op, FermionicOp)
         assert len(fermionic_op) == 185
 
@@ -36,7 +35,6 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_ferm_op_from_ints(
             q_molecule.one_body_integrals, q_molecule.two_body_integrals)
-        print(len(fermionic_op))
         assert isinstance(fermionic_op, FermionicOp)
         assert len(fermionic_op) == 185
 
@@ -46,6 +44,5 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_ferm_op_from_ints(
             q_molecule.one_body_integrals)
-        print(len(fermionic_op))
         assert isinstance(fermionic_op, FermionicOp)
         assert len(fermionic_op) == 17
