@@ -18,11 +18,10 @@ from qiskit_nature.drivers import FermionicDriver
 from qiskit_nature.operators import FermionicOp
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.transformers import BaseTransformer
-from .integrals_calculators.angular_momentum_integrals_calculator import \
-    calc_total_ang_momentum_ints
+from .integrals_calculators import calc_total_ang_momentum_ints
 from .fermionic_op_builder import build_fermionic_op, build_ferm_op_from_ints
-from .integrals_calculators.magnetization_integrals_calculator import calc_total_magnetization_ints
-from .integrals_calculators.particle_number_integrals_calculator import calc_total_particle_num_ints
+from .integrals_calculators import calc_total_magnetization_ints
+from .integrals_calculators import calc_total_particle_num_ints
 
 
 class MolecularProblem:

@@ -14,8 +14,7 @@
 from test import QiskitNatureTestCase
 import numpy as np
 
-from qiskit_nature.problems.second_quantization.molecular.integrals_calculators \
-    .angular_momentum_integrals_calculator import \
+from qiskit_nature.problems.second_quantization.molecular.integrals_calculators import \
     calc_total_ang_momentum_ints
 
 

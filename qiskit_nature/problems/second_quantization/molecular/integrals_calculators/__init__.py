@@ -9,3 +9,9 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
+"""Integrals Calculators."""
+
+from .angular_momentum_integrals_calculator import calc_total_ang_momentum_ints
+from .magnetization_integrals_calculator import calc_total_magnetization_ints
+from .particle_number_integrals_calculator import calc_total_particle_num_ints

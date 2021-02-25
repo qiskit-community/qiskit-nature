@@ -63,43 +63,59 @@ def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
         FermionicOp: FermionicOp built from 1- and/or 2-body integrals.
     """
 
-    fermionic_op = FermionicOp('I' * len(one_body_integrals))
-    fermionic_op = _fill_ferm_op_one_body_ints(fermionic_op, one_body_integrals)
-    if two_body_integrals is not None:
-        fermionic_op = _fill_ferm_op_two_body_ints(fermionic_op, two_body_integrals)
-
+    fermionic_op = _build_fermionic_op(one_body_integrals, two_body_integrals)
     fermionic_op = fermionic_op.reduce()
 
     return fermionic_op
 
 
-def _fill_ferm_op_one_body_ints(fermionic_op: FermionicOp,
-                                one_body_integrals: np.ndarray) -> FermionicOp:
-    for idx in itertools.product(range(len(one_body_integrals)), repeat=2):
-        coeff = one_body_integrals[idx]
-        if not coeff:
-            continue
-        label = ['I'] * len(one_body_integrals)
-        base_op = coeff * FermionicOp(''.join(label))
-        for i, op in [(idx[0], '+'), (idx[1], '-')]:
-            label_i = label.copy()
-            label_i[i] = op
-            base_op @= FermionicOp(''.join(label_i))
+def _build_fermionic_op(one_body_integrals: np.ndarray,
+                        two_body_integrals: np.ndarray) -> FermionicOp:
+    one_body_base_ops = _create_one_body_base_ops(one_body_integrals)
+    two_body_base_ops = _create_two_body_base_ops(
+        two_body_integrals) if two_body_integrals is not None else []
+    base_ops = one_body_base_ops + two_body_base_ops
+
+    fermionic_op = FermionicOp('I' * len(one_body_integrals))
+    for base_op in base_ops:
         fermionic_op += base_op
     return fermionic_op
 
 
-def _fill_ferm_op_two_body_ints(fermionic_op: FermionicOp,
-                                two_body_integrals: np.ndarray) -> FermionicOp:
-    for idx in itertools.product(range(len(two_body_integrals)), repeat=4):
-        coeff = two_body_integrals[idx]
+def _create_one_body_base_ops(one_body_integrals: np.ndarray):
+    return _create_base_ops(one_body_integrals, 2, _calc_coeffs_with_ops_one_body)
+
+
+def _create_two_body_base_ops(two_body_integrals: np.ndarray):
+    return _create_base_ops(two_body_integrals, 4, _calc_coeffs_with_ops_two_body)
+
+
+def _create_base_ops(integrals: np.ndarray, repeat_num: int, calc_coeffs_with_ops):
+    base_ops_list = []
+    integrals_length = len(integrals)
+    for idx in itertools.product(range(integrals_length), repeat=repeat_num):
+        coeff = integrals[idx]
         if not coeff:
             continue
-        label = ['I'] * len(two_body_integrals)
-        base_op = coeff * FermionicOp(''.join(label))
-        for i, op in [(idx[0], '+'), (idx[2], '+'), (idx[3], '-'), (idx[1], '-')]:
-            label_i = label.copy()
-            label_i[i] = op
-            base_op @= FermionicOp(''.join(label_i))
-        fermionic_op += base_op
-    return fermionic_op
+        coeffs_with_ops = calc_coeffs_with_ops(idx)
+        base_op = _create_base_op_from_labels(coeff, integrals_length, coeffs_with_ops)
+        base_ops_list.append(base_op)
+    return base_ops_list
+
+
+def _calc_coeffs_with_ops_one_body(idx):
+    return [(idx[0], '+'), (idx[1], '-')]
+
+
+def _calc_coeffs_with_ops_two_body(idx):
+    return [(idx[0], '+'), (idx[2], '+'), (idx[3], '-'), (idx[1], '-')]
+
+
+def _create_base_op_from_labels(coeff, length: int, coeffs_with_ops):
+    label = ['I'] * length
+    base_op = coeff * FermionicOp(''.join(label))
+    for i, op in coeffs_with_ops:
+        label_i = label.copy()
+        label_i[i] = op
+        base_op @= FermionicOp(''.join(label_i))
+    return base_op
