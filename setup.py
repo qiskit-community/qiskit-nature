@@ -26,7 +26,7 @@ requirements = [
     "psutil>=5",
     "setuptools>=40.1.0",
     "h5py",
-    "retworkx>=0.5.0"
+    "retworkx>=0.7.0"
 ]
 
 if not hasattr(setuptools, 'find_namespace_packages') or not inspect.ismethod(setuptools.find_namespace_packages):
