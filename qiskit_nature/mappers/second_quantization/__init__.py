@@ -7,7 +7,7 @@
 # of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
 #
 # Any modifications or derivative works of this code must retain this
-# copyright notice, and modified files need to carry a notice indicater
+# copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
 """The Second Quantized Operator Qubit Mappers."""
