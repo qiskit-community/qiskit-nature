@@ -34,13 +34,15 @@ class EvolvedOperatorAnsatz(BlueprintCircuit, ABC):
         Args:
             ops: the final list of operators to be evolved. All operators in this list should
             already have undergone symmetry reductions, etc.
-            reps: the number of repitions of the circuit.
+            reps: the number of repetitions of the circuit.
             evolution: the evolution to be used to evolve the operator.
         """
         self._ops = ops
         self._reps = reps
         # later, we should use Trotterization as the default evolution when this is None
         self._evolution = evolution
+        # TODO: Added to pass lint, need change
+        super().__init__(name='')
 
     @abstractmethod
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:

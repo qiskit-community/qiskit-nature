@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class AdaptiveAnsatz(BlueprintCircuit, ABC):
-    """An interface for adaptive Ansätze."""
+    """An interface for adaptive Ansatz."""
 
     def push(self, index: int) -> None:
         """Pushes the building block with the given index onto the Circuit."""

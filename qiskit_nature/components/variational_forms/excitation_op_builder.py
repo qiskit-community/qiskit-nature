@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExcitationOpBuilder:
-    """A factory class to construct exctiation operators."""
+    """A factory class to construct excitation operators."""
 
     @staticmethod
     def build_excitation_ops(num_excitations: int,
@@ -42,13 +42,13 @@ class ExcitationOpBuilder:
         # generate sets of alpha-spin orbital indices for occupied and unoccupied ones
         set_alpha_occ = set(range(num_particles[0]))
         set_alpha_unocc = set(range(num_particles[0], num_orbitals // 2))
-        # the cartesian product of these sets gives all possible single alpha-spin excitations
+        # the Cartesian product of these sets gives all possible single alpha-spin excitations
         alpha_excitations = set(itertools.product(set_alpha_occ, set_alpha_unocc))
 
         # generate sets of beta-spin orbital indices for occupied and unoccupied ones
         set_beta_occ = set(range(num_orbitals // 2, num_particles[1] + num_orbitals // 2))
         set_beta_unocc = set(range(num_orbitals // 2 + num_particles[1], num_orbitals))
-        # the cartesian product of these sets gives all possible single beta-spin excitations
+        # the Cartesian product of these sets gives all possible single beta-spin excitations
         beta_excitations = set(itertools.product(set_beta_occ, set_beta_unocc))
 
         excitations = set()
@@ -79,5 +79,5 @@ class ExcitationOpBuilder:
                 label[occ] = '-'
             for unocc in exc[1]:
                 label[unocc] = '+'
-            label = ''.join(label)
-            print(exc, label)
+            label_str = ''.join(label)
+            print(exc, label_str)

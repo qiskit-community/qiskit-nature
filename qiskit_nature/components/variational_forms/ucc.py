@@ -22,10 +22,16 @@ from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 logger = logging.getLogger(__name__)
 
 
+# TODO: Added to pass mypy, need change to real class
+class QubitOpConverter:
+    """ The QubitOpConverter """
+    pass
+
+
 class UCC(EvolvedOperatorAnsatz):
     """The Unitary Coupled-Cluster Ansatz."""
 
-    def __init__(self, qubit_op_converter: "QubitOpConverter",
+    def __init__(self, qubit_op_converter: QubitOpConverter,
                  num_particles: Optional[Tuple[int, int]] = None,
                  num_spin_orbitals: Optional[int] = None,
                  excitations: Optional[Union[str, int, List[int], List[Callable]]] = None):
@@ -55,6 +61,8 @@ class UCC(EvolvedOperatorAnsatz):
         self._num_particles = num_particles
         self._num_spin_orbitals = num_spin_orbitals
         self._excitations = excitations
+        # TODO: Added to pass lint, need change
+        super().__init__([], reps=0, evolution=None)
 
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
         pass
