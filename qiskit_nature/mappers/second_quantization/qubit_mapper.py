@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Qubit Mapping interface."""
+"""Qubit Mapper interface."""
 
 from abc import ABC, abstractmethod
 from typing import List, Tuple
@@ -24,7 +24,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 
-class QubitMapping(ABC):
+class QubitMapper(ABC):
     """The interface for implementing methods which map from a `ParticleOp` to a
     `PauliSumOp`.
     """

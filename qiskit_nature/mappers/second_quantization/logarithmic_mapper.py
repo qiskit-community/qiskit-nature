@@ -10,18 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Linear Mapping interface."""
+"""The Logarithmic Mapper."""
 
 from qiskit.aqua.operators import PauliSumOp
 
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 
-from .qubit_mapping import QubitMapping
+from .qubit_mapper import QubitMapper
 
 
-class LinearMapping(QubitMapping):
-    """The Linear spin-to-qubit mapping. """
+class LogarithmicMapper(QubitMapper):
+    """The Logarithmic spin-to-qubit mapping. """
 
     def supports_particle_type(self, particle_type: ParticleOp) -> bool:
         """Returns whether the queried particle-type operator is supported by this mapping.
@@ -35,7 +35,7 @@ class LinearMapping(QubitMapping):
         return isinstance(particle_type, SpinOp)
 
     def map(self, second_q_op: ParticleOp) -> PauliSumOp:
-        """Maps a `ParticleOp` to a `PauliSumOp` using the Linear spin-to-qubit
+        """Maps a `ParticleOp` to a `PauliSumOp` using the Logarithmic spin-to-qubit
         mapping.
 
         Args:

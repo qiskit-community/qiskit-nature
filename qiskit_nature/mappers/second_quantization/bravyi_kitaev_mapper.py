@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Bravyi-Kitaev Mapping interface."""
+"""The Bravyi-Kitaev Mapper."""
 
 import numpy as np
 
@@ -20,10 +20,10 @@ from qiskit.quantum_info.operators import Pauli
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 
-from .qubit_mapping import QubitMapping
+from .qubit_mapper import QubitMapper
 
 
-class BravyiKitaevMapping(QubitMapping):
+class BravyiKitaevMapper(QubitMapper):
     """The Bravyi-Kitaev fermion-to-qubit mapping. """
 
     def supports_particle_type(self, particle_type: ParticleOp) -> bool:
