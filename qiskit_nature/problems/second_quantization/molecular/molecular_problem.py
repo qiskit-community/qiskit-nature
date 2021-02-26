@@ -82,10 +82,10 @@ class MolecularProblem:
         return x_dipole_operator, y_dipole_operator, z_dipole_operator
 
     def _create_total_magnetization_operator(self, num_modes) -> FermionicOp:
-        return build_ferm_op_from_ints(calc_total_magnetization_ints(num_modes))
+        return build_ferm_op_from_ints(*calc_total_magnetization_ints(num_modes))
 
     def _create_total_angular_momentum_operator(self, num_modes) -> FermionicOp:
         return build_ferm_op_from_ints(*calc_total_ang_momentum_ints(num_modes))
 
     def _create_total_particle_number_operator(self, num_modes) -> FermionicOp:
-        return build_ferm_op_from_ints(calc_total_particle_num_ints(num_modes))
+        return build_ferm_op_from_ints(*calc_total_particle_num_ints(num_modes))

@@ -11,11 +11,12 @@
 # that they have been altered from the originals.
 
 """ Calculator of 1-body integrals for a total particle number."""
+from typing import Tuple
 
 import numpy as np
 
 
-def calc_total_particle_num_ints(num_modes: int) -> np.ndarray:
+def calc_total_particle_num_ints(num_modes: int) -> Tuple[np.ndarray, None]:
     """
     Calculates 1-body integrals for a total particle number.
 
@@ -23,9 +24,10 @@ def calc_total_particle_num_ints(num_modes: int) -> np.ndarray:
         num_modes (int): Number of modes.
 
     Returns:
-        numpy.ndarray,: 1-body integrals for a total particle number.
+        Tuple(numpy.ndarray, None): 1-body integrals and None 2-body integrals for a total
+        particle number.
     """
     modes = num_modes
     h_1 = np.eye(modes, dtype=complex)
 
-    return h_1
+    return h_1, None

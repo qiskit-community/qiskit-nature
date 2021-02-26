@@ -24,17 +24,22 @@ class TestParticleNumberIntegralsCalculator(QiskitNatureTestCase):
     num_modes_list = [1, 2, 3]
     expected_h_1_list = [np.eye(1, dtype=complex), np.eye(2, dtype=complex),
                          np.eye(3, dtype=complex)]
+    expected_h_2_list = [None, None, None]
 
     def test_calc_total_particle_num_ints(self):
         """Tests that one-body integrals for total particle number are calculated correctly."""
 
-        for num_modes, expected_h_1 in zip(self.num_modes_list, self.expected_h_1_list):
+        for num_modes, expected_h_1, expected_h_2 in zip(self.num_modes_list,
+                                                         self.expected_h_1_list,
+                                                         self.expected_h_2_list):
             with self.subTest(num_modes=num_modes):
-                self._test_calc_total_particle_num_ints_params(num_modes, expected_h_1)
+                self._test_calc_total_particle_num_ints_params(num_modes, expected_h_1,
+                                                               expected_h_2)
 
     @staticmethod
-    def _test_calc_total_particle_num_ints_params(num_modes, expected_h_1):
+    def _test_calc_total_particle_num_ints_params(num_modes, expected_h_1, expected_h_2):
 
-        h_1 = calc_total_particle_num_ints(num_modes)
+        h_1, h_2 = calc_total_particle_num_ints(num_modes)
 
         assert np.allclose(h_1, expected_h_1)
+        assert h_2 == expected_h_2

@@ -11,11 +11,12 @@
 # that they have been altered from the originals.
 
 """ Calculator of 1-body integrals for a total magnetization."""
+from typing import Tuple
 
 import numpy as np
 
 
-def calc_total_magnetization_ints(num_modes: int) -> np.ndarray:
+def calc_total_magnetization_ints(num_modes: int) -> Tuple[np.ndarray, None]:
     """
     Calculates 1-body integrals for a total magnetization.
 
@@ -23,10 +24,11 @@ def calc_total_magnetization_ints(num_modes: int) -> np.ndarray:
         num_modes (int): Number of modes.
 
     Returns:
-        numpy.ndarray: 1-body integrals for a total magnetization.
+        Tuple(numpy.ndarray, None): 1-body integrals and None 2-body integrals for a total
+        magnetization.
     """
     modes = num_modes
     h_1 = np.eye(modes, dtype=complex) * 0.5
     h_1[modes // 2:, modes // 2:] *= -1.0
 
-    return h_1
+    return h_1, None

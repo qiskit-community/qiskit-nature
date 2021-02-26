@@ -50,14 +50,17 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
     @property
     def fermion(self):
+        """fermionic part"""
         return self._fermion
 
     @property
     def boson(self):
+        """bosonic part"""
         return self._boson
 
     @property
     def spin(self):
+        """spin part"""
         return self._spin
 
     def mul(self, other):
