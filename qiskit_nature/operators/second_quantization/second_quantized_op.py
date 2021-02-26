@@ -27,25 +27,38 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
     This class is used to combine operators of different particle type.
     """
+
     def __init__(self, operator_list: List[ParticleOp]):
         """
         """
         # TODO: validation of operator_list
 
-        self.fermion = None
-        self.boson = None
-        self.spin: Dict[int, SpinOp] = {}
+        self._fermion = None
+        self._boson = None
+        self._spin: Dict[int, SpinOp] = {}
 
         for op in operator_list:
-            if isinstance(op, FermionicOp) and self.fermion is None:
-                self.fermion = op
-            elif isinstance(op, FermionicOp) and self.fermion is not None:
+            if isinstance(op, FermionicOp) and self._fermion is None:
+                self._fermion = op
+            elif isinstance(op, FermionicOp) and self._fermion is not None:
                 raise QiskitNatureError("Only one FermionicOp can be set in initializer.")
             # if isinstance(op, BosonicOp):
             # if isinstance(op, SpinOp):
 
     def __repr__(self):
-        return f"SecondQuantizedOp([{repr(self.fermion)}])"
+        return f"SecondQuantizedOp([{repr(self._fermion)}])"
+
+    @property
+    def fermion(self):
+        return self._fermion
+
+    @property
+    def boson(self):
+        return self._boson
+
+    @property
+    def spin(self):
+        return self._spin
 
     def mul(self, other):
         if not isinstance(other, Number):
@@ -53,8 +66,8 @@ class SecondQuantizedOp(StarAlgebraMixin):
                             "'{}'".format(type(other).__name__))
 
         operator_list = []
-        if self.fermion is not None:
-            operator_list.append(other * self.fermion)
+        if self._fermion is not None:
+            operator_list.append(other * self._fermion)
 
         return SecondQuantizedOp(operator_list)
 
@@ -71,7 +84,7 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
     def adjoint(self):
         daggered_operator_list = []
-        if self.fermion is not None:
-            daggered_operator_list.append(self.fermion.dagger)
+        if self._fermion is not None:
+            daggered_operator_list.append(self._fermion.dagger)
 
         return SecondQuantizedOp(daggered_operator_list)

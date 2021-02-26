@@ -71,27 +71,28 @@ def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
 
 def _build_fermionic_op(one_body_integrals: np.ndarray,
                         two_body_integrals: np.ndarray) -> FermionicOp:
-    one_body_base_ops = _create_one_body_base_ops(one_body_integrals)
-    two_body_base_ops = _create_two_body_base_ops(
+    one_body_base_ops_labels = _create_one_body_base_ops(one_body_integrals)
+    two_body_base_ops_labels = _create_two_body_base_ops(
         two_body_integrals) if two_body_integrals is not None else []
-    base_ops = one_body_base_ops + two_body_base_ops
+    base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
+    base_ops_labels.append(('I', len(one_body_integrals)))
+    fermionic_op = FermionicOp(base_ops_labels)
 
-    fermionic_op = FermionicOp('I' * len(one_body_integrals))
-    for base_op in base_ops:
-        fermionic_op += base_op
     return fermionic_op
 
 
 def _create_one_body_base_ops(one_body_integrals: np.ndarray):
-    return _create_base_ops(one_body_integrals, 2, _calc_coeffs_with_ops_one_body)
+    repeat_num = 2
+    return _create_base_ops_labels(one_body_integrals, repeat_num, _calc_coeffs_with_ops_one_body)
 
 
 def _create_two_body_base_ops(two_body_integrals: np.ndarray):
-    return _create_base_ops(two_body_integrals, 4, _calc_coeffs_with_ops_two_body)
+    repeat_num = 4
+    return _create_base_ops_labels(two_body_integrals, repeat_num, _calc_coeffs_with_ops_two_body)
 
 
-def _create_base_ops(integrals: np.ndarray, repeat_num: int, calc_coeffs_with_ops):
-    base_ops_list = []
+def _create_base_ops_labels(integrals: np.ndarray, repeat_num: int, calc_coeffs_with_ops):
+    all_base_ops_labels = []
     integrals_length = len(integrals)
     for idx in itertools.product(range(integrals_length), repeat=repeat_num):
         coeff = integrals[idx]
@@ -99,8 +100,8 @@ def _create_base_ops(integrals: np.ndarray, repeat_num: int, calc_coeffs_with_op
             continue
         coeffs_with_ops = calc_coeffs_with_ops(idx)
         base_op = _create_base_op_from_labels(coeff, integrals_length, coeffs_with_ops)
-        base_ops_list.append(base_op)
-    return base_ops_list
+        all_base_ops_labels += base_op.to_list()
+    return all_base_ops_labels
 
 
 def _calc_coeffs_with_ops_one_body(idx):
@@ -119,3 +120,14 @@ def _create_base_op_from_labels(coeff, length: int, coeffs_with_ops):
         label_i[i] = op
         base_op @= FermionicOp(''.join(label_i))
     return base_op
+
+#
+# def _create_base_op_labels(coeff, length: int, coeffs_with_ops):
+#     label = ['I'] * length
+#     labels_list = [(''.join(label), coeff)]
+#     # base_op = coeff * FermionicOp(''.join(label))
+#     for i, op in coeffs_with_ops:
+#         label_i = label.copy()
+#         label_i[i] = op
+#         labels_list.append((''.join(label_i), coeff))
+#     return labels_list

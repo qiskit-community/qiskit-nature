@@ -17,7 +17,7 @@ import numpy as np
 
 def calc_total_particle_num_ints(num_modes: int) -> np.ndarray:
     """
-    Calculates 1- and 2-body integrals for a total particle number.
+    Calculates 1-body integrals for a total particle number.
 
     Args:
         num_modes (int): Number of modes.
