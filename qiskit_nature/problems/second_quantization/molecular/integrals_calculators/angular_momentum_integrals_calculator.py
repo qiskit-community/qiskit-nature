@@ -13,7 +13,7 @@
 """ Calculator of 1- and 2-body integrals for a total angular momentum."""
 
 import itertools
-from typing import Tuple
+from typing import Tuple, List
 
 import numpy as np
 
@@ -38,77 +38,92 @@ def calc_total_ang_momentum_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray
     return h_1, h_2
 
 
-# TODO eliminate code duplication below
-
 def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
-    num_modes_2 = num_modes // 2
-    h_1 = np.zeros((num_modes, num_modes))
-    h_2 = np.zeros((num_modes, num_modes, num_modes, num_modes))
-
-    for p, q in itertools.product(range(num_modes_2), repeat=2):  # pylint: disable=invalid-name
-        if p != q:
-            h_2[p, p + num_modes_2, q, q + num_modes_2] += 1.0
-            h_2[p + num_modes_2, p, q, q + num_modes_2] += 1.0
-            h_2[p, p + num_modes_2, q + num_modes_2, q] += 1.0
-            h_2[p + num_modes_2, p, q + num_modes_2, q] += 1.0
-        else:
-            h_2[p, p + num_modes_2, p, p + num_modes_2] -= 1.0
-            h_2[p + num_modes_2, p, p + num_modes_2, p] -= 1.0
-            h_2[p, p, p + num_modes_2, p + num_modes_2] -= 1.0
-            h_2[p + num_modes_2, p + num_modes_2, p, p] -= 1.0
-
-            h_1[p, p] += 1.0
-            h_1[p + num_modes_2, p + num_modes_2] += 1.0
-
-    h_1 *= 0.25
-    h_2 *= 0.25
-    return h_1, h_2
+    return _calc_squared_ints(num_modes, _modify_s_x_squared_ints_neq, _modify_s_x_squared_ints_eq)
 
 
 def _calc_s_y_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
-    num_modes_2 = num_modes // 2
-    h_1 = np.zeros((num_modes, num_modes))
-    h_2 = np.zeros((num_modes, num_modes, num_modes, num_modes))
-
-    for p, q in itertools.product(range(num_modes_2), repeat=2):  # pylint: disable=invalid-name
-        if p != q:
-            h_2[p, p + num_modes_2, q, q + num_modes_2] -= 1.0
-            h_2[p + num_modes_2, p, q, q + num_modes_2] += 1.0
-            h_2[p, p + num_modes_2, q + num_modes_2, q] += 1.0
-            h_2[p + num_modes_2, p, q + num_modes_2, q] -= 1.0
-        else:
-            h_2[p, p + num_modes_2, p, p + num_modes_2] += 1.0
-            h_2[p + num_modes_2, p, p + num_modes_2, p] += 1.0
-            h_2[p, p, p + num_modes_2, p + num_modes_2] -= 1.0
-            h_2[p + num_modes_2, p + num_modes_2, p, p] -= 1.0
-
-            h_1[p, p] += 1.0
-            h_1[p + num_modes_2, p + num_modes_2] += 1.0
-
-    h_1 *= 0.25
-    h_2 *= 0.25
-    return h_1, h_2
+    return _calc_squared_ints(num_modes, _modify_s_y_squared_ints_neq, _modify_s_y_squared_ints_eq)
 
 
 def _calc_s_z_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
+    return _calc_squared_ints(num_modes, _modify_s_z_squared_ints_neq, _modify_s_z_squared_ints_eq)
+
+
+def _calc_squared_ints(num_modes: int, func_neq, func_eq) -> Tuple[np.ndarray, np.ndarray]:
     num_modes_2 = num_modes // 2
     h_1 = np.zeros((num_modes, num_modes))
     h_2 = np.zeros((num_modes, num_modes, num_modes, num_modes))
 
     for p, q in itertools.product(range(num_modes_2), repeat=2):  # pylint: disable=invalid-name
         if p != q:
-            h_2[p, p, q, q] += 1.0
-            h_2[p + num_modes_2, p + num_modes_2, q, q] -= 1.0
-            h_2[p, p, q + num_modes_2, q + num_modes_2] -= 1.0
-            h_2[p + num_modes_2, p + num_modes_2,
-                q + num_modes_2, q + num_modes_2] += 1.0
+            h_2 = func_neq(h_2, p, q, num_modes_2)
         else:
-            h_2[p, p + num_modes_2, p + num_modes_2, p] += 1.0
-            h_2[p + num_modes_2, p, p, p + num_modes_2] += 1.0
-
+            h_2 = func_eq(h_2, p, num_modes_2)
             h_1[p, p] += 1.0
             h_1[p + num_modes_2, p + num_modes_2] += 1.0
-
     h_1 *= 0.25
     h_2 *= 0.25
     return h_1, h_2
+
+
+def _modify_s_squared_ints(h_2: np.ndarray, indices: List[Tuple[int, int, int, int]],
+                           values: List[int]) -> np.ndarray:
+    for index, value in zip(indices, values):
+        h_2[index] += value
+    return h_2
+
+
+def _modify_s_x_squared_ints_neq(h_2: np.ndarray, p_ind: int, q_ind: int,
+                                 num_modes_2: int) -> np.ndarray:
+    indices = [(p_ind, p_ind + num_modes_2, q_ind, q_ind + num_modes_2),
+               (p_ind + num_modes_2, p_ind, q_ind, q_ind + num_modes_2),
+               (p_ind, p_ind + num_modes_2, q_ind + num_modes_2, q_ind),
+               (p_ind + num_modes_2, p_ind, q_ind + num_modes_2, q_ind)]
+    values = [1, 1, 1, 1]
+    return _modify_s_squared_ints(h_2, indices, values)
+
+
+def _modify_s_x_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -> np.ndarray:
+    indices = [(p_ind, p_ind + num_modes_2, p_ind, p_ind + num_modes_2),
+               (p_ind + num_modes_2, p_ind, p_ind + num_modes_2, p_ind),
+               (p_ind, p_ind, p_ind + num_modes_2, p_ind + num_modes_2),
+               (p_ind + num_modes_2, p_ind + num_modes_2, p_ind, p_ind)]
+    values = [-1, -1, -1, -1]
+    return _modify_s_squared_ints(h_2, indices, values)
+
+
+def _modify_s_y_squared_ints_neq(h_2: np.ndarray, p_ind: int, q_ind: int,
+                                 num_modes_2: int) -> np.ndarray:
+    indices = [(p_ind, p_ind + num_modes_2, q_ind, q_ind + num_modes_2),
+               (p_ind + num_modes_2, p_ind, q_ind, q_ind + num_modes_2),
+               (p_ind, p_ind + num_modes_2, q_ind + num_modes_2, q_ind),
+               (p_ind + num_modes_2, p_ind, q_ind + num_modes_2, q_ind)]
+    values = [-1, 1, 1, -1]
+    return _modify_s_squared_ints(h_2, indices, values)
+
+
+def _modify_s_y_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -> np.ndarray:
+    indices = [(p_ind, p_ind + num_modes_2, p_ind, p_ind + num_modes_2),
+               (p_ind + num_modes_2, p_ind, p_ind + num_modes_2, p_ind),
+               (p_ind, p_ind, p_ind + num_modes_2, p_ind + num_modes_2),
+               (p_ind + num_modes_2, p_ind + num_modes_2, p_ind, p_ind)]
+    values = [1, 1, -1, -1]
+    return _modify_s_squared_ints(h_2, indices, values)
+
+
+def _modify_s_z_squared_ints_neq(h_2: np.ndarray, p_ind: int, q_ind: int,
+                                 num_modes_2: int) -> np.ndarray:
+    indices = [(p_ind, p_ind, q_ind, q_ind),
+               (p_ind + num_modes_2, p_ind + num_modes_2, q_ind, q_ind),
+               (p_ind, p_ind, q_ind + num_modes_2, q_ind + num_modes_2),
+               (p_ind + num_modes_2, p_ind + num_modes_2, q_ind + num_modes_2, q_ind + num_modes_2)]
+    values = [1, -1, -1, 1]
+    return _modify_s_squared_ints(h_2, indices, values)
+
+
+def _modify_s_z_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -> np.ndarray:
+    indices = [(p_ind, p_ind + num_modes_2, p_ind + num_modes_2, p_ind),
+               (p_ind + num_modes_2, p_ind, p_ind, p_ind + num_modes_2)]
+    values = [1, 1]
+    return _modify_s_squared_ints(h_2, indices, values)
