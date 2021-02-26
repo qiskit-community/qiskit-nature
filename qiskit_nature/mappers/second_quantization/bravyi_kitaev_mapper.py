@@ -177,4 +177,4 @@ class BravyiKitaevMapper(QubitMapper):
             pauli_table.append((update_pauli[j] * x_j * parity_pauli[j],
                                 update_pauli[j] * y_j * remainder_pauli[j]))
 
-        return QubitMapping.mode_based_mapping(second_q_op, pauli_table)
+        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)

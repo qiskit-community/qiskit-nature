@@ -72,4 +72,4 @@ class ParityMapper(QubitMapper):
             b_x = np.asarray(b_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
             pauli_table.append((Pauli(a_z, a_x), Pauli(b_z, b_x)))
 
-        return QubitMapping.mode_based_mapping(second_q_op, pauli_table)
+        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)
