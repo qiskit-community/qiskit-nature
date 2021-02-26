@@ -18,17 +18,75 @@ from qiskit_nature.problems.second_quantization.molecular.integrals_calculators 
     calc_total_ang_momentum_ints
 
 
-# TODO add more detailed tests
-class TestMolecularProblem(QiskitNatureTestCase):
+class TestAngularMomentumIntegralsCalculator(QiskitNatureTestCase):
     """Tests total angular momentum integrals calculator."""
+
+    num_modes_list = [1, 2, 3]
+    expected_h_1_list = [[[0.]], [[0.75, 0.],
+                                  [0., 0.75]], [[0.75, 0., 0.],
+                                                [0., 0.75, 0.],
+                                                [0., 0., 0.]]]
+    expected_h_2_list = [[[[[0.]]]], [[[[0., 0.],
+                                        [0., -0.5]],
+
+                                       [[0., 0.],
+                                        [0.25, 0.]]],
+
+                                      [[[0., 0.25],
+                                        [0., 0.]],
+
+                                       [[-0.5, 0.],
+                                        [0., 0.]]]], [[[[0., 0., 0.],
+                                                        [0., - 0.5, 0.],
+                                                        [0., 0., 0.]],
+
+                                                       [[0., 0., 0.],
+                                                        [0.25, 0., 0.],
+                                                        [0., 0., 0.]],
+
+                                                       [[0., 0., 0.],
+                                                        [0., 0., 0.],
+                                                        [0., 0., 0.]]],
+
+                                                      [[[0., 0.25, 0.],
+                                                        [0., 0., 0.],
+                                                        [0., 0., 0.]],
+
+                                                       [[-0.5, 0., 0.],
+                                                        [0., 0., 0.],
+                                                        [0., 0., 0.]],
+
+                                                       [[0., 0., 0.],
+                                                        [0., 0., 0.],
+                                                        [0., 0., 0.]]],
+
+                                                      [[[0., 0., 0.],
+                                                        [0., 0., 0.],
+                                                        [0., 0., 0.]],
+
+                                                       [[0., 0., 0.],
+                                                        [0., 0., 0.],
+                                                        [0., 0., 0.]],
+
+                                                       [[0., 0., 0.],
+                                                        [0., 0., 0.],
+                                                        [0., 0., 0.]]]]]
 
     def test_calc_total_ang_momentum_ints(self):
         """Tests that one- and two-body integrals for total angular momentum are calculated
         correctly."""
-        num_modes = 1
-        expected_h1 = [[0.]]
-        expected_h2 = [[[[0.]]]]
+
+        for num_modes, expected_h_1, expected_h_2 in zip(self.num_modes_list,
+                                                         self.expected_h_1_list,
+                                                         self.expected_h_2_list):
+            with self.subTest(num_modes=num_modes):
+                self._test_calc_total_ang_momentum_ints_params(num_modes, expected_h_1,
+                                                               expected_h_2)
+
+    @staticmethod
+    def _test_calc_total_ang_momentum_ints_params(num_modes, expected_h_1, expected_h_2):
+
         h_1, h_2 = calc_total_ang_momentum_ints(num_modes)
 
-        assert np.allclose(h_1, expected_h1)
-        assert np.allclose(h_2, expected_h2)
+        assert np.allclose(h_1, expected_h_1)
+        assert np.allclose(h_2, expected_h_2)

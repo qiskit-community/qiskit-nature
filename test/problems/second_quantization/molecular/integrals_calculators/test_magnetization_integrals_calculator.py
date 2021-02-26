@@ -18,14 +18,26 @@ from qiskit_nature.problems.second_quantization.molecular.integrals_calculators 
     calc_total_magnetization_ints
 
 
-# TODO add more detailed tests
-class TestMolecularProblem(QiskitNatureTestCase):
+class TestMagnetizationIntegralsCalculator(QiskitNatureTestCase):
     """Tests total magnetization integrals calculator."""
+
+    num_modes_list = [1, 2, 3]
+    expected_h_1_list = [[[-0.5 + 0.j]], [[0.5 + 0.j, 0. + 0.j],
+                                          [0. + 0.j, -0.5 + 0.j]],
+                         [[0.5 + 0.j, 0. + 0.j, 0. + 0.j],
+                          [0. + 0.j, -0.5 + 0.j, -0. + 0.j],
+                          [0. + 0.j, -0. + 0.j, -0.5 + 0.j]]]
 
     def test_calc_total_magnetization_ints(self):
         """Tests that one-body integrals for total magnetization are calculated correctly."""
-        num_modes = 1
-        expected_h_1 = [[-0.5 + 0.j]]
+
+        for num_modes, expected_h_1 in zip(self.num_modes_list, self.expected_h_1_list):
+            with self.subTest(num_modes=num_modes):
+                self._test_calc_total_magnetization_ints_params(num_modes, expected_h_1)
+
+    @staticmethod
+    def _test_calc_total_magnetization_ints_params(num_modes, expected_h_1):
+
         h_1 = calc_total_magnetization_ints(num_modes)
 
         assert np.allclose(h_1, expected_h_1)
