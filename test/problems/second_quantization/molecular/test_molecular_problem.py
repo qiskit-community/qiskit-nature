@@ -27,12 +27,11 @@ class TestMolecularProblem(QiskitNatureTestCase):
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
-        expected_num_of_electr_terms = 185
+        expected_num_of_electr_terms = 184
         expected_num_of_sec_quant_ops = 7
 
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
-        transformation = []
-        molecular_problem = MolecularProblem(driver, transformation)
+        molecular_problem = MolecularProblem(driver)
 
         expected_electr_sec_quant_op = TestMolecularProblem._calc_expected_sec_quant_op(driver,
                                                                                         None)

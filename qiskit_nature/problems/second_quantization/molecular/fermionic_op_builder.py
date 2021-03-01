@@ -121,4 +121,3 @@ def _create_base_op_from_labels(coeff, length: int, coeffs_with_ops) -> Fermioni
         label_i[i] = op
         base_op @= FermionicOp(''.join(label_i))
     return base_op
-

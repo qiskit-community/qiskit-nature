@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """The Molecular Problem class."""
-from typing import List, Optional, Tuple
+from typing import List, Tuple, Optional
 
 from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.drivers import FermionicDriver
@@ -28,13 +28,15 @@ class MolecularProblem:
     """Molecular Problem"""
 
     def __init__(self, fermionic_driver: FermionicDriver,
-                 q_molecule_transformers: Optional[List[BaseTransformer]]):
+                 q_molecule_transformers: Optional[List[BaseTransformer]]=None):
         """
 
         Args:
             fermionic_driver: A fermionic driver encoding the molecule information.
             q_molecule_transformers: A list of transformations to be applied to the molecule.
         """
+        if q_molecule_transformers is None:
+            q_molecule_transformers = []
         self.driver = fermionic_driver
         self.transformers = q_molecule_transformers
 
