@@ -12,6 +12,7 @@
 
 """Tests Fermionic Operator builder."""
 from test import QiskitNatureTestCase
+from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
 from qiskit_nature.operators import FermionicOp
 from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
 from qiskit_nature.drivers import HDF5Driver
@@ -24,8 +25,8 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         """Tests that the correct FermionicOp is built from QMolecule."""
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_two_ints',
                                                             'problems/second_quantization/'
-                                                            'molecular')
-        expected_fermionic_op = self._read_expected_file(expected_fermionic_op_path)
+                                                            'molecular/resources')
+        expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
@@ -37,8 +38,8 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         """Tests that the correct FermionicOp is built from 1- and 2-body integrals."""
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_two_ints',
                                                             'problems/second_quantization/'
-                                                            'molecular')
-        expected_fermionic_op = self._read_expected_file(expected_fermionic_op_path)
+                                                            'molecular/resources')
+        expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_ferm_op_from_ints(
@@ -51,8 +52,8 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         """Tests that the correct FermionicOp is built from 1-body integrals."""
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_one_int',
                                                             'problems/second_quantization/'
-                                                            'molecular')
-        expected_fermionic_op = self._read_expected_file(expected_fermionic_op_path)
+                                                            'molecular/resources')
+        expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
@@ -61,11 +62,3 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         assert isinstance(fermionic_op, FermionicOp)
         assert len(fermionic_op) == 17
         assert fermionic_op.to_list() == expected_fermionic_op
-
-    @staticmethod
-    def _read_expected_file(path):
-        types = str, float
-        with open(path, 'r') as file:
-            expected_fermionic_op = [tuple(t(e) for t, e in zip(types, line.split()))
-                                     for line in file]
-        return expected_fermionic_op
