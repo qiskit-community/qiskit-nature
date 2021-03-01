@@ -13,6 +13,7 @@
 """Tests Molecular Problem."""
 
 from test import QiskitNatureTestCase
+import numpy as np
 from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
 from qiskit_nature.transformers import ActiveSpaceTransformer
 from qiskit_nature.drivers import HDF5Driver
@@ -43,7 +44,8 @@ class TestMolecularProblem(QiskitNatureTestCase):
             for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
-            assert electr_sec_quant_op.fermion.to_list() == expected_fermionic_op
+            assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
+                       zip(expected_fermionic_op, electr_sec_quant_op.fermion.to_list()))
             assert electr_sec_quant_op.boson is None
             assert electr_sec_quant_op.spin == {}
         # TODO test QMolecule itself if it is ever a field in MolecularProblem
@@ -68,7 +70,8 @@ class TestMolecularProblem(QiskitNatureTestCase):
             for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
-            assert electr_sec_quant_op.fermion.to_list() == expected_fermionic_op
+            assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
+                       zip(expected_fermionic_op, electr_sec_quant_op.fermion.to_list()))
             assert electr_sec_quant_op.boson is None
             assert electr_sec_quant_op.spin == {}
         # TODO test QMolecule itself if it is ever a field in MolecularProblem

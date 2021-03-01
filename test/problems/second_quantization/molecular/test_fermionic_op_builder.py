@@ -12,6 +12,7 @@
 
 """Tests Fermionic Operator builder."""
 from test import QiskitNatureTestCase
+import numpy as np
 from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
 from qiskit_nature.operators import FermionicOp
 from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
@@ -36,7 +37,8 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         with self.subTest("Check expected number of terms in a fermionic operator."):
             assert len(fermionic_op) == expected_num_of_terms_ferm_op
         with self.subTest("Check expected content of a fermionic operator."):
-            assert fermionic_op.to_list() == expected_fermionic_op
+            assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
+                       zip(fermionic_op.to_list(), expected_fermionic_op))
 
     def test_build_fermionic_op_from_ints_both(self):
         """Tests that the correct FermionicOp is built from 1- and 2-body integrals."""
@@ -54,7 +56,8 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         with self.subTest("Check expected number of terms in a fermionic operator."):
             assert len(fermionic_op) == expected_num_of_terms_ferm_op
         with self.subTest("Check expected content of a fermionic operator."):
-            assert fermionic_op.to_list() == expected_fermionic_op
+            assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
+                       zip(fermionic_op.to_list(), expected_fermionic_op))
 
     def test_build_fermionic_op_from_ints_one(self):
         """Tests that the correct FermionicOp is built from 1-body integrals."""
@@ -73,4 +76,5 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         with self.subTest("Check expected number of terms in a fermionic operator."):
             assert len(fermionic_op) == expected_num_of_terms_ferm_op
         with self.subTest("Check expected content of a fermionic operator."):
-            assert fermionic_op.to_list() == expected_fermionic_op
+            assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
+                       zip(fermionic_op.to_list(), expected_fermionic_op))

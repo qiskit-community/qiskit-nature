@@ -9,9 +9,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import List, Tuple, Union
 
 
-def read_expected_file(path):
+def read_expected_file(path: str) -> List[Tuple[Union[str, float], ...]]:
     types = str, float
     with open(path, 'r') as file:
         expected_fermionic_op = [tuple(t(e) for t, e in zip(types, line.split()))
