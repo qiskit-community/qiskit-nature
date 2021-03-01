@@ -45,7 +45,9 @@ class MolecularProblem:
         provided.
 
         Returns:
-            A list of `SecondQuantizedOp`.
+            A list of `SecondQuantizedOp` in the following order: electronic operator,
+            total magnetization operator, total angular momentum operator, total particle number
+            operator, and (if available) x, y, z dipole operators.
         """
         q_molecule = self.driver.run()
         q_molecule_transformed = self._transform_q_molecule(q_molecule)
