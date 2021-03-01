@@ -67,13 +67,6 @@ def _calc_squared_ints(num_modes: int, func_neq, func_eq) -> Tuple[np.ndarray, n
     return h_1, h_2
 
 
-def _modify_s_squared_ints(h_2: np.ndarray, indices: List[Tuple[int, int, int, int]],
-                           values: List[int]) -> np.ndarray:
-    for index, value in zip(indices, values):
-        h_2[index] += value
-    return h_2
-
-
 def _modify_s_x_squared_ints_neq(h_2: np.ndarray, p_ind: int, q_ind: int,
                                  num_modes_2: int) -> np.ndarray:
     indices = [(p_ind, p_ind + num_modes_2, q_ind, q_ind + num_modes_2),
@@ -127,3 +120,10 @@ def _modify_s_z_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
                (p_ind + num_modes_2, p_ind, p_ind, p_ind + num_modes_2)]
     values = [1, 1]
     return _modify_s_squared_ints(h_2, indices, values)
+
+
+def _modify_s_squared_ints(h_2: np.ndarray, indices: List[Tuple[int, int, int, int]],
+                           values: List[int]) -> np.ndarray:
+    for index, value in zip(indices, values):
+        h_2[index] += value
+    return h_2
