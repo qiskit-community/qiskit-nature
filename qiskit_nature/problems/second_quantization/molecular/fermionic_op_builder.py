@@ -76,8 +76,6 @@ def _build_fermionic_op(one_body_integrals: np.ndarray,
     two_body_base_ops_labels = _create_two_body_base_ops(
         two_body_integrals) if two_body_integrals is not None else []
     base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
-    initial_label_with_ceoff = ('I' * len(one_body_integrals), 1)
-    base_ops_labels.append(initial_label_with_ceoff)
     fermionic_op = FermionicOp(base_ops_labels)
 
     return fermionic_op
@@ -124,13 +122,3 @@ def _create_base_op_from_labels(coeff, length: int, coeffs_with_ops) -> Fermioni
         base_op @= FermionicOp(''.join(label_i))
     return base_op
 
-#
-# def _create_base_op_labels(coeff, length: int, coeffs_with_ops):
-#     label = ['I'] * length
-#     labels_list = [(''.join(label), coeff)]
-#     # base_op = coeff * FermionicOp(''.join(label))
-#     for i, op in coeffs_with_ops:
-#         label_i = label.copy()
-#         label_i[i] = op
-#         labels_list.append((''.join(label_i), coeff))
-#     return labels_list
