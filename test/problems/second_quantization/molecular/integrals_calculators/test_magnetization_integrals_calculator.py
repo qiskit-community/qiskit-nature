@@ -22,8 +22,9 @@ class TestMagnetizationIntegralsCalculator(QiskitNatureTestCase):
     """Tests total magnetization integrals calculator."""
 
     num_modes_list = [1, 2, 3]
-    expected_h_1_list = [[[-0.5 + 0.j]], [[0.5 + 0.j, 0. + 0.j],
-                                          [0. + 0.j, -0.5 + 0.j]],
+    expected_h_1_list = [[[-0.5 + 0.j]],
+                         [[0.5 + 0.j, 0. + 0.j],
+                          [0. + 0.j, -0.5 + 0.j]],
                          [[0.5 + 0.j, 0. + 0.j, 0. + 0.j],
                           [0. + 0.j, -0.5 + 0.j, -0. + 0.j],
                           [0. + 0.j, -0. + 0.j, -0.5 + 0.j]]]

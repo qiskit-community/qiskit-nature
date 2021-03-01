@@ -37,12 +37,15 @@ class TestMolecularProblem(QiskitNatureTestCase):
 
         second_quantized_ops = molecular_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
-        assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
-        for second_quantized_op in second_quantized_ops:
-            assert isinstance(second_quantized_op, SecondQuantizedOp)
-        assert electr_sec_quant_op.fermion.to_list() == expected_fermionic_op
-        assert electr_sec_quant_op.boson is None
-        assert electr_sec_quant_op.spin == {}
+        with self.subTest("Check expected length of the list of second quantized operators."):
+            assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
+        with self.subTest("Check types in the list of second quantized operators."):
+            for second_quantized_op in second_quantized_ops:
+                assert isinstance(second_quantized_op, SecondQuantizedOp)
+        with self.subTest("Check components of electronic second quantized operator."):
+            assert electr_sec_quant_op.fermion.to_list() == expected_fermionic_op
+            assert electr_sec_quant_op.boson is None
+            assert electr_sec_quant_op.spin == {}
         # TODO test QMolecule itself if it is ever a field in MolecularProblem
 
     def test_second_q_ops_with_active_space(self):
@@ -59,10 +62,13 @@ class TestMolecularProblem(QiskitNatureTestCase):
         molecular_problem = MolecularProblem(driver, [trafo])
         second_quantized_ops = molecular_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
-        assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
-        for second_quantized_op in second_quantized_ops:
-            assert isinstance(second_quantized_op, SecondQuantizedOp)
-        assert electr_sec_quant_op.fermion.to_list() == expected_fermionic_op
-        assert electr_sec_quant_op.boson is None
-        assert electr_sec_quant_op.spin == {}
+        with self.subTest("Check expected length of the list of second quantized operators."):
+            assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
+        with self.subTest("Check types in the list of second quantized operators."):
+            for second_quantized_op in second_quantized_ops:
+                assert isinstance(second_quantized_op, SecondQuantizedOp)
+        with self.subTest("Check components of electronic second quantized operator."):
+            assert electr_sec_quant_op.fermion.to_list() == expected_fermionic_op
+            assert electr_sec_quant_op.boson is None
+            assert electr_sec_quant_op.spin == {}
         # TODO test QMolecule itself if it is ever a field in MolecularProblem
