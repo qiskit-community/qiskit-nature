@@ -12,8 +12,8 @@
 
 """Tests Fermionic Operator builder."""
 from test import QiskitNatureTestCase
-import numpy as np
 from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
+import numpy as np
 from qiskit_nature.operators import FermionicOp
 from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
 from qiskit_nature.drivers import HDF5Driver
