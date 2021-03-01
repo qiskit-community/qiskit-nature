@@ -30,7 +30,7 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
         assert isinstance(fermionic_op, FermionicOp)
-        assert len(fermionic_op) == 184
+        assert len(fermionic_op) == 185
         assert fermionic_op.to_list() == expected_fermionic_op
 
     def test_build_fermionic_op_from_ints_both(self):
@@ -44,7 +44,7 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         fermionic_op = fermionic_op_builder.build_ferm_op_from_ints(
             q_molecule.one_body_integrals, q_molecule.two_body_integrals)
         assert isinstance(fermionic_op, FermionicOp)
-        assert len(fermionic_op) == 184
+        assert len(fermionic_op) == 185
         assert fermionic_op.to_list() == expected_fermionic_op
 
     def test_build_fermionic_op_from_ints_one(self):
@@ -59,7 +59,7 @@ class TestFermionicOperatorBuilder(QiskitNatureTestCase):
         fermionic_op = fermionic_op_builder.build_ferm_op_from_ints(
             q_molecule.one_body_integrals)
         assert isinstance(fermionic_op, FermionicOp)
-        assert len(fermionic_op) == 16
+        assert len(fermionic_op) == 17
         assert fermionic_op.to_list() == expected_fermionic_op
 
     @staticmethod

@@ -28,7 +28,7 @@ class MolecularProblem:
     """Molecular Problem"""
 
     def __init__(self, fermionic_driver: FermionicDriver,
-                 q_molecule_transformers: Optional[List[BaseTransformer]]=None):
+                 q_molecule_transformers: Optional[List[BaseTransformer]] = None):
         """
 
         Args:
