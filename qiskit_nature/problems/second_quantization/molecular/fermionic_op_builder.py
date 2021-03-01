@@ -41,12 +41,12 @@ def build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
 def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
                             two_body_integrals: np.ndarray = None) -> FermionicOp:
     """
-    Builds a fermionic operator based on 1- and/or 2-body integrals.
-    This method requires the integrals stored in the '*chemist*' notation
+    Builds a fermionic operator based on 1- and/or 2-body integrals. Integral values are used for
+    the coefficients of the second-quantized Hamiltonian that is built. If integrals are stored
+    in the '*chemist*' notation
              h2(i,j,k,l) --> adag_i adag_k a_l a_j
-    and the integral values are used for the coefficients of the second-quantized
-    Hamiltonian that is built. The integrals input here should be in block spin
-    format and also have indexes reordered as follows 'ijkl->ljik'
+    they are required to be in block spin format and also have indexes reordered as follows
+    'ijkl->ljik'.
     There is another popular notation, the '*physicist*' notation
              h2(i,j,k,l) --> adag_i adag_j a_k a_l
     If you are using the '*physicist*' notation, you need to convert it to
@@ -76,7 +76,7 @@ def _build_fermionic_op(one_body_integrals: np.ndarray,
     two_body_base_ops_labels = _create_two_body_base_ops(
         two_body_integrals) if two_body_integrals is not None else []
     base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
-    initial_label_with_ceoff = ('I'*len(one_body_integrals), 1)
+    initial_label_with_ceoff = ('I' * len(one_body_integrals), 1)
     base_ops_labels.append(initial_label_with_ceoff)
     fermionic_op = FermionicOp(base_ops_labels)
 
