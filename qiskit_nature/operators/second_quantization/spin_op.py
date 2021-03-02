@@ -455,8 +455,7 @@ class SpinOp(ParticleOp):
         num_terms = len(labels)
         parsed_data = []
         max_index = 0
-        for label in labels:
-            parsed_data_term = []
+        for term, label in enumerate(labels):
             label_list = label.split()
             for single_label in label_list:
                 xyz, nums = single_label.split("_", 1)
@@ -466,45 +465,40 @@ class SpinOp(ParticleOp):
                 power = int(power_str)
                 max_index = max(max_index, index)
 
-                if xyz != "I":
-                    parsed_data_term.append((xyz, index, power))
-            parsed_data.append(parsed_data_term)
+                if xyz in self._XYZ_DICT:
+                    parsed_data.append((term, self._XYZ_DICT[xyz], index, power))
 
         self._register_length = max_index + 1
         self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        for term, data in enumerate(parsed_data):
-            for datum in data:
-                register = self._register_length - datum[1] - 1
-                xyz_num = self._XYZ_DICT[datum[0]]
+        for term, xyz_num, index, power in parsed_data:
+            register = self._register_length - index - 1
 
-                # Check the order of X, Y, and Z whether it has been already assigned.
-                if self._spin_array[range(xyz_num + 1, 3), term, register].any():
-                    raise ValueError("Label must be XYZ order.")
-                # same label is not assigned.
-                if self._spin_array[xyz_num, term, register]:
-                    raise ValueError("Duplicate label.")
+            # Check the order of X, Y, and Z whether it has been already assigned.
+            if self._spin_array[range(xyz_num + 1, 3), term, register].any():
+                raise ValueError("Label must be XYZ order.")
+            # same label is not assigned.
+            if self._spin_array[xyz_num, term, register]:
+                raise ValueError("Duplicate label.")
 
-                self._spin_array[xyz_num, term, register] = datum[2]
+            self._spin_array[xyz_num, term, register] = power
 
     def _parse_dense_label(self, labels):
         self._register_length = len(labels[0])
         num_terms = len(labels)
         self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        for i, label in enumerate(labels):
-            for pos, char in enumerate(label):
+        for term, label in enumerate(labels):
+            for register, char in enumerate(label):
                 if char == "I":
                     continue
-                self._spin_array[self._XYZ_DICT[char], i, pos] = 1
+                self._spin_array[self._XYZ_DICT[char], term, register] = 1
 
     @staticmethod
     def _flatten_ladder_ops(data):
         """Convert `+` to `X + 1j Y` and `-` to `X - 1j Y` with the distributive law"""
-        pattern_plus = re.compile(r"\+")
-        pattern_minus = re.compile(r"-")
         new_data = []
         for label, coeff in data:
-            plus_indices = [m.start() for m in pattern_plus.finditer(label)]
-            minus_indices = [m.start() for m in pattern_minus.finditer(label)]
+            plus_indices = [i for i, char in enumerate(label) if char == "+"]
+            minus_indices = [i for i, char in enumerate(label) if char == "-"]
             len_plus = len(plus_indices)
             len_minus = len(minus_indices)
             pm_indices = plus_indices + minus_indices
