@@ -15,40 +15,47 @@
 import unittest
 from itertools import product
 from test import QiskitNatureTestCase
+from typing import Callable, Optional
 
 import numpy as np
 from ddt import data, ddt
-
 from qiskit.quantum_info import Pauli
+
 from qiskit_nature.operators import SpinOp
 
 
 def spin_labels(length):
-    """Generate list of fermion labels with given length."""
+    """Generate list of spin labels with given length."""
     return ["".join(label) for label in product(["I", "X", "Y", "Z"], repeat=length)]
 
 
 @ddt
 class TestSpinOp(QiskitNatureTestCase):
-    """FermionicOp tests."""
+    """SpinOp tests."""
 
     def setUp(self):
         super().setUp()
-        heisenberg_spin_array = np.array(
+        self.heisenberg_spin_array = np.array(
             [
-                [1, 1, 0, 0, 0, 0],
-                [0, 0, 1, 1, 0, 0],
-                [0, 0, 0, 0, 1, 1],
-                [0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1],
-            ]
+                [[1, 1], [0, 0], [0, 0], [0, 0], [0, 0]],
+                [[0, 0], [1, 1], [0, 0], [0, 0], [0, 0]],
+                [[0, 0], [0, 0], [1, 1], [1, 0], [0, 1]],
+            ],
         )
-        heisenberg_coeffs = np.array([-1, -1, -1, -0.3, -0.3])
+        self.heisenberg_coeffs = np.array([-1, -1, -1, -0.3, -0.3])
         self.heisenberg = SpinOp(
-            (heisenberg_spin_array, heisenberg_coeffs),
+            (self.heisenberg_spin_array, self.heisenberg_coeffs),
             spin=1,
         )
-        self.heisenberg_mat = self.heisenberg.to_matrix()
+        self.zero_op = SpinOp(
+            (np.array([[[0, 0]], [[0, 0]], [[0, 0]]]), np.array([0])),
+            spin=1,
+        )
+
+    @staticmethod
+    def assertSpinEqual(first: SpinOp, second: SpinOp):
+        """Fail if two SpinOps have different matrix representations."""
+        np.testing.assert_array_almost_equal(first.to_matrix(), second.to_matrix())
 
     @data(*spin_labels(1))
     def test_init_label(self, label):
@@ -67,68 +74,95 @@ class TestSpinOp(QiskitNatureTestCase):
         with self.subTest("plus"):
             plus = SpinOp([("+_0", 2)])
             desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
-            self.assertListEqual(plus.to_list(), desired.to_list())
+            self.assertSpinEqual(plus, desired)
 
         with self.subTest("minus"):
             minus = SpinOp([("-_0", 2)])
             desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
-            self.assertListEqual(minus.to_list(), desired.to_list())
+            self.assertSpinEqual(minus, desired)
 
         with self.subTest("plus tensor minus"):
-            actual = SpinOp([("+_1 -_0", 3)])
+            plus_tensor_minus = SpinOp([("+_1 -_0", 3)])
             desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
-            self.assertSetEqual(frozenset(actual.to_list()), frozenset(desired.to_list()))
+            self.assertSpinEqual(plus_tensor_minus, desired)
 
     @data(*spin_labels(1), *spin_labels(2))
     def test_init_dense_label(self, label):
-        """Test __init__ for label_mode=dense"""
+        """Test __init__ for dense label"""
         if len(label) == 1:
-            actual = SpinOp([(f"{label}", 1 + 1j)], label_mode="dense")
+            actual = SpinOp([(f"{label}", 1 + 1j)])
             desired = SpinOp([(f"{label}_0", 1 + 1j)])
         elif len(label) == 2:
-            actual = SpinOp([(f"{label}", 1)], label_mode="dense")
+            actual = SpinOp([(f"{label}", 1)])
             desired = SpinOp([(f"{label[0]}_1 {label[1]}_0", 1)])
-        self.assertListEqual(actual.to_list(), desired.to_list())
+        self.assertSpinEqual(actual, desired)
 
     def test_neg(self):
         """Test __neg__"""
         actual = -self.heisenberg
-        desired = -self.heisenberg_mat
-        np.testing.assert_array_almost_equal(actual.to_matrix(), desired)
+        desired = SpinOp((self.heisenberg_spin_array, -self.heisenberg_coeffs), spin=1)
+        self.assertSpinEqual(actual, desired)
 
     def test_mul(self):
         """Test __mul__, and __rmul__"""
         actual = self.heisenberg * 2
-        np.testing.assert_array_almost_equal(actual.to_matrix(), self.heisenberg_mat * 2)
+        desired = SpinOp((self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1)
+        self.assertSpinEqual(actual, desired)
 
     def test_div(self):
         """Test __truediv__"""
         actual = self.heisenberg / 3
-        np.testing.assert_array_almost_equal(actual.to_matrix(), self.heisenberg_mat / 3)
+        desired = SpinOp((self.heisenberg_spin_array, self.heisenberg_coeffs / 3), spin=1)
+        self.assertSpinEqual(actual, desired)
 
     def test_add(self):
         """Test __add__"""
         actual = self.heisenberg + self.heisenberg
-        np.testing.assert_array_almost_equal(actual.to_matrix(), self.heisenberg_mat * 2)
+        desired = SpinOp((self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1)
+        self.assertSpinEqual(actual, desired)
 
     def test_sub(self):
         """Test __sub__"""
         actual = self.heisenberg - self.heisenberg
-        np.testing.assert_array_almost_equal(actual.to_matrix(), np.zeros((9, 9)))
+        self.assertSpinEqual(actual, self.zero_op)
 
     def test_adjoint(self):
         """Test adjoint method and dagger property"""
-        actual = ~self.heisenberg
-        np.testing.assert_array_almost_equal(actual.to_matrix(), self.heisenberg_mat.conj().T)
+        with self.subTest("heisenberg adjoint"):
+            actual = self.heisenberg.adjoint()
+            desired = SpinOp(
+                (self.heisenberg_spin_array, self.heisenberg_coeffs.conjugate().T), spin=1
+            )
+            self.assertSpinEqual(actual, desired)
+
+        with self.subTest("imag heisenberg adjoint"):
+            actual = ~((3 + 2j) * self.heisenberg)
+            desired = SpinOp(
+                (self.heisenberg_spin_array, ((3 + 2j) * self.heisenberg_coeffs).conjugate().T),
+                spin=1,
+            )
+            self.assertSpinEqual(actual, desired)
 
     def test_reduce(self):
         """Test reduce"""
-        actual = (self.heisenberg - self.heisenberg).reduce()
-        self.assertListEqual(actual.to_list(), [("I_1 I_0", 0)])
+        with self.subTest("trivial reduce"):
+            actual = (self.heisenberg - self.heisenberg).reduce()
+            self.assertListEqual(actual.to_list(), [("I_1 I_0", 0)])
 
-    def test_to_matrix(self):
-        """Test to_matrix()"""
-        actual = SpinOp([("X_2 Y_1 Z_0", 1)]).to_matrix()
+        with self.subTest("nontrivial reduce"):
+            test_op = SpinOp(
+                (
+                    np.array([[[0, 1], [0, 1]], [[0, 0], [0, 0]], [[1, 0], [1, 0]]]),
+                    np.array([1.5, 2.5]),
+                ),
+                spin=3 / 2,
+            )
+            actual = test_op.reduce()
+            self.assertListEqual(actual.to_list(), [("Z_1 X_0", 4)])
+
+    def test_consistency_with_pauli(self):
+        """Test consistency with pauli"""
+        actual = SpinOp("XYZ").to_matrix()
         desired = Pauli("XYZ").to_matrix() / 8
         np.testing.assert_array_almost_equal(actual, desired)
 

@@ -21,7 +21,7 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 import re
 from functools import lru_cache, reduce
 from itertools import product
-from typing import cast, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
@@ -148,14 +148,14 @@ class SpinOp(ParticleOp):
     """
 
     def __init__(
-            self,
-            data: Union[
-                str,
-                List[Tuple[str, complex]],
-                Tuple[np.ndarray, np.ndarray],
-            ],
-            spin: float = 1 / 2,
-            label_mode: str = "sparse",
+        self,
+        data: Union[
+            str,
+            List[Tuple[str, complex]],
+            Tuple[np.ndarray, np.ndarray],
+        ],
+        spin: float = 1 / 2,
+        dtype: Union[type, str] = np.complex128,
     ):
         r"""Initialize ``SpinOp``.
 
@@ -163,27 +163,20 @@ class SpinOp(ParticleOp):
             data: label string or list of labels and coefficients. See documentation of SpinOp for
                   more details.
             spin: positive integer or half-integer which represents spin.
-            label_mode: The mode of label. (`sparse` (default) or `dense`)
+            dtype: data type of coefficients.
 
         Raises:
             QiskitNatureError: invalid data is given.
         """
-        # 1. Parse input
+
         if (round(2 * spin) != 2 * spin) or (spin <= 0):
             raise QiskitNatureError("spin must be a positive integer or half-integer")
         self._dim = int(round(2 * spin)) + 1
 
-        # TODO: validation
-        # for elem in operator_list:
-        #    assert isinstance(elem, SpinOperator)
-        #    assert len(elem) == self._register_length, \
-        #        'Cannot sum operators acting on registers of different length'
-        #    assert elem.spin == self.spin, \
-        #        'Cannot sum operators with different spins.'
         if isinstance(data, tuple):
             self._spin_array = np.array(data[0], dtype=np.uint8)
-            self._register_length = self._spin_array.shape[1] // 3
-            self._coeffs = np.array(data[1], dtype=np.complex128)
+            self._register_length = self._spin_array.shape[2]
+            self._coeffs = np.array(data[1], dtype=dtype)
 
         if isinstance(data, str):
             data = [(data, 1)]
@@ -191,10 +184,10 @@ class SpinOp(ParticleOp):
         if isinstance(data, list):
             data = self._parse_ladder(data)
             labels, coeffs = zip(*data)
-            self._coeffs = np.array(coeffs, np.complex128)
-            if label_mode == "sparse":
+            self._coeffs = np.array(coeffs, dtype=dtype)
+            if "_" in labels[0]:
                 self._parse_sparse_label(labels)
-            elif label_mode == "dense":
+            else:
                 self._parse_dense_label(labels)
 
     @property
@@ -216,7 +209,7 @@ class SpinOp(ParticleOp):
         I.e. [0, 4, 2] corresponds to X0^0 \\otimes X1^4 \\otimes X2^2, where Xi acts on the i-th
         spin system in the register.
         """
-        return self._spin_array[:, 0: self.register_length]
+        return self._spin_array[0]
 
     @property
     def y(self) -> np.ndarray:
@@ -224,8 +217,7 @@ class SpinOp(ParticleOp):
         I.e. [0, 4, 2] corresponds to Y0^0 \\otimes Y1^4 \\otimes Y2^2, where Yi acts on the i-th
         spin system in the register.
         """
-        reg_len = self.register_length
-        return self._spin_array[:, reg_len: 2 * reg_len]
+        return self._spin_array[1]
 
     @property
     def z(self) -> np.ndarray:
@@ -233,13 +225,12 @@ class SpinOp(ParticleOp):
         I.e. [0, 4, 2] corresponds to Z0^0 \\otimes Z1^4 \\otimes Z2^2, where Zi acts on the i-th
         spin system in the register.
         """
-        reg_len = self.register_length
-        return self._spin_array[:, 2 * reg_len: 3 * reg_len]
+        return self._spin_array[2]
 
     def __repr__(self) -> str:
-        # if len(self) == 1 and self.coeff:
-        #    return f"SpinOp('{self._labels[0]}')"
-        return f"SpinOp({self.to_list()})"  # TODO truncate
+        if len(self) == 1 and self._coeffs[0] == 1:
+            return f"SpinOp('{self._labels[0]}')"
+        return f"SpinOp({self.to_list()}, spin={self.spin})"  # TODO truncate
 
     def __str__(self) -> str:
         if len(self) == 1:
@@ -259,8 +250,8 @@ class SpinOp(ParticleOp):
         if self.spin != other.spin:
             raise TypeError(f"Addition between spin {self.spin} and spin {other.spin} is invalid.")
 
-        spin_array = np.vstack([self._spin_array, other._spin_array])
-        coeffs = self._coeffs + other._coeffs
+        spin_array = np.hstack((self._spin_array, other._spin_array))
+        coeffs = np.hstack((self._coeffs, other._coeffs))
 
         return SpinOp((spin_array, coeffs), spin=self.spin)
 
@@ -278,8 +269,7 @@ class SpinOp(ParticleOp):
     def adjoint(self):
         # Note: X, Y, Z are hermitian, therefore the dagger operation on a SpinOperator amounts
         # to simply complex conjugating the coefficient.
-        coeffs = [coeff.conjugate() for coeff in self._coeffs]
-        return SpinOp((self._spin_array, coeffs), spin=self.spin)
+        return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
 
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
         if atol is None:
@@ -287,21 +277,30 @@ class SpinOp(ParticleOp):
         if rtol is None:
             rtol = self.rtol
 
-        spin_array, indexes = np.unique(self._spin_array, return_inverse=True, axis=0)
-        coeff_list = np.zeros(len(self._coeffs), dtype=complex)
+        flatten_array, indexes = np.unique(
+            np.column_stack(self._spin_array), return_inverse=True, axis=0
+        )
+        coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
         for i, val in zip(indexes, self._coeffs):
             coeff_list[i] += val
         non_zero = [
             i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
-        spin_array = spin_array[non_zero]
-        coeff_list = coeff_list[non_zero]
         if not non_zero:
-            return SpinOp((
-                np.zeros((1, self.register_length * 3), dtype=np.int8),
-                np.array([0], dtype=np.complex128)
-            ))
-        return SpinOp((spin_array, coeff_list))
+            return SpinOp(
+                (
+                    np.zeros((3, 1, self.register_length), dtype=np.int8),
+                    np.array([0], dtype=np.complex128),
+                ),
+                spin=self.spin,
+            )
+        flatten_array = flatten_array[non_zero]
+        new_array = np.zeros((3, len(non_zero), self.register_length))
+        new_array[0] = flatten_array[:, 0 : self.register_length]
+        new_array[1] = flatten_array[:, self.register_length : 2 * self.register_length]
+        new_array[2] = flatten_array[:, 2 * self.register_length : 3 * self.register_length]
+        new_coeff = coeff_list[non_zero]
+        return SpinOp((new_array, new_coeff), spin=self.spin)
 
     def __len__(self):
         return len(self._coeffs)
@@ -346,18 +345,18 @@ class SpinOp(ParticleOp):
             np.ndarray,
             np.sum(
                 [
-                    c * self._to_matrix_from_spin_array(self._spin_array[i])
+                    c * self._to_matrix_from_spin_array(self._spin_array[:, i])
                     for i, c in enumerate(self._coeffs)
                 ],
                 axis=0,
-            )
+            ),
         )
 
     def _to_matrix_from_spin_array(self, array):
         reg_len = self.register_length
-        x_arr = array[0:reg_len]
-        y_arr = array[reg_len: 2 * reg_len]
-        z_arr = array[2 * reg_len: 3 * reg_len]
+        x_arr = array[0]
+        y_arr = array[1]
+        z_arr = array[2]
         return reduce(
             np.kron,
             (self._xyz_mat(x, y, z) for x, y, z in zip(x_arr, y_arr, z_arr)),
@@ -369,10 +368,11 @@ class SpinOp(ParticleOp):
 
         exist = False
         if x > 0:
-            exist = True
             mat = self._x_mat() ** x
+            exist = True
         if y > 0:
             mat = mat @ self._y_mat() ** y if exist else self._y_mat()
+            exist = True
         if z > 0:
             mat = mat @ self._z_mat() ** z if exist else self._z_mat()
         return mat
@@ -418,8 +418,6 @@ class SpinOp(ParticleOp):
         )
 
     def _parse_sparse_label(self, labels):
-        xyz_dict = {"I": 0, "X": 1, "Y": 2, "Z": 3}
-        re_index = re.compile(r"(?<=[IXYZ]_)\d+((?=\^)|$)")
         num_terms = len(labels)
         parsed_data = []
         max_index = 0
@@ -427,71 +425,55 @@ class SpinOp(ParticleOp):
             parsed_data_term = []
             label_list = label.split()
             for single in label_list:
-                if single[0] not in xyz_dict:
+                xyz, nums = single.split("_", 1)
+                if single[0] not in {"I", "X", "Y", "Z"}:
                     raise ValueError(f"Given label {single} must be X, Y, Z, or I.")
-                xyz_num = xyz_dict[single[0]]
-                match_index = re_index.search(single)
-                if match_index:
-                    index = int(match_index.group())
-                else:
+                index_str, power_str = nums.split("^", 1) if "^" in nums else nums, "1"
+                if not index_str.isdecimal():
                     raise ValueError(f"Given label {single} has no index.")
-                if len(single) == match_index.end():
-                    power = 1
-                elif (
-                        single[match_index.end()] == "^"
-                        and single[match_index.end() + 1:].isdecimal()
-                ):
-                    power = int(single[match_index.end() + 1:])
-                else:
+                if not power_str.isdecimal():
                     raise ValueError(f"Invalid label: {single}.")
+                reg_index = int(index_str)
+                power = int(power_str)
+                max_index = max(max_index, reg_index)
 
-                max_index = max(max_index, index)
-
-                if xyz_num != 0:
-                    parsed_data_term.append((xyz_num, index, power))
+                if xyz != "I":
+                    parsed_data_term.append((xyz, reg_index, power))
             parsed_data.append(parsed_data_term)
 
         self._register_length = max_index + 1
-        self._spin_array = np.zeros((num_terms, self._register_length * 3), dtype=np.uint8)
-        for i, data in enumerate(parsed_data):
+        self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
+        xyz_dict = {"X": 0, "Y": 1, "Z": 2}
+        for term_index, data in enumerate(parsed_data):
             for datum in data:
-                if (
-                        datum[0] == 1
-                        and self._spin_array[i][2 * self._register_length - datum[1] - 1] > 0
-                ):
+                reg_index = self._register_length - datum[1] - 1
+                if datum[0] == "Y" and self._spin_array[1, term_index, reg_index] > 0:
                     raise ValueError("Label must be XYZ order.")
-                if (
-                        datum[0] == 1
-                        and self._spin_array[i][3 * self._register_length - datum[1] - 1] > 0
-                ):
+                if datum[0] == "Y" and self._spin_array[2, term_index, reg_index] > 0:
                     raise ValueError("Label must be XYZ order.")
-                if (
-                        datum[0] == 2
-                        and self._spin_array[i][3 * self._register_length - datum[1] - 1] > 0
-                ):
+                if datum[0] == "Z" and self._spin_array[2, term_index, reg_index] > 0:
                     raise ValueError("Label must be XYZ order.")
 
-                if self._spin_array[i][datum[0] * self._register_length - datum[1] - 1] != 0:
+                xyz_num = xyz_dict[datum[0]]
+                if self._spin_array[xyz_num, term_index, reg_index] != 0:
                     raise ValueError("Duplicate label.")
-                self._spin_array[i][datum[0] * self._register_length - datum[1] - 1] = datum[2]
+                self._spin_array[xyz_num, term_index, reg_index] = datum[2]
 
     def _parse_dense_label(self, labels):
         self._register_length = len(labels[0])
         num_terms = len(labels)
-        self._spin_array = np.zeros((num_terms, self._register_length * 3), dtype=np.uint8)
+        self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
+        xyz_dict = {"X": 0, "Y": 1, "Z": 2}
         for i, label in enumerate(labels):
             for pos, char in enumerate(label):
-                if char == "X":
-                    self._spin_array[i][pos] = 1
-                elif char == "Y":
-                    self._spin_array[i][self._register_length + pos] = 1
-                elif char == "Z":
-                    self._spin_array[i][2 * self._register_length + pos] = 1
+                if char == "I":
+                    continue
+                self._spin_array[xyz_dict[char]][i][pos] = 1
 
     def _parse_ladder(self, data):
-        allowed_str = 'XYZI_^+-0123456789 '
-        pattern_plus = re.compile(r'\+')
-        pattern_minus = re.compile(r'-')
+        allowed_str = "XYZI_^+-0123456789 "
+        pattern_plus = re.compile(r"\+")
+        pattern_minus = re.compile(r"-")
         new_data = []
         for label, coeff in data:
             if not all(char in allowed_str for char in label):
@@ -505,10 +487,10 @@ class SpinOp(ParticleOp):
             len_minus = len(minus_indices)
             pm_indices = plus_indices + minus_indices
             label_list = list(label)
-            for indices in product(["X", "Y"], repeat=len_plus+len_minus):
+            for indices in product(["X", "Y"], repeat=len_plus + len_minus):
                 for i, index in enumerate(indices):
                     label_list[pm_indices[i]] = index
                 phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
-                new_data.append((''.join(label_list), coeff * 1j ** phase))
+                new_data.append(("".join(label_list), coeff * 1j ** phase))
 
         return new_data
