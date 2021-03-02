@@ -97,6 +97,12 @@ class TestSpinOp(QiskitNatureTestCase):
             desired = SpinOp([(f"{label[0]}_1 {label[1]}_0", 1)])
         self.assertSpinEqual(actual, desired)
 
+    @data("IJX", "Z_0 X_0", "Z_0 +_0", "+_0 X_0")
+    def test_init_invalid_label(self, label):
+        """Test __init__ for invalid label"""
+        with self.assertRaises(ValueError):
+            SpinOp(label)
+
     def test_neg(self):
         """Test __neg__"""
         actual = -self.heisenberg
@@ -117,9 +123,16 @@ class TestSpinOp(QiskitNatureTestCase):
 
     def test_add(self):
         """Test __add__"""
-        actual = self.heisenberg + self.heisenberg
-        desired = SpinOp((self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1)
-        self.assertSpinEqual(actual, desired)
+        with self.subTest("sum of heisenberg"):
+            actual = self.heisenberg + self.heisenberg
+            desired = SpinOp((self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1)
+            self.assertSpinEqual(actual, desired)
+
+        with self.subTest("raising operator"):
+            plus = SpinOp("+", 3/2)
+            x = SpinOp("X", 3/2)
+            y = SpinOp("Y", 3/2)
+            self.assertSpinEqual(x + 1j * y, plus)
 
     def test_sub(self):
         """Test __sub__"""

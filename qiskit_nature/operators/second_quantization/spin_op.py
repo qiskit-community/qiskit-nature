@@ -165,6 +165,7 @@ class SpinOp(ParticleOp):
         print(~(1j * z))
 
     """
+    _XYZ_DICT = {"X": 0, "Y": 1, "Z": 2}
 
     def __init__(
         self,
@@ -204,7 +205,14 @@ class SpinOp(ParticleOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
+            allowed_str = set("XYZI_^+-0123456789 ")
+            if not all(char in allowed_str for label, _ in data for char in label):
+                raise ValueError(
+                    f"Invalid label: "
+                    "Label must consist of X, Y, Z, I , +, -, ^, _, 0-9, and spaces."
+                )
             data = self._flatten_ladder_ops(data)
+
             labels, coeffs = zip(*data)
             self._coeffs = np.array(coeffs, dtype=dtype)
             if "_" in labels[0]:
@@ -464,18 +472,17 @@ class SpinOp(ParticleOp):
 
         self._register_length = max_index + 1
         self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        xyz_dict = {"X": 0, "Y": 1, "Z": 2}
         for term_index, data in enumerate(parsed_data):
             for datum in data:
                 reg_index = self._register_length - datum[1] - 1
-                if datum[0] == "Y" and self._spin_array[1, term_index, reg_index] > 0:
+                if datum[0] == "X" and self._spin_array[1, term_index, reg_index] > 0:
+                    raise ValueError("Label must be XYZ order.")
+                if datum[0] == "X" and self._spin_array[2, term_index, reg_index] > 0:
                     raise ValueError("Label must be XYZ order.")
                 if datum[0] == "Y" and self._spin_array[2, term_index, reg_index] > 0:
                     raise ValueError("Label must be XYZ order.")
-                if datum[0] == "Z" and self._spin_array[2, term_index, reg_index] > 0:
-                    raise ValueError("Label must be XYZ order.")
 
-                xyz_num = xyz_dict[datum[0]]
+                xyz_num = self._XYZ_DICT[datum[0]]
                 if self._spin_array[xyz_num, term_index, reg_index] != 0:
                     raise ValueError("Duplicate label.")
                 self._spin_array[xyz_num, term_index, reg_index] = datum[2]
@@ -484,24 +491,18 @@ class SpinOp(ParticleOp):
         self._register_length = len(labels[0])
         num_terms = len(labels)
         self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        xyz_dict = {"X": 0, "Y": 1, "Z": 2}
         for i, label in enumerate(labels):
             for pos, char in enumerate(label):
                 if char == "I":
                     continue
-                self._spin_array[xyz_dict[char]][i][pos] = 1
+                self._spin_array[self._XYZ_DICT[char], i, pos] = 1
 
     def _flatten_ladder_ops(self, data):
-        allowed_str = "XYZI_^+-0123456789 "
+        """Convert + to X + 1j Y and - to X - 1j Y"""
         pattern_plus = re.compile(r"\+")
         pattern_minus = re.compile(r"-")
         new_data = []
         for label, coeff in data:
-            if not all(char in allowed_str for char in label):
-                raise ValueError(
-                    f"Invalid label: {label}."
-                    "Label must consist of X, Y, Z, I , +, -, ^, _, 0-9, and spaces."
-                )
             plus_indices = [m.start() for m in pattern_plus.finditer(label)]
             minus_indices = [m.start() for m in pattern_minus.finditer(label)]
             len_plus = len(plus_indices)
