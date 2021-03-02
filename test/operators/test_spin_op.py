@@ -76,13 +76,28 @@ class TestSpinOp(QiskitNatureTestCase):
             desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
             self.assertSpinEqual(plus, desired)
 
+        with self.subTest("dense plus"):
+            plus = SpinOp([("+", 2)])
+            desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
+            self.assertSpinEqual(plus, desired)
+
         with self.subTest("minus"):
             minus = SpinOp([("-_0", 2)])
             desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
             self.assertSpinEqual(minus, desired)
 
+        with self.subTest("minus"):
+            minus = SpinOp([("-", 2)])
+            desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
+            self.assertSpinEqual(minus, desired)
+
         with self.subTest("plus tensor minus"):
             plus_tensor_minus = SpinOp([("+_1 -_0", 3)])
+            desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
+            self.assertSpinEqual(plus_tensor_minus, desired)
+
+        with self.subTest("dense plus tensor minus"):
+            plus_tensor_minus = SpinOp([("+-", 3)])
             desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
             self.assertSpinEqual(plus_tensor_minus, desired)
 
@@ -192,6 +207,14 @@ class TestSpinOp(QiskitNatureTestCase):
         actual = SpinOp("XYZ").to_matrix()
         desired = Pauli("XYZ").to_matrix() / 8
         np.testing.assert_array_almost_equal(actual, desired)
+
+    def test_flatten_ladder_ops(self):
+        """Test _flatten_ladder_ops"""
+        actual = SpinOp._flatten_ladder_ops([("+-", 2j)])
+        self.assertSetEqual(
+            frozenset(actual),
+            frozenset([("XX", 2j), ("XY", 2), ("YX", -2), ("YY", 2j)]),
+        )
 
 
 if __name__ == "__main__":

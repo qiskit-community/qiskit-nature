@@ -497,7 +497,8 @@ class SpinOp(ParticleOp):
                     continue
                 self._spin_array[self._XYZ_DICT[char], i, pos] = 1
 
-    def _flatten_ladder_ops(self, data):
+    @staticmethod
+    def _flatten_ladder_ops(data):
         """Convert + to X + 1j Y and - to X - 1j Y"""
         pattern_plus = re.compile(r"\+")
         pattern_minus = re.compile(r"-")
