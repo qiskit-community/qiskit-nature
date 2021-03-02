@@ -218,10 +218,11 @@ class SpinOp(ParticleOp):
 
             labels, coeffs = zip(*data)
             self._coeffs = np.array(coeffs, dtype=dtype)
+
             if all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
-                self._parse_sparse_label(labels)
+                self._from_sparse_label(labels)
             elif all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
-                self._parse_dense_label(labels)
+                self._from_dense_label(labels)
             else:
                 raise ValueError(f"Invalid labels or mixed labels are included in {labels}")
 
@@ -451,7 +452,7 @@ class SpinOp(ParticleOp):
             dtype=np.complex128,
         )
 
-    def _parse_sparse_label(self, labels):
+    def _from_sparse_label(self, labels):
         num_terms = len(labels)
         parsed_data = []
         max_index = 0
@@ -482,7 +483,7 @@ class SpinOp(ParticleOp):
 
             self._spin_array[xyz_num, term, register] = power
 
-    def _parse_dense_label(self, labels):
+    def _from_dense_label(self, labels):
         self._register_length = len(labels[0])
         num_terms = len(labels)
         self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
