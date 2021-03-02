@@ -65,7 +65,7 @@ class SpinOp(ParticleOp):
     There are two types of label modes for :class:`SpinOp`.
     The label mode is automatically detected.
 
-    1. Sparse Label (if `_` exists in the label)
+    1. Sparse Label (if underscore `_` exists in the label)
 
     A sparse label is a string consisting of a space-separated list of words.
     Each word must look like :code:`[XYZI+-]_<index>^<power>`,
@@ -86,7 +86,7 @@ class SpinOp(ParticleOp):
     this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
     Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
 
-    2. Dense Label (if `_` does not exist in the label)
+    2. Dense Label (if underscore `_` does not exist in the label)
 
     Dense labels are strings in which each character maps to a unique spin mode.
     This is similar to Qiskit's string-based representation of qubit operators.
@@ -99,7 +99,7 @@ class SpinOp(ParticleOp):
 
     are possible labels.
     Note, that dense labels are less powerful than sparse ones because they cannot represent
-    all possible :code:`SpinOp`s. You will, for example, not be able to apply multiple operators
+    all possible :class:`SpinOp`. You will, for example, not be able to apply multiple operators
     on the same index within a single label.
 
     **Initialization**
@@ -131,7 +131,7 @@ class SpinOp(ParticleOp):
 
     This means :math:`- X_1 X_0 - Y_1 Y_0 - Z_1 Z_0 - 0.3 Z_0 - 0.3 Z_1`.
 
-    :class`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
+    :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
     In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
     `spin_array` is 3-dimensional `ndarray`. 1st axis has three elements 0, 1, and 2 corresponding
     to x, y, and z.  2nd axis represents the index of terms.
@@ -457,7 +457,7 @@ class SpinOp(ParticleOp):
                 xyz, nums = single.split("_", 1)
                 if single[0] not in {"I", "X", "Y", "Z"}:
                     raise ValueError(f"Given label {single} must be X, Y, Z, or I.")
-                index_str, power_str = nums.split("^", 1) if "^" in nums else nums, "1"
+                index_str, power_str = nums.split("^", 1) if "^" in nums else (nums, "1")
                 if not index_str.isdecimal():
                     raise ValueError(f"Given label {single} has no index.")
                 if not power_str.isdecimal():

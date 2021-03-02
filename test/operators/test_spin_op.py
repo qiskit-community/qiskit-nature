@@ -86,6 +86,20 @@ class TestSpinOp(QiskitNatureTestCase):
             desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
             self.assertSpinEqual(plus_tensor_minus, desired)
 
+    def test_init_heisenberg(self):
+        """Test __init__ for heisenberg model."""
+        actual = SpinOp(
+            [
+                ("XX", -1),
+                ("YY", -1),
+                ("ZZ", -1),
+                ("ZI", -0.3),
+                ("IZ", -0.3),
+            ],
+            spin=1,
+        )
+        self.assertSpinEqual(actual, self.heisenberg)
+
     @data(*spin_labels(1), *spin_labels(2))
     def test_init_dense_label(self, label):
         """Test __init__ for dense label"""
@@ -129,9 +143,9 @@ class TestSpinOp(QiskitNatureTestCase):
             self.assertSpinEqual(actual, desired)
 
         with self.subTest("raising operator"):
-            plus = SpinOp("+", 3/2)
-            x = SpinOp("X", 3/2)
-            y = SpinOp("Y", 3/2)
+            plus = SpinOp("+", 3 / 2)
+            x = SpinOp("X", 3 / 2)
+            y = SpinOp("Y", 3 / 2)
             self.assertSpinEqual(x + 1j * y, plus)
 
     def test_sub(self):
