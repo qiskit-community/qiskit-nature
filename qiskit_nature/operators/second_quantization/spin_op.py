@@ -63,8 +63,9 @@ class SpinOp(ParticleOp):
           - Lowering operator
 
     There are two types of label modes for :class:`SpinOp`.
+    The label mode is automatically detected.
 
-    1. Sparse Label (default)
+    1. Sparse Label (if `_` exists in the label)
 
     A sparse label is a string consisting of a space-separated list of words.
     Each word must look like :code:`[XYZI+-]_<index>^<power>`,
@@ -81,10 +82,11 @@ class SpinOp(ParticleOp):
         "Y_1^2 Z_1^3 X_0^1 Y_0^2 Z_0^2"
 
     are possible labels.
-    For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in this order.
-    Thus, :code:`"Z_0 X_0"` is an invalid label.
+    For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
+    this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
+    Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
 
-    2. Dense Label
+    2. Dense Label (if `_` does not exist in the label)
 
     Dense labels are strings in which each character maps to a unique spin mode.
     This is similar to Qiskit's string-based representation of qubit operators.
@@ -107,9 +109,9 @@ class SpinOp(ParticleOp):
 
     .. code-block:: python
 
-        x = SpinOp("X_0", spin=3/2)
-        y = SpinOp("Y_0", spin=3/2)
-        z = SpinOp("Z_0", spin=3/2)
+        x = SpinOp("X", spin=3/2)
+        y = SpinOp("Y", spin=3/2)
+        z = SpinOp("Z", spin=3/2)
 
     are :math:`S_x, S_y, S_z` for spin 3/2 system.
     Two qutrit Heisenberg model with transverse magnetic field is
@@ -118,16 +120,23 @@ class SpinOp(ParticleOp):
 
         SpinOp(
             [
-                ("X_1 X_0", -1),
-                ("Y_1 Y_0", -1),
-                ("Z_1 Z_0", -1),
-                ("Z_1", -0.3),
-                ("Z_0", -0.3),
+                ("XX", -1),
+                ("YY", -1),
+                ("ZZ", -1),
+                ("ZI", -0.3),
+                ("IZ", -0.3),
             ],
             spin=1
         )
 
     This means :math:`- X_1 X_0 - Y_1 Y_0 - Z_1 Z_0 - 0.3 Z_0 - 0.3 Z_1`.
+
+    :class`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
+    In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
+    `spin_array` is 3-dimensional `ndarray`. 1st axis has three elements 0, 1, and 2 corresponding
+    to x, y, and z.  2nd axis represents the index of terms.
+    3rd axis represents the index of register.
+    `coeffs` is one-dimensional `ndarray` with the length of the number of terms.
 
     **Algebra**
 
@@ -139,14 +148,18 @@ class SpinOp(ParticleOp):
 
         from qiskit_nature.operators import SpinOp
 
-        x = SpinOp("X_0", spin=3/2)
-        y = SpinOp("Y_0", spin=3/2)
-        z = SpinOp("Z_0", spin=3/2)
+        x = SpinOp("X", spin=3/2)
+        y = SpinOp("Y", spin=3/2)
+        z = SpinOp("Z", spin=3/2)
 
         print("Raising operator:")
         print(x + 1j * y)
+        plus = SpinOp("+", spin=3/2)
+        print("This is same with: ", plus)
         print("Lowering operator:")
         print(x - 1j * y)
+        minus = SpinOp("-", spin=3/2)
+        print("This is same with: ", minus)
 
         print("Dagger")
         print(~(1j * z))
@@ -161,7 +174,6 @@ class SpinOp(ParticleOp):
             Tuple[np.ndarray, np.ndarray],
         ],
         spin: float = 1 / 2,
-        dtype: Union[type, str] = np.complex128,
     ):
         r"""Initialize ``SpinOp``.
 
@@ -174,11 +186,15 @@ class SpinOp(ParticleOp):
         Raises:
             QiskitNatureError: invalid data is given.
         """
+        self._coeffs: np.ndarray
+        self._spin_array: np.ndarray
+        dtype = np.complex128  # TODO: configurable data type. mixin?
 
         if (round(2 * spin) != 2 * spin) or (spin <= 0):
             raise QiskitNatureError("spin must be a positive integer or half-integer")
         self._dim = int(round(2 * spin)) + 1
 
+        # This is internal API that users should not use.
         if isinstance(data, tuple):
             self._spin_array = np.array(data[0], dtype=np.uint8)
             self._register_length = self._spin_array.shape[2]
@@ -188,7 +204,7 @@ class SpinOp(ParticleOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
-            data = self._parse_ladder(data)
+            data = self._flatten_ladder_ops(data)
             labels, coeffs = zip(*data)
             self._coeffs = np.array(coeffs, dtype=dtype)
             if "_" in labels[0]:
@@ -235,7 +251,7 @@ class SpinOp(ParticleOp):
 
     def __repr__(self) -> str:
         if len(self) == 1 and self._coeffs[0] == 1:
-            return f"SpinOp('{self._labels[0]}')"
+            return f"SpinOp('{self.to_list()[0][0]}')"
         return f"SpinOp({self.to_list()}, spin={self.spin})"  # TODO truncate
 
     def __str__(self) -> str:
@@ -256,10 +272,13 @@ class SpinOp(ParticleOp):
         if self.spin != other.spin:
             raise TypeError(f"Addition between spin {self.spin} and spin {other.spin} is invalid.")
 
-        spin_array = np.hstack((self._spin_array, other._spin_array))
-        coeffs = np.hstack((self._coeffs, other._coeffs))
-
-        return SpinOp((spin_array, coeffs), spin=self.spin)
+        return SpinOp(
+            (
+                np.hstack((self._spin_array, other._spin_array)),
+                np.hstack((self._coeffs, other._coeffs)),
+            ),
+            spin=self.spin,
+        )
 
     def compose(self, other):
         raise NotImplementedError
@@ -302,9 +321,9 @@ class SpinOp(ParticleOp):
             )
         flatten_array = flatten_array[non_zero]
         new_array = np.zeros((3, len(non_zero), self.register_length))
-        new_array[0] = flatten_array[:, 0 : self.register_length]
-        new_array[1] = flatten_array[:, self.register_length : 2 * self.register_length]
-        new_array[2] = flatten_array[:, 2 * self.register_length : 3 * self.register_length]
+        new_array[0] = flatten_array[:, 0:self.register_length]
+        new_array[1] = flatten_array[:, self.register_length:2 * self.register_length]
+        new_array[2] = flatten_array[:, 2 * self.register_length:3 * self.register_length]
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
@@ -359,13 +378,9 @@ class SpinOp(ParticleOp):
         )
 
     def _to_matrix_from_spin_array(self, array):
-        reg_len = self.register_length
-        x_arr = array[0]
-        y_arr = array[1]
-        z_arr = array[2]
         return reduce(
             np.kron,
-            (self._xyz_mat(x, y, z) for x, y, z in zip(x_arr, y_arr, z_arr)),
+            (self._xyz_mat(x, y, z) for x, y, z in zip(array[0], array[1], array[2])),
         )
 
     def _xyz_mat(self, x, y, z):
@@ -476,7 +491,7 @@ class SpinOp(ParticleOp):
                     continue
                 self._spin_array[xyz_dict[char]][i][pos] = 1
 
-    def _parse_ladder(self, data):
+    def _flatten_ladder_ops(self, data):
         allowed_str = "XYZI_^+-0123456789 "
         pattern_plus = re.compile(r"\+")
         pattern_minus = re.compile(r"-")
