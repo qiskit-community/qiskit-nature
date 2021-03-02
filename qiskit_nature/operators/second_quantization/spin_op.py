@@ -66,10 +66,12 @@ class SpinOp(ParticleOp):
 
     1. Sparse Label (default)
 
-    Sparse label mode is space-separated label.
-    Each element is string consisting of :code:`[XYZI+-]_<index>^<power>`,
-    where the :code:`<index>` is non-negative integer and the :code:`<power>` is positive integer.
-    If :code:`<power>` is 1, it can be omitted.
+    A sparse label is a string consisting of a space-separated list of words.
+    Each word must look like :code:`[XYZI+-]_<index>^<power>`,
+    where the :code:`<index>` is a non-negative integer representing the index of the spin mode
+    and the :code:`<power>` is a positive integer indicating the number of times the given operator
+    is applied to the mode at :code:`<index>`.
+    You can omit :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
     For example,
 
     .. code-block:: python
@@ -79,11 +81,13 @@ class SpinOp(ParticleOp):
         "Y_1^2 Z_1^3 X_0^1 Y_0^2 Z_0^2"
 
     are possible labels.
-    `X`, `Y`, `Z` must be in this order for each index, so :code:`"Z_0 X_0"` is invalid.
+    For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in this order.
+    Thus, :code:`"Z_0 X_0"` is an invalid label.
 
     2. Dense Label
 
-    Dense label is a representation where one character corresponds to one register.
+    Dense labels are strings in which each character maps to a unique spin mode.
+    This is similar to Qiskit's string-based representation of qubit operators.
     For example,
 
     .. code-block:: python
@@ -92,7 +96,9 @@ class SpinOp(ParticleOp):
         "IIYYZ-IX++"
 
     are possible labels.
-    Note that dense label cannot represent all of SpinOp.
+    Note, that dense labels are less powerful than sparse ones because they cannot represent
+    all possible :code:`SpinOp`s. You will, for example, not be able to apply multiple operators
+    on the same index within a single label.
 
     **Initialization**
 
