@@ -12,7 +12,7 @@
 
 """A generic Spin operator.
 
-Note: this implementation differs fundamentally from the `FermionicOperator` and `BosonicOperator`
+Note: this implementation differs fundamentally from the `FermionicOp`
 as it relies an the mathematical representation of spin matrices as (e.g.) explained in [1].
 
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
@@ -165,7 +165,13 @@ class SpinOp(ParticleOp):
         print(~(1j * z))
 
     """
+
     _XYZ_DICT = {"X": 0, "Y": 1, "Z": 2}
+    _VALID_LABEL_PATTERN = re.compile(
+        r"^([IXYZ\+\-]_\d(\^\d)?\s)*[IXYZ\+\-]_\d(\^\d)?(?!\s)$|^[IXYZ\+\-]+$"
+    )
+    _SPARSE_LABEL_PATTERN = re.compile(r"^([IXYZ]_\d(\^\d)?\s)*[IXYZ]_\d(\^\d)?(?!\s)$")
+    _DENSE_LABEL_PATTERN = re.compile(r"^[IXYZ]+$")
 
     def __init__(
         self,
@@ -196,7 +202,6 @@ class SpinOp(ParticleOp):
             raise QiskitNatureError("spin must be a positive integer or half-integer")
         self._dim = int(round(2 * spin)) + 1
 
-        # This is internal API that users should not use.
         if isinstance(data, tuple):
             self._spin_array = np.array(data[0], dtype=np.uint8)
             self._register_length = self._spin_array.shape[2]
@@ -206,20 +211,19 @@ class SpinOp(ParticleOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
-            allowed_str = set("XYZI_^+-0123456789 ")
-            if not all(char in allowed_str for label, _ in data for char in label):
-                raise ValueError(
-                    "Invalid label: "
-                    "Label must consist of X, Y, Z, I , +, -, ^, _, 0-9, and spaces."
-                )
+            if not all(self._VALID_LABEL_PATTERN.match(label) for label, _ in data):
+                raise ValueError(f"Invalid label are included in {data}")
+
             data = self._flatten_ladder_ops(data)
 
             labels, coeffs = zip(*data)
             self._coeffs = np.array(coeffs, dtype=dtype)
-            if "_" in labels[0]:
+            if all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
                 self._parse_sparse_label(labels)
-            else:
+            elif all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
                 self._parse_dense_label(labels)
+            else:
+                raise ValueError(f"Invalid labels or mixed labels are included in {labels}")
 
     @property
     def register_length(self):
@@ -237,24 +241,24 @@ class SpinOp(ParticleOp):
     @property
     def x(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) X operators on the spin system.
-        I.e. [0, 4, 2] corresponds to X0^0 \\otimes X1^4 \\otimes X2^2, where Xi acts on the i-th
-        spin system in the register.
+        I.e. [0, 4, 2] corresponds to X_2^0 \\otimes X_1^4 \\otimes X_0^2, where X_i acts on the
+        i-th spin system in the register.
         """
         return self._spin_array[0]
 
     @property
     def y(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) Y operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Y0^0 \\otimes Y1^4 \\otimes Y2^2, where Yi acts on the i-th
-        spin system in the register.
+        I.e. [0, 4, 2] corresponds to Y_2^0 \\otimes Y_1^4 \\otimes Y_0^2, where Y_i acts on the
+        i-th spin system in the register.
         """
         return self._spin_array[1]
 
     @property
     def z(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) Z operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Z0^0 \\otimes Z1^4 \\otimes Z2^2, where Zi acts on the i-th
-        spin system in the register.
+        I.e. [0, 4, 2] corresponds to Z_2^0 \\otimes Z_1^4 \\otimes Z_0^2, where Z_i acts on the
+        i-th spin system in the register.
         """
         return self._spin_array[2]
 
@@ -330,9 +334,9 @@ class SpinOp(ParticleOp):
             )
         flatten_array = flatten_array[non_zero]
         new_array = np.zeros((3, len(non_zero), self.register_length))
-        new_array[0] = flatten_array[:, 0:self.register_length]
-        new_array[1] = flatten_array[:, self.register_length:2 * self.register_length]
-        new_array[2] = flatten_array[:, 2 * self.register_length:3 * self.register_length]
+        new_array[0] = flatten_array[:, 0: self.register_length]
+        new_array[1] = flatten_array[:, self.register_length: 2 * self.register_length]
+        new_array[2] = flatten_array[:, 2 * self.register_length: 3 * self.register_length]
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
@@ -355,19 +359,19 @@ class SpinOp(ParticleOp):
             rev_pos = self.register_length - pos - 1
             if n_x > 1:
                 labels_list.append(f"X_{rev_pos}^{n_x}")
-            elif n_x == 1:
+            if n_x == 1:
                 labels_list.append(f"X_{rev_pos}")
             if n_y > 1:
                 labels_list.append(f"Y_{rev_pos}^{n_y}")
-            elif n_y == 1:
+            if n_y == 1:
                 labels_list.append(f"Y_{rev_pos}")
             if n_z > 1:
                 labels_list.append(f"Z_{rev_pos}^{n_z}")
-            elif n_z == 1:
+            if n_z == 1:
                 labels_list.append(f"Z_{rev_pos}")
             if n_x == n_y == n_z == 0:
                 labels_list.append(f"I_{rev_pos}")
-        return " ".join(labels_list) if labels_list else f"I_{self.register_length - 1}"
+        return " ".join(labels_list)
 
     def to_matrix(self) -> np.ndarray:
         """Convert to dense matrix
@@ -454,39 +458,33 @@ class SpinOp(ParticleOp):
         for label in labels:
             parsed_data_term = []
             label_list = label.split()
-            for single in label_list:
-                xyz, nums = single.split("_", 1)
-                if single[0] not in {"I", "X", "Y", "Z"}:
-                    raise ValueError(f"Given label {single} must be X, Y, Z, or I.")
+            for single_label in label_list:
+                xyz, nums = single_label.split("_", 1)
                 index_str, power_str = nums.split("^", 1) if "^" in nums else (nums, "1")
-                if not index_str.isdecimal():
-                    raise ValueError(f"Given label {single} has no index.")
-                if not power_str.isdecimal():
-                    raise ValueError(f"Invalid label: {single}.")
-                reg_index = int(index_str)
+
+                index = int(index_str)
                 power = int(power_str)
-                max_index = max(max_index, reg_index)
+                max_index = max(max_index, index)
 
                 if xyz != "I":
-                    parsed_data_term.append((xyz, reg_index, power))
+                    parsed_data_term.append((xyz, index, power))
             parsed_data.append(parsed_data_term)
 
         self._register_length = max_index + 1
         self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        for term_index, data in enumerate(parsed_data):
+        for term, data in enumerate(parsed_data):
             for datum in data:
-                reg_index = self._register_length - datum[1] - 1
-                if datum[0] == "X" and self._spin_array[1, term_index, reg_index] > 0:
-                    raise ValueError("Label must be XYZ order.")
-                if datum[0] == "X" and self._spin_array[2, term_index, reg_index] > 0:
-                    raise ValueError("Label must be XYZ order.")
-                if datum[0] == "Y" and self._spin_array[2, term_index, reg_index] > 0:
-                    raise ValueError("Label must be XYZ order.")
-
+                register = self._register_length - datum[1] - 1
                 xyz_num = self._XYZ_DICT[datum[0]]
-                if self._spin_array[xyz_num, term_index, reg_index] != 0:
+
+                # Check the order of X, Y, and Z whether it has been already assigned.
+                if self._spin_array[range(xyz_num + 1, 3), term, register].any():
+                    raise ValueError("Label must be XYZ order.")
+                # same label is not assigned.
+                if self._spin_array[xyz_num, term, register]:
                     raise ValueError("Duplicate label.")
-                self._spin_array[xyz_num, term_index, reg_index] = datum[2]
+
+                self._spin_array[xyz_num, term, register] = datum[2]
 
     def _parse_dense_label(self, labels):
         self._register_length = len(labels[0])
@@ -500,7 +498,7 @@ class SpinOp(ParticleOp):
 
     @staticmethod
     def _flatten_ladder_ops(data):
-        """Convert + to X + 1j Y and - to X - 1j Y"""
+        """Convert `+` to `X + 1j Y` and `-` to `X - 1j Y` with the distributive law"""
         pattern_plus = re.compile(r"\+")
         pattern_minus = re.compile(r"-")
         new_data = []
