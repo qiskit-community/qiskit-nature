@@ -102,7 +102,7 @@ class TestSpinOp(QiskitNatureTestCase):
             self.assertSpinEqual(plus_tensor_minus, desired)
 
     def test_init_heisenberg(self):
-        """Test __init__ for heisenberg model."""
+        """Test __init__ for Heisenberg model."""
         actual = SpinOp(
             [
                 ("XX", -1),

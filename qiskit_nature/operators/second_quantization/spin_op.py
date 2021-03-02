@@ -185,7 +185,8 @@ class SpinOp(ParticleOp):
             dtype: data type of coefficients.
 
         Raises:
-            QiskitNatureError: invalid data is given.
+            ValueError: invalid data is given.
+            QiskitNatureError: invalid spin value
         """
         self._coeffs: np.ndarray
         self._spin_array: np.ndarray
@@ -208,7 +209,7 @@ class SpinOp(ParticleOp):
             allowed_str = set("XYZI_^+-0123456789 ")
             if not all(char in allowed_str for label, _ in data for char in label):
                 raise ValueError(
-                    f"Invalid label: "
+                    "Invalid label: "
                     "Label must consist of X, Y, Z, I , +, -, ^, _, 0-9, and spaces."
                 )
             data = self._flatten_ladder_ops(data)
