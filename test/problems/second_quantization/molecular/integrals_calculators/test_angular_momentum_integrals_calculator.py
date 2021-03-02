@@ -12,12 +12,15 @@
 
 """Tests total angular momentum integrals calculator."""
 from test import QiskitNatureTestCase
+from ddt import ddt, data
+
 import numpy as np
 
 from qiskit_nature.problems.second_quantization.molecular.integrals_calculators import \
     calc_total_ang_momentum_ints
 
 
+@ddt
 class TestAngularMomentumIntegralsCalculator(QiskitNatureTestCase):
     """Tests total angular momentum integrals calculator."""
 
@@ -66,21 +69,14 @@ class TestAngularMomentumIntegralsCalculator(QiskitNatureTestCase):
                             [0., 0., 0.],
                             [0., 0., 0.]]]]]
 
-    def test_calc_total_ang_momentum_ints(self):
+    @data(*num_modes_list)
+    def test_calc_total_ang_momentum_ints(self, num_modes):
         """Tests that one- and two-body integrals for total angular momentum are calculated
         correctly."""
 
-        for num_modes, expected_h_1, expected_h_2 in zip(self.num_modes_list,
-                                                         self.expected_h_1_list,
-                                                         self.expected_h_2_list):
-            with self.subTest(num_modes=num_modes):
-                self._test_calc_total_ang_momentum_ints_params(num_modes, expected_h_1,
-                                                               expected_h_2)
-
-    @staticmethod
-    def _test_calc_total_ang_momentum_ints_params(num_modes, expected_h_1, expected_h_2):
+        expected_h_1 = self.expected_h_1_list[num_modes - 1]
+        expected_h_2 = self.expected_h_2_list[num_modes - 1]
 
         h_1, h_2 = calc_total_ang_momentum_ints(num_modes)
-
         assert np.allclose(h_1, expected_h_1)
         assert np.allclose(h_2, expected_h_2)

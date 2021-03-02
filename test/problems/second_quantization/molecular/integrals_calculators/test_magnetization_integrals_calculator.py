@@ -12,12 +12,15 @@
 
 """Tests total magnetization integrals calculator."""
 from test import QiskitNatureTestCase
+from ddt import ddt, data
+
 import numpy as np
 
 from qiskit_nature.problems.second_quantization.molecular.integrals_calculators import \
     calc_total_magnetization_ints
 
 
+@ddt
 class TestMagnetizationIntegralsCalculator(QiskitNatureTestCase):
     """Tests total magnetization integrals calculator."""
 
@@ -30,20 +33,12 @@ class TestMagnetizationIntegralsCalculator(QiskitNatureTestCase):
                           [0. + 0.j, -0. + 0.j, -0.5 + 0.j]]]
     expected_h_2_list = [None, None, None]
 
-    def test_calc_total_magnetization_ints(self):
+    @data(*num_modes_list)
+    def test_calc_total_magnetization_ints(self, num_modes):
         """Tests that one-body integrals for total magnetization are calculated correctly."""
-
-        for num_modes, expected_h_1, expected_h_2 in zip(self.num_modes_list,
-                                                         self.expected_h_1_list,
-                                                         self.expected_h_2_list):
-            with self.subTest(num_modes=num_modes):
-                self._test_calc_total_magnetization_ints_params(num_modes, expected_h_1,
-                                                                expected_h_2)
-
-    @staticmethod
-    def _test_calc_total_magnetization_ints_params(num_modes, expected_h_1, expected_h_2):
+        expected_h_1 = self.expected_h_1_list[num_modes - 1]
+        expected_h_2 = self.expected_h_2_list[num_modes - 1]
 
         h_1, h_2 = calc_total_magnetization_ints(num_modes)
-
         assert np.allclose(h_1, expected_h_1)
         assert h_2 == expected_h_2
