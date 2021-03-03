@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.opflow import X, H, Z
 from qiskit.converters import circuit_to_dag
 
-from qiskit_nature.circuit.library import EvolvedOperatorAnsatz
+from qiskit_nature.circuit.library.ansaetze import EvolvedOperatorAnsatz
 
 
 @ddt
