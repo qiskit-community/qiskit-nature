@@ -26,7 +26,7 @@ class ExcitationOpBuilder:
 
     @staticmethod
     def build_excitation_ops(num_excitations: int,
-                             num_orbitals: int,
+                             num_spin_orbitals: int,
                              num_particles: Tuple[int, int]
                              ) -> None:
         """Builds all possible excitation operators with the given number of excitations for the
@@ -36,18 +36,18 @@ class ExcitationOpBuilder:
 
         Args:
             num_excitations: number of excitations per operator (1 means single excitations, etc.).
-            num_orbitals: number of spin-orbitals.
+            num_spin_orbitals: number of spin-orbitals.
             num_particles: number of alpha and beta particles.
         """
         # generate sets of alpha-spin orbital indices for occupied and unoccupied ones
         set_alpha_occ = set(range(num_particles[0]))
-        set_alpha_unocc = set(range(num_particles[0], num_orbitals // 2))
+        set_alpha_unocc = set(range(num_particles[0], num_spin_orbitals // 2))
         # the Cartesian product of these sets gives all possible single alpha-spin excitations
         alpha_excitations = set(itertools.product(set_alpha_occ, set_alpha_unocc))
 
         # generate sets of beta-spin orbital indices for occupied and unoccupied ones
-        set_beta_occ = set(range(num_orbitals // 2, num_particles[1] + num_orbitals // 2))
-        set_beta_unocc = set(range(num_orbitals // 2 + num_particles[1], num_orbitals))
+        set_beta_occ = set(range(num_spin_orbitals // 2, num_particles[1] + num_spin_orbitals // 2))
+        set_beta_unocc = set(range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals))
         # the Cartesian product of these sets gives all possible single beta-spin excitations
         beta_excitations = set(itertools.product(set_beta_occ, set_beta_unocc))
 
@@ -74,7 +74,7 @@ class ExcitationOpBuilder:
         #     But this is also easy to adjust.
 
         for exc in excitations:
-            label = ['I'] * num_orbitals
+            label = ['I'] * num_spin_orbitals
             for occ in exc[0]:
                 label[occ] = '-'
             for unocc in exc[1]:
