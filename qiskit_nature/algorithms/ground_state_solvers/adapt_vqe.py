@@ -17,10 +17,10 @@ import logging
 from typing import Optional, List, Tuple, Union
 import numpy as np
 
-from qiskit.aqua.utils.validation import validate_min
-from qiskit.aqua.operators import WeightedPauliOperator
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua import AquaError
+from qiskit.utils.validation import validate_min
+from qiskit.opflow import PauliSumOp
+from qiskit.algorithms import VQE
+from qiskit_nature.exceptions import QiskitNatureError
 from ...results.electronic_structure_result import ElectronicStructureResult
 from ...results.vibronic_structure_result import VibronicStructureResult
 from ...transformations.fermionic_transformation import FermionicTransformation
@@ -67,10 +67,10 @@ class AdaptVQE(GroundStateEigensolver):
         return True
 
     def _compute_gradients(self,
-                           excitation_pool: List[WeightedPauliOperator],
+                           excitation_pool: List[PauliSumOp],
                            theta: List[float],
                            vqe: VQE,
-                           ) -> List[Tuple[float, WeightedPauliOperator]]:
+                           ) -> List[Tuple[float, PauliSumOp]]:
         """
         Computes the gradients for all available excitation operators.
 
@@ -145,8 +145,8 @@ class AdaptVQE(GroundStateEigensolver):
                 ground state.
 
         Raises:
-            AquaError: if a solver other than VQE or a variational form other than UCCSD is
-                provided or if the algorithm finishes due to an unforeseen reason.
+            QiskitNatureError: if a solver other than VQE or a variational form other than UCCSD
+                is provided or if the algorithm finishes due to an unforeseen reason.
 
         Returns:
             An AdaptVQEResult which is an ElectronicStructureResult but also includes runtime
@@ -158,9 +158,10 @@ class AdaptVQE(GroundStateEigensolver):
         vqe = self._solver.get_solver(self._transformation)
         vqe.operator = operator
         if not isinstance(vqe, VQE):
-            raise AquaError("The AdaptVQE algorithm requires the use of the VQE solver")
+            raise QiskitNatureError("The AdaptVQE algorithm requires the use of the VQE solver")
         if not isinstance(vqe.var_form, UCCSD):
-            raise AquaError("The AdaptVQE algorithm requires the use of the UCCSD variational form")
+            raise QiskitNatureError(
+                "The AdaptVQE algorithm requires the use of the UCCSD variational form")
 
         vqe.var_form.manage_hopping_operators()
         excitation_pool = vqe.var_form.excitation_pool
@@ -170,7 +171,7 @@ class AdaptVQE(GroundStateEigensolver):
         max_iterations_exceeded = False
         prev_op_indices: List[int] = []
         theta: List[float] = []
-        max_grad: Tuple[float, Optional[WeightedPauliOperator]] = (0., None)
+        max_grad: Tuple[float, Optional[PauliSumOp]] = (0., None)
         iteration = 0
         while self._max_iterations is None or iteration < self._max_iterations:
             iteration += 1
@@ -231,7 +232,7 @@ class AdaptVQE(GroundStateEigensolver):
         elif max_iterations_exceeded:
             finishing_criterion = 'Maximum number of iterations reached'
         else:
-            raise AquaError('The algorithm finished due to an unforeseen reason!')
+            raise QiskitNatureError('The algorithm finished due to an unforeseen reason!')
 
         electronic_result = self.transformation.interpret(raw_vqe_result)
 

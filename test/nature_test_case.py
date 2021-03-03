@@ -30,7 +30,7 @@ def _noop(*args, **kargs):
 
 
 # disable warning messages
-# warnings.warn = _noop
+warnings.warn = _noop
 
 
 class QiskitNatureTestCase(unittest.TestCase, ABC):

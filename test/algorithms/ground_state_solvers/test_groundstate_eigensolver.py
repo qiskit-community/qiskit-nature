@@ -20,7 +20,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit import BasicAer
-from qiskit.aqua import QuantumInstance
+from qiskit.utils import QuantumInstance
 from qiskit_nature import QiskitNatureError, FermionicOperator
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.transformations import (FermionicTransformation,

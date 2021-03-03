@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver
+from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit_nature import BosonicOperator
 
 
@@ -95,8 +95,8 @@ class TestBosonicOperator(QiskitNatureTestCase):
         """ mapping test """
         qubit_op = self.bos_op.mapping('direct', threshold=1e-5)
         algo = NumPyMinimumEigensolver(
-            qubit_op, filter_criterion=self.bos_op.direct_mapping_filtering_criterion)
-        result = algo.run()
+            filter_criterion=self.bos_op.direct_mapping_filtering_criterion)
+        result = algo.compute_minimum_eigenvalue(qubit_op)
         gs_energy = np.real(result['eigenvalue'])
 
         self.assertAlmostEqual(gs_energy, self.reference_energy, places=4)

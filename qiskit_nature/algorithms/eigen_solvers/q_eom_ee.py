@@ -16,9 +16,9 @@ from typing import Union, List, Optional
 import logging
 
 import numpy as np
-from qiskit.aqua.operators import LegacyBaseOperator, Z2Symmetries
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver
-from qiskit.aqua.utils.validation import validate_min, validate_in_set
+from qiskit.algorithms import NumPyMinimumEigensolver, MinimumEigensolverResult
+from qiskit.opflow import OperatorBase, Z2Symmetries
+from qiskit.utils.validation import validate_min, validate_in_set
 from .q_equation_of_motion import QEquationOfMotion
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class QEomEE(NumPyMinimumEigensolver):
     """ QEomEE algorithm (classical) """
 
-    def __init__(self, operator: LegacyBaseOperator, num_orbitals: int,
+    def __init__(self, num_orbitals: int,
                  num_particles: Union[List[int], int],
                  qubit_mapping: str = 'parity',
                  two_qubit_reduction: bool = True,
@@ -37,8 +37,7 @@ class QEomEE(NumPyMinimumEigensolver):
                  se_list: Optional[List[List[int]]] = None,
                  de_list: Optional[List[List[int]]] = None,
                  z2_symmetries: Optional[Z2Symmetries] = None,
-                 untapered_op: Optional[LegacyBaseOperator] = None,
-                 aux_operators: Optional[List[LegacyBaseOperator]] = None) -> None:
+                 untapered_op: Optional[OperatorBase] = None) -> None:
         """
         Args:
             operator: qubit operator
@@ -58,8 +57,6 @@ class QEomEE(NumPyMinimumEigensolver):
             z2_symmetries: represent the Z2 symmetries
             untapered_op: if the operator is tapered, we need untapered operator
                                          to build element of EoM matrix
-            aux_operators: Auxiliary operators to be evaluated at
-                                                each eigenvalue
         Raises:
             ValueError: invalid parameter
         """
@@ -69,15 +66,20 @@ class QEomEE(NumPyMinimumEigensolver):
         if isinstance(num_particles, list) and len(num_particles) != 2:
             raise ValueError('Num particles value {}. Number of values allowed is 2'.format(
                 num_particles))
-        super().__init__(operator, aux_operators)
+        super().__init__()
 
-        self.qeom = QEquationOfMotion(operator, num_orbitals, num_particles, qubit_mapping,
+        self.qeom = QEquationOfMotion(None, num_orbitals, num_particles, qubit_mapping,
                                       two_qubit_reduction, active_occupied, active_unoccupied,
                                       is_eom_matrix_symmetric, se_list, de_list,
                                       z2_symmetries, untapered_op)
 
-    def _run(self):
-        super()._run()
+    def compute_minimum_eigenvalue(
+            self,
+            operator: OperatorBase,
+            aux_operators: Optional[List[Optional[OperatorBase]]] = None
+    ) -> MinimumEigensolverResult:
+        self.qeom._operator = operator
+        super().compute_minimum_eigenvalue(operator, aux_operators)
         wave_fn = self._ret['eigvecs'][0]
         excitation_energies_gap, eom_matrices = self.qeom.calculate_excited_states(wave_fn)
         excitation_energies = excitation_energies_gap + self._ret['energy']

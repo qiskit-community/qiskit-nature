@@ -16,10 +16,10 @@ from test import QiskitNatureTestCase
 
 from qiskit.providers.basicaer import BasicAer
 from qiskit.circuit.library import RealAmplitudes
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua import AquaError
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua.components.optimizers import COBYLA
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import COBYLA
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.algorithms.ground_state_solvers import OrbitalOptimizationVQE
 from qiskit_nature.transformations import FermionicTransformation
@@ -157,7 +157,7 @@ class TestOOVQE(QiskitNatureTestCase):
 
         calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False)
 
-        with self.assertRaises(AquaError):
+        with self.assertRaises(QiskitNatureError):
             calc.solve(self.driver3)
 
     def test_oovqe_with_vqe_uccsd(self):

@@ -19,9 +19,9 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata, unpack
 import qiskit
 from qiskit.circuit.library import TwoLocal
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua.components.optimizers import COBYLA, SPSA
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import COBYLA, SPSA
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
 
@@ -64,9 +64,9 @@ class TestEnd2End(QiskitNatureTestCase):
             optimizer = SPSA(maxiter=2000)
 
         ryrz = TwoLocal(rotation_blocks=['ry', 'rz'], entanglement_blocks='cz')
-        vqe = VQE(self.qubit_op, ryrz, optimizer, aux_operators=self.aux_ops)
         quantum_instance = QuantumInstance(backend, shots=shots)
-        result = vqe.run(quantum_instance)
+        vqe = VQE(ryrz, optimizer=optimizer, quantum_instance=quantum_instance)
+        result = vqe.compute_minimum_eigenvalue(self.qubit_op, aux_operators=self.aux_ops)
         self.assertAlmostEqual(result.eigenvalue.real, self.reference_energy, places=4)
 
     def test_deprecated_algo_result(self):
@@ -74,9 +74,9 @@ class TestEnd2End(QiskitNatureTestCase):
         try:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             ryrz = TwoLocal(self.qubit_op.num_qubits, ['ry', 'rz'], 'cz', reps=3)
-            vqe = VQE(self.qubit_op, ryrz, COBYLA(), aux_operators=self.aux_ops)
             quantum_instance = QuantumInstance(qiskit.BasicAer.get_backend('statevector_simulator'))
-            result = vqe.run(quantum_instance)
+            vqe = VQE(ryrz, optimizer=COBYLA(), quantum_instance=quantum_instance)
+            result = vqe.compute_minimum_eigenvalue(self.qubit_op, aux_operators=self.aux_ops)
             keys = {'energy', 'energies', 'eigvals', 'eigvecs', 'aux_ops'}
             dict_res = {key: result[key] for key in keys}
             lines, result = self.core.process_algorithm_result(dict_res)

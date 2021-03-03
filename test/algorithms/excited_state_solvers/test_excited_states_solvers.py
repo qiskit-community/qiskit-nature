@@ -17,9 +17,9 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit import BasicAer
-from qiskit.aqua import aqua_globals, QuantumInstance
+from qiskit.utils import algorithm_globals, QuantumInstance
 
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
+from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.transformations import (FermionicTransformation,
@@ -36,7 +36,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        aqua_globals.random_seed = 8
+        algorithm_globals.random_seed = 8
         try:
             self.driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.75',
                                       unit=UnitsType.ANGSTROM,

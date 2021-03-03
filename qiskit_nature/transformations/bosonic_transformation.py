@@ -22,9 +22,9 @@ from typing import Tuple, List, Union, Any, Optional, Callable, Dict
 import numpy as np
 
 from qiskit.tools import parallel_map
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit.aqua.operators.legacy import WeightedPauliOperator
+from qiskit.utils import algorithm_globals
+from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.opflow import PauliSumOp
 from qiskit_nature import QiskitNatureError
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.bosonic_operator import BosonicOperator
@@ -103,7 +103,7 @@ class BosonicTransformation(Transformation):
 
     def transform(self, driver: BaseDriver,
                   aux_operators: Optional[List[Any]] = None
-                  ) -> Tuple[WeightedPauliOperator, List[WeightedPauliOperator]]:
+                  ) -> Tuple[PauliSumOp, List[PauliSumOp]]:
         """
         Transformation to qubit operator from the driver
 
@@ -120,8 +120,8 @@ class BosonicTransformation(Transformation):
 
     def _do_transform(self, watson: WatsonHamiltonian,
                       aux_operators: Optional[List[Union[BosonicOperator,
-                                                         WeightedPauliOperator]]] = None
-                      ) -> Tuple[WeightedPauliOperator, List[WeightedPauliOperator]]:
+                                                         PauliSumOp]]] = None
+                      ) -> Tuple[PauliSumOp, List[PauliSumOp]]:
 
         self._num_modes = watson.num_modes  # type: ignore
 
@@ -150,7 +150,7 @@ class BosonicTransformation(Transformation):
                 name: name
 
             """
-            if not isinstance(aux_op, WeightedPauliOperator):
+            if not isinstance(aux_op, PauliSumOp):
                 aux_qop = BosonicTransformation._map_bosonic_operator_to_qubit(
                     aux_op, self._qubit_mapping)
                 aux_qop.name = name
@@ -158,7 +158,7 @@ class BosonicTransformation(Transformation):
                 aux_qop = aux_op
 
             aux_ops.append(aux_qop)
-            logger.debug('  num paulis: %s', aux_qop.paulis)
+            logger.debug('  pauli: %s', str(aux_qop))
 
         logger.debug('Creating aux op for number of occupied modals per mode')
 
@@ -222,7 +222,7 @@ class BosonicTransformation(Transformation):
 
     @staticmethod
     def _map_bosonic_operator_to_qubit(bos_op: BosonicOperator,
-                                       qubit_mapping: str) -> WeightedPauliOperator:
+                                       qubit_mapping: str) -> PauliSumOp:
         """
         Args:
             bos_op: a BosonicOperator
@@ -239,7 +239,7 @@ class BosonicTransformation(Transformation):
     @staticmethod
     def _build_single_hopping_operator(index: List[List[int]],
                                        basis: List[int],
-                                       qubit_mapping: str) -> WeightedPauliOperator:
+                                       qubit_mapping: str) -> PauliSumOp:
         """
         Builds a hopping operator given the list of indices (index) that is a single, a double
         or a higher order excitation.
@@ -266,13 +266,13 @@ class BosonicTransformation(Transformation):
 
         dummpy_op = BosonicOperator(np.asarray(hml, dtype=object), basis)  # type: ignore
         qubit_op = dummpy_op.mapping(qubit_mapping)
-        if len(qubit_op.paulis) == 0:
+        if len(qubit_op) == 0:
             qubit_op = None
 
         return qubit_op
 
     def build_hopping_operators(self, excitations: Union[str, List[List[int]]] = 'sd') \
-            -> Tuple[Dict[str, WeightedPauliOperator],
+            -> Tuple[Dict[str, PauliSumOp],
                      Dict,
                      Dict[str, List[List[int]]]]:
         """
@@ -299,7 +299,7 @@ class BosonicTransformation(Transformation):
                 dag_lst.append([lst[0], lst[2], lst[1]])
             return dag_lst
 
-        hopping_operators: Dict[str, WeightedPauliOperator] = {}
+        hopping_operators: Dict[str, PauliSumOp] = {}
         excitation_indices = {}
         to_be_executed_list = []
         for idx in range(size):
@@ -313,7 +313,7 @@ class BosonicTransformation(Transformation):
                               to_be_executed_list,
                               task_args=(self._basis_size,
                                          self._qubit_mapping),
-                              num_processes=aqua_globals.num_processes)
+                              num_processes=algorithm_globals.num_processes)
 
         for key, res in zip(hopping_operators.keys(), result):
             hopping_operators[key] = res
@@ -328,7 +328,7 @@ class BosonicTransformation(Transformation):
                                                                  Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
-        aqua.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
         """

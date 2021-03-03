@@ -12,7 +12,7 @@
 
 """The Bravyi-Kitaev Mapping interface."""
 
-from qiskit.aqua.operators import PauliSumOp
+from qiskit.opflow import PauliSumOp
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 

@@ -16,12 +16,14 @@ a quantum algorithm
 """
 
 from abc import ABC, abstractmethod
+import collections
+import inspect
 import warnings
 import logging
 from typing import Dict, Union, List, Tuple, Optional, cast
 import numpy as np
 
-from qiskit.aqua.algorithms import MinimumEigensolverResult, EigensolverResult, AlgorithmResult
+from qiskit.algorithms import MinimumEigensolverResult, EigensolverResult, AlgorithmResult
 from qiskit_nature import QMolecule
 
 logger = logging.getLogger(__name__)
@@ -45,7 +47,7 @@ class ChemistryOperator(ABC):
 
     @abstractmethod
     def __init__(self):
-        warnings.warn('The ChemistryOperator is deprecated as of Qiskit Aqua 0.8.0 and will be '
+        warnings.warn('The ChemistryOperator is deprecated and will be '
                       'removed no earlier than 3 months after the release date. Instead, the '
                       'FermionicTransformation can be used to transform QMolecules and construct '
                       'ground state result objects.', DeprecationWarning, stacklevel=2)
@@ -104,7 +106,7 @@ class ChemistryOperator(ABC):
         self._molecule_info[key] = value
 
 
-class MolecularChemistryResult(AlgorithmResult):
+class MolecularChemistryResult(AlgorithmResult, collections.UserDict):
     """
     Molecular chemistry Result
 
@@ -112,11 +114,66 @@ class MolecularChemistryResult(AlgorithmResult):
     """
 
     def __init__(self, a_dict: Optional[Dict] = None) -> None:
-        super().__init__(a_dict)
+        super().__init__()
+        if a_dict:
+            self.data.update(a_dict)
         warnings.warn('The qiskit_nature.chemistry_operator.MolecularChemistryResult object is '
                       'deprecated as of 0.8.0 and will be removed no sooner than 3 months after the'
                       ' release. You should use qiskit_nature.algorithms.ground_state_solvers.'
                       'FermionicGroundStateResult instead.', DeprecationWarning, stacklevel=2)
+
+    def __setitem__(self, key: object, item: object) -> None:
+        raise TypeError("'__setitem__' invalid for this object.")
+
+    def __delitem__(self, key: object) -> None:
+        raise TypeError("'__delitem__' invalid for this object.")
+
+    def clear(self) -> None:
+        raise TypeError("'clear' invalid for this object.")
+
+    def pop(self, key: object, default: Optional[object] = None) -> object:
+        raise TypeError("'pop' invalid for this object.")
+
+    def popitem(self) -> Tuple[object, object]:
+        raise TypeError("'popitem' invalid for this object.")
+
+    def update(self, *args, **kwargs) -> None:  # pylint: disable=arguments-differ,signature-differs
+        raise TypeError("'update' invalid for this object.")
+
+    def combine(self, result: 'AlgorithmResult') -> None:
+        """
+        Any property from the argument that exists in the receiver is
+        updated.
+        Args:
+            result: Argument result with properties to be set.
+        Raises:
+            TypeError: Argument is None
+        """
+        if result is None:
+            raise TypeError('Argument result expected.')
+        if result == self:
+            return
+
+        # find any result public property that exists in the receiver
+        for name, value in inspect.getmembers(result):
+            if not name.startswith('_') and name != 'data' and \
+                    not inspect.ismethod(value) and not inspect.isfunction(value) and \
+                    hasattr(self, name):
+                if value is None:
+                    # Just remove from receiver if it exists
+                    # since None is the default value in derived classes for non existent name.
+                    if name in self.data:
+                        del self.data[name]
+                else:
+                    self.data[name] = value
+
+    def __contains__(self, key: object) -> bool:
+        # subclasses have special __getitem__
+        try:
+            _ = self.__getitem__(key)
+            return True
+        except KeyError:
+            return False
 
     @property
     def algorithm_result(self) -> AlgorithmResult:

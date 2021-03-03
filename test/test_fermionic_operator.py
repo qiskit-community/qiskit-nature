@@ -16,8 +16,7 @@ import copy
 import unittest
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit.aqua.utils import random_unitary
-from qiskit.aqua.operators.legacy import op_converter
+from qiskit.quantum_info.random import random_unitary
 from qiskit_nature import FermionicOperator, QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 
@@ -135,8 +134,6 @@ class TestFermionicOperator(QiskitNatureTestCase):
         jw_op = fer_op.mapping('jordan_wigner')
         bksf_op = fer_op.mapping('bksf')
 
-        jw_op = op_converter.to_matrix_operator(jw_op)
-        bksf_op = op_converter.to_matrix_operator(bksf_op)
         jw_eigs = np.linalg.eigvals(jw_op.matrix.toarray())
         bksf_eigs = np.linalg.eigvals(bksf_op.matrix.toarray())
 

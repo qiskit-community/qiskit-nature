@@ -18,9 +18,9 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit import BasicAer
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver, VQE
-from qiskit.aqua.components.optimizers import SLSQP
-from qiskit_nature.components.initial_states import HartreeFock
+from qiskit.algorithms import NumPyMinimumEigensolver, VQE
+from qiskit.algorithms.optimizers import SLSQP
+from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
@@ -64,9 +64,10 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
         warnings.filterwarnings('always', category=DeprecationWarning)
         qubit_op, aux_ops = core.run(self.qmolecule)
         self.assertEqual(qubit_op.num_qubits, 12)
-        npme = NumPyMinimumEigensolver(qubit_op, aux_operators=aux_ops)
+        npme = NumPyMinimumEigensolver()
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(npme.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            npme.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result, False)
 
@@ -82,9 +83,10 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
         warnings.filterwarnings('always', category=DeprecationWarning)
         qubit_op, aux_ops = core.run(self.qmolecule)
         self.assertEqual(qubit_op.num_qubits, 8)
-        npme = NumPyMinimumEigensolver(qubit_op, aux_operators=aux_ops)
+        npme = NumPyMinimumEigensolver()
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(npme.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            npme.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result)
         self.assertEqual(core.molecule_info[core.INFO_Z2SYMMETRIES].tapering_values, [1, 1, 1, 1])
@@ -101,9 +103,10 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
         warnings.filterwarnings('always', category=DeprecationWarning)
         qubit_op, aux_ops = core.run(self.qmolecule)
         self.assertEqual(qubit_op.num_qubits, 8)
-        npme = NumPyMinimumEigensolver(qubit_op, aux_operators=aux_ops)
+        npme = NumPyMinimumEigensolver()
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(npme.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            npme.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result)
         self.assertEqual(core.molecule_info[core.INFO_Z2SYMMETRIES].tapering_values, [1, 1, 1, 1])
@@ -146,9 +149,10 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
         warnings.filterwarnings('always', category=DeprecationWarning)
         qubit_op, aux_ops = core.run(self.qmolecule)
         self.assertEqual(qubit_op.num_qubits, 6)
-        npme = NumPyMinimumEigensolver(qubit_op, aux_operators=aux_ops)
+        npme = NumPyMinimumEigensolver()
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(npme.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            npme.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result)
         self.assertEqual(core.molecule_info[core.INFO_Z2SYMMETRIES].tapering_values, [-1, 1, 1, -1])
@@ -165,9 +169,10 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
         warnings.filterwarnings('always', category=DeprecationWarning)
         qubit_op, aux_ops = core.run(self.qmolecule)
         self.assertEqual(qubit_op.num_qubits, 6)
-        npme = NumPyMinimumEigensolver(qubit_op, aux_operators=aux_ops)
+        npme = NumPyMinimumEigensolver()
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(npme.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            npme.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result)
         self.assertEqual(core.molecule_info[core.INFO_Z2SYMMETRIES].tapering_values, [-1, 1, 1, 1])
@@ -184,9 +189,10 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
         warnings.filterwarnings('always', category=DeprecationWarning)
         qubit_op, aux_ops = core.run(self.qmolecule)
         self.assertEqual(qubit_op.num_qubits, 6)
-        npme = NumPyMinimumEigensolver(qubit_op, aux_operators=aux_ops)
+        npme = NumPyMinimumEigensolver()
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(npme.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            npme.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result)
         self.assertEqual(core.molecule_info[core.INFO_Z2SYMMETRIES].tapering_values, [1, 1])
@@ -203,9 +209,10 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
         warnings.filterwarnings('always', category=DeprecationWarning)
         qubit_op, aux_ops = core.run(self.qmolecule)
         self.assertEqual(qubit_op.num_qubits, 6)
-        npme = NumPyMinimumEigensolver(qubit_op, aux_operators=aux_ops)
+        npme = NumPyMinimumEigensolver()
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(npme.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            npme.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result)
         self.assertEqual(core.molecule_info[core.INFO_Z2SYMMETRIES].tapering_values, [1, 1])
@@ -235,10 +242,11 @@ class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
                          qubit_mapping=qubit_mapping,
                          two_qubit_reduction=two_qubit_reduction,
                          z2_symmetries=z2_symmetries)
-        vqe = VQE(qubit_op, var_form=var_form, optimizer=SLSQP(maxiter=500), aux_operators=aux_ops)
-        vqe.quantum_instance = BasicAer.get_backend('statevector_simulator')
+        vqe = VQE(var_form=var_form, optimizer=SLSQP(maxiter=500),
+                  quantum_instance=BasicAer.get_backend('statevector_simulator'))
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        result = core.process_algorithm_result(vqe.compute_minimum_eigenvalue())
+        result = core.process_algorithm_result(
+            vqe.compute_minimum_eigenvalue(qubit_op, aux_operators=aux_ops))
         warnings.filterwarnings('always', category=DeprecationWarning)
         self._validate_result(result)
         self.assertEqual(core.molecule_info[core.INFO_Z2SYMMETRIES].tapering_values, [-1, 1, 1, -1])

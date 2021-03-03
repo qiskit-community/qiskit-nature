@@ -10,15 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test of UCCSD and HartreeFock Aqua extensions """
+""" Test of UCCSD and HartreeFock extensions """
 
 import unittest
 
 from test import QiskitNatureTestCase
 from qiskit import BasicAer
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua.components.optimizers import SLSQP
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import SLSQP
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.components.variational_forms import UCCSD
@@ -31,7 +31,7 @@ from qiskit_nature.transformations import FermionicTransformation
 
 
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
-    """Test for these aqua extensions."""
+    """Test for these extensions."""
 
     def setUp(self):
         super().setUp()

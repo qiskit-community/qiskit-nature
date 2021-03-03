@@ -17,9 +17,9 @@ from typing import List, Optional, Callable, Union
 
 from qiskit.providers import BaseBackend
 from qiskit.providers import Backend
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import MinimumEigensolver, VQE
-from qiskit.aqua.operators import Z2Symmetries
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import MinimumEigensolver, VQE
+from qiskit.opflow import Z2Symmetries
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.components.variational_forms import UCCSD
@@ -43,7 +43,7 @@ class MolecularGroundStateEnergy:
         """
         Args:
             driver: Chemistry driver
-            solver: An Aqua MinimumEigensolver. This can be provided on the constructor or
+            solver: A MinimumEigensolver. This can be provided on the constructor or
                     via the solver property, or via the callback on :meth:`compute_energy`
             transformation: full or particle_hole
             qubit_mapping: jordan_wigner, parity or bravyi_kitaev
@@ -61,7 +61,7 @@ class MolecularGroundStateEnergy:
                 processing behind this class.
         """
 
-        warnings.warn('The MolecularGroundStateEnergy class is deprecated as of Qiskit Aqua 0.8.0 '
+        warnings.warn('The MolecularGroundStateEnergy class is deprecated '
                       'and will be removed no earlier than 3 months after the release date. '
                       'Instead, the GroundStateCalculation class can be used.',
                       DeprecationWarning, stacklevel=2)

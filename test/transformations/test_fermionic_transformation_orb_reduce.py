@@ -15,7 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit.aqua.operators import OperatorBase
+from qiskit.opflow import OperatorBase
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.core import TransformationType, QubitMappingType

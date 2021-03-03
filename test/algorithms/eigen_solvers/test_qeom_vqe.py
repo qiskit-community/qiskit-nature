@@ -20,10 +20,10 @@ import numpy as np
 from qiskit import BasicAer
 from qiskit.circuit.library import RealAmplitudes
 
-from qiskit.aqua import QuantumInstance, aqua_globals
-from qiskit.aqua.components.optimizers import COBYLA, SPSA
-from qiskit.aqua.algorithms import NumPyEigensolver
-from qiskit.aqua.operators import Z2Symmetries
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.algorithms.optimizers import COBYLA, SPSA
+from qiskit.algorithms import NumPyEigensolver
+from qiskit.opflow import Z2Symmetries
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.algorithms import QEomVQE
 from qiskit_nature.drivers import PySCFDriver, UnitsType
@@ -39,7 +39,7 @@ class TestEomVQE(QiskitNatureTestCase):
         """Setup."""
         super().setUp()
         try:
-            aqua_globals.random_seed = 0
+            algorithm_globals.random_seed = 0
             atom = 'H .0 .0 .7414; H .0 .0 .0'
             pyscf_driver = PySCFDriver(atom=atom,
                                        unit=UnitsType.ANGSTROM, charge=0, spin=0, basis='sto3g')
@@ -52,8 +52,8 @@ class TestEomVQE(QiskitNatureTestCase):
                                orbital_reduction=[])
             warnings.filterwarnings('always', category=DeprecationWarning)
             qubit_op, _ = core.run(self.molecule)
-            exact_eigensolver = NumPyEigensolver(qubit_op, k=2 ** qubit_op.num_qubits)
-            result = exact_eigensolver.run()
+            exact_eigensolver = NumPyEigensolver(k=2 ** qubit_op.num_qubits)
+            result = exact_eigensolver.compute_eigenvalues(qubit_op)
             self.reference = result.eigenvalues.real
         except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
@@ -83,13 +83,13 @@ class TestEomVQE(QiskitNatureTestCase):
                          qubit_mapping=qubit_mapping, two_qubit_reduction=two_qubit_reduction)
         optimizer = COBYLA(maxiter=1000, tol=1e-8)
 
-        eom_vqe = QEomVQE(qubit_op, var_form, optimizer, num_orbitals=num_orbitals,
-                          num_particles=num_particles, qubit_mapping=qubit_mapping,
-                          two_qubit_reduction=two_qubit_reduction)
-
         backend = BasicAer.get_backend('statevector_simulator')
-        quantum_instance = QuantumInstance(backend)
-        result = eom_vqe.run(quantum_instance)
+        eom_vqe = QEomVQE(var_form, optimizer=optimizer, num_orbitals=num_orbitals,
+                          num_particles=num_particles, qubit_mapping=qubit_mapping,
+                          two_qubit_reduction=two_qubit_reduction,
+                          quantum_instance=QuantumInstance(backend))
+
+        result = eom_vqe.compute_minimum_eigenvalue(qubit_op)
         np.testing.assert_array_almost_equal(self.reference, result['energies'], decimal=4)
 
     def test_h2_one_qubit_statevector(self):
@@ -123,14 +123,14 @@ class TestEomVQE(QiskitNatureTestCase):
                          z2_symmetries=tapered_op.z2_symmetries)
         optimizer = SPSA(maxiter=50)
 
-        eom_vqe = QEomVQE(tapered_op, var_form, optimizer, num_orbitals=num_orbitals,
-                          num_particles=num_particles, qubit_mapping=qubit_mapping,
-                          two_qubit_reduction=two_qubit_reduction,
-                          z2_symmetries=tapered_op.z2_symmetries, untapered_op=qubit_op)
-
         backend = BasicAer.get_backend('statevector_simulator')
         quantum_instance = QuantumInstance(backend)
-        result = eom_vqe.run(quantum_instance)
+        eom_vqe = QEomVQE(var_form, optimizer=optimizer, num_orbitals=num_orbitals,
+                          num_particles=num_particles, qubit_mapping=qubit_mapping,
+                          two_qubit_reduction=two_qubit_reduction,
+                          z2_symmetries=tapered_op.z2_symmetries, untapered_op=qubit_op,
+                          quantum_instance=quantum_instance)
+        result = eom_vqe.compute_minimum_eigenvalue(tapered_op)
         np.testing.assert_array_almost_equal(self.reference, result['energies'], decimal=5)
 
     def test_h2_one_qubit_qasm(self):
@@ -157,14 +157,15 @@ class TestEomVQE(QiskitNatureTestCase):
         var_form = RealAmplitudes(tapered_op.num_qubits, reps=1)
         optimizer = SPSA(maxiter=50)
 
-        eom_vqe = QEomVQE(tapered_op, var_form, optimizer, num_orbitals=num_orbitals,
-                          num_particles=num_particles, qubit_mapping=qubit_mapping,
-                          two_qubit_reduction=two_qubit_reduction,
-                          z2_symmetries=tapered_op.z2_symmetries, untapered_op=qubit_op)
-
         backend = BasicAer.get_backend('qasm_simulator')
         quantum_instance = QuantumInstance(backend, shots=65536)
-        result = eom_vqe.run(quantum_instance)
+        eom_vqe = QEomVQE(var_form, optimizer, num_orbitals=num_orbitals,
+                          num_particles=num_particles, qubit_mapping=qubit_mapping,
+                          two_qubit_reduction=two_qubit_reduction,
+                          z2_symmetries=tapered_op.z2_symmetries, untapered_op=qubit_op,
+                          quantum_instance=quantum_instance)
+
+        result = eom_vqe.compute_minimum_eigenvalue(tapered_op)
         np.testing.assert_array_almost_equal(self.reference, result['energies'], decimal=2)
 
 

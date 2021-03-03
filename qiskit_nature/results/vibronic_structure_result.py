@@ -17,7 +17,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from qiskit.aqua.algorithms import AlgorithmResult
+from qiskit.algorithms import AlgorithmResult
 from .eigenstate_result import EigenstateResult
 
 logger = logging.getLogger(__name__)

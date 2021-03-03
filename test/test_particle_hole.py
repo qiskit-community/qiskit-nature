@@ -16,7 +16,7 @@ import unittest
 
 from test import QiskitNatureTestCase
 from ddt import ddt, idata, unpack
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver
+from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit_nature import FermionicOperator, QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
 
@@ -72,10 +72,10 @@ class TestParticleHole(QiskitNatureTestCase):
 
         # Energy in original fer_op should same as ph transformed one added with ph_shift
         jw_op = fer_op.mapping('jordan_wigner')
-        result = NumPyMinimumEigensolver(jw_op).run()
+        result = NumPyMinimumEigensolver().compute_minimum_eigenvalue(jw_op)
 
         ph_jw_op = ph_fer_op.mapping('jordan_wigner')
-        ph_result = NumPyMinimumEigensolver(ph_jw_op).run()
+        ph_result = NumPyMinimumEigensolver().compute_minimum_eigenvalue(ph_jw_op)
 
         self.assertAlmostEqual(result.eigenvalue.real,
                                ph_result.eigenvalue.real - ph_shift, msg=config)

@@ -18,11 +18,10 @@ from functools import partial
 import numpy as np
 from qiskit import BasicAer
 from qiskit.circuit.library import RealAmplitudes
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.algorithms import VQE, NumPyMinimumEigensolver
-from qiskit.aqua.components.optimizers import AQGD
-from qiskit.aqua.operators import PauliExpectation
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.algorithms import VQE, NumPyMinimumEigensolver
+from qiskit.algorithms.optimizers import AQGD
+from qiskit.opflow import PauliExpectation
 from qiskit_nature.algorithms.pes_samplers.bopes_sampler import BOPESSampler
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.drivers import Molecule, PySCFDriver
@@ -37,7 +36,7 @@ class TestBOPES(unittest.TestCase):
     def test_h2_bopes_sampler(self):
         """Test BOPES Sampler on H2"""
         seed = 50
-        aqua_globals.random_seed = seed
+        algorithm_globals.random_seed = seed
 
         # Molecule
         dof = partial(Molecule.absolute_distance, atom_pair=(1, 0))
@@ -104,7 +103,7 @@ class TestBOPES(unittest.TestCase):
     def test_potential_interface(self):
         """Tests potential interface."""
         seed = 50
-        aqua_globals.random_seed = seed
+        algorithm_globals.random_seed = seed
 
         stretch = partial(Molecule.absolute_distance, atom_pair=(1, 0))
         # H-H molecule near equilibrium geometry

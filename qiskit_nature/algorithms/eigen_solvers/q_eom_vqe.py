@@ -19,12 +19,12 @@ import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers import BaseBackend
 from qiskit.providers import Backend
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua.operators import LegacyBaseOperator, Z2Symmetries
-from qiskit.aqua.components.optimizers import Optimizer
-from qiskit.aqua.components.variational_forms import VariationalForm
-from qiskit.aqua.utils.validation import validate_min, validate_in_set
+from qiskit.utils import QuantumInstance
+from qiskit.opflow import OperatorBase, Z2Symmetries
+from qiskit.algorithms import VQE, MinimumEigensolverResult
+from qiskit.algorithms.optimizers import Optimizer
+from qiskit.algorithms.variational_forms import VariationalForm
+from qiskit.utils.validation import validate_min, validate_in_set
 from .q_equation_of_motion import QEquationOfMotion
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class QEomVQE(VQE):
     """ QEomVQE algorithm """
 
-    def __init__(self, operator: LegacyBaseOperator,
+    def __init__(self,
                  var_form: Union[QuantumCircuit, VariationalForm],
                  optimizer: Optimizer, num_orbitals: int,
                  num_particles: Union[List[int], int],
@@ -48,13 +48,11 @@ class QEomVQE(VQE):
                  se_list: Optional[List[List[int]]] = None,
                  de_list: Optional[List[List[int]]] = None,
                  z2_symmetries: Optional[Z2Symmetries] = None,
-                 untapered_op: Optional[LegacyBaseOperator] = None,
-                 aux_operators: Optional[List[LegacyBaseOperator]] = None,
+                 untapered_op: Optional[OperatorBase] = None,
                  quantum_instance: Optional[
                      Union[QuantumInstance, Backend, BaseBackend]] = None) -> None:
         """
         Args:
-            operator: qubit operator
             var_form: parameterized variational form.
             optimizer: the classical optimization algorithm.
             num_orbitals:  total number of spin orbitals, has a min. value of 1.
@@ -80,7 +78,6 @@ class QEomVQE(VQE):
             z2_symmetries: represent the Z2 symmetries
             untapered_op: if the operator is tapered, we need untapered operator
                                          during building element of EoM matrix
-            aux_operators: Auxiliary operators to be evaluated at each eigenvalue
             quantum_instance: Quantum Instance or Backend
         Raises:
             ValueError: invalid parameter
@@ -91,19 +88,27 @@ class QEomVQE(VQE):
         if isinstance(num_particles, list) and len(num_particles) != 2:
             raise ValueError('Num particles value {}. Number of values allowed is 2'.format(
                 num_particles))
-        super().__init__(operator.copy(), var_form, optimizer, initial_point=initial_point,
-                         max_evals_grouped=max_evals_grouped, aux_operators=aux_operators,
+        super().__init__(var_form,
+                         optimizer=optimizer,
+                         initial_point=initial_point,
+                         max_evals_grouped=max_evals_grouped,
                          callback=callback,
                          quantum_instance=quantum_instance)
 
-        self.qeom = QEquationOfMotion(operator, num_orbitals, num_particles,
+        self.qeom = QEquationOfMotion(None,
+                                      num_orbitals, num_particles,
                                       qubit_mapping, two_qubit_reduction, active_occupied,
                                       active_unoccupied,
                                       is_eom_matrix_symmetric, se_list, de_list,
                                       z2_symmetries, untapered_op)
 
-    def _run(self):
-        super()._run()
+    def compute_minimum_eigenvalue(
+            self,
+            operator: OperatorBase,
+            aux_operators: Optional[List[Optional[OperatorBase]]] = None
+    ) -> MinimumEigensolverResult:
+        self.qeom._operator = operator
+        super().compute_minimum_eigenvalue(operator, aux_operators)
         self._quantum_instance.circuit_summary = True
         opt_params = self._ret['opt_params']
         logger.info("opt params:\n%s", opt_params)

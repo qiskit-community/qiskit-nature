@@ -13,6 +13,8 @@
 """The calculation of excited states via the qEOM algorithm"""
 
 from typing import List, Union, Optional, Tuple, Dict, cast
+import collections
+import inspect
 import itertools
 import logging
 import sys
@@ -21,9 +23,10 @@ from scipy import linalg
 
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.algorithms import AlgorithmResult
-from qiskit.aqua.operators import Z2Symmetries, commutator, WeightedPauliOperator
+from qiskit.utils import algorithm_globals
+from qiskit.algorithms import AlgorithmResult
+from qiskit.opflow import (Z2Symmetries, anti_commutator, commutator,
+                           double_commutator, PauliSumOp)
 from qiskit_nature import FermionicOperator, BosonicOperator
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.results import (ElectronicStructureResult, VibronicStructureResult,
@@ -193,7 +196,7 @@ class QEOM(ExcitedStatesSolver):
             results = parallel_map(self._build_commutator_routine,
                                    to_be_computed_list,
                                    task_args=(untapered_op, z2_symmetries, sign),
-                                   num_processes=aqua_globals.num_processes)
+                                   num_processes=algorithm_globals.num_processes)
             for result in results:
                 m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op = result
 
@@ -225,14 +228,14 @@ class QEOM(ExcitedStatesSolver):
                     value = np.asarray(value)
                     if np.all(value == targeted_sector):
                         available_hopping_ops[key] = hopping_operators[key]
-                # untapered_qubit_op is a WeightedPauliOperator and should not be exposed.
+                # untapered_qubit_op is a PauliSumOp and should not be exposed.
                 _build_one_sector(available_hopping_ops,
                                   self._gsc.transformation.untapered_qubit_op,  # type: ignore
                                   z2_symmetries,
                                   self._gsc.transformation.commutation_rule)
 
         else:
-            # untapered_qubit_op is a WeightedPauliOperator and should not be exposed.
+            # untapered_qubit_op is a PauliSumOp and should not be exposed.
             _build_one_sector(hopping_operators,
                               self._gsc.transformation.untapered_qubit_op,  # type: ignore
                               z2_symmetries,
@@ -241,10 +244,10 @@ class QEOM(ExcitedStatesSolver):
         return all_matrix_operators
 
     @staticmethod
-    def _build_commutator_routine(params: List, operator: WeightedPauliOperator,
-                                  z2_symmetries: Z2Symmetries, sign: int
-                                  ) -> Tuple[int, int, WeightedPauliOperator, WeightedPauliOperator,
-                                             WeightedPauliOperator, WeightedPauliOperator]:
+    def _build_commutator_routine(params: List, operator: PauliSumOp,
+                                  z2_symmetries: Z2Symmetries, sign: bool
+                                  ) -> Tuple[int, int, PauliSumOp, PauliSumOp,
+                                             PauliSumOp, PauliSumOp]:
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
@@ -272,31 +275,33 @@ class QEOM(ExcitedStatesSolver):
                 v_mat_op = None
             else:
                 if right_op_1 is not None:
-                    q_mat_op = commutator(left_op, operator, right_op_1, sign=sign)
-                    w_mat_op = commutator(left_op, right_op_1, sign=sign)
-                    q_mat_op = None if q_mat_op.is_empty() else q_mat_op
-                    w_mat_op = None if w_mat_op.is_empty() else w_mat_op
+                    q_mat_op = double_commutator(left_op, operator, right_op_1, sign=sign)
+                    w_mat_op = commutator(left_op, right_op_1) \
+                        if sign else anti_commutator(left_op, right_op_1)
+                    q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
+                    w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
                 else:
                     q_mat_op = None
                     w_mat_op = None
 
                 if right_op_2 is not None:
-                    m_mat_op = commutator(left_op, operator, right_op_2, sign=sign)
-                    v_mat_op = commutator(left_op, right_op_2, sign=sign)
-                    m_mat_op = None if m_mat_op.is_empty() else m_mat_op
-                    v_mat_op = None if v_mat_op.is_empty() else v_mat_op
+                    m_mat_op = double_commutator(left_op, operator, right_op_2, sign=sign)
+                    v_mat_op = commutator(left_op, right_op_2) \
+                        if sign else anti_commutator(left_op, right_op_2)
+                    m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
+                    v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
                 else:
                     m_mat_op = None
                     v_mat_op = None
 
                 if not z2_symmetries.is_empty():
-                    if q_mat_op is not None and not q_mat_op.is_empty():
+                    if q_mat_op is not None and len(q_mat_op) > 0:
                         q_mat_op = z2_symmetries.taper(q_mat_op)
-                    if w_mat_op is not None and not w_mat_op.is_empty():
+                    if w_mat_op is not None and len(w_mat_op) > 0:
                         w_mat_op = z2_symmetries.taper(w_mat_op)
-                    if m_mat_op is not None and not m_mat_op.is_empty():
+                    if m_mat_op is not None and len(m_mat_op) > 0:
                         m_mat_op = z2_symmetries.taper(m_mat_op)
-                    if v_mat_op is not None and not v_mat_op.is_empty():
+                    if v_mat_op is not None and len(v_mat_op) > 0:
                         v_mat_op = z2_symmetries.taper(v_mat_op)
 
         return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
@@ -409,8 +414,66 @@ class QEOM(ExcitedStatesSolver):
         return excitation_energies_gap, res[1]
 
 
-class QEOMResult(AlgorithmResult):
+class QEOMResult(AlgorithmResult, collections.UserDict):
     """The results class for the QEOM algorithm."""
+
+    def __init__(self, a_dict: Optional[Dict] = None) -> None:
+        super().__init__()
+        if a_dict:
+            self.data.update(a_dict)
+
+    def __setitem__(self, key: object, item: object) -> None:
+        raise TypeError("'__setitem__' invalid for this object.")
+
+    def __delitem__(self, key: object) -> None:
+        raise TypeError("'__delitem__' invalid for this object.")
+
+    def clear(self) -> None:
+        raise TypeError("'clear' invalid for this object.")
+
+    def pop(self, key: object, default: Optional[object] = None) -> object:
+        raise TypeError("'pop' invalid for this object.")
+
+    def popitem(self) -> Tuple[object, object]:
+        raise TypeError("'popitem' invalid for this object.")
+
+    def update(self, *args, **kwargs) -> None:  # pylint: disable=arguments-differ,signature-differs
+        raise TypeError("'update' invalid for this object.")
+
+    def combine(self, result: 'AlgorithmResult') -> None:
+        """
+        Any property from the argument that exists in the receiver is
+        updated.
+        Args:
+            result: Argument result with properties to be set.
+        Raises:
+            TypeError: Argument is None
+        """
+        if result is None:
+            raise TypeError('Argument result expected.')
+        if result == self:
+            return
+
+        # find any result public property that exists in the receiver
+        for name, value in inspect.getmembers(result):
+            if not name.startswith('_') and name != 'data' and \
+                    not inspect.ismethod(value) and not inspect.isfunction(value) and \
+                    hasattr(self, name):
+                if value is None:
+                    # Just remove from receiver if it exists
+                    # since None is the default value in derived classes for non existent name.
+                    if name in self.data:
+                        del self.data[name]
+                else:
+                    self.data[name] = value
+
+    def __contains__(self, key: object) -> bool:
+        # subclasses have special __getitem__
+        try:
+            _ = self.__getitem__(key)
+            return True
+        except KeyError:
+            return False
 
     @property
     def ground_state_raw_result(self):

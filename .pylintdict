@@ -17,7 +17,6 @@ babbush
 backend
 barkoutsos
 basedriver
-bitstr
 bitstring
 bksf
 bool
@@ -28,7 +27,6 @@ boson
 bosonic
 bpa
 bravyi
-cct
 cfg
 chc
 clifford
@@ -47,7 +45,7 @@ das
 dat
 dataset
 debye
-deepcopy
+deprecations
 diagonalizing
 dimens
 dimensionality
@@ -80,8 +78,8 @@ fcompiler
 fermion
 fermionc
 fermionic
-fermionicop
 fermionicdriver
+fermionicop
 fermionicoperator
 fermions
 fileio
@@ -111,7 +109,6 @@ iajb
 ifdef
 iff
 ifortvars
-iipq
 ij
 ijkl
 ik
@@ -121,8 +118,6 @@ intelvem
 interatomic
 internuclear
 ints
-iqpe
-iqpi
 isinstance
 iso
 isym
@@ -130,7 +125,6 @@ iteratively
 jb
 jcf
 ji
-jj
 jl
 jordan
 jupyter
@@ -196,11 +190,11 @@ pascual
 pauli
 paulis
 paulische
+paulisumop
 pca
 ph
 plesset
 popovas
-pq
 pre
 prebuilt
 prepend
@@ -216,7 +210,6 @@ qiskit
 qiskit's
 qload
 qmolecule
-qpe
 quantized
 quantumcircuit
 quartic
@@ -257,14 +250,12 @@ sysctl
 tavernelli
 tbd
 temme
-tensorproduct
 th
 tiajb
 tibja
 toctree
 tol
 tran
-transcorrelated
 tranter
 über
 ucc
@@ -288,7 +279,6 @@ vscf
 watson
 wavefunction
 wavefunctions
-weightedpaulioperator
 whitespace
 whitespaces
 wigner

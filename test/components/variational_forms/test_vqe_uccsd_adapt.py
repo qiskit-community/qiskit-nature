@@ -12,46 +12,45 @@
 
 """ Test of the Adaptive VQE implementation with the adaptive UCCSD variational form """
 
-import warnings
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.components.optimizers import L_BFGS_B
-from qiskit.aqua.operators.legacy.op_converter import to_weighted_pauli_operator
-from qiskit.aqua.operators.legacy.weighted_pauli_operator import Z2Symmetries
+from qiskit.utils import algorithm_globals, QuantumInstance
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import L_BFGS_B
+from qiskit.opflow import TwoQubitReduction
 from qiskit_nature import FermionicOperator
-from qiskit_nature.algorithms import VQEAdapt
+from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFactory
+from qiskit_nature.transformations import FermionicTransformation
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature import QiskitNatureError
 
 
-class TestVQEAdaptUCCSD(QiskitNatureTestCase):
+class TestAdaptVQEUCCSD(QiskitNatureTestCase):
     """ Test Adaptive VQE with UCCSD"""
 
     def setUp(self):
         super().setUp()
         # np.random.seed(50)
         self.seed = 50
-        aqua_globals.random_seed = self.seed
+        algorithm_globals.random_seed = self.seed
         try:
-            driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                                 unit=UnitsType.ANGSTROM,
-                                 basis='sto3g')
+            self.driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
+                                      unit=UnitsType.ANGSTROM,
+                                      basis='sto3g')
         except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
             return
 
-        molecule = driver.run()
+        molecule = self.driver.run()
         self.num_particles = molecule.num_alpha + molecule.num_beta
         self.num_spin_orbitals = molecule.num_orbitals * 2
         fer_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
         map_type = 'PARITY'
         qubit_op = fer_op.mapping(map_type)
-        self.qubit_op = Z2Symmetries.two_qubit_reduction(to_weighted_pauli_operator(qubit_op),
-                                                         self.num_particles)
+        self.qubit_op = TwoQubitReduction(num_particles=self.num_particles).convert(qubit_op)
         self.num_qubits = self.qubit_op.num_qubits
         self.init_state = HartreeFock(self.num_spin_orbitals, self.num_particles)
         self.var_form_base = None
@@ -67,7 +66,7 @@ class TestVQEAdaptUCCSD(QiskitNatureTestCase):
         self.assertEqual(self.var_form_base._hopping_ops, [])
 
     def test_vqe_adapt(self):
-        """ VQEAdapt test """
+        """ AdaptVQE test """
         try:
             # pylint: disable=import-outside-toplevel
             from qiskit import Aer
@@ -76,30 +75,41 @@ class TestVQEAdaptUCCSD(QiskitNatureTestCase):
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
-        self.var_form_base = UCCSD(self.num_spin_orbitals,
-                                   self.num_particles, initial_state=self.init_state)
-        optimizer = L_BFGS_B()
+        class CustomFactory(VQEUCCSDFactory):
+            """A custom MESFactory"""
 
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        algorithm = VQEAdapt(self.qubit_op, self.var_form_base, optimizer,
-                             threshold=0.00001, delta=0.1, max_iterations=1)
-        warnings.filterwarnings('always', category=DeprecationWarning)
-        result = algorithm.run(backend)
+            def get_solver(self, transformation):
+                num_orbitals = transformation.molecule_info['num_orbitals']
+                num_particles = transformation.molecule_info['num_particles']
+                initial_state = HartreeFock(num_orbitals, num_particles)
+                var_form = UCCSD(num_orbitals,
+                                 num_particles,
+                                 initial_state=initial_state)
+                vqe = VQE(var_form=var_form, quantum_instance=self._quantum_instance,
+                          optimizer=L_BFGS_B())
+                return vqe
+
+        algorithm = AdaptVQE(FermionicTransformation(),
+                             solver=CustomFactory(QuantumInstance(backend)),
+                             threshold=0.00001,
+                             delta=0.1,
+                             max_iterations=1)
+        result = algorithm.solve(driver=self.driver)
         self.assertEqual(result.num_iterations, 1)
         self.assertEqual(result.finishing_criterion, 'Maximum number of iterations reached')
 
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        algorithm = VQEAdapt(self.qubit_op, self.var_form_base, optimizer,
-                             threshold=0.00001, delta=0.1)
-        warnings.filterwarnings('always', category=DeprecationWarning)
-        result = algorithm.run(backend)
-        self.assertAlmostEqual(result.eigenvalue.real, -1.85727503, places=2)
+        algorithm = AdaptVQE(FermionicTransformation(),
+                             solver=CustomFactory(QuantumInstance(backend)),
+                             threshold=0.00001,
+                             delta=0.1)
+        result = algorithm.solve(driver=self.driver)
+        self.assertAlmostEqual(result.electronic_energies[0], -1.85727503, places=2)
         self.assertEqual(result.num_iterations, 2)
         self.assertAlmostEqual(result.final_max_gradient, 0.0, places=5)
         self.assertEqual(result.finishing_criterion, 'Threshold converged')
 
     def test_vqe_adapt_check_cyclicity(self):
-        """ VQEAdapt index cycle detection """
+        """ AdaptVQE index cycle detection """
         param_list = [
             ([1, 1], True),
             ([1, 11], False),
@@ -129,7 +139,7 @@ class TestVQEAdaptUCCSD(QiskitNatureTestCase):
         ]
         for seq, is_cycle in param_list:
             with self.subTest(msg="Checking index cyclicity in:", seq=seq):
-                self.assertEqual(is_cycle, VQEAdapt._check_cyclicity(seq))
+                self.assertEqual(is_cycle, AdaptVQE._check_cyclicity(seq))
 
 
 if __name__ == '__main__':

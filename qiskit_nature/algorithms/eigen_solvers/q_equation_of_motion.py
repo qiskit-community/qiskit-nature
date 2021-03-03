@@ -21,25 +21,23 @@ import sys
 import numpy as np
 from scipy import linalg
 from qiskit import QuantumCircuit, QuantumRegister
+from qiskit.opflow import (OperatorBase, double_commutator,
+                           anti_commutator, PauliSumOp,
+                           Z2Symmetries, TwoQubitReduction)
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-from qiskit.aqua import AquaError, aqua_globals
-from qiskit.aqua.operators import (LegacyBaseOperator,
-                                   WeightedPauliOperator,
-                                   Z2Symmetries,
-                                   TPBGroupedWeightedPauliOperator,
-                                   commutator)
-from qiskit.aqua.operators.legacy import op_converter
+from qiskit.utils import algorithm_globals
 
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature import FermionicOperator
+from qiskit_nature.exceptions import QiskitNatureError
 
 logger = logging.getLogger(__name__)
 
 
 class QEquationOfMotion:
     """ QEquationOfMotion algorithm """
-    def __init__(self, operator: LegacyBaseOperator,
+    def __init__(self, operator: OperatorBase,
                  num_orbitals: int,
                  num_particles: Union[List[int], int],
                  qubit_mapping: Optional[str] = None,
@@ -50,7 +48,7 @@ class QEquationOfMotion:
                  se_list: Optional[List[List[int]]] = None,
                  de_list: Optional[List[List[int]]] = None,
                  z2_symmetries: Optional[Z2Symmetries] = None,
-                 untapered_op: Optional[LegacyBaseOperator] = None) -> None:
+                 untapered_op: Optional[OperatorBase] = None) -> None:
         """Constructor.
 
         Args:
@@ -133,12 +131,6 @@ class QEquationOfMotion:
         else:
             temp_quantum_instance = None
 
-        # this is required to assure paulis mode is there regardless how you compute VQE
-        # it might be slow if you calculate vqe through matrix mode and then convert
-        # it back to paulis
-        self._operator = op_converter.to_weighted_pauli_operator(self._operator)
-        self._untapered_op = op_converter.to_weighted_pauli_operator(self._untapered_op)
-
         excitations_list = self._de_list + self._se_list if excitations_list is None \
             else excitations_list
 
@@ -204,7 +196,7 @@ class QEquationOfMotion:
                               task_args=(self._num_particles, self._num_orbitals,
                                          self._qubit_mapping,
                                          self._two_qubit_reduction, self._z2_symmetries),
-                              num_processes=aqua_globals.num_processes)
+                              num_processes=algorithm_globals.num_processes)
 
         for excitations, res in zip(to_be_executed_list, result):
             key = '_'.join([str(x) for x in excitations])
@@ -264,21 +256,17 @@ class QEquationOfMotion:
             results = parallel_map(QEquationOfMotion._build_commutator_rountine,
                                    to_be_computed_list,
                                    task_args=(self._untapered_op, self._z2_symmetries),
-                                   num_processes=aqua_globals.num_processes)
+                                   num_processes=algorithm_globals.num_processes)
             for result in results:
                 m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op = result
-                q_commutators[m_u][n_u] = op_converter.to_tpb_grouped_weighted_pauli_operator(
-                    q_mat_op, TPBGroupedWeightedPauliOperator.sorted_grouping) \
-                    if q_mat_op is not None else q_commutators[m_u][n_u]
-                w_commutators[m_u][n_u] = op_converter.to_tpb_grouped_weighted_pauli_operator(
-                    w_mat_op, TPBGroupedWeightedPauliOperator.sorted_grouping) \
-                    if w_mat_op is not None else w_commutators[m_u][n_u]
-                m_commutators[m_u][n_u] = op_converter.to_tpb_grouped_weighted_pauli_operator(
-                    m_mat_op, TPBGroupedWeightedPauliOperator.sorted_grouping) \
-                    if m_mat_op is not None else m_commutators[m_u][n_u]
-                v_commutators[m_u][n_u] = op_converter.to_tpb_grouped_weighted_pauli_operator(
-                    v_mat_op, TPBGroupedWeightedPauliOperator.sorted_grouping) \
-                    if v_mat_op is not None else v_commutators[m_u][n_u]
+                q_commutators[m_u][n_u] = \
+                    q_mat_op if q_mat_op is not None else q_commutators[m_u][n_u]
+                w_commutators[m_u][n_u] = \
+                    w_mat_op if w_mat_op is not None else w_commutators[m_u][n_u]
+                m_commutators[m_u][n_u] = \
+                    m_mat_op if m_mat_op is not None else m_commutators[m_u][n_u]
+                v_commutators[m_u][n_u] = \
+                    v_mat_op if v_mat_op is not None else v_commutators[m_u][n_u]
 
         available_entry = 0
         if not self._z2_symmetries.is_empty():
@@ -328,10 +316,11 @@ class QEquationOfMotion:
             numpy.ndarray: W matrix
 
         Raises:
-            AquaError: wrong setting for wave_fn and quantum_instance
+            QiskitNatureError: wrong setting for wave_fn and quantum_instance
         """
         if isinstance(wave_fn, QuantumCircuit) and quantum_instance is None:
-            raise AquaError("quantum_instance is required when wavn_fn is a QuantumCircuit.")
+            raise QiskitNatureError(
+                "quantum_instance is required when wavn_fn is a QuantumCircuit.")
 
         size = len(excitations_list)
         logger.info('EoM matrix size is %sx%s.', size, size)
@@ -360,7 +349,7 @@ class QEquationOfMotion:
 
                 for op in [q_commutators[m_u][n_u], w_commutators[m_u][n_u],
                            m_commutators[m_u][n_u], v_commutators[m_u][n_u]]:
-                    if op is not None and not op.is_empty():
+                    if op is not None and len(op) > 0:
                         curr_circuits = op.construct_evaluation_circuit(
                             wave_function=wave_fn, statevector_mode=quantum_instance.is_statevector)
                         for c in curr_circuits:
@@ -377,7 +366,7 @@ class QEquationOfMotion:
 
                 def _get_result(op):
                     mean, std = 0.0, 0.0
-                    if op is not None and not op.is_empty():
+                    if op is not None and len(op) > 0:
                         mean, std = \
                             op.evaluate_with_result(
                                 result=result,
@@ -489,14 +478,16 @@ class QEquationOfMotion:
         fer_op = FermionicOperator(h_1, h_2)
         qubit_op = fer_op.mapping(qubit_mapping)
         if two_qubit_reduction:
-            qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
+            qubit_op = TwoQubitReduction(num_particles=num_particles).convert(qubit_op)
 
         commutativities = []
         if not z2_symmetries.is_empty():
             for symmetry in z2_symmetries.symmetries:
-                symmetry_op = WeightedPauliOperator(paulis=[[1.0, symmetry]])
-                commuting = qubit_op.commute_with(symmetry_op)
-                anticommuting = qubit_op.anticommute_with(symmetry_op)
+                symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
+                commuting = qubit_op.primitive.table.commutes_with_all(
+                    symmetry_op.primitive.table)
+                anticommuting = qubit_op.primitive.table.anticommutes_with_all(
+                    symmetry_op.primitive.table)
 
                 if commuting != anticommuting:  # only one of them is True
                     if commuting:
@@ -504,8 +495,9 @@ class QEquationOfMotion:
                     elif anticommuting:
                         commutativities.append(False)
                 else:
-                    raise AquaError("Symmetry {} is nor commute neither anti-commute "
-                                    "to exciting operator.".format(symmetry.to_label()))
+                    raise QiskitNatureError(
+                        "Symmetry {} is nor commute neither anti-commute "
+                        "to exciting operator.".format(symmetry.to_label()))
 
         return qubit_op, commutativities
 
@@ -525,31 +517,31 @@ class QEquationOfMotion:
                 v_mat_op = None
             else:
                 if right_op_1 is not None:
-                    q_mat_op = commutator(left_op, operator, right_op_1)
-                    w_mat_op = commutator(left_op, right_op_1)
-                    q_mat_op = None if q_mat_op.is_empty() else q_mat_op
-                    w_mat_op = None if w_mat_op.is_empty() else w_mat_op
+                    q_mat_op = double_commutator(left_op, operator, right_op_1)
+                    w_mat_op = anti_commutator(left_op, right_op_1)
+                    q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
+                    w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
                 else:
                     q_mat_op = None
                     w_mat_op = None
 
                 if right_op_2 is not None:
-                    m_mat_op = commutator(left_op, operator, right_op_2)
-                    v_mat_op = commutator(left_op, right_op_2)
-                    m_mat_op = None if m_mat_op.is_empty() else m_mat_op
-                    v_mat_op = None if v_mat_op.is_empty() else v_mat_op
+                    m_mat_op = double_commutator(left_op, operator, right_op_2)
+                    v_mat_op = anti_commutator(left_op, right_op_2)
+                    m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
+                    v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
                 else:
                     m_mat_op = None
                     v_mat_op = None
 
                 if not z2_symmetries.is_empty():
-                    if q_mat_op is not None and not q_mat_op.is_empty():
+                    if q_mat_op is not None and len(q_mat_op) > 0:
                         q_mat_op = z2_symmetries.taper(q_mat_op)
-                    if w_mat_op is not None and not w_mat_op.is_empty():
+                    if w_mat_op is not None and len(w_mat_op) > 0:
                         w_mat_op = z2_symmetries.taper(w_mat_op)
-                    if m_mat_op is not None and not m_mat_op.is_empty():
+                    if m_mat_op is not None and len(m_mat_op) > 0:
                         m_mat_op = z2_symmetries.taper(m_mat_op)
-                    if v_mat_op is not None and not v_mat_op.is_empty():
+                    if v_mat_op is not None and len(v_mat_op) > 0:
                         v_mat_op = z2_symmetries.taper(v_mat_op)
 
         return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op

@@ -23,7 +23,7 @@ chemistry program or library to be passed.
 
 The chemistry module thus allows the user to configure a chemistry problem in a way that a chemist
 already using the underlying chemistry program or library will be familiar with. The driver is
-used to compute some intermediate data, which later will be used to form the input to an Aqua
+used to compute some intermediate data, which later will be used to form the input to an
 algorithm.  Such intermediate data, is populated into a :class:`~qiskit_nature.QMolecule`
 object and includes the following for example:
 

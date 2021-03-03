@@ -15,7 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver
+from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit_nature.core import TransformationType, QubitMappingType
 from qiskit_nature.transformations import FermionicTransformation
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver

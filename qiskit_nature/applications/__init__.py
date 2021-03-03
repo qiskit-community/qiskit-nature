@@ -14,7 +14,6 @@
 Chemistry Applications (:mod:`qiskit_nature.applications`)
 =============================================================
 These are chemistry applications leveraging quantum algorithms
-from Aqua.
 
 .. currentmodule:: qiskit_nature.applications
 

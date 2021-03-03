@@ -20,8 +20,8 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
-from qiskit.aqua.algorithms import MinimumEigensolver
-from qiskit.aqua.operators import OperatorBase, WeightedPauliOperator, StateFn, CircuitSampler
+from qiskit.algorithms import MinimumEigensolver
+from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 from ...fermionic_operator import FermionicOperator
 from ...bosonic_operator import BosonicOperator
 from ...drivers.base_driver import BaseDriver
@@ -109,7 +109,7 @@ class GroundStateEigensolver(GroundStateSolver):
                                         list, np.ndarray, Statevector,
                                         QuantumCircuit, Instruction,
                                         OperatorBase],
-                           operators: Union[WeightedPauliOperator, OperatorBase, list, dict]
+                           operators: Union[PauliSumOp, OperatorBase, list, dict]
                            ) -> Union[Optional[float], List[Optional[float]],
                                       Dict[str, List[Optional[float]]]]:
         """Evaluates additional operators at the given state.
@@ -117,7 +117,7 @@ class GroundStateEigensolver(GroundStateSolver):
         Args:
             state: any kind of input that can be used to specify a state. See also ``StateFn`` for
                    more details.
-            operators: either a single, list or dictionary of ``WeightedPauliOperator``s or any kind
+            operators: either a single, list or dictionary of ``PauliSumOp``s or any kind
                        of operator implementing the ``OperatorBase``.
 
         Returns:
@@ -155,9 +155,6 @@ class GroundStateEigensolver(GroundStateSolver):
         return results
 
     def _eval_op(self, state, op, quantum_instance):
-        if isinstance(op, WeightedPauliOperator):
-            op = op.to_opflow()
-
         # if the operator is empty we simply return 0
         if op == 0:
             # Note, that for some reason the individual results need to be wrapped in lists.

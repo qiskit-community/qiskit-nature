@@ -16,13 +16,12 @@ import warnings
 import unittest
 
 from test import QiskitNatureTestCase
-import numpy as np
 
 from qiskit import BasicAer
 from qiskit.circuit.library import TwoLocal
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver, VQE, IQPE
-from qiskit.aqua.components.optimizers import SLSQP
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import NumPyMinimumEigensolver, VQE
+from qiskit.algorithms.optimizers import SLSQP
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.applications import MolecularGroundStateEnergy
 from qiskit_nature.circuit.library import HartreeFock
@@ -47,8 +46,8 @@ class TestAppMGSE(QiskitNatureTestCase):
 
         self.npme = NumPyMinimumEigensolver()
 
-        self.vqe = VQE(var_form=TwoLocal(rotation_blocks='ry', entanglement_blocks='cz'))
-        self.vqe.set_backend(BasicAer.get_backend('statevector_simulator'))
+        self.vqe = VQE(var_form=TwoLocal(rotation_blocks='ry', entanglement_blocks='cz'),
+                       quantum_instance=BasicAer.get_backend('statevector_simulator'))
 
         self.reference_energy = -1.137306
 
@@ -99,26 +98,6 @@ class TestAppMGSE(QiskitNatureTestCase):
         self.assertAlmostEqual(result.energy, self.reference_energy, places=5)
         warnings.filterwarnings('always', category=DeprecationWarning)
 
-    def test_mgse_callback_ipqe(self):
-        """ Callback test setting up Hartree Fock with IQPE """
-
-        def cb_create_solver(num_particles, num_orbitals,
-                             qubit_mapping, two_qubit_reduction, z2_symmetries):
-            state_in = HartreeFock(num_orbitals, num_particles, qubit_mapping,
-                                   two_qubit_reduction, z2_symmetries.sq_list)
-            iqpe = IQPE(None, state_in, num_time_slices=1, num_iterations=6,
-                        expansion_mode='suzuki', expansion_order=2,
-                        shallow_circuit_concat=True)
-            iqpe.quantum_instance = QuantumInstance(BasicAer.get_backend('qasm_simulator'),
-                                                    shots=100)
-            return iqpe
-
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        mgse = MolecularGroundStateEnergy(self.driver)
-        result = mgse.compute_energy(cb_create_solver)
-        np.testing.assert_approx_equal(result.energy, self.reference_energy, significant=2)
-        warnings.filterwarnings('always', category=DeprecationWarning)
-
     def test_mgse_callback_vqe_uccsd(self):
         """ Callback test setting up Hartree Fock with UCCSD and VQE """
 
@@ -132,8 +111,9 @@ class TestAppMGSE(QiskitNatureTestCase):
                              qubit_mapping=qubit_mapping,
                              two_qubit_reduction=two_qubit_reduction,
                              z2_symmetries=z2_symmetries)
-            vqe = VQE(var_form=var_form, optimizer=SLSQP(maxiter=500))
-            vqe.quantum_instance = BasicAer.get_backend('statevector_simulator')
+            vqe = VQE(var_form=var_form,
+                      optimizer=SLSQP(maxiter=500),
+                      quantum_instance=BasicAer.get_backend('statevector_simulator'))
             return vqe
 
         warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -181,8 +161,8 @@ class TestAppMGSE(QiskitNatureTestCase):
                              qubit_mapping=qubit_mapping,
                              two_qubit_reduction=two_qubit_reduction,
                              z2_symmetries=z2_symmetries)
-            vqe = VQE(var_form=var_form, optimizer=SLSQP(maxiter=500))
-            vqe.quantum_instance = BasicAer.get_backend('statevector_simulator')
+            vqe = VQE(var_form=var_form, optimizer=SLSQP(maxiter=500),
+                      quantum_instance=BasicAer.get_backend('statevector_simulator'))
             return vqe
 
         driver = PySCFDriver(atom='Li .0 .0 -0.8; H .0 .0 0.8')
