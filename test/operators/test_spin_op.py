@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 from typing import Callable, Optional
 
 import numpy as np
-from ddt import data, ddt
+from ddt import data, ddt, unpack
 from qiskit.quantum_info import Pauli
 
 from qiskit_nature.operators import SpinOp
@@ -51,6 +51,12 @@ class TestSpinOp(QiskitNatureTestCase):
             (np.array([[[0, 0]], [[0, 0]], [[0, 0]]]), np.array([0])),
             spin=1,
         )
+        self.spin_1_matrix = {
+            "I": np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
+            "X": np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]) / np.sqrt(2),
+            "Y": np.array([[0, -1j, 0], [1j, 0, -1j], [0, 1j, 0]]) / np.sqrt(2),
+            "Z": np.array([[1, 0, 0], [0, 0, 0], [0, 0, -1]]),
+        }
 
     @staticmethod
     def assertSpinEqual(first: SpinOp, second: SpinOp):
@@ -202,10 +208,50 @@ class TestSpinOp(QiskitNatureTestCase):
             actual = test_op.reduce()
             self.assertListEqual(actual.to_list(), [("Z_1 X_0", 4)])
 
-    def test_consistency_with_pauli(self):
+        with self.subTest("nontrivial reduce 2"):
+            test_op = SpinOp(
+                (
+                    np.array(
+                        [
+                            [[0, 1], [0, 1], [1, 1]],
+                            [[0, 0], [0, 0], [0, 0]],
+                            [[1, 0], [1, 0], [0, 0]],
+                        ]
+                    ),
+                    np.array([1.5, 2.5, 2]),
+                ),
+                spin=3 / 2,
+            )
+            actual = test_op.reduce()
+            self.assertListEqual(actual.to_list(), [("Z_1 X_0", 4), ("X_1 X_0", 2)])
+
+    @data(*spin_labels(1))
+    def test_to_matrix_single_qutrit(self, label):
+        """Test to_matrix for single qutrit op"""
+        actual = SpinOp(label, 1).to_matrix()
+        np.testing.assert_array_almost_equal(actual, self.spin_1_matrix[label])
+
+    @data(*product(spin_labels(1), spin_labels(1)))
+    @unpack
+    def test_to_matrix_sum_single_qutrit(self, label1, label2):
+        """Test to_matrix for sum qutrit op"""
+        actual = (SpinOp(label1, 1) + SpinOp(label2, 1)).to_matrix()
+        np.testing.assert_array_almost_equal(
+            actual, self.spin_1_matrix[label1] + self.spin_1_matrix[label2]
+        )
+
+    @data(*spin_labels(2))
+    def test_to_matrix_two_qutrit(self, label):
+        """Test to_matrix for two qutrit op"""
+        actual = SpinOp(label, 1).to_matrix()
+        desired = np.kron(self.spin_1_matrix[label[0]], self.spin_1_matrix[label[1]])
+        np.testing.assert_array_almost_equal(actual, desired)
+
+    @data(*spin_labels(1), *spin_labels(2), *spin_labels(3))
+    def test_consistency_with_pauli(self, label):
         """Test consistency with pauli"""
-        actual = SpinOp("XYZ").to_matrix()
-        desired = Pauli("XYZ").to_matrix() / 8
+        actual = SpinOp(label).to_matrix()
+        desired = Pauli(label).to_matrix() / (2 ** (len(label) - label.count("I")))
         np.testing.assert_array_almost_equal(actual, desired)
 
     def test_flatten_ladder_ops(self):

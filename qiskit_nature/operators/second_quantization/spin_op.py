@@ -222,7 +222,14 @@ class SpinOp(ParticleOp):
             if all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
                 self._from_sparse_label(labels)
             elif all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
-                self._from_dense_label(labels)
+                self._register_length = len(labels[0])
+                self._spin_array = np.array(
+                    [
+                        [[char == "X", char == "Y", char == "Z"] for char in label]
+                        for label in labels
+                    ],
+                    dtype=np.uint8,
+                ).transpose((2, 0, 1))
             else:
                 raise ValueError(f"Invalid labels or mixed labels are included in {labels}")
 
@@ -333,11 +340,7 @@ class SpinOp(ParticleOp):
                 ),
                 spin=self.spin,
             )
-        flatten_array = flatten_array[non_zero]
-        new_array = np.zeros((3, len(non_zero), self.register_length))
-        new_array[0] = flatten_array[:, 0: self.register_length]
-        new_array[1] = flatten_array[:, self.register_length: 2 * self.register_length]
-        new_array[2] = flatten_array[:, 2 * self.register_length: 3 * self.register_length]
+        new_array = flatten_array[non_zero].T.reshape((3, len(non_zero), self._register_length))
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
@@ -356,7 +359,7 @@ class SpinOp(ParticleOp):
     def _generate_label(self, i):
         """Generates the string description of `self`."""
         labels_list = []
-        for pos, (n_x, n_y, n_z) in enumerate(zip(self.x[i], self.y[i], self.z[i])):
+        for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
             rev_pos = self.register_length - pos - 1
             if n_x > 1:
                 labels_list.append(f"X_{rev_pos}^{n_x}")
@@ -374,82 +377,52 @@ class SpinOp(ParticleOp):
                 labels_list.append(f"I_{rev_pos}")
         return " ".join(labels_list)
 
+    @lru_cache
     def to_matrix(self) -> np.ndarray:
         """Convert to dense matrix
 
         Returns:
             The matrix (numpy.ndarray with dtype=numpy.complex128)
         """
+        x_mat = np.fromfunction(
+            lambda i, j: np.where(
+                np.abs(i - j) == 1,
+                np.sqrt((self.spin + 1) * (i + j + 1) - (i + 1) * (j + 1)) / 2,
+                0,
+            ),
+            (self._dim, self._dim),
+            dtype=np.complex128,
+        )
+        y_mat = np.fromfunction(
+            lambda i, j: np.where(
+                np.abs(i - j) == 1,
+                1j * (i - j) * np.sqrt((self.spin + 1) * (i + j + 1) - (i + 1) * (j + 1)) / 2,
+                0,
+            ),
+            (self._dim, self._dim),
+            dtype=np.complex128,
+        )
+        z_mat = np.fromfunction(
+            lambda i, j: np.where(i == j, self.spin - i, 0),
+            (self._dim, self._dim),
+            dtype=np.complex128,
+        )
+
         return cast(
             np.ndarray,
-            np.sum(
-                [
-                    c * self._to_matrix_from_spin_array(self._spin_array[:, i])
-                    for i, c in enumerate(self._coeffs)
-                ],
-                axis=0,
+            sum(
+                self._coeffs[i]
+                * reduce(
+                    np.kron,
+                    (
+                        np.linalg.matrix_power(x_mat, x)
+                        @ np.linalg.matrix_power(y_mat, y)
+                        @ np.linalg.matrix_power(z_mat, z)
+                        for x, y, z in self._spin_array[:, i].T
+                    ),
+                )
+                for i in range(len(self))
             ),
-        )
-
-    def _to_matrix_from_spin_array(self, array):
-        return reduce(
-            np.kron,
-            (self._xyz_mat(x, y, z) for x, y, z in zip(array[0], array[1], array[2])),
-        )
-
-    def _xyz_mat(self, x, y, z):
-        if x == y == z == 0:
-            return np.eye(self._dim)
-
-        exist = False
-        if x > 0:
-            mat = self._x_mat() ** x
-            exist = True
-        if y > 0:
-            mat = mat @ self._y_mat() ** y if exist else self._y_mat()
-            exist = True
-        if z > 0:
-            mat = mat @ self._z_mat() ** z if exist else self._z_mat()
-        return mat
-
-    @lru_cache(maxsize=1)
-    def _x_mat(self):
-        return np.array(
-            [
-                [
-                    np.sqrt((self.spin + 1) * (i + j + 1) - (i + 1) * (j + 1)) / 2
-                    if abs(i - j) == 1
-                    else 0
-                    for j in range(self._dim)
-                ]
-                for i in range(self._dim)
-            ],
-            dtype=np.complex128,
-        )
-
-    @lru_cache(maxsize=1)
-    def _y_mat(self):
-        return np.array(
-            [
-                [
-                    1j * (i - j) * np.sqrt((self.spin + 1) * (i + j + 1) - (i + 1) * (j + 1)) / 2
-                    if abs(i - j) == 1
-                    else 0
-                    for j in range(self._dim)
-                ]
-                for i in range(self._dim)
-            ],
-            dtype=np.complex128,
-        )
-
-    @lru_cache(maxsize=1)
-    def _z_mat(self):
-        return np.array(
-            [
-                [(self.spin - i) if i == j else 0 for j in range(self._dim)]
-                for i in range(self._dim)
-            ],
-            dtype=np.complex128,
         )
 
     def _from_sparse_label(self, labels):
@@ -483,16 +456,6 @@ class SpinOp(ParticleOp):
 
             self._spin_array[xyz_num, term, register] = power
 
-    def _from_dense_label(self, labels):
-        self._register_length = len(labels[0])
-        num_terms = len(labels)
-        self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        for term, label in enumerate(labels):
-            for register, char in enumerate(label):
-                if char == "I":
-                    continue
-                self._spin_array[self._XYZ_DICT[char], term, register] = 1
-
     @staticmethod
     def _flatten_ladder_ops(data):
         """Convert `+` to `X + 1j Y` and `-` to `X - 1j Y` with the distributive law"""
@@ -507,6 +470,10 @@ class SpinOp(ParticleOp):
             for indices in product(["X", "Y"], repeat=len_plus + len_minus):
                 for i, index in enumerate(indices):
                     label_list[pm_indices[i]] = index
+                # The phase is determined by the number of Y in + and - respectively. For example,
+                # S_+ otimes S_- = (X + i Y) otimes (X - i Y)
+                # = i^{0-0} XX + i^{1-0} YX + i^{0-1} XY + i^{1-1} YY
+                # = XX + i YX - i XY + YY
                 phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
                 new_data.append(("".join(label_list), coeff * 1j ** phase))
 
