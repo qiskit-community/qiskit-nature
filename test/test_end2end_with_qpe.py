@@ -65,7 +65,7 @@ class TestEnd2EndWithQPE(QiskitNatureTestCase):
         n_ancillae = 6
 
         state_in = HartreeFock(num_orbitals, num_particles, qubit_mapping, two_qubit_reduction)
-        iqft = QFT(n_ancillae).inverse()
+        iqft = QFT(n_ancillae, do_swaps=False).inverse().reverse_bits()
 
         qpe = QPE(qubit_op, state_in, iqft, num_time_slices, n_ancillae,
                   expansion_mode='suzuki',
