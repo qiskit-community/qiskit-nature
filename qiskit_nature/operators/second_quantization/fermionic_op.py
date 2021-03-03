@@ -315,7 +315,7 @@ class FermionicOp(ParticleOp):
             if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
-            return FermionicOp(("I" * self.register_length, 0))
+            return FermionicOp([("I" * self.register_length, 0)])
         new_labels = label_list[non_zero].tolist()
         new_coeffs = np.array(coeff_list)[non_zero].tolist()
         return FermionicOp(list(zip(new_labels, new_coeffs)))
