@@ -377,7 +377,7 @@ class SpinOp(ParticleOp):
                 labels_list.append(f"I_{rev_pos}")
         return " ".join(labels_list)
 
-    @lru_cache
+    @lru_cache()
     def to_matrix(self) -> np.ndarray:
         """Convert to dense matrix
 
