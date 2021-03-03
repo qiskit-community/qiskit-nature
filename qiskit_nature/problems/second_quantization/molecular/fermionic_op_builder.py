@@ -76,7 +76,7 @@ def _build_fermionic_op(one_body_integrals: np.ndarray,
     two_body_base_ops_labels = _create_two_body_base_ops(
         two_body_integrals) if two_body_integrals is not None else []
     base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
-    initial_label_with_ceoff = ('I' * len(one_body_integrals), 1)
+    initial_label_with_ceoff = ('I' * len(one_body_integrals), 0)
     # TODO the initial label should be eliminated once QMolecule is refactored (currently
     #  has_dipole_integrals() checks for None only but zero-matrices happen instead of None and
     #  initial labels prevents from an empty labels list when building a FermionicOp)
