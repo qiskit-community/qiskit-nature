@@ -57,12 +57,9 @@ class FermionicOp(ParticleOp):
         `FermionicOp(label)`
           A label consists of the permitted characters listed above.
 
-        `FermionicOp(tuple)`
-          Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`,
-          or `complex`.
-
         `FermionicOp(list)`
-          The list must be a list of valid tuples as explained above.
+          The list must be a list of tuples that are of the form `(label, coeff)`.
+          `coeff` can be either `int`, `float`, or `complex`.
 
     **Algebra**
 
@@ -98,49 +95,29 @@ class FermionicOp(ParticleOp):
 
     def __init__(
             self,
-            data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
+            data: Union[str, List[Tuple[str, complex]]],
     ):
         """Initialize the FermionicOp.
 
         Args:
             data: Input data for FermionicOp. The allowed data is label str,
-                  tuple (label, coeff), or list [(label, coeff)].
+                  or list [(label, coeff)].
 
         Raises:
             QiskitNatureError: given data is invalid.
         """
-        if not isinstance(data, (tuple, list, str)):
+        if not isinstance(data, (list, str)):
             raise QiskitNatureError("Invalid input data for FermionicOp.")
 
-        if isinstance(data, tuple):
-            if isinstance(data[0], str) and isinstance(data[1], (int, float, complex)):
-                label = data[0]
-                if not self._validate_label(label):
-                    raise QiskitNatureError(
-                        "Label must be a string consisting only of "
-                        f"['I','+','-','N','E'] not: {label}"
-                    )
-                self._register_length = len(label)
-                self._labels = [label]
-                self._coeffs = [data[1]]
-            else:
-                raise QiskitNatureError(
-                    "Data tuple must be (str, number), "
-                    f"but ({type(data[0])}, {type(data[1])}) is given."
-                )
-
-        elif isinstance(data, str):
-            label = data
-            if not self._validate_label(label):
+        if isinstance(data, str):
+            if not self._validate_label(data):
                 raise QiskitNatureError(
                     "Label must be a string consisting only of "
-                    f"['I','+','-','N','E'] not: {label}"
+                    f"['I','+','-','N','E'] not: {data}"
                 )
-            self._register_length = len(label)
-            self._labels = [label]
-            self._coeffs = [1]
+            data = [(data, 1)]
 
-        elif isinstance(data, list):
+        if isinstance(data, list):
             if all(
                     isinstance(datum[0], str)
                     and isinstance(datum[1], (int, float, complex))
@@ -201,7 +178,7 @@ class FermionicOp(ParticleOp):
                     new_data.append((new_label, cf1 * cf2 * sign))
 
             if not new_data:
-                return FermionicOp(("I" * self._register_length, 0))
+                return FermionicOp([("I" * self._register_length, 0)])
 
             return FermionicOp(new_data)
 
@@ -348,4 +325,6 @@ class FermionicOp(ParticleOp):
 
     @staticmethod
     def _validate_label(label: str) -> bool:
+        if not label:
+            return False
         return set(label).issubset({"I", "+", "-", "N", "E"})
