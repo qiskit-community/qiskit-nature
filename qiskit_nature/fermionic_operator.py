@@ -67,9 +67,9 @@ class FermionicOperator:
         If you are using the '*physicist*' notation, you need to convert it to
         the '*chemist*' notation. E.g. h2=numpy.einsum('ikmj->ijkm', h2)
 
-        The :class:`~qiskit_nature.QMolecule` class has
-        :attr:`~qiskit_nature.QMolecule.one_body_integrals` and
-        :attr:`~qiskit_nature.QMolecule.two_body_integrals` properties that can be
+        The :class:`~qiskit_nature.drivers.QMolecule` class has
+        :attr:`~qiskit_nature.drivers.QMolecule.one_body_integrals` and
+        :attr:`~qiskit_nature.drivers.QMolecule.two_body_integrals` properties that can be
         directly supplied to the `h1` and `h2` parameters here respectively.
 
         Args:

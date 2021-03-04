@@ -12,12 +12,14 @@
 
 """ QMolecule """
 
-from typing import List
-import os
 import logging
+import os
 import tempfile
 import warnings
+from typing import List
+
 import numpy
+
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     import h5py

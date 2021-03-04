@@ -12,13 +12,12 @@
 
 """The Second-Quantized Operator."""
 
-from typing import List, Dict
 from numbers import Number
+from typing import List, Dict
 
 from qiskit_nature import QiskitNatureError
-
-from .particle_op import ParticleOp
 from .fermionic_op import FermionicOp
+from .particle_op import ParticleOp
 from .spin_op import SpinOp
 from .star_algebra import StarAlgebraMixin
 
@@ -28,10 +27,11 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
     This class is used to combine operators of different particle type.
     """
+
     def __init__(self, operator_list: List[ParticleOp]):
         """
         """
-        # TOOD: validation of operator_list
+        # TODO: validation of operator_list
 
         self._fermion = None
         self._boson = None
@@ -47,6 +47,21 @@ class SecondQuantizedOp(StarAlgebraMixin):
 
     def __repr__(self):
         return f"SecondQuantizedOp([{repr(self._fermion)}])"
+
+    @property
+    def fermion(self):
+        """fermionic part"""
+        return self._fermion
+
+    @property
+    def boson(self):
+        """bosonic part"""
+        return self._boson
+
+    @property
+    def spin(self):
+        """spin part"""
+        return self._spin
 
     def mul(self, other):
         if not isinstance(other, Number):

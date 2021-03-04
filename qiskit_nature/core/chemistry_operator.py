@@ -21,10 +21,11 @@ import inspect
 import warnings
 import logging
 from typing import Dict, Union, List, Tuple, Optional, cast
-import numpy as np
 
+import numpy as np
 from qiskit.algorithms import MinimumEigensolverResult, EigensolverResult, AlgorithmResult
-from qiskit_nature import QMolecule
+
+from qiskit_nature.drivers.qmolecule import QMolecule
 
 logger = logging.getLogger(__name__)
 
