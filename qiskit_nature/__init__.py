@@ -39,7 +39,7 @@ chemistry library/program computes them. Also some fields in the QMolecule may n
 all drivers, for instance dipole integrals are not output from the PyQuante driver, and hence the
 dipole moment cannot be computed by qiskit_nature when using this driver. The FermionicOperator
 once created can then be converted/mapped to a qubit operator for use as input to an
-algorithms. The operator must be in qubit form at this stage since the execution target of the
+algorithm. The operator must be in qubit form at this stage since the execution target of the
 algorithm will be a quantum device, or simulator ,comprised of qubits and the mapping is needed as
 qubits behave differently than fermions. Once the algorithm is run it will compute the electronic
 part of the quantity, such as the electronic ground state energy. To get the total ground state
