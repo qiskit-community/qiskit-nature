@@ -12,17 +12,19 @@
 
 """ PYSCF Driver """
 
-from typing import Optional, Union, List
 import importlib
-from enum import Enum
 import logging
+from enum import Enum
+from typing import Optional, Union, List
+
 from qiskit.aqua.utils.validation import validate_min
-from ..units_type import UnitsType
-from ..fermionic_driver import FermionicDriver, HFMethodType
-from ...exceptions import QiskitNatureError
-from ..molecule import Molecule
-from ...qmolecule import QMolecule
+
+from ..qmolecule import QMolecule
 from .integrals import compute_integrals
+from ..fermionic_driver import FermionicDriver, HFMethodType
+from ..molecule import Molecule
+from ..units_type import UnitsType
+from ...exceptions import QiskitNatureError
 
 logger = logging.getLogger(__name__)
 

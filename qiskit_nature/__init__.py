@@ -31,7 +31,7 @@ A classical chemistry driver is first instantiated, from the available :mod:`~.d
 by means of a molecule specification, along with other configuration such as basis set and method
 (RHF, ROHF, UHF). This configuration may include custom settings for the specific driver for more
 custom control over the driver's behavior. When the driver is run the output is a mostly driver
-independent :class:`~.QMolecule`. This contains various quantities that were
+independent :class:`qiskit_nature.drivers.QMolecule`. This contains various quantities that were
 computed including one and two-body electron integrals that are used as input
 :class:`~qiskit_nature.FermionicOperator`. Mostly driver independent means that these integrals,
 for example, will be there from every driver but the values may differ due to how each underlying
@@ -137,7 +137,6 @@ Chemistry Classes
 
    BosonicOperator
    FermionicOperator
-   QMolecule
    WatsonHamiltonian
    MP2Info
 
@@ -158,15 +157,13 @@ Submodules
 
 """
 
-from .exceptions import QiskitNatureError
-from .qmolecule import QMolecule
-from .watson_hamiltonian import WatsonHamiltonian
 from .bosonic_operator import BosonicOperator
+from .exceptions import QiskitNatureError
 from .fermionic_operator import FermionicOperator
 from .mp2info import MP2Info
+from .watson_hamiltonian import WatsonHamiltonian
 
 __all__ = ['QiskitNatureError',
-           'QMolecule',
            'WatsonHamiltonian',
            'BosonicOperator',
            'FermionicOperator',

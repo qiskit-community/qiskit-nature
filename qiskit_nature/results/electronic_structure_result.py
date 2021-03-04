@@ -13,12 +13,11 @@
 """The electronic structure result."""
 
 from typing import List, Optional, Tuple, cast
-
 import logging
+
 import numpy as np
 
-from qiskit_nature import QMolecule
-
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .eigenstate_result import EigenstateResult
 
 logger = logging.getLogger(__name__)

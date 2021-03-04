@@ -12,9 +12,9 @@
 
 """The Seniority-Zero Transformer interface."""
 
-from qiskit_nature import QMolecule
 
 from .base_transformer import BaseTransformer
+from ..drivers import QMolecule
 
 
 class SeniorityZeroTransformer(BaseTransformer):

@@ -14,25 +14,26 @@
 A ground state calculation employing the Orbital-Optimized VQE (OOVQE) algorithm.
 """
 
-from typing import Optional, List, Union, Tuple
-import logging
 import copy
+import logging
+from typing import Optional, List, Union, Tuple
+
 import numpy as np
-from scipy.linalg import expm
 from qiskit.aqua import AquaError
 from qiskit.aqua.algorithms import VQE, MinimumEigensolver
 from qiskit.aqua.operators import LegacyBaseOperator
+from scipy.linalg import expm
 
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
-from ...components.variational_forms import UCCSD
-from ...fermionic_operator import FermionicOperator
 from ...bosonic_operator import BosonicOperator
+from ...components.variational_forms import UCCSD
 from ...drivers.base_driver import BaseDriver
 from ...drivers.fermionic_driver import FermionicDriver
-from ...transformations.fermionic_transformation import FermionicTransformation
+from ...fermionic_operator import FermionicOperator
 from ...results.electronic_structure_result import ElectronicStructureResult
-from ...qmolecule import QMolecule
+from ...transformations.fermionic_transformation import FermionicTransformation
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +452,8 @@ class OrbitalRotation:
         Args:
             num_qubits: number of qubits necessary to simulate a particular system.
             transformation: a fermionic driver to operator transformation strategy.
-            qmolecule: instance of the :class:`~qiskit_nature.QMolecule` class which has methods
+            qmolecule: instance of the :class:`~qiskit_nature.drivers.QMolecule`
+                class which has methods
                 needed to recompute one-/two-electron/dipole integrals after orbital rotation
                 (C = C0 * exp(-kappa)). It is not required but can be used if user wished to
                 provide custom integrals for instance.

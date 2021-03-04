@@ -18,7 +18,8 @@ Chemistry Core (:mod:`qiskit_nature.core`)
 
 **DEPRECATED** See :mod:`qiskit_nature.transformations` which replace this.
 
-The core was designed to be an extensible system that took a :class:`~qiskit_nature.QMolecule`
+The core was designed to be an extensible system that
+took a :class:`~qiskit_nature.drivers.QMolecule`
 and created output which was ready to be input directly to an Aqua algorithm
 in the form of a qubit operator and list of auxiliary operators such as
 dipole moments, spin, number of particles etc.
