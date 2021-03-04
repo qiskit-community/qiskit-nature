@@ -42,7 +42,7 @@ class TestFermionicOp(QiskitNatureTestCase):
         """Test __init__"""
         self.assertListEqual(FermionicOp(label).to_list(), [(label, 1)])
 
-    @data("INX", [("++", 1), ("EF", 1)], "test", "")
+    @data("INX", [("++", 1), ("EF", 1)], "", "+_0 -_2")
     def test_init_invalid_label(self, labels):
         """Test __init__ with invalid label"""
         with self.assertRaises(QiskitNatureError):
@@ -52,6 +52,20 @@ class TestFermionicOp(QiskitNatureTestCase):
         """Test __init__ with multi terms"""
         labels = [("N", 2), ("-", 3.14)]
         self.assertListEqual(FermionicOp(labels).to_list(), labels)
+
+    @data(*fermion_labels(1))
+    def test_init_sparse_label(self, label):
+        """Test __init__ with sparse label"""
+        fer_op = FermionicOp(f"{label}_0")
+        targ = FermionicOp([(label, 1)])
+        self.assertFermionEqual(fer_op, targ)
+
+    @data(*fermion_labels(2))
+    def test_init_sparse_label_len_four(self, label):
+        """Test __init__ with sparse label"""
+        fer_op = FermionicOp(f"{label[0]}_3 {label[1]}_0")
+        targ = FermionicOp([(f"{label[0]}II{label[1]}", 1)])
+        self.assertFermionEqual(fer_op, targ)
 
     def test_neg(self):
         """Test __neg__"""

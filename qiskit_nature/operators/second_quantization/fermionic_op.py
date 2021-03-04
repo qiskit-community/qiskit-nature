@@ -12,11 +12,13 @@
 
 """The Fermionic-particle Operator."""
 
+import re
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+
 from .particle_op import ParticleOp
 
 
@@ -49,6 +51,39 @@ class FermionicOp(ParticleOp):
         * - `E`
           - :math:`I - n = c c^\dagger`
           - Hole number
+
+    There are two types of label modes for :class:`FermionicOp`.
+    The label mode is automatically detected.
+
+    1. Dense Label (if underscore `_` does not exist in the label)
+
+    Dense labels are strings with allowed characters above.
+    This is similar to Qiskit's string-based representation of qubit operators.
+    For example,
+
+    .. code-block:: python
+
+        "+"
+        "II++N-EI"
+
+    are possible labels.
+
+    2. Sparse Label (if underscore `_` exists in the label)
+
+    A sparse label is a string consisting of a space-separated list of words.
+    Each word must look like :code:`[+-INE]_<index>`, where the :code:`<index>`
+    is a non-negative integer representing the index of the fermionic mode.
+    For example,
+
+    .. code-block:: python
+
+        "+_0"
+        "-_2"
+        "+_10 -_4 +_1 I_0 +_0"
+
+    are possible labels.
+    The :code:`index` must be in descending order.
+    Thus, :code:`"+_0 N_1"` is an invalid label.
 
     **Initialization**
 
@@ -93,9 +128,12 @@ class FermionicOp(ParticleOp):
 
     """
 
+    _SPARSE_LABEL_PATTERN = re.compile(r"^([I\+\-NE]_\d\s)*[I\+\-NE]_\d(?!\s)$")
+    _DENSE_LABEL_PATTERN = re.compile(r"^[I\+\-NE]+$")
+
     def __init__(
-            self,
-            data: Union[str, List[Tuple[str, complex]]],
+        self,
+        data: Union[str, List[Tuple[str, complex]]],
     ):
         """Initialize the FermionicOp.
 
@@ -110,32 +148,36 @@ class FermionicOp(ParticleOp):
             raise QiskitNatureError("Invalid input data for FermionicOp.")
 
         if isinstance(data, str):
-            if not self._validate_label(data):
+            if not self._SPARSE_LABEL_PATTERN.match(data) and not self._DENSE_LABEL_PATTERN.match(
+                data
+            ):
                 raise QiskitNatureError(
                     "Label must be a string consisting only of "
-                    f"['I','+','-','N','E'] not: {data}"
+                    f"['I','+','-','N','E'] not: '{data}'"
                 )
             data = [(data, 1)]
 
         if isinstance(data, list):
+            labels, coeffs = zip(*data)  # type: ignore
             if all(
-                    isinstance(datum[0], str)
-                    and isinstance(datum[1], (int, float, complex))
-                    for datum in data
+                isinstance(label, str) and isinstance(coeff, (int, float, complex))
+                for label, coeff in data
             ):
-                self._register_length = len(data[0][0])
-                self._labels, self._coeffs = zip(*data)  # type: ignore
-                if not all(self._validate_label(label) for label in self._labels):
-                    raise QiskitNatureError("Invalid labels are given.")
+                if all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
+                    self._register_length = len(labels[0])
+                    self._labels = labels
+                    self._coeffs = coeffs
+                elif all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
+                    self._coeffs = coeffs
+                    self._from_sparse_label(labels)
+                else:
+                    raise QiskitNatureError(f"Invalid labels are given: {labels}")
             else:
                 raise QiskitNatureError("Data list must be [(str, number)].")
 
     def __repr__(self) -> str:
-        if len(self) == 1:
-            if self._coeffs == 1:
-                return f"FermionicOp('{self._labels[0]}')"
-            else:
-                return f"FermionicOp(('{self._labels[0]}', {self._coeffs[0]}))"
+        if len(self) == 1 and self._coeffs == 1:
+            return f"FermionicOp('{self._labels[0]}')"
         return f"FermionicOp({self.to_list()})"  # TODO truncate
 
     def __str__(self) -> str:
@@ -149,18 +191,14 @@ class FermionicOp(ParticleOp):
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{label} * {coeff}"
-        return "  " + "\n+ ".join(
-            [f"{label} * {coeff}" for label, coeff in self.to_list()]
-        )
+        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
 
     def mul(self, other: complex) -> "FermionicOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
-        return FermionicOp(
-            list(zip(self._labels, [coeff * other for coeff in self._coeffs]))
-        )
+        return FermionicOp(list(zip(self._labels, [coeff * other for coeff in self._coeffs])))
 
     def compose(self, other: "FermionicOp") -> "FermionicOp":
         if isinstance(other, FermionicOp):
@@ -249,7 +287,7 @@ class FermionicOp(ParticleOp):
             if count % 2 and char2 in "+-":
                 sign *= -1
 
-        return ''.join(new_label), sign
+        return "".join(new_label), sign
 
     def add(self, other: "FermionicOp") -> "FermionicOp":
         if not isinstance(other, FermionicOp):
@@ -294,7 +332,7 @@ class FermionicOp(ParticleOp):
                     if count % 2 == 1:
                         conjugated_coeff *= -1
 
-            label_list.append(''.join(daggered_label))
+            label_list.append("".join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
         return FermionicOp(list(zip(label_list, coeff_list)))
@@ -310,9 +348,7 @@ class FermionicOp(ParticleOp):
         for i, val in zip(indexes, self._coeffs):
             coeff_list[i] += val
         non_zero = [
-            i
-            for i, v in enumerate(coeff_list)
-            if not np.isclose(v, 0, atol=atol, rtol=rtol)
+            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
             return FermionicOp([("I" * self.register_length, 0)])
@@ -328,3 +364,36 @@ class FermionicOp(ParticleOp):
         if not label:
             return False
         return set(label).issubset({"I", "+", "-", "N", "E"})
+
+    def _from_sparse_label(self, list_label):
+        num_terms = len(list_label)
+        parsed_data = []
+        max_index = 0
+        for term, label in enumerate(list_label):
+            prev_index = -1
+            list_label = label.split()
+            for single_label in list_label:
+                pm, index_str = single_label.split("_", 1)
+
+                index = int(index_str)
+                if prev_index >= 0 and prev_index <= index:
+                    raise QiskitNatureError("Indices of labels must be in descending order.")
+
+                max_index = max(max_index, index)
+
+                if pm in {"+", "-", "N", "E"}:
+                    parsed_data.append((term, pm, index))
+                prev_index = index
+
+        self._register_length = max_index + 1
+        list_label = [["I"] * self._register_length for _ in range(num_terms)]
+        for term, pm, index in parsed_data:
+            register = self._register_length - index - 1
+
+            # same label is not assigned.
+            if list_label[term][register] != "I":
+                raise ValueError("Duplicate label.")
+
+            list_label[term][register] = pm
+
+        self._labels = ["".join(l) for l in list_label]
