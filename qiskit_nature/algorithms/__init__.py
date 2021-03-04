@@ -14,7 +14,7 @@
 Chemistry specific algorithms (:mod:`qiskit_nature.algorithms`)
 =======================================================================
 These are chemistry specific algorithms. As they rely on chemistry
-specific knowledge and/or function they are here in chemistry.
+specific knowledge and/or function that are here in chemistry.
 
 .. currentmodule:: qiskit_nature.algorithms
 
