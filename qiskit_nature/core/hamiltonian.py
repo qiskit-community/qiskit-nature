@@ -21,11 +21,13 @@ from enum import Enum
 import numpy as np
 from qiskit.aqua.algorithms import MinimumEigensolverResult, EigensolverResult
 from qiskit.aqua.operators import Z2Symmetries, WeightedPauliOperator
-from qiskit_nature import QMolecule, QiskitNatureError
+
+from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.fermionic_operator import FermionicOperator
 from .chemistry_operator import (ChemistryOperator,
                                  MolecularGroundStateResult,
-                                 DipoleTuple)
+                                 DipoleTuple, )
+from .. import QiskitNatureError
 
 logger = logging.getLogger(__name__)
 

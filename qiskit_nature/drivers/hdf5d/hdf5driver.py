@@ -12,10 +12,11 @@
 
 """ HDF5 Driver """
 
-import os
 import logging
+import os
+
+from ..qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver
-from ...qmolecule import QMolecule
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,8 @@ class HDF5Driver(FermionicDriver):
     """
     Qiskit chemistry driver reading an HDF5 file.
 
-    The HDF5 file is as saved from a :class:`~qiskit_nature.QMolecule` instance.
+    The HDF5 file is as saved from
+    a :class:`~qiskit_nature.drivers.QMolecule` instance.
     """
 
     def __init__(self,
