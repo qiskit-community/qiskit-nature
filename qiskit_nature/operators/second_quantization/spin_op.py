@@ -182,13 +182,12 @@ class SpinOp(ParticleOp):
         ],
         spin: float = 1 / 2,
     ):
-        r"""Initialize ``SpinOp``.
+        r"""``SpinOp``.
 
         Args:
-            data: label string or list of labels and coefficients. See documentation of SpinOp for
-                  more details.
+            data: label string or list of labels and coefficients. See documentation of
+                  :class:`SpinOp` for more details.
             spin: positive integer or half-integer which represents spin.
-            dtype: data type of coefficients.
 
         Raises:
             ValueError: invalid data is given.
@@ -199,7 +198,9 @@ class SpinOp(ParticleOp):
         dtype = np.complex128  # TODO: configurable data type. mixin?
 
         if (round(2 * spin) != 2 * spin) or (spin <= 0):
-            raise QiskitNatureError("spin must be a positive integer or half-integer")
+            raise QiskitNatureError(
+                f"spin must be a positive integer or half-integer, but {spin} is given."
+            )
         self._dim = int(round(2 * spin)) + 1
 
         if isinstance(data, tuple):
@@ -232,6 +233,9 @@ class SpinOp(ParticleOp):
                 ).transpose((2, 0, 1))
             else:
                 raise ValueError(f"Invalid labels or mixed labels are included in {labels}")
+        # Make immutable
+        self._spin_array.flags.writeable = False
+        self._coeffs.flags.writeable = False
 
     @property
     def register_length(self):
@@ -302,9 +306,10 @@ class SpinOp(ParticleOp):
         )
 
     def compose(self, other):
+        # TODO: implement
         raise NotImplementedError
 
-    def mul(self, other: complex):
+    def mul(self, other: complex) -> "SpinOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
                 "Unsupported operand type(s) for *: 'SpinOp' and " f"'{type(other).__name__}'"
@@ -312,7 +317,7 @@ class SpinOp(ParticleOp):
 
         return SpinOp((self._spin_array, self._coeffs * other), spin=self.spin)
 
-    def adjoint(self):
+    def adjoint(self) -> "SpinOp":
         # Note: X, Y, Z are hermitian, therefore the dagger operation on a SpinOperator amounts
         # to simply complex conjugating the coefficient.
         return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
@@ -344,7 +349,7 @@ class SpinOp(ParticleOp):
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._coeffs)
 
     def to_list(self) -> List[Tuple[str, complex]]:
