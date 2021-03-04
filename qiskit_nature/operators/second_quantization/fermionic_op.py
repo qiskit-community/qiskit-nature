@@ -64,7 +64,7 @@ class FermionicOp(ParticleOp):
     .. code-block:: python
 
         "+"
-        "II++N-EI"
+        "II++N-IE"
 
     are possible labels.
 
@@ -158,17 +158,16 @@ class FermionicOp(ParticleOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
-            labels, coeffs = zip(*data)  # type: ignore
             if all(
                 isinstance(label, str) and isinstance(coeff, (int, float, complex))
                 for label, coeff in data
             ):
+                labels, coeffs = zip(*data)  # type: ignore
+                self._coeffs = np.array(coeffs, np.complex128)
                 if all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
                     self._register_length = len(labels[0])
                     self._labels = labels
-                    self._coeffs = coeffs
                 elif all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
-                    self._coeffs = coeffs
                     self._from_sparse_label(labels)
                 else:
                     raise QiskitNatureError(f"Invalid labels are given: {labels}")
@@ -198,7 +197,9 @@ class FermionicOp(ParticleOp):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
-        return FermionicOp(list(zip(self._labels, [coeff * other for coeff in self._coeffs])))
+        return FermionicOp(
+            list(zip(self._labels, [coeff * other for coeff in self._coeffs.tolist()]))
+        )
 
     def compose(self, other: "FermionicOp") -> "FermionicOp":
         if isinstance(other, FermionicOp):
@@ -300,14 +301,15 @@ class FermionicOp(ParticleOp):
         if self.register_length != other.register_length:
             raise TypeError("Incompatible register lengths for '+'.")
 
-        label1, coeffs1 = zip(*self.to_list())
-        label2, coeffs2 = zip(*other.to_list())
-
-        return FermionicOp(list(zip(label1 + label2, coeffs1 + coeffs2)))
+        return FermionicOp(
+            list(
+                zip(self._labels + other._labels, np.hstack((self._coeffs, other._coeffs)).tolist())
+            )
+        )
 
     def to_list(self) -> List[Tuple[str, complex]]:
         """Getter for the operator_list of `self`"""
-        return list(zip(self._labels, self._coeffs))
+        return list(zip(self._labels, self._coeffs.tolist()))
 
     @property
     def register_length(self) -> int:
@@ -320,7 +322,7 @@ class FermionicOp(ParticleOp):
         dagger_map = {"+": "-", "-": "+", "I": "I", "N": "N", "E": "E"}
         label_list = []
         coeff_list = []
-        for label, coeff in zip(self._labels, self._coeffs):
+        for label, coeff in zip(self._labels, self._coeffs.tolist()):
             conjugated_coeff = coeff.conjugate()
 
             daggered_label = []
@@ -335,7 +337,7 @@ class FermionicOp(ParticleOp):
             label_list.append("".join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
-        return FermionicOp(list(zip(label_list, coeff_list)))
+        return FermionicOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))))
 
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "FermionicOp":
         if atol is None:
@@ -344,7 +346,7 @@ class FermionicOp(ParticleOp):
             rtol = self.rtol
 
         label_list, indexes = np.unique(self._labels, return_inverse=True, axis=0)
-        coeff_list = [0] * len(self._coeffs)
+        coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
         for i, val in zip(indexes, self._coeffs):
             coeff_list[i] += val
         non_zero = [
@@ -352,9 +354,7 @@ class FermionicOp(ParticleOp):
         ]
         if not non_zero:
             return FermionicOp([("I" * self.register_length, 0)])
-        new_labels = label_list[non_zero].tolist()
-        new_coeffs = np.array(coeff_list)[non_zero].tolist()
-        return FermionicOp(list(zip(new_labels, new_coeffs)))
+        return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
     def __len__(self):
         return len(self._labels)
@@ -373,27 +373,27 @@ class FermionicOp(ParticleOp):
             prev_index = -1
             list_label = label.split()
             for single_label in list_label:
-                pm, index_str = single_label.split("_", 1)
+                op_label, index_str = single_label.split("_", 1)
 
                 index = int(index_str)
-                if prev_index >= 0 and prev_index <= index:
+                if 0 <= prev_index <= index:
                     raise QiskitNatureError("Indices of labels must be in descending order.")
 
                 max_index = max(max_index, index)
 
-                if pm in {"+", "-", "N", "E"}:
-                    parsed_data.append((term, pm, index))
+                if op_label in {"+", "-", "N", "E"}:
+                    parsed_data.append((term, op_label, index))
                 prev_index = index
 
         self._register_length = max_index + 1
         list_label = [["I"] * self._register_length for _ in range(num_terms)]
-        for term, pm, index in parsed_data:
+        for term, op_label, index in parsed_data:
             register = self._register_length - index - 1
 
             # same label is not assigned.
             if list_label[term][register] != "I":
                 raise ValueError("Duplicate label.")
 
-            list_label[term][register] = pm
+            list_label[term][register] = op_label
 
         self._labels = ["".join(l) for l in list_label]
