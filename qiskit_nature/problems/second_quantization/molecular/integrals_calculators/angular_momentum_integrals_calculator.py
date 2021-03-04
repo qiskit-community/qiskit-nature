@@ -77,7 +77,7 @@ def _modify_s_x_squared_ints_neq(h_2: np.ndarray, p_ind: int, q_ind: int,
                (p_ind + num_modes_2, p_ind, q_ind + num_modes_2, q_ind)]
     values = [1, 1, 1, 1]
     # adds provided values to values of 2-body integrals (x axis of angular momentum) at given
-    # indices in case p neq q
+    # indices in case p not equal to q
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
@@ -88,7 +88,7 @@ def _modify_s_x_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
                (p_ind + num_modes_2, p_ind + num_modes_2, p_ind, p_ind)]
     values = [-1, -1, -1, -1]
     # adds provided values to values of 2-body integrals (x axis of angular momentum) at given
-    # indices in case p eq q
+    # indices in case p equal to q
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
@@ -100,7 +100,7 @@ def _modify_s_y_squared_ints_neq(h_2: np.ndarray, p_ind: int, q_ind: int,
                (p_ind + num_modes_2, p_ind, q_ind + num_modes_2, q_ind)]
     values = [-1, 1, 1, -1]
     # adds provided values to values of 2-body integrals (y axis of angular momentum) at given
-    # indices in case p neq q
+    # indices in case p not equal to q
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
@@ -111,7 +111,7 @@ def _modify_s_y_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
                (p_ind + num_modes_2, p_ind + num_modes_2, p_ind, p_ind)]
     values = [1, 1, -1, -1]
     # adds provided values to values of 2-body integrals (y axis of angular momentum) at given
-    # indices in case p eq q
+    # indices in case p equal to q
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
@@ -123,7 +123,7 @@ def _modify_s_z_squared_ints_neq(h_2: np.ndarray, p_ind: int, q_ind: int,
                (p_ind + num_modes_2, p_ind + num_modes_2, q_ind + num_modes_2, q_ind + num_modes_2)]
     values = [1, -1, -1, 1]
     # adds provided values to values of 2-body integrals (z axis of angular momentum) at given
-    # indices in case p neq q
+    # indices in case p not equal to q
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
@@ -132,7 +132,7 @@ def _modify_s_z_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
                (p_ind + num_modes_2, p_ind, p_ind, p_ind + num_modes_2)]
     values = [1, 1]
     # adds provided values to values of 2-body integrals (z axis of angular momentum) at given
-    # indices in case p eq q
+    # indices in case p equal to q
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
