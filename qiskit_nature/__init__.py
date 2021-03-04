@@ -10,19 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-===================================================
-Qiskit's chemistry module (:mod:`qiskit_nature`)
-===================================================
+=============================================
+Qiskit Nature module (:mod:`qiskit_nature`)
+=============================================
 
 .. currentmodule:: qiskit_nature
 
-This is Qiskit's chemistry module that provides for experimentation with chemistry
+This is Qiskit Nature module that provides for experimentation with
 domain problems such as ground state energy and excited state energies of molecules.
 
 Overview
 ========
 
-This is an overview of the workings of the chemistry module and how it may be used. There
+This is an overview of the workings of the nature sciences module and how it may be used. There
 are different levels of exposure to its functionality, allowing for experimentation at different
 abstractions. The outline below starts with the flow that provides the most control of the
 process.

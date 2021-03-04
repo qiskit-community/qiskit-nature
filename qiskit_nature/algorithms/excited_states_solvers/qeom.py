@@ -13,8 +13,6 @@
 """The calculation of excited states via the qEOM algorithm"""
 
 from typing import List, Union, Optional, Tuple, Dict, cast
-import collections
-import inspect
 import itertools
 import logging
 import sys
@@ -414,173 +412,115 @@ class QEOM(ExcitedStatesSolver):
         return excitation_energies_gap, res[1]
 
 
-class QEOMResult(AlgorithmResult, collections.UserDict):
+class QEOMResult(AlgorithmResult):
     """The results class for the QEOM algorithm."""
-
-    def __init__(self, a_dict: Optional[Dict] = None) -> None:
-        super().__init__()
-        if a_dict:
-            self.data.update(a_dict)
-
-    def __setitem__(self, key: object, item: object) -> None:
-        raise TypeError("'__setitem__' invalid for this object.")
-
-    def __delitem__(self, key: object) -> None:
-        raise TypeError("'__delitem__' invalid for this object.")
-
-    def clear(self) -> None:
-        raise TypeError("'clear' invalid for this object.")
-
-    def pop(self, key: object, default: Optional[object] = None) -> object:
-        raise TypeError("'pop' invalid for this object.")
-
-    def popitem(self) -> Tuple[object, object]:
-        raise TypeError("'popitem' invalid for this object.")
-
-    def update(self, *args, **kwargs) -> None:  # pylint: disable=arguments-differ,signature-differs
-        raise TypeError("'update' invalid for this object.")
-
-    def combine(self, result: 'AlgorithmResult') -> None:
-        """
-        Any property from the argument that exists in the receiver is
-        updated.
-        Args:
-            result: Argument result with properties to be set.
-        Raises:
-            TypeError: Argument is None
-        """
-        if result is None:
-            raise TypeError('Argument result expected.')
-        if result == self:
-            return
-
-        # find any result public property that exists in the receiver
-        for name, value in inspect.getmembers(result):
-            if not name.startswith('_') and name != 'data' and \
-                    not inspect.ismethod(value) and not inspect.isfunction(value) and \
-                    hasattr(self, name):
-                if value is None:
-                    # Just remove from receiver if it exists
-                    # since None is the default value in derived classes for non existent name.
-                    if name in self.data:
-                        del self.data[name]
-                else:
-                    self.data[name] = value
-
-    def __contains__(self, key: object) -> bool:
-        # subclasses have special __getitem__
-        try:
-            _ = self.__getitem__(key)
-            return True
-        except KeyError:
-            return False
 
     @property
     def ground_state_raw_result(self):
         """ returns ground state raw result """
-        return self.get('ground_state_raw_result')
+        return self._ground_state_raw_result
 
     @ground_state_raw_result.setter
     def ground_state_raw_result(self, value) -> None:
         """ sets ground state raw result """
-        self.data['ground_state_raw_result'] = value
+        self._ground_state_raw_result = value
 
     @property
     def excitation_energies(self) -> np.ndarray:
         """ returns the excitation energies (energy gaps) """
-        return self.get('excitation_energies')
+        return self._excitation_energies
 
     @excitation_energies.setter
     def excitation_energies(self, value: np.ndarray) -> None:
         """ sets the excitation energies (energy gaps) """
-        self.data['excitation_energies'] = value
+        self._excitation_energies = value
 
     @property
     def expansion_coefficients(self) -> np.ndarray:
         """ returns the X and Y expansion coefficients """
-        return self.get('expansion_coefficients')
+        return self._expansion_coefficients
 
     @expansion_coefficients.setter
     def expansion_coefficients(self, value: np.ndarray) -> None:
         """ sets the X and Y expansion coefficients """
-        self.data['expansion_coefficients'] = value
+        self._expansion_coefficients = value
 
     @property
     def m_matrix(self) -> np.ndarray:
         """ returns the M matrix """
-        return self.get('m_matrix')
+        return self._m_matrix
 
     @m_matrix.setter
     def m_matrix(self, value: np.ndarray) -> None:
         """ sets the M matrix """
-        self.data['m_matrix'] = value
+        self._m_matrix = value
 
     @property
     def v_matrix(self) -> np.ndarray:
         """ returns the V matrix """
-        return self.get('v_matrix')
+        return self._v_matrix
 
     @v_matrix.setter
     def v_matrix(self, value: np.ndarray) -> None:
         """ sets the V matrix """
-        self.data['v_matrix'] = value
+        self._v_matrix = value
 
     @property
     def q_matrix(self) -> np.ndarray:
         """ returns the Q matrix """
-        return self.get('q_matrix')
+        return self._q_matrix
 
     @q_matrix.setter
     def q_matrix(self, value: np.ndarray) -> None:
         """ sets the Q matrix """
-        self.data['q_matrix'] = value
+        self._q_matrix = value
 
     @property
     def w_matrix(self) -> np.ndarray:
         """ returns the W matrix """
-        return self.get('w_matrix')
+        return self._w_matrix
 
     @w_matrix.setter
     def w_matrix(self, value: np.ndarray) -> None:
         """ sets the W matrix """
-        self.data['w_matrix'] = value
+        self._w_matrix = value
 
     @property
     def m_matrix_std(self) -> float:
         """ returns the M matrix standard deviation """
-        return self.get('m_matrix_std')
+        return self._m_matrix_std
 
     @m_matrix_std.setter
     def m_matrix_std(self, value: float) -> None:
         """ sets the M matrix standard deviation """
-        self.data['m_matrix_std'] = value
+        self._m_matrix_std = value
 
     @property
     def v_matrix_std(self) -> float:
         """ returns the V matrix standard deviation """
-        return self.get('v_matrix_std')
+        return self._v_matrix_std
 
     @v_matrix_std.setter
     def v_matrix_std(self, value: float) -> None:
         """ sets the V matrix standard deviation """
-        self.data['v_matrix_std'] = value
+        self._v_matrix_std = value
 
     @property
     def q_matrix_std(self) -> float:
         """ returns the Q matrix standard deviation """
-        return self.get('q_matrix_std')
+        return self._q_matrix_std
 
     @q_matrix_std.setter
     def q_matrix_std(self, value: float) -> None:
         """ sets the Q matrix standard deviation """
-        self.data['q_matrix_std'] = value
+        self._q_matrix_std = value
 
     @property
     def w_matrix_std(self) -> float:
         """ returns the W matrix standard deviation """
-        return self.get('w_matrix_std')
+        return self._w_matrix_std
 
     @w_matrix_std.setter
     def w_matrix_std(self, value: float) -> None:
         """ sets the W matrix standard deviation """
-        self.data['w_matrix_std'] = value
+        self._w_matrix_std = value

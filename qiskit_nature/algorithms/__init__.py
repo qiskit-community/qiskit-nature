@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Chemistry specific algorithms (:mod:`qiskit_nature.algorithms`)
+Nature Sciences specific algorithms (:mod:`qiskit_nature.algorithms`)
 =======================================================================
-These are chemistry specific algorithms. As they rely on chemistry
-specific knowledge and/or function that are here in chemistry.
+These are nature sciences specific algorithms. As they rely on nature
+sciences specific knowledge and/or function that are here.
 
 .. currentmodule:: qiskit_nature.algorithms
 

@@ -200,7 +200,8 @@ class BosonicTransformation(Transformation):
             eigenstate_result.eigenstates = [raw_result.eigenstate]
             eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
 
-        result = VibronicStructureResult(eigenstate_result.data)
+        result = VibronicStructureResult()
+        result.combine(eigenstate_result)
         result.computed_vibronic_energies = eigenstate_result.eigenenergies
         if result.aux_operator_eigenvalues is not None:
             if not isinstance(result.aux_operator_eigenvalues, list):

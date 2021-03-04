@@ -646,62 +646,71 @@ class OrbitalRotation:
 class OOVQEResult(ElectronicStructureResult):
     r""" OOVQE Result. """
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._computed_electronic_energy: float = 0.
+        self._num_optimizer_evals: int = 0
+        self._cost_function_evals: int = 0
+        self._optimal_point: List = []
+        self._optimal_point_ansatz: List = []
+        self._optimal_point_orbitals: List = []
+
     @property
     def computed_electronic_energy(self) -> float:
         """ Returns the ground state energy. """
-        return self.get('computed_electronic_energy')
+        return self._computed_electronic_energy
 
     @computed_electronic_energy.setter
     def computed_electronic_energy(self, value: float) -> None:
         """ Sets the ground state energy. """
-        self.data['computed_electronic_energy'] = value
+        self._computed_electronic_energy = value
 
     @property
     def cost_function_evals(self) -> int:
         """ Returns number of cost function evaluations. """
-        return self.get('cost_function_evals')
+        return self._cost_function_evals
 
     @cost_function_evals.setter
     def cost_function_evals(self, value: int) -> None:
         """ Sets the number of cost function evaluations. """
-        self.data['cost_function_evals'] = value
+        self._cost_function_evals = value
 
     @property
     def num_optimizer_evals(self) -> int:
         """ Returns the number of cost function evaluations in the optimizer """
-        return self.get('num_optimizer_evals')
+        return self._num_optimizer_evals
 
     @num_optimizer_evals.setter
-    def num_optimizer_evals(self, value: float) -> None:
+    def num_optimizer_evals(self, value: int) -> None:
         """ Sets the number of cost function evaluations in the optimizer """
-        self.data['num_optimizer_evals'] = value
+        self._num_optimizer_evals = value
 
     @property
-    def optimal_point(self) -> list:
+    def optimal_point(self) -> List:
         """ Returns the optimal parameters. """
-        return self.get('optimal_point')
+        return self._optimal_point
 
     @optimal_point.setter
-    def optimal_point(self, value: list) -> None:
+    def optimal_point(self, value: List) -> None:
         """ Sets the optimal parameters. """
-        self.data['optimal_point'] = value
+        self._optimal_point = value
 
     @property
-    def optimal_point_ansatz(self) -> list:
+    def optimal_point_ansatz(self) -> List:
         """ Returns the optimal parameters for the . """
-        return self.get('optimal_point_ansatz')
+        return self._optimal_point_ansatz
 
     @optimal_point_ansatz.setter
-    def optimal_point_ansatz(self, value: list) -> None:
+    def optimal_point_ansatz(self, value: List) -> None:
         """ Sets the optimal parameters for the ansatz. """
-        self.data['optimal_point_ansatz'] = value
+        self._optimal_point_ansatz = value
 
     @property
-    def optimal_point_orbitals(self) -> list:
+    def optimal_point_orbitals(self) -> List:
         """ Returns the optimal parameters of the orbitals. """
-        return self.get('optimal_point_orbitals')
+        return self._optimal_point_orbitals
 
     @optimal_point_orbitals.setter
-    def optimal_point_orbitals(self, value: list) -> None:
+    def optimal_point_orbitals(self, value: List) -> None:
         """ Sets the optimal parameters of the orbitals. """
-        self.data['optimal_point_orbitals'] = value
+        self._optimal_point_orbitals = value

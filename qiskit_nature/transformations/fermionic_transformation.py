@@ -539,7 +539,8 @@ class FermionicTransformation(Transformation):
             eigenstate_result.eigenstates = [raw_result.eigenstate]
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
 
-        result = ElectronicStructureResult(eigenstate_result.data)
+        result = ElectronicStructureResult()
+        result.combine(eigenstate_result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         result.hartree_fock_energy = self._hf_energy
         result.nuclear_repulsion_energy = self._nuclear_repulsion_energy

@@ -16,8 +16,6 @@ a quantum algorithm
 """
 
 from abc import ABC, abstractmethod
-import collections
-import inspect
 import warnings
 import logging
 from typing import Dict, Union, List, Tuple, Optional, cast
@@ -107,114 +105,63 @@ class ChemistryOperator(ABC):
         self._molecule_info[key] = value
 
 
-class MolecularChemistryResult(AlgorithmResult, collections.UserDict):
+class MolecularChemistryResult(AlgorithmResult):
     """
     Molecular chemistry Result
 
     Energies are in Hartree and dipole moments in A.U unless otherwise stated.
     """
 
-    def __init__(self, a_dict: Optional[Dict] = None) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        if a_dict:
-            self.data.update(a_dict)
         warnings.warn('The qiskit_nature.chemistry_operator.MolecularChemistryResult object is '
                       'deprecated as of 0.8.0 and will be removed no sooner than 3 months after the'
                       ' release. You should use qiskit_nature.algorithms.ground_state_solvers.'
                       'FermionicGroundStateResult instead.', DeprecationWarning, stacklevel=2)
-
-    def __setitem__(self, key: object, item: object) -> None:
-        raise TypeError("'__setitem__' invalid for this object.")
-
-    def __delitem__(self, key: object) -> None:
-        raise TypeError("'__delitem__' invalid for this object.")
-
-    def clear(self) -> None:
-        raise TypeError("'clear' invalid for this object.")
-
-    def pop(self, key: object, default: Optional[object] = None) -> object:
-        raise TypeError("'pop' invalid for this object.")
-
-    def popitem(self) -> Tuple[object, object]:
-        raise TypeError("'popitem' invalid for this object.")
-
-    def update(self, *args, **kwargs) -> None:  # pylint: disable=arguments-differ,signature-differs
-        raise TypeError("'update' invalid for this object.")
-
-    def combine(self, result: 'AlgorithmResult') -> None:
-        """
-        Any property from the argument that exists in the receiver is
-        updated.
-        Args:
-            result: Argument result with properties to be set.
-        Raises:
-            TypeError: Argument is None
-        """
-        if result is None:
-            raise TypeError('Argument result expected.')
-        if result == self:
-            return
-
-        # find any result public property that exists in the receiver
-        for name, value in inspect.getmembers(result):
-            if not name.startswith('_') and name != 'data' and \
-                    not inspect.ismethod(value) and not inspect.isfunction(value) and \
-                    hasattr(self, name):
-                if value is None:
-                    # Just remove from receiver if it exists
-                    # since None is the default value in derived classes for non existent name.
-                    if name in self.data:
-                        del self.data[name]
-                else:
-                    self.data[name] = value
-
-    def __contains__(self, key: object) -> bool:
-        # subclasses have special __getitem__
-        try:
-            _ = self.__getitem__(key)
-            return True
-        except KeyError:
-            return False
+        self._algorithm_result = None
+        self._hartree_fock_energy: float = 0.
+        self._nuclear_repulsion_energy: Optional[float] = None
+        self._nuclear_dipole_moment: Optional[DipoleTuple] = None
 
     @property
     def algorithm_result(self) -> AlgorithmResult:
         """ Returns raw algorithm result """
-        return self.get('algorithm_result')
+        return self._algorithm_result
 
     @algorithm_result.setter
     def algorithm_result(self, value: AlgorithmResult) -> None:
         """ Sets raw algorithm result """
-        self.data['algorithm_result'] = value
+        self._algorithm_result = value
 
     @property
     def hartree_fock_energy(self) -> float:
         """ Returns Hartree-Fock energy """
-        return self.get('hartree_fock_energy')
+        return self._hartree_fock_energy
 
     @hartree_fock_energy.setter
     def hartree_fock_energy(self, value: float) -> None:
         """ Sets Hartree-Fock energy """
-        self.data['hartree_fock_energy'] = value
+        self._hartree_fock_energy = value
 
     @property
     def nuclear_repulsion_energy(self) -> Optional[float]:
         """ Returns nuclear repulsion energy when available from driver """
-        return self.get('nuclear_repulsion_energy')
+        return self._nuclear_repulsion_energy
 
     @nuclear_repulsion_energy.setter
     def nuclear_repulsion_energy(self, value: float) -> None:
         """ Sets nuclear repulsion energy """
-        self.data['nuclear_repulsion_energy'] = value
+        self._nuclear_repulsion_energy = value
 
     @property
     def nuclear_dipole_moment(self) -> Optional[DipoleTuple]:
         """ Returns nuclear dipole moment X,Y,Z components in A.U when available from driver """
-        return self.get('nuclear_dipole_moment')
+        return self._nuclear_dipole_moment
 
     @nuclear_dipole_moment.setter
     def nuclear_dipole_moment(self, value: DipoleTuple) -> None:
         """ Sets nuclear dipole moment in A.U """
-        self.data['nuclear_dipole_moment'] = value
+        self._nuclear_dipole_moment = value
 
 
 class MolecularGroundStateResult(MolecularChemistryResult):
@@ -224,13 +171,23 @@ class MolecularGroundStateResult(MolecularChemistryResult):
     Energies are in Hartree and dipole moments in A.U unless otherwise stated.
     """
 
-    def __init__(self, a_dict: Optional[Dict] = None) -> None:
-        super().__init__(a_dict)
+    def __init__(self) -> None:
+        super().__init__()
         warnings.warn('The qiskit_nature.chemistry_operator.MolecularGroundStateResult object '
                       'is deprecated as of 0.8.0 and will be removed no sooner than 3 months after '
                       'the release. You should use qiskit_nature.algorithms.'
                       'ground_state_solvers.FermionicGroundStateResult instead.',
                       DeprecationWarning, stacklevel=2)
+        self._computed_electronic_energy: float = 0.
+        self._ph_extracted_energy: float = 0.
+        self._frozen_extracted_energy: float = 0.
+        self._reverse_dipole_sign: bool = False
+        self._computed_dipole_moment: Optional[DipoleTuple] = None
+        self._ph_extracted_dipole_moment: Optional[DipoleTuple] = None
+        self._frozen_extracted_dipole_moment: Optional[DipoleTuple] = None
+        self._total_angular_momentum: float = 0.
+        self._num_particles: float = 0.
+        self._magnetization: float = 0.
 
     @property
     def energy(self) -> Optional[float]:
@@ -248,32 +205,32 @@ class MolecularGroundStateResult(MolecularChemistryResult):
     @property
     def computed_electronic_energy(self) -> float:
         """ Returns computed electronic part of ground state energy """
-        return self.get('computed_electronic_energy')
+        return self._computed_electronic_energy
 
     @computed_electronic_energy.setter
     def computed_electronic_energy(self, value: float) -> None:
         """ Sets computed electronic part of ground state energy """
-        self.data['computed_electronic_energy'] = value
+        self._computed_electronic_energy = value
 
     @property
     def ph_extracted_energy(self) -> float:
         """ Returns particle hole extracted part of ground state energy """
-        return self.get('ph_extracted_energy')
+        return self._ph_extracted_energy
 
     @ph_extracted_energy.setter
     def ph_extracted_energy(self, value: float) -> None:
         """ Sets particle hole extracted part of ground state energy """
-        self.data['ph_extracted_energy'] = value
+        self._ph_extracted_energy = value
 
     @property
     def frozen_extracted_energy(self) -> float:
         """ Returns frozen extracted part of ground state energy """
-        return self.get('frozen_extracted_energy')
+        return self._frozen_extracted_energy
 
     @frozen_extracted_energy.setter
     def frozen_extracted_energy(self, value: float) -> None:
         """ Sets frozen extracted part of ground state energy """
-        self.data['frozen_extracted_energy'] = value
+        self._frozen_extracted_energy = value
 
     # Dipole moment results. Note dipole moments of tuples of X, Y and Z components. Chemistry
     # drivers either support dipole integrals or not. Note that when using Z2 symmetries of
@@ -285,12 +242,12 @@ class MolecularGroundStateResult(MolecularChemistryResult):
     @property
     def reverse_dipole_sign(self) -> bool:
         """ Returns if electronic dipole moment sign should be reversed when adding to nuclear """
-        return self.get('reverse_dipole_sign')
+        return self._reverse_dipole_sign
 
     @reverse_dipole_sign.setter
     def reverse_dipole_sign(self, value: bool) -> None:
         """ Sets if electronic dipole moment sign should be reversed when adding to nuclear """
-        self.data['reverse_dipole_sign'] = value
+        self._reverse_dipole_sign = value
 
     @property
     def total_dipole_moment(self) -> Optional[float]:
@@ -336,32 +293,32 @@ class MolecularGroundStateResult(MolecularChemistryResult):
     @property
     def computed_dipole_moment(self) -> Optional[DipoleTuple]:
         """ Returns computed electronic part of dipole moment """
-        return self.get('computed_dipole_moment')
+        return self._computed_dipole_moment
 
     @computed_dipole_moment.setter
     def computed_dipole_moment(self, value: DipoleTuple) -> None:
         """ Sets computed electronic part of dipole moment """
-        self.data['computed_dipole_moment'] = value
+        self._computed_dipole_moment = value
 
     @property
     def ph_extracted_dipole_moment(self) -> Optional[DipoleTuple]:
         """ Returns particle hole extracted part of dipole moment """
-        return self.get('ph_extracted_dipole_moment')
+        return self._ph_extracted_dipole_moment
 
     @ph_extracted_dipole_moment.setter
     def ph_extracted_dipole_moment(self, value: DipoleTuple) -> None:
         """ Sets particle hole extracted part of dipole moment """
-        self.data['ph_extracted_dipole_moment'] = value
+        self._ph_extracted_dipole_moment = value
 
     @property
     def frozen_extracted_dipole_moment(self) -> Optional[DipoleTuple]:
         """ Returns frozen extracted part of dipole moment """
-        return self.get('frozen_extracted_dipole_moment')
+        return self._frozen_extracted_dipole_moment
 
     @frozen_extracted_dipole_moment.setter
     def frozen_extracted_dipole_moment(self, value: DipoleTuple) -> None:
         """ Sets frozen extracted part of dipole moment """
-        self.data['frozen_extracted_dipole_moment'] = value
+        self._frozen_extracted_dipole_moment = value
 
     # Other measured operators. If these are not evaluated then None will be returned
     # instead of any measured value.
@@ -375,12 +332,12 @@ class MolecularGroundStateResult(MolecularChemistryResult):
     @property
     def total_angular_momentum(self) -> Optional[float]:
         """ Returns total angular momentum (S^2) """
-        return self.get('total_angular_momentum')
+        return self._total_angular_momentum
 
     @total_angular_momentum.setter
     def total_angular_momentum(self, value: float) -> None:
         """ Sets total angular momentum """
-        self.data['total_angular_momentum'] = value
+        self._total_angular_momentum = value
 
     @property
     def spin(self) -> Optional[float]:
@@ -392,28 +349,27 @@ class MolecularGroundStateResult(MolecularChemistryResult):
     @property
     def num_particles(self) -> Optional[float]:
         """ Returns measured number of particles """
-        return self.get('num_particles')
+        return self._num_particles
 
     @num_particles.setter
     def num_particles(self, value: float) -> None:
         """ Sets measured number of particles """
-        self.data['num_particles'] = value
+        self._num_particles = value
 
     @property
     def magnetization(self) -> Optional[float]:
         """ Returns measured magnetization """
-        return self.get('magnetization')
+        return self._magnetization
 
     @magnetization.setter
     def magnetization(self, value: float) -> None:
         """ Sets measured magnetization """
-        self.data['magnetization'] = value
+        self._magnetization = value
 
     def __str__(self) -> str:
         """ Printable formatted result """
-        return '\n'.join(self.formatted)
+        return '\n'.join(self.formatted())
 
-    @property
     def formatted(self) -> List[str]:
         """ Formatted result as a list of strings """
         lines = []
@@ -475,15 +431,20 @@ class MolecularExcitedStatesResult(MolecularChemistryResult):
     Energies are in Hartree and dipole moments in A.U unless otherwise stated.
     """
     # TODO This needs completing once EigenSolver interface/result is final
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._energies: Optional[Tuple] = None
+
     @property
-    def energies(self) -> Tuple:
+    def energies(self) -> Optional[Tuple]:
         """ Returns ground state energy """
-        return self.get('energies')
+        return self._energies
 
     @energies.setter
     def energies(self, value: Tuple) -> None:
         """ Sets ground state energy """
-        self.data['energies'] = value
+        self._energies = value
 
 
 def _dipole_tuple_add(x: Optional[DipoleTuple],

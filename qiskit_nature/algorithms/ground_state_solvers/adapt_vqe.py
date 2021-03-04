@@ -236,7 +236,8 @@ class AdaptVQE(GroundStateEigensolver):
 
         electronic_result = self.transformation.interpret(raw_vqe_result)
 
-        result = AdaptVQEResult(electronic_result.data)
+        result = AdaptVQEResult()
+        result.combine(electronic_result)
         result.num_iterations = iteration
         result.final_max_gradient = max_grad[0]
         result.finishing_criterion = finishing_criterion
@@ -248,32 +249,38 @@ class AdaptVQE(GroundStateEigensolver):
 class AdaptVQEResult(ElectronicStructureResult):
     """ AdaptVQE Result."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._num_iterations: int = 0
+        self._final_max_gradient: float = 0.
+        self._finishing_criterion: str = ''
+
     @property
     def num_iterations(self) -> int:
         """ Returns number of iterations """
-        return self.get('num_iterations')
+        return self._num_iterations
 
     @num_iterations.setter
     def num_iterations(self, value: int) -> None:
         """ Sets number of iterations """
-        self.data['num_iterations'] = value
+        self._num_iterations = value
 
     @property
     def final_max_gradient(self) -> float:
         """ Returns final maximum gradient """
-        return self.get('final_max_gradient')
+        return self._final_max_gradient
 
     @final_max_gradient.setter
     def final_max_gradient(self, value: float) -> None:
         """ Sets final maximum gradient """
-        self.data['final_max_gradient'] = value
+        self._final_max_gradient = value
 
     @property
     def finishing_criterion(self) -> str:
         """ Returns finishing criterion """
-        return self.get('finishing_criterion')
+        return self._finishing_criterion
 
     @finishing_criterion.setter
     def finishing_criterion(self, value: str) -> None:
         """ Sets finishing criterion """
-        self.data['finishing_criterion'] = value
+        self._finishing_criterion = value
