@@ -12,9 +12,9 @@
 
 """The Freeze-Core Transformer interface."""
 
-from qiskit_nature import QMolecule
 
 from .base_transformer import BaseTransformer
+from ..drivers import QMolecule
 
 
 class FreezeCoreTransformer(BaseTransformer):
