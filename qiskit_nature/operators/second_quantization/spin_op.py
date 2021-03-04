@@ -13,7 +13,7 @@
 """A generic Spin operator.
 
 Note: this implementation differs fundamentally from the `FermionicOp`
-as it relies an the mathematical representation of spin matrices as (e.g.) explained in [1].
+as it relies on the mathematical representation of spin matrices as (e.g.) explained in [1].
 
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
 """
