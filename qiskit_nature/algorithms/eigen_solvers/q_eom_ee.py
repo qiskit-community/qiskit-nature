@@ -68,7 +68,7 @@ class QEomEE(NumPyMinimumEigensolver):
                 num_particles))
         super().__init__()
 
-        self.qeom = QEquationOfMotion(None, num_orbitals, num_particles, qubit_mapping,
+        self.qeom = QEquationOfMotion(num_orbitals, num_particles, qubit_mapping,
                                       two_qubit_reduction, active_occupied, active_unoccupied,
                                       is_eom_matrix_symmetric, se_list, de_list,
                                       z2_symmetries, untapered_op)
@@ -78,10 +78,10 @@ class QEomEE(NumPyMinimumEigensolver):
             operator: OperatorBase,
             aux_operators: Optional[List[Optional[OperatorBase]]] = None
     ) -> MinimumEigensolverResult:
-        self.qeom._operator = operator
         super().compute_minimum_eigenvalue(operator, aux_operators)
         wave_fn = self._ret['eigvecs'][0]
-        excitation_energies_gap, eom_matrices = self.qeom.calculate_excited_states(wave_fn)
+        excitation_energies_gap, eom_matrices = self.qeom.calculate_excited_states(operator,
+                                                                                   wave_fn)
         excitation_energies = excitation_energies_gap + self._ret['energy']
         all_energies = np.concatenate(([self._ret['energy']], excitation_energies))
         self._ret['energy_gap'] = excitation_energies_gap

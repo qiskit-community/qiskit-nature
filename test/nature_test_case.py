@@ -30,7 +30,7 @@ def _noop(*args, **kargs):
 
 
 # disable warning messages
-warnings.warn = _noop
+# warnings.warn = _noop
 
 
 class QiskitNatureTestCase(unittest.TestCase, ABC):
@@ -41,6 +41,7 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
 
     def setUp(self) -> None:
         warnings.filterwarnings('default', category=DeprecationWarning)
+        warnings.filterwarnings('ignore', category=DeprecationWarning, module='pyscf')
         self._started_at = time.time()
         self._class_location = __file__
 

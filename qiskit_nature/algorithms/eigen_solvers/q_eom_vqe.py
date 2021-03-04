@@ -95,8 +95,7 @@ class QEomVQE(VQE):
                          callback=callback,
                          quantum_instance=quantum_instance)
 
-        self.qeom = QEquationOfMotion(None,
-                                      num_orbitals, num_particles,
+        self.qeom = QEquationOfMotion(num_orbitals, num_particles,
                                       qubit_mapping, two_qubit_reduction, active_occupied,
                                       active_unoccupied,
                                       is_eom_matrix_symmetric, se_list, de_list,
@@ -107,14 +106,13 @@ class QEomVQE(VQE):
             operator: OperatorBase,
             aux_operators: Optional[List[Optional[OperatorBase]]] = None
     ) -> MinimumEigensolverResult:
-        self.qeom._operator = operator
         super().compute_minimum_eigenvalue(operator, aux_operators)
         self._quantum_instance.circuit_summary = True
         opt_params = self._ret['opt_params']
         logger.info("opt params:\n%s", opt_params)
         wave_fn = self.get_optimal_circuit()
         excitation_energies_gap, eom_matrices = self.qeom.calculate_excited_states(
-            wave_fn, quantum_instance=self._quantum_instance)
+            operator, wave_fn, quantum_instance=self._quantum_instance)
         excitation_energies = excitation_energies_gap + self._ret['energy']
         all_energies = np.concatenate(([self._ret['energy']], excitation_energies))
         self._ret['energy_gap'] = excitation_energies_gap

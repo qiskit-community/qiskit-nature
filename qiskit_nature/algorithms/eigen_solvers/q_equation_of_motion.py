@@ -12,7 +12,7 @@
 
 """ QEquationOfMotion algorithm """
 
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Tuple, Dict
 import logging
 import copy
 import itertools
@@ -26,7 +26,7 @@ from qiskit.opflow import (OperatorBase, double_commutator,
                            Z2Symmetries, TwoQubitReduction)
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-from qiskit.utils import algorithm_globals
+from qiskit.utils import algorithm_globals, QuantumInstance
 
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature import FermionicOperator
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 class QEquationOfMotion:
     """ QEquationOfMotion algorithm """
-    def __init__(self, operator: OperatorBase,
+    def __init__(self,
                  num_orbitals: int,
                  num_particles: Union[List[int], int],
                  qubit_mapping: Optional[str] = None,
@@ -52,7 +52,6 @@ class QEquationOfMotion:
         """Constructor.
 
         Args:
-            operator: qubit operator
             num_orbitals: total number of spin orbitals
             num_particles: number of particles, if it is a list,
                                         the first number
@@ -70,7 +69,6 @@ class QEquationOfMotion:
             untapered_op: if the operator is tapered, we need untapered operator
                             to build element of EoM matrix
         """
-        self._operator = operator
         self._num_orbitals = num_orbitals
         self._num_particles = num_particles
         self._qubit_mapping = qubit_mapping
@@ -95,17 +93,23 @@ class QEquationOfMotion:
 
         self._z2_symmetries = z2_symmetries if z2_symmetries is not None \
             else Z2Symmetries([], [], [])
-        self._untapered_op = untapered_op if untapered_op is not None else operator
+        self._untapered_op = untapered_op
 
         self._is_eom_matrix_symmetric = is_eom_matrix_symmetric
 
-    def calculate_excited_states(self, wave_fn, excitations_list=None, quantum_instance=None):
+    def calculate_excited_states(self,
+                                 operator: OperatorBase,
+                                 wave_fn: Union[QuantumCircuit, np.ndarray],
+                                 excitations_list: Optional[List] = None,
+                                 quantum_instance: Optional[QuantumInstance] = None) \
+            -> Tuple[List, Dict]:
         """Calculate energy gap of excited states from the reference state.
 
         Args:
-            wave_fn (Union(QuantumCircuit, numpy.ndarray)): wavefunction of reference state
-            excitations_list (list): excitation list for calculating the excited states
-            quantum_instance (QuantumInstance): a quantum instance with configured settings
+            operator: qubit operator
+            wave_fn: wavefunction of reference state
+            excitations_list: excitation list for calculating the excited states
+            quantum_instance: a quantum instance with configured settings
 
         Returns:
             list: energy gaps to the reference state
@@ -114,13 +118,15 @@ class QEquationOfMotion:
         Raises:
             ValueError: wrong setting for wave_fn and quantum_instance
         """
+        if self._untapered_op is None:
+            self._untapered_op = operator
         if isinstance(wave_fn, QuantumCircuit):
             if quantum_instance is None:
                 raise ValueError("quantum_instance is required when wavn_fn is a QuantumCircuit.")
             temp_quantum_instance = copy.deepcopy(quantum_instance)
             if temp_quantum_instance.is_statevector and temp_quantum_instance.noise_config == {}:
                 initial_statevector = quantum_instance.execute(wave_fn).get_statevector(wave_fn)
-                q = QuantumRegister(self._operator.num_qubits, name='q')
+                q = QuantumRegister(operator.num_qubits, name='q')
                 tmp_wave_fn = QuantumCircuit(q)
                 tmp_wave_fn.append(wave_fn.to_instruction(), q)
                 logger.info("Under noise-free and statevector simulation, "
