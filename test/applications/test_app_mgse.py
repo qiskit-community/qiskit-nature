@@ -30,6 +30,7 @@ from qiskit_nature.core import QubitMappingType
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 
 
+@unittest.skip("Skip test until refactored.")
 class TestAppMGSE(QiskitNatureTestCase):
     """Test molecular ground state energy application """
 

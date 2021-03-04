@@ -22,6 +22,7 @@ from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
 
 
+@unittest.skip("Skip test until refactored.")
 class TestCoreHamiltonian(QiskitNatureTestCase):
     """core/hamiltonian Driver tests."""
 

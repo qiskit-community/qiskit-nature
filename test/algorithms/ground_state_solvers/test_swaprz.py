@@ -27,6 +27,7 @@ from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.transformations import FermionicTransformation
 
 
+@unittest.skip("Skip test until refactored.")
 class TestExcitationPreserving(QiskitNatureTestCase):
     """The ExcitationPresering wavefunction was design to preserve the excitation of the system.
 

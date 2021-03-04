@@ -26,6 +26,7 @@ from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
 from qiskit_nature.algorithms import QEomEE
 
 
+@unittest.skip("Skip test until refactored.")
 class TestEomEE(QiskitNatureTestCase):
     """Test case for Eom EE."""
     def setUp(self):

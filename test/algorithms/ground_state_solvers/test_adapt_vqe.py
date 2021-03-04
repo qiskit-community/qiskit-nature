@@ -30,6 +30,7 @@ from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFact
 from qiskit_nature.transformations import FermionicTransformation
 
 
+@unittest.skip("Skip test until refactored.")
 class TestAdaptVQE(QiskitNatureTestCase):
     """ Test Adaptive VQE Ground State Calculation """
 

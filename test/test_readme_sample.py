@@ -22,6 +22,7 @@ from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 
 
+@unittest.skip("Skip test until refactored.")
 class TestReadmeSample(QiskitNatureTestCase):
     """Test sample code from readme"""
 

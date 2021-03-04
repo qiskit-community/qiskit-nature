@@ -31,6 +31,7 @@ from qiskit_nature.algorithms.excited_states_solvers import (
 )
 
 
+@unittest.skip("Skip test until refactored.")
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """ Test NumericalqEOM excited states calculation """
 

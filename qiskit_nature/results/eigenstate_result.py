@@ -13,6 +13,7 @@
 """Eigenstate results module."""
 
 from typing import Optional, List, Union
+import inspect
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -93,3 +94,28 @@ class EigenstateResult(AlgorithmResult):
     @raw_result.setter
     def raw_result(self, result: AlgorithmResult) -> None:
         self._raw_result = result
+
+    def combine(self, result: AlgorithmResult) -> None:
+        """
+        Any property from the argument that exists in the receiver is
+        updated.
+        Args:
+            result: Argument result with properties to be set.
+        Raises:
+            TypeError: Argument is None
+        """
+        if result is None:
+            raise TypeError('Argument result expected.')
+        if result == self:
+            return
+
+        # find any result public property that exists in the receiver
+        for name, value in inspect.getmembers(result):
+            if not name.startswith('_') and \
+                    not inspect.ismethod(value) and not inspect.isfunction(value) and \
+                    hasattr(self, name):
+                try:
+                    setattr(self, name, value)
+                except AttributeError:
+                    # some attributes may be read only
+                    pass

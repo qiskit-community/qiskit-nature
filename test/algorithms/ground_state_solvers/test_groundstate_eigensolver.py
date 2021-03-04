@@ -30,6 +30,7 @@ from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories
     (VQEUCCSDFactory, NumPyMinimumEigensolverFactory)
 
 
+@unittest.skip("Skip test until refactored.")
 class TestGroundStateEigensolver(QiskitNatureTestCase):
     """ Test GroundStateEigensolver """
 

@@ -28,6 +28,7 @@ from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature import QiskitNatureError
 
 
+@unittest.skip("Skip test until refactored.")
 class TestAdaptVQEUCCSD(QiskitNatureTestCase):
     """ Test Adaptive VQE with UCCSD"""
 

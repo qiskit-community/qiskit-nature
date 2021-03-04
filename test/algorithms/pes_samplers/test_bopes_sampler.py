@@ -30,6 +30,7 @@ from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import Mor
 from qiskit_nature.transformations import FermionicTransformation
 
 
+@unittest.skip("Skip test until refactored.")
 class TestBOPES(unittest.TestCase):
     """Tests of BOPES Sampler."""
 

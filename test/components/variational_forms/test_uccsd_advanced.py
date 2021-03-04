@@ -30,6 +30,7 @@ from qiskit_nature.transformations import FermionicTransformation
 # pylint: disable=invalid-name
 
 
+@unittest.skip("Skip test until refactored.")
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
     """Test for these extensions."""
 

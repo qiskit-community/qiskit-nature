@@ -27,6 +27,7 @@ from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
 from qiskit_nature import QiskitNatureError
 
 
+@unittest.skip("Skip test until refactored.")
 class TestCoreHamiltonianSymmetries(QiskitNatureTestCase):
     """ Core hamiltonian Driver symmetry tests. """
 

@@ -415,6 +415,19 @@ class QEOM(ExcitedStatesSolver):
 class QEOMResult(AlgorithmResult):
     """The results class for the QEOM algorithm."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._ground_state_raw_result = None
+        self._excitation_energies: Optional[np.ndarray] = None
+        self._expansion_coefficients: Optional[np.ndarray] = None
+        self._m_matrix: Optional[np.ndarray] = None
+        self._v_matrix: Optional[np.ndarray] = None
+        self._q_matrix: Optional[np.ndarray] = None
+        self._w_matrix: Optional[np.ndarray] = None
+        self._v_matrix_std: float = 0.
+        self._q_matrix_std: float = 0.
+        self._w_matrix_std: float = 0.
+
     @property
     def ground_state_raw_result(self):
         """ returns ground state raw result """
@@ -426,7 +439,7 @@ class QEOMResult(AlgorithmResult):
         self._ground_state_raw_result = value
 
     @property
-    def excitation_energies(self) -> np.ndarray:
+    def excitation_energies(self) -> Optional[np.ndarray]:
         """ returns the excitation energies (energy gaps) """
         return self._excitation_energies
 
@@ -436,7 +449,7 @@ class QEOMResult(AlgorithmResult):
         self._excitation_energies = value
 
     @property
-    def expansion_coefficients(self) -> np.ndarray:
+    def expansion_coefficients(self) -> Optional[np.ndarray]:
         """ returns the X and Y expansion coefficients """
         return self._expansion_coefficients
 
@@ -446,7 +459,7 @@ class QEOMResult(AlgorithmResult):
         self._expansion_coefficients = value
 
     @property
-    def m_matrix(self) -> np.ndarray:
+    def m_matrix(self) -> Optional[np.ndarray]:
         """ returns the M matrix """
         return self._m_matrix
 
@@ -456,7 +469,7 @@ class QEOMResult(AlgorithmResult):
         self._m_matrix = value
 
     @property
-    def v_matrix(self) -> np.ndarray:
+    def v_matrix(self) -> Optional[np.ndarray]:
         """ returns the V matrix """
         return self._v_matrix
 
@@ -466,7 +479,7 @@ class QEOMResult(AlgorithmResult):
         self._v_matrix = value
 
     @property
-    def q_matrix(self) -> np.ndarray:
+    def q_matrix(self) -> Optional[np.ndarray]:
         """ returns the Q matrix """
         return self._q_matrix
 
@@ -476,7 +489,7 @@ class QEOMResult(AlgorithmResult):
         self._q_matrix = value
 
     @property
-    def w_matrix(self) -> np.ndarray:
+    def w_matrix(self) -> Optional[np.ndarray]:
         """ returns the W matrix """
         return self._w_matrix
 

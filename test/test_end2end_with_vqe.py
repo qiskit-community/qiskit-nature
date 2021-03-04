@@ -32,6 +32,7 @@ class TestEnd2End(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
+        self.skipTest('Skip test until refactored.')
         driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
                                                               'drivers/hdf5d'))
         self.qmolecule = driver.run()
