@@ -212,8 +212,9 @@ class SpinOp(ParticleOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
-            if not all(self._VALID_LABEL_PATTERN.match(label) for label, _ in data):
-                raise ValueError(f"Invalid label are included in {data}")
+            invalid_labels = [label for label, _ in data if self._VALID_LABEL_PATTERN.match(label)]
+            if not invalid_labels:
+                raise ValueError(f"Invalid labels: {invalid_labels}")
 
             data = self._flatten_ladder_ops(data)
 
@@ -232,7 +233,10 @@ class SpinOp(ParticleOp):
                     dtype=np.uint8,
                 ).transpose((2, 0, 1))
             else:
-                raise ValueError(f"Invalid labels or mixed labels are included in {labels}")
+                raise ValueError(
+                    f"Mixed labels are included in {labels}. "
+                    "You can only use either of spare label and dense label"
+                )
         # Make immutable
         self._spin_array.flags.writeable = False
         self._coeffs.flags.writeable = False
