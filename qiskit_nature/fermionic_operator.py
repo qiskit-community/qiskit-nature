@@ -12,6 +12,7 @@
 
 """ Fermionic Operator """
 
+from typing import Optional
 import itertools
 import logging
 import sys
@@ -20,9 +21,8 @@ import numpy as np
 from qiskit.quantum_info import Pauli
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.operators import WeightedPauliOperator
+from qiskit.utils import algorithm_globals
+from qiskit.opflow import PauliSumOp
 from .exceptions import QiskitNatureError
 from .bksf import bksf_mapping
 from .particle_hole import particle_hole_transformation
@@ -67,9 +67,9 @@ class FermionicOperator:
         If you are using the '*physicist*' notation, you need to convert it to
         the '*chemist*' notation. E.g. h2=numpy.einsum('ikmj->ijkm', h2)
 
-        The :class:`~qiskit_nature.QMolecule` class has
-        :attr:`~qiskit_nature.QMolecule.one_body_integrals` and
-        :attr:`~qiskit_nature.QMolecule.two_body_integrals` properties that can be
+        The :class:`~qiskit_nature.drivers.QMolecule` class has
+        :attr:`~qiskit_nature.drivers.QMolecule.one_body_integrals` and
+        :attr:`~qiskit_nature.drivers.QMolecule.two_body_integrals` properties that can be
         directly supplied to the `h1` and `h2` parameters here respectively.
 
         Args:
@@ -352,7 +352,7 @@ class FermionicOperator:
             threshold (float): threshold for Pauli simplification
 
         Returns:
-            WeightedPauliOperator: create an Operator object in Paulis form.
+            PauliSumOp: create an Operator object in Paulis form.
 
         Raises:
             QiskitNatureError: if the `map_type` can not be recognized.
@@ -381,7 +381,7 @@ class FermionicOperator:
         # ###########    BUILDING THE MAPPED HAMILTONIAN     ################
         # ###################################################################
 
-        pauli_list = WeightedPauliOperator(paulis=[])
+        pauli_list: Optional[PauliSumOp] = None
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Mapping one-body terms to Qubit Hamiltonian:")
             TextProgressBar(output_handler=sys.stderr)
@@ -389,10 +389,14 @@ class FermionicOperator:
                                [(self._h1[i, j], a_list[i], a_list[j])
                                 for i, j in itertools.product(range(n), repeat=2)
                                 if self._h1[i, j] != 0],
-                               task_args=(threshold,), num_processes=aqua_globals.num_processes)
-        for result in results:
-            pauli_list += result
-        pauli_list.chop(threshold=threshold)
+                               task_args=(threshold,),
+                               num_processes=algorithm_globals.num_processes)
+        if results:
+            pauli_list = results[0]
+            for result in results[1:]:
+                pauli_list += result
+            # TODO: implement chop
+            # pauli_list.chop(threshold=threshold)
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Mapping two-body terms to Qubit Hamiltonian:")
@@ -401,14 +405,19 @@ class FermionicOperator:
                                [(self._h2[i, j, k, m], a_list[i], a_list[j], a_list[k], a_list[m])
                                 for i, j, k, m in itertools.product(range(n), repeat=4)
                                 if self._h2[i, j, k, m] != 0],
-                               task_args=(threshold,), num_processes=aqua_globals.num_processes)
-        for result in results:
-            pauli_list += result
-        pauli_list.chop(threshold=threshold)
+                               task_args=(threshold,),
+                               num_processes=algorithm_globals.num_processes)
+        if results:
+            pauli_list = results[0] if pauli_list is None else pauli_list + results[0]
+            for result in results[1:]:
+                pauli_list += result
+            # TODO: implement chop
+            # pauli_list.chop(threshold=threshold)
 
         if self._ph_trans_shift is not None:
-            pauli_term = [self._ph_trans_shift, Pauli.from_label('I' * self._modes)]
-            pauli_list += WeightedPauliOperator(paulis=[pauli_term])
+            pauli_term = ('I' * self._modes, self._ph_trans_shift)
+            pauli_sum_op = PauliSumOp.from_list([pauli_term])
+            pauli_list = pauli_sum_op if pauli_list is None else pauli_list + pauli_sum_op
 
         return pauli_list
 
@@ -422,7 +431,7 @@ class FermionicOperator:
             threshold (float): threshold to remove a pauli
 
         Returns:
-            WeightedPauliOperator: Operator for those paulis
+            PauliSumOp: Operator for those paulis
         """
         h1_ij, a_i, a_j = h1_ij_aij
         pauli_list = []
@@ -433,7 +442,7 @@ class FermionicOperator:
                 pauli_term = [coeff, pauli_prod[0]]
                 if np.absolute(pauli_term[0]) > threshold:
                     pauli_list.append(pauli_term)
-        return WeightedPauliOperator(paulis=pauli_list)
+        return PauliSumOp.from_list([(pauli[1].to_label(), pauli[0]) for pauli in pauli_list])
 
     @staticmethod
     def _two_body_mapping(h2_ijkm_a_ijkm, threshold):
@@ -448,7 +457,7 @@ class FermionicOperator:
             threshold (float): threshold to remove a pauli
 
         Returns:
-            WeightedPauliOperator: Operator for those paulis
+            PauliSumOp: Operator for those paulis
         """
         h2_ijkm, a_i, a_j, a_k, a_m = h2_ijkm_a_ijkm
         pauli_list = []
@@ -465,7 +474,7 @@ class FermionicOperator:
                         pauli_term = [h2_ijkm / 16 * phase1 * phase2, pauli_prod_3[0]]
                         if np.absolute(pauli_term[0]) > threshold:
                             pauli_list.append(pauli_term)
-        return WeightedPauliOperator(paulis=pauli_list)
+        return PauliSumOp.from_list([(pauli[1].to_label(), pauli[0]) for pauli in pauli_list])
 
     def _convert_to_interleaved_spins(self):
         """

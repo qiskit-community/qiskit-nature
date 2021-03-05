@@ -17,8 +17,9 @@ import copy
 import logging
 import numpy as np
 
-from qiskit_nature import QMolecule, QiskitNatureError
 from .base_transformer import BaseTransformer
+from .. import QiskitNatureError
+from ..drivers import QMolecule
 
 logger = logging.getLogger(__name__)
 

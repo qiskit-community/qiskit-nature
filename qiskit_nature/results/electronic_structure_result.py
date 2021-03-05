@@ -13,12 +13,11 @@
 """The electronic structure result."""
 
 from typing import List, Optional, Tuple, cast
-
 import logging
+
 import numpy as np
 
-from qiskit_nature import QMolecule
-
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .eigenstate_result import EigenstateResult
 
 logger = logging.getLogger(__name__)
@@ -33,35 +32,42 @@ DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
 class ElectronicStructureResult(EigenstateResult):
     """The electronic structure result."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._hartree_fock_energy: float = 0.
+        self._nuclear_repulsion_energy: Optional[float] = None
+        self._nuclear_dipole_moment: Optional[DipoleTuple] = None
+        self._computed_energies: Optional[np.ndarray] = None
+
     @property
     def hartree_fock_energy(self) -> float:
         """ Returns Hartree-Fock energy """
-        return self.get('hartree_fock_energy')
+        return self._hartree_fock_energy
 
     @hartree_fock_energy.setter
     def hartree_fock_energy(self, value: float) -> None:
         """ Sets Hartree-Fock energy """
-        self.data['hartree_fock_energy'] = value
+        self._hartree_fock_energy = value
 
     @property
     def nuclear_repulsion_energy(self) -> Optional[float]:
         """ Returns nuclear repulsion energy when available from driver """
-        return self.get('nuclear_repulsion_energy')
+        return self._nuclear_repulsion_energy
 
     @nuclear_repulsion_energy.setter
     def nuclear_repulsion_energy(self, value: float) -> None:
         """ Sets nuclear repulsion energy """
-        self.data['nuclear_repulsion_energy'] = value
+        self._nuclear_repulsion_energy = value
 
     @property
     def nuclear_dipole_moment(self) -> Optional[DipoleTuple]:
         """ Returns nuclear dipole moment X,Y,Z components in A.U when available from driver """
-        return self.get('nuclear_dipole_moment')
+        return self._nuclear_dipole_moment
 
     @nuclear_dipole_moment.setter
     def nuclear_dipole_moment(self, value: DipoleTuple) -> None:
         """ Sets nuclear dipole moment in A.U """
-        self.data['nuclear_dipole_moment'] = value
+        self._nuclear_dipole_moment = value
 
     # TODO we need to be able to extract the statevector or the optimal parameters that can
     # construct the circuit of the GS from here (if the algorithm supports this)
@@ -84,34 +90,34 @@ class ElectronicStructureResult(EigenstateResult):
                 + self.frozen_extracted_energy)
 
     @property
-    def computed_energies(self) -> np.ndarray:
+    def computed_energies(self) -> Optional[np.ndarray]:
         """ Returns computed electronic part of ground state energy """
-        return self.get('computed_energies')
+        return self._computed_energies
 
     @computed_energies.setter
     def computed_energies(self, value: np.ndarray) -> None:
         """ Sets computed electronic part of ground state energy """
-        self.data['computed_energies'] = value
+        self._computed_energies = value
 
     @property
     def ph_extracted_energy(self) -> float:
         """ Returns particle hole extracted part of ground state energy """
-        return self.get('ph_extracted_energy')
+        return self._ph_extracted_energy
 
     @ph_extracted_energy.setter
     def ph_extracted_energy(self, value: float) -> None:
         """ Sets particle hole extracted part of ground state energy """
-        self.data['ph_extracted_energy'] = value
+        self._ph_extracted_energy = value
 
     @property
     def frozen_extracted_energy(self) -> float:
         """ Returns frozen extracted part of ground state energy """
-        return self.get('frozen_extracted_energy')
+        return self._frozen_extracted_energy
 
     @frozen_extracted_energy.setter
     def frozen_extracted_energy(self, value: float) -> None:
         """ Sets frozen extracted part of ground state energy """
-        self.data['frozen_extracted_energy'] = value
+        self._frozen_extracted_energy = value
 
     # Dipole moment results. Note dipole moments of tuples of X, Y and Z components. Chemistry
     # drivers either support dipole integrals or not. Note that when using Z2 symmetries of
@@ -123,12 +129,12 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def reverse_dipole_sign(self) -> bool:
         """ Returns if electronic dipole moment sign should be reversed when adding to nuclear """
-        return self.get('reverse_dipole_sign')
+        return self._reverse_dipole_sign
 
     @reverse_dipole_sign.setter
     def reverse_dipole_sign(self, value: bool) -> None:
         """ Sets if electronic dipole moment sign should be reversed when adding to nuclear """
-        self.data['reverse_dipole_sign'] = value
+        self._reverse_dipole_sign = value
 
     @property
     def total_dipole_moment(self) -> Optional[List[float]]:
@@ -185,32 +191,32 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def computed_dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """ Returns computed electronic part of dipole moment """
-        return self.get('computed_dipole_moment')
+        return self._computed_dipole_moment
 
     @computed_dipole_moment.setter
     def computed_dipole_moment(self, value: List[DipoleTuple]) -> None:
         """ Sets computed electronic part of dipole moment """
-        self.data['computed_dipole_moment'] = value
+        self._computed_dipole_moment = value
 
     @property
     def ph_extracted_dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """ Returns particle hole extracted part of dipole moment """
-        return self.get('ph_extracted_dipole_moment')
+        return self._ph_extracted_dipole_moment
 
     @ph_extracted_dipole_moment.setter
     def ph_extracted_dipole_moment(self, value: List[DipoleTuple]) -> None:
         """ Sets particle hole extracted part of dipole moment """
-        self.data['ph_extracted_dipole_moment'] = value
+        self._ph_extracted_dipole_moment = value
 
     @property
     def frozen_extracted_dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """ Returns frozen extracted part of dipole moment """
-        return self.get('frozen_extracted_dipole_moment')
+        return self._frozen_extracted_dipole_moment
 
     @frozen_extracted_dipole_moment.setter
     def frozen_extracted_dipole_moment(self, value: List[DipoleTuple]) -> None:
         """ Sets frozen extracted part of dipole moment """
-        self.data['frozen_extracted_dipole_moment'] = value
+        self._frozen_extracted_dipole_moment = value
 
     # Other measured operators. If these are not evaluated then None will be returned
     # instead of any measured value.
@@ -224,12 +230,12 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def total_angular_momentum(self) -> Optional[List[float]]:
         """ Returns total angular momentum (S^2) """
-        return self.get('total_angular_momentum')
+        return self._total_angular_momentum
 
     @total_angular_momentum.setter
     def total_angular_momentum(self, value: List[float]) -> None:
         """ Sets total angular momentum """
-        self.data['total_angular_momentum'] = value
+        self._total_angular_momentum = value
 
     @property
     def spin(self) -> Optional[List[float]]:
@@ -244,28 +250,27 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def num_particles(self) -> Optional[List[float]]:
         """ Returns measured number of particles """
-        return self.get('num_particles')
+        return self._num_particles
 
     @num_particles.setter
     def num_particles(self, value: List[float]) -> None:
         """ Sets measured number of particles """
-        self.data['num_particles'] = value
+        self._num_particles = value
 
     @property
     def magnetization(self) -> Optional[List[float]]:
         """ Returns measured magnetization """
-        return self.get('magnetization')
+        return self._magnetization
 
     @magnetization.setter
     def magnetization(self, value: List[float]) -> None:
         """ Sets measured magnetization """
-        self.data['magnetization'] = value
+        self._magnetization = value
 
     def __str__(self) -> str:
         """ Printable formatted result """
-        return '\n'.join(self.formatted)
+        return '\n'.join(self.formatted())
 
-    @property
     def formatted(self) -> List[str]:
         """ Formatted result as a list of strings """
         lines = []

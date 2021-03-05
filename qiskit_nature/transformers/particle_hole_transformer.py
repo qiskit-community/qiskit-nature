@@ -12,8 +12,7 @@
 
 """The Particle/Hole Transformer interface."""
 
-from qiskit_nature import QMolecule
-
+from qiskit_nature.drivers import QMolecule
 from .base_transformer import BaseTransformer
 
 

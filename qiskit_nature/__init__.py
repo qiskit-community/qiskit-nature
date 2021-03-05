@@ -10,19 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-===================================================
-Qiskit's chemistry module (:mod:`qiskit_nature`)
-===================================================
+=============================================
+Qiskit Nature module (:mod:`qiskit_nature`)
+=============================================
 
 .. currentmodule:: qiskit_nature
 
-This is Qiskit's chemistry module that provides for experimentation with chemistry
+This is Qiskit Nature module that provides for experimentation with
 domain problems such as ground state energy and excited state energies of molecules.
 
 Overview
 ========
 
-This is an overview of the workings of the chemistry module and how it may be used. There
+This is an overview of the workings of the nature sciences module and how it may be used. There
 are different levels of exposure to its functionality, allowing for experimentation at different
 abstractions. The outline below starts with the flow that provides the most control of the
 process.
@@ -31,15 +31,15 @@ A classical chemistry driver is first instantiated, from the available :mod:`~.d
 by means of a molecule specification, along with other configuration such as basis set and method
 (RHF, ROHF, UHF). This configuration may include custom settings for the specific driver for more
 custom control over the driver's behavior. When the driver is run the output is a mostly driver
-independent :class:`~.QMolecule`. This contains various quantities that were
+independent :class:`qiskit_nature.drivers.QMolecule`. This contains various quantities that were
 computed including one and two-body electron integrals that are used as input
 :class:`~qiskit_nature.FermionicOperator`. Mostly driver independent means that these integrals,
 for example, will be there from every driver but the values may differ due to how each underlying
 chemistry library/program computes them. Also some fields in the QMolecule may not be populated by
 all drivers, for instance dipole integrals are not output from the PyQuante driver, and hence the
 dipole moment cannot be computed by qiskit_nature when using this driver. The FermionicOperator
-once created can then be converted/mapped to a qubit operator for use as input to an Aqua
-algorithms. The operator must be in qubit form at this stage since the execution target of the
+once created can then be converted/mapped to a qubit operator for use as input to an
+algorithm. The operator must be in qubit form at this stage since the execution target of the
 algorithm will be a quantum device, or simulator ,comprised of qubits and the mapping is needed as
 qubits behave differently than fermions. Once the algorithm is run it will compute the electronic
 part of the quantity, such as the electronic ground state energy. To get the total ground state
@@ -52,20 +52,20 @@ compute dipole moments each of the X, Y and Z dipole integrals must be prepared,
 FermionicOperators, in a like manner to the main electronic energy one, i.e. same transformations,
 and eventually same qubit mapping. The core.Hamiltonian class does all this and more, such as
 orbital reductions, frozen core and automatic symmetry reduction. When run with a QMolecule output
-from a driver it produces qubit operators that can be given directly to Aqua algorithms for
+from a driver it produces qubit operators that can be given directly to algorithms for
 the computation. Also available are several properties, such as number of particles and number of
 orbitals, that are needed to correctly instantiate chemistry specific components such as
 :class:`~.components.variational_forms.UCCSD` and :class:`~.components.initial_states.HartreeFock`.
 Using the FermionicOperator directly requires taking the initial values for the QMolecule and then
 keeping track of any changes based on any orbital elimination and/or freezing, and/or Z2Symmetry
-reductions that are done. Once the output qubit operators have been used with an Aqua algorithm,
+reductions that are done. Once the output qubit operators have been used with an algorithm,
 to compute the electronic result, this result can be fed back to the core.Hamiltonian, to
 :meth:`~.core.Hamiltonian.process_algorithm_result` which will then compute a final total result
 including a user friendly formatted text result that may be printed.
 
 Lastly the chemistry :mod:`~.applications` may be used. These are given a chemistry driver and,
-in the case of :class:`~applications.MolecularGroundStateEnergy` an optional instance of an Aqua
-:class:`~qiskit.aqua.algorithms.MinimumEigensolver`, such as :class:`~qiskit.aqua.algorithms.VQE`.
+in the case of :class:`~applications.MolecularGroundStateEnergy` an optional instance of a
+:class:`~qiskit.algorithms.MinimumEigensolver`, such as :class:`~qiskit.algorithms.VQE`.
 Optional since components such as :class:`~.components.variational_forms.UCCSD` need certain
 information that may be unknown at this point. So alternatively, when its method
 :meth:`~applications.MolecularGroundStateEnergy.compute_energy` is run a callback can be provided
@@ -137,7 +137,6 @@ Chemistry Classes
 
    BosonicOperator
    FermionicOperator
-   QMolecule
    WatsonHamiltonian
    MP2Info
 
@@ -148,9 +147,7 @@ Submodules
    :toctree:
 
    algorithms
-   applications
    components
-   core
    drivers
    operators
    results
@@ -158,15 +155,13 @@ Submodules
 
 """
 
-from .exceptions import QiskitNatureError
-from .qmolecule import QMolecule
-from .watson_hamiltonian import WatsonHamiltonian
 from .bosonic_operator import BosonicOperator
+from .exceptions import QiskitNatureError
 from .fermionic_operator import FermionicOperator
 from .mp2info import MP2Info
+from .watson_hamiltonian import WatsonHamiltonian
 
 __all__ = ['QiskitNatureError',
-           'QMolecule',
            'WatsonHamiltonian',
            'BosonicOperator',
            'FermionicOperator',

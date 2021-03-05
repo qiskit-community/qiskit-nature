@@ -23,8 +23,8 @@ chemistry program or library to be passed.
 
 The chemistry module thus allows the user to configure a chemistry problem in a way that a chemist
 already using the underlying chemistry program or library will be familiar with. The driver is
-used to compute some intermediate data, which later will be used to form the input to an Aqua
-algorithm.  Such intermediate data, is populated into a :class:`~qiskit_nature.QMolecule`
+used to compute some intermediate data, which later will be used to form the input to an
+algorithm.  Such intermediate data, is populated into a :class:`~qiskit_nature.drivers.QMolecule`
 object and includes the following for example:
 
 1. One- and two-body integrals in Molecular Orbital (MO) basis
@@ -61,6 +61,7 @@ Driver Common
    :toctree: ../stubs/
    :nosignatures:
 
+   QMolecule
    Molecule
    HFMethodType
    UnitsType
@@ -85,7 +86,7 @@ to use.
    qiskit_nature.drivers.pyscfd
 
 The :class:`HDF5Driver` reads molecular data from a pre-existing HDF5 file, as saved from a
-:class:`~qiskit_nature.QMolecule`, and is not dependent on any external chemistry
+:class:`~qiskit_nature.drivers.QMolecule`, and is not dependent on any external chemistry
 program/library and needs no special install.
 
 The :class:`FCIDumpDriver` likewise reads from a pre-existing file in this case a standard
@@ -132,6 +133,7 @@ of interest that is parsed from the log.
 """
 
 from .base_driver import BaseDriver
+from .qmolecule import QMolecule
 from .molecule import Molecule
 from .bosonic_driver import BosonicDriver
 from .fermionic_driver import FermionicDriver, HFMethodType
@@ -144,6 +146,7 @@ from .pyquanted import PyQuanteDriver, BasisType
 from .pyscfd import PySCFDriver, InitialGuess
 
 __all__ = ['HFMethodType',
+           'QMolecule',
            'Molecule',
            'BaseDriver',
            'BosonicDriver',

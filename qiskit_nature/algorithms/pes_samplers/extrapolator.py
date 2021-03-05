@@ -18,13 +18,13 @@ from typing import Optional, List, Dict, Union, cast
 import numpy as np
 from sklearn import linear_model
 from sklearn.decomposition import PCA, KernelPCA
-from qiskit.aqua import AquaError
+from qiskit_nature.exceptions import QiskitNatureError
 
 
 class Extrapolator(ABC):
     """
     This class is based on performing extrapolation of parameters of a wavefunction for a
-    variational algorithm defined in the variational forms as part of the Qiskit Aqua module.
+    variational algorithm defined in the variational forms as part of the Qiskit module.
     This concept is based on fitting a set of (point,parameter) data to some specified
     function and predicting the optimal variational parameters for the next point. This
     technique is aimed towards providing a better starting point for the variational algorithm,
@@ -87,7 +87,7 @@ class Extrapolator(ABC):
             A newly created extrapolator instance.
 
         Raises:
-            AquaError: if specified mode is unknown.
+            QiskitNatureError: if specified mode is unknown.
         """
         if mode == 'window':
             return WindowExtrapolator(**kwargs)
@@ -100,7 +100,7 @@ class Extrapolator(ABC):
         elif mode == 'l1':
             return SieveExtrapolator(**kwargs)
         else:
-            raise AquaError('No extrapolator called {}'.format(mode))
+            raise QiskitNatureError('No extrapolator called {}'.format(mode))
 
 
 class PolynomialExtrapolator(Extrapolator):
@@ -337,7 +337,7 @@ class PCAExtrapolator(Extrapolator):
             window: Number of previous points to use for extrapolation.
 
         Raises:
-            AquaError: if kernel is not defined in sklearn module.
+            QiskitNatureError: if kernel is not defined in sklearn module.
         """
         self._extrapolator = WindowExtrapolator(extrapolator=extrapolator, window=window)
         self._kernel = kernel
@@ -346,7 +346,7 @@ class PCAExtrapolator(Extrapolator):
         elif self._kernel in ['linear', 'poly', 'rbf', 'sigmoid', 'cosine']:
             self._pca_model = KernelPCA(kernel=self._kernel, fit_inverse_transform=True)
         else:
-            raise AquaError('PCA kernel type {} not found'.format(self._kernel))
+            raise QiskitNatureError('PCA kernel type {} not found'.format(self._kernel))
 
     def extrapolate(self, points: List[float], param_dict: Optional[Dict[float, List[float]]]) \
             -> Dict[float, List[float]]:

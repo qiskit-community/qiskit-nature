@@ -17,7 +17,7 @@ parameter pairs.
 
 import unittest
 from sklearn import linear_model
-from qiskit.aqua import AquaError
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.algorithms.pes_samplers.extrapolator import Extrapolator, \
     WindowExtrapolator, PolynomialExtrapolator, DifferentialExtrapolator, \
     PCAExtrapolator, SieveExtrapolator
@@ -99,7 +99,7 @@ class TestExtrapolators(unittest.TestCase):
         self.assertIsInstance(Extrapolator.factory(mode='diff_model'), DifferentialExtrapolator)
         self.assertIsInstance(Extrapolator.factory(mode='pca'), PCAExtrapolator)
         self.assertIsInstance(Extrapolator.factory(mode='l1'), SieveExtrapolator)
-        self.assertRaises(AquaError, Extrapolator.factory, mode="unknown")
+        self.assertRaises(QiskitNatureError, Extrapolator.factory, mode="unknown")
 
     def test_polynomial_extrapolator(self):
         """

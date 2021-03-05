@@ -14,25 +14,25 @@
 A ground state calculation employing the Orbital-Optimized VQE (OOVQE) algorithm.
 """
 
-from typing import Optional, List, Union, Tuple
-import logging
 import copy
-import numpy as np
-from scipy.linalg import expm
-from qiskit.aqua import AquaError
-from qiskit.aqua.algorithms import VQE, MinimumEigensolver
-from qiskit.aqua.operators import LegacyBaseOperator
+import logging
+from typing import Optional, List, Union, Tuple
 
+import numpy as np
+from qiskit.algorithms import VQE, MinimumEigensolver
+from scipy.linalg import expm
+
+from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.drivers.qmolecule import QMolecule
 from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
-from ...components.variational_forms import UCCSD
-from ...fermionic_operator import FermionicOperator
 from ...bosonic_operator import BosonicOperator
+from ...components.variational_forms import UCCSD
 from ...drivers.base_driver import BaseDriver
 from ...drivers.fermionic_driver import FermionicDriver
-from ...transformations.fermionic_transformation import FermionicTransformation
+from ...fermionic_operator import FermionicOperator
 from ...results.electronic_structure_result import ElectronicStructureResult
-from ...qmolecule import QMolecule
+from ...transformations.fermionic_transformation import FermionicTransformation
 
 logger = logging.getLogger(__name__)
 
@@ -86,12 +86,13 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             iterative_oo_iterations: number of iterations in the iterative procedure,
                 set larger to be sure to converge to the global minimum.
         Raises:
-            AquaError: if the number of orbital optimization iterations is less or equal to zero.
+            QiskitNatureError: if the number of orbital optimization iterations
+                               is less or equal to zero.
         """
 
         super().__init__(transformation, solver)
         if not isinstance(self._transformation, FermionicTransformation):
-            raise AquaError('OrbitalOptimizationVQE requires a FermionicTransformation.')
+            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
         from typing import cast
         self._transformation = cast(FermionicTransformation, self._transformation)
 
@@ -121,9 +122,9 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         """ Initializes the operators using provided driver of qmolecule."""
 
         if not isinstance(self._transformation, FermionicTransformation):
-            raise AquaError('OrbitalOptimizationVQE requires a FermionicTransformation.')
+            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
         if not isinstance(driver, FermionicDriver):
-            raise AquaError('OrbitalOptimizationVQE only works with Fermionic Drivers.')
+            raise QiskitNatureError('OrbitalOptimizationVQE only works with Fermionic Drivers.')
 
         if self._qmolecule is None:
             # in future, self._transformation.transform should return also qmolecule
@@ -133,7 +134,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         else:
             operator, aux_operators = self._transformation._do_transform(self._qmolecule)
         if operator is None:  # type: ignore
-            raise AquaError("The operator was never provided.")
+            raise QiskitNatureError("The operator was never provided.")
 
         if isinstance(self.solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
@@ -142,11 +143,11 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             self._vqe = self.solver
 
         if not isinstance(self._vqe, VQE):
-            raise AquaError(
+            raise QiskitNatureError(
                 "The OrbitalOptimizationVQE algorithm requires the use of the VQE " +
                 "MinimumEigensolver.")
         if not isinstance(self._vqe.var_form, UCCSD):
-            raise AquaError(
+            raise QiskitNatureError(
                 "The OrbitalOptimizationVQE algorithm requires the use of the UCCSD varform.")
 
         self._vqe.operator = operator
@@ -162,7 +163,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             bounds_oo_val: pair of bounds between which the optimizer confines the values of
                            OO parameters.
         Raises:
-            AquaError: Instantiate OrbitalRotation class and provide it to the
+            QiskitNatureError: Instantiate OrbitalRotation class and provide it to the
                        orbital_rotation keyword argument
         """
         bounds = []
@@ -184,7 +185,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         """ Initializes additional parameters of the OOVQE algorithm. """
 
         if not isinstance(self._transformation, FermionicTransformation):
-            raise AquaError('OrbitalOptimizationVQE requires a FermionicTransformation.')
+            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
 
         self._set_operator_and_vqe(driver)
 
@@ -199,17 +200,18 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             self._set_initial_point()
         else:
             if len(self.initial_point) is not self._num_parameters_oovqe:
-                raise AquaError(
+                raise QiskitNatureError(
                     'Number of parameters of OOVQE ({}) does not match the length of the '
                     'intitial_point ({})'.format(self._num_parameters_oovqe,
                                                  len(self.initial_point)))
         if self._bounds is None:
             self._set_bounds(self._orbital_rotation.parameter_bound_value)
         if self._iterative_oo_iterations < 1:
-            raise AquaError('Please set iterative_oo_iterations parameter to a positive number,'
+            raise QiskitNatureError(
+                            'Please set iterative_oo_iterations parameter to a positive number,'
                             ' got {} instead'.format(self._iterative_oo_iterations))
 
-        # copies to overcome incompatibilities with error checks in VQAlgorithm class
+        # copies to overcome incompatibilities with error checks in VariationalAlgorithm class
         self.var_form_num_parameters = self._vqe.var_form.num_parameters
         self.var_form_bounds = copy.copy(self._vqe.var_form._bounds)
         self._additional_params_initialized = True
@@ -222,12 +224,12 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         Returns:
             energy of the hamiltonian of each parameter.
         Raises:
-            AquaError: Instantiate OrbitalRotation class and provide it to the
+            QiskitNatureError: Instantiate OrbitalRotation class and provide it to the
                        orbital_rotation keyword argument
         """
 
         if not isinstance(self._transformation, FermionicTransformation):
-            raise AquaError('OrbitalOptimizationVQE requires a FermionicTransformation.')
+            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
 
         # slice parameter lists
         if self._iterative_oo:
@@ -242,8 +244,9 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
         # rotate the orbitals
         if self._orbital_rotation is None:
-            raise AquaError('Instantiate OrbitalRotation class and provide it to the '
-                            'orbital_rotation keyword argument')
+            raise QiskitNatureError(
+                'Instantiate OrbitalRotation class and provide it to the '
+                'orbital_rotation keyword argument')
 
         self._orbital_rotation.orbital_rotation_matrix(parameters_orb_rot)
 
@@ -254,8 +257,6 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
         # construct the qubit operator
         operator, aux_operators = self._transformation._do_transform(self._qmolecule_rotated)
-        if isinstance(operator, LegacyBaseOperator):
-            operator = operator.to_opflow()
         self._vqe.operator = operator
         self._vqe.aux_operators = aux_operators
         logger.debug('Orbital rotation parameters of matrix U at evaluation %d returned'
@@ -276,7 +277,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         self._initialize_additional_parameters(driver)
 
         if not isinstance(self._transformation, FermionicTransformation):
-            raise AquaError('OrbitalOptimizationVQE requires a FermionicTransformation.')
+            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
 
         self._vqe._eval_count = 0
 
@@ -306,8 +307,6 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                 # optimize wavefunction ansatz
                 logger.info('OrbitalOptimizationVQE: Ansatz optimization, orbitals fixed.')
                 self._vqe.var_form._num_parameters = self.var_form_num_parameters
-                if isinstance(self._vqe.operator, LegacyBaseOperator):  # type: ignore
-                    self._vqe.operator = self._vqe.operator.to_opflow()  # type: ignore
                 self._vqe.var_form._bounds = self.var_form_bounds
                 vqresult_wavefun = self._vqe.find_minimum(
                     initial_point=self.initial_point[:self.var_form_num_parameters],
@@ -451,7 +450,8 @@ class OrbitalRotation:
         Args:
             num_qubits: number of qubits necessary to simulate a particular system.
             transformation: a fermionic driver to operator transformation strategy.
-            qmolecule: instance of the :class:`~qiskit_nature.QMolecule` class which has methods
+            qmolecule: instance of the :class:`~qiskit_nature.drivers.QMolecule`
+                class which has methods
                 needed to recompute one-/two-electron/dipole integrals after orbital rotation
                 (C = C0 * exp(-kappa)). It is not required but can be used if user wished to
                 provide custom integrals for instance.
@@ -503,31 +503,37 @@ class OrbitalRotation:
         # number of parameters check
         if self._orbital_rotations_beta is None and self._orbital_rotations is not None:
             if len(self._orbital_rotations) != len(self._parameters):
-                raise AquaError('Please specify same number of params ({}) as there are '
-                                'orbital rotations ({})'.format(len(self._parameters),
-                                                                len(self._orbital_rotations)))
+                raise QiskitNatureError(
+                    'Please specify same number of params ({}) as there are '
+                    'orbital rotations ({})'.format(len(self._parameters),
+                                                    len(self._orbital_rotations)))
         elif self._orbital_rotations_beta is not None and self._orbital_rotations is not None:
             if len(self._orbital_rotations) + len(self._orbital_rotations_beta) != len(
                     self._parameters):
-                raise AquaError('Please specify same number of params ({}) as there are '
-                                'orbital rotations ({})'.format(len(self._parameters),
-                                                                len(self._orbital_rotations)))
+                raise QiskitNatureError(
+                    'Please specify same number of params ({}) as there are '
+                    'orbital rotations ({})'.format(len(self._parameters),
+                                                    len(self._orbital_rotations)))
         # indices of rotated orbitals check
         for exc in self._orbital_rotations:
             if exc[0] > (self._dim_kappa_matrix - 1):
-                raise AquaError('You specified entries that go outside '
-                                'the orbital rotation matrix dimensions {}, '.format(exc[0]))
+                raise QiskitNatureError(
+                    'You specified entries that go outside '
+                    'the orbital rotation matrix dimensions {}, '.format(exc[0]))
             if exc[1] > (self._dim_kappa_matrix - 1):
-                raise AquaError('You specified entries that go outside '
-                                'the orbital rotation matrix dimensions {}'.format(exc[1]))
+                raise QiskitNatureError(
+                    'You specified entries that go outside '
+                    'the orbital rotation matrix dimensions {}'.format(exc[1]))
         if self._orbital_rotations_beta is not None:
             for exc in self._orbital_rotations_beta:
                 if exc[0] > (self._dim_kappa_matrix - 1):
-                    raise AquaError('You specified entries that go outside '
-                                    'the orbital rotation matrix dimensions {}'.format(exc[0]))
+                    raise QiskitNatureError(
+                        'You specified entries that go outside '
+                        'the orbital rotation matrix dimensions {}'.format(exc[0]))
                 if exc[1] > (self._dim_kappa_matrix - 1):
-                    raise AquaError('You specified entries that go outside '
-                                    'the orbital rotation matrix dimensions {}'.format(exc[1]))
+                    raise QiskitNatureError(
+                        'You specified entries that go outside '
+                        'the orbital rotation matrix dimensions {}'.format(exc[1]))
 
     def _create_orbital_rotation_list(self) -> None:
         """ Creates a list of indices of matrix kappa that denote the pairs of orbitals that
@@ -552,10 +558,11 @@ class OrbitalRotation:
         if self._orbital_rotations is None:
             self._create_orbital_rotation_list()
         elif self._orbital_rotations is None and self._orbital_rotations_beta is not None:
-            raise AquaError('Only beta orbitals labels (orbital_rotations_beta) have been provided.'
-                            'Please also specify the alpha orbitals (orbital_rotations) '
-                            'that are rotated as well. Do not specify anything to have by default '
-                            'all orbitals rotated.')
+            raise QiskitNatureError(
+                'Only beta orbitals labels (orbital_rotations_beta) have been provided.'
+                'Please also specify the alpha orbitals (orbital_rotations) '
+                'that are rotated as well. Do not specify anything to have by default '
+                'all orbitals rotated.')
 
         if self._orbital_rotations_beta is not None:
             num_parameters = len(self._orbital_rotations + self._orbital_rotations_beta)
@@ -599,9 +606,10 @@ class OrbitalRotation:
             dim_full_k = k_matrix_alpha_full.shape[0]  # pylint: disable=unsubscriptable-object
 
             if self._core_list is None:
-                raise AquaError('Give _core_list, the list of molecular spatial orbitals that are '
-                                'frozen (e.g. [0] for the 1s or [0,1] for respectively Li2 or N2 '
-                                'for example).')
+                raise QiskitNatureError(
+                    'Give _core_list, the list of molecular spatial orbitals that are '
+                    'frozen (e.g. [0] for the 1s or [0,1] for respectively Li2 or N2 '
+                    'for example).')
             lower = len(self._core_list)
             upper = dim_full_k
             k_matrix_alpha_full[lower:upper, lower:upper] = k_matrix_alpha
@@ -638,62 +646,71 @@ class OrbitalRotation:
 class OOVQEResult(ElectronicStructureResult):
     r""" OOVQE Result. """
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._computed_electronic_energy: float = 0.
+        self._num_optimizer_evals: int = 0
+        self._cost_function_evals: int = 0
+        self._optimal_point: List = []
+        self._optimal_point_ansatz: List = []
+        self._optimal_point_orbitals: List = []
+
     @property
     def computed_electronic_energy(self) -> float:
         """ Returns the ground state energy. """
-        return self.get('computed_electronic_energy')
+        return self._computed_electronic_energy
 
     @computed_electronic_energy.setter
     def computed_electronic_energy(self, value: float) -> None:
         """ Sets the ground state energy. """
-        self.data['computed_electronic_energy'] = value
+        self._computed_electronic_energy = value
 
     @property
     def cost_function_evals(self) -> int:
         """ Returns number of cost function evaluations. """
-        return self.get('cost_function_evals')
+        return self._cost_function_evals
 
     @cost_function_evals.setter
     def cost_function_evals(self, value: int) -> None:
         """ Sets the number of cost function evaluations. """
-        self.data['cost_function_evals'] = value
+        self._cost_function_evals = value
 
     @property
     def num_optimizer_evals(self) -> int:
         """ Returns the number of cost function evaluations in the optimizer """
-        return self.get('num_optimizer_evals')
+        return self._num_optimizer_evals
 
     @num_optimizer_evals.setter
-    def num_optimizer_evals(self, value: float) -> None:
+    def num_optimizer_evals(self, value: int) -> None:
         """ Sets the number of cost function evaluations in the optimizer """
-        self.data['num_optimizer_evals'] = value
+        self._num_optimizer_evals = value
 
     @property
-    def optimal_point(self) -> list:
+    def optimal_point(self) -> List:
         """ Returns the optimal parameters. """
-        return self.get('optimal_point')
+        return self._optimal_point
 
     @optimal_point.setter
-    def optimal_point(self, value: list) -> None:
+    def optimal_point(self, value: List) -> None:
         """ Sets the optimal parameters. """
-        self.data['optimal_point'] = value
+        self._optimal_point = value
 
     @property
-    def optimal_point_ansatz(self) -> list:
+    def optimal_point_ansatz(self) -> List:
         """ Returns the optimal parameters for the . """
-        return self.get('optimal_point_ansatz')
+        return self._optimal_point_ansatz
 
     @optimal_point_ansatz.setter
-    def optimal_point_ansatz(self, value: list) -> None:
+    def optimal_point_ansatz(self, value: List) -> None:
         """ Sets the optimal parameters for the ansatz. """
-        self.data['optimal_point_ansatz'] = value
+        self._optimal_point_ansatz = value
 
     @property
-    def optimal_point_orbitals(self) -> list:
+    def optimal_point_orbitals(self) -> List:
         """ Returns the optimal parameters of the orbitals. """
-        return self.get('optimal_point_orbitals')
+        return self._optimal_point_orbitals
 
     @optimal_point_orbitals.setter
-    def optimal_point_orbitals(self, value: list) -> None:
+    def optimal_point_orbitals(self, value: List) -> None:
         """ Sets the optimal parameters of the orbitals. """
-        self.data['optimal_point_orbitals'] = value
+        self._optimal_point_orbitals = value
