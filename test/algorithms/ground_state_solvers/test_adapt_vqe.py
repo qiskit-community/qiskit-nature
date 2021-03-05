@@ -19,9 +19,9 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit.providers.basicaer import BasicAer
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua.components.optimizers import L_BFGS_B
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit_nature import QiskitNatureError, FermionicOperator
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature.circuit.library import HartreeFock
@@ -30,6 +30,7 @@ from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFact
 from qiskit_nature.transformations import FermionicTransformation
 
 
+@unittest.skip("Skip test until refactored.")
 class TestAdaptVQE(QiskitNatureTestCase):
     """ Test Adaptive VQE Ground State Calculation """
 
@@ -123,7 +124,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_vqe_adapt_check_cyclicity(self):
-        """ VQEAdapt index cycle detection """
+        """ AdaptVQE index cycle detection """
         param_list = [
             ([1, 1], True),
             ([1, 11], False),

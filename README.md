@@ -68,7 +68,7 @@ to compute the ground-state (minimum) energy of a molecule.
 ```python
 from qiskit_nature import FermionicOperator
 from qiskit_nature.drivers import PySCFDriver, UnitsType
-from qiskit.aqua.operators import Z2Symmetries
+from qiskit.opflow import TwoQubitReduction
 
 # Use PySCF, a classical computational chemistry software
 # package, to compute the one-body and two-body integrals in
@@ -80,15 +80,15 @@ molecule = driver.run()
 num_particles = molecule.num_alpha + molecule.num_beta
 num_spin_orbitals = molecule.num_orbitals * 2
 
-# Build the qubit operator, which is the input to the VQE algorithm in Aqua
+# Build the qubit operator, which is the input to the VQE algorithm
 ferm_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
 map_type = 'PARITY'
 qubit_op = ferm_op.mapping(map_type)
-qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
+qubit_op = TwoQubitReduction(num_particles=num_particles).convert(qubit_op)
 num_qubits = qubit_op.num_qubits
 
 # setup a classical optimizer for VQE
-from qiskit.aqua.components.optimizers import L_BFGS_B
+from qiskit.algorithms.optimizers import L_BFGS_B
 optimizer = L_BFGS_B()
 
 # setup the initial state for the variational form
@@ -103,7 +103,7 @@ var_form = TwoLocal(num_qubits, ['ry', 'rz'], 'cz')
 var_form.compose(init_state, front=True)
 
 # setup and run VQE
-from qiskit.aqua.algorithms import VQE
+from qiskit.algorithms import VQE
 algorithm = VQE(qubit_op, var_form, optimizer)
 
 # set the backend for the quantum computation
@@ -156,9 +156,9 @@ If you'd like to contribute to Qiskit, please take a look at our
 This project adheres to Qiskit's [code of conduct](./CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code.
 
-We use [GitHub issues](https://github.com/Qiskit/qiskit-aqua/issues) for tracking requests and bugs. Please
+We use [GitHub issues](https://github.com/Qiskit/qiskit-nature/issues) for tracking requests and bugs. Please
 [join the Qiskit Slack community](https://ibm.co/joinqiskitslack)
-and use the [Aqua Slack channel](https://qiskit.slack.com/messages/aqua) for discussion and simple questions.
+for discussion and simple questions.
 For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
 
 ## Next Steps
@@ -171,15 +171,15 @@ repository, that are used for the IBM Quantum Experience, and from the
 
 ## Authors and Citation
 
-Aqua was inspired, authored and brought about by the collective work of a team of researchers.
-Aqua continues to grow with the help and work of
-[many people](https://github.com/Qiskit/qiskit-aqua/graphs/contributors), who contribute
+Qiskit Nature was inspired, authored and brought about by the collective work of a team of researchers.
+Qiskit Nature continues to grow with the help and work of
+[many people](https://github.com/Qiskit/qiskit-nature/graphs/contributors), who contribute
 to the project at different levels.
 If you use Qiskit, please cite as per the provided
 [BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
 
 Please note that if you do not like the way your name is cited in the BibTex file then consult
-the information found in the [.mailmap](https://github.com/Qiskit/qiskit-aqua/blob/master/.mailmap)
+the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/master/.mailmap)
 file.
 
 ## License

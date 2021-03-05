@@ -20,10 +20,10 @@ long_description = """Qiskit Nature is a open-source library of quantum computin
 
 requirements = [
     "qiskit-terra>=0.17.0",
-    "qiskit-aqua>=0.9.0",
     "scipy>=1.4",
     "numpy>=1.17",
     "psutil>=5",
+    "scikit-learn>=0.20.0",
     "setuptools>=40.1.0",
     "h5py",
     "retworkx>=0.7.0"
