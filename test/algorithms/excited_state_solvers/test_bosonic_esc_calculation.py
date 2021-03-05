@@ -16,8 +16,8 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
-from qiskit.aqua import aqua_globals, QuantumInstance
-from qiskit.aqua.components.optimizers import COBYLA
+from qiskit.utils import algorithm_globals, QuantumInstance
+from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.algorithms.ground_state_solvers import (
@@ -47,12 +47,13 @@ class _DummyBosonicDriver(BaseDriver):
         return self._watson
 
 
+@unittest.skip("Skip test until refactored.")
 class TestBosonicESCCalculation(QiskitNatureTestCase):
     """ Test Numerical QEOM excited states calculation """
 
     def setUp(self):
         super().setUp()
-        aqua_globals.random_seed = 8
+        algorithm_globals.random_seed = 8
         self.reference_energies = [1889.95738428, 3294.21806197, 4287.26821341, 5819.76975784]
 
         self.driver = _DummyBosonicDriver()

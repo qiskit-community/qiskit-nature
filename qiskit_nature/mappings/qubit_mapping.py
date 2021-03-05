@@ -10,19 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Linear Mapper."""
+"""Qubit Mapping interface."""
+
+from abc import ABC, abstractmethod
 
 from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
-from qiskit_nature.operators.second_quantization.spin_op import SpinOp
-
-from .qubit_mapper import QubitMapper
 
 
-class LinearMapper(QubitMapper):
-    """The Linear spin-to-qubit mapping. """
+class QubitMapping(ABC):
+    """The interface for implementing methods which map from a `ParticleOp` to a
+    `PauliSumOp`.
+    """
 
+    @abstractmethod
     def supports_particle_type(self, particle_type: ParticleOp) -> bool:
         """Returns whether the queried particle-type operator is supported by this mapping.
 
@@ -32,11 +34,11 @@ class LinearMapper(QubitMapper):
         Returns:
             A boolean indicating whether the queried particle-type is supported.
         """
-        return isinstance(particle_type, SpinOp)
+        raise NotImplementedError()
 
+    @abstractmethod
     def map(self, second_q_op: ParticleOp) -> PauliSumOp:
-        """Maps a `ParticleOp` to a `PauliSumOp` using the Linear spin-to-qubit
-        mapping.
+        """Maps a `ParticleOp` to a `PauliSumOp`.
 
         Args:
             second_q_op: the `ParticleOp` to be mapped.
@@ -44,5 +46,4 @@ class LinearMapper(QubitMapper):
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
         """
-        # TODO
         raise NotImplementedError()

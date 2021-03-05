@@ -12,7 +12,7 @@
 
 """The Direct Mapper."""
 
-from qiskit.aqua.operators import PauliSumOp
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.operators.second_quantization.bosonic_op import BosonicOp
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp

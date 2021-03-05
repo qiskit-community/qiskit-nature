@@ -11,31 +11,18 @@
 # that they have been altered from the originals.
 
 """
-Chemistry specific Aqua algorithms (:mod:`qiskit_nature.algorithms`)
+Nature Sciences specific algorithms (:mod:`qiskit_nature.algorithms`)
 =======================================================================
-These are chemistry specific algorithms for Aqua. As they rely on chemistry
-specific knowledge and/or function they are here in chemistry rather than in Aqua.
+These are nature sciences specific algorithms. As they rely on nature
+sciences specific knowledge and/or function that are here.
 
 .. currentmodule:: qiskit_nature.algorithms
 
-Chemistry Algorithms
+Nature Algorithms
 ====================
 These are algorithms configured and/or functioning using chemistry specific knowledge. See also
-the Aqua :mod:`~qiskit.aqua.algorithms` for other algorithms in these categories which may also
-be used for chemistry problems such as :class:`~qiskit.aqua.algorithms.VQE`.
-
-Eigensolvers
-++++++++++++
-Algorithms that can find the eigenvalues of an operator, i.e. excited states for chemistry.
-
-**DEPRECATED** See the Excited States Solvers section below
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   QEomVQE
-   QEomEE
+:mod:`~qiskit.algorithms` for other algorithms in these categories which may also
+be used for chemistry problems such as :class:`~qiskit.algorithms.VQE`.
 
 Excited State Solvers
 +++++++++++++++++++++
@@ -102,19 +89,6 @@ depend
    VQEUCCSDFactory
    VQEUVCCSDFactory
 
-Minimum Eigensolvers
-++++++++++++++++++++
-Algorithms that can find the minimum eigenvalue of an operator, i.e. ground state for chemistry.
-
-**DEPRECATED** See the Ground State Solvers section above
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   VQEAdapt
-
-
 Potential Energy Surface Samplers
 +++++++++++++++++++++++++++++++++
 Algorithms that can compute potential energy surfaces.
@@ -135,9 +109,6 @@ of various potentials. More detail may be found in the sub-module linked below
 
 """
 
-from .eigen_solvers import QEomVQE, QEomEE
-from .minimum_eigen_solvers import VQEAdapt, VQEAdaptResult
-
 from .excited_states_solvers import (ExcitedStatesEigensolver, ExcitedStatesSolver, QEOM,
                                      EigensolverFactory, NumPyEigensolverFactory)
 from .ground_state_solvers import (AdaptVQE, GroundStateEigensolver, GroundStateSolver,
@@ -147,10 +118,6 @@ from .ground_state_solvers import (AdaptVQE, GroundStateEigensolver, GroundState
 from .pes_samplers import BOPESSampler
 
 __all__ = [
-    'QEomVQE',
-    'QEomEE',
-    'VQEAdapt',
-    'VQEAdaptResult',
     'ExcitedStatesEigensolver',
     'ExcitedStatesSolver',
     'QEOM',

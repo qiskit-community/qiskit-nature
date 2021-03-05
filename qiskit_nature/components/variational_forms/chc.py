@@ -20,8 +20,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 
 from qiskit.circuit import ParameterVector, Parameter
 
-from qiskit.aqua.components.variational_forms import VariationalForm
-from qiskit.aqua.components.initial_states import InitialState
+from qiskit.algorithms.variational_forms import VariationalForm
 
 
 class CHC(VariationalForm):
@@ -39,7 +38,7 @@ class CHC(VariationalForm):
     def __init__(self, num_qubits: Optional[int] = None, reps: int = 1, ladder: bool = False,
                  excitations: Optional[List[List[int]]] = None,
                  entanglement: Union[str, List[int]] = 'full',
-                 initial_state: Optional[Union[QuantumCircuit, InitialState]] = None) -> None:
+                 initial_state: Optional[QuantumCircuit] = None) -> None:
         """
 
         Args:

@@ -13,20 +13,21 @@
 """ Test End to End with VQE """
 
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
-from ddt import ddt, idata, unpack
-import qiskit
+
+from qiskit import BasicAer
 from qiskit.circuit.library import TwoLocal
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua.components.optimizers import COBYLA, SPSA
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature.drivers import HDF5Driver
-from qiskit_nature.core import Hamiltonian, TransformationType, QubitMappingType
+from qiskit_nature.transformations import (FermionicTransformation,
+                                           FermionicTransformationType,
+                                           FermionicQubitMappingType)
 
 
-@ddt
+@unittest.skip("Skip test until refactored.")
 class TestEnd2End(QiskitNatureTestCase):
     """End2End VQE tests."""
 
@@ -34,57 +35,25 @@ class TestEnd2End(QiskitNatureTestCase):
         super().setUp()
         driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
                                                               'drivers/hdf5d'))
-        self.qmolecule = driver.run()
-
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        self.core = Hamiltonian(transformation=TransformationType.FULL,
-                                qubit_mapping=QubitMappingType.PARITY,
-                                two_qubit_reduction=True,
-                                freeze_core=False,
-                                orbital_reduction=[])
-        warnings.filterwarnings('always', category=DeprecationWarning)
-
-        self.qubit_op, self.aux_ops = self.core.run(self.qmolecule)
+        fermionic_transformation = \
+            FermionicTransformation(transformation=FermionicTransformationType.FULL,
+                                    qubit_mapping=FermionicQubitMappingType.PARITY,
+                                    two_qubit_reduction=True,
+                                    freeze_core=False,
+                                    orbital_reduction=[])
+        self.qubit_op, self.aux_ops = fermionic_transformation.transform(driver)
         self.reference_energy = -1.857275027031588
 
-    @idata([
-        ['COBYLA_M', 'COBYLA', qiskit.BasicAer.get_backend('statevector_simulator'), 1],
-        ['COBYLA_P', 'COBYLA', qiskit.BasicAer.get_backend('statevector_simulator'), 1],
-        # ['SPSA_P', 'SPSA', qiskit.BasicAer.get_backend('qasm_simulator'), 'paulis', 1024],
-        # ['SPSA_GP', 'SPSA', qiskit.BasicAer.get_backend('qasm_simulator'), 'grouped_paulis', 1024]
-    ])
-    @unpack
-    def test_end2end_h2(self, name, optimizer, backend, shots):
+    def test_end2end_h2(self):
         """ end to end h2 """
-        del name  # unused
-        if optimizer == 'COBYLA':
-            optimizer = COBYLA()
-            optimizer.set_options(maxiter=1000)
-        elif optimizer == 'SPSA':
-            optimizer = SPSA(maxiter=2000)
-
+        backend = BasicAer.get_backend('statevector_simulator')
+        shots = 1
+        optimizer = COBYLA(maxiter=1000)
         ryrz = TwoLocal(rotation_blocks=['ry', 'rz'], entanglement_blocks='cz')
-        vqe = VQE(self.qubit_op, ryrz, optimizer, aux_operators=self.aux_ops)
         quantum_instance = QuantumInstance(backend, shots=shots)
-        result = vqe.run(quantum_instance)
+        vqe = VQE(ryrz, optimizer=optimizer, quantum_instance=quantum_instance)
+        result = vqe.compute_minimum_eigenvalue(self.qubit_op, aux_operators=self.aux_ops)
         self.assertAlmostEqual(result.eigenvalue.real, self.reference_energy, places=4)
-
-    def test_deprecated_algo_result(self):
-        """ Test processing a deprecated dictionary result from algorithm """
-        try:
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            ryrz = TwoLocal(self.qubit_op.num_qubits, ['ry', 'rz'], 'cz', reps=3)
-            vqe = VQE(self.qubit_op, ryrz, COBYLA(), aux_operators=self.aux_ops)
-            quantum_instance = QuantumInstance(qiskit.BasicAer.get_backend('statevector_simulator'))
-            result = vqe.run(quantum_instance)
-            keys = {'energy', 'energies', 'eigvals', 'eigvecs', 'aux_ops'}
-            dict_res = {key: result[key] for key in keys}
-            lines, result = self.core.process_algorithm_result(dict_res)
-            self.assertAlmostEqual(result['energy'], -1.137306, places=4)
-            self.assertEqual(len(lines), 19)
-            self.assertEqual(lines[8], '  Measured:: Num particles: 2.000, S: 0.000, M: 0.00000')
-        finally:
-            warnings.filterwarnings("always", category=DeprecationWarning)
 
 
 if __name__ == '__main__':

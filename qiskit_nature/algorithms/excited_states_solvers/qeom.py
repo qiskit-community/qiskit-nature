@@ -21,9 +21,10 @@ from scipy import linalg
 
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.algorithms import AlgorithmResult
-from qiskit.aqua.operators import Z2Symmetries, commutator, WeightedPauliOperator
+from qiskit.utils import algorithm_globals
+from qiskit.algorithms import AlgorithmResult
+from qiskit.opflow import (Z2Symmetries, anti_commutator, commutator,
+                           double_commutator, PauliSumOp)
 from qiskit_nature import FermionicOperator, BosonicOperator
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.results import (ElectronicStructureResult, VibronicStructureResult,
@@ -193,7 +194,7 @@ class QEOM(ExcitedStatesSolver):
             results = parallel_map(self._build_commutator_routine,
                                    to_be_computed_list,
                                    task_args=(untapered_op, z2_symmetries, sign),
-                                   num_processes=aqua_globals.num_processes)
+                                   num_processes=algorithm_globals.num_processes)
             for result in results:
                 m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op = result
 
@@ -225,14 +226,14 @@ class QEOM(ExcitedStatesSolver):
                     value = np.asarray(value)
                     if np.all(value == targeted_sector):
                         available_hopping_ops[key] = hopping_operators[key]
-                # untapered_qubit_op is a WeightedPauliOperator and should not be exposed.
+                # untapered_qubit_op is a PauliSumOp and should not be exposed.
                 _build_one_sector(available_hopping_ops,
                                   self._gsc.transformation.untapered_qubit_op,  # type: ignore
                                   z2_symmetries,
                                   self._gsc.transformation.commutation_rule)
 
         else:
-            # untapered_qubit_op is a WeightedPauliOperator and should not be exposed.
+            # untapered_qubit_op is a PauliSumOp and should not be exposed.
             _build_one_sector(hopping_operators,
                               self._gsc.transformation.untapered_qubit_op,  # type: ignore
                               z2_symmetries,
@@ -241,10 +242,10 @@ class QEOM(ExcitedStatesSolver):
         return all_matrix_operators
 
     @staticmethod
-    def _build_commutator_routine(params: List, operator: WeightedPauliOperator,
-                                  z2_symmetries: Z2Symmetries, sign: int
-                                  ) -> Tuple[int, int, WeightedPauliOperator, WeightedPauliOperator,
-                                             WeightedPauliOperator, WeightedPauliOperator]:
+    def _build_commutator_routine(params: List, operator: PauliSumOp,
+                                  z2_symmetries: Z2Symmetries, sign: bool
+                                  ) -> Tuple[int, int, PauliSumOp, PauliSumOp,
+                                             PauliSumOp, PauliSumOp]:
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
@@ -272,31 +273,33 @@ class QEOM(ExcitedStatesSolver):
                 v_mat_op = None
             else:
                 if right_op_1 is not None:
-                    q_mat_op = commutator(left_op, operator, right_op_1, sign=sign)
-                    w_mat_op = commutator(left_op, right_op_1, sign=sign)
-                    q_mat_op = None if q_mat_op.is_empty() else q_mat_op
-                    w_mat_op = None if w_mat_op.is_empty() else w_mat_op
+                    q_mat_op = double_commutator(left_op, operator, right_op_1, sign=sign)
+                    w_mat_op = commutator(left_op, right_op_1) \
+                        if sign else anti_commutator(left_op, right_op_1)
+                    q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
+                    w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
                 else:
                     q_mat_op = None
                     w_mat_op = None
 
                 if right_op_2 is not None:
-                    m_mat_op = commutator(left_op, operator, right_op_2, sign=sign)
-                    v_mat_op = commutator(left_op, right_op_2, sign=sign)
-                    m_mat_op = None if m_mat_op.is_empty() else m_mat_op
-                    v_mat_op = None if v_mat_op.is_empty() else v_mat_op
+                    m_mat_op = double_commutator(left_op, operator, right_op_2, sign=sign)
+                    v_mat_op = commutator(left_op, right_op_2) \
+                        if sign else anti_commutator(left_op, right_op_2)
+                    m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
+                    v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
                 else:
                     m_mat_op = None
                     v_mat_op = None
 
                 if not z2_symmetries.is_empty():
-                    if q_mat_op is not None and not q_mat_op.is_empty():
+                    if q_mat_op is not None and len(q_mat_op) > 0:
                         q_mat_op = z2_symmetries.taper(q_mat_op)
-                    if w_mat_op is not None and not w_mat_op.is_empty():
+                    if w_mat_op is not None and len(w_mat_op) > 0:
                         w_mat_op = z2_symmetries.taper(w_mat_op)
-                    if m_mat_op is not None and not m_mat_op.is_empty():
+                    if m_mat_op is not None and len(m_mat_op) > 0:
                         m_mat_op = z2_symmetries.taper(m_mat_op)
-                    if v_mat_op is not None and not v_mat_op.is_empty():
+                    if v_mat_op is not None and len(v_mat_op) > 0:
                         v_mat_op = z2_symmetries.taper(v_mat_op)
 
         return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
@@ -412,112 +415,125 @@ class QEOM(ExcitedStatesSolver):
 class QEOMResult(AlgorithmResult):
     """The results class for the QEOM algorithm."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._ground_state_raw_result = None
+        self._excitation_energies: Optional[np.ndarray] = None
+        self._expansion_coefficients: Optional[np.ndarray] = None
+        self._m_matrix: Optional[np.ndarray] = None
+        self._v_matrix: Optional[np.ndarray] = None
+        self._q_matrix: Optional[np.ndarray] = None
+        self._w_matrix: Optional[np.ndarray] = None
+        self._v_matrix_std: float = 0.
+        self._q_matrix_std: float = 0.
+        self._w_matrix_std: float = 0.
+
     @property
     def ground_state_raw_result(self):
         """ returns ground state raw result """
-        return self.get('ground_state_raw_result')
+        return self._ground_state_raw_result
 
     @ground_state_raw_result.setter
     def ground_state_raw_result(self, value) -> None:
         """ sets ground state raw result """
-        self.data['ground_state_raw_result'] = value
+        self._ground_state_raw_result = value
 
     @property
-    def excitation_energies(self) -> np.ndarray:
+    def excitation_energies(self) -> Optional[np.ndarray]:
         """ returns the excitation energies (energy gaps) """
-        return self.get('excitation_energies')
+        return self._excitation_energies
 
     @excitation_energies.setter
     def excitation_energies(self, value: np.ndarray) -> None:
         """ sets the excitation energies (energy gaps) """
-        self.data['excitation_energies'] = value
+        self._excitation_energies = value
 
     @property
-    def expansion_coefficients(self) -> np.ndarray:
+    def expansion_coefficients(self) -> Optional[np.ndarray]:
         """ returns the X and Y expansion coefficients """
-        return self.get('expansion_coefficients')
+        return self._expansion_coefficients
 
     @expansion_coefficients.setter
     def expansion_coefficients(self, value: np.ndarray) -> None:
         """ sets the X and Y expansion coefficients """
-        self.data['expansion_coefficients'] = value
+        self._expansion_coefficients = value
 
     @property
-    def m_matrix(self) -> np.ndarray:
+    def m_matrix(self) -> Optional[np.ndarray]:
         """ returns the M matrix """
-        return self.get('m_matrix')
+        return self._m_matrix
 
     @m_matrix.setter
     def m_matrix(self, value: np.ndarray) -> None:
         """ sets the M matrix """
-        self.data['m_matrix'] = value
+        self._m_matrix = value
 
     @property
-    def v_matrix(self) -> np.ndarray:
+    def v_matrix(self) -> Optional[np.ndarray]:
         """ returns the V matrix """
-        return self.get('v_matrix')
+        return self._v_matrix
 
     @v_matrix.setter
     def v_matrix(self, value: np.ndarray) -> None:
         """ sets the V matrix """
-        self.data['v_matrix'] = value
+        self._v_matrix = value
 
     @property
-    def q_matrix(self) -> np.ndarray:
+    def q_matrix(self) -> Optional[np.ndarray]:
         """ returns the Q matrix """
-        return self.get('q_matrix')
+        return self._q_matrix
 
     @q_matrix.setter
     def q_matrix(self, value: np.ndarray) -> None:
         """ sets the Q matrix """
-        self.data['q_matrix'] = value
+        self._q_matrix = value
 
     @property
-    def w_matrix(self) -> np.ndarray:
+    def w_matrix(self) -> Optional[np.ndarray]:
         """ returns the W matrix """
-        return self.get('w_matrix')
+        return self._w_matrix
 
     @w_matrix.setter
     def w_matrix(self, value: np.ndarray) -> None:
         """ sets the W matrix """
-        self.data['w_matrix'] = value
+        self._w_matrix = value
 
     @property
     def m_matrix_std(self) -> float:
         """ returns the M matrix standard deviation """
-        return self.get('m_matrix_std')
+        return self._m_matrix_std
 
     @m_matrix_std.setter
     def m_matrix_std(self, value: float) -> None:
         """ sets the M matrix standard deviation """
-        self.data['m_matrix_std'] = value
+        self._m_matrix_std = value
 
     @property
     def v_matrix_std(self) -> float:
         """ returns the V matrix standard deviation """
-        return self.get('v_matrix_std')
+        return self._v_matrix_std
 
     @v_matrix_std.setter
     def v_matrix_std(self, value: float) -> None:
         """ sets the V matrix standard deviation """
-        self.data['v_matrix_std'] = value
+        self._v_matrix_std = value
 
     @property
     def q_matrix_std(self) -> float:
         """ returns the Q matrix standard deviation """
-        return self.get('q_matrix_std')
+        return self._q_matrix_std
 
     @q_matrix_std.setter
     def q_matrix_std(self, value: float) -> None:
         """ sets the Q matrix standard deviation """
-        self.data['q_matrix_std'] = value
+        self._q_matrix_std = value
 
     @property
     def w_matrix_std(self) -> float:
         """ returns the W matrix standard deviation """
-        return self.get('w_matrix_std')
+        return self._w_matrix_std
 
     @w_matrix_std.setter
     def w_matrix_std(self, value: float) -> None:
         """ sets the W matrix standard deviation """
-        self.data['w_matrix_std'] = value
+        self._w_matrix_std = value

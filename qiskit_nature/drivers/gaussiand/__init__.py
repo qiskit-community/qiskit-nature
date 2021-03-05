@@ -36,7 +36,7 @@ Gaussian™ 16 Interfacing Code
 In the :mod:`gauopen` folder the Python part of the above interfacing code,
 as needed by Qiskit's chemistry modules, has been made available. It is licensed under a
 `Gaussian Open-Source Public License
-<https://github.com/Qiskit/qiskit-aqua/blob/master/qiskit/chemistry/drivers/gaussiand/gauopen/LICENSE.txt>`_.
+<https://github.com/Qiskit/qiskit-nature/blob/master/qiskit_nature/drivers/gaussiand/gauopen/LICENSE.txt>`_.
 
 Part of this interfacing code --- specifically, the Fortran file `qcmatrixio.F` --- requires
 compilation to a Python native extension. However, Qiskit comes with pre-built binaries
@@ -53,7 +53,7 @@ must be compiled into object code that can be used by Python. This is accomplish
 which is part of the `NumPy <http://www.numpy.org/>`__ Python library.
 Specifically, on your command prompt window, change directory to the
 `qiskit/chemistry/drivers/gaussiand/gauopen` directory inside the Qiskit
-installation directory, and while in the Python environment created for Aqua and the chemistry
+installation directory, and while in the Python environment created for Qiskit and the nature
 module, invoke `f2py` on `qcmatrixio.F` as explained below.
 
 
