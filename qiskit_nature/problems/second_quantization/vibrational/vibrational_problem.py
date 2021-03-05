@@ -12,9 +12,10 @@
 """The Vibrational Problem class."""
 from typing import List, Tuple, Optional
 
-from qiskit_nature.drivers.qmolecule import QMolecule
+from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.drivers import BosonicDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.problems.second_quantization.vibrational.spin_op_builder import build_spin_op
 from qiskit_nature.transformers import BaseTransformer
 
 
@@ -41,15 +42,17 @@ class VibrationalProblem:
         Returns:
             A list of `SecondQuantizedOp` in the following order: ... .
         """
-        hamiltonian = self.driver.run()
-        hamiltonian_transformed = self._transform_hamiltonian(hamiltonian)
-        num_modes = hamiltonian_transformed.one_body_integrals.shape[0]
+        watson_hamiltonian = self.driver.run()
+        watson_hamiltonian_transformed = self._transform_hamiltonian(watson_hamiltonian)
+        basis_size = 1  # TODO how to get it?
+        truncation_order = 3  # TODO how to get it?
+        bosonic_op = build_spin_op(watson_hamiltonian_transformed, basis_size, truncation_order)
 
-        second_quantized_ops_list = []
+        second_quantized_ops_list = [SecondQuantizedOp([bosonic_op])]
 
         return second_quantized_ops_list
 
-    def _transform_hamiltonian(self, q_molecule) -> QMolecule:
+    def _transform_hamiltonian(self, watson_hamiltonian: WatsonHamiltonian) -> WatsonHamiltonian:
         for transformer in self.transformers:
-            q_molecule = transformer.transform(q_molecule)
-        return q_molecule
+            watson_hamiltonian = transformer.transform(watson_hamiltonian)
+        return watson_hamiltonian
