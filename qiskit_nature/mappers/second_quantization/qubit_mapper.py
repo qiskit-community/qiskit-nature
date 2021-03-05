@@ -17,7 +17,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from qiskit.aqua.operators import PauliSumOp
+from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature import QiskitNatureError
