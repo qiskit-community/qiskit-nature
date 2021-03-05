@@ -24,8 +24,9 @@ from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.core import TransformationType, QubitMappingType
-from qiskit_nature.transformations import FermionicTransformation
+from qiskit_nature.transformations import (FermionicTransformation,
+                                           FermionicTransformationType,
+                                           FermionicQubitMappingType)
 
 # pylint: disable=invalid-name
 
@@ -44,8 +45,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
                                       spin=0,
                                       basis='631g')
             self.fermionic_transformation = \
-                FermionicTransformation(transformation=TransformationType.FULL,
-                                        qubit_mapping=QubitMappingType.PARITY,
+                FermionicTransformation(transformation=FermionicTransformationType.FULL,
+                                        qubit_mapping=FermionicQubitMappingType.PARITY,
                                         two_qubit_reduction=True,
                                         freeze_core=True,
                                         orbital_reduction=[])
@@ -172,8 +173,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         """ uccsd tapering test using all double excitations """
 
         fermionic_transformation = FermionicTransformation(
-            transformation=TransformationType.FULL,
-            qubit_mapping=QubitMappingType.PARITY,
+            transformation=FermionicTransformationType.FULL,
+            qubit_mapping=FermionicQubitMappingType.PARITY,
             two_qubit_reduction=True,
             freeze_core=True,
             orbital_reduction=[],

@@ -16,8 +16,9 @@ import unittest
 
 from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
-from qiskit_nature.core import TransformationType, QubitMappingType
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.transformations import (FermionicTransformationType,
+                                           FermionicQubitMappingType)
 
 
 class TestDriverMethodsPySCF(TestDriverMethods):
@@ -59,8 +60,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
                              charge=0, spin=0, basis='sto-3g',
                              hf_method=HFMethodType.RHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.PARITY, two_qubit_reduction=False)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.PARITY,
+                                  two_qubit_reduction=False)
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_lih_rhf_parity_2q(self):
@@ -68,8 +71,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
                              charge=0, spin=0, basis='sto-3g',
                              hf_method=HFMethodType.RHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.PARITY, two_qubit_reduction=True)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.PARITY,
+                                  two_qubit_reduction=True)
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_lih_rhf_bk(self):
@@ -77,8 +82,9 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
                              charge=0, spin=0, basis='sto-3g',
                              hf_method=HFMethodType.RHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.BRAVYI_KITAEV)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.BRAVYI_KITAEV)
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_oh_rohf(self):
@@ -102,8 +108,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
                              charge=0, spin=1, basis='sto-3g',
                              hf_method=HFMethodType.ROHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.PARITY, two_qubit_reduction=False)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.PARITY,
+                                  two_qubit_reduction=False)
         self._assert_energy_and_dipole(result, 'oh')
 
     def test_oh_rohf_parity_2q(self):
@@ -111,8 +119,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
                              charge=0, spin=1, basis='sto-3g',
                              hf_method=HFMethodType.ROHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.PARITY, two_qubit_reduction=True)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.PARITY,
+                                  two_qubit_reduction=True)
         self._assert_energy_and_dipole(result, 'oh')
 
     def test_oh_uhf_parity(self):
@@ -120,8 +130,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
                              charge=0, spin=1, basis='sto-3g',
                              hf_method=HFMethodType.UHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.PARITY, two_qubit_reduction=False)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.PARITY,
+                                  two_qubit_reduction=False)
         self._assert_energy_and_dipole(result, 'oh')
 
     def test_oh_uhf_parity_2q(self):
@@ -129,8 +141,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
                              charge=0, spin=1, basis='sto-3g',
                              hf_method=HFMethodType.UHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.PARITY, two_qubit_reduction=True)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.PARITY,
+                                  two_qubit_reduction=True)
         self._assert_energy_and_dipole(result, 'oh')
 
     def test_oh_rohf_bk(self):
@@ -138,8 +152,9 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
                              charge=0, spin=1, basis='sto-3g',
                              hf_method=HFMethodType.ROHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.BRAVYI_KITAEV)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.BRAVYI_KITAEV)
         self._assert_energy_and_dipole(result, 'oh')
 
     def test_oh_uhf_bk(self):
@@ -147,8 +162,9 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
                              charge=0, spin=1, basis='sto-3g',
                              hf_method=HFMethodType.UHF)
-        result = self._run_driver(driver, transformation=TransformationType.FULL,
-                                  qubit_mapping=QubitMappingType.BRAVYI_KITAEV)
+        result = self._run_driver(driver,
+                                  transformation=FermionicTransformationType.FULL,
+                                  qubit_mapping=FermionicQubitMappingType.BRAVYI_KITAEV)
         self._assert_energy_and_dipole(result, 'oh')
 
 
