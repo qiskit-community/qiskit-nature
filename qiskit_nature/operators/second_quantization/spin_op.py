@@ -198,11 +198,12 @@ class SpinOp(ParticleOp):
         self._spin_array: np.ndarray
         dtype = np.complex128  # TODO: configurable data type. mixin?
 
-        if (round(2 * spin) != 2 * spin) or (spin <= 0):
+        spin = Fraction(spin)
+        if spin.denominator not in (1, 2):
             raise QiskitNatureError(
                 f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
-        self._dim = int(round(2 * spin)) + 1
+        self._dim = int(2 * spin + 1)
 
         if isinstance(data, tuple):
             self._spin_array = np.array(data[0], dtype=np.uint8)
