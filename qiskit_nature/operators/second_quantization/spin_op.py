@@ -20,7 +20,7 @@ as it relies on the mathematical representation of spin matrices as (e.g.) expla
 
 import re
 from fractions import Fraction
-from functools import lru_cache, reduce
+from functools import lru_cache, partial, reduce
 from itertools import product
 from typing import List, Optional, Tuple, Union, cast
 
@@ -243,6 +243,20 @@ class SpinOp(ParticleOp):
         self._spin_array.flags.writeable = False
         self._coeffs.flags.writeable = False
 
+    def __repr__(self) -> str:
+        if len(self) == 1 and self._coeffs[0] == 1:
+            return f"SpinOp('{self.to_list()[0][0]}')"
+        return f"SpinOp({self.to_list()}, spin={self.spin})"  # TODO truncate
+
+    def __str__(self) -> str:
+        if len(self) == 1:
+            label, coeff = self.to_list()[0]
+            return f"{label} * {coeff}"
+        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
+
+    def __len__(self) -> int:
+        return len(self._coeffs)
+
     @property
     def register_length(self):
         return self._register_length
@@ -279,17 +293,6 @@ class SpinOp(ParticleOp):
         i-th spin system in the register.
         """
         return self._spin_array[2]
-
-    def __repr__(self) -> str:
-        if len(self) == 1 and self._coeffs[0] == 1:
-            return f"SpinOp('{self.to_list()[0][0]}')"
-        return f"SpinOp({self.to_list()}, spin={self.spin})"  # TODO truncate
-
-    def __str__(self) -> str:
-        if len(self) == 1:
-            label, coeff = self.to_list()[0]
-            return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
 
     def add(self, other: "SpinOp") -> "SpinOp":
         if not isinstance(other, SpinOp):
@@ -355,9 +358,6 @@ class SpinOp(ParticleOp):
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
-    def __len__(self) -> int:
-        return len(self._coeffs)
-
     def to_list(self) -> List[Tuple[str, complex]]:
         """Getter for the list which represents `self`
 
@@ -419,22 +419,20 @@ class SpinOp(ParticleOp):
             dtype=np.complex128,
         )
 
-        return cast(
-            np.ndarray,
-            sum(
-                self._coeffs[i]
-                * reduce(
-                    np.kron,
-                    (
-                        np.linalg.matrix_power(x_mat, x)
-                        @ np.linalg.matrix_power(y_mat, y)
-                        @ np.linalg.matrix_power(z_mat, z)
-                        for x, y, z in self._spin_array[:, i].T
-                    ),
-                )
-                for i in range(len(self))
-            ),
+        tensorall = partial(reduce, np.kron)
+
+        mat = sum(
+            self._coeffs[i]
+            * tensorall(
+                np.linalg.matrix_power(x_mat, x)
+                @ np.linalg.matrix_power(y_mat, y)
+                @ np.linalg.matrix_power(z_mat, z)
+                for x, y, z in self._spin_array[:, i].T
+            )
+            for i in range(len(self))
         )
+
+        return cast(np.ndarray, mat)
 
     def _from_sparse_label(self, labels):
         num_terms = len(labels)
