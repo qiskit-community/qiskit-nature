@@ -147,9 +147,7 @@ Submodules
    :toctree:
 
    algorithms
-   applications
    components
-   core
    drivers
    operators
    results
