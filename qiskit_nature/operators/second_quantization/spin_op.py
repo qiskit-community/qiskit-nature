@@ -19,6 +19,7 @@ as it relies on the mathematical representation of spin matrices as (e.g.) expla
 """
 
 import re
+from fractions import Fraction
 from functools import lru_cache, reduce
 from itertools import product
 from typing import List, Optional, Tuple, Union, cast
@@ -180,14 +181,14 @@ class SpinOp(ParticleOp):
             List[Tuple[str, complex]],
             Tuple[np.ndarray, np.ndarray],
         ],
-        spin: float = 1 / 2,
+        spin: Union[float, Fraction] = Fraction(1, 2),
     ):
         r"""``SpinOp``.
 
         Args:
             data: label string or list of labels and coefficients. See documentation of
                   :class:`SpinOp` for more details.
-            spin: positive integer or half-integer which represents spin.
+            spin: positive half-integer (integer or half-odd-integer) that represents spin.
 
         Raises:
             ValueError: invalid data is given.
@@ -199,7 +200,7 @@ class SpinOp(ParticleOp):
 
         if (round(2 * spin) != 2 * spin) or (spin <= 0):
             raise QiskitNatureError(
-                f"spin must be a positive integer or half-integer, but {spin} is given."
+                f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
         self._dim = int(round(2 * spin)) + 1
 
@@ -246,13 +247,13 @@ class SpinOp(ParticleOp):
         return self._register_length
 
     @property
-    def spin(self) -> float:
+    def spin(self) -> Fraction:
         """The spin number.
 
         Returns:
             Spin number
         """
-        return (self._dim - 1) / 2
+        return Fraction(self._dim - 1, 2)
 
     @property
     def x(self) -> np.ndarray:
@@ -396,7 +397,7 @@ class SpinOp(ParticleOp):
         x_mat = np.fromfunction(
             lambda i, j: np.where(
                 np.abs(i - j) == 1,
-                np.sqrt((self.spin + 1) * (i + j + 1) - (i + 1) * (j + 1)) / 2,
+                np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
                 0,
             ),
             (self._dim, self._dim),
@@ -405,14 +406,14 @@ class SpinOp(ParticleOp):
         y_mat = np.fromfunction(
             lambda i, j: np.where(
                 np.abs(i - j) == 1,
-                1j * (i - j) * np.sqrt((self.spin + 1) * (i + j + 1) - (i + 1) * (j + 1)) / 2,
+                1j * (i - j) * np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
                 0,
             ),
             (self._dim, self._dim),
             dtype=np.complex128,
         )
         z_mat = np.fromfunction(
-            lambda i, j: np.where(i == j, self.spin - i, 0),
+            lambda i, j: np.where(i == j, (self._dim - 2 * i - 1) / 2, 0),
             (self._dim, self._dim),
             dtype=np.complex128,
         )
