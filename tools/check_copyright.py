@@ -182,7 +182,7 @@ def check_path(path):
 
 
 if __name__ == '__main__':
-    PARSER = argparse.ArgumentParser(description='Aqua Check Copyright Tool')
+    PARSER = argparse.ArgumentParser(description='Nature Check Copyright Tool')
     PARSER.add_argument('-path',
                         type=check_path,
                         metavar='path',

@@ -19,6 +19,7 @@ from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import FCIDumpDriver
 
 
+@unittest.skip("Skip test until refactored.")
 class TestDriverMethodsFCIDump(TestDriverMethods):
     """ Driver Methods FCIDump tests """
 

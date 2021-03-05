@@ -15,12 +15,12 @@
 from typing import Optional, Union, Callable
 import numpy as np
 
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.algorithms import MinimumEigensolver, VQE
-from qiskit.aqua.operators import ExpectationBase
-from qiskit.aqua.operators.gradients import GradientBase
-from qiskit.aqua.components.optimizers import Optimizer
-from qiskit_nature.components.initial_states import VSCF
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import MinimumEigensolver, VQE
+from qiskit.opflow import ExpectationBase
+from qiskit.opflow.gradients import GradientBase
+from qiskit.algorithms.optimizers import Optimizer
+from qiskit_nature.circuit.library import VSCF
 from qiskit_nature.components.variational_forms import UVCC
 from qiskit_nature.transformations import BosonicTransformation
 
@@ -47,7 +47,7 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the var_form state function. When ``None`` (the default) an
-                :class:`~qiskit.aqua.operators.expectations.ExpectationFactory` is used to select
+                :class:`~qiskit.opflow.expectations.ExpectationFactory` is used to select
                 an appropriate expectation based on the operator and backend. When using Aer
                 qasm_simulator backend, with paulis, it is however much faster to leverage custom
                 Aer function for the computation but, although VQE performs much faster

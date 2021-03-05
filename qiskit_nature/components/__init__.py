@@ -13,9 +13,9 @@
 """
 Chemistry Components (:mod:`qiskit_nature.components`)
 =========================================================
-These are chemistry specific Aqua components where they inherit from the
-respective Aqua component type base class. As they rely on chemistry specific
-knowledge and/or functions they live here rather than in Aqua.
+These are chemistry specific Qiskit components where they inherit from the
+respective Qiskit component type base class. As they rely on chemistry specific
+knowledge and/or functions they live here rather than in Qiskit.
 
 .. currentmodule:: qiskit_nature.components
 
@@ -26,7 +26,6 @@ Submodules
    :toctree:
 
    bosonic_bases
-   initial_states
    variational_forms
 
 """
