@@ -183,11 +183,10 @@ class SpinOp(ParticleOp):
         ],
         spin: Union[float, Fraction] = Fraction(1, 2),
     ):
-        r"""``SpinOp``.
-
+        r"""
         Args:
-            data: label string or list of labels and coefficients. See documentation of
-                  :class:`SpinOp` for more details.
+            data: label string, list of labels and coefficients. See the label section in
+                  the documentation of :class:`SpinOp` for more details.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
 
         Raises:
@@ -237,7 +236,7 @@ class SpinOp(ParticleOp):
             else:
                 raise ValueError(
                     f"Mixed labels are included in {labels}. "
-                    "You can only use either of spare label and dense label"
+                    "You can only use either of spare or dense label"
                 )
         # Make immutable
         self._spin_array.flags.writeable = False
@@ -372,20 +371,15 @@ class SpinOp(ParticleOp):
         labels_list = []
         for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
             rev_pos = self.register_length - pos - 1
-            if n_x > 1:
-                labels_list.append(f"X_{rev_pos}^{n_x}")
-            if n_x == 1:
-                labels_list.append(f"X_{rev_pos}")
-            if n_y > 1:
-                labels_list.append(f"Y_{rev_pos}^{n_y}")
-            if n_y == 1:
-                labels_list.append(f"Y_{rev_pos}")
-            if n_z > 1:
-                labels_list.append(f"Z_{rev_pos}^{n_z}")
-            if n_z == 1:
-                labels_list.append(f"Z_{rev_pos}")
             if n_x == n_y == n_z == 0:
                 labels_list.append(f"I_{rev_pos}")
+                continue
+            if n_x >= 1:
+                labels_list.append(f"X_{rev_pos}" + (f"^{n_x}" if n_x > 1 else ""))
+            if n_y >= 1:
+                labels_list.append(f"Y_{rev_pos}" + (f"^{n_y}" if n_y > 1 else ""))
+            if n_z >= 1:
+                labels_list.append(f"Z_{rev_pos}" + (f"^{n_z}" if n_z > 1 else ""))
         return " ".join(labels_list)
 
     @lru_cache()
@@ -431,6 +425,7 @@ class SpinOp(ParticleOp):
             )
             for i in range(len(self))
         )
+        mat.flags.writeable = False
 
         return cast(np.ndarray, mat)
 
