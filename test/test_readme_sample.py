@@ -22,6 +22,7 @@ from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 
 
+@unittest.skip("Skip test until refactored.")
 class TestReadmeSample(QiskitNatureTestCase):
     """Test sample code from readme"""
 
@@ -56,7 +57,7 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         from qiskit_nature import FermionicOperator
         from qiskit_nature.drivers import PySCFDriver, UnitsType
-        from qiskit.aqua.operators import Z2Symmetries
+        from qiskit.opflow import TwoQubitReduction
 
         # Use PySCF, a classical computational chemistry software
         # package, to compute the one-body and two-body integrals in
@@ -68,15 +69,15 @@ class TestReadmeSample(QiskitNatureTestCase):
         num_particles = molecule.num_alpha + molecule.num_beta
         num_spin_orbitals = molecule.num_orbitals * 2
 
-        # Build the qubit operator, which is the input to the VQE algorithm in Aqua
+        # Build the qubit operator, which is the input to the VQE algorithm
         ferm_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
         map_type = 'PARITY'
         qubit_op = ferm_op.mapping(map_type)
-        qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
+        qubit_op = TwoQubitReduction(num_particles=num_particles).convert(qubit_op)
         num_qubits = qubit_op.num_qubits
 
         # setup a classical optimizer for VQE
-        from qiskit.aqua.components.optimizers import L_BFGS_B
+        from qiskit.algorithms.optimizers import L_BFGS_B
         optimizer = L_BFGS_B()
 
         # setup the initial state for the variational form
@@ -90,15 +91,17 @@ class TestReadmeSample(QiskitNatureTestCase):
         # add the initial state
         var_form.compose(init_state, front=True)
 
-        # setup and run VQE
-        from qiskit.aqua.algorithms import VQE
-        algorithm = VQE(qubit_op, var_form, optimizer)
-
         # set the backend for the quantum computation
         from qiskit import Aer
         backend = Aer.get_backend('statevector_simulator')
 
-        result = algorithm.run(backend)
+        # setup and run VQE
+        from qiskit.algorithms import VQE
+        algorithm = VQE(var_form,
+                        optimizer=optimizer,
+                        quantum_instance=backend)
+
+        result = algorithm.compute_minimum_eigenvalue(qubit_op)
         print(result.eigenvalue.real)
 
         # ----------------------------------------------------------------------

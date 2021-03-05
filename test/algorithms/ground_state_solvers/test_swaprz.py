@@ -17,16 +17,17 @@ from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
 from qiskit.circuit.library import ExcitationPreserving
-from qiskit.aqua import QuantumInstance, aqua_globals
-from qiskit.aqua.algorithms import VQE
-from qiskit.aqua.components.optimizers import SLSQP
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import SLSQP
 from qiskit_nature.circuit.library import HartreeFock
-from qiskit_nature.core import QubitMappingType
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.transformations import FermionicTransformation
+from qiskit_nature.transformations import (FermionicTransformation,
+                                           FermionicQubitMappingType)
 
 
+@unittest.skip("Skip test until refactored.")
 class TestExcitationPreserving(QiskitNatureTestCase):
     """The ExcitationPresering wavefunction was design to preserve the excitation of the system.
 
@@ -38,7 +39,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self.seed = 50
-        aqua_globals.random_seed = self.seed
+        algorithm_globals.random_seed = self.seed
         self.reference_energy = -1.137305593252385
 
     def test_excitation_preserving(self):
@@ -46,8 +47,9 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         driver = HDF5Driver(self.get_resource_path('test_driver_hdf5.hdf5',
                                                    'drivers/hdf5d'))
-        fermionic_transformation = FermionicTransformation(qubit_mapping=QubitMappingType.PARITY,
-                                                           two_qubit_reduction=False)
+        fermionic_transformation = \
+            FermionicTransformation(qubit_mapping=FermionicQubitMappingType.PARITY,
+                                    two_qubit_reduction=False)
 
         qubit_op, _ = fermionic_transformation.transform(driver)
 
@@ -62,9 +64,10 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         wavefunction.compose(initial_state, front=True, inplace=True)
 
         solver = VQE(var_form=wavefunction, optimizer=optimizer,
-                     quantum_instance=QuantumInstance(BasicAer.get_backend('statevector_simulator'),
-                                                      seed_simulator=aqua_globals.random_seed,
-                                                      seed_transpiler=aqua_globals.random_seed))
+                     quantum_instance=QuantumInstance(
+                         BasicAer.get_backend('statevector_simulator'),
+                         seed_simulator=algorithm_globals.random_seed,
+                         seed_transpiler=algorithm_globals.random_seed))
 
         gsc = GroundStateEigensolver(fermionic_transformation, solver)
 

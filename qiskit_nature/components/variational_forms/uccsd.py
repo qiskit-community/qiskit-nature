@@ -24,15 +24,14 @@ import collections
 import copy
 
 import numpy as np
-from qiskit.aqua.utils.validation import validate_min, validate_in_set
+from qiskit.utils.validation import validate_min, validate_in_set
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.components.initial_states import InitialState
-from qiskit.aqua.operators import WeightedPauliOperator, Z2Symmetries
-from qiskit.aqua.components.variational_forms import VariationalForm
+from qiskit.utils import algorithm_globals
+from qiskit.opflow import PauliSumOp, Z2Symmetries, TwoQubitReduction
+from qiskit.algorithms.variational_forms import VariationalForm
 from qiskit_nature.fermionic_operator import FermionicOperator
 
 logger = logging.getLogger(__name__)
@@ -52,7 +51,7 @@ class UCCSD(VariationalForm):
                  reps: int = 1,
                  active_occupied: Optional[List[int]] = None,
                  active_unoccupied: Optional[List[int]] = None,
-                 initial_state: Optional[Union[QuantumCircuit, InitialState]] = None,
+                 initial_state: Optional[QuantumCircuit] = None,
                  qubit_mapping: str = 'parity',
                  two_qubit_reduction: bool = True,
                  num_time_slices: int = 1,
@@ -153,7 +152,7 @@ class UCCSD(VariationalForm):
                                            excitation_type=self._excitation_type,)
 
         self._hopping_ops, self._num_parameters = self._build_hopping_operators()
-        self._excitation_pool = None  # type: Optional[List[WeightedPauliOperator]]
+        self._excitation_pool = None  # type: Optional[List[PauliSumOp]]
         self._bounds = [(-np.pi, np.pi) for _ in range(self._num_parameters)]
 
         self._logging_construct_circuit = True
@@ -226,12 +225,12 @@ class UCCSD(VariationalForm):
         return self._double_excitations
 
     @property
-    def excitation_pool(self) -> List[WeightedPauliOperator]:
+    def excitation_pool(self) -> List[PauliSumOp]:
         """Returns the full list of available excitations (called the pool)."""
         return self._excitation_pool
 
     @excitation_pool.setter
-    def excitation_pool(self, excitation_pool: List[WeightedPauliOperator]) -> None:
+    def excitation_pool(self, excitation_pool: List[PauliSumOp]) -> None:
         """Sets the excitation pool."""
         self._excitation_pool = excitation_pool.copy()
 
@@ -245,12 +244,12 @@ class UCCSD(VariationalForm):
                                           self._qubit_mapping, self._two_qubit_reduction,
                                           self._z2_symmetries,
                                           self._skip_commute_test),
-                               num_processes=aqua_globals.num_processes)
+                               num_processes=algorithm_globals.num_processes)
         hopping_ops = []
         s_e_list = []
         d_e_list = []
         for op, index in results:
-            if op is not None and not op.is_empty():
+            if op is not None and len(op) > 0:
                 hopping_ops.append(op)
                 if len(index) == 2:  # for double excitation
                     s_e_list.append(index)
@@ -286,7 +285,7 @@ class UCCSD(VariationalForm):
                                 include all tapered excitation operators whether they commute
                                 or not.
         Returns:
-            WeightedPauliOperator: qubit_op
+            PauliSumOp: qubit_op
             list: index
         """
         h_1 = np.zeros((num_orbitals, num_orbitals))
@@ -303,13 +302,14 @@ class UCCSD(VariationalForm):
         dummpy_fer_op = FermionicOperator(h1=h_1, h2=h_2)
         qubit_op = dummpy_fer_op.mapping(qubit_mapping)
         if two_qubit_reduction:
-            qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
+            qubit_op = TwoQubitReduction(num_particles=num_particles).convert(qubit_op)
 
         if not z2_symmetries.is_empty():
             symm_commuting = True
             for symmetry in z2_symmetries.symmetries:
-                symmetry_op = WeightedPauliOperator(paulis=[[1.0, symmetry]])
-                symm_commuting = qubit_op.commute_with(symmetry_op)
+                symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
+                symm_commuting = qubit_op.primitive.table.commutes_with_all(
+                    symmetry_op.primitive.table)
                 if not symm_commuting:
                     break
             if not skip_commute_test:
@@ -349,7 +349,7 @@ class UCCSD(VariationalForm):
         Pushes a new hopping operator.
 
         Args:
-            excitation (WeightedPauliOperator): the new hopping operator to be added
+            excitation (PauliSumOp): the new hopping operator to be added
         """
         self._hopping_ops.append(excitation)
         self._num_parameters = len(self._hopping_ops) * self._reps
@@ -385,8 +385,6 @@ class UCCSD(VariationalForm):
         if isinstance(self._initial_state, QuantumCircuit):
             circuit = QuantumCircuit(q)
             circuit.compose(self._initial_state, inplace=True)
-        elif isinstance(self._initial_state, InitialState):
-            circuit = self._initial_state.construct_circuit('circuit', q)
         else:
             circuit = QuantumCircuit(q)
 
@@ -420,7 +418,7 @@ class UCCSD(VariationalForm):
         results = parallel_map(UCCSD._construct_circuit_for_one_excited_operator,
                                list_excitation_operators,
                                task_args=(q, self._num_time_slices),
-                               num_processes=aqua_globals.num_processes)
+                               num_processes=algorithm_globals.num_processes)
 
         if self._shallow_circuit_concat:
             for qc in results:

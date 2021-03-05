@@ -23,10 +23,9 @@ from qiskit.tools.events import TextProgressBar
 
 from qiskit.circuit import ParameterVector, Parameter
 
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.operators import WeightedPauliOperator
-from qiskit.aqua.components.initial_states import InitialState
-from qiskit.aqua.components.variational_forms import VariationalForm
+from qiskit.utils import algorithm_globals
+from qiskit.opflow import PauliSumOp
+from qiskit.algorithms.variational_forms import VariationalForm
 from qiskit_nature.bosonic_operator import BosonicOperator
 
 logger = logging.getLogger(__name__)
@@ -44,7 +43,7 @@ class UVCC(VariationalForm):
                  degrees: List[int],
                  reps: int = 1,
                  excitations: Optional[List[List[List[int]]]] = None,
-                 initial_state: Optional[Union[QuantumCircuit, InitialState]] = None,
+                 initial_state: Optional[QuantumCircuit] = None,
                  qubit_mapping: str = 'direct',
                  num_time_slices: int = 1,
                  shallow_circuit_concat: bool = True) -> None:
@@ -93,7 +92,7 @@ class UVCC(VariationalForm):
 
         results = parallel_map(UVCC._build_hopping_operator, self._excitations,
                                task_args=(self._basis, 'direct'),
-                               num_processes=aqua_globals.num_processes)
+                               num_processes=algorithm_globals.num_processes)
         hopping_ops = [qubit_op for qubit_op in results if qubit_op is not None]
         num_parameters = len(hopping_ops) * self._reps
 
@@ -101,7 +100,7 @@ class UVCC(VariationalForm):
 
     @staticmethod
     def _build_hopping_operator(index: List[List[int]], basis: List[int], qubit_mapping: str) \
-            -> WeightedPauliOperator:
+            -> PauliSumOp:
         """
         Builds a hopping operator given the list of indices (index) that is a single, a double
         or a higher order excitation.
@@ -133,7 +132,7 @@ class UVCC(VariationalForm):
 
         dummpy_op = BosonicOperator(np.asarray(hml, dtype=object), basis)  # type: ignore
         qubit_op = dummpy_op.mapping(qubit_mapping)
-        if len(qubit_op.paulis) == 0:
+        if len(qubit_op) == 0:
             qubit_op = None
 
         return qubit_op
@@ -201,7 +200,7 @@ class UVCC(VariationalForm):
                                [(self._hopping_ops[index % num_excitations], parameters[index])
                                 for index in range(self._reps * num_excitations)],
                                task_args=(q, self._num_time_slices),
-                               num_processes=aqua_globals.num_processes)
+                               num_processes=algorithm_globals.num_processes)
         for qc in results:
             if self._shallow_circuit_concat:
                 circuit.data += qc.data
@@ -212,7 +211,7 @@ class UVCC(VariationalForm):
 
     @staticmethod
     def _construct_circuit_for_one_excited_operator(
-            qubit_op_and_param: Tuple[WeightedPauliOperator, float],
+            qubit_op_and_param: Tuple[PauliSumOp, float],
             qr: QuantumRegister, num_time_slices: int) -> QuantumCircuit:
         """ Construct the circuit building block corresponding to one excitation operator
 

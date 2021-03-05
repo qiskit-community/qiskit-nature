@@ -17,9 +17,9 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
-from qiskit.aqua import QuantumInstance
-from qiskit.aqua.operators import AerPauliExpectation
-from qiskit.aqua.components.optimizers import COBYLA
+from qiskit.utils import QuantumInstance
+from qiskit.opflow import AerPauliExpectation
+from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.transformations import FermionicTransformation
