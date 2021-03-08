@@ -425,9 +425,9 @@ class SpinOp(ParticleOp):
             )
             for i in range(len(self))
         )
+        mat = cast(np.ndarray, mat)
         mat.flags.writeable = False
-
-        return cast(np.ndarray, mat)
+        return mat
 
     def _from_sparse_label(self, labels):
         num_terms = len(labels)
