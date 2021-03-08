@@ -49,28 +49,3 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         #     assert electr_sec_quant_op.boson is None
         #     assert electr_sec_quant_op.fermion is None
 
-    def test_second_q_ops_with_active_space(self):
-        """Tests that the correct second quantized operator is created if an active space
-        transformer is provided."""
-        # expected_num_of_sec_quant_ops = 4
-        # expected_spin_op_path = self.get_resource_path('H2_631g_ferm_op_active_space',
-        #                                                     'problems/second_quantization/'
-        #                                                     'vibrational/resources')
-        # expected_spin_op = read_expected_file(expected_spin_op_path)
-        # driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
-        # trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
-        #
-        # vibrational_problem = VibrationalProblem(driver, [trafo])
-        # second_quantized_ops = vibrational_problem.second_q_ops()
-        # electr_sec_quant_op = second_quantized_ops[0]
-        #
-        # with self.subTest("Check expected length of the list of second quantized operators."):
-        #     assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
-        # with self.subTest("Check types in the list of second quantized operators."):
-        #     for second_quantized_op in second_quantized_ops:
-        #         assert isinstance(second_quantized_op, SecondQuantizedOp)
-        # with self.subTest("Check components of electronic second quantized operator."):
-        #     assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
-        #                zip(expected_spin_op, electr_sec_quant_op.spin.to_list()))
-        #     assert electr_sec_quant_op.boson is None
-        #     assert electr_sec_quant_op.fermion is None

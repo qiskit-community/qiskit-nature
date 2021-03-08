@@ -22,9 +22,10 @@ from .integrals_calculators import calc_total_ang_momentum_ints
 from .fermionic_op_builder import build_fermionic_op, build_ferm_op_from_ints
 from .integrals_calculators import calc_total_magnetization_ints
 from .integrals_calculators import calc_total_particle_num_ints
+from ..base_problem import BaseProblem
 
 
-class MolecularProblem:
+class MolecularProblem(BaseProblem):
     """Molecular Problem"""
 
     def __init__(self, fermionic_driver: FermionicDriver,
@@ -35,10 +36,7 @@ class MolecularProblem:
             fermionic_driver: A fermionic driver encoding the molecule information.
             q_molecule_transformers: A list of transformations to be applied to the molecule.
         """
-        if q_molecule_transformers is None:
-            q_molecule_transformers = []
-        self.driver = fermionic_driver
-        self.transformers = q_molecule_transformers
+        super().__init__(fermionic_driver, q_molecule_transformers)
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -50,7 +48,7 @@ class MolecularProblem:
             operator, and (if available) x, y, z dipole operators.
         """
         q_molecule = self.driver.run()
-        q_molecule_transformed = self._transform_q_molecule(q_molecule)
+        q_molecule_transformed = self._transform(q_molecule)
         num_modes = q_molecule_transformed.one_body_integrals.shape[0]
 
         electronic_fermionic_op = build_fermionic_op(q_molecule_transformed)
@@ -72,7 +70,7 @@ class MolecularProblem:
 
         return second_quantized_ops_list
 
-    def _transform_q_molecule(self, q_molecule) -> QMolecule:
+    def _transform(self, q_molecule) -> QMolecule:
         for transformer in self.transformers:
             q_molecule = transformer.transform(q_molecule)
         return q_molecule

@@ -15,11 +15,12 @@ from typing import List, Tuple, Optional
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.drivers import BosonicDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 from qiskit_nature.problems.second_quantization.vibrational.spin_op_builder import build_spin_op
 from qiskit_nature.transformers import BaseTransformer
 
 
-class VibrationalProblem:
+class VibrationalProblem(BaseProblem):
     """Vibrational Problem"""
 
     def __init__(self, bosonic_driver: BosonicDriver,
@@ -30,10 +31,7 @@ class VibrationalProblem:
             bosonic_driver: A bosonic driver encoding the molecule information.
             transformers: A list of transformations to be applied to the molecule.
         """
-        if transformers is None:
-            transformers = []
-        self.driver = bosonic_driver
-        self.transformers = transformers
+        super().__init__(bosonic_driver, transformers)
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -43,7 +41,7 @@ class VibrationalProblem:
             A list of `SecondQuantizedOp` in the following order: ... .
         """
         watson_hamiltonian = self.driver.run()
-        watson_hamiltonian_transformed = self._transform_hamiltonian(watson_hamiltonian)
+        watson_hamiltonian_transformed = self._transform(watson_hamiltonian)
         basis_size = 1  # TODO how to get it?
         truncation_order = 3  # TODO how to get it?
         bosonic_op = build_spin_op(watson_hamiltonian_transformed, basis_size, truncation_order)
@@ -52,7 +50,7 @@ class VibrationalProblem:
 
         return second_quantized_ops_list
 
-    def _transform_hamiltonian(self, watson_hamiltonian: WatsonHamiltonian) -> WatsonHamiltonian:
+    def _transform(self, watson_hamiltonian: WatsonHamiltonian) -> WatsonHamiltonian:
         for transformer in self.transformers:
             watson_hamiltonian = transformer.transform(watson_hamiltonian)
         return watson_hamiltonian
