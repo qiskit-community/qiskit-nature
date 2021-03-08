@@ -191,6 +191,13 @@ class TestSpinOp(QiskitNatureTestCase):
             )
             self.assertSpinEqual(actual, desired)
 
+        # TODO: implement adjoint for same register operators.
+        # with self.sub Test("adjoint same register op"):
+        #     actual = SpinOp("X_0 Y_0 Z_0").dagger
+
+        #     print(actual.to_matrix())
+        #     print(SpinOp("X_0 Y_0 Z_0").to_matrix().T.conjugate())
+
     def test_reduce(self):
         """Test reduce"""
         with self.subTest("trivial reduce"):

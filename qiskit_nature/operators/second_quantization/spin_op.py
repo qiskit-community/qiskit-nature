@@ -27,8 +27,7 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-
-from .particle_op import ParticleOp
+from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 
 class SpinOp(ParticleOp):
@@ -326,6 +325,11 @@ class SpinOp(ParticleOp):
         return SpinOp((self._spin_array, self._coeffs * other), spin=self.spin)
 
     def adjoint(self) -> "SpinOp":
+        if (self._spin_array.sum(axis=0) > 1).any():
+            # TODO: implement this when compose() will be implemented.
+            raise NotImplementedError(
+                "Adjoint for an operator which have multiple operators for the same register."
+            )
         # Note: X, Y, Z are hermitian, therefore the dagger operation on a SpinOperator amounts
         # to simply complex conjugating the coefficient.
         return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
@@ -389,6 +393,7 @@ class SpinOp(ParticleOp):
         Returns:
             The matrix (numpy.ndarray with dtype=numpy.complex128)
         """
+        # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
         x_mat = np.fromfunction(
             lambda i, j: np.where(
                 np.abs(i - j) == 1,
