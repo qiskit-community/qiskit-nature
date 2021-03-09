@@ -13,22 +13,24 @@
 TODO.
 """
 
-from typing import Tuple
+from typing import List, Tuple
 
 import itertools
 import logging
 
+from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
+
 logger = logging.getLogger(__name__)
 
 
-class ExcitationOpBuilder:
+class ExcitationBuilder:
     """A factory class to construct excitation operators."""
 
     @staticmethod
     def build_excitation_ops(num_excitations: int,
                              num_spin_orbitals: int,
                              num_particles: Tuple[int, int]
-                             ) -> None:
+                             ) -> List[SecondQuantizedOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 
@@ -38,6 +40,9 @@ class ExcitationOpBuilder:
             num_excitations: number of excitations per operator (1 means single excitations, etc.).
             num_spin_orbitals: number of spin-orbitals.
             num_particles: number of alpha and beta particles.
+
+        Returns:
+            The list of excitation operators in the second quantized formalism.
         """
         # generate sets of alpha-spin orbital indices for occupied and unoccupied ones
         set_alpha_occ = set(range(num_particles[0]))
@@ -73,11 +78,13 @@ class ExcitationOpBuilder:
         #     construct the excitation list in two separate steps. First only alpha, then only beta.
         #     But this is also easy to adjust.
 
+        operators = []
         for exc in excitations:
             label = ['I'] * num_spin_orbitals
             for occ in exc[0]:
                 label[occ] = '-'
             for unocc in exc[1]:
                 label[unocc] = '+'
-            label_str = ''.join(label)
-            print(exc, label_str)
+            operators.append(SecondQuantizedOp([FermionicOp(''.join(label))]))
+
+        return operators

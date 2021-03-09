@@ -18,9 +18,10 @@ from typing import Callable, List, Optional, Tuple, Union
 
 import logging
 
-from qiskit_nature.components.variational_forms.excitation_op_builder import ExcitationOpBuilder
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
+from .excitation_builder import ExcitationBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +151,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         converted_ops = []
         for op in excitation_ops:
-            converted_ops.append(self._qubit_op_converter.convert(op))
+            converted_ops.append(self.qubit_op_converter.convert(op))
 
         # we don't append to this property directly in order to only perform the checks done during
         # its setter once
@@ -158,30 +159,38 @@ class UCC(EvolvedOperatorAnsatz):
 
         super()._build()
 
-    def excitation_ops(self):
-        """Parses the excitations and generates the list of operators."""
+    def excitation_ops(self) -> List[SecondQuantizedOp]:
+        """Parses the excitations and generates the list of operators.
+
+        Raises:
+            QiskitNatureError: if invalid excitations are specified.
+
+        Returns:
+            The list of generated excitation operators.
+        """
         generators = []
 
         if isinstance(self.excitations, str):
             for exc in self.excitations:
                 generators.append(partial(
-                    ExcitationOpBuilder.build_excitation_ops,
+                    ExcitationBuilder.build_excitation_ops,
                     num_excitation=self.EXCITATION_TYPE[exc]
                 ))
         elif isinstance(self.excitations, int):
             generators.append(partial(
-                ExcitationOpBuilder.build_excitation_ops,
+                ExcitationBuilder.build_excitation_ops,
                 num_excitation=self.excitations
             ))
         elif isinstance(self.excitations, list):
-            if isinstance(self.excitations[0], int):
-                for exc in self.excitations:
-                    generators.append(partial(
-                        ExcitationOpBuilder.build_excitation_ops,
-                        num_excitation=exc
-                    ))
-            else:
-                generators = self.excitations
+            for exc in self.excitations:
+                generators.append(partial(
+                    ExcitationBuilder.build_excitation_ops,
+                    num_excitation=exc
+                ))
+        elif isinstance(self.excitations, callable):
+            generators.append(self.excitations)
+        else:
+            raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
 
         excitation_ops = []
         for gen in generators:
