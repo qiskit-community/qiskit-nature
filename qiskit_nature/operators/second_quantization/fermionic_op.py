@@ -92,11 +92,11 @@ class FermionicOp(ParticleOp):
           A label consists of the permitted characters listed above.
 
         `FermionicOp(tuple)`
-           Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`,
-           or `complex`.
+          Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`,
+          or `complex`.
 
         `FermionicOp(list)`
-           The list must be a list of valid tuples as explained above.
+          The list must be a list of valid tuples as explained above.
 
     **Algebra**
 
