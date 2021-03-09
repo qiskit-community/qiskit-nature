@@ -18,7 +18,6 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators import FermionicOp
 
 
@@ -45,7 +44,7 @@ class TestFermionicOp(QiskitNatureTestCase):
     @data("INX", [("++", 1), ("EF", 1)], "", "+_0 -_2")
     def test_init_invalid_label(self, labels):
         """Test __init__ with invalid label"""
-        with self.assertRaises(QiskitNatureError):
+        with self.assertRaises(ValueError):
             FermionicOp(labels)
 
     def test_init_multiterm(self):

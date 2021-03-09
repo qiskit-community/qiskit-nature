@@ -18,8 +18,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-
-from .particle_op import ParticleOp
+from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 
 class FermionicOp(ParticleOp):
@@ -92,9 +91,12 @@ class FermionicOp(ParticleOp):
         `FermionicOp(label)`
           A label consists of the permitted characters listed above.
 
+        `FermionicOp(tuple)`
+           Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`,
+           or `complex`.
+
         `FermionicOp(list)`
-          The list must be a list of tuples that are of the form `(label, coeff)`.
-          `coeff` can be either `int`, `float`, or `complex`.
+           The list must be a list of valid tuples as explained above.
 
     **Algebra**
 
@@ -133,46 +135,67 @@ class FermionicOp(ParticleOp):
 
     def __init__(
         self,
-        data: Union[str, List[Tuple[str, complex]]],
+        data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
     ):
         """Initialize the FermionicOp.
 
         Args:
             data: Input data for FermionicOp. The allowed data is label str,
-                  or list [(label, coeff)].
+                  tuple (label, coeff), or list [(label, coeff)].
 
         Raises:
-            QiskitNatureError: given data is invalid.
+            ValueError: given data is invalid value.
+            TypeError: given data has invalid type.
         """
-        if not isinstance(data, (list, str)):
-            raise QiskitNatureError("Invalid input data for FermionicOp.")
+        tuple_dtype = (str, (int, float, complex))
+
+        if not isinstance(data, (tuple, list, str)):
+            raise TypeError("Invalid input data for FermionicOp.")
+
+        if isinstance(data, tuple):
+            if not all(isinstance(data[i], tuple_dtype[i]) for i in range(2)):
+                raise TypeError(
+                    f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
+                )
+
+            data = [data]
 
         if isinstance(data, str):
             if not self._SPARSE_LABEL_PATTERN.match(data) and not self._DENSE_LABEL_PATTERN.match(
                 data
             ):
-                raise QiskitNatureError(
+                raise ValueError(
                     "Label must be a string consisting only of "
                     f"['I','+','-','N','E'] not: '{data}'"
                 )
+
             data = [(data, 1)]
 
         if isinstance(data, list):
-            if all(
-                isinstance(label, str) and isinstance(coeff, (int, float, complex))
+            if not all(
+                isinstance(label, tuple_dtype[0]) and isinstance(coeff, tuple_dtype[1])
                 for label, coeff in data
             ):
-                labels, coeffs = zip(*data)  # type: ignore
-                self._coeffs = np.array(coeffs, np.complex128)
-                if all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
-                    self._register_length = len(labels[0])
-                    self._labels = labels
-                elif all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
-                    self._from_sparse_label(labels)
-                else:
-                    raise QiskitNatureError(f"Invalid labels are given: {labels}")
+                raise TypeError("Data list must be [(str, number)].")
+
+            invalid_labels = [
+                label
+                for label, _ in data
+                if not self._DENSE_LABEL_PATTERN.match(label)
+                and not self._SPARSE_LABEL_PATTERN.match(label)
+            ]
+            if invalid_labels:
+                raise ValueError(f"Invalid labels: {invalid_labels}")
+
+            labels, coeffs = zip(*data)  # type: ignore
+            self._coeffs = np.array(coeffs, np.complex128)
+            if all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
+                self._register_length = len(labels[0])
+                self._labels = labels
+            elif all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
+                self._from_sparse_label(labels)
             else:
-                raise QiskitNatureError("Data list must be [(str, number)].")
+                raise ValueError(f"Mixed labels are given: {labels}")
 
     def __repr__(self) -> str:
         if len(self) == 1 and self._coeffs == 1:
@@ -377,7 +400,7 @@ class FermionicOp(ParticleOp):
 
                 index = int(index_str)
                 if 0 <= prev_index <= index:
-                    raise QiskitNatureError("Indices of labels must be in descending order.")
+                    raise ValueError("Indices of labels must be in descending order.")
 
                 max_index = max(max_index, index)
 
