@@ -167,6 +167,8 @@ jobs:
       - name: Install Aqua from Master
         run: |
           # Install Aqua for now until tutorials point to new repo
+          # Aqua depends on Ignis
+          pip install https://github.com/Qiskit/qiskit-ignis/archive/master.zip
           pip install https://github.com/Qiskit/qiskit-aqua/archive/master.zip
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') }}
         shell: bash
