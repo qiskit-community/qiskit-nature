@@ -14,6 +14,5 @@
 
 from .active_space_transformer import ActiveSpaceTransformer
 from .base_transformer import BaseTransformer
-from .freeze_core_transformer import FreezeCoreTransformer
 from .particle_hole_transformer import ParticleHoleTransformer
 from .seniority_zero_transformer import SeniorityZeroTransformer
