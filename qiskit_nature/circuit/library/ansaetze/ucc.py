@@ -32,7 +32,9 @@ class QubitOpConverter:
 
     def convert(self, op):
         """TODO."""
-        pass
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.mappings import JordanWignerMapping
+        return JordanWignerMapping().map(op.fermion)
 
 
 class UCC(EvolvedOperatorAnsatz):
@@ -174,18 +176,18 @@ class UCC(EvolvedOperatorAnsatz):
             for exc in self.excitations:
                 generators.append(partial(
                     ExcitationBuilder.build_excitation_ops,
-                    num_excitation=self.EXCITATION_TYPE[exc]
+                    num_excitations=self.EXCITATION_TYPE[exc]
                 ))
         elif isinstance(self.excitations, int):
             generators.append(partial(
                 ExcitationBuilder.build_excitation_ops,
-                num_excitation=self.excitations
+                num_excitations=self.excitations
             ))
         elif isinstance(self.excitations, list):
             for exc in self.excitations:
                 generators.append(partial(
                     ExcitationBuilder.build_excitation_ops,
-                    num_excitation=exc
+                    num_excitations=exc
                 ))
         elif isinstance(self.excitations, callable):
             generators.append(self.excitations)

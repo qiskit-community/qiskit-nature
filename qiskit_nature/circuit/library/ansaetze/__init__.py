@@ -31,6 +31,16 @@ Initial states
 
 """
 
+from .adaptive_ansatz import AdaptiveAnsatz
+from .adapt_ucc import AdaptUCC
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
+from .excitation_builder import ExcitationBuilder
+from .ucc import UCC
 
-__all__ = ['EvolvedOperatorAnsatz']
+__all__ = [
+    'AdaptiveAnsatz',
+    'AdaptUCC',
+    'EvolvedOperatorAnsatz',
+    'ExcitationBuilder',
+    'UCC',
+    ]
