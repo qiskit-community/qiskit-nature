@@ -183,21 +183,45 @@ class ActiveSpaceTransformer(BaseTransformer):
         q_molecule_reduced.mo_eri_ints_ba = hijkl[1]
         q_molecule_reduced.mo_eri_ints_bb = hijkl[2]
         # invalidate AO basis integrals
-        q_molecule_reduced.hcore = None
-        q_molecule_reduced.hcore_b = None
+        q_molecule_reduced.hcore = fock_inactive[0]
+        q_molecule_reduced.hcore_b = fock_inactive[1]
         q_molecule_reduced.kinetic = None
         q_molecule_reduced.overlap = None
-        q_molecule_reduced.eri = None
+        q_molecule_reduced.eri = eri
         # invalidate dipole integrals
-        q_molecule_reduced.x_dip_ints = None
-        q_molecule_reduced.y_dip_ints = None
-        q_molecule_reduced.z_dip_ints = None
-        q_molecule_reduced.x_dip_mo_ints = None
-        q_molecule_reduced.x_dip_mo_ints_b = None
-        q_molecule_reduced.y_dip_mo_ints = None
-        q_molecule_reduced.y_dip_mo_ints_b = None
-        q_molecule_reduced.z_dip_mo_ints = None
-        q_molecule_reduced.z_dip_mo_ints_b = None
+        x_dip_inactive = self._compute_inactive_fock_op((q_molecule.x_dip_ints, None),
+                                                        np.zeros(eri.shape),
+                                                        density_inactive)
+        x_dip_shift = self._compute_inactive_energy((q_molecule.x_dip_ints, None), density_inactive,
+                                                    x_dip_inactive, mo_coeff_inactive)
+        x_dip_mo, _ = self._compute_active_integrals(mo_coeff_active, (q_molecule.x_dip_ints, None),
+                                                     np.zeros(eri.shape))
+        q_molecule_reduced.x_dip_ints = x_dip_inactive[0]
+        q_molecule_reduced.x_dip_mo_ints = x_dip_mo[0]
+        q_molecule_reduced.x_dip_mo_ints_b = x_dip_mo[1]
+        print(x_dip_shift, x_dip_mo[0])
+        y_dip_inactive = self._compute_inactive_fock_op((q_molecule.y_dip_ints, None),
+                                                        np.zeros(eri.shape),
+                                                        density_inactive)
+        y_dip_shift = self._compute_inactive_energy((q_molecule.y_dip_ints, None), density_inactive,
+                                                    y_dip_inactive, mo_coeff_inactive)
+        y_dip_mo, _ = self._compute_active_integrals(mo_coeff_active, (q_molecule.y_dip_ints, None),
+                                                     np.zeros(eri.shape))
+        q_molecule_reduced.y_dip_ints = y_dip_inactive[0]
+        q_molecule_reduced.y_dip_mo_ints = y_dip_mo[0]
+        q_molecule_reduced.y_dip_mo_ints_b = y_dip_mo[1]
+        print(y_dip_shift, y_dip_mo[0])
+        z_dip_inactive = self._compute_inactive_fock_op((q_molecule.z_dip_ints, None),
+                                                        np.zeros(eri.shape),
+                                                        density_inactive)
+        z_dip_shift = self._compute_inactive_energy((q_molecule.z_dip_ints, None), density_inactive,
+                                                    z_dip_inactive, mo_coeff_inactive)
+        z_dip_mo, _ = self._compute_active_integrals(mo_coeff_active, (q_molecule.z_dip_ints, None),
+                                                     np.zeros(eri.shape))
+        q_molecule_reduced.z_dip_ints = z_dip_inactive[0]
+        q_molecule_reduced.z_dip_mo_ints = z_dip_mo[0]
+        q_molecule_reduced.z_dip_mo_ints_b = z_dip_mo[1]
+        print(z_dip_shift, z_dip_mo[0])
 
         return q_molecule_reduced
 
