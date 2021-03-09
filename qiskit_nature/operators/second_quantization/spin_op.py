@@ -212,8 +212,10 @@ class SpinOp(ParticleOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
-            invalid_labels = [label for label, _ in data if self._VALID_LABEL_PATTERN.match(label)]
-            if not invalid_labels:
+            invalid_labels = [
+                label for label, _ in data if not self._VALID_LABEL_PATTERN.match(label)
+            ]
+            if invalid_labels:
                 raise ValueError(f"Invalid labels: {invalid_labels}")
 
             data = self._flatten_ladder_ops(data)
