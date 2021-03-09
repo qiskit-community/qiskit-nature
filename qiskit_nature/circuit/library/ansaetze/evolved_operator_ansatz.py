@@ -23,7 +23,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
     """The evolved operator ansatz."""
 
     def __init__(self,
-                 operators: Union[OperatorBase, List[OperatorBase]],
+                 operators: Optional[Union[OperatorBase, List[OperatorBase]]] = None,
                  reps: int = 1,
                  evolution: Optional[EvolutionBase] = None,
                  insert_barriers: bool = False,
@@ -60,15 +60,29 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
                 raise ValueError('The reps cannot be smaller than 0.')
             return False
 
+        return True
+
     @property
     def reps(self) -> int:
         """The number of times the evolved operators are repeated."""
         return self._reps
 
+    @reps.setter
+    def reps(self, r: int) -> None:
+        """Sets the number of times the evolved operators are repeated."""
+        self._invalidate()
+        self._reps = r
+
     @property
     def evolution(self) -> EvolutionBase:
         """The evolution converter used to compute the evolution."""
         return self._evolution
+
+    @evolution.setter
+    def evolution(self, evol: EvolutionBase):
+        """Sets the evolution converter used to compute the evolution."""
+        self._invalidate()
+        self._evolution = evol
 
     @property
     def operators(self) -> List[OperatorBase]:
@@ -83,10 +97,11 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
 
         if len(operators) > 1:
             num_qubits = operators[0].num_qubits
-            if any([operators[i].num_qubits != operators[0].num_qubits
+            if any([operators[i].num_qubits != num_qubits
                     for i in range(1, len(operators))]):
                 raise ValueError('All operators must act on the same number of qubits (for now).')
 
+        self._invalidate()
         self._operators = operators
 
     @property

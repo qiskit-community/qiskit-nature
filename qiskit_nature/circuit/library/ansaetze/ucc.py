@@ -19,6 +19,7 @@ from typing import Callable, List, Optional, Tuple, Union
 import logging
 
 from qiskit_nature.components.variational_forms.excitation_op_builder import ExcitationOpBuilder
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 
 logger = logging.getLogger(__name__)
@@ -43,11 +44,12 @@ class UCC(EvolvedOperatorAnsatz):
         'q': 4,
     }
 
-    # TODO: expose evolution and reps here, too?
-    def __init__(self, qubit_op_converter: QubitOpConverter,
+    def __init__(self, qubit_op_converter: Optional[QubitOpConverter] = None,
                  num_particles: Optional[Tuple[int, int]] = None,
                  num_spin_orbitals: Optional[int] = None,
-                 excitations: Optional[Union[str, int, List[int], List[Callable]]] = None):
+                 excitations: Optional[Union[str, int, List[int], Callable[
+                     [Tuple[int, int], int], List[SecondQuantizedOp]]]] = None,
+                 reps: int = 1):
         """
 
         Args:
@@ -64,18 +66,30 @@ class UCC(EvolvedOperatorAnsatz):
                     - `q` for quadruples
                 - a single, positive `int` which denotes the number of excitations (1 == `s`, etc.)
                 - a list of positive integers
-                - a list of `callable` objects which are used to generate the excitations. Each
-                  `callable` must take the following arguments:
+                - a `callable` object which is used to generate the excitations. The `callable` must
+                  take the following arguments:
                       - `num_particles`: the same as above
                       - `num_spin_orbitals`: the same as above
                   and must return a `List[SecondQuantizedOp]`.
+            reps: The number of times to repeat the evolved operators.
         """
         self._qubit_op_converter = qubit_op_converter
         self._num_particles = num_particles
         self._num_spin_orbitals = num_spin_orbitals
         self._excitations = excitations
         # TODO: Added to pass lint, need change
-        super().__init__([], reps=0, evolution=None)
+        super().__init__([], reps=reps, evolution=None)
+
+    @property
+    def qubit_op_converter(self) -> QubitOpConverter:
+        """The qubit operator converter."""
+        return self._qubit_op_converter
+
+    @qubit_op_converter.setter
+    def qubit_op_converter(self, conv: QubitOpConverter) -> None:
+        """Sets the qubit operator converter."""
+        self._invalidate()
+        self._qubit_op_converter = conv
 
     @property
     def num_spin_orbitals(self) -> int:
@@ -85,6 +99,7 @@ class UCC(EvolvedOperatorAnsatz):
     @num_spin_orbitals.setter
     def num_spin_orbitals(self, n: int) -> None:
         """Sets the number of spin orbitals."""
+        self._invalidate()
         self._num_spin_orbitals = n
 
     @property
@@ -95,6 +110,7 @@ class UCC(EvolvedOperatorAnsatz):
     @num_particles.setter
     def num_particles(self, n: Tuple[int, int]) -> None:
         """Sets the number of particles."""
+        self._invalidate()
         self._num_particles = n
 
     @property
@@ -105,6 +121,7 @@ class UCC(EvolvedOperatorAnsatz):
     @excitations.setter
     def excitations(self, exc: Union[str, int, List[int], List[Callable]]) -> None:
         """Sets the excitations."""
+        self._invalidate()
         self._excitations = exc
 
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
@@ -126,6 +143,9 @@ class UCC(EvolvedOperatorAnsatz):
         return True
 
     def _build(self) -> None:
+        if self._data is not None:
+            return
+
         excitation_ops = self.excitation_ops()
 
         converted_ops = []
