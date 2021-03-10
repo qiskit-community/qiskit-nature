@@ -25,7 +25,7 @@ from . import SecondQuantizedOp
 #      mappers that is generally false but can be set via parity mapper
 
 
-class QubitConvertor:
+class QubitConverter:
     """A converter from Second-Quantized to Qubit Operators."""
 
     def __init__(self,
