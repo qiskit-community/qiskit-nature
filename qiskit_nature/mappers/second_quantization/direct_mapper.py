@@ -14,7 +14,7 @@
 
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.operators.second_quantization.bosonic_op import BosonicOp
+from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 from .qubit_mapper import QubitMapper
@@ -32,7 +32,7 @@ class DirectMapper(QubitMapper):
         Returns:
             A boolean indicating whether the queried particle-type is supported.
         """
-        return isinstance(particle_type, BosonicOp)
+        return isinstance(particle_type, SpinOp)
 
     def map(self, second_q_op: ParticleOp) -> PauliSumOp:
         """Maps a `ParticleOp` to a `PauliSumOp` using the Direct boson-to-qubit
