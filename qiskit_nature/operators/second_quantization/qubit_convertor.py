@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""A convertor from Second-Quantized to Qubit Operators."""
+"""A converter from Second-Quantized to Qubit Operators."""
 from typing import List, Optional, Tuple, Union
 
 from qiskit.opflow import PauliSumOp
@@ -26,7 +26,7 @@ from . import SecondQuantizedOp
 
 
 class QubitConvertor:
-    """A convertor from Second-Quantized to Qubit Operators."""
+    """A converter from Second-Quantized to Qubit Operators."""
 
     def __init__(self,
                  mappers: Union[QubitMapper, Tuple[QubitMapper, QubitMapper]],
