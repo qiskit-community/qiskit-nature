@@ -208,8 +208,8 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             self._set_bounds(self._orbital_rotation.parameter_bound_value)
         if self._iterative_oo_iterations < 1:
             raise QiskitNatureError(
-                            'Please set iterative_oo_iterations parameter to a positive number,'
-                            ' got {} instead'.format(self._iterative_oo_iterations))
+                'Please set iterative_oo_iterations parameter to a positive number,'
+                ' got {} instead'.format(self._iterative_oo_iterations))
 
         # copies to overcome incompatibilities with error checks in VariationalAlgorithm class
         self.var_form_num_parameters = self._vqe.var_form.num_parameters

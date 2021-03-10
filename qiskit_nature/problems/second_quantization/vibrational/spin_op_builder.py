@@ -15,12 +15,15 @@ from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
 
 
+# TODO complete once a relevant Vibrational SpinOp class created
 def build_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_order):
     """
     Builds a spin operator based on a WatsonHamiltonian object.
 
     Args:
         watson_hamiltonian (WatsonHamiltonian): WatsonHamiltonian instance.
+        basis_size: size of a basis
+        truncation_order: order at which an n-body expansion is truncated
 
     Returns:
         SpinOp: SpinOp built from a QMolecule object.

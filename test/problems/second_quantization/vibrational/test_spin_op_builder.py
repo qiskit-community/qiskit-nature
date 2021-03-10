@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests Fermionic Operator builder."""
+from test import QiskitNatureTestCase
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
 from qiskit_nature.problems.second_quantization.vibrational.spin_op_builder import _create_labels
-from test import QiskitNatureTestCase
 from qiskit_nature.drivers import GaussianForcesDriver
 
 
@@ -24,6 +24,7 @@ class TestVibrationalSpinOpBuilder(QiskitNatureTestCase):
         logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
         driver = GaussianForcesDriver(logfile=logfile)
 
+        # TODO extract somewhere
         expected_labels = [('+_0*0 -_0*0', 1215.682529375), ('+_0*1 -_0*1', 3656.9551768750007),
                            ('+_1*0 -_1*0', 682.5053337500001), ('+_1*0 -_1*1', -46.77167173323271),
                            ('+_1*1 -_1*0', -46.77167173323271), ('+_1*1 -_1*1', 2050.1464387500005),

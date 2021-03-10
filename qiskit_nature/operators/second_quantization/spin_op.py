@@ -174,13 +174,13 @@ class SpinOp(ParticleOp):
     _DENSE_LABEL_PATTERN = re.compile(r"^[IXYZ]+$")
 
     def __init__(
-        self,
-        data: Union[
-            str,
-            List[Tuple[str, complex]],
-            Tuple[np.ndarray, np.ndarray],
-        ],
-        spin: Union[float, Fraction] = Fraction(1, 2),
+            self,
+            data: Union[
+                str,
+                List[Tuple[str, complex]],
+                Tuple[np.ndarray, np.ndarray],
+            ],
+            spin: Union[float, Fraction] = Fraction(1, 2),
     ):
         r"""
         Args:

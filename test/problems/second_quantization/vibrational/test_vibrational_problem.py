@@ -11,21 +11,18 @@
 # that they have been altered from the originals.
 
 """Tests Vibrational Problem."""
-from qiskit_nature.components.bosonic_bases import HarmonicBasis
-from qiskit_nature.problems.second_quantization.vibrational.spin_op_builder import build_spin_op
+import unittest
+
 from test import QiskitNatureTestCase
-import numpy as np
-from qiskit_nature.transformers import ActiveSpaceTransformer
-from qiskit_nature.drivers import HDF5Driver, GaussianForcesDriver
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
-    VibrationalProblem
-from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
+from qiskit_nature.components.bosonic_bases import HarmonicBasis
+from qiskit_nature.drivers import GaussianForcesDriver
 
 
 class TestVibrationalProblem(QiskitNatureTestCase):
     """Tests Vibrational Problem."""
 
+    # TODO complete unit test once implementation ready
+    @unittest.skip("Skip test until implementation completed.")
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
@@ -54,4 +51,3 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         #                zip(expected_spin_op, electr_sec_quant_op.spin.to_list()))
         #     assert electr_sec_quant_op.boson is None
         #     assert electr_sec_quant_op.fermion is None
-
