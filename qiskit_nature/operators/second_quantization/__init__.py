@@ -17,4 +17,5 @@ Second-Quantization Operators (:mod:`qiskit_nature.operators.second_quantization
 from .bosonic_op import BosonicOp
 from .fermionic_op import FermionicOp
 from .spin_op import SpinOp
+from .finite_bosonic_op import FiniteBosonicOp
 from .second_quantized_op import SecondQuantizedOp
