@@ -11,14 +11,8 @@
 # that they have been altered from the originals.
 """ Spin operator builder. """
 
-import itertools
-from typing import List, Tuple
-
-import numpy as np
-
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
-from qiskit_nature.operators.second_quantization import BosonicOp
 
 
 def build_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_order):
@@ -36,25 +30,36 @@ def build_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_
     basis_size = [basis_size] * num_modes
     boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,  # type: ignore
                                             basis_size, truncation_order).convert()
-    all_labels = []
-    for num_body in range(truncation_order):
-        ind = num_body
-        num_body_data = boson_hamilt_harm_basis[ind]
-        num_body_labels = _create_num_body_labels(num_body_data)
-        all_labels.extend(num_body_labels)
+    all_labels = _create_labels(boson_hamilt_harm_basis, truncation_order)
 
     # bos_op = BosonicOp(boson_hamilt_harm_basis) #TODO switch to Vibrational Spin Op
 
     return False
 
 
+def _create_labels(boson_hamilt_harm_basis, truncation_order):
+    all_labels = []
+    for num_body in range(truncation_order):
+        num_body_data = boson_hamilt_harm_basis[num_body]
+        num_body_labels = _create_num_body_labels(num_body_data)
+        all_labels.extend(num_body_labels)
+    return all_labels
+
+
 def _create_num_body_labels(num_body_data):
     num_body_labels = []
     for indices, coeff in num_body_data:
-        for mode, modal_raise, modal_lower in indices:
-            raise_label = "".join(['+_', str(mode), '_', str(modal_raise)])
-            lower_label = "".join(['+_', str(mode), '_', str(modal_raise)])
-            num_body_labels.append((raise_label, coeff))
-            num_body_labels.append((lower_label, coeff))
+        coeff_label = _create_label_for_coeff(indices)
+        num_body_labels.append((coeff_label, coeff))
     return num_body_labels
 
+
+def _create_label_for_coeff(indices):
+    raise_labels_list = []
+    lower_labels_list = []
+    for mode, modal_raise, modal_lower in indices:
+        raise_labels_list.append("".join(['+_', str(mode), '*', str(modal_raise)]))
+        lower_labels_list.append("".join(['-_', str(mode), '*', str(modal_lower)]))
+    complete_labels_list = raise_labels_list + lower_labels_list
+    complete_label = " ".join(complete_labels_list)
+    return complete_label
