@@ -13,15 +13,14 @@
 """ Test Qubit Converter """
 
 import unittest
-
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from test import QiskitNatureTestCase
 
 from qiskit.opflow import X, Y, Z, I
 
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
 
 
