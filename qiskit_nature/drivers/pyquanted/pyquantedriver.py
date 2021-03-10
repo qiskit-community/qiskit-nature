@@ -17,7 +17,7 @@ import logging
 from enum import Enum
 from typing import Union, List, Optional
 
-from qiskit.aqua.utils.validation import validate_min
+from qiskit.utils.validation import validate_min
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals

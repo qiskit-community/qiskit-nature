@@ -8,7 +8,7 @@ about: Create a report to help us improve 🤔.
 
 ### Information
 
-- **Qiskit Aqua version**:
+- **Qiskit Nature version**:
 - **Python version**:
 - **Operating system**:
 

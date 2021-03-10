@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from qiskit.aqua.operators import PauliSumOp
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 

@@ -17,8 +17,8 @@ from typing import Tuple, List, Optional, Union, Callable, Dict, Any
 
 import numpy as np
 
-from qiskit.aqua.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit.aqua.operators import OperatorBase, WeightedPauliOperator
+from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit_nature import FermionicOperator, BosonicOperator
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.results import EigenstateResult
@@ -49,7 +49,7 @@ class Transformation(ABC):
                                                                  Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
-        aqua.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
         """
         return None
 
@@ -74,7 +74,7 @@ class Transformation(ABC):
 
     @abstractmethod
     def build_hopping_operators(self, excitations: Union[str, List[List[int]]] = 'sd'
-                                ) -> Tuple[Dict[str, WeightedPauliOperator],
+                                ) -> Tuple[Dict[str, PauliSumOp],
                                            Dict[str, List[bool]],
                                            Dict[str, List[Any]]]:
         """Builds the product of raising and lowering operators (basic excitation operators)

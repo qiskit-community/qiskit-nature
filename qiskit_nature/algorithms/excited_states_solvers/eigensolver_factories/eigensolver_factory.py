@@ -13,7 +13,7 @@
 """The eigensolver factory for excited states calculation algorithms."""
 
 from abc import ABC, abstractmethod
-from qiskit.aqua.algorithms import Eigensolver
+from qiskit.algorithms import Eigensolver
 from qiskit_nature.transformations import Transformation
 
 

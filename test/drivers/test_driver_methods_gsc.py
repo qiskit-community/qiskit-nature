@@ -15,9 +15,10 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit.aqua.algorithms import NumPyMinimumEigensolver
-from qiskit_nature.core import TransformationType, QubitMappingType
-from qiskit_nature.transformations import FermionicTransformation
+from qiskit.algorithms import NumPyMinimumEigensolver
+from qiskit_nature.transformations import (FermionicTransformation,
+                                           FermionicTransformationType,
+                                           FermionicQubitMappingType)
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 
 
@@ -38,8 +39,10 @@ class TestDriverMethods(QiskitNatureTestCase):
         }
 
     @staticmethod
-    def _run_driver(driver, transformation=TransformationType.FULL,
-                    qubit_mapping=QubitMappingType.JORDAN_WIGNER, two_qubit_reduction=False,
+    def _run_driver(driver,
+                    transformation=FermionicTransformationType.FULL,
+                    qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER,
+                    two_qubit_reduction=False,
                     freeze_core=True):
 
         fermionic_transformation = \

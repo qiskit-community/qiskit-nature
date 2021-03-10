@@ -12,13 +12,14 @@
 
 """ BKSF methods """
 
+from typing import Optional
 import copy
 import itertools
 
 import retworkx
 import numpy as np
 from qiskit.quantum_info import Pauli
-from qiskit.aqua.operators import WeightedPauliOperator
+from qiskit.opflow import PauliSumOp
 
 
 def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
@@ -31,7 +32,7 @@ def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
         h1_pq (complex): coefficient of the one body term at (p, q)
 
     Return:
-        WeightedPauliOperator: mapped qubit operator
+        PauliSumOp: mapped qubit operator
     """
     # Handle off-diagonal terms.
     if p != q:
@@ -49,7 +50,7 @@ def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
         w = np.zeros(edge_list.shape[1])
         id_pauli = Pauli(v, w)
 
-        id_op = WeightedPauliOperator(paulis=[[1.0, id_pauli]])
+        id_op = PauliSumOp.from_list([(id_pauli.to_label(), 1.0)])
         qubit_op = id_op - b_p
         final_coeff = 0.5
 
@@ -71,11 +72,11 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
         h2_pqrs (complex): coefficient of the two body term at (p, q, r, s)
 
     Returns:
-        WeightedPauliOperator: mapped qubit operator
+        PauliSumOp: mapped qubit operator
     """
     # Handle case of four unique indices.
     v = np.zeros(edge_list.shape[1])
-    id_op = WeightedPauliOperator(paulis=[[1, Pauli(v, v)]])
+    id_op = PauliSumOp.from_list([(Pauli(v, v).to_label(), 1)])
     final_coeff = 1.0
 
     if len(set([p, q, r, s])) == 4:
@@ -212,7 +213,7 @@ def edge_operator_aij(edge_list, i, j):
         j (int): specifying the edge operator A
 
     Returns:
-        WeightedPauliOperator: qubit operator
+        PauliSumOp: qubit operator
     """
     v = np.zeros(edge_list.shape[1])
     w = np.zeros(edge_list.shape[1])
@@ -240,7 +241,7 @@ def edge_operator_aij(edge_list, i, j):
         if edge_list[i_i][j_j] < i:
             v[j_j] = 1
 
-    qubit_op = WeightedPauliOperator(paulis=[[1.0, Pauli(v, w)]])
+    qubit_op = PauliSumOp.from_list([(Pauli(v, w).to_label(), 1.0)])
     return qubit_op
 
 
@@ -254,7 +255,7 @@ def stabilizers(fer_op):
     stabs = np.asarray(retworkx.cycle_basis(graph))
     stabilizer_ops = []
     for stab in stabs:
-        a_op = WeightedPauliOperator(paulis=[[1.0, Pauli.from_label('I' * num_qubits)]])
+        a_op = PauliSumOp.from_list([('I' * num_qubits, 1.0)])
         stab = np.asarray(stab)
         for i in range(np.size(stab)):
             a_op = a_op * edge_operator_aij(edge_list, stab[i], stab[(i + 1) % np.size(stab)]) * 1j
@@ -274,14 +275,14 @@ def edge_operator_bi(edge_list, i):
         i (int): index for specifying the edge operator B.
 
     Returns:
-        WeightedPauliOperator: qubit operator
+        PauliSumOp: qubit operator
     """
     qubit_position_matrix = np.asarray(np.where(edge_list == i))
     qubit_position = qubit_position_matrix[1]
     v = np.zeros(edge_list.shape[1])
     w = np.zeros(edge_list.shape[1])
     v[qubit_position] = 1
-    qubit_op = WeightedPauliOperator(paulis=[[1.0, Pauli(v, w)]])
+    qubit_op = PauliSumOp.from_list([(Pauli(v, w).to_label(), 1.0)])
     return qubit_op
 
 
@@ -315,14 +316,14 @@ def bksf_mapping(fer_op):
         fer_op (FermionicOperator): the fermionic operator in the second quantized form
 
     Returns:
-        WeightedPauliOperator: mapped qubit operator
+        PauliSumOp: mapped qubit operator
     """
     fer_op = copy.deepcopy(fer_op)
     # bksf mapping works with the 'physicist' notation.
     fer_op.h2 = np.einsum('ijkm->ikmj', fer_op.h2)
     modes = fer_op.modes
     # Initialize qubit operator as constant.
-    qubit_op = WeightedPauliOperator(paulis=[])
+    qubit_op: Optional[PauliSumOp] = None
     edge_list = bravyi_kitaev_fast_edge_list(fer_op)
     # Loop through all indices.
     for p in range(modes):  # pylint: disable=invalid-name
@@ -331,7 +332,8 @@ def bksf_mapping(fer_op):
             h1_pq = fer_op.h1[p, q]
 
             if h1_pq != 0.0 and p >= q:
-                qubit_op += _one_body(edge_list, p, q, h1_pq)
+                pauli_sum_op = _one_body(edge_list, p, q, h1_pq)
+                qubit_op = pauli_sum_op if qubit_op is None else (qubit_op + pauli_sum_op)
 
             # Keep looping for the two-body terms.
             for r in range(modes):
@@ -349,12 +351,15 @@ def bksf_mapping(fer_op):
                                 continue
                         # Handle case of 3 unique indices
                         elif len(set([p, q, r, s])) == 3:
-                            qubit_op += _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
+                            pauli_sum_op = _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
+                            qubit_op = \
+                                pauli_sum_op if qubit_op is None else (qubit_op + pauli_sum_op)
                             continue
                         elif p != r and q < p:
                             continue
 
-                    qubit_op += _two_body(edge_list, p, q, r, s, h2_pqrs)
+                    pauli_sum_op = _two_body(edge_list, p, q, r, s, h2_pqrs)
+                    qubit_op = pauli_sum_op if qubit_op is None else (qubit_op + pauli_sum_op)
 
     qubit_op.simplify()
     return qubit_op
@@ -367,22 +372,22 @@ def vacuum_operator(fer_op):
         fer_op (FermionicOperator): the fermionic operator in the second quantized form
 
     Returns:
-        WeightedPauliOperator: the qubit operator
+        PauliSumOp: the qubit operator
     """
     edge_list = bravyi_kitaev_fast_edge_list(fer_op)
     num_qubits = edge_list.shape[1]
-    vac_operator = WeightedPauliOperator(paulis=[[1.0, Pauli.from_label('I' * num_qubits)]])
+    vac_operator = PauliSumOp.from_list([('I' * num_qubits, 1.0)])
 
     graph = retworkx.PyGraph()
     graph.extend_from_edge_list(list(map(tuple, edge_list.transpose())))
     stabs = np.asarray(retworkx.cycle_basis(graph))
     for stab in stabs:
-        a_op = WeightedPauliOperator(paulis=[[1.0, Pauli.from_label('I' * num_qubits)]])
+        a_op = PauliSumOp.from_list([('I' * num_qubits, 1.0)])
         stab = np.asarray(stab)
         for i in range(np.size(stab)):
             a_op = a_op * edge_operator_aij(edge_list, stab[i], stab[(i + 1) % np.size(stab)]) * 1j
             # a_op.scaling_coeff(1j)
-        a_op += WeightedPauliOperator(paulis=[[1.0, Pauli.from_label('I' * num_qubits)]])
+        a_op += PauliSumOp.from_list([('I' * num_qubits, 1.0)])
         vac_operator = vac_operator * a_op * np.sqrt(2)
         # vac_operator.scaling_coeff()
 
@@ -397,20 +402,20 @@ def number_operator(fer_op, mode_number=None):
         mode_number (int): index, it corresponds to the mode for which number operator is required.
 
     Returns:
-        WeightedPauliOperator: the qubit operator
+        PauliSumOp: the qubit operator
     """
     modes = fer_op.h1.modes
     edge_list = bravyi_kitaev_fast_edge_list(fer_op)
     num_qubits = edge_list.shape[1]
-    num_operator = WeightedPauliOperator(paulis=[[1.0, Pauli.from_label('I' * num_qubits)]])
+    num_operator = PauliSumOp.from_list([('I' * num_qubits, 1.0)])
 
     if mode_number is None:
         for i in range(modes):
             num_operator -= edge_operator_bi(edge_list, i)
         num_operator += \
-            WeightedPauliOperator(paulis=[[1.0 * modes, Pauli.from_label('I' * num_qubits)]])
+            PauliSumOp.from_list([('I' * num_qubits, 1.0 * modes)])
     else:
-        num_operator += (WeightedPauliOperator(paulis=[[1.0, Pauli.from_label('I' * num_qubits)]])
+        num_operator += (PauliSumOp.from_list([('I' * num_qubits, 1.0)])
                          - edge_operator_bi(edge_list, mode_number))
 
     num_operator = 0.5 * num_operator
@@ -426,7 +431,7 @@ def generate_fermions(fer_op, i, j):
         j (int): index of fermions
 
     Returns:
-        WeightedPauliOperator: the qubit operator
+        PauliSumOp: the qubit operator
     """
     edge_list = bravyi_kitaev_fast_edge_list(fer_op)
     gen_fer_operator = edge_operator_aij(edge_list, i, j) * edge_operator_bi(edge_list, j) \

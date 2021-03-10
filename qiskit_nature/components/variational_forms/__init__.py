@@ -13,9 +13,9 @@
 """
 Variational Forms (:mod:`qiskit_nature.components.variational_forms`)
 ========================================================================
-These are chemistry specific Aqua Variational Forms where they inherit from
-Aqua :class:`~qiskit.aqua.components.variational_forms.VariationalForm`.
-As they rely on chemistry specific knowledge and/or functions they live here rather than in Aqua.
+These are chemistry specific Variational Forms where they inherit from
+:class:`~qiskit.algorithms.variational_forms.VariationalForm`.
+As they rely on chemistry specific knowledge and/or functions they live here.
 
 .. currentmodule:: qiskit_nature.components.variational_forms
 

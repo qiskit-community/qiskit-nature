@@ -21,7 +21,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
-from qiskit.aqua.operators import OperatorBase, WeightedPauliOperator
+from qiskit.opflow import OperatorBase, PauliSumOp
 from ...fermionic_operator import FermionicOperator
 from ...bosonic_operator import BosonicOperator
 from ...drivers.base_driver import BaseDriver
@@ -87,14 +87,14 @@ class GroundStateSolver(ABC):
                                         list, np.ndarray, Statevector,
                                         QuantumCircuit, Instruction,
                                         OperatorBase],
-                           operators: Union[WeightedPauliOperator, OperatorBase, list, dict]
+                           operators: Union[PauliSumOp, OperatorBase, list, dict]
                            ) -> Union[float, List[float], Dict[str, List[float]]]:
         """Evaluates additional operators at the given state.
 
         Args:
             state: any kind of input that can be used to specify a state. See also ``StateFn`` for
                    more details.
-            operators: either a single, list or dictionary of ``WeightedPauliOperator``s or any kind
+            operators: either a single, list or dictionary of ``PauliSumOp``s or any kind
                        of operator implementing the ``OperatorBase``.
 
         Returns:
