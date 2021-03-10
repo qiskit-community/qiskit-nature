@@ -26,6 +26,8 @@ Second-Quantization Operators
    :toctree: ../stubs/
 
    FermionicOp
+   SpinOp
 """
 
 from .second_quantization import FermionicOp
+from .second_quantization import SpinOp

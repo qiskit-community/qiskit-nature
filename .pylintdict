@@ -122,6 +122,7 @@ isinstance
 iso
 isym
 iteratively
+iz
 jb
 jcf
 ji
@@ -216,6 +217,7 @@ quartic
 qubit
 qubits
 qutip
+qutrit
 readme
 renormalize
 rhf
@@ -283,9 +285,13 @@ whitespace
 whitespaces
 wigner
 xdata
+xy
 xyz
 ydata
 yi
 yu
+yx
+yy
 zi
+zz
 zmatrix
