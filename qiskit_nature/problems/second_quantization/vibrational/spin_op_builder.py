@@ -21,7 +21,7 @@ from qiskit_nature.components.bosonic_bases import HarmonicBasis
 from qiskit_nature.operators.second_quantization import BosonicOp
 
 
-def build_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_order) -> BosonicOp:
+def build_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_order):
     """
     Builds a spin operator based on a WatsonHamiltonian object.
 
@@ -36,7 +36,25 @@ def build_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_
     basis_size = [basis_size] * num_modes
     boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,  # type: ignore
                                             basis_size, truncation_order).convert()
+    all_labels = []
+    for num_body in range(truncation_order):
+        ind = num_body
+        num_body_data = boson_hamilt_harm_basis[ind]
+        num_body_labels = _create_num_body_labels(num_body_data)
+        all_labels.extend(num_body_labels)
 
-    bos_op = BosonicOp(boson_hamilt_harm_basis)
+    # bos_op = BosonicOp(boson_hamilt_harm_basis) #TODO switch to Vibrational Spin Op
 
-    return bos_op
+    return False
+
+
+def _create_num_body_labels(num_body_data):
+    num_body_labels = []
+    for indices, coeff in num_body_data:
+        for mode, modal_raise, modal_lower in indices:
+            raise_label = "".join(['+_', str(mode), '_', str(modal_raise)])
+            lower_label = "".join(['+_', str(mode), '_', str(modal_raise)])
+            num_body_labels.append((raise_label, coeff))
+            num_body_labels.append((lower_label, coeff))
+    return num_body_labels
+

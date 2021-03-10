@@ -11,14 +11,16 @@
 # that they have been altered from the originals.
 
 """Tests Vibrational Problem."""
-
+from qiskit_nature.components.bosonic_bases import HarmonicBasis
+from qiskit_nature.problems.second_quantization.vibrational.spin_op_builder import build_spin_op
 from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature.transformers import ActiveSpaceTransformer
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers import HDF5Driver, GaussianForcesDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
     VibrationalProblem
+from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
 
 
 class TestVibrationalProblem(QiskitNatureTestCase):
@@ -27,15 +29,19 @@ class TestVibrationalProblem(QiskitNatureTestCase):
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
-        # expected_num_of_sec_quant_ops = 7
-        # expected_spin_op_path = self.get_resource_path('H2_631g_ferm_op_two_ints',
-        #                                                     'problems/second_quantization/'
-        #                                                     'vibrational/resources')
-        # expected_spin_op = read_expected_file(expected_spin_op_path)
-        #
-        # driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
-        # vibrational_problem = VibrationalProblem(driver)
-        #
+        expected_num_of_sec_quant_ops = 7
+        logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
+        driver = GaussianForcesDriver(logfile=logfile)
+
+        watson_hamiltonian = driver.run()
+        basis_size = 2  # TODO how to get it?
+        truncation_order = 3  # TODO how to get it?
+        num_modes = watson_hamiltonian.num_modes
+        basis_size = [basis_size] * num_modes
+        boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,  # type: ignore
+                                                basis_size, truncation_order).convert()
+        print(boson_hamilt_harm_basis)
+
         # second_quantized_ops = vibrational_problem.second_q_ops()
         # electr_sec_quant_op = second_quantized_ops[0]
         # with self.subTest("Check expected length of the list of second quantized operators."):
