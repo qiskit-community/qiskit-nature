@@ -21,9 +21,6 @@ from qiskit_nature.mappers.second_quantization import QubitMapper
 
 from . import SecondQuantizedOp
 
-# TODO two qubit reduction flag for parity mapping; special case it here? Or add some flag to
-#      mappers that is generally false but can be set via parity mapper
-
 
 class QubitConverter:
     """A converter from Second-Quantized to Qubit Operators."""
@@ -100,11 +97,7 @@ class QubitConverter:
             reduced_qubit_ops = qubit_ops
             self._z2symmetries = Z2Symmetries([], [], [], None)
         else:
-            # If we are given the symmetry sector we can use it to reduce all operators.
-            # Otherwise if we are given a callable that can determine the right sector we
-            # will use that. Note this callable will most likely need problem related data
-            # such as info contained within MolecularProblem, so we need access in some way
-            # which needs to be determined.
+            # We have a symmetry sector so we can use it to reduce the operators.
             reduced_qubit_ops = qubit_ops  # TODO actually reduce the operators...
             self._z2symmetries = Z2Symmetries([], [], [], None)  # and set the actual symmetries
 

@@ -14,35 +14,14 @@
 
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 
-from .qubit_mapper import QubitMapper
+from .spin_mapper import SpinMapper
 
 
-class LinearMapper(QubitMapper):
+class LinearMapper(SpinMapper):
     """The Linear spin-to-qubit mapping. """
 
-    def supports_particle_type(self, particle_type: ParticleOp) -> bool:
-        """Returns whether the queried particle-type operator is supported by this mapping.
-
-        Args:
-            particle_type: the particle-type to query support for.
-
-        Returns:
-            A boolean indicating whether the queried particle-type is supported.
-        """
-        return isinstance(particle_type, SpinOp)
-
-    def map(self, second_q_op: ParticleOp) -> PauliSumOp:
-        """Maps a `ParticleOp` to a `PauliSumOp` using the Linear spin-to-qubit
-        mapping.
-
-        Args:
-            second_q_op: the `ParticleOp` to be mapped.
-
-        Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-        """
+    def map(self, second_q_op: SpinOp) -> PauliSumOp:
         # TODO
         raise NotImplementedError()

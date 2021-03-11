@@ -49,8 +49,8 @@ class TestParityMapper(QiskitNatureTestCase):
                                                               'drivers/hdf5d'))
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
-        parity_mapper = ParityMapper()
-        qubit_op = parity_mapper.map(fermionic_op)
+        mapper = ParityMapper()
+        qubit_op = mapper.map(fermionic_op)
 
         # Note: The PauliSumOp equals, as used in the test below, use the equals of the
         #       SparsePauliOp which in turn uses np.allclose() to determine equality of
@@ -58,6 +58,11 @@ class TestParityMapper(QiskitNatureTestCase):
         #       we don't need to worry about tiny precision changes for any reason.
 
         self.assertEqual(qubit_op, TestParityMapper.REF_H2)
+
+    def test_allows_two_qubit_reduction(self):
+        """ Test this returns True for this mapper """
+        mapper = ParityMapper()
+        self.assertTrue(mapper.allows_two_qubit_reduction)
 
 
 if __name__ == '__main__':

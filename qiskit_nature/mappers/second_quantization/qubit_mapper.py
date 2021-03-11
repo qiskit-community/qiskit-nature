@@ -26,20 +26,26 @@ from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 class QubitMapper(ABC):
     """The interface for implementing methods which map from a `ParticleOp` to a
-    `PauliSumOp`.
+    qubit operator in the form of a `PauliSumOp`.
     """
 
-    @abstractmethod
-    def supports_particle_type(self, particle_type: ParticleOp) -> bool:
-        """Returns whether the queried particle-type operator is supported by this mapping.
-
-        Args:
-            particle_type: the particle-type to query support for.
-
-        Returns:
-            A boolean indicating whether the queried particle-type is supported.
+    def __init__(self, allows_two_qubit_reduction: bool = False):
         """
-        raise NotImplementedError()
+        Args:
+            allows_two_qubit_reduction: Set if mapper will create known symmetry such that
+               the number of qubits in the mapped operator can be reduced accordingly.
+        """
+        self._allows_two_qubit_reduction = allows_two_qubit_reduction
+
+    @property
+    def allows_two_qubit_reduction(self) -> bool:
+        """
+        Getter for symmetry information for two qubit reduction
+
+        Returns: If mapping generates the known symmetry that allows two qubit reduction.
+
+        """
+        return self._allows_two_qubit_reduction
 
     @abstractmethod
     def map(self, second_q_op: ParticleOp) -> PauliSumOp:

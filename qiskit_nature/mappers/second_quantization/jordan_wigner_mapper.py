@@ -13,47 +13,22 @@
 """The Jordan-Wigner Mapper. """
 
 import numpy as np
+
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
+from .fermionic_mapper import FermionicMapper
 from .qubit_mapper import QubitMapper
 
 
-class JordanWignerMapper(QubitMapper):
+class JordanWignerMapper(FermionicMapper):
     """The Jordan-Wigner fermion-to-qubit mapping. """
 
-    def supports_particle_type(self, particle_type: ParticleOp) -> bool:
-        """Returns whether the queried particle-type operator is supported by this mapping.
+    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
 
-        Args:
-            particle_type: the particle-type to query support for.
-
-        Returns:
-            A boolean indicating whether the queried particle-type is supported.
-        """
-        return isinstance(particle_type, FermionicOp)
-
-    def map(self, second_q_op: ParticleOp) -> PauliSumOp:
-        """Maps a `SecondQuantizedOp` to a `PauliSumOp` using the Jordan-Wigner
-        fermion-to-qubit mapping.
-
-        Args:
-            second_q_op: the `SecondQuantizedOp` to be mapped.
-        Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-        Raises:
-            QiskitNatureError: FermionicOp has a invalid label.
-            TypeError: Type of second_q_op is not FermionicOp.
-        """
-        if not isinstance(second_q_op, FermionicOp):
-            raise TypeError(
-                f"Jordan-Wigner mapper only maps from FermionicOp, not {type(second_q_op)}"
-            )
-
-        # number of modes/sites for the Jordan-Wigner transform (= number of fermionc modes)
+        # number of modes/sites for the Jordan-Wigner transform (= number of fermionic modes)
         nmodes = second_q_op.register_length
 
         pauli_table = []

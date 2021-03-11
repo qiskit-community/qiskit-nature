@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,18 +10,27 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Direct Mapper."""
+"""Spin Mapper."""
+
+from abc import abstractmethod
 
 from qiskit.opflow import PauliSumOp
+from qiskit_nature.operators import SpinOp
 
-from qiskit_nature.operators.second_quantization.spin_op import SpinOp
-
-from .spin_mapper import SpinMapper
+from .qubit_mapper import QubitMapper
 
 
-class DirectMapper(SpinMapper):
-    """The Direct boson-to-qubit mapping. """
+class SpinMapper(QubitMapper):
+    """ Mapper of Spin Operator to Qubit Operator """
 
+    @abstractmethod
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
-        # TODO
+        """Maps a class:`SpinOp` to a `PauliSumOp`.
+
+        Args:
+            second_q_op: the :class:`SpinOp` to be mapped.
+
+        Returns:
+            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
+        """
         raise NotImplementedError()

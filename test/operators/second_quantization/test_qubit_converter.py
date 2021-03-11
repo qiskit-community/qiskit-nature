@@ -65,6 +65,34 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2)
 
+    def test_mapping_basic_list(self):
+        """ Test mapping to qubit operator of a list > 1 """
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
+                                                              'drivers/hdf5d'))
+        q_molecule = driver.run()
+        second_q_ops = []
+        fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
+        # We create 3 of the same operator as a simple/quick test
+        second_q_ops.append(SecondQuantizedOp([fermionic_op]))
+        second_q_ops.append(SecondQuantizedOp([fermionic_op]))
+        second_q_ops.append(SecondQuantizedOp([fermionic_op]))
+        jw_mapper = JordanWignerMapper()
+        qubit_conv = QubitConverter(jw_mapper)
+        qubit_ops = qubit_conv.to_qubit_ops(second_q_ops)
+
+        self.assertEqual(len(qubit_ops), 3)
+
+        # Since we created 3 identical operators (the qubit convertor should not be
+        # doing any optimization in that regard) lets make sure they were converted
+        # independently by checking they are different instance via their ids.
+        self.assertNotEqual(id(qubit_ops[0]), id(qubit_ops[1]))
+        self.assertNotEqual(id(qubit_ops[0]), id(qubit_ops[2]))
+        self.assertNotEqual(id(qubit_ops[1]), id(qubit_ops[2]))
+
+        self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2)
+        self.assertEqual(qubit_ops[1], TestQubitConverter.REF_H2)
+        self.assertEqual(qubit_ops[2], TestQubitConverter.REF_H2)
+
 
 if __name__ == '__main__':
     unittest.main()

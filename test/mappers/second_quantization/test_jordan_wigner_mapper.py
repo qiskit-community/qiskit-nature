@@ -49,8 +49,8 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
                                                               'drivers/hdf5d'))
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
-        jw_mapper = JordanWignerMapper()
-        qubit_op = jw_mapper.map(fermionic_op)
+        mapper = JordanWignerMapper()
+        qubit_op = mapper.map(fermionic_op)
 
         # Note: The PauliSumOp equals, as used in the test below, use the equals of the
         #       SparsePauliOp which in turn uses np.allclose() to determine equality of
@@ -58,6 +58,11 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         #       we don't need to worry about tiny precision changes for any reason.
 
         self.assertEqual(qubit_op, TestJordanWignerMapper.REF_H2)
+
+    def test_allows_two_qubit_reduction(self):
+        """ Test this returns False for this mapper """
+        mapper = JordanWignerMapper()
+        self.assertFalse(mapper.allows_two_qubit_reduction)
 
 
 if __name__ == '__main__':
