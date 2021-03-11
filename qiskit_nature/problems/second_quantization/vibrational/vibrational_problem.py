@@ -23,15 +23,19 @@ from qiskit_nature.transformers import BaseTransformer
 class VibrationalProblem(BaseProblem):
     """Vibrational Problem"""
 
-    def __init__(self, bosonic_driver: BosonicDriver,
+    def __init__(self, bosonic_driver: BosonicDriver, basis_size, truncation_order,
                  transformers: Optional[List[BaseTransformer]] = None):
         """
 
         Args:
             bosonic_driver: A bosonic driver encoding the molecule information.
             transformers: A list of transformations to be applied to the molecule.
+            basis_size: size of a basis
+            truncation_order: order at which an n-body expansion is truncated
         """
         super().__init__(bosonic_driver, transformers)
+        self.basis_size = basis_size
+        self.truncation_order = truncation_order
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -42,9 +46,8 @@ class VibrationalProblem(BaseProblem):
         """
         watson_hamiltonian = self.driver.run()
         watson_hamiltonian_transformed = self._transform(watson_hamiltonian)
-        basis_size = 1  # TODO how to get it?
-        truncation_order = 3  # TODO how to get it?
-        bosonic_op = build_spin_op(watson_hamiltonian_transformed, basis_size, truncation_order)
+        bosonic_op = build_spin_op(watson_hamiltonian_transformed, self.basis_size,
+                                   self.truncation_order)
 
         second_quantized_ops_list = [SecondQuantizedOp([bosonic_op])]
 
@@ -52,5 +55,6 @@ class VibrationalProblem(BaseProblem):
 
     def _transform(self, watson_hamiltonian: WatsonHamiltonian) -> WatsonHamiltonian:
         for transformer in self.transformers:
-            watson_hamiltonian = transformer.transform(watson_hamiltonian)
+            watson_hamiltonian = transformer.transform(
+                watson_hamiltonian)  # TODO BaseTransformer annotated with QMolecule only
         return watson_hamiltonian

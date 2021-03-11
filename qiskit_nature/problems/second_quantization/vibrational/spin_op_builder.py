@@ -26,7 +26,7 @@ def build_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_
         truncation_order: order at which an n-body expansion is truncated
 
     Returns:
-        SpinOp: SpinOp built from a QMolecule object.
+        SpinOp: SpinOp built from a WatsonHamiltonian object.
     """
 
     num_modes = watson_hamiltonian.num_modes
