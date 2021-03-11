@@ -56,5 +56,5 @@ class VibrationalProblem(BaseProblem):
     def _transform(self, watson_hamiltonian: WatsonHamiltonian) -> WatsonHamiltonian:
         for transformer in self.transformers:
             watson_hamiltonian = transformer.transform(
-                watson_hamiltonian)  # TODO BaseTransformer annotated with QMolecule only
+                watson_hamiltonian)
         return watson_hamiltonian
