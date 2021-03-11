@@ -82,9 +82,14 @@ class ExcitationBuilder:
         for exc in excitations:
             label = ['I'] * num_spin_orbitals
             for occ in exc[0]:
-                label[occ] = '-'
+                label[occ] = '+'
             for unocc in exc[1]:
-                label[unocc] = '+'
-            operators.append(SecondQuantizedOp([FermionicOp(''.join(label))]))
+                label[unocc] = '-'
+            op = FermionicOp(''.join(label))
+            op -= op.adjoint()
+            # we need to account for an additional imaginary phase in the exponent (see also
+            # `PauliTrotterEvolution.convert`)
+            op *= 1j
+            operators.append(SecondQuantizedOp([op]))
 
         return operators
