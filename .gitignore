@@ -90,7 +90,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+*/_build/
 docs/api/*
 docs/stubs/*
 
