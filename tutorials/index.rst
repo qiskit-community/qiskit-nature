@@ -1,13 +1,13 @@
-.. _tutorials-chemistry:
+################
+Nature Tutorials
+################
 
-###################
-Chemistry Tutorials
-###################
 
 .. nbgallery::
     :glob:
 
     *
+
 
 .. Hiding - Indices and tables
    :ref:`genindex`
