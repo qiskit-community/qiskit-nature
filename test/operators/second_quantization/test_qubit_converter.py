@@ -82,7 +82,7 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         self.assertEqual(len(qubit_ops), 3)
 
-        # Since we created 3 identical operators (the qubit convertor should not be
+        # Since we created 3 identical operators (the qubit converter should not be
         # doing any optimization in that regard) lets make sure they were converted
         # independently by checking they are different instance via their ids.
         self.assertNotEqual(id(qubit_ops[0]), id(qubit_ops[1]))
