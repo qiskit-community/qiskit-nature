@@ -16,7 +16,8 @@ from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.drivers import BosonicDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_spin_op_builder import build_vibrational_spin_op
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_spin_op_builder import \
+    build_vibrational_spin_op
 from qiskit_nature.transformers import BaseTransformer
 
 
@@ -46,10 +47,12 @@ class VibrationalProblem(BaseProblem):
         """
         watson_hamiltonian = self.driver.run()
         watson_hamiltonian_transformed = self._transform(watson_hamiltonian)
-        bosonic_op = build_vibrational_spin_op(watson_hamiltonian_transformed, self.basis_size,
-                                               self.truncation_order)
+        vibrational_spin_op = build_vibrational_spin_op(watson_hamiltonian_transformed,
+                                                        self.basis_size,
+                                                        self.truncation_order)
 
-        second_quantized_ops_list = [SecondQuantizedOp([bosonic_op])]
+        second_quantized_ops_list = [SecondQuantizedOp(
+            [vibrational_spin_op])]  # TODO SecondQuantizedOp does not support spin component yet
 
         return second_quantized_ops_list
 
