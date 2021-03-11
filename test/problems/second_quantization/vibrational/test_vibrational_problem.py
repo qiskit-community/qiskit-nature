@@ -37,7 +37,6 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         basis_size = [basis_size] * num_modes
         boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,  # type: ignore
                                                 basis_size, truncation_order).convert()
-        print(boson_hamilt_harm_basis)
 
         # second_quantized_ops = vibrational_problem.second_q_ops()
         # electr_sec_quant_op = second_quantized_ops[0]
