@@ -192,17 +192,7 @@ jobs:
         env:
           QISKIT_PARALLEL: False
         run: |
-          git clone https://github.com/Qiskit/qiskit-tutorials
-          cd qiskit-tutorials
-          rm -r tutorials/algorithms/
-          rm -r tutorials/circuits/
-          rm -r tutorials/circuits_advanced/
-          rm -r tutorials/finance/
-          rm -r tutorials/machine_learning/
-          rm -r tutorials/noise/
-          rm -r tutorials/operators/
-          rm -r tutorials/optimization/
-          rm -r tutorials/simulators/
+          cd tutorials
           sphinx-build -b html . _build/html
           cd _build/html
           mkdir artifacts
@@ -212,7 +202,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: tutorials${{ matrix.python-version }}
-          path: ./qiskit-tutorials/_build/html/artifacts/tutorials.tar.gz
+          path: ./tutorials/_build/html/artifacts/tutorials.tar.gz
   Deprecation_Messages_and_Coverage:
     needs: [Checks, Lint, Nature, Tutorials]
     runs-on: ubuntu-latest

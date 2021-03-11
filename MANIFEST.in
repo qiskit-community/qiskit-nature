@@ -3,4 +3,5 @@ graft qiskit_nature/drivers/gaussiand/gauopen
 graft test
 prune docs
 prune tools
+prune tutorials
 global-exclude *.py[co] .DS_Store
