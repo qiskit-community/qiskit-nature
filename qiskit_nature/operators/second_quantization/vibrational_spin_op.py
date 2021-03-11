@@ -25,27 +25,13 @@ from .particle_op import ParticleOp
 from ... import QiskitNatureError
 
 
+# TODO decide whether it inherits from SpinOp, if yes, some methods will go away from here
 class VibrationalSpinOp(ParticleOp):
-    """Spin type operators. A class for products and powers of XYZ-ordered Spin operators.
+    """Vibrational Spin type operators.
     **Label**
-    Allowed characters for primitives of labels are I, X, Y, Z, +, and -.
+    Allowed characters for primitives of labels are + and -.
     .. list-table::
         :header-rows: 1
-        * - Label
-          - Mathematical Representation
-          - Meaning
-        * - `I`
-          - :math:`I`
-          - Identity operator
-        * - `X`
-          - :math:`S_x`
-          - :math:`x`-component of the spin operator
-        * - `Y`
-          - :math:`S_y`
-          - :math:`y`-component of the spin operator
-        * - `Z`
-          - :math:`S_z`
-          - :math:`z`-component of the spin operator
         * - `+`
           - :math:`S_+`
           - Raising operator
@@ -53,57 +39,16 @@ class VibrationalSpinOp(ParticleOp):
           - :math:`S_-`
           - Lowering operator
     1. Sparse Label (if underscore `_` exists in the label)
-    A sparse label is a string consisting of a space-separated list of words.
-    Each word must look like :code:`[XYZI+-]_<index>^<power>`,
-    where the :code:`<index>` is a non-negative integer representing the index of the spin mode
-    and the :code:`<power>` is a positive integer indicating the number of times the given operator
-    is applied to the mode at :code:`<index>`.
-    You can omit :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
-    For example,
-    .. code-block:: python
-        "X_0"
-        "Y_0^2"
-        "Y_1^2 Z_1^3 X_0^1 Y_0^2 Z_0^2"
-    are possible labels.
-    For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
-    this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
-    Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
+    # TODO explain labelling strategy when decided
     **Initialization**
-    The :class:`SpinOp` can be initialized by the list of tuples.
-    For example,
-    .. code-block:: python
-        x = SpinOp("X", spin=3/2)
-        y = SpinOp("Y", spin=3/2)
-        z = SpinOp("Z", spin=3/2)
-    are :math:`S_x, S_y, S_z` for spin 3/2 system.
-    Two qutrit Heisenberg model with transverse magnetic field is
-    .. code-block:: python
-        SpinOp(
-            [
-                ("XX", -1),
-                ("YY", -1),
-                ("ZZ", -1),
-                ("ZI", -0.3),
-                ("IZ", -0.3),
-            ],
-            spin=1
-        )
-    This means :math:`- X_1 X_0 - Y_1 Y_0 - Z_1 Z_0 - 0.3 Z_0 - 0.3 Z_1`.
-    :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
-    In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
-    `spin_array` is 3-dimensional `ndarray`. 1st axis has three elements 0, 1, and 2 corresponding
-    to x, y, and z.  2nd axis represents the index of terms.
-    3rd axis represents the index of register.
-    `coeffs` is one-dimensional `ndarray` with the length of the number of terms.
+    # TODO
     **Algebra**
-    :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
+    :class:`VibrationalSpinOp` supports the following basic arithmetic operations: addition,
+    subtraction,
     scalar multiplication, and dagger(adjoint).
     For example,
     .. jupyter-execute::
-        from qiskit_nature.operators import SpinOp
-        x = SpinOp("X", spin=3/2)
-        y = SpinOp("Y", spin=3/2)
-        z = SpinOp("Z", spin=3/2)
+        from qiskit_nature.operators import VibrationalSpinOp
         print("Raising operator:")
         print(x + 1j * y)
         plus = SpinOp("+", spin=3/2)
@@ -118,21 +63,28 @@ class VibrationalSpinOp(ParticleOp):
 
     _XYZ_DICT = {"X": 0, "Y": 1, "Z": 2}
 
-    _SPARSE_LABEL_PATTERN = re.compile(r"^([IXYZ+-]_\d\s)*[IXYZ+-]_\d(?!\s)$")
+    _VALID_LABEL_PATTERN = re.compile(
+        r"^([IXYZ\+\-]_\d(\^\d)?\s)*[IXYZ\+\-]_\d(\^\d)?(?!\s)$|^[IXYZ\+\-]+$")
+    # TODO do we want XYZ or only +-?
+    _SPARSE_LABEL_PATTERN = re.compile(r"^([IXYZ]_\d\s)*[+-]_\d(?!\s)$")
 
     def __init__(
-        self,
-        data: Union[
-            str,
-            List[Tuple[str, complex]],
-            Tuple[np.ndarray, np.ndarray],
-        ],
-        spin: Union[float, Fraction] = Fraction(1, 2),
+            self,
+            data: Union[
+                str,
+                List[Tuple[str, complex]],
+                Tuple[np.ndarray, np.ndarray],
+            ],
+            num_modes: int, num_modals: Union[int, List[int]],
+            spin: Union[float, Fraction] = Fraction(1, 2),
+
     ):
         r"""
         Args:
             data: label string, list of labels and coefficients. See the label section in
-                  the documentation of :class:`SpinOp` for more details.
+                  the documentation of :class:`VibrationalSpinOp` for more details.
+            num_modes : number of modes
+            num_modals: number of modals
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
         Raises:
             ValueError: invalid data is given.
@@ -148,6 +100,11 @@ class VibrationalSpinOp(ParticleOp):
                 f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
         self._dim = int(2 * spin + 1)
+
+        self.num_modals = num_modals
+        self.num_modes = num_modes
+
+        # TODO validate num_modals vs num_modes
 
         if isinstance(data, tuple):
             self._spin_array = np.array(data[0], dtype=np.uint8)
@@ -169,15 +126,6 @@ class VibrationalSpinOp(ParticleOp):
 
             if all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
                 self._from_sparse_label(labels)
-            elif all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
-                self._register_length = len(labels[0])
-                self._spin_array = np.array(
-                    [
-                        [[char == "X", char == "Y", char == "Z"] for char in label]
-                        for label in labels
-                    ],
-                    dtype=np.uint8,
-                ).transpose((2, 0, 1))
             else:
                 raise ValueError(
                     f"Mixed labels are included in {labels}. "
@@ -236,6 +184,11 @@ class VibrationalSpinOp(ParticleOp):
         i-th spin system in the register.
         """
         return self._spin_array[2]
+
+    def _is_num_modals_valid(self):
+        if type(self.num_modals) == list and len(self.num_modals) != self.num_modes:
+            return False
+        return True
 
     def add(self, other):
         raise NotImplementedError()
@@ -324,6 +277,7 @@ class VibrationalSpinOp(ParticleOp):
         mat.flags.writeable = False
         return mat
 
+    # TODO change logic to new labels
     def _from_sparse_label(self, labels):
         num_terms = len(labels)
         parsed_data = []
@@ -354,3 +308,27 @@ class VibrationalSpinOp(ParticleOp):
                 raise ValueError("Duplicate label.")
 
             self._spin_array[xyz_num, term, register] = power
+
+    # TODO change logic to new labels
+    @staticmethod
+    def _flatten_ladder_ops(data):
+        """Convert `+` to `X + 1j Y` and `-` to `X - 1j Y` with the distributive law"""
+        new_data = []
+        for label, coeff in data:
+            plus_indices = [i for i, char in enumerate(label) if char == "+"]
+            minus_indices = [i for i, char in enumerate(label) if char == "-"]
+            len_plus = len(plus_indices)
+            len_minus = len(minus_indices)
+            pm_indices = plus_indices + minus_indices
+            label_list = list(label)
+            for indices in np.product(["X", "Y"], repeat=len_plus + len_minus):
+                for i, index in enumerate(indices):
+                    label_list[pm_indices[i]] = index
+                # The phase is determined by the number of Y in + and - respectively. For example,
+                # S_+ otimes S_- = (X + i Y) otimes (X - i Y)
+                # = i^{0-0} XX + i^{1-0} YX + i^{0-1} XY + i^{1-1} YY
+                # = XX + i YX - i XY + YY
+                phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
+                new_data.append(("".join(label_list), coeff * 1j ** phase))
+
+        return new_data
