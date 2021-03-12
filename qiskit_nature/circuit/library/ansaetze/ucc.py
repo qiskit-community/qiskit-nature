@@ -107,12 +107,12 @@ class UCC(EvolvedOperatorAnsatz):
         self._num_particles = n
 
     @property
-    def excitations(self) -> Union[str, int, List[int], List[Callable]]:
+    def excitations(self) -> Union[str, int, List[int], Callable]:
         """The excitations."""
         return self._excitations
 
     @excitations.setter
-    def excitations(self, exc: Union[str, int, List[int], List[Callable]]) -> None:
+    def excitations(self, exc: Union[str, int, List[int], Callable]) -> None:
         """Sets the excitations."""
         self._invalidate()
         self._excitations = exc
@@ -163,7 +163,7 @@ class UCC(EvolvedOperatorAnsatz):
         Returns:
             The list of generated excitation operators.
         """
-        generators = []
+        generators: List[Callable] = []
 
         if isinstance(self.excitations, str):
             for exc in self.excitations:
@@ -177,13 +177,13 @@ class UCC(EvolvedOperatorAnsatz):
                 num_excitations=self.excitations
             ))
         elif isinstance(self.excitations, list):
-            for exc in self.excitations:
+            for exc in self.excitations:  # type: ignore
                 generators.append(partial(
                     ExcitationBuilder.build_excitation_ops,
                     num_excitations=exc
                 ))
-        elif isinstance(self.excitations, callable):
-            generators.append(self.excitations)
+        elif callable(self.excitations):
+            generators = [self.excitations]
         else:
             raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
 

@@ -97,8 +97,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
 
         if len(operators) > 1:
             num_qubits = operators[0].num_qubits
-            if any([operators[i].num_qubits != num_qubits
-                    for i in range(1, len(operators))]):
+            if any(operators[i].num_qubits != num_qubits for i in range(1, len(operators))):
                 raise ValueError('All operators must act on the same number of qubits (for now).')
 
         self._invalidate()
