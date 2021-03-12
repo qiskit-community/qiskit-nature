@@ -83,7 +83,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                              space. This argument must match with the remaining arguments and should
                              only be used to enforce an active space that is not chosen purely
                              around the Fermi level.
-            freeze_core: A convenienve argument to quickly enable the inactivity of the
+            freeze_core: A convenience argument to quickly enable the inactivity of the
                          `QMolecule.core_orbitals`. This keyword overwrites the use of all other
                          keywords and, thus, cannot be used in combination with them.
         """
