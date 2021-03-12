@@ -53,7 +53,7 @@ class TestMolecularProblem(QiskitNatureTestCase):
     def test_second_q_ops_with_active_space(self):
         """Tests that the correct second quantized operator is created if an active space
         transformer is provided."""
-        expected_num_of_sec_quant_ops = 4
+        expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_active_space',
                                                             'problems/second_quantization/'
                                                             'molecular/resources')
