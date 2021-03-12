@@ -79,6 +79,9 @@ class QMolecule:
         self.mo_occ_b = None  # v3
 
         self.energy_shift = {}  # v3
+        self.x_dip_energy_shift = {}  # v3
+        self.y_dip_energy_shift = {}  # v3
+        self.z_dip_energy_shift = {}  # v3
 
         # Molecule geometry. xyz coords are in Bohr
         self.molecular_charge = None
@@ -338,6 +341,9 @@ class QMolecule:
             create_dataset(g_energy, "hf_energy", self.hf_energy)
             create_dataset(g_energy, "nuclear_repulsion_energy", self.nuclear_repulsion_energy)
             create_dataset(g_energy, "energy_shift", self.energy_shift)
+            create_dataset(g_energy, "x_dip_energy_shift", self.x_dip_energy_shift)
+            create_dataset(g_energy, "y_dip_energy_shift", self.y_dip_energy_shift)
+            create_dataset(g_energy, "z_dip_energy_shift", self.z_dip_energy_shift)
 
             # Orbitals
             g_orbitals = file.create_group("orbitals")

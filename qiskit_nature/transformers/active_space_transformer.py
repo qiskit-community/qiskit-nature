@@ -82,6 +82,12 @@ class ActiveSpaceTransformer(BaseTransformer):
         self.num_alpha = num_alpha
         self.active_orbitals = active_orbitals
 
+        self._beta = None
+        self._mo_occ_inactive = None
+        self._mo_coeff_active = None
+        self._mo_coeff_inactive = None
+        self._density_inactive = None
+
     def transform(self, q_molecule: QMolecule) -> QMolecule:
         """Reduces the given `QMolecule` to a given active space.
 
@@ -98,7 +104,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         # get molecular orbital coefficients
         mo_coeff_full = (q_molecule.mo_coeff, q_molecule.mo_coeff_b)
-        beta = mo_coeff_full[1] is not None
+        self._beta = mo_coeff_full[1] is not None
         # get molecular orbital occupation numbers
         mo_occ_full = (q_molecule.mo_occ, q_molecule.mo_occ_b)
         if mo_occ_full[0] is None:
@@ -106,20 +112,20 @@ class ActiveSpaceTransformer(BaseTransformer):
             # occupation numbers based on ground state HF case.
             occ_alpha = [1.] * q_molecule.num_alpha + [0.] * (q_molecule.num_orbitals -
                                                               q_molecule.num_alpha)
-            if beta:
+            if self._beta:
                 occ_beta = [1.] * q_molecule.num_beta + [0.] * (q_molecule.num_orbitals -
                                                                 q_molecule.num_beta)
             else:
                 occ_alpha[:q_molecule.num_beta] = [o + 1 for o in occ_alpha[:q_molecule.num_beta]]
                 occ_beta = None
             mo_occ_full = (np.asarray(occ_alpha), np.asarray(occ_beta))
-        mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if beta else mo_occ_full[0]
+        mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if self._beta else mo_occ_full[0]
 
         # compute number of inactive electrons
         nelec_total = q_molecule.num_alpha + q_molecule.num_beta
         nelec_inactive = nelec_total - self.num_electrons
         if self.num_alpha is not None:
-            if not beta:
+            if not self._beta:
                 warning = 'The provided instance of QMolecule does not provide any beta ' \
                           + 'coefficients but you tried to specify a separate number of alpha ' \
                           + 'electrons. Continuing as if it does not matter.'
@@ -144,84 +150,54 @@ class ActiveSpaceTransformer(BaseTransformer):
                                   self.active_orbitals and mo_occ_total[o] > 0]
 
         # split molecular orbitals coefficients into active and inactive parts
-        mo_coeff_inactive = (mo_coeff_full[0][:, inactive_orbs_idxs],
-                             mo_coeff_full[1][:, inactive_orbs_idxs] if beta else None)
-        mo_coeff_active = (mo_coeff_full[0][:, active_orbs_idxs],
-                           mo_coeff_full[1][:, active_orbs_idxs] if beta else None)
-        mo_occ_inactive = (mo_occ_full[0][inactive_orbs_idxs],
-                           mo_occ_full[1][inactive_orbs_idxs] if beta else None)
+        self._mo_coeff_inactive = (mo_coeff_full[0][:, inactive_orbs_idxs],
+                                   mo_coeff_full[1][:, inactive_orbs_idxs] if self._beta else None)
+        self._mo_coeff_active = (mo_coeff_full[0][:, active_orbs_idxs],
+                                 mo_coeff_full[1][:, active_orbs_idxs] if self._beta else None)
+        self._mo_occ_inactive = (mo_occ_full[0][inactive_orbs_idxs],
+                                 mo_occ_full[1][inactive_orbs_idxs] if self._beta else None)
 
-        density_inactive = self._compute_inactive_density_matrix(mo_occ_inactive, mo_coeff_inactive)
-
-        # extract core Hamiltonian and electron-repulsion-integral matrices from QMolecule
-        hcore = (q_molecule.hcore, q_molecule.hcore_b if beta else None)
-        eri = q_molecule.eri
-
-        fock_inactive = self._compute_inactive_fock_op(hcore, eri, density_inactive)
-
-        e_inactive = self._compute_inactive_energy(hcore, density_inactive, fock_inactive,
-                                                   mo_coeff_inactive)
-
-        hij, hijkl = self._compute_active_integrals(mo_coeff_active, fock_inactive, eri)
+        self._compute_inactive_density_matrix()
 
         # construct new QMolecule
         q_molecule_reduced = copy.deepcopy(q_molecule)
         # Energies and orbits
-        q_molecule_reduced.energy_shift['ActiveSpaceTransformer'] = e_inactive
         q_molecule_reduced.num_orbitals = self.num_orbitals
         q_molecule_reduced.num_alpha = num_alpha
         q_molecule_reduced.num_beta = num_beta
-        q_molecule_reduced.mo_coeff = mo_coeff_active[0]
-        q_molecule_reduced.mo_coeff_b = mo_coeff_active[1]
+        q_molecule_reduced.mo_coeff = self._mo_coeff_active[0]
+        q_molecule_reduced.mo_coeff_b = self._mo_coeff_active[1]
         q_molecule_reduced.orbital_energies = q_molecule.orbital_energies[active_orbs_idxs]
-        if beta:
+        if self._beta:
             q_molecule_reduced.orbital_energies_b = q_molecule.orbital_energies_b[active_orbs_idxs]
-        # 1 and 2 electron integrals in MO basis
-        q_molecule_reduced.mo_onee_ints = hij[0]
-        q_molecule_reduced.mo_onee_ints_b = hij[1]
-        q_molecule_reduced.mo_eri_ints = hijkl[0]
-        q_molecule_reduced.mo_eri_ints_ba = hijkl[1]
-        q_molecule_reduced.mo_eri_ints_bb = hijkl[2]
-        # invalidate AO basis integrals
-        q_molecule_reduced.hcore = fock_inactive[0]
-        q_molecule_reduced.hcore_b = fock_inactive[1]
         q_molecule_reduced.kinetic = None
         q_molecule_reduced.overlap = None
-        q_molecule_reduced.eri = eri
-        # invalidate dipole integrals
-        x_dip_inactive = self._compute_inactive_fock_op((q_molecule.x_dip_ints, None),
-                                                        np.zeros(eri.shape),
-                                                        density_inactive)
-        x_dip_shift = self._compute_inactive_energy((q_molecule.x_dip_ints, None), density_inactive,
-                                                    x_dip_inactive, mo_coeff_inactive)
-        x_dip_mo, _ = self._compute_active_integrals(mo_coeff_active, (q_molecule.x_dip_ints, None),
-                                                     np.zeros(eri.shape))
-        q_molecule_reduced.x_dip_ints = x_dip_inactive[0]
-        q_molecule_reduced.x_dip_mo_ints = x_dip_mo[0]
-        q_molecule_reduced.x_dip_mo_ints_b = x_dip_mo[1]
-        print(x_dip_shift, x_dip_mo[0])
-        y_dip_inactive = self._compute_inactive_fock_op((q_molecule.y_dip_ints, None),
-                                                        np.zeros(eri.shape),
-                                                        density_inactive)
-        y_dip_shift = self._compute_inactive_energy((q_molecule.y_dip_ints, None), density_inactive,
-                                                    y_dip_inactive, mo_coeff_inactive)
-        y_dip_mo, _ = self._compute_active_integrals(mo_coeff_active, (q_molecule.y_dip_ints, None),
-                                                     np.zeros(eri.shape))
-        q_molecule_reduced.y_dip_ints = y_dip_inactive[0]
-        q_molecule_reduced.y_dip_mo_ints = y_dip_mo[0]
-        q_molecule_reduced.y_dip_mo_ints_b = y_dip_mo[1]
-        print(y_dip_shift, y_dip_mo[0])
-        z_dip_inactive = self._compute_inactive_fock_op((q_molecule.z_dip_ints, None),
-                                                        np.zeros(eri.shape),
-                                                        density_inactive)
-        z_dip_shift = self._compute_inactive_energy((q_molecule.z_dip_ints, None), density_inactive,
-                                                    z_dip_inactive, mo_coeff_inactive)
-        z_dip_mo, _ = self._compute_active_integrals(mo_coeff_active, (q_molecule.z_dip_ints, None),
-                                                     np.zeros(eri.shape))
-        q_molecule_reduced.z_dip_ints = z_dip_inactive[0]
-        q_molecule_reduced.z_dip_mo_ints = z_dip_mo[0]
-        q_molecule_reduced.z_dip_mo_ints_b = z_dip_mo[1]
-        print(z_dip_shift, z_dip_mo[0])
+
+        # reduce electronic energy integrals
+        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+                                     'energy_shift',
+                                     ('hcore', 'hcore_b'),
+                                     ('mo_onee_ints', 'mo_onee_ints_b'),
+                                     'eri',
+                                     ('mo_eri_ints', 'mo_eri_ints_ba', 'mo_eri_ints_bb'),
+                                     )
+
+        # reduce dipole moment integrals
+        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+                                     'x_dip_energy_shift',
+                                     ('x_dip_ints', None),
+                                     ('x_dip_mo_ints', 'x_dip_mo_ints_b')
+                                     )
+        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+                                     'y_dip_energy_shift',
+                                     ('y_dip_ints', None),
+                                     ('y_dip_mo_ints', 'y_dip_mo_ints_b')
+                                     )
+        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+                                     'z_dip_energy_shift',
+                                     ('z_dip_ints', None),
+                                     ('z_dip_mo_ints', 'z_dip_mo_ints_b')
+                                     )
 
         return q_molecule_reduced
 
@@ -269,53 +245,89 @@ class ActiveSpaceTransformer(BaseTransformer):
                 raise QiskitNatureError("The number of electrons in the selected active orbitals "
                                         "does not match the specified number of active electrons.")
 
-    def _compute_inactive_density_matrix(self,
-                                         mo_occ_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
-                                         mo_coeff_inactive: Tuple[np.ndarray, Optional[np.ndarray]]
-                                         ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
-        """Computes the inactive density matrix.
+    def _compute_inactive_density_matrix(self):
+        """Computes the inactive density matrix."""
+        density_inactive_a = np.dot(self._mo_coeff_inactive[0]*self._mo_occ_inactive[0],
+                                    np.transpose(self._mo_coeff_inactive[0]))
+        density_inactive_b = None
+        if self._beta:
+            density_inactive_b = np.dot(self._mo_coeff_inactive[1]*self._mo_occ_inactive[1],
+                                        np.transpose(self._mo_coeff_inactive[1]))
+        self._density_inactive = (density_inactive_a, density_inactive_b)
+
+    def _reduce_to_active_space(self,
+                                q_molecule: QMolecule,
+                                q_molecule_reduced: QMolecule,
+                                energy_shift_attribute: str,
+                                ao_1e_attribute: Tuple[str, str],
+                                mo_1e_attribute: Tuple[str, str],
+                                ao_2e_attribute: Optional[str] = None,
+                                mo_2e_attribute: Optional[Tuple[str, str, str]] = None,
+                                ) -> None:
+        """A utility method which performs the actual orbital reduction computation.
 
         Args:
-            mo_occ_inactive: the alpha- and beta-spin inactive MO occupation vector pair.
-            mo_coeff_inactive: the alpha- and beta-spin inactive MO coefficient matrix pair.
-
-        Returns:
-            The pair of alpha- and beta-spin inactive density matrices.
+            q_molecule: the original `QMolecule` object.
+            q_molecule_reduced: the reduced `QMolecule` object.
+            energy_shift_attribute: the name of the attribute which stores the energy shift.
+            ao_1e_attribute: the names of the AO-basis 1-electron matrices.
+            mo_1e_attribute: the names of the MO-basis 1-electron matrices.
+            ao_2e_attribute: the name of the AO-basis 2-electron matrix.
+            mo_2e_attribute: the names of the MO-basis 2-electron matrices.
         """
-        density_inactive_a = np.dot(mo_coeff_inactive[0]*mo_occ_inactive[0],
-                                    np.transpose(mo_coeff_inactive[0]))
-        density_inactive_b = None
-        if mo_occ_inactive[1] is not None and mo_occ_inactive[1] is not None:
-            density_inactive_b = np.dot(mo_coeff_inactive[1]*mo_occ_inactive[1],
-                                        np.transpose(mo_coeff_inactive[1]))
-        return (density_inactive_a, density_inactive_b)
+        ao_1e_matrix = (getattr(q_molecule, ao_1e_attribute[0]),
+                        getattr(q_molecule, ao_1e_attribute[1]) if self._beta else None)
+        if ao_2e_attribute:
+            ao_2e_matrix = getattr(q_molecule, ao_2e_attribute)
+        else:
+            ao_2e_matrix = None
+
+        if ao_2e_matrix is None:
+            # no 2-electron AO matrix is given
+            inactive_op = copy.deepcopy(ao_1e_matrix)
+        else:
+            inactive_op = self._compute_inactive_fock_op(ao_1e_matrix, ao_2e_matrix)
+
+        energy_shift = self._compute_inactive_energy(ao_1e_matrix, inactive_op)
+
+        mo_1e_matrix, mo_2e_matrix = self._compute_active_integrals(inactive_op, ao_2e_matrix)
+
+        getattr(q_molecule_reduced, energy_shift_attribute)['ActiveSpaceTransformer'] = energy_shift
+        setattr(q_molecule_reduced, ao_1e_attribute[0], inactive_op[0])
+        setattr(q_molecule_reduced, mo_1e_attribute[0], mo_1e_matrix[0])
+        if self._beta:
+            setattr(q_molecule_reduced, ao_1e_attribute[1], inactive_op[1])
+            setattr(q_molecule_reduced, mo_1e_attribute[1], mo_1e_matrix[1])
+        if mo_2e_matrix is not None:
+            setattr(q_molecule_reduced, mo_2e_attribute[0], mo_2e_matrix[0])
+            if self._beta:
+                setattr(q_molecule_reduced, mo_2e_attribute[1], mo_2e_matrix[1])
+                setattr(q_molecule_reduced, mo_2e_attribute[2], mo_2e_matrix[2])
 
     def _compute_inactive_fock_op(self,
                                   hcore: Tuple[np.ndarray, Optional[np.ndarray]],
                                   eri: np.ndarray,
-                                  density_inactive: Tuple[np.ndarray, Optional[np.ndarray]]
                                   ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
         """Computes the inactive Fock operator.
 
         Args:
             hcore: the alpha- and beta-spin core Hamiltonian pair.
             eri: the electron-repulsion-integrals in MO format.
-            density_inactive: the alpha- and beta-spin inactive density matrix pair.
 
         Returns:
             The pair of alpha- and beta-spin inactive Fock operators.
         """
         # compute inactive Fock matrix
-        coulomb_inactive = np.einsum('ijkl,ji->kl', eri, density_inactive[0])
-        exchange_inactive = np.einsum('ijkl,jk->il', eri, density_inactive[0])
+        coulomb_inactive = np.einsum('ijkl,ji->kl', eri, self._density_inactive[0])
+        exchange_inactive = np.einsum('ijkl,jk->il', eri, self._density_inactive[0])
         fock_inactive = hcore[0] + coulomb_inactive - 0.5 * exchange_inactive
         fock_inactive_b = coulomb_inactive_b = exchange_inactive_b = None
 
-        if density_inactive[1] is not None:
+        if self._beta:
             # if hcore[1] is None we use the alpha-spin core Hamiltonian
             hcore_b = hcore[1] or hcore[0]
-            coulomb_inactive_b = np.einsum('ijkl,ji->kl', eri, density_inactive[1])
-            exchange_inactive_b = np.einsum('ijkl,jk->il', eri, density_inactive[1])
+            coulomb_inactive_b = np.einsum('ijkl,ji->kl', eri, self._density_inactive[1])
+            exchange_inactive_b = np.einsum('ijkl,jk->il', eri, self._density_inactive[1])
             fock_inactive = hcore[0] + coulomb_inactive + coulomb_inactive_b - exchange_inactive
             fock_inactive_b = hcore_b + coulomb_inactive + coulomb_inactive_b - exchange_inactive_b
 
@@ -323,44 +335,42 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     def _compute_inactive_energy(self,
                                  hcore: Tuple[np.ndarray, Optional[np.ndarray]],
-                                 density_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
                                  fock_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
-                                 mo_coeff_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
                                  ) -> float:
         """Computes the inactive energy.
 
         Args:
             hcore: the alpha- and beta-spin core Hamiltonian pair.
-            density_inactive: the alpha- and beta-spin inactive density matrix pair.
             fock_inactive: the alpha- and beta-spin inactive fock operator pair.
-            mo_coeff_inactive: the alpha- and beta-spin inactive MO coefficient matrix pair.
 
         Returns:
             The inactive energy.
         """
-        beta = mo_coeff_inactive[1] is not None
         # compute inactive energy
         e_inactive = 0.0
-        if not beta and mo_coeff_inactive[0].size > 0:
-            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[0], hcore[0]+fock_inactive[0])
-        elif beta and mo_coeff_inactive[1].size > 0:
-            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[0], hcore[0]+fock_inactive[0])
-            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[1], hcore[1]+fock_inactive[1])
+        if not self._beta and self._mo_coeff_inactive[0].size > 0:
+            e_inactive += 0.5 * np.einsum('ij,ji', self._density_inactive[0],
+                                          hcore[0]+fock_inactive[0])
+        elif self._beta and self._mo_coeff_inactive[1].size > 0:
+            e_inactive += 0.5 * np.einsum('ij,ji', self._density_inactive[0],
+                                          hcore[0]+fock_inactive[0])
+            e_inactive += 0.5 * np.einsum('ij,ji', self._density_inactive[1],
+                                          hcore[1]+fock_inactive[1])
 
         return e_inactive
 
     def _compute_active_integrals(self,
-                                  mo_coeff_active: Tuple[np.ndarray, Optional[np.ndarray]],
                                   fock_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
-                                  eri: np.ndarray,
+                                  eri: Optional[np.ndarray] = None,
                                   ) -> Tuple[
                                       Tuple[np.ndarray, Optional[np.ndarray]],
-                                      Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]
+                                      Optional[Tuple[np.ndarray,
+                                                     Optional[np.ndarray],
+                                                     Optional[np.ndarray]]]
                                       ]:
         """Computes the h1 and h2 integrals for the active space.
 
         Args:
-            mo_coeff_active: the alpha- and beta-spin active MO coefficient matrix pair.
             fock_inactive: the alpha- and beta-spin inactive fock operator pair.
             eri: the electron-repulsion-integrals in MO format.
 
@@ -370,20 +380,31 @@ class ActiveSpaceTransformer(BaseTransformer):
                  (alpha-alpha-spin h2, beta-alpha-spin h2, beta-beta-spin h2))
         """
         # compute new 1- and 2-electron integrals
-        hij = np.dot(np.dot(np.transpose(mo_coeff_active[0]), fock_inactive[0]), mo_coeff_active[0])
-        hijkl = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri, mo_coeff_active[0], mo_coeff_active[0],
-                          mo_coeff_active[0], mo_coeff_active[0], optimize=True)
+        hij = np.dot(np.dot(np.transpose(self._mo_coeff_active[0]), fock_inactive[0]),
+                     self._mo_coeff_active[0])
+        hij_b = None
+        if self._beta:
+            hij_b = np.dot(np.dot(np.transpose(self._mo_coeff_active[1]), fock_inactive[1]),
+                           self._mo_coeff_active[1])
 
-        hij_b = hijkl_bb = hijkl_ba = None
+        if eri is None:
+            return ((hij, hij_b), None)
 
-        if mo_coeff_active[1] is not None:
-            hij_b = np.dot(np.dot(np.transpose(mo_coeff_active[1]), fock_inactive[1]),
-                           mo_coeff_active[1])
-            hijkl_bb = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri, mo_coeff_active[1],
-                                 mo_coeff_active[1], mo_coeff_active[1], mo_coeff_active[1],
+        hijkl = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri,
+                          self._mo_coeff_active[0], self._mo_coeff_active[0],
+                          self._mo_coeff_active[0], self._mo_coeff_active[0],
+                          optimize=True)
+
+        hijkl_bb = hijkl_ba = None
+
+        if self._beta:
+            hijkl_bb = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri,
+                                 self._mo_coeff_active[1], self._mo_coeff_active[1],
+                                 self._mo_coeff_active[1], self._mo_coeff_active[1],
                                  optimize=True)
-            hijkl_ba = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri, mo_coeff_active[1],
-                                 mo_coeff_active[1], mo_coeff_active[0], mo_coeff_active[0],
+            hijkl_ba = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri,
+                                 self._mo_coeff_active[1], self._mo_coeff_active[1],
+                                 self._mo_coeff_active[0], self._mo_coeff_active[0],
                                  optimize=True)
 
         return ((hij, hij_b), (hijkl, hijkl_ba, hijkl_bb))
