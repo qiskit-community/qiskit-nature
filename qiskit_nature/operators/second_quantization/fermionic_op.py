@@ -215,6 +215,16 @@ class FermionicOp(ParticleOp):
             return f"{label} * {coeff}"
         return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
 
+    def __len__(self):
+        return len(self._labels)
+
+    @property
+    def register_length(self) -> int:
+        """Getter for the length of the fermionic register that the FermionicOp `self` acts
+        on.
+        """
+        return self._register_length
+
     def mul(self, other: complex) -> "FermionicOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
@@ -334,13 +344,6 @@ class FermionicOp(ParticleOp):
         """Getter for the operator_list of `self`"""
         return list(zip(self._labels, self._coeffs.tolist()))
 
-    @property
-    def register_length(self) -> int:
-        """Getter for the length of the fermionic register that the FermionicOp `self` acts
-        on.
-        """
-        return self._register_length
-
     def adjoint(self) -> "FermionicOp":
         dagger_map = {"+": "-", "-": "+", "I": "I", "N": "N", "E": "E"}
         label_list = []
@@ -379,23 +382,14 @@ class FermionicOp(ParticleOp):
             return FermionicOp([("I" * self.register_length, 0)])
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
-    def __len__(self):
-        return len(self._labels)
-
-    @staticmethod
-    def _validate_label(label: str) -> bool:
-        if not label:
-            return False
-        return set(label).issubset({"I", "+", "-", "N", "E"})
-
-    def _from_sparse_label(self, list_label):
-        num_terms = len(list_label)
+    def _from_sparse_label(self, labels):
+        num_terms = len(labels)
         parsed_data = []
         max_index = 0
-        for term, label in enumerate(list_label):
+        for term, label in enumerate(labels):
             prev_index = -1
-            list_label = label.split()
-            for single_label in list_label:
+            splitted_label = label.split()
+            for single_label in splitted_label:
                 op_label, index_str = single_label.split("_", 1)
 
                 index = int(index_str)
