@@ -20,21 +20,11 @@ import logging
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 from .excitation_builder import ExcitationBuilder
 
 logger = logging.getLogger(__name__)
-
-
-# TODO: Added to pass mypy, need change to real class
-class QubitOpConverter:
-    """ The QubitOpConverter """
-
-    def convert(self, op):
-        """TODO."""
-        # pylint: disable=import-outside-toplevel
-        from qiskit_nature.mappings import JordanWignerMapping
-        return JordanWignerMapping().map(op.fermion)
 
 
 class UCC(EvolvedOperatorAnsatz):
@@ -47,7 +37,7 @@ class UCC(EvolvedOperatorAnsatz):
         'q': 4,
     }
 
-    def __init__(self, qubit_op_converter: Optional[QubitOpConverter] = None,
+    def __init__(self, qubit_converter: Optional[QubitConverter] = None,
                  num_particles: Optional[Tuple[int, int]] = None,
                  num_spin_orbitals: Optional[int] = None,
                  excitations: Optional[Union[str, int, List[int], Callable[
@@ -56,7 +46,7 @@ class UCC(EvolvedOperatorAnsatz):
         """
 
         Args:
-            qubit_op_converter: the QubitOpConverter instance which takes care of mapping a
+            qubit_converter: the QubitConverter instance which takes care of mapping a
             :code:`~.SecondQuantizedOp` to a :code:`~.PauliSumOp` as well as performing all
             configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
@@ -76,7 +66,7 @@ class UCC(EvolvedOperatorAnsatz):
                   and must return a `List[SecondQuantizedOp]`.
             reps: The number of times to repeat the evolved operators.
         """
-        self._qubit_op_converter = qubit_op_converter
+        self._qubit_converter = qubit_converter
         self._num_particles = num_particles
         self._num_spin_orbitals = num_spin_orbitals
         self._excitations = excitations
@@ -84,15 +74,15 @@ class UCC(EvolvedOperatorAnsatz):
         super().__init__([], reps=reps, evolution=None)
 
     @property
-    def qubit_op_converter(self) -> QubitOpConverter:
+    def qubit_converter(self) -> QubitConverter:
         """The qubit operator converter."""
-        return self._qubit_op_converter
+        return self._qubit_converter
 
-    @qubit_op_converter.setter
-    def qubit_op_converter(self, conv: QubitOpConverter) -> None:
+    @qubit_converter.setter
+    def qubit_converter(self, conv: QubitConverter) -> None:
         """Sets the qubit operator converter."""
         self._invalidate()
-        self._qubit_op_converter = conv
+        self._qubit_converter = conv
 
     @property
     def num_spin_orbitals(self) -> int:
@@ -143,9 +133,9 @@ class UCC(EvolvedOperatorAnsatz):
                 raise ValueError('The excitations cannot be `None`.')
             return False
 
-        if self.qubit_op_converter is None:
+        if self.qubit_converter is None:
             if raise_on_failure:
-                raise ValueError('The qubit_op_converter cannot be `None`.')
+                raise ValueError('The qubit_converter cannot be `None`.')
             return False
 
         return True
@@ -156,9 +146,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         excitation_ops = self.excitation_ops()
 
-        converted_ops = []
-        for op in excitation_ops:
-            converted_ops.append(self.qubit_op_converter.convert(op))
+        converted_ops = self.qubit_converter.to_qubit_ops(excitation_ops)
 
         # we don't append to this property directly in order to only perform the checks done during
         # its setter once

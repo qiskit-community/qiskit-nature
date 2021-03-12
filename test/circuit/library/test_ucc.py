@@ -17,9 +17,8 @@ from test import QiskitNatureTestCase
 from ddt import ddt, data
 
 from qiskit_nature.circuit.library.ansaetze import UCC
-
-# TODO: fix once the real implementation is available
-from qiskit_nature.circuit.library.ansaetze.ucc import QubitOpConverter
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
 @ddt
@@ -29,9 +28,9 @@ class TestUCC(QiskitNatureTestCase):
     @data('sd', [1, 2])
     def test_ucc_ansatz(self, excitations):
         """TODO"""
-        converter = QubitOpConverter()
+        converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = UCC(qubit_op_converter=converter, num_particles=[1, 1], num_spin_orbitals=4,
+        ansatz = UCC(qubit_converter=converter, num_particles=[1, 1], num_spin_orbitals=4,
                      excitations=excitations)
 
         print(ansatz.draw())

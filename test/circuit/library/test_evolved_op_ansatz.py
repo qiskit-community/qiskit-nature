@@ -15,9 +15,7 @@
 from test import QiskitNatureTestCase
 from ddt import ddt, data
 
-from qiskit import QuantumCircuit
 from qiskit.opflow import X, H, Z
-from qiskit.converters import circuit_to_dag
 
 from qiskit_nature.circuit.library.ansaetze import EvolvedOperatorAnsatz
 
