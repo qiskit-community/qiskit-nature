@@ -204,6 +204,13 @@ class QMolecule:
                         _data = None
                     return _data
 
+                # non-recursive dictionary reading
+                def read_dict(name):
+                    _data = {}
+                    for k, v in file[name].items():
+                        _data[k] = float(v[...]) if v[...].dtype.num != 0 else None
+                    return _data
+
                 # A version field was added to save format from version 2 so if
                 # there is no version then we have original (version 1) format
                 version = 1
@@ -226,6 +233,10 @@ class QMolecule:
                 self.hf_energy = float(data) if data.dtype.num != 0 else None
                 data = file["energy/nuclear_repulsion_energy"][...]
                 self.nuclear_repulsion_energy = float(data) if data.dtype.num != 0 else None
+                self.energy_shift = read_dict("energy/energy_shift")
+                self.x_dip_energy_shift = read_dict("energy/x_dip_energy_shift")
+                self.y_dip_energy_shift = read_dict("energy/y_dip_energy_shift")
+                self.z_dip_energy_shift = read_dict("energy/z_dip_energy_shift")
 
                 # Orbitals
                 data = file["orbitals/num_orbitals"][...]
