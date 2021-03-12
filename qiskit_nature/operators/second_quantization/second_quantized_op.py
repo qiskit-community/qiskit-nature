@@ -20,7 +20,7 @@ from qiskit.quantum_info.operators.mixins import TolerancesMixin
 from .star_algebra import StarAlgebraMixin
 
 
-class ParticleOp(StarAlgebraMixin, TolerancesMixin, ABC):
+class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
     """The Second Quantized Operator base interface.
 
     This interface should be implemented by all creation- and annihilation-type particle operators
