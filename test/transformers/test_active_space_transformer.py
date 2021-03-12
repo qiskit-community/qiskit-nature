@@ -107,51 +107,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         trafo = ActiveSpaceTransformer(num_electrons=3, num_orbitals=3, num_alpha=2)
         q_molecule_reduced = trafo.transform(q_molecule)
 
-        expected = QMolecule()
-        expected.mo_onee_ints = np.asarray([[-1.30228816, 0.03573328, 0.0],
-                                            [0.03573328, -0.86652349, 0.0],
-                                            [0.0, 0.0, -0.84868407]])
-
-        expected.mo_eri_ints = np.asarray([[[[0.57237421, -0.05593597, 0.0],
-                                             [-0.05593597, 0.30428426, 0.0],
-                                             [0.0, 0.0, 0.36650821]],
-                                            [[-0.05593597, 0.01937529, 0.0],
-                                             [0.01937529, 0.02020237, 0.0],
-                                             [0.0, 0.0, 0.01405676]],
-                                            [[0.0, 0.0, 0.03600701],
-                                             [0.0, 0.0, 0.028244],
-                                             [0.03600701, 0.028244, 0.0]]],
-                                           [[[-0.05593597, 0.01937529, 0.0],
-                                             [0.01937529, 0.02020237, 0.0],
-                                             [0.0, 0.0, 0.01405676]],
-                                            [[0.30428426, 0.02020237, 0.0],
-                                             [0.02020237, 0.48162669, 0.0],
-                                             [0.0, 0.0, 0.40269913]],
-                                            [[0.0, 0.0, 0.028244],
-                                             [0.0, 0.0, 0.0564951],
-                                             [0.028244, 0.0564951, 0.0]]],
-                                           [[[0.0, 0.0, 0.03600701],
-                                             [0.0, 0.0, 0.028244],
-                                             [0.03600701, 0.028244, 0.0]],
-                                            [[0.0, 0.0, 0.028244],
-                                             [0.0, 0.0, 0.0564951],
-                                             [0.028244, 0.0564951, 0.0]],
-                                            [[0.36650821, 0.01405676, 0.0],
-                                             [0.01405676, 0.40269913, 0.0],
-                                             [0.0, 0.0, 0.44985904]]]])
-
-        expected.x_dip_mo_ints = np.zeros((3, 3))
-        expected.y_dip_mo_ints = np.asarray([[0., 0., 0.74921398],
-                                             [0., 0., 0.90931325],
-                                             [0.74921398, 0.90931325, 0.]])
-        expected.z_dip_mo_ints = np.asarray([[0.55632153, 0.45647449, 0.],
-                                             [0.45647449, 3.56556746, 0.],
-                                             [0., 0., 2.45664396]])
-
-        expected.energy_shift['ActiveSpaceTransformer'] = -14.2538029231
-        expected.x_dip_energy_shift['ActiveSpaceTransformer'] = 0.0
-        expected.y_dip_energy_shift['ActiveSpaceTransformer'] = 0.0
-        expected.z_dip_energy_shift['ActiveSpaceTransformer'] = 4.912193270639324
+        expected = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g_reduced.hdf5',
+                                                                'transformers')).run()
 
         self.assertQMolecule(q_molecule_reduced, expected)
 
@@ -180,7 +137,6 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         expected.z_dip_energy_shift['ActiveSpaceTransformer'] = 0.0
 
         self.assertQMolecule(q_molecule_reduced, expected)
-
 
     @idata([
         [2, 3, None, "More active orbitals requested than available in total."],
