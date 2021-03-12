@@ -30,28 +30,28 @@ def calc_partial_sum_modals(num_modes, num_modals):
         raise ValueError(f"num_modals of incorrect type {type(num_modals)}.")
 
 
-def convert_to_spin_op_labels(data):
+def convert_to_spin_op_labels(data, partial_sum_modals):
     # TODO docs
     spin_op_labels = []
     for labels, coeff in data:
-        coeff_new_labels = _build_coeff_spin_op_labels(labels)
+        coeff_new_labels = _build_coeff_spin_op_labels(labels, partial_sum_modals)
         spin_op_labels.append((coeff_new_labels, coeff))
     return spin_op_labels
 
 
-def _build_coeff_spin_op_labels(labels):
+def _build_coeff_spin_op_labels(labels, partial_sum_modals):
     coeff_labels_split = labels.split(" ")
     coeff_new_labels = []
     for label in coeff_labels_split:
-        new_label = _build_spin_op_label(label)
+        new_label = _build_spin_op_label(label, partial_sum_modals)
         coeff_new_labels.append(new_label)
     coeff_new_labels = " ".join(coeff_new_labels)
     return coeff_new_labels
 
 
-def _build_spin_op_label(label):
+def _build_spin_op_label(label, partial_sum_modals):
     op, mode_index, modal_index = re.split('[*_]', label)
-    index = _get_ind_from_mode_modal(int(mode_index), int(modal_index))
+    index = _get_ind_from_mode_modal(partial_sum_modals, int(mode_index), int(modal_index))
     new_label = "".join([op, "_", str(index)])
     return new_label
 
