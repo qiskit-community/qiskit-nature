@@ -16,16 +16,14 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 """
 import re
 from fractions import Fraction
-from typing import Optional, List, Tuple, Union, cast
+from typing import List, Tuple, Union, Optional
 
-import numpy as np
+from .. import SpinOp
+from ...problems.second_quantization.vibrational.vibr_to_spin_op_label_converter import \
+    calc_partial_sum_modals, convert_to_spin_op_labels
 
-from .particle_op import ParticleOp
-from ... import QiskitNatureError
 
-
-# TODO decide whether it inherits from SpinOp, if yes, some methods will go away from here
-class VibrationalSpinOp(ParticleOp):
+class VibrationalSpinOp(SpinOp):
     """Vibrational Spin type operators.
     **Label**
     Allowed characters for primitives of labels are + and -.
@@ -37,10 +35,10 @@ class VibrationalSpinOp(ParticleOp):
         * - `-`
           - :math:`S_-`
           - Lowering operator
-    1. Sparse Label (if underscore `_` exists in the label)
-    # TODO explain labelling strategy when decided
-    For now, accepts a friendly notation, e.g. "+_{mode_index}*{modal_index}", with a possibility
-    to convert to an unfriendly index which is similar as SpinOp.
+    1. Labels
+    :class:`VibrationalSpinOp` accepts the notation that encodes raising (+) and lowering (-)
+    operators together with indices of modes and modals that they act on, e.g. "+_{mode_index}*{
+    modal_index}". Each modal can be excited at most once.
     **Initialization**
     # TODO
     **Algebra**
@@ -63,80 +61,41 @@ class VibrationalSpinOp(ParticleOp):
     """
 
     _VALID_LABEL_PATTERN = re.compile(
-        r"^([\+\-]_\d+\s)*[\+\-]_\d+(?!\s)$|^[\+\-]+$")
+        r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
-    # TODO do we want XYZ or only +-?
-
-    def __init__(
-            self,
-            data: Union[
-                str,
-                List[Tuple[str, complex]],
-                Tuple[np.ndarray, np.ndarray],
-            ],
-            num_modes: int, num_modals: Union[int, List[int]],
-            spin: Union[float, Fraction] = Fraction(1, 2),
-
-    ):
+    def __init__(self, data: Union[
+        List[Tuple[str, complex]],
+    ], num_modes: int, num_modals: Union[int, List[int]],
+                 spin: Union[float, Fraction] = Fraction(1, 2)):
         r"""
         Args:
-            data: label string, list of labels and coefficients. See the label section in
+            data: list of labels and coefficients. See the label section in
                   the documentation of :class:`VibrationalSpinOp` for more details.
-            num_modes : number of modes
-            num_modals: number of modals
+            num_modes : number of modes.
+            num_modals: number of modals.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
         Raises:
             ValueError: invalid data is given.
-            QiskitNatureError: invalid spin value
+            QiskitNatureError: invalid spin value.
         """
-        self._coeffs: np.ndarray
-
-        spin = Fraction(spin)
-        if spin.denominator not in (1, 2):
-            raise QiskitNatureError(
-                f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
-            )
-        self._dim = int(2 * spin + 1)
-
-        self._num_modals = num_modals
-        self._num_modes = num_modes
-
-        if not self._is_num_modals_valid():
-            raise ValueError("num_modes does not agree with the size of num_modals")
-
-        self._partial_sum_modals = self._calc_partial_sum_modals()
 
         if isinstance(data, list):
             invalid_labels = [label for label, _ in data if self._VALID_LABEL_PATTERN.match(label)]
             if not invalid_labels:
                 raise ValueError(f"Invalid labels: {invalid_labels}")
-        self.data = data  # TODO possibly process it somehow
-        # Make immutable
-        self._coeffs.flags.writeable = False
 
-    def _calc_partial_sum_modals(self):
-        summed = 0
-        partial_sum_modals = [0]
-        if type(self.num_modals) == list:
-            for mode_len in self.num_modals:
-                summed += mode_len
-                partial_sum_modals.append(summed)
-            return partial_sum_modals
-        elif type(self.num_modals) == int:
-            for _ in range(self.num_modes):
-                summed += self.num_modals
-                partial_sum_modals.append(summed)
-            return partial_sum_modals
-        else:
-            raise ValueError(f"num_modals of incorrect type {type(self.num_modals)}.")
+        self._vibrational_data = data
+        self._num_modals = num_modals
+        self._num_modes = num_modes
 
-    @property
-    def spin(self) -> Fraction:
-        """The spin number.
-        Returns:
-            Spin number
-        """
-        return Fraction(self._dim - 1, 2)
+        if not self._is_num_modals_valid():
+            raise ValueError("num_modes does not agree with the size of num_modals")
+        if not self._is_modal_excited_once():
+            raise ValueError("modals excited more than once")  # TODO add list of them
+
+        self._partial_sum_modals = calc_partial_sum_modals(self._num_modes, self._num_modals)
+
+        super().__init__(convert_to_spin_op_labels(self._vibrational_data), spin)
 
     @property
     def num_modes(self) -> int:
@@ -154,26 +113,14 @@ class VibrationalSpinOp(ParticleOp):
         """
         return self._num_modals
 
+    def compose(self, other):
+        # TODO: implement
+        raise NotImplementedError
+
     def _is_num_modals_valid(self):
         if type(self.num_modals) == list and len(self.num_modals) != self.num_modes:
             return False
         return True
 
-    def _get_ind_from_mode_modal(self, mode_index, modal_index):
-        return self._partial_sum_modals[mode_index] + modal_index
-
-    def add(self, other):
-        raise NotImplementedError()
-
-    def compose(self, other):
-        # TODO: implement
-        raise NotImplementedError()
-
-    def mul(self, other: complex):
-        raise NotImplementedError()
-
-    def adjoint(self):
-        raise NotImplementedError()
-
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
-        raise NotImplementedError()
+    def _is_modal_excited_once(self):
+        pass
