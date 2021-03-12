@@ -36,9 +36,33 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
         q_molecule_reduced = trafo.transform(q_molecule)
 
-        assert np.allclose(q_molecule_reduced.mo_onee_ints, q_molecule.mo_onee_ints)
-        assert np.allclose(q_molecule_reduced.mo_eri_ints, q_molecule.mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+        with self.subTest('MO 1-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_onee_ints,
+                                                 q_molecule.mo_onee_ints)
+        with self.subTest('MO 2-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_eri_ints,
+                                                 q_molecule.mo_eri_ints)
+        with self.subTest('Inactive energy'):
+            self.assertAlmostEqual(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+
+        with self.subTest('MO 1-electron x dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.x_dip_mo_ints,
+                                                 q_molecule.x_dip_mo_ints)
+        with self.subTest('X dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.x_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron y dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.y_dip_mo_ints,
+                                                 q_molecule.y_dip_mo_ints)
+        with self.subTest('Y dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.y_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron z dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.z_dip_mo_ints,
+                                                 q_molecule.z_dip_mo_ints)
+        with self.subTest('Z dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.z_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
 
     def test_minimal_active_space(self):
         """Test a minimal active space manually."""
@@ -54,9 +78,37 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                                            [[[0.0, 0.0794483182], [0.0794483182, 0.0]],
                                             [[0.433536565, 0.0], [0.0, 0.385524695]]]])
 
-        assert np.allclose(q_molecule_reduced.mo_onee_ints, expected_mo_onee_ints)
-        assert np.allclose(q_molecule_reduced.mo_eri_ints, expected_mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+        expected_x_dip_mo_ints = np.zeros((2, 2))
+        expected_y_dip_mo_ints = np.zeros((2, 2))
+        expected_z_dip_mo_ints = np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]])
+
+        with self.subTest('MO 1-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_onee_ints,
+                                                 expected_mo_onee_ints)
+        with self.subTest('MO 2-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_eri_ints,
+                                                 expected_mo_eri_ints)
+        with self.subTest('Inactive energy'):
+            self.assertAlmostEqual(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+
+        with self.subTest('MO 1-electron x dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.x_dip_mo_ints,
+                                                 expected_x_dip_mo_ints)
+        with self.subTest('X dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.x_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron y dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.y_dip_mo_ints,
+                                                 expected_y_dip_mo_ints)
+        with self.subTest('Y dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.y_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron z dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.z_dip_mo_ints,
+                                                 expected_z_dip_mo_ints)
+        with self.subTest('Z dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.z_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
 
     def test_unpaired_electron_active_space(self):
         """Test an active space with an unpaired electron."""
@@ -98,9 +150,43 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                                              [0.01405676, 0.40269913, 0.0],
                                              [0.0, 0.0, 0.44985904]]]])
 
-        assert np.allclose(q_molecule_reduced.mo_onee_ints, expected_mo_onee_ints)
-        assert np.allclose(q_molecule_reduced.mo_eri_ints, expected_mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], -14.2538029231)
+        expected_x_dip_mo_ints = np.zeros((3, 3))
+        expected_y_dip_mo_ints = np.asarray([[0., 0., 0.74921398],
+                                             [0., 0., 0.90931325],
+                                             [0.74921398, 0.90931325, 0.]])
+        expected_z_dip_mo_ints = np.asarray([[0.55632153, 0.45647449, 0.],
+                                             [0.45647449, 3.56556746, 0.],
+                                             [0., 0., 2.45664396]])
+
+        with self.subTest('MO 1-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_onee_ints,
+                                                 expected_mo_onee_ints)
+        with self.subTest('MO 2-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_eri_ints,
+                                                 expected_mo_eri_ints)
+        with self.subTest('Inactive energy'):
+            self.assertAlmostEqual(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'],
+                                   -14.2538029231)
+
+        with self.subTest('MO 1-electron x dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.x_dip_mo_ints,
+                                                 expected_x_dip_mo_ints)
+        with self.subTest('X dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.x_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron y dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.y_dip_mo_ints,
+                                                 expected_y_dip_mo_ints)
+        with self.subTest('Y dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.y_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron z dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.z_dip_mo_ints,
+                                                 expected_z_dip_mo_ints)
+        with self.subTest('Z dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.z_dip_energy_shift['ActiveSpaceTransformer'],
+                                   4.912193270639324)
+
 
     def test_arbitrary_active_orbitals(self):
         """Test manual selection of active orbital indices."""
@@ -116,9 +202,37 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                                            [[[0.16790822, 0.10962908], [0.10962908, 0.11981429]],
                                             [[0.53250905, 0.11981429], [0.11981429, 0.46345617]]]])
 
-        assert np.allclose(q_molecule_reduced.mo_onee_ints, expected_mo_onee_ints)
-        assert np.allclose(q_molecule_reduced.mo_eri_ints, expected_mo_eri_ints)
-        assert np.isclose(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+        expected_x_dip_mo_ints = np.zeros((2, 2))
+        expected_y_dip_mo_ints = np.zeros((2, 2))
+        expected_z_dip_mo_ints = np.asarray([[0.69447435, 0.0], [0.0, 0.69447435]])
+
+        with self.subTest('MO 1-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_onee_ints,
+                                                 expected_mo_onee_ints)
+        with self.subTest('MO 2-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_eri_ints,
+                                                 expected_mo_eri_ints)
+        with self.subTest('Inactive energy'):
+            self.assertAlmostEqual(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+
+        with self.subTest('MO 1-electron x dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.x_dip_mo_ints,
+                                                 expected_x_dip_mo_ints)
+        with self.subTest('X dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.x_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron y dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.y_dip_mo_ints,
+                                                 expected_y_dip_mo_ints)
+        with self.subTest('Y dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.y_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron z dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.z_dip_mo_ints,
+                                                 expected_z_dip_mo_ints)
+        with self.subTest('Z dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.z_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
 
     @idata([
         [2, 3, None, "More active orbitals requested than available in total."],
@@ -149,6 +263,34 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         assert np.allclose(q_molecule_reduced.mo_onee_ints, q_molecule.mo_onee_ints)
         assert np.allclose(q_molecule_reduced.mo_eri_ints, q_molecule.mo_eri_ints)
         assert np.isclose(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+
+        with self.subTest('MO 1-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_onee_ints,
+                                                 q_molecule.mo_onee_ints)
+        with self.subTest('MO 2-electron integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.mo_eri_ints,
+                                                 q_molecule.mo_eri_ints)
+        with self.subTest('Inactive energy'):
+            self.assertAlmostEqual(q_molecule_reduced.energy_shift['ActiveSpaceTransformer'], 0.0)
+
+        with self.subTest('MO 1-electron x dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.x_dip_mo_ints,
+                                                 q_molecule.x_dip_mo_ints)
+        with self.subTest('X dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.x_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron y dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.y_dip_mo_ints,
+                                                 q_molecule.y_dip_mo_ints)
+        with self.subTest('Y dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.y_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
+        with self.subTest('MO 1-electron z dipole integrals'):
+            np.testing.assert_array_almost_equal(q_molecule_reduced.z_dip_mo_ints,
+                                                 q_molecule.z_dip_mo_ints)
+        with self.subTest('Z dipole energy shift'):
+            self.assertAlmostEqual(q_molecule_reduced.z_dip_energy_shift['ActiveSpaceTransformer'],
+                                   0.0)
 
 
 if __name__ == '__main__':
