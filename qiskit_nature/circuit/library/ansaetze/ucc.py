@@ -143,6 +143,11 @@ class UCC(EvolvedOperatorAnsatz):
                 raise ValueError('The excitations cannot be `None`.')
             return False
 
+        if self.qubit_op_converter is None:
+            if raise_on_failure:
+                raise ValueError('The qubit_op_converter cannot be `None`.')
+            return False
+
         return True
 
     def _build(self) -> None:
