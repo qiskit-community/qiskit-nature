@@ -3,6 +3,7 @@ adjoint
 aer
 aij
 al
+allclose
 ang
 anharmonic
 ansatz
@@ -235,6 +236,7 @@ sergey
 setia
 setted
 sklearn
+spinop
 statevector
 statevectors
 stdout
