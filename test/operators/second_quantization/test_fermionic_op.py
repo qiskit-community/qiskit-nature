@@ -66,6 +66,15 @@ class TestFermionicOp(QiskitNatureTestCase):
         targ = FermionicOp([(f"{label[0]}II{label[1]}", 1)])
         self.assertFermionEqual(fer_op, targ)
 
+    def test_init_multiple_digits(self):
+        """Test __init__ for sparse label with multiple digits"""
+        actual = FermionicOp([("+_10 -_2", 1 + 2j), ("-_12", 56)])
+        desired = [
+            ("II+IIIIIII-II", 1 + 2j),
+            ("-IIIIIIIIIIII", 56),
+        ]
+        self.assertListEqual(actual.to_list(), desired)
+
     def test_neg(self):
         """Test __neg__"""
         fer_op = -FermionicOp("+N-EII")

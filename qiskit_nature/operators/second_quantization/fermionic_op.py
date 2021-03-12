@@ -130,7 +130,7 @@ class FermionicOp(ParticleOp):
 
     """
 
-    _SPARSE_LABEL_PATTERN = re.compile(r"^([I\+\-NE]_\d\s)*[I\+\-NE]_\d(?!\s)$")
+    _SPARSE_LABEL_PATTERN = re.compile(r"^([I\+\-NE]_\d+\s)*[I\+\-NE]_\d+(?!\s)$")
     _DENSE_LABEL_PATTERN = re.compile(r"^[I\+\-NE]+$")
 
     def __init__(

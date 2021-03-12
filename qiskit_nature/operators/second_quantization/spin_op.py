@@ -168,9 +168,9 @@ class SpinOp(ParticleOp):
 
     _XYZ_DICT = {"X": 0, "Y": 1, "Z": 2}
     _VALID_LABEL_PATTERN = re.compile(
-        r"^([IXYZ\+\-]_\d(\^\d)?\s)*[IXYZ\+\-]_\d(\^\d)?(?!\s)$|^[IXYZ\+\-]+$"
+        r"^([IXYZ\+\-]_\d+(\^\d+)?\s)*[IXYZ\+\-]_\d+(\^\d+)?(?!\s)$|^[IXYZ\+\-]+$"
     )
-    _SPARSE_LABEL_PATTERN = re.compile(r"^([IXYZ]_\d(\^\d)?\s)*[IXYZ]_\d(\^\d)?(?!\s)$")
+    _SPARSE_LABEL_PATTERN = re.compile(r"^([IXYZ]_\d+(\^\d+)?\s)*[IXYZ]_\d+(\^\d+)?(?!\s)$")
     _DENSE_LABEL_PATTERN = re.compile(r"^[IXYZ]+$")
 
     def __init__(

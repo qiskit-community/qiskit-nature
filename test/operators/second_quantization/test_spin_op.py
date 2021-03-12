@@ -13,6 +13,7 @@
 """Test for SpinOp"""
 
 import unittest
+from fractions import Fraction
 from itertools import product
 from test import QiskitNatureTestCase
 from typing import Callable, Optional
@@ -131,6 +132,15 @@ class TestSpinOp(QiskitNatureTestCase):
             actual = SpinOp([(f"{label}", 1)])
             desired = SpinOp([(f"{label[0]}_1 {label[1]}_0", 1)])
         self.assertSpinEqual(actual, desired)
+
+    def test_init_multiple_digits(self):
+        """Test __init__ for sparse label with multiple digits"""
+        actual = SpinOp([("X_10^20", 1 + 2j), ("X_12^34", 56)], Fraction(5, 2))
+        desired = [
+            ("I_12 I_11 X_10^20 I_9 I_8 I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0", 1 + 2j),
+            ("X_12^34 I_11 I_10 I_9 I_8 I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0", 56),
+        ]
+        self.assertListEqual(actual.to_list(), desired)
 
     @data("IJX", "Z_0 X_0", "Z_0 +_0", "+_0 X_0")
     def test_init_invalid_label(self, label):
