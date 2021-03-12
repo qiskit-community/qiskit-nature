@@ -233,10 +233,16 @@ class QMolecule:
                 self.hf_energy = float(data) if data.dtype.num != 0 else None
                 data = file["energy/nuclear_repulsion_energy"][...]
                 self.nuclear_repulsion_energy = float(data) if data.dtype.num != 0 else None
-                self.energy_shift = read_dict("energy/energy_shift")
-                self.x_dip_energy_shift = read_dict("energy/x_dip_energy_shift")
-                self.y_dip_energy_shift = read_dict("energy/y_dip_energy_shift")
-                self.z_dip_energy_shift = read_dict("energy/z_dip_energy_shift")
+                if version > 2:
+                    self.energy_shift = read_dict("energy/energy_shift")
+                    self.x_dip_energy_shift = read_dict("energy/x_dip_energy_shift")
+                    self.y_dip_energy_shift = read_dict("energy/y_dip_energy_shift")
+                    self.z_dip_energy_shift = read_dict("energy/z_dip_energy_shift")
+                else:
+                    self.energy_shift = {}
+                    self.x_dip_energy_shift = {}
+                    self.y_dip_energy_shift = {}
+                    self.z_dip_energy_shift = {}
 
                 # Orbitals
                 data = file["orbitals/num_orbitals"][...]
