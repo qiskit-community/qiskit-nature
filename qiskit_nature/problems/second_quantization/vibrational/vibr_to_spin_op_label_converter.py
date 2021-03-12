@@ -13,6 +13,7 @@ import re
 
 
 def calc_partial_sum_modals(num_modes, num_modals):
+    # TODO docs
     summed = 0
     partial_sum_modals = [0]
     if type(num_modals) == list:
@@ -30,6 +31,7 @@ def calc_partial_sum_modals(num_modes, num_modals):
 
 
 def convert_to_spin_op_labels(data):
+    # TODO docs
     spin_op_labels = []
     for labels, coeff in data:
         coeff_new_labels = _build_coeff_spin_op_labels(labels)
