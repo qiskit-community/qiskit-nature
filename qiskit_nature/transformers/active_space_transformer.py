@@ -93,13 +93,13 @@ class ActiveSpaceTransformer(BaseTransformer):
         self.active_orbitals = active_orbitals
         self.freeze_core = freeze_core
 
-        self._beta = None
-        self._mo_occ_total = None
-        self._mo_occ_inactive = None
-        self._mo_coeff_active = None
-        self._mo_coeff_inactive = None
-        self._density_inactive = None
-        self._num_particles = None
+        self._beta: bool = None
+        self._mo_occ_total: np.ndarray = None
+        self._mo_occ_inactive: Tuple[np.ndarray, np.ndarray] = None
+        self._mo_coeff_active: Tuple[np.ndarray, np.ndarray] = None
+        self._mo_coeff_inactive: Tuple[np.ndarray, np.ndarray] = None
+        self._density_inactive: Tuple[np.ndarray, np.ndarray] = None
+        self._num_particles: Tuple[int, int] = None
 
     def transform(self, q_molecule: QMolecule) -> QMolecule:
         """Reduces the given `QMolecule` to a given active space.
