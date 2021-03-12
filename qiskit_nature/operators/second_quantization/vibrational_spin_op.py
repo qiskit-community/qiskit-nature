@@ -60,7 +60,7 @@ class VibrationalSpinOp(SpinOp):
         print(~(1j * z))
     """
 
-    _VALID_LABEL_PATTERN = re.compile(
+    _VALID_VIBR_LABEL_PATTERN = re.compile(
         r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
     def __init__(self, data: Union[
@@ -80,8 +80,9 @@ class VibrationalSpinOp(SpinOp):
         """
 
         if isinstance(data, list):
-            invalid_labels = [label for label, _ in data if self._VALID_LABEL_PATTERN.match(label)]
-            if not invalid_labels:
+            invalid_labels = [label for label, _ in data if
+                              not self._VALID_VIBR_LABEL_PATTERN.match(label)]
+            if invalid_labels:
                 raise ValueError(f"Invalid labels: {invalid_labels}")
 
         self._vibrational_data = data
@@ -97,7 +98,8 @@ class VibrationalSpinOp(SpinOp):
 
         self._partial_sum_modals = calc_partial_sum_modals(self._num_modes, self._num_modals)
 
-        super().__init__(convert_to_spin_op_labels(self._vibrational_data), spin)
+        super().__init__(
+            convert_to_spin_op_labels(self._vibrational_data, self._partial_sum_modals), spin)
 
     @property
     def num_modes(self) -> int:
@@ -130,10 +132,11 @@ class VibrationalSpinOp(SpinOp):
             check_list = [0] * self.num_modes
             for label in coeff_labels_split:
                 op, mode_index, modal_index = re.split('[*_]', label)
-                if mode_index >= self.num_modes or modal_index >= self.num_modals:
+                if int(mode_index) >= self.num_modes or int(modal_index) >= self.num_modals[
+                    int(mode_index)]:
                     return False
                 increment = 1 if op == "+" else -1
-                check_list[mode_index] += increment
+                check_list[int(mode_index)] += increment
             if not all(v == 0 for v in check_list):
                 return False
         return True

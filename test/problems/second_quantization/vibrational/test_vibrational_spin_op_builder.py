@@ -10,6 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests Fermionic Operator builder."""
+from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_spin_op_builder import \
+    build_vibrational_spin_op
 from test import QiskitNatureTestCase
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
@@ -20,3 +23,15 @@ from qiskit_nature.drivers import GaussianForcesDriver
 class TestVibrationalSpinOpBuilder(QiskitNatureTestCase):
     """Tests Vibrational Spin Op builder."""
 
+    def test_vibrational_spin_op_builder(self):
+        logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
+        driver = GaussianForcesDriver(logfile=logfile)
+
+        watson_hamiltonian = driver.run()
+        basis_size = 2
+        truncation_order = 3
+
+        vibrational_spin_op = build_vibrational_spin_op(watson_hamiltonian, basis_size,
+                                                        truncation_order)
+
+        assert type(vibrational_spin_op) == VibrationalSpinOp
