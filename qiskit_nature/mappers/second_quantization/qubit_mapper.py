@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,65 +10,77 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Jordan-Wigner Mapping interface."""
+"""Qubit Mapper interface."""
+
+from abc import ABC, abstractmethod
+from typing import List, Tuple
 
 import numpy as np
+
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
-from .qubit_mapping import QubitMapping
 
+class QubitMapper(ABC):
+    """The interface for implementing methods which map from a `ParticleOp` to a
+    qubit operator in the form of a `PauliSumOp`.
+    """
 
-class JordanWignerMapping(QubitMapping):
-    """The Jordan-Wigner fermion-to-qubit mapping. """
-
-    def supports_particle_type(self, particle_type: ParticleOp) -> bool:
-        """Returns whether the queried particle-type operator is supported by this mapping.
-
-        Args:
-            particle_type: the particle-type to query support for.
-
-        Returns:
-            A boolean indicating whether the queried particle-type is supported.
+    def __init__(self, allows_two_qubit_reduction: bool = False):
         """
-        return isinstance(particle_type, FermionicOp)
+        Args:
+            allows_two_qubit_reduction: Set if mapper will create known symmetry such that
+               the number of qubits in the mapped operator can be reduced accordingly.
+        """
+        self._allows_two_qubit_reduction = allows_two_qubit_reduction
 
+    @property
+    def allows_two_qubit_reduction(self) -> bool:
+        """
+        Getter for symmetry information for two qubit reduction
+
+        Returns: If mapping generates the known symmetry that allows two qubit reduction.
+
+        """
+        return self._allows_two_qubit_reduction
+
+    @abstractmethod
     def map(self, second_q_op: ParticleOp) -> PauliSumOp:
-        """Maps a `SecondQuantizedOp` to a `PauliSumOp` using the Jordan-Wigner
-        fermion-to-qubit mapping.
+        """Maps a `ParticleOp` to a `PauliSumOp`.
 
         Args:
-            second_q_op: the `SecondQuantizedOp` to be mapped.
+            second_q_op: the `ParticleOp` to be mapped.
+
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-        Raises:
-            QiskitNatureError: FermionicOp has a invalid label.
-            TypeError: Type of second_q_op is not FermionicOp.
         """
-        if not isinstance(second_q_op, FermionicOp):
-            raise TypeError(
-                f"Jordan-Wigner mapper only maps from FermionicOp, not {type(second_q_op)}"
-            )
+        raise NotImplementedError()
 
-        # number of modes/sites for the Jordan-Wigner transform (= number of fermionc modes)
-        nmodes = second_q_op.register_length
+    @staticmethod
+    def mode_based_mapping(second_q_op: ParticleOp,
+                           pauli_table: List[Tuple[Pauli, Pauli]]) -> PauliSumOp:
+        """Utility method to map a `ParticleOp` to a `PauliSumOp` using a pauli table.
 
-        pauli_table = []
-        for i in range(nmodes):
-            a_z = np.asarray([1] * i + [0] + [0] * (nmodes - i - 1), dtype=bool)
-            a_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
-            b_z = np.asarray([1] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
-            b_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
-            # c_z = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
-            # c_x = np.asarray([0] * nmodes, dtype=bool)
-            pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
-            # TODO add Pauli 3-tuple to lookup table
+        Args:
+            second_q_op: the `ParticleOp` to be mapped.
+            pauli_table: a table of paulis built according to the modes of the operator
 
-        # 0. Some utilities
+        Returns:
+            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
+
+        Raises:
+            QiskitNatureError: If number length of pauli table does not match the number
+                of operator modes, or if the operator has unexpected label content
+        """
+        nmodes = len(pauli_table)
+        if nmodes != second_q_op.register_length:
+            raise QiskitNatureError(f"Pauli table len {nmodes} does not match"
+                                    f"operator register length {second_q_op.register_length}")
+
+            # 0. Some utilities
         def times_creation_op(op, position, pauli_table):
             # The creation operator is given by 0.5*(X + 1j*Y)
             real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
@@ -92,6 +104,9 @@ class JordanWignerMapping(QubitMapping):
 
         ret_op_list = []
 
+        # TODO to_list() is not an attribute of ParticleOp. Change the former to have this or
+        #   change the signature above to take FermionicOp?
+        #
         for label, coeff in second_q_op.to_list():
 
             ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[coeff])
