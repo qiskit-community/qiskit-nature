@@ -49,6 +49,26 @@ class TestExcitationBuilder(QiskitNatureTestCase):
                         SecondQuantizedOp([FermionicOp([('I+-+I-', 1j), ('I-+-I+', -1j)])]),
                         SecondQuantizedOp([FermionicOp([('I+-I+-', 1j), ('I-+I-+', -1j)])])]),
         (2, 6, [3, 3], []),
+        (2, 8, [2, 2], [SecondQuantizedOp([FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+I-I+I-I', 1j), ('-I+I-I+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+I-I+II-', 1j), ('-I+I-II+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+I-II+-I', 1j), ('-I+II-+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+I-II+I-', 1j), ('-I+II-I+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+II-+I-I', 1j), ('-II+-I+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+II-+II-', 1j), ('-II+-II+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+II-I+-I', 1j), ('-II+I-+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+II-I+I-', 1j), ('-II+I-I+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+-I+I-I', 1j), ('I-+I-I+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+-I+II-', 1j), ('I-+I-II+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+-II+-I', 1j), ('I-+II-+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+-II+I-', 1j), ('I-+II-I+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+I-+I-I', 1j), ('I-I+-I+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+I-+II-', 1j), ('I-I+-II+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+I-I+-I', 1j), ('I-I+I-+I', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('I+I-I+I-', 1j), ('I-I+I-I+', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)])])]),
         (3, 8, [2, 1], [SecondQuantizedOp([FermionicOp([('++--+-II', 1j), ('--++-+II', 1j)])]),
                         SecondQuantizedOp([FermionicOp([('++--+I-I', 1j), ('--++-I+I', 1j)])]),
                         SecondQuantizedOp([FermionicOp([('++--+II-', 1j), ('--++-II+', 1j)])]),
@@ -60,6 +80,69 @@ class TestExcitationBuilder(QiskitNatureTestCase):
         """TODO"""
         ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
                                                      num_particles)
+        assert len(ops) == len(expect)
+        for op, exp in zip(ops, expect):
+            assert op.fermion._labels == exp.fermion._labels
+            assert op.fermion._coeffs == exp.fermion._coeffs
+
+    @unpack
+    @data(
+        (1, 4, [1, 1], [SecondQuantizedOp([FermionicOp([('+-II', 1j), ('-+II', 1j)])]),
+                        SecondQuantizedOp([FermionicOp([('II+-', 1j), ('II-+', 1j)])])]),
+        (2, 4, [1, 1], []),
+        (1, 6, [1, 1], [SecondQuantizedOp([FermionicOp([('+-IIII', 1j), ('-+IIII', 1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+I-III', 1j), ('-I+III', 1j)])]),
+                        SecondQuantizedOp([FermionicOp([('III+-I', 1j), ('III-+I', 1j)])]),
+                        SecondQuantizedOp([FermionicOp([('III+I-', 1j), ('III-I+', 1j)])])]),
+        (2, 6, [1, 1], []),
+        (2, 6, [2, 2], []),
+        (2, 8, [2, 2], [SecondQuantizedOp([FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)])])]),
+    )
+    def test_pure_spin_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
+                                      expect):
+        """TODO"""
+        ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
+                                                     num_particles, pure_spin=True)
+        assert len(ops) == len(expect)
+        for op, exp in zip(ops, expect):
+            assert op.fermion._labels == exp.fermion._labels
+            assert op.fermion._coeffs == exp.fermion._coeffs
+
+    @unpack
+    @data(
+        (1, 4, [1, 1], [SecondQuantizedOp([FermionicOp([('+-II', 1j), ('-+II', 1j)])])]),
+        (1, 6, [1, 1], [SecondQuantizedOp([FermionicOp([('+-IIII', 1j), ('-+IIII', 1j)])]),
+                        SecondQuantizedOp([FermionicOp([('+I-III', 1j), ('-I+III', 1j)])])]),
+        (2, 8, [2, 2], [SecondQuantizedOp([FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)])])]),
+    )
+    def test_pure_alpha_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
+                                       expect):
+        """TODO"""
+        ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
+                                                     num_particles, beta_spin=False)
+        assert len(ops) == len(expect)
+        for op, exp in zip(ops, expect):
+            assert op.fermion._labels == exp.fermion._labels
+            assert op.fermion._coeffs == exp.fermion._coeffs
+
+    @unpack
+    @data(
+        (1, 4, [1, 1], [SecondQuantizedOp([FermionicOp([('II+-', 1j), ('II-+', 1j)])])]),
+        (1, 6, [1, 1], [SecondQuantizedOp([FermionicOp([('III+-I', 1j), ('III-+I', 1j)])]),
+                        SecondQuantizedOp([FermionicOp([('III+I-', 1j), ('III-I+', 1j)])])]),
+        (2, 8, [2, 2], [SecondQuantizedOp([FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)])]),
+                        SecondQuantizedOp([FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)])])]),
+    )
+    def test_pure_beta_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
+                                      expect):
+        """TODO"""
+        ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
+                                                     num_particles, alpha_spin=False)
+        assert len(ops) == len(expect)
         for op, exp in zip(ops, expect):
             assert op.fermion._labels == exp.fermion._labels
             assert op.fermion._coeffs == exp.fermion._coeffs
