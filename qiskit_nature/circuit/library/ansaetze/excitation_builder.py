@@ -44,24 +44,24 @@ class ExcitationBuilder:
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
-        # generate sets of alpha-spin orbital indices for occupied and unoccupied ones
-        set_alpha_occ = set(range(num_particles[0]))
-        set_alpha_unocc = set(range(num_particles[0], num_spin_orbitals // 2))
-        # the Cartesian product of these sets gives all possible single alpha-spin excitations
-        alpha_excitations = set(itertools.product(set_alpha_occ, set_alpha_unocc))
+        # generate alpha-spin orbital indices for occupied and unoccupied ones
+        alpha_occ = list(range(num_particles[0]))
+        alpha_unocc = list(range(num_particles[0], num_spin_orbitals // 2))
+        # the Cartesian product of these lists gives all possible single alpha-spin excitations
+        alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
 
-        # generate sets of beta-spin orbital indices for occupied and unoccupied ones
-        set_beta_occ = set(range(num_spin_orbitals // 2, num_particles[1] + num_spin_orbitals // 2))
-        set_beta_unocc = set(range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals))
-        # the Cartesian product of these sets gives all possible single beta-spin excitations
-        beta_excitations = set(itertools.product(set_beta_occ, set_beta_unocc))
+        # generate beta-spin orbital indices for occupied and unoccupied ones
+        beta_occ = list(range(num_spin_orbitals // 2, num_particles[1] + num_spin_orbitals // 2))
+        beta_unocc = list(range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals))
+        # the Cartesian product of these lists gives all possible single beta-spin excitations
+        beta_excitations = list(itertools.product(beta_occ, beta_unocc))
 
-        excitations = set()
+        excitations = list()
         # we can find the actual list of excitations by doing the following:
-        #   1. combine the sets of single alpha- and beta-spin excitations
+        #   1. combine the single alpha- and beta-spin excitations
         #   2. find all possible combinations of length `num_excitations`
         #   3. only use those where all indices are unique
-        for comb in itertools.combinations(alpha_excitations | beta_excitations, num_excitations):
+        for comb in itertools.combinations(alpha_excitations + beta_excitations, num_excitations):
             # validate a combination by asserting that all indices are unique:
             #   1. flatten the tuple of tuples (chain.from_iterable)
             #   2. the length equals twice the number of excitations (one excitation gives to
@@ -69,7 +69,7 @@ class ExcitationBuilder:
             if len(set(itertools.chain.from_iterable(comb))) == num_excitations * 2:
                 # we zip the tuple of tuples to obtain a new one which has the structure:
                 #   ((occupied indices), (unoccupied indices))
-                excitations.add(tuple(zip(*comb)))
+                excitations.append(tuple(zip(*comb)))
 
         # Some notes in terms of customization:
         #   - which excitations are present can (obviously) be configured via `num_excitations`
