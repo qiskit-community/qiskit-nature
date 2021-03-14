@@ -42,6 +42,9 @@ class UCC(EvolvedOperatorAnsatz):
                  num_spin_orbitals: Optional[int] = None,
                  excitations: Optional[Union[str, int, List[int], Callable[
                      [Tuple[int, int], int], List[SecondQuantizedOp]]]] = None,
+                 alpha_spin: bool = True,
+                 beta_spin: bool = True,
+                 pure_spin: bool = False,
                  reps: int = 1):
         """
 
@@ -64,12 +67,18 @@ class UCC(EvolvedOperatorAnsatz):
                       - `num_particles`: the same as above
                       - `num_spin_orbitals`: the same as above
                   and must return a `List[SecondQuantizedOp]`.
+            alpha_spin: boolean flag whether to include alpha-spin excitations.
+            beta_spin: boolean flag whether to include beta-spin excitations.
+            pure_spin: boolean flag whether to include only pure-spin excitations.
             reps: The number of times to repeat the evolved operators.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
         self._num_spin_orbitals = num_spin_orbitals
         self._excitations = excitations
+        self._alpha_spin = alpha_spin
+        self._beta_spin = beta_spin
+        self._pure_spin = pure_spin
         # TODO: Added to pass lint, need change
         super().__init__([], reps=reps, evolution=None)
 
@@ -165,22 +174,29 @@ class UCC(EvolvedOperatorAnsatz):
         """
         generators: List[Callable] = []
 
+        extra_kwargs = {'alpha_spin': self._alpha_spin,
+                        'beta_spin': self._beta_spin,
+                        'pure_spin': self._pure_spin}
+
         if isinstance(self.excitations, str):
             for exc in self.excitations:
                 generators.append(partial(
                     ExcitationBuilder.build_excitation_ops,
-                    num_excitations=self.EXCITATION_TYPE[exc]
+                    num_excitations=self.EXCITATION_TYPE[exc],
+                    **extra_kwargs
                 ))
         elif isinstance(self.excitations, int):
             generators.append(partial(
                 ExcitationBuilder.build_excitation_ops,
-                num_excitations=self.excitations
+                num_excitations=self.excitations,
+                **extra_kwargs
             ))
         elif isinstance(self.excitations, list):
             for exc in self.excitations:  # type: ignore
                 generators.append(partial(
                     ExcitationBuilder.build_excitation_ops,
-                    num_excitations=exc
+                    num_excitations=exc,
+                    **extra_kwargs
                 ))
         elif callable(self.excitations):
             generators = [self.excitations]

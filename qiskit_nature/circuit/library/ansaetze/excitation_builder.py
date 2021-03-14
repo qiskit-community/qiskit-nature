@@ -72,6 +72,7 @@ class ExcitationBuilder:
             beta_excitations = list(itertools.product(beta_occ, beta_unocc))
 
         excitations = list()
+
         def add_excitations(pool):
             for exc in pool:
                 # validate an excitation by asserting that all indices are unique:
@@ -103,6 +104,8 @@ class ExcitationBuilder:
             for unocc in exc[1]:
                 label[unocc] = '-'
             op = FermionicOp(''.join(label))
+            # TODO: this is UCC specific. Do we want to keep this here and make this a UCC-specific
+            # excitation builder?
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)
