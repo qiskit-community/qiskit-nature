@@ -55,20 +55,20 @@ class TestFermionicOp(QiskitNatureTestCase):
     @data(*fermion_labels(1))
     def test_init_sparse_label(self, label):
         """Test __init__ with sparse label"""
-        fer_op = FermionicOp(f"{label}_0")
+        fer_op = FermionicOp(f"{label}_0", register_length=1)
         targ = FermionicOp([(label, 1)])
         self.assertFermionEqual(fer_op, targ)
 
     @data(*fermion_labels(2))
     def test_init_sparse_label_len_four(self, label):
         """Test __init__ with sparse label"""
-        fer_op = FermionicOp(f"{label[0]}_3 {label[1]}_0")
+        fer_op = FermionicOp(f"{label[0]}_3 {label[1]}_0", register_length=4)
         targ = FermionicOp([(f"{label[0]}II{label[1]}", 1)])
         self.assertFermionEqual(fer_op, targ)
 
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
-        actual = FermionicOp([("+_10 -_2", 1 + 2j), ("-_12", 56)])
+        actual = FermionicOp([("+_10 -_2", 1 + 2j), ("-_12", 56)], register_length=13)
         desired = [
             ("II+IIIIIII-II", 1 + 2j),
             ("-IIIIIIIIIIII", 56),

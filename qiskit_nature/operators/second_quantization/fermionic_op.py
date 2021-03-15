@@ -16,6 +16,7 @@ import re
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
@@ -54,7 +55,7 @@ class FermionicOp(ParticleOp):
     There are two types of label modes for :class:`FermionicOp`.
     The label mode is automatically detected.
 
-    1. Dense Label (if underscore `_` does not exist in the label)
+    1. Dense Label (default, `register_length = None`)
 
     Dense labels are strings with allowed characters above.
     This is similar to Qiskit's string-based representation of qubit operators.
@@ -67,8 +68,10 @@ class FermionicOp(ParticleOp):
 
     are possible labels.
 
-    2. Sparse Label (if underscore `_` exists in the label)
+    2. Sparse Label (`register_length` is passed)
 
+    When the parameter `register_length` is passed to :meth:`~FermionicOp.__init__`,
+    label is assumed to be a sparse label.
     A sparse label is a string consisting of a space-separated list of words.
     Each word must look like :code:`[+-INE]_<index>`, where the :code:`<index>`
     is a non-negative integer representing the index of the fermionic mode.
@@ -78,7 +81,7 @@ class FermionicOp(ParticleOp):
 
         "+_0"
         "-_2"
-        "+_10 -_4 +_1 I_0 +_0"
+        "+_10 -_4 +_1 +_0"
 
     are possible labels.
     The :code:`index` must be in descending order.
@@ -130,72 +133,67 @@ class FermionicOp(ParticleOp):
 
     """
 
-    _SPARSE_LABEL_PATTERN = re.compile(r"^([I\+\-NE]_\d+\s)*[I\+\-NE]_\d+(?!\s)$")
-    _DENSE_LABEL_PATTERN = re.compile(r"^[I\+\-NE]+$")
-
     def __init__(
         self,
         data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
+        register_length: Optional[int] = None,
     ):
-        """Initialize the FermionicOp.
-
+        """
         Args:
             data: Input data for FermionicOp. The allowed data is label str,
                   tuple (label, coeff), or list [(label, coeff)].
+            register_length: positive integer that represents the length of registers.
 
         Raises:
             ValueError: given data is invalid value.
             TypeError: given data has invalid type.
         """
-        tuple_dtype = (str, (int, float, complex))
-
         if not isinstance(data, (tuple, list, str)):
-            raise TypeError("Invalid input data for FermionicOp.")
+            raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
 
         if isinstance(data, tuple):
-            if not all(isinstance(data[i], tuple_dtype[i]) for i in range(2)):
+            if not isinstance(data[0], str) or isinstance(data[1], (int, float, complex)):
                 raise TypeError(
                     f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
                 )
-
             data = [data]
 
         if isinstance(data, str):
-            if not self._SPARSE_LABEL_PATTERN.match(data) and not self._DENSE_LABEL_PATTERN.match(
-                data
-            ):
-                raise ValueError(
-                    "Label must be a string consisting only of "
-                    f"['I','+','-','N','E'] not: '{data}'"
-                )
-
             data = [(data, 1)]
 
         if isinstance(data, list):
             if not all(
-                isinstance(label, tuple_dtype[0]) and isinstance(coeff, tuple_dtype[1])
+                isinstance(label, str) and isinstance(coeff, (int, float, complex))
                 for label, coeff in data
             ):
                 raise TypeError("Data list must be [(str, number)].")
 
-            invalid_labels = [
-                label
-                for label, _ in data
-                if not self._DENSE_LABEL_PATTERN.match(label)
-                and not self._SPARSE_LABEL_PATTERN.match(label)
-            ]
-            if invalid_labels:
-                raise ValueError(f"Invalid labels: {invalid_labels}")
-
             labels, coeffs = zip(*data)  # type: ignore
             self._coeffs = np.array(coeffs, np.complex128)
-            if all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
+
+            if register_length is None:  # Dense lable
                 self._register_length = len(labels[0])
+                label_pattern = re.compile(r"^[I\+\-NE]+$")
+                invalid_labels = [label for label in labels if not label_pattern.match(label)]
+                if invalid_labels:
+                    raise ValueError(
+                        f"Invalid labels for dense labels are given: {invalid_labels}"
+                    )
                 self._labels = labels
-            elif all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
+            else:  # Sparse label
+                validate_min("register_length", register_length, 1)
+                self._register_length = register_length
+                label_pattern = re.compile(r"^[I\+\-NE]_\d+$")
+                invalid_labels = [
+                    label
+                    for label in labels
+                    if not all(label_pattern.match(l) for l in label.split())
+                ]
+                if invalid_labels:
+                    raise ValueError(
+                        f"Invalid labels for sparse labels are given: {invalid_labels}"
+                    )
                 self._from_sparse_label(labels)
-            else:
-                raise ValueError(f"Mixed labels are given: {labels}")
 
     def __repr__(self) -> str:
         if len(self) == 1 and self._coeffs == 1:
@@ -383,34 +381,21 @@ class FermionicOp(ParticleOp):
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
     def _from_sparse_label(self, labels):
-        num_terms = len(labels)
-        parsed_data = []
-        max_index = 0
+        list_label = [["I"] * self._register_length for _ in labels]
         for term, label in enumerate(labels):
             prev_index = -1
-            splitted_label = label.split()
-            for single_label in splitted_label:
+            for single_label in label.split():
                 op_label, index_str = single_label.split("_", 1)
-
                 index = int(index_str)
-                if 0 <= prev_index <= index:
+
+                if index >= self._register_length:
+                    raise ValueError("index must be smaller than register_length.")
+
+                if 0 <= prev_index < index:
                     raise ValueError("Indices of labels must be in descending order.")
 
-                max_index = max(max_index, index)
-
-                if op_label in {"+", "-", "N", "E"}:
-                    parsed_data.append((term, op_label, index))
+                register = self._register_length - index - 1
+                list_label[term][register] = op_label
                 prev_index = index
-
-        self._register_length = max_index + 1
-        list_label = [["I"] * self._register_length for _ in range(num_terms)]
-        for term, op_label, index in parsed_data:
-            register = self._register_length - index - 1
-
-            # same label is not assigned.
-            if list_label[term][register] != "I":
-                raise ValueError("Duplicate label.")
-
-            list_label[term][register] = op_label
 
         self._labels = ["".join(l) for l in list_label]
