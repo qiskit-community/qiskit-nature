@@ -188,7 +188,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         # initial state
         init_state = HartreeFock(
-            num_orbitals=fermionic_transformation.molecule_info['num_orbitals'],
+            num_spin_orbitals=fermionic_transformation.molecule_info['num_orbitals'],
             num_particles=fermionic_transformation.molecule_info['num_particles'],
             qubit_converter=self.qubit_converter)
 
@@ -220,7 +220,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         # initial state
         init_state = HartreeFock(
-            num_orbitals=self.fermionic_transformation.molecule_info['num_orbitals'],
+            num_spin_orbitals=self.fermionic_transformation.molecule_info['num_orbitals'],
             num_particles=self.fermionic_transformation.molecule_info['num_particles'],
             qubit_converter=self.qubit_converter)
 

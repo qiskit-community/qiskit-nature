@@ -63,7 +63,7 @@ class TestBOPES(unittest.TestCase):
         quantum_instance.compile_config['seed_transpiler'] = seed
 
         # Variational form
-        i_state = HartreeFock(num_orbitals=f_t._molecule_info['num_orbitals'],
+        i_state = HartreeFock(num_spin_orbitals=f_t._molecule_info['num_orbitals'],
                               num_particles=f_t._molecule_info['num_particles'],
                               qubit_converter=converter)
         var_form = RealAmplitudes(qubitop.num_qubits, reps=1, entanglement='full',

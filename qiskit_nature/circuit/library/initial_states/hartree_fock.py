@@ -29,12 +29,12 @@ class HartreeFock(QuantumCircuit):
     """A Hartree-Fock initial state."""
 
     def __init__(self,
-                 num_orbitals: int,
+                 num_spin_orbitals: int,
                  num_particles: Union[Tuple[int, int], int],
                  qubit_converter: QubitConverter) -> None:
         """
         Args:
-            num_orbitals: The number of spin orbitals, has a min. value of 1.
+            num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
             num_particles: The number of particles. If this is an integer, it is the total (even)
                 number of particles. If a tuple, the first number is alpha and the second number is
                 beta.
@@ -42,29 +42,32 @@ class HartreeFock(QuantumCircuit):
         """
 
         # get the bitstring encoding the Hartree Fock state
-        bitstr = hartree_fock_bitstring(num_orbitals, num_particles)
+        bitstr = hartree_fock_bitstring(num_spin_orbitals, num_particles)
 
+        # encode the bitstring as a `FermionicOp`
         label = ['+' if bit else 'I' for bit in bitstr]
         bitstr_op = SecondQuantizedOp([FermionicOp(''.join(label))])
 
+        # map the `FermionicOp` to a qubit operator
         qubit_op = qubit_converter.to_qubit_ops([bitstr_op])[0]
 
         # construct the circuit
         qr = QuantumRegister(qubit_op.num_qubits, 'q')
         super().__init__(qr, name='HF')
 
-        # add gates in the right positions
+        # Add gates in the right positions: we are only interested in the `X` gates because we want
+        # to create particles (0 -> 1) where the initial state introduced a creation (`+`) operator.
         for i, bit in enumerate(qubit_op.primitive.table.X[0]):
             if bit:
                 self.x(i)
 
 
-def hartree_fock_bitstring(num_orbitals: int,
+def hartree_fock_bitstring(num_spin_orbitals: int,
                            num_particles: Union[Tuple[int, int], int]) -> List[bool]:
     """Compute the bitstring representing the Hartree-Fock state for the specified system.
 
     Args:
-        num_orbitals: The number of spin orbitals, has a min. value of 1.
+        num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
         num_particles: The number of particles. If this is an integer, it is the total (even) number
             of particles. If a tuple, the first number is alpha and the second number is beta.
 
@@ -75,7 +78,7 @@ def hartree_fock_bitstring(num_orbitals: int,
         ValueError: If the total number of particles is larger than the number of orbitals.
     """
     # validate the input
-    validate_min('num_orbitals', num_orbitals, 1)
+    validate_min('num_spin_orbitals', num_spin_orbitals, 1)
 
     if isinstance(num_particles, tuple):
         num_alpha, num_beta = num_particles
@@ -85,11 +88,11 @@ def hartree_fock_bitstring(num_orbitals: int,
 
     num_particles = num_alpha + num_beta
 
-    if num_particles > num_orbitals:
+    if num_particles > num_spin_orbitals:
         raise ValueError('# of particles must be less than or equal to # of orbitals.')
 
-    half_orbitals = num_orbitals // 2
-    bitstr = np.zeros(num_orbitals, bool)
+    half_orbitals = num_spin_orbitals // 2
+    bitstr = np.zeros(num_spin_orbitals, bool)
     bitstr[:num_alpha] = True
     bitstr[half_orbitals:(half_orbitals + num_beta)] = True
 
