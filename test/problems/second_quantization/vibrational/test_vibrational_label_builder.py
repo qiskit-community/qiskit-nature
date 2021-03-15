@@ -9,17 +9,12 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from qiskit_nature.components.bosonic_bases import HarmonicBasis
-from qiskit_nature.drivers import GaussianForcesDriver
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
-    create_labels
-
 """Tests Vibrational Label Builder."""
 from test import QiskitNatureTestCase
+from qiskit_nature.drivers import GaussianForcesDriver
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
     create_labels
-from qiskit_nature.drivers import GaussianForcesDriver
 
 
 class TestVibrationalLabelBuilder(QiskitNatureTestCase):

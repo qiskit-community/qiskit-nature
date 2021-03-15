@@ -26,9 +26,9 @@ class BaseTransformer(ABC):
     """
 
     @abstractmethod
-    def transform(self, molecule_data: Union[QMolecule, WatsonHamiltonian]) -> Union[
-            QMolecule, WatsonHamiltonian]:
-        """Transforms one `QMolecule` or 'WatsonHamiltonian' into another one. This may or may 
+    def transform(self, molecule_data: Union[QMolecule, WatsonHamiltonian]) -> \
+            Union[QMolecule, WatsonHamiltonian]:
+        """Transforms one `QMolecule` or 'WatsonHamiltonian' into another one. This may or may
         not affect the size of the Hilbert space.
 
         Args:

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """The Vibrational Problem class."""
-from typing import List, Tuple, Optional
+from typing import List, Optional
 
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.drivers import BosonicDriver
