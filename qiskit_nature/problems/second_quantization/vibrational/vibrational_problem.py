@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """The Vibrational Problem class."""
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.drivers import BosonicDriver
@@ -24,10 +24,9 @@ from qiskit_nature.transformers import BaseTransformer
 class VibrationalProblem(BaseProblem):
     """Vibrational Problem"""
 
-    def __init__(self, bosonic_driver: BosonicDriver, basis_size, truncation_order,
-                 transformers: Optional[List[BaseTransformer]] = None):
+    def __init__(self, bosonic_driver: BosonicDriver, basis_size: Union[int, List[int]],
+                 truncation_order: int, transformers: Optional[List[BaseTransformer]] = None):
         """
-
         Args:
             bosonic_driver: A bosonic driver encoding the molecule information.
             transformers: A list of transformations to be applied to the molecule.

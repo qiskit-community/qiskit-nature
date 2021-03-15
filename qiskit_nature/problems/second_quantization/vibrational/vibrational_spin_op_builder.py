@@ -19,7 +19,8 @@ from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_bu
     create_labels
 
 
-def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size, truncation_order):
+def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size: int,
+                              truncation_order: int):
     """
     Builds a spin operator based on a WatsonHamiltonian object.
 

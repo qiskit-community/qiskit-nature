@@ -9,8 +9,23 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-def create_labels(boson_hamilt_harm_basis, truncation_order):
-    # TODO docs
+"""
+This module builds labels for `VibrationalSpinOp`.
+"""
+from typing import Tuple, List
+
+
+def create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]],
+                  truncation_order: int) -> List[Tuple[str, complex]]:
+    """Creates `VibrationalSpinOp` labels from a data structure returned by a convert() method in
+    `HarmonicBasis`.
+
+    Args:
+        boson_hamilt_harm_basis: A data structure returned by a convert() method in `HarmonicBasis`.
+        truncation_order: order at which an n-body expansion is truncated.
+    Returns:
+        A list of labels and corresponding coefficients that describe a vibrational problem.
+    """
     all_labels = []
     for num_body in range(truncation_order):
         num_body_data = boson_hamilt_harm_basis[num_body]
@@ -19,7 +34,7 @@ def create_labels(boson_hamilt_harm_basis, truncation_order):
     return all_labels
 
 
-def _create_num_body_labels(num_body_data):
+def _create_num_body_labels(num_body_data) -> List[Tuple[str, complex]]:
     num_body_labels = []
     for indices, coeff in num_body_data:
         coeff_label = _create_label_for_coeff(indices)
@@ -27,7 +42,7 @@ def _create_num_body_labels(num_body_data):
     return num_body_labels
 
 
-def _create_label_for_coeff(indices):
+def _create_label_for_coeff(indices: Tuple[int, int, int]) -> str:
     raise_labels_list = []
     lower_labels_list = []
     for mode, modal_raise, modal_lower in indices:

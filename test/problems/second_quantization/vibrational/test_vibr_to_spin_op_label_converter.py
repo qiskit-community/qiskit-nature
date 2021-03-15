@@ -30,7 +30,7 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
         self.assertListEqual(spin_op_labels, expected_spin_op_labels)
 
     def test_convert_to_spin_op_labels_listed_modals(self):
-        """Tests that VibrationalSpinOp labels are converted to SpinOp labels correctly when 
+        """Tests that VibrationalSpinOp labels are converted to SpinOp labels correctly when
         number of modals are provided as a list."""
         expected_spin_op_labels = [('+_0 -_1', 1215.375), ('+_4 +_2 -_5 -_3', -6.385)]
         vibrational_labels = [('+_0*0 -_0*1', 1215.375), ('+_2*0 +_1*0 -_2*1 -_1*1', -6.385)]
@@ -42,7 +42,7 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
         self.assertListEqual(spin_op_labels, expected_spin_op_labels)
 
     def test_convert_to_spin_op_labels_modes_disagree(self):
-        """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when 
+        """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when
         indices of modes in a label do not agree between raising and lowering operators."""
         vibrational_labels = [('+_0*0 -_1*1', 1215.375), ('+_2*0 +_0*0 -_2*1 -_1*0', -6.385)]
         num_modes = 3
@@ -52,7 +52,7 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
                           num_modals)
 
     def test_convert_to_spin_op_labels_bad_mode(self):
-        """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when a 
+        """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when a
         mode index is out of range."""
         vibrational_labels = [('+_0*0 -_1*1', 1215.375), ('+_2*0 +_3*0 -_2*1 -_1*0', -6.385)]
         num_modes = 3
@@ -62,7 +62,7 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
                           num_modals)
 
     def test_convert_to_spin_op_labels_bad_modal(self):
-        """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when a 
+        """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when a
         modal index is out of range."""
         vibrational_labels = [('+_0*0 -_1*2', 1215.375), ('+_2*0 +_1*0 -_2*1 -_1*0', -6.385)]
         num_modes = 3

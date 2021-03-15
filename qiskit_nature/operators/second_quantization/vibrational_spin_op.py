@@ -16,7 +16,7 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 """
 import re
 from fractions import Fraction
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple, Union
 
 from .. import SpinOp
 from ...problems.second_quantization.vibrational.vibr_to_spin_op_label_converter import \
@@ -63,9 +63,8 @@ class VibrationalSpinOp(SpinOp):
     _VALID_VIBR_LABEL_PATTERN = re.compile(
         r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
-    def __init__(self, data: Union[
-        List[Tuple[str, complex]],
-    ], num_modes: int, num_modals: Union[int, List[int]],
+    def __init__(self, data: Union[List[Tuple[str, complex]],], num_modes: int,
+                 num_modals: Union[int, List[int]],
                  spin: Union[float, Fraction] = Fraction(1, 2)):
         r"""
         Args:
