@@ -42,7 +42,10 @@ class HartreeFock(QuantumCircuit):
         """
 
         # get the bitstring encoding the Hartree Fock state
-        bitstr_op = hartree_fock_bitstring(num_orbitals, num_particles)
+        bitstr = hartree_fock_bitstring(num_orbitals, num_particles)
+
+        label = ['+' if bit else 'I' for bit in bitstr]
+        bitstr_op = SecondQuantizedOp([FermionicOp(''.join(label))])
 
         qubit_op = qubit_converter.to_qubit_ops([bitstr_op])[0]
 
@@ -90,7 +93,4 @@ def hartree_fock_bitstring(num_orbitals: int,
     bitstr[:num_alpha] = True
     bitstr[half_orbitals:(half_orbitals + num_beta)] = True
 
-    label = ['+' if bit else 'I' for bit in bitstr]
-
-    bitstr_op = SecondQuantizedOp([FermionicOp(''.join(label))])
-    return bitstr_op
+    return bitstr.tolist()

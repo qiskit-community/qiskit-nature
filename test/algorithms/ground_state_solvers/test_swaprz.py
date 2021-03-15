@@ -21,6 +21,8 @@ from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import SLSQP
 from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.transformations import (FermionicTransformation,
@@ -47,6 +49,10 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         driver = HDF5Driver(self.get_resource_path('test_driver_hdf5.hdf5',
                                                    'drivers/hdf5d'))
+
+        mapper = ParityMapper()
+        converter = QubitConverter(mappers=mapper)
+
         fermionic_transformation = \
             FermionicTransformation(qubit_mapping=FermionicQubitMappingType.PARITY,
                                     two_qubit_reduction=False)
@@ -54,11 +60,11 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         qubit_op, _ = fermionic_transformation.transform(driver)
 
         optimizer = SLSQP(maxiter=100)
+
         initial_state = HartreeFock(
             fermionic_transformation.molecule_info['num_orbitals'],
             fermionic_transformation.molecule_info['num_particles'],
-            qubit_mapping=fermionic_transformation._qubit_mapping,
-            two_qubit_reduction=fermionic_transformation._two_qubit_reduction)
+            converter)
 
         wavefunction = ExcitationPreserving(qubit_op.num_qubits)
         wavefunction.compose(initial_state, front=True, inplace=True)

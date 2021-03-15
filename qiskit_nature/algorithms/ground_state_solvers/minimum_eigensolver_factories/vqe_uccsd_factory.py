@@ -21,16 +21,26 @@ from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.algorithms.optimizers import Optimizer
 from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.circuit.library.initial_states import HartreeFock
+from qiskit_nature.mappers.second_quantization import (BravyiKitaevMapper, JordanWignerMapper,
+                                                       ParityMapper)
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from ....components.variational_forms import UCCSD
 from ....transformations import Transformation
 from ....transformations.fermionic_transformation import FermionicTransformation
-from ....circuit.library import HartreeFock
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
 class VQEUCCSDFactory(MinimumEigensolverFactory):
     """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction."""
+
+    # TODO: remove this once we fully integrate the `QubitConverter into the algorithm stack
+    MAPPER_DICT = {
+        'bravyi_kitaev': BravyiKitaevMapper(),
+        'jordan_wigner': JordanWignerMapper(),
+        'parity': ParityMapper(),
+    }
 
     def __init__(self,
                  quantum_instance: QuantumInstance,
@@ -215,8 +225,10 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
         two_qubit_reduction = transformation.molecule_info['two_qubit_reduction']
         z2_symmetries = transformation.molecule_info['z2_symmetries']
 
-        initial_state = HartreeFock(num_orbitals, num_particles, qubit_mapping,
-                                    two_qubit_reduction, z2_symmetries.sq_list)
+        if qubit_mapping not in self.MAPPER_DICT.keys():
+            raise QiskitNatureError(f'Currently unsupported QubitMapper: {qubit_mapping}')
+        converter = QubitConverter(mappers=self.MAPPER_DICT[qubit_mapping])
+        initial_state = HartreeFock(num_orbitals, num_particles, converter)
         self._vqe.var_form = UCCSD(num_orbitals=num_orbitals,
                                    num_particles=num_particles,
                                    initial_state=initial_state,

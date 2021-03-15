@@ -22,6 +22,8 @@ from qiskit.algorithms.optimizers import SLSQP
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.components.variational_forms import UCCSD
+from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.transformations import (FermionicTransformation,
@@ -44,6 +46,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
                                       charge=0,
                                       spin=0,
                                       basis='631g')
+            self.qubit_converter = QubitConverter(mappers=ParityMapper())
             self.fermionic_transformation = \
                 FermionicTransformation(transformation=FermionicTransformationType.FULL,
                                         qubit_mapping=FermionicQubitMappingType.PARITY,
@@ -77,8 +80,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         initial_state = HartreeFock(
             self.fermionic_transformation.molecule_info['num_orbitals'],
             self.fermionic_transformation.molecule_info['num_particles'],
-            qubit_mapping=self.fermionic_transformation._qubit_mapping,
-            two_qubit_reduction=self.fermionic_transformation._two_qubit_reduction)
+            qubit_converter=self.qubit_converter)
 
         var_form = UCCSD(
             num_orbitals=self.fermionic_transformation.molecule_info['num_orbitals'],
@@ -110,8 +112,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         initial_state = HartreeFock(
             self.fermionic_transformation.molecule_info['num_orbitals'],
             self.fermionic_transformation.molecule_info['num_particles'],
-            qubit_mapping=self.fermionic_transformation._qubit_mapping,
-            two_qubit_reduction=self.fermionic_transformation._two_qubit_reduction)
+            qubit_converter=self.qubit_converter)
 
         var_form = UCCSD(
             num_orbitals=self.fermionic_transformation.molecule_info['num_orbitals'],
@@ -144,8 +145,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         initial_state = HartreeFock(
             self.fermionic_transformation.molecule_info['num_orbitals'],
             self.fermionic_transformation.molecule_info['num_particles'],
-            qubit_mapping=self.fermionic_transformation._qubit_mapping,
-            two_qubit_reduction=self.fermionic_transformation._two_qubit_reduction)
+            qubit_converter=self.qubit_converter)
 
         var_form = UCCSD(
             num_orbitals=self.fermionic_transformation.molecule_info['num_orbitals'],
@@ -189,10 +189,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         # initial state
         init_state = HartreeFock(
             num_orbitals=fermionic_transformation.molecule_info['num_orbitals'],
-            qubit_mapping=fermionic_transformation._qubit_mapping,
-            two_qubit_reduction=fermionic_transformation._two_qubit_reduction,
             num_particles=fermionic_transformation.molecule_info['num_particles'],
-            sq_list=fermionic_transformation.molecule_info['z2_symmetries'].sq_list)
+            qubit_converter=self.qubit_converter)
 
         var_form = UCCSD(
             num_orbitals=fermionic_transformation.molecule_info['num_orbitals'],
@@ -223,10 +221,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         # initial state
         init_state = HartreeFock(
             num_orbitals=self.fermionic_transformation.molecule_info['num_orbitals'],
-            qubit_mapping=self.fermionic_transformation._qubit_mapping,
-            two_qubit_reduction=self.fermionic_transformation._two_qubit_reduction,
             num_particles=self.fermionic_transformation.molecule_info['num_particles'],
-            sq_list=self.fermionic_transformation.molecule_info['z2_symmetries'].sq_list)
+            qubit_converter=self.qubit_converter)
 
         # check singlet excitations
         var_form = UCCSD(
