@@ -31,7 +31,7 @@ class TestFermionicOp(QiskitNatureTestCase):
     """FermionicOp tests."""
 
     def assertFermionEqual(self, first: FermionicOp, second: FermionicOp):
-        """Fail if two FermionicOps have different.
+        """Fail if two FermionicOps are different.
         Note that this equality check is approximated since the true equality check is costly.
         """
         self.assertSetEqual(frozenset(first.to_list()), frozenset(second.to_list()))

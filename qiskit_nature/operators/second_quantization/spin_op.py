@@ -455,7 +455,7 @@ class SpinOp(ParticleOp):
         # 3-dimensional ndarray (XYZ, terms, register)
         self._spin_array = np.zeros((3, len(labels), self._register_length), dtype=np.uint8)
         for term, label in enumerate(labels):
-            for splitted_label in label.split():
+            for split_label in label.split():
                 xyz, nums = splitted_label.split("_", 1)
 
                 if xyz not in xyz_dict:
@@ -468,7 +468,7 @@ class SpinOp(ParticleOp):
                 register = self._register_length - index - 1
                 # Check the order of X, Y, and Z whether it has been already assigned.
                 if self._spin_array[range(xyz_num + 1, 3), term, register].any():
-                    raise ValueError("Label must be XYZ order.")
+                    raise ValueError("Label must be in XYZ order.")
                 # same label is not assigned.
                 if self._spin_array[xyz_num, term, register]:
                     raise ValueError("Duplicate label.")

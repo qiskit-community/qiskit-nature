@@ -377,7 +377,7 @@ class FermionicOp(ParticleOp):
             i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
-            return FermionicOp([("I" * self.register_length, 0)])
+            return FermionicOp(("I" * self.register_length, 0))
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
     def _from_sparse_label(self, labels):
