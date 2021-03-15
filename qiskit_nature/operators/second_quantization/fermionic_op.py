@@ -171,7 +171,7 @@ class FermionicOp(ParticleOp):
             labels, coeffs = zip(*data)  # type: ignore
             self._coeffs = np.array(coeffs, np.complex128)
 
-            if register_length is None:  # Dense lable
+            if register_length is None:  # Dense label
                 self._register_length = len(labels[0])
                 label_pattern = re.compile(r"^[I\+\-NE]+$")
                 invalid_labels = [label for label in labels if not label_pattern.match(label)]
