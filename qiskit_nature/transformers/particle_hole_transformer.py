@@ -13,13 +13,14 @@
 """The Particle/Hole Transformer interface."""
 
 from typing import Optional
-import numpy as np
 import copy
+import numpy as np
 
 from .. import QiskitNatureError
 
 from .base_transformer import BaseTransformer
 from ..drivers import QMolecule
+
 
 class ParticleHoleTransformer(BaseTransformer):
     """The Particle/Hole transformer."""
@@ -35,12 +36,17 @@ class ParticleHoleTransformer(BaseTransformer):
         self.num_electrons = num_electrons
         self.num_orbitals = num_orbitals
         self.num_alpha = num_alpha
+        self._h1: Optional[np.ndarray] = None
+        self._h2: Optional[np.ndarray] = None
 
     def transform(self, q_molecule: QMolecule) -> QMolecule:
         """Transforms the given `QMolecule` into the particle/hole view.
 
         Args:
             q_molecule: the `QMolecule` to be transformed.
+
+        Raises:
+            QiskitNatureError: Particle Hole Transformer does not work with UHF
 
         Returns:
             A new `QMolecule` instance.
@@ -130,15 +136,15 @@ class ParticleHoleTransformer(BaseTransformer):
 
         self._convert_to_block_spins()
 
-        print('h1',self._h1)
+        print('h1', self._h1)
 
         q_molecule_new = copy.deepcopy(q_molecule)
 
-        q_molecule_new.mo_onee_ints = self._h1[:int(self._h1.shape[0]/2),:int(self._h1.shape[1]/2)]
+        q_molecule_new.mo_onee_ints = self._h1[:int(self._h1.shape[0]/2), :int(self._h1.shape[1]/2)]
 
         # TODO calculation of mo_eri is still wrong, because of the doubling of the space.
-        q_molecule_new.mo_eri_ints = self._h2[:int(self._h2.shape[0]/2),:int(self._h2.shape[1]/2),
-                                              :int(self._h2.shape[2]/2),:int(self._h2.shape[3]/2)]
+        q_molecule_new.mo_eri_ints = self._h2[:int(self._h2.shape[0]/2), :int(self._h2.shape[1]/2),
+                                              :int(self._h2.shape[2]/2), :int(self._h2.shape[3]/2)]
 
         q_molecule_new.energy_shift['ParticleHoleTransformer'] = identities_new_sum
 
@@ -248,8 +254,8 @@ class ParticleHoleTransformer(BaseTransformer):
         return swapped_indices
 
     def _normal_order_integrals(self, n_qubits, n_occupied, array_to_normal_order,
-                               array_mapping, h1_old, h2_old,
-                               h1_new, h2_new):
+                                array_mapping, h1_old, h2_old,
+                                h1_new, h2_new):
         """
         Given an operator and the rFs and rsgtu from Gaussian it produces new
         h1,h2,id_terms usable for the generation of the Hamiltonian in Pauli strings form.
@@ -260,7 +266,8 @@ class ParticleHoleTransformer(BaseTransformer):
             array_to_normal_order (list):  e.g. [i,j,k,l] indices of the term to normal order
             array_mapping (list): e.g. two body terms list  ['adag', 'adag', 'a', 'a'],
             single body terms list (list): ['adag', 'a']
-            h1_old (numpy.ndarray): e.g. rFs.dat (dim(rsgtu) = [n_qubits,n_qubits,n_qubits,n_qubits])
+            h1_old (numpy.ndarray):
+                           e.g. rFs.dat (dim(rsgtu) = [n_qubits,n_qubits,n_qubits,n_qubits])
                            loaded with QuTip function (qutip.fileio.qload) or numpy.array
             h2_old (numpy.ndarray): e.g. rsgtu.dat (dim(rsgtu) = [n_qubits,n_qubits])
             h1_new (numpy.ndarray): e.g. numpy.zeros([n_qubits, n_qubits])
@@ -367,7 +374,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
                     temp_sign_h2 = -1 * sign_no_term
@@ -381,7 +388,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
                     temp_sign_h2 = 1 * sign_no_term
@@ -395,7 +402,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
                     temp_sign_h2 = 1 * sign_no_term
@@ -409,7 +416,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
                     temp_sign_h2 = -1 * sign_no_term
@@ -423,7 +430,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
                     temp_sign_h2 = 1 * sign_no_term
@@ -437,7 +444,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 else:
                     print('ERROR 1')
@@ -461,7 +468,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -478,7 +485,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -495,7 +502,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -516,11 +523,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -541,11 +548,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -562,7 +569,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR 2')
@@ -584,7 +591,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -601,7 +608,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -618,7 +625,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -639,11 +646,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -660,7 +667,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -681,11 +688,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR 3')
@@ -707,7 +714,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -724,7 +731,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -741,7 +748,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -758,7 +765,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -779,11 +786,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -804,11 +811,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
                     else:
                         print('ERROR 4')
 
@@ -829,7 +836,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -850,11 +857,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -871,7 +878,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -888,7 +895,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -905,7 +912,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -926,11 +933,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR 5')
@@ -952,7 +959,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -969,7 +976,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -990,11 +997,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1011,7 +1018,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1028,7 +1035,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1049,11 +1056,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR 6')
@@ -1075,7 +1082,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -1092,7 +1099,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -1113,11 +1120,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1134,7 +1141,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1155,11 +1162,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1176,7 +1183,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR 7')
@@ -1204,7 +1211,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -1221,7 +1228,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -1242,11 +1249,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1267,11 +1274,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1295,18 +1302,18 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
                             += 0.5 * temp_sign_h1_1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1_2[0]][ind_old_h1_2[1]] \
                             += 0.5 * temp_sign_h1_2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         id_term += 0.5 * sign_no_term * \
-                                   h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1323,7 +1330,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
                     else:
                         print('ERROR')
 
@@ -1345,7 +1352,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -1362,7 +1369,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -1383,11 +1390,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1408,11 +1415,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1429,7 +1436,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1453,18 +1460,18 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
                             += 0.5 * temp_sign_h1_1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1_2[0]][ind_old_h1_2[1]] \
                             += 0.5 * temp_sign_h1_2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         id_term += - 0.5 * sign_no_term * \
-                                   h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR')
@@ -1487,7 +1494,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -1508,11 +1515,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -1529,7 +1536,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1546,7 +1553,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1567,11 +1574,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1595,18 +1602,18 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
                             += 0.5 * temp_sign_h1_1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1_2[0]][ind_old_h1_2[1]] \
                             += 0.5 * temp_sign_h1_2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         id_term += 0.5 * sign_no_term * \
-                                   h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
                     else:
                         print('ERROR')
 
@@ -1627,7 +1634,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -1648,11 +1655,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
                             += 0.5 * temp_sign_h1_1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -1669,7 +1676,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1686,7 +1693,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1707,11 +1714,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
                             += 0.5 * temp_sign_h1_1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1728,7 +1735,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR')
@@ -1751,7 +1758,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -1772,11 +1779,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -1793,7 +1800,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1810,7 +1817,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1831,11 +1838,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1852,7 +1859,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR')
@@ -1875,7 +1882,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -1892,7 +1899,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -1913,11 +1920,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -1938,11 +1945,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -1959,7 +1966,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -1976,7 +1983,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
                     else:
                         print('ERROR')
 
@@ -1998,7 +2005,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
 
@@ -2019,11 +2026,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
 
@@ -2040,7 +2047,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
 
@@ -2057,7 +2064,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
 
@@ -2078,11 +2085,11 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                         h1_new[ind_old_h1[0]][ind_old_h1[1]] \
                             += 0.5 * temp_sign_h1 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -2099,7 +2106,7 @@ class ParticleHoleTransformer(BaseTransformer):
                         h2_new[ind_new_h2[0]][ind_new_h2[1]][
                             ind_new_h2[2]][ind_new_h2[3]] \
                             += 0.5 * temp_sign_h2 * \
-                               h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                     else:
                         print('ERROR')
@@ -2122,7 +2129,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
 
@@ -2137,10 +2144,9 @@ class ParticleHoleTransformer(BaseTransformer):
                     h2_new[ind_new_h2[0]][ind_new_h2[1]][
                         ind_new_h2[2]][ind_new_h2[3]] \
                         += 0.5 * temp_sign_h2 * \
-                           h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
 
                 else:
                     print('ERROR')
 
         return h1_new, h2_new, id_term
-

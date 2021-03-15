@@ -16,14 +16,12 @@ import unittest
 
 from test import QiskitNatureTestCase
 
-from ddt import ddt, idata, unpack
 import numpy as np
 
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.transformers import ParticleHoleTransformer
 
 
-@ddt
 class TestParticleHoleTransformer(QiskitNatureTestCase):
     """ParticleHoleTransformer tests."""
 
@@ -33,9 +31,9 @@ class TestParticleHoleTransformer(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
-        num_alpha = q_molecule.num_alpha
+        _ = q_molecule.num_alpha
 
-        trafo =ParticleHoleTransformer(num_electrons=2, num_orbitals=2, num_alpha = 1)
+        trafo = ParticleHoleTransformer(num_electrons=2, num_orbitals=2, num_alpha=1)
         q_molecule_transformed = trafo.transform(q_molecule)
 
         ph_shift = q_molecule_transformed.energy_shift['ParticleHoleTransformer']
@@ -45,13 +43,15 @@ class TestParticleHoleTransformer(QiskitNatureTestCase):
         self.assertAlmostEqual(-ph_shift,
                                q_molecule.hf_energy - q_molecule.nuclear_repulsion_energy)
 
-        expected_h1 = np.load(self.get_resource_path('ph_onee_ints_test.npy','transformers'))
-        expected_h2 = np.load(self.get_resource_path('ph_eri_ints_test.npy','transformers'))
+        expected_h1 = np.load(self.get_resource_path('ph_onee_ints_test.npy', 'transformers'))
+        expected_h2 = np.load(self.get_resource_path('ph_eri_ints_test.npy', 'transformers'))
 
         assert np.allclose(expected_h1, q_molecule_transformed.one_body_integrals)
 
-        #TODO fix calculation of two body integrals reverse the twoe_to_spin or add setter in algos
+        # TODO fix calculation of two body integrals reverse the twoe_to_spin
+        # or add setter in algorithms
         assert np.allclose(expected_h2, q_molecule_transformed.two_body_integrals)
+
 
 if __name__ == '__main__':
     unittest.main()
