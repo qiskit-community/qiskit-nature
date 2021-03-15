@@ -17,7 +17,7 @@ def _calc_partial_sum_modals(num_modals):
 
     summed = 0
     partial_sum_modals = [0]
-    if type(num_modals) == list:
+    if isinstance(num_modals, list):
         for mode_len in num_modals:
             summed += mode_len
             partial_sum_modals.append(summed)
@@ -28,8 +28,8 @@ def _calc_partial_sum_modals(num_modals):
 
 def convert_to_spin_op_labels(data, num_modes, num_modals):
     # TODO docs
-    if type(num_modals) == int:
-        num_modals = [num_modals]*num_modes
+    if isinstance(num_modals, int):
+        num_modals = [num_modals] * num_modes
 
     if len(num_modals) != num_modes:
         raise ValueError("num_modes does not agree with the size of num_modals")
@@ -69,13 +69,12 @@ def _get_ind_from_mode_modal(partial_sum_modals, mode_index, modal_index):
 
 
 def _is_labels_valid(vibrational_data, num_modes, num_modals):
-    for labels, coeff in vibrational_data:
+    for labels, _ in vibrational_data:
         coeff_labels_split = labels.split(" ")
         check_list = [0] * num_modes
         for label in coeff_labels_split:
             op, mode_index, modal_index = re.split('[*_]', label)
-            if int(mode_index) >= num_modes or int(modal_index) >= num_modals[
-                int(mode_index)]:
+            if int(mode_index) >= num_modes or int(modal_index) >= num_modals[int(mode_index)]:
                 return False
             increment = 1 if op == "+" else -1
             check_list[int(mode_index)] += increment
