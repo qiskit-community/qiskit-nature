@@ -67,45 +67,51 @@ class TestSpinOp(QiskitNatureTestCase):
     @data(*spin_labels(1))
     def test_init_label(self, label):
         """Test __init__"""
-        spin = SpinOp(f"{label}_0")
+        spin = SpinOp(f"{label}_0", register_length=1)
         self.assertListEqual(spin.to_list(), [(f"{label}_0", 1)])
 
     @data(*spin_labels(2))
     def test_init_len2_label(self, label):
         """Test __init__"""
-        spin = SpinOp(f"{label[1]}_1 {label[0]}_0")
+        spin = SpinOp(f"{label[1]}_1 {label[0]}_0", register_length=2)
         self.assertListEqual(spin.to_list(), [(f"{label[1]}_1 {label[0]}_0", 1)])
 
     def test_init_pm_label(self):
         """Test __init__ with plus and minus label"""
         with self.subTest("plus"):
-            plus = SpinOp([("+_0", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
+            plus = SpinOp([("+_0", 2)], register_length=1)
+            desired = SpinOp([("X_0", 2), ("Y_0", 2j)], register_length=1)
             self.assertSpinEqual(plus, desired)
 
         with self.subTest("dense plus"):
             plus = SpinOp([("+", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
+            desired = SpinOp([("X_0", 2), ("Y_0", 2j)], register_length=1)
             self.assertSpinEqual(plus, desired)
 
         with self.subTest("minus"):
-            minus = SpinOp([("-_0", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
+            minus = SpinOp([("-_0", 2)], register_length=1)
+            desired = SpinOp([("X_0", 2), ("Y_0", -2j)], register_length=1)
             self.assertSpinEqual(minus, desired)
 
         with self.subTest("minus"):
             minus = SpinOp([("-", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
+            desired = SpinOp([("X_0", 2), ("Y_0", -2j)], register_length=1)
             self.assertSpinEqual(minus, desired)
 
         with self.subTest("plus tensor minus"):
-            plus_tensor_minus = SpinOp([("+_1 -_0", 3)])
-            desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
+            plus_tensor_minus = SpinOp([("+_1 -_0", 3)], register_length=2)
+            desired = SpinOp(
+                [("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)],
+                register_length=2,
+            )
             self.assertSpinEqual(plus_tensor_minus, desired)
 
         with self.subTest("dense plus tensor minus"):
             plus_tensor_minus = SpinOp([("+-", 3)])
-            desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
+            desired = SpinOp(
+                [("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)],
+                register_length=2,
+            )
             self.assertSpinEqual(plus_tensor_minus, desired)
 
     def test_init_heisenberg(self):
@@ -127,15 +133,15 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test __init__ for dense label"""
         if len(label) == 1:
             actual = SpinOp([(f"{label}", 1 + 1j)])
-            desired = SpinOp([(f"{label}_0", 1 + 1j)])
+            desired = SpinOp([(f"{label}_0", 1 + 1j)], register_length=1)
         elif len(label) == 2:
             actual = SpinOp([(f"{label}", 1)])
-            desired = SpinOp([(f"{label[0]}_1 {label[1]}_0", 1)])
+            desired = SpinOp([(f"{label[0]}_1 {label[1]}_0", 1)], register_length=2)
         self.assertSpinEqual(actual, desired)
 
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
-        actual = SpinOp([("X_10^20", 1 + 2j), ("X_12^34", 56)], Fraction(5, 2))
+        actual = SpinOp([("X_10^20", 1 + 2j), ("X_12^34", 56)], Fraction(5, 2), register_length=13)
         desired = [
             ("I_12 I_11 X_10^20 I_9 I_8 I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0", 1 + 2j),
             ("X_12^34 I_11 I_10 I_9 I_8 I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0", 56),

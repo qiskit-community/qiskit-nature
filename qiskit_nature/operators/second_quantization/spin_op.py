@@ -26,12 +26,13 @@ from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
+from qiskit.utils.validation import validate_min
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
 
 class SpinOp(ParticleOp):
-    """Spin type operators. A class for products and powers of XYZ-ordered Spin operators.
+    """XYZ-ordered Spin operators.
 
     **Label**
 
@@ -65,7 +66,23 @@ class SpinOp(ParticleOp):
     There are two types of label modes for :class:`SpinOp`.
     The label mode is automatically detected.
 
-    1. Sparse Label (if underscore `_` exists in the label)
+    1. Dense Label (default, `register_length = None`)
+
+    Dense labels are strings in which each character maps to a unique spin mode.
+    This is similar to Qiskit's string-based representation of qubit operators.
+    For example,
+
+    .. code-block:: python
+
+        "X"
+        "IIYYZ-IX++"
+
+    are possible labels.
+    Note, that dense labels are less powerful than sparse ones because they cannot represent
+    all possible :class:`SpinOp`. You will, for example, not be able to apply multiple operators
+    on the same index within a single label.
+
+    2. Sparse Label (`register_length` is passed)
 
     A sparse label is a string consisting of a space-separated list of words.
     Each word must look like :code:`[XYZI+-]_<index>^<power>`,
@@ -85,22 +102,6 @@ class SpinOp(ParticleOp):
     For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
     this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
     Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
-
-    2. Dense Label (if underscore `_` does not exist in the label)
-
-    Dense labels are strings in which each character maps to a unique spin mode.
-    This is similar to Qiskit's string-based representation of qubit operators.
-    For example,
-
-    .. code-block:: python
-
-        "X"
-        "IIYYZ-IX++"
-
-    are possible labels.
-    Note, that dense labels are less powerful than sparse ones because they cannot represent
-    all possible :class:`SpinOp`. You will, for example, not be able to apply multiple operators
-    on the same index within a single label.
 
     **Initialization**
 
@@ -166,13 +167,6 @@ class SpinOp(ParticleOp):
 
     """
 
-    _XYZ_DICT = {"X": 0, "Y": 1, "Z": 2}
-    _VALID_LABEL_PATTERN = re.compile(
-        r"^([IXYZ\+\-]_\d+(\^\d+)?\s)*[IXYZ\+\-]_\d+(\^\d+)?(?!\s)$|^[IXYZ\+\-]+$"
-    )
-    _SPARSE_LABEL_PATTERN = re.compile(r"^([IXYZ]_\d+(\^\d+)?\s)*[IXYZ]_\d+(\^\d+)?(?!\s)$")
-    _DENSE_LABEL_PATTERN = re.compile(r"^[IXYZ]+$")
-
     def __init__(
         self,
         data: Union[
@@ -181,6 +175,7 @@ class SpinOp(ParticleOp):
             Tuple[np.ndarray, np.ndarray],
         ],
         spin: Union[float, Fraction] = Fraction(1, 2),
+        register_length: Optional[int] = None,
     ):
         r"""
         Args:
@@ -212,21 +207,28 @@ class SpinOp(ParticleOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
+            sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+(\^1)?)"
+            label_pattern = re.compile(
+                rf"^({sparse}\s)*{sparse}(?!\s)$|^[IXYZ\+\-]+$"
+            )
             invalid_labels = [
-                label for label, _ in data if not self._VALID_LABEL_PATTERN.match(label)
+                label for label, _ in data if not label_pattern.match(label)
             ]
             if invalid_labels:
                 raise ValueError(f"Invalid labels: {invalid_labels}")
-
             data = self._flatten_ladder_ops(data)
 
             labels, coeffs = zip(*data)
             self._coeffs = np.array(coeffs, dtype=dtype)
 
-            if all(self._SPARSE_LABEL_PATTERN.match(label) for label in labels):
-                self._from_sparse_label(labels)
-            elif all(self._DENSE_LABEL_PATTERN.match(label) for label in labels):
+            if register_length is None:  # Dense label
                 self._register_length = len(labels[0])
+                label_pattern = re.compile(r"^[IXYZ]+$")
+                invalid_labels = [label for label in labels if not label_pattern.match(label)]
+                if invalid_labels:
+                    raise ValueError(
+                        f"Invalid labels for dense labels are given: {invalid_labels}"
+                    )
                 self._spin_array = np.array(
                     [
                         [[char == "X", char == "Y", char == "Z"] for char in label]
@@ -234,11 +236,22 @@ class SpinOp(ParticleOp):
                     ],
                     dtype=np.uint8,
                 ).transpose((2, 0, 1))
-            else:
-                raise ValueError(
-                    f"Mixed labels are included in {labels}. "
-                    "You can only use either of spare or dense label"
-                )
+            else:  # Sparse label
+                validate_min("register_length", register_length, 1)
+
+                label_pattern = re.compile(r"^[IXYZ]_\d+(\^\d+)?$")
+                invalid_labels = [
+                    label
+                    for label in labels
+                    if not all(label_pattern.match(l) for l in label.split())
+                ]
+                if invalid_labels:
+                    raise ValueError(
+                        f"Invalid labels for sparse labels are given: {invalid_labels}"
+                    )
+                self._register_length = register_length
+                self._from_sparse_label(labels)
+
         # Make immutable
         self._spin_array.flags.writeable = False
         self._coeffs.flags.writeable = False
@@ -437,35 +450,30 @@ class SpinOp(ParticleOp):
         return mat
 
     def _from_sparse_label(self, labels):
-        num_terms = len(labels)
-        parsed_data = []
-        max_index = 0
+        xyz_dict = {"X": 0, "Y": 1, "Z": 2}
+
+        # 3-dimensional ndarray (XYZ, terms, register)
+        self._spin_array = np.zeros((3, len(labels), self._register_length), dtype=np.uint8)
         for term, label in enumerate(labels):
-            label_list = label.split()
-            for single_label in label_list:
-                xyz, nums = single_label.split("_", 1)
-                index_str, power_str = nums.split("^", 1) if "^" in nums else (nums, "1")
+            for splitted_label in label.split():
+                xyz, nums = splitted_label.split("_", 1)
 
-                index = int(index_str)
-                power = int(power_str)
-                max_index = max(max_index, index)
+                if xyz not in xyz_dict:
+                    continue
 
-                if xyz in self._XYZ_DICT:
-                    parsed_data.append((term, self._XYZ_DICT[xyz], index, power))
+                xyz_num = xyz_dict[xyz]
+                index, power = map(int, nums.split("^", 1)) if "^" in nums else (int(nums), 1)
+                if index >= self._register_length:
+                    raise ValueError("index must be smaller than register_length.")
+                register = self._register_length - index - 1
+                # Check the order of X, Y, and Z whether it has been already assigned.
+                if self._spin_array[range(xyz_num + 1, 3), term, register].any():
+                    raise ValueError("Label must be XYZ order.")
+                # same label is not assigned.
+                if self._spin_array[xyz_num, term, register]:
+                    raise ValueError("Duplicate label.")
 
-        self._register_length = max_index + 1
-        self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        for term, xyz_num, index, power in parsed_data:
-            register = self._register_length - index - 1
-
-            # Check the order of X, Y, and Z whether it has been already assigned.
-            if self._spin_array[range(xyz_num + 1, 3), term, register].any():
-                raise ValueError("Label must be XYZ order.")
-            # same label is not assigned.
-            if self._spin_array[xyz_num, term, register]:
-                raise ValueError("Duplicate label.")
-
-            self._spin_array[xyz_num, term, register] = power
+                self._spin_array[xyz_num, term, register] = power
 
     @staticmethod
     def _flatten_ladder_ops(data):
