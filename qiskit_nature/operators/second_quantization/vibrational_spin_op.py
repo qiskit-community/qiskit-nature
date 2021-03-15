@@ -20,7 +20,7 @@ from typing import List, Tuple, Union, Optional
 
 from .. import SpinOp
 from ...problems.second_quantization.vibrational.vibr_to_spin_op_label_converter import \
-    calc_partial_sum_modals, convert_to_spin_op_labels
+    convert_to_spin_op_labels
 
 
 class VibrationalSpinOp(SpinOp):
@@ -89,17 +89,11 @@ class VibrationalSpinOp(SpinOp):
         self._num_modals = num_modals
         self._num_modes = num_modes
 
-        if not self._is_num_modals_valid():
-            raise ValueError("num_modes does not agree with the size of num_modals")
-        if not self._is_labels_valid():
-            raise ValueError(
-                "Provided labels are not valid - indexing out of range or non-matching raising "
-                "and lowering operators per mode in a term")
+        self._spin_op_labels = convert_to_spin_op_labels(self._vibrational_data,
+                                                         self._num_modes, self.num_modals)
 
-        self._partial_sum_modals = calc_partial_sum_modals(self._num_modes, self._num_modals)
-
-        super().__init__(
-            convert_to_spin_op_labels(self._vibrational_data, self._partial_sum_modals), spin)
+        super().__init__(self._spin_op_labels
+                         , spin)
 
     @property
     def num_modes(self) -> int:
@@ -120,23 +114,3 @@ class VibrationalSpinOp(SpinOp):
     def compose(self, other):
         # TODO: implement
         raise NotImplementedError
-
-    def _is_num_modals_valid(self):
-        if type(self.num_modals) == list and len(self.num_modals) != self.num_modes:
-            return False
-        return True
-
-    def _is_labels_valid(self):
-        for labels, coeff in self._vibrational_data:
-            coeff_labels_split = labels.split(" ")
-            check_list = [0] * self.num_modes
-            for label in coeff_labels_split:
-                op, mode_index, modal_index = re.split('[*_]', label)
-                if int(mode_index) >= self.num_modes or int(modal_index) >= self.num_modals[
-                    int(mode_index)]:
-                    return False
-                increment = 1 if op == "+" else -1
-                check_list[int(mode_index)] += increment
-            if not all(v == 0 for v in check_list):
-                return False
-        return True
