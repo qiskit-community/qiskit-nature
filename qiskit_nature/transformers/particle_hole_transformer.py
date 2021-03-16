@@ -226,7 +226,7 @@ class ParticleHoleTransformer(BaseTransformer):
 
         return seq, swap_counter
 
-    def last_two_indices_swap(self, array_ind_two_body_term):
+    def _last_two_indices_swap(self, array_ind_two_body_term):
         """
         Swap 2 last indices of an array
 
@@ -305,6 +305,26 @@ class ParticleHoleTransformer(BaseTransformer):
 
             return id_term
 
+        def update_h2(indices, sign_flip=False, indices_h1=None, sign_flip_h1=False,
+                      id_term=None, sign_flip_id=False):
+            ind_new = tuple(ind_no_term[np.asarray(indices)])
+            ind_old = tuple(self._last_two_indices_swap(ind_ini_term))
+
+            h2_new[ind_new] += 0.5 * (-1) ** sign_flip * sign_no_term * h2_old[ind_old]
+
+            if indices_h1:
+                if isinstance(indices_h1, tuple):
+                    indices_h1 = [indices_h1]
+                for ind_h1 in indices_h1:
+                    ind_old_1 = tuple(ind_no_term[np.asarray(ind_h1)])
+
+                    h1_new[ind_old_1] += 0.5 * (-1) ** sign_flip_h1 * sign_no_term * h2_old[ind_old]
+
+            if id_term is not None:
+                id_term += float(0.5 * (-1) ** sign_flip_id * sign_no_term * h2_old[ind_old])
+
+            return id_term
+
         if len(array_to_normal_order) == 2:
             if ind_no_term[0] == ind_no_term[1]:
                 if mapping_no_term == ['adag', 'a']:
@@ -320,831 +340,124 @@ class ParticleHoleTransformer(BaseTransformer):
         elif len(array_to_normal_order) == 4:
             if len(set(ind_no_term)) == 4:
                 if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-                    temp_sign_h2 = 1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[i_i], ind_no_term[j_j],
-                                  ind_no_term[k_k], ind_no_term[l_l]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((i_i, j_j, k_k, l_l))
                 elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-                    temp_sign_h2 = -1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[i_i], ind_no_term[k_k],
-                                  ind_no_term[j_j], ind_no_term[l_l]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((i_i, k_k, j_j, l_l), sign_flip=True)
                 elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-                    temp_sign_h2 = 1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[i_i], ind_no_term[l_l],
-                                  ind_no_term[j_j], ind_no_term[k_k]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((i_i, l_l, j_j, k_k))
                 elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-                    temp_sign_h2 = 1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[j_j], ind_no_term[k_k],
-                                  ind_no_term[i_i], ind_no_term[l_l]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((j_j, k_k, i_i, l_l))
                 elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-                    temp_sign_h2 = -1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[j_j], ind_no_term[l_l],
-                                  ind_no_term[i_i], ind_no_term[k_k]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((j_j, l_l, i_i, k_k), sign_flip=True)
                 elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-                    temp_sign_h2 = 1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[k_k], ind_no_term[l_l],
-                                  ind_no_term[i_i], ind_no_term[j_j]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((k_k, l_l, i_i, j_j))
                 else:
                     print('ERROR 1')
 
             elif len(set(ind_no_term)) == 3:
-
                 if ind_no_term[0] == ind_no_term[1]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, k_k, l_l))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, i_i, l_l), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, i_i, k_k))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[k_k],
-                                      ind_no_term[l_l]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, i_i, l_l), indices_h1=(k_k, l_l))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[l_l],
-                                      ind_no_term[k_k]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, i_i, k_k), sign_flip=True,
+                                  indices_h1=(l_l, k_k), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[k_k],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((k_k, l_l, i_i, i_i))
                     else:
                         print('ERROR 2')
 
                 elif ind_no_term[0] == ind_no_term[2]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, i_i, l_l))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, j_j, l_l), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, j_j, i_i))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[j_j],
-                                      ind_no_term[l_l]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, i_i, i_i, l_l),
+                                  indices_h1=(j_j, l_l), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, l_l, j_j, l_l), sign_flip=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[l_l],
-                                      ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, i_i, j_j), indices_h1=(l_l, j_j))
                     else:
                         print('ERROR 3')
 
                 elif ind_no_term[0] == ind_no_term[3]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, k_k, i_i))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, j_j, i_i), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, j_j, k_k))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, k_k, i_i, i_i))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[j_j],
-                                      ind_no_term[k_k]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, i_i, i_i, k_k), sign_flip=True,
+                                  indices_h1=(j_j, k_k))
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[k_k],
-                                      ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        update_h2((k_k, i_i, i_i, j_j),
+                                  indices_h1=(k_k, j_j), sign_flip_h1=True)
                     else:
                         print('ERROR 4')
 
                 elif ind_no_term[1] == ind_no_term[2]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, l_l))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, l_l), sign_flip=True,
+                                  indices_h1=(i_i, l_l))
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, j_j, j_j))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, j_j, i_i, l_l))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, l_l, i_i, j_j), sign_flip=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[l_l],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, l_l, i_i, j_j),
+                                  indices_h1=(l_l, i_i), sign_flip_h1=True)
                     else:
                         print('ERROR 5')
 
                 elif ind_no_term[1] == ind_no_term[3]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[k_k],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, k_k, j_j))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, j_j, j_j), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, k_k),
+                                  indices_h1=(i_i, k_k), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, k_k, i_i, j_j))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, j_j, i_i, k_k), sign_flip=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[k_k],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[k_k],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((k_k, j_j, i_i, j_j), indices_h1=(k_k, i_i))
                     else:
                         print('ERROR 6')
 
                 elif ind_no_term[2] == ind_no_term[3]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[k_k],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, k_k, k_k))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[j_j],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, j_j, k_k), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[j_j],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, j_j, k_k), indices_h1=(i_i, j_j))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, k_k, i_i, k_k))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, k_k, i_i, k_k), sign_flip=True,
+                                  indices_h1=(j_j, i_i), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[k_k],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((k_k, k_k, i_i, j_j))
                     else:
                         print('ERROR 7')
-
                 else:
                     print('ERROR 8')
 
@@ -1154,955 +467,146 @@ class ParticleHoleTransformer(BaseTransformer):
                         ind_no_term[2] == ind_no_term[3]:
 
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, k_k, k_k))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, i_i, k_k), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, k_k, i_i), sign_flip=True,
+                                  indices_h1=(i_i, i_i))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[k_k],
-                                      ind_no_term[k_k]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, i_i, k_k), indices_h1=(k_k, k_k))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1_1 = -1 * sign_no_term
-                        temp_sign_h1_2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        coordinates_for_old_h1_term_1 = [ind_no_term[i_i],
-                                                         ind_no_term[i_i]]
-                        ind_old_h1_2 = [ind_no_term[k_k],
-                                        ind_no_term[k_k]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
-                            += 0.5 * temp_sign_h1_1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1_2[0]][ind_old_h1_2[1]] \
-                            += 0.5 * temp_sign_h1_2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        id_term += 0.5 * sign_no_term * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        id_term = update_h2((i_i, k_k, i_i, k_k), sign_flip=True,
+                                            indices_h1=[(i_i, i_i), (k_k, k_k)], sign_flip_h1=True,
+                                            id_term=id_term)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[k_k],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        update_h2((k_k, k_k, i_i, i_i))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[2] and \
                         ind_no_term[1] == ind_no_term[3]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, i_i, j_j))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, j_j, j_j), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, i_i),
+                                  indices_h1=(i_i, i_i), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, i_i, i_i, j_j),
+                                  indices_h1=(j_j, j_j), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, j_j, i_i, i_i), sign_flip=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1_1 = 1 * sign_no_term
-                        temp_sign_h1_2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        coordinates_for_old_h1_term_1 = [ind_no_term[i_i],
-                                                         ind_no_term[i_i]]
-                        ind_old_h1_2 = [ind_no_term[j_j],
-                                        ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
-                            += 0.5 * temp_sign_h1_1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1_2[0]][ind_old_h1_2[1]] \
-                            += 0.5 * temp_sign_h1_2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        id_term += - 0.5 * sign_no_term * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        id_term = update_h2((i_i, j_j, i_i, j_j), indices_h1=[(i_i, i_i), (j_j, j_j)],
+                                            id_term=id_term, sign_flip_id=True)
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[3] and \
                         ind_no_term[1] == ind_no_term[2]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, i_i))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, i_i), sign_flip=True,
+                                  indices_h1=(i_i, i_i))
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, j_j, j_j))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, j_j, i_i, i_i))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, i_i, i_i, j_j), sign_flip=True,
+                                  indices_h1=(j_j, j_j))
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1_1 = -1 * sign_no_term
-                        temp_sign_h1_2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        coordinates_for_old_h1_term_1 = [ind_no_term[i_i],
-                                                         ind_no_term[i_i]]
-                        ind_old_h1_2 = [ind_no_term[j_j],
-                                        ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
-                            += 0.5 * temp_sign_h1_1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1_2[0]][ind_old_h1_2[1]] \
-                            += 0.5 * temp_sign_h1_2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        id_term += 0.5 * sign_no_term * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        id_term = update_h2((j_j, i_i, i_i, j_j),
+                                            indices_h1=[(i_i, i_i), (j_j, j_j)], sign_flip_h1=True,
+                                            id_term=id_term)
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[1] and \
                         ind_no_term[0] == ind_no_term[2]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, i_i, l_l))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1_1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        coordinates_for_old_h1_term_1 = [ind_no_term[i_i],
-                                                         ind_no_term[l_l]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
-                            += 0.5 * temp_sign_h1_1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, i_i, l_l), sign_flip=True,
+                                  indices_h1=(i_i, l_l))
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, i_i, i_i))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[l_l]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, i_i, l_l))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1_1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        coordinates_for_old_h1_term_1 = [ind_no_term[l_l],
-                                                         ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[coordinates_for_old_h1_term_1[0]][coordinates_for_old_h1_term_1[1]] \
-                            += 0.5 * temp_sign_h1_1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, i_i, i_i), sign_flip=True,
+                                  indices_h1=(l_l, i_i), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[l_l],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, l_l, i_i, i_i))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[1] and \
                         ind_no_term[0] == ind_no_term[3]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, i_i, k_k))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, i_i, k_k), sign_flip=True,
+                                  indices_h1=(i_i, k_k))
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, i_i, i_i))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[k_k]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, i_i, k_k))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[k_k],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, i_i, i_i), sign_flip=True,
+                                  indices_h1=(k_k, i_i), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[k_k],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, k_k, i_i, i_i))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[2] and \
                         ind_no_term[0] == ind_no_term[3]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, i_i, i_i))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, j_j, i_i), sign_flip=True)
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, i_i, j_j, i_i), indices_h1=(i_i, j_j))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, i_i, i_i, i_i), sign_flip=True,
+                                  indices_h1=(j_j, i_i), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, i_i, i_i, i_i), sign_flip=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
+                        update_h2((i_i, i_i, i_i, j_j))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[1] == ind_no_term[2] and \
                         ind_no_term[1] == ind_no_term[3]:
-
                     if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, j_j))
                     elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, j_j), sign_flip=True,
+                                  indices_h1=(i_i, j_j))
                     elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[i_i],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((i_i, j_j, j_j, j_j))
                     elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, j_j, i_i, j_j))
                     elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
-
-                        temp_sign_h2 = -1 * sign_no_term
-                        temp_sign_h1 = -1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        ind_old_h1 = [ind_no_term[j_j],
-                                      ind_no_term[i_i]]
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
-                        h1_new[ind_old_h1[0]][ind_old_h1[1]] \
-                            += 0.5 * temp_sign_h1 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, j_j, i_i, j_j), sign_flip=True,
+                                  indices_h1=(j_j, i_i), sign_flip_h1=True)
                     elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                        temp_sign_h2 = 1 * sign_no_term
-
-                        ind_new_h2 = [ind_no_term[j_j],
-                                      ind_no_term[j_j],
-                                      ind_no_term[i_i],
-                                      ind_no_term[j_j]]
-                        ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                      ind_ini_term[2], ind_ini_term[3]]
-                        ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                        h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                            ind_new_h2[2]][ind_new_h2[3]] \
-                            += 0.5 * temp_sign_h2 * \
-                            h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                        update_h2((j_j, j_j, i_i, j_j))
                     else:
                         print('ERROR')
-
                 else:
                     print('ERROR')
 
             if len(set(ind_no_term)) == 1:
-
                 if mapping_no_term == ['adag', 'adag', 'a', 'a']:
-
-                    temp_sign_h2 = 1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[i_i], ind_no_term[i_i],
-                                  ind_no_term[i_i], ind_no_term[i_i]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((i_i, i_i, i_i, i_i))
                 elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
-
-                    temp_sign_h2 = 1 * sign_no_term
-
-                    ind_new_h2 = [ind_no_term[i_i], ind_no_term[i_i],
-                                  ind_no_term[i_i], ind_no_term[i_i]]
-                    ind_old_h2 = [ind_ini_term[0], ind_ini_term[1],
-                                  ind_ini_term[2], ind_ini_term[3]]
-                    ind_old_h2 = self.last_two_indices_swap(ind_old_h2)
-
-                    h2_new[ind_new_h2[0]][ind_new_h2[1]][
-                        ind_new_h2[2]][ind_new_h2[3]] \
-                        += 0.5 * temp_sign_h2 * \
-                        h2_old[ind_old_h2[0]][ind_old_h2[1]][ind_old_h2[2]][ind_old_h2[3]]
-
+                    update_h2((i_i, i_i, i_i, i_i))
                 else:
                     print('ERROR')
 
