@@ -79,7 +79,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         integrals are likely already reduced by the code which produced the file or can be
         transformed using this driver after copying the MO-basis integrals of the produced
         `QMolecule` into the AO-basis containers and initializing `mo_coeff` with an identity matrix
-        of appropiate size.
+        of appropriate size.
 
         Args:
             num_electrons: The number of active electrons. This may only be omitted if `freeze_core`
