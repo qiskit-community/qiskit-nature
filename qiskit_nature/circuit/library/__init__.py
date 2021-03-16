@@ -34,6 +34,7 @@ Initial states
 from .ansaetze import (
     EvolvedOperatorAnsatz,
     UCC,
+    UCCSD,
 )
 from .initial_states import (
     HartreeFock,
@@ -43,6 +44,7 @@ from .initial_states import (
 __all__ = [
     'EvolvedOperatorAnsatz',
     'UCC',
+    'UCCSD',
     'HartreeFock',
     'VSCF',
 ]
