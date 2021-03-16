@@ -16,6 +16,8 @@ from typing import Optional
 import copy
 import numpy as np
 
+from qiskit_nature import QiskitNatureError
+
 from .base_transformer import BaseTransformer
 from ..drivers import QMolecule
 
@@ -275,6 +277,19 @@ class ParticleHoleTransformer(BaseTransformer):
             if update_id_term:
                 id_term[0] += float(sign_no_term * h1_old[ind_old])
 
+        def lookup_h1_commutation(ind_no_term, mapping_no_term):
+            kwargs = {}
+            if mapping_no_term == '+-':
+                kwargs['indices'] = (0, 1)
+            elif mapping_no_term == '-+':
+                kwargs['indices'] = (1, 0)
+                kwargs['sign_flip'] = True
+                if ind_no_term[0] == ind_no_term[1]:
+                    kwargs['update_id_term'] = True
+            else:
+                raise QiskitNatureError('Invalid operator label: ', mapping_no_term)
+            return kwargs
+
         # This utility method is inlined in order to avoid a lot of data-shuffling
         def update_h2(indices, sign_flip=False, indices_h1=None, sign_flip_h1=False,
                       update_id_term=False, sign_flip_id=False):
@@ -294,282 +309,164 @@ class ParticleHoleTransformer(BaseTransformer):
             if update_id_term:
                 id_term[0] += 0.5 * (-1.) ** sign_flip_id * sign_no_term * h2_old[ind_old]
 
-        if len(array_to_normal_order) == 2:
-            if ind_no_term[0] == ind_no_term[1]:
-                if mapping_no_term == '+-':
-                    update_h1((0, 1))
-                elif mapping_no_term == '-+':
-                    update_h1((1, 0), sign_flip=True, update_id_term=True)
+        def lookup_h2_commutation(ind_no_term, mapping_no_term):
+            # Start with the assumption that all indices are different: ijkl = (0, 1, 2, 3)
+            ijkl = np.arange(4)
+            visited = set()
+            # Now we iterate the possible indices.
+            for i in range(4):
+                # If we have seen all possible indices, we can stop.
+                if len(visited) == 4:
+                    break
+                # If we have already seen this index, we can skip it.
+                if i in visited:
+                    continue
+                # Now we check, at which indices `ind_no_term` has the same value as at the current
+                # index which we are checking (`ind_no_term[i]`).
+                indices = np.where(ind_no_term == ind_no_term[i])
+                # These indices can now be set equal to `i`...
+                ijkl[indices] = i
+                # ...and we can store them as being visited.
+                visited.update(indices[0].tolist())
+
+            i, j, k, l = ijkl  # pylint: disable=invalid-name
+
+            kwargs = {}
+            if mapping_no_term == '++--':
+                kwargs['indices'] = (i, j, k, l)
+            elif mapping_no_term == '+-+-':
+                kwargs['indices'] = (i, k, j, l)
+                kwargs['sign_flip'] = True
+            elif mapping_no_term == '+--+':
+                kwargs['indices'] = (i, l, j, k)
+                if i == j and j != k and k == l:
+                    kwargs['sign_flip'] = True
+            elif mapping_no_term == '-++-':
+                kwargs['indices'] = (j, k, i, l)
+                if i == k and k == l and l != j:
+                    kwargs['sign_flip'] = True
+            elif mapping_no_term == '-+-+':
+                kwargs['indices'] = (j, l, i, k)
+                kwargs['sign_flip'] = True
+                if i != j and j == k and k == l:
+                    kwargs['sign_flip'] = False
+            elif mapping_no_term == '--++':
+                kwargs['indices'] = (k, l, i, j)
             else:
-                if mapping_no_term == '+-':
-                    update_h1((0, 1))
-                elif mapping_no_term == '-+':
-                    update_h1((1, 0), sign_flip=True)
+                raise QiskitNatureError('Invalid operator label: ', mapping_no_term)
 
-        elif len(array_to_normal_order) == 4:
-            if len(set(ind_no_term)) == 4:
-                if mapping_no_term == '++--':
-                    update_h2((0, 1, 2, 3))
-                elif mapping_no_term == '+-+-':
-                    update_h2((0, 2, 1, 3), sign_flip=True)
-                elif mapping_no_term == '+--+':
-                    update_h2((0, 3, 1, 2))
-                elif mapping_no_term == '-++-':
-                    update_h2((1, 2, 0, 3))
+            num_unique = len({i, j, k, l})
+            # TODO: refactor the following. This exhaustive list of if-else statements is a
+            # hard-coded list of anti-commutation rules. Ideally, we would implement the actual
+            # operators mathematically and compute the anti-commutation relation properly. However,
+            # at the time of writing, this is not possible within the given time constraints. Thus,
+            # we have resorted to stick with the hard-coded rules of Qiskit Aqua.
+            # Nonetheless, the following may be improved with some clever lookup in a better suited
+            # data structure.
+            if num_unique == 1:
+                if mapping_no_term == '+-+-':
+                    kwargs['indices_h1'] = (i, i)
                 elif mapping_no_term == '-+-+':
-                    update_h2((1, 3, 0, 2), sign_flip=True)
-                elif mapping_no_term == '--++':
-                    update_h2((2, 3, 0, 1))
-                else:
-                    print('ERROR 1')
-
-            elif len(set(ind_no_term)) == 3:
-                if ind_no_term[0] == ind_no_term[1]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 0, 2, 3))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 2, 0, 3), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 3, 0, 2))
+                    kwargs['indices_h1'] = (i, i)
+                    kwargs['sign_flip_h1'] = True
+                    kwargs['update_id_term'] = True
+            elif num_unique == 2:
+                if i == j and j != k and k == l:
+                    if mapping_no_term == '+--+':
+                        kwargs['indices_h1'] = (i, i)
                     elif mapping_no_term == '-++-':
-                        update_h2((0, 2, 0, 3), indices_h1=(2, 3))
+                        kwargs['indices_h1'] = (k, k)
                     elif mapping_no_term == '-+-+':
-                        update_h2((0, 3, 0, 2), sign_flip=True,
-                                  indices_h1=(3, 2), sign_flip_h1=True)
-                    elif mapping_no_term == '--++':
-                        update_h2((2, 3, 0, 0))
-                    else:
-                        print('ERROR 2')
-
-                elif ind_no_term[0] == ind_no_term[2]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 0, 3))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 0, 1, 3), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 3, 1, 0))
+                        kwargs['indices_h1'] = [(i, i), (k, k)]
+                        kwargs['sign_flip_h1'] = True
+                        kwargs['update_id_term'] = True
+                elif i == k and k != j and j == l:
+                    if mapping_no_term == '+--+':
+                        kwargs['indices_h1'] = (i, i)
+                        kwargs['sign_flip_h1'] = True
                     elif mapping_no_term == '-++-':
-                        update_h2((1, 0, 0, 3),
-                                  indices_h1=(1, 3), sign_flip_h1=True)
-                    elif mapping_no_term == '-+-+':
-                        update_h2((1, 3, 1, 3), sign_flip=True)
+                        kwargs['indices_h1'] = (j, j)
+                        kwargs['sign_flip_h1'] = True
                     elif mapping_no_term == '--++':
-                        update_h2((0, 3, 0, 1), indices_h1=(3, 1))
-                    else:
-                        print('ERROR 3')
-
-                elif ind_no_term[0] == ind_no_term[3]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 2, 0))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 2, 1, 0), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 0, 1, 2))
+                        kwargs['indices_h1'] = [(i, i), (j, j)]
+                        kwargs['update_id_term'] = True
+                        kwargs['sign_flip_id'] = True
+                elif i == l and l != j and j == k:
+                    if mapping_no_term == '+-+-':
+                        kwargs['indices_h1'] = (i, i)
+                    elif mapping_no_term == '-+-+':
+                        kwargs['indices_h1'] = (j, j)
+                    elif mapping_no_term == '--++':
+                        kwargs['indices_h1'] = [(i, i), (j, j)]
+                        kwargs['sign_flip_h1'] = True
+                        kwargs['update_id_term'] = True
+                elif i == j and j == k and k != l:
+                    if mapping_no_term == '+-+-':
+                        kwargs['indices_h1'] = (i, l)
+                    elif mapping_no_term == '-+-+':
+                        kwargs['indices_h1'] = (l, i)
+                        kwargs['sign_flip_h1'] = True
+                elif i == j and j == l and l != k:
+                    if mapping_no_term == '+-+-':
+                        kwargs['indices_h1'] = (i, k)
+                    elif mapping_no_term == '-+-+':
+                        kwargs['indices_h1'] = (k, i)
+                        kwargs['sign_flip_h1'] = True
+                elif i == k and k == l and l != j:
+                    if mapping_no_term == '+--+':
+                        kwargs['indices_h1'] = (i, j)
                     elif mapping_no_term == '-++-':
-                        update_h2((1, 2, 0, 0))
+                        kwargs['indices_h1'] = (j, i)
+                        kwargs['sign_flip_h1'] = True
+                elif i != j and j == k and k == l:
+                    if mapping_no_term == '+-+-':
+                        kwargs['indices_h1'] = (i, j)
                     elif mapping_no_term == '-+-+':
-                        update_h2((1, 0, 0, 2), sign_flip=True,
-                                  indices_h1=(1, 2))
-                    elif mapping_no_term == '--++':
-                        update_h2((2, 0, 0, 1),
-                                  indices_h1=(2, 1), sign_flip_h1=True)
-                    else:
-                        print('ERROR 4')
-
-                elif ind_no_term[1] == ind_no_term[2]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 1, 3))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 1, 1, 3), sign_flip=True,
-                                  indices_h1=(0, 3))
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 3, 1, 1))
-                    elif mapping_no_term == '-++-':
-                        update_h2((1, 1, 0, 3))
+                        kwargs['indices_h1'] = (j, i)
+                        kwargs['sign_flip_h1'] = True
+            elif num_unique == 3:
+                if i == j and j != k and k != l:
+                    if mapping_no_term == '-++-':
+                        kwargs['indices_h1'] = (k, l)
                     elif mapping_no_term == '-+-+':
-                        update_h2((1, 3, 0, 1), sign_flip=True)
+                        kwargs['indices_h1'] = (l, k)
+                        kwargs['sign_flip_h1'] = True
+                elif i == k and k != j and j != l:
+                    if mapping_no_term == '-++-':
+                        kwargs['indices_h1'] = (j, l)
+                        kwargs['sign_flip_h1'] = True
                     elif mapping_no_term == '--++':
-                        update_h2((1, 3, 0, 1),
-                                  indices_h1=(3, 0), sign_flip_h1=True)
-                    else:
-                        print('ERROR 5')
-
-                elif ind_no_term[1] == ind_no_term[3]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 2, 1))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 2, 1, 1), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 1, 1, 2),
-                                  indices_h1=(0, 2), sign_flip_h1=True)
-                    elif mapping_no_term == '-++-':
-                        update_h2((1, 2, 0, 1))
-                    elif mapping_no_term == '-+-+':
-                        update_h2((1, 1, 0, 2), sign_flip=True)
+                        kwargs['indices_h1'] = (l, j)
+                elif i == l and l != j and j != k:
+                    if mapping_no_term == '-+-+':
+                        kwargs['indices_h1'] = (j, k)
                     elif mapping_no_term == '--++':
-                        update_h2((2, 1, 0, 1), indices_h1=(2, 0))
-                    else:
-                        print('ERROR 6')
-
-                elif ind_no_term[2] == ind_no_term[3]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 2, 2))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 2, 1, 2), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 2, 1, 2), indices_h1=(0, 1))
-                    elif mapping_no_term == '-++-':
-                        update_h2((1, 2, 0, 2))
-                    elif mapping_no_term == '-+-+':
-                        update_h2((1, 2, 0, 2), sign_flip=True,
-                                  indices_h1=(1, 0), sign_flip_h1=True)
+                        kwargs['indices_h1'] = (k, j)
+                        kwargs['sign_flip_h1'] = True
+                elif i != j and j == k and k != l:
+                    if mapping_no_term == '+-+-':
+                        kwargs['indices_h1'] = (i, l)
                     elif mapping_no_term == '--++':
-                        update_h2((2, 2, 0, 1))
-                    else:
-                        print('ERROR 7')
-                else:
-                    print('ERROR 8')
-
-            elif len(set(ind_no_term)) == 2:
-
-                if ind_no_term[0] == ind_no_term[1] and ind_no_term[2] == ind_no_term[3]:
-
-                    if mapping_no_term == '++--':
-                        update_h2((0, 0, 2, 2))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 2, 0, 2), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 2, 2, 0), sign_flip=True,
-                                  indices_h1=(0, 0))
-                    elif mapping_no_term == '-++-':
-                        update_h2((0, 2, 0, 2), indices_h1=(2, 2))
-                    elif mapping_no_term == '-+-+':
-                        update_h2((0, 2, 0, 2), sign_flip=True,
-                                  indices_h1=[(0, 0), (2, 2)], sign_flip_h1=True,
-                                  update_id_term=True)
+                        kwargs['indices_h1'] = (l, i)
+                        kwargs['sign_flip_h1'] = True
+                elif i != j and j == l and l != k:
+                    if mapping_no_term == '+--+':
+                        kwargs['indices_h1'] = (i, k)
+                        kwargs['sign_flip_h1'] = True
                     elif mapping_no_term == '--++':
-                        update_h2((2, 2, 0, 0))
-                    else:
-                        print('ERROR')
+                        kwargs['indices_h1'] = (k, i)
+                elif i != j and j != k and k == l:
+                    if mapping_no_term == '+--+':
+                        kwargs['indices_h1'] = (i, j)
+                    if mapping_no_term == '-+-+':
+                        kwargs['indices_h1'] = (j, i)
+                        kwargs['sign_flip_h1'] = True
 
-                elif ind_no_term[0] == ind_no_term[2] and ind_no_term[1] == ind_no_term[3]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 0, 1))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 0, 1, 1), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 1, 1, 0),
-                                  indices_h1=(0, 0), sign_flip_h1=True)
-                    elif mapping_no_term == '-++-':
-                        update_h2((1, 0, 0, 1),
-                                  indices_h1=(1, 1), sign_flip_h1=True)
-                    elif mapping_no_term == '-+-+':
-                        update_h2((1, 1, 0, 0), sign_flip=True)
-                    elif mapping_no_term == '--++':
-                        update_h2((0, 1, 0, 1), indices_h1=[(0, 0), (1, 1)],
-                                  update_id_term=True, sign_flip_id=True)
-                    else:
-                        print('ERROR')
+            return kwargs
 
-                elif ind_no_term[0] == ind_no_term[3] and ind_no_term[1] == ind_no_term[2]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 1, 0))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 1, 1, 0), sign_flip=True,
-                                  indices_h1=(0, 0))
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 0, 1, 1))
-                    elif mapping_no_term == '-++-':
-                        update_h2((1, 1, 0, 0))
-                    elif mapping_no_term == '-+-+':
-                        update_h2((1, 0, 0, 1), sign_flip=True,
-                                  indices_h1=(1, 1))
-                    elif mapping_no_term == '--++':
-                        update_h2((1, 0, 0, 1),
-                                  indices_h1=[(0, 0), (1, 1)], sign_flip_h1=True,
-                                  update_id_term=True)
-                    else:
-                        print('ERROR')
-
-                elif ind_no_term[0] == ind_no_term[1] and ind_no_term[0] == ind_no_term[2]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 0, 0, 3))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 0, 0, 3), sign_flip=True,
-                                  indices_h1=(0, 3))
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 3, 0, 0))
-                    elif mapping_no_term == '-++-':
-                        update_h2((0, 0, 0, 3))
-                    elif mapping_no_term == '-+-+':
-                        update_h2((0, 3, 0, 0), sign_flip=True,
-                                  indices_h1=(3, 0), sign_flip_h1=True)
-                    elif mapping_no_term == '--++':
-                        update_h2((0, 3, 0, 0))
-                    else:
-                        print('ERROR')
-
-                elif ind_no_term[0] == ind_no_term[1] and ind_no_term[0] == ind_no_term[3]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 0, 0, 2))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 0, 0, 2), sign_flip=True,
-                                  indices_h1=(0, 2))
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 2, 0, 0))
-                    elif mapping_no_term == '-++-':
-                        update_h2((0, 0, 0, 2))
-                    elif mapping_no_term == '-+-+':
-                        update_h2((0, 2, 0, 0), sign_flip=True,
-                                  indices_h1=(2, 0), sign_flip_h1=True)
-                    elif mapping_no_term == '--++':
-                        update_h2((0, 2, 0, 0))
-                    else:
-                        print('ERROR')
-
-                elif ind_no_term[0] == ind_no_term[2] and ind_no_term[0] == ind_no_term[3]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 0, 0))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 0, 1, 0), sign_flip=True)
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 0, 1, 0), indices_h1=(0, 1))
-                    elif mapping_no_term == '-++-':
-                        update_h2((1, 0, 0, 0), sign_flip=True,
-                                  indices_h1=(1, 0), sign_flip_h1=True)
-                    elif mapping_no_term == '-+-+':
-                        update_h2((1, 0, 0, 0), sign_flip=True)
-                    elif mapping_no_term == '--++':
-                        update_h2((0, 0, 0, 1))
-                    else:
-                        print('ERROR')
-
-                elif ind_no_term[1] == ind_no_term[2] and ind_no_term[1] == ind_no_term[3]:
-                    if mapping_no_term == '++--':
-                        update_h2((0, 1, 1, 1))
-                    elif mapping_no_term == '+-+-':
-                        update_h2((0, 1, 1, 1), sign_flip=True,
-                                  indices_h1=(0, 1))
-                    elif mapping_no_term == '+--+':
-                        update_h2((0, 1, 1, 1))
-                    elif mapping_no_term == '-++-':
-                        update_h2((1, 1, 0, 1))
-                    elif mapping_no_term == '-+-+':
-                        update_h2((1, 1, 0, 1), sign_flip=True,
-                                  indices_h1=(1, 0), sign_flip_h1=True)
-                    elif mapping_no_term == '--++':
-                        update_h2((1, 1, 0, 1))
-                    else:
-                        print('ERROR')
-                else:
-                    print('ERROR')
-
-            if len(set(ind_no_term)) == 1:
-                if mapping_no_term == '++--':
-                    update_h2((0, 0, 0, 0))
-                elif mapping_no_term == '--++':
-                    update_h2((0, 0, 0, 0))
-                else:
-                    print('ERROR')
+        if len(array_to_normal_order) == 2:
+            update_h1(**lookup_h1_commutation(ind_no_term, mapping_no_term))
+        elif len(array_to_normal_order) == 4:
+            update_h2(**lookup_h2_commutation(ind_no_term, mapping_no_term))
 
         return h1_new, h2_new, id_term[0]
