@@ -57,17 +57,10 @@ class ParticleHoleTransformer(BaseTransformer):
         self._h1 = q_molecule.one_body_integrals
         self._h2 = q_molecule.two_body_integrals
 
-        print(self._h1)
-
         self._convert_to_interleaved_spins()
-
-        print(self._h1)
 
         h1_old_matrix = self._h1
         h2_old_matrix = self._h2
-
-        if q_molecule.mo_onee_ints_b is not None:
-            raise QiskitNatureError("Particle Hole Transformer does not work with UHF")
 
         num_alpha = self.num_alpha
         num_beta = self.num_electrons - self.num_alpha
@@ -135,8 +128,6 @@ class ParticleHoleTransformer(BaseTransformer):
         self._h2 = h2_new_sum
 
         self._convert_to_block_spins()
-
-        print('h1', self._h1)
 
         q_molecule_new = copy.deepcopy(q_molecule)
 
