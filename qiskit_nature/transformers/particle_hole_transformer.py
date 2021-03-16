@@ -25,17 +25,9 @@ from ..drivers import QMolecule
 class ParticleHoleTransformer(BaseTransformer):
     """The Particle/Hole transformer."""
 
-    def __init__(self, num_electrons: int, num_orbitals: int, num_alpha: int):
+    def __init__(self):
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
-
-        Args:
-            num_electrons: the number of electrons.
-            num_orbitals: the number of orbitals.
-            num_alpha: the number of alpha electrons.
         """
-        self.num_electrons = num_electrons
-        self.num_orbitals = num_orbitals
-        self.num_alpha = num_alpha
         self._h1: Optional[np.ndarray] = None
         self._h2: Optional[np.ndarray] = None
 
@@ -52,10 +44,17 @@ class ParticleHoleTransformer(BaseTransformer):
             A new `QMolecule` instance.
         """
 
-        n_qubits = self.num_orbitals * 2
-
+        self.num_orbitals = q_molecule.num_orbitals
+        self.num_alpha = q_molecule.num_alpha
+        self.num_electrons = q_molecule.num_alpha + q_molecule.num_beta
         self._h1 = q_molecule.one_body_integrals
         self._h2 = q_molecule.two_body_integrals
+
+        n_qubits = self.num_orbitals * 2
+
+        print('orbs', self.num_orbitals)
+        print('alpha', self.num_alpha)
+        print('electrons', self.num_electrons)
 
         self._convert_to_interleaved_spins()
 
@@ -225,7 +224,7 @@ class ParticleHoleTransformer(BaseTransformer):
                                 array_mapping, h1_old, h2_old,
                                 h1_new, h2_new):
         """
-        Given an operator and the rFs and rsgtu from Gaussian it produces new
+        Given an operator and the one and two body integrals from Gaussian it produces new
         h1,h2,id_terms usable for the generation of the Hamiltonian in Pauli strings form.
 
         Args:
