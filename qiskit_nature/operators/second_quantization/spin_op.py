@@ -103,6 +103,9 @@ class SpinOp(ParticleOp):
     this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
     Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
 
+    :code:`"+_i -_i"` is supported.
+    This pattern is parsed to :code:`+_i -_i = X_i^2 + Y_i^2 + Z_i`.
+
     **Initialization**
 
     The :class:`SpinOp` can be initialized by the list of tuples.
@@ -221,6 +224,9 @@ class SpinOp(ParticleOp):
             invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
             if invalid_labels:
                 raise ValueError(f"Invalid labels: {invalid_labels}")
+
+            if register_length is not None:
+                data = self._flatten_raising_lowering_ops(data, register_length)
             data = self._flatten_ladder_ops(data)
 
             labels, coeffs = zip(*data)
@@ -505,4 +511,28 @@ class SpinOp(ParticleOp):
                 phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
                 new_data.append(("".join(label_list), coeff * 1j ** phase))
 
+        return new_data
+
+    @staticmethod
+    def _flatten_raising_lowering_ops(data, register_length):
+        """Convert +_i -_i to X_i^2 + Y_i^2 + Z_i"""
+        new_data = []
+        for label, coeff in data:
+            positions = []
+            indices = []
+            label_list = label.split()
+            for i in range(register_length):
+                if f"+_{i}" in label_list and f"-_{i}" in label_list:
+                    plus_pos = label_list.index(f"+_{i}")
+                    minus_pos = label_list.index(f"-_{i}")
+                    if minus_pos - plus_pos == 1:
+                        positions.append(plus_pos)
+                        indices.append(i)
+            for ops in product(*[[f"X_{i}^2", f"Y_{i}^2", f"Z_{i}"] for i in indices]):
+                label_list = label.split()
+                for pos, op in zip(positions, ops):
+                    label_list[pos] = op
+                for pos, op in zip(positions, ops):
+                    label_list.pop(pos+1)
+                new_data.append((" ".join(label_list), coeff))
         return new_data

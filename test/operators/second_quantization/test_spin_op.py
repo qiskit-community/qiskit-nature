@@ -154,6 +154,31 @@ class TestSpinOp(QiskitNatureTestCase):
         with self.assertRaises(ValueError):
             SpinOp(label)
 
+    def test_init_raising_lowering_ops(self):
+        """Test __init__ for +_i -_i pattern"""
+        with self.subTest("one reg"):
+            actual = SpinOp("+_0 -_0", spin=1, register_length=1)
+            expected = SpinOp([("X_0^2", 1), ("Y_0^2", 1), ("Z_0", 1)], spin=1, register_length=1)
+            self.assertSpinEqual(actual, expected)
+        with self.subTest("two reg"):
+            actual = SpinOp("+_1 -_1 +_0 -_0", spin=3 / 2, register_length=2)
+            expected = SpinOp(
+                [
+                    ("X_1^2 X_0^2", 1),
+                    ("Y_1^2 X_0^2", 1),
+                    ("Z_1 X_0^2", 1),
+                    ("X_1^2 Y_0^2", 1),
+                    ("Y_1^2 Y_0^2", 1),
+                    ("Z_1 Y_0^2", 1),
+                    ("X_1^2 Z_0", 1),
+                    ("Y_1^2 Z_0", 1),
+                    ("Z_1 Z_0", 1),
+                ],
+                spin=3 / 2,
+                register_length=2,
+            )
+            self.assertSpinEqual(actual, expected)
+
     def test_neg(self):
         """Test __neg__"""
         actual = -self.heisenberg
