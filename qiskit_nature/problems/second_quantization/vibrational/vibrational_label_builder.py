@@ -37,17 +37,20 @@ def create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], comp
 def _create_num_body_labels(num_body_data) -> List[Tuple[str, complex]]:
     num_body_labels = []
     for indices, coeff in num_body_data:
+        indices.sort()
         coeff_label = _create_label_for_coeff(indices)
         num_body_labels.append((coeff_label, coeff))
     return num_body_labels
 
 
 def _create_label_for_coeff(indices: Tuple[int, int, int]) -> str:
-    raise_labels_list = []
-    lower_labels_list = []
+    complete_labels_list = []
     for mode, modal_raise, modal_lower in indices:
-        raise_labels_list.append("".join(['+_', str(mode), '*', str(modal_raise)]))
-        lower_labels_list.append("".join(['-_', str(mode), '*', str(modal_lower)]))
-    complete_labels_list = raise_labels_list + lower_labels_list
+        if modal_raise <= modal_lower:
+            complete_labels_list.append("".join(['+_', str(mode), '*', str(modal_raise)]))
+            complete_labels_list.append("".join(['-_', str(mode), '*', str(modal_lower)]))
+        else:
+            complete_labels_list.append("".join(['-_', str(mode), '*', str(modal_lower)]))
+            complete_labels_list.append("".join(['+_', str(mode), '*', str(modal_raise)]))
     complete_label = " ".join(complete_labels_list)
     return complete_label
