@@ -73,8 +73,18 @@ class MolecularProblem:
         return second_quantized_ops_list
 
     def _transform_q_molecule(self, q_molecule) -> QMolecule:
+        #ensure Particle Hole Transformer is executed last
+        ParticleHoleTransformer = None
+
         for transformer in self.transformers:
-            q_molecule = transformer.transform(q_molecule)
+            if transformer.__class__.__name__ == 'ParticleHoleTransformer':
+                ParticleHoleTransformer = transformer
+            else:
+                q_molecule = transformer.transform(q_molecule)
+
+        if ParticleHoleTransformer is not None:
+            q_molecule = ParticleHoleTransformer.transform(q_molecule)
+
         return q_molecule
 
     def _create_dipole_operators(self, q_molecule: QMolecule) -> \
