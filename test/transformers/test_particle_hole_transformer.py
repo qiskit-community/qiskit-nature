@@ -27,7 +27,6 @@ class TestParticleHoleTransformer(QiskitNatureTestCase):
 
     def test_particle_hole_energy_shift_and_ints(self):
         """ particle hole test """
-
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
@@ -43,9 +42,6 @@ class TestParticleHoleTransformer(QiskitNatureTestCase):
         expected_h1 = np.load(self.get_resource_path('ph_one_body_ints_test.npy', 'transformers'))
         expected_h2 = np.load(self.get_resource_path('ph_two_body_ints_test.npy', 'transformers'))
 
-        print('qmol',q_molecule_transformed.two_body_integrals)
+        print('qmol', q_molecule_transformed.two_body_integrals)
         assert np.allclose(expected_h1, q_molecule_transformed.one_body_integrals)
         assert np.allclose(expected_h2, q_molecule_transformed.two_body_integrals)
-
-if __name__ == '__main__':
-    unittest.main()

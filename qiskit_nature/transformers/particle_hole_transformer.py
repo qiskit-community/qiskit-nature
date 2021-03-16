@@ -28,6 +28,9 @@ class ParticleHoleTransformer(BaseTransformer):
     def __init__(self):
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
         """
+        self.num_orbitals = None
+        self.num_alpha = None
+        self.num_electrons = None
         self._h1: Optional[np.ndarray] = None
         self._h2: Optional[np.ndarray] = None
 
