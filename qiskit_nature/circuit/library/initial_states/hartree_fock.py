@@ -19,7 +19,7 @@ import numpy as np
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.utils.validation import validate_min
 
-from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class HartreeFock(QuantumCircuit):
 
         # encode the bitstring as a `FermionicOp`
         label = ['+' if bit else 'I' for bit in bitstr]
-        bitstr_op = SecondQuantizedOp([FermionicOp(''.join(label))])
+        bitstr_op = FermionicOp(''.join(label))
 
         # map the `FermionicOp` to a qubit operator
         qubit_op = qubit_converter.to_qubit_ops([bitstr_op])[0]
