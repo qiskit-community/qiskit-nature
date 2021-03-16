@@ -16,7 +16,6 @@ from typing import List, Optional, Tuple, Union
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.mappers.second_quantization import QubitMapper
 
 from . import SecondQuantizedOp
@@ -80,14 +79,8 @@ class QubitConverter:
             raise NotImplementedError
 
         qubit_ops: List[PauliSumOp] = []
-        main_op = second_q_ops[0]
-        if main_op._fermion is not None:
-            for op in second_q_ops:
-                if op._fermion is None:
-                    raise QiskitNatureError("Second quantized operators must contain same type")
-                qubit_ops.append(self._mappers.map(op._fermion))
-        else:
-            raise QiskitNatureError("Cannot map invalid second quantized operator")
+        for op in second_q_ops:
+            qubit_ops.append(self._mappers.map(op))
 
         return qubit_ops
 
