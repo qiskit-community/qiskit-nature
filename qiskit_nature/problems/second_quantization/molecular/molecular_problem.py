@@ -73,17 +73,18 @@ class MolecularProblem:
         return second_quantized_ops_list
 
     def _transform_q_molecule(self, q_molecule) -> QMolecule:
-        ParticleHoleTransformer = None
+        # TODO We need to make sure to respect priority of transformers in the future
+        particleholetransformer = None
 
         for transformer in self.transformers:
             # ensure Particle Hole Transformer is executed last
             if transformer.__class__.__name__ == 'ParticleHoleTransformer':
-                ParticleHoleTransformer = transformer
+                particleholetransformer = transformer
             else:
                 q_molecule = transformer.transform(q_molecule)
 
-        if ParticleHoleTransformer is not None:
-            q_molecule = ParticleHoleTransformer.transform(q_molecule)
+        if particleholetransformer is not None:
+            q_molecule = particleholetransformer.transform(q_molecule)
 
         return q_molecule
 
