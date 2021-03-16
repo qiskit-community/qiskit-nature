@@ -116,15 +116,34 @@ class QMolecule:
         self.nuclear_dipole_moment = None
         self.reverse_dipole_sign = False
 
+        # Custom one and two body integrals
+        self._one_body_integrals = None
+        self._two_body_integrals = None
+
     @property
     def one_body_integrals(self):
         """ Returns one body electron integrals. """
-        return QMolecule.onee_to_spin(self.mo_onee_ints, self.mo_onee_ints_b)
+
+        if self._one_body_integrals is not None:
+            return self._one_body_integrals
+        else:
+            return QMolecule.onee_to_spin(self.mo_onee_ints, self.mo_onee_ints_b)
+
+    def set_one_body_integrals(self, new_one_body_ints):
+        """ Sets one body integrals manually"""
+        self._one_body_integrals = new_one_body_ints
 
     @property
     def two_body_integrals(self):
         """ Returns two body electron integrals. """
-        return QMolecule.twoe_to_spin(self.mo_eri_ints, self.mo_eri_ints_bb, self.mo_eri_ints_ba)
+        if self._two_body_integrals is not None:
+            return self._two_body_integrals
+        else:
+            return QMolecule.twoe_to_spin(self.mo_eri_ints, self.mo_eri_ints_bb, self.mo_eri_ints_ba)
+
+    def set_one_body_integrals(self, new_one_body_ints):
+        """ Sets two body integrals manually"""
+        self._two_body_integrals = new_two_body_ints
 
     def has_dipole_integrals(self):
         """ Check if dipole integrals are present. """
