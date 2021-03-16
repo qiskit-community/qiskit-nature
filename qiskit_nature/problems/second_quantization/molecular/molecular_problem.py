@@ -73,10 +73,10 @@ class MolecularProblem:
         return second_quantized_ops_list
 
     def _transform_q_molecule(self, q_molecule) -> QMolecule:
-        #ensure Particle Hole Transformer is executed last
         ParticleHoleTransformer = None
 
         for transformer in self.transformers:
+            # ensure Particle Hole Transformer is executed last
             if transformer.__class__.__name__ == 'ParticleHoleTransformer':
                 ParticleHoleTransformer = transformer
             else:
