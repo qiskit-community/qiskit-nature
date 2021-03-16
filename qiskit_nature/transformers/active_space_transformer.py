@@ -40,10 +40,10 @@ class ActiveSpaceTransformer(BaseTransformer):
     https://arxiv.org/abs/2009.01872.
 
     The active space can be configured in one of the following ways through the initializer:
-        - when only `num_electrons` and `num_orbitals` are specified, these integers indicate the
-          number of active electrons and orbitals, respectively. The active space will then be
-          chosen around the Fermi level resulting in a unique choice for any pair of numbers.
-          Nonetheless, the following criteria must be met:
+        - when only `num_electrons` and `num_molecular_orbitals` are specified, these integers
+          indicate the number of active electrons and orbitals, respectively. The active space will
+          then be chosen around the Fermi level resulting in a unique choice for any pair of
+          numbers.  Nonetheless, the following criteria must be met:
               1. the remaining number of inactive electrons must be a positive, even number
               2. the number of active orbitals must not exceed the total number of orbitals minus
               the number of orbitals occupied by the inactive electrons
@@ -56,7 +56,7 @@ class ActiveSpaceTransformer(BaseTransformer):
           `active_orbitals`. This allows selecting an active space which is not placed around the
           Fermi level as described in the first case, above. When using this keyword argument, the
           following criteria must be met *in addition* to the ones listed above:
-              1. the length of `active_orbitals` must be equal to `num_orbitals`.
+              1. the length of `active_orbitals` must be equal to `num_molecular_orbitals`.
               2. the sum of electrons present in `active_orbitals` must be equal to `num_electrons`.
 
     References:
@@ -66,7 +66,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     def __init__(self,
                  num_electrons: Optional[int] = None,
-                 num_orbitals: Optional[int] = None,
+                 num_molecular_orbitals: Optional[int] = None,
                  num_alpha: Optional[int] = None,
                  active_orbitals: Optional[List[int]] = None,
                  freeze_core: bool = False,
@@ -76,8 +76,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         Args:
             num_electrons: The number of active electrons. This may only be omitted if `freeze_core`
                            is used.
-            num_orbitals: The number of active orbitals. This may only be omitted if `freeze_core`
-                          is used.
+            num_molecular_orbitals: The number of active orbitals. This may only be omitted if
+                                    `freeze_core` is used.
             num_alpha: The optional number of active alpha-spin electrons.
             active_orbitals: A list of indices specifying the molecular orbitals of the active
                              space. This argument must match with the remaining arguments and should
@@ -88,7 +88,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                          keywords and, thus, cannot be used in combination with them.
         """
         self.num_electrons = num_electrons
-        self.num_orbitals = num_orbitals
+        self.num_orbitals = num_molecular_orbitals
         self.num_alpha = num_alpha
         self.active_orbitals = active_orbitals
         self.freeze_core = freeze_core
@@ -113,7 +113,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         Raises:
             QiskitNatureError: If more electrons or orbitals are requested than are available, if an
                                uneven number of inactive electrons remains, or if the number of
-                               selected active orbital indices does not match `num_orbitals`.
+                               selected active orbital indices does not match
+                               `num_molecular_orbitals`.
         """
         valid = self._check_configuration()
         if not valid:
@@ -184,7 +185,7 @@ class ActiveSpaceTransformer(BaseTransformer):
     def _check_configuration(self):
         # either freeze_core is specified
         valid = self.freeze_core
-        # or at least num_electrons and num_orbitals must be valid
+        # or at least num_electrons and num_molecular_orbitals must be valid
         valid |= isinstance(self.num_electrons, int) and isinstance(self.num_orbitals, int)
 
         return valid

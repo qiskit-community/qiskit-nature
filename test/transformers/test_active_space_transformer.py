@@ -55,7 +55,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                                    expected.z_dip_energy_shift['ActiveSpaceTransformer'])
 
     @idata([
-        {'num_electrons': 2, 'num_orbitals': 2},
+        {'num_electrons': 2, 'num_molecular_orbitals': 2},
         {'freeze_core': True},
     ])
     def test_full_active_space(self, kwargs):
@@ -78,7 +78,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
+        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
         q_molecule_reduced = trafo.transform(q_molecule)
 
         expected = QMolecule()
@@ -104,7 +104,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
-        trafo = ActiveSpaceTransformer(num_electrons=3, num_orbitals=3, num_alpha=2)
+        trafo = ActiveSpaceTransformer(num_electrons=3, num_molecular_orbitals=3, num_alpha=2)
         q_molecule_reduced = trafo.transform(q_molecule)
 
         expected = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g_reduced.hdf5',
@@ -117,7 +117,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2, active_orbitals=[0, 2])
+        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2,
+                                       active_orbitals=[0, 2])
         q_molecule_reduced = trafo.transform(q_molecule)
 
         expected = QMolecule()
@@ -146,14 +147,14 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         [2, 2, [1, 2], "The number of active electrons do not match."],
     ])
     @unpack
-    def test_error_raising(self, num_electrons, num_orbitals, active_orbitals, message):
+    def test_error_raising(self, num_electrons, num_molecular_orbitals, active_orbitals, message):
         """Test errors are being raised in certain scenarios."""
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
         with self.assertRaises(QiskitNatureError, msg=message):
             ActiveSpaceTransformer(num_electrons=num_electrons,
-                                   num_orbitals=num_orbitals,
+                                   num_molecular_orbitals=num_molecular_orbitals,
                                    active_orbitals=active_orbitals).transform(q_molecule)
 
     def test_active_space_for_q_molecule_v2(self):
@@ -166,7 +167,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         q_molecule.y_dip_energy_shift['ActiveSpaceTransformer'] = 0.0
         q_molecule.z_dip_energy_shift['ActiveSpaceTransformer'] = 0.0
 
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
+        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
         q_molecule_reduced = trafo.transform(q_molecule)
 
         self.assertQMolecule(q_molecule_reduced, q_molecule)
