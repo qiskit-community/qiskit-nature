@@ -23,7 +23,6 @@ from qiskit.chemistry import FermionicOperator
 from qiskit.aqua.algorithms import NumPyMinimumEigensolver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.transformers import ParticleHoleTransformer
 
 

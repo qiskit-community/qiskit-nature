@@ -16,8 +16,6 @@ from typing import Optional
 import copy
 import numpy as np
 
-from .. import QiskitNatureError
-
 from .base_transformer import BaseTransformer
 from ..drivers import QMolecule
 
@@ -65,39 +63,41 @@ class ParticleHoleTransformer(BaseTransformer):
         num_alpha = self.num_alpha
         num_beta = self.num_electrons - self.num_alpha
 
-        h1_new_sum = np.zeros([n_qubits, n_qubits])
-        h2_new_sum = np.zeros([n_qubits, n_qubits, n_qubits, n_qubits])
+        h1_new_sum = np.zeros((n_qubits, n_qubits))
+        h2_new_sum = np.zeros((n_qubits, n_qubits, n_qubits, n_qubits))
 
         h2_old_matrix = -2 * h2_old_matrix.copy()
-        h2_old_matrix = np.einsum('IJKL->IKLJ', h2_old_matrix.copy())
+        h2_old_matrix = np.einsum('ijkl->iklj', h2_old_matrix.copy())
 
+        # TODO: What is the point of doing this?!
         h1_old_matrix = h1_old_matrix.copy()
 
         # put labels of occupied orbitals in the list in interleaved spin convention
-        n_occupied = []
-        for a_i in range(num_alpha):
-            n_occupied.append(2 * a_i)
-        for b in range(num_beta):
-            n_occupied.append(2 * b + 1)
+        n_occupied = [2 * a for a in range(num_alpha)] + [2 * b + 1 for b in range(num_beta)]
+        # map the orbitals to creation and annihilation operators
+        a_enum = np.arange(1, n_qubits+1)
+        a_enum[n_occupied] *= -1
+        adag_enum = a_enum * -1
 
+        # TODO(bpark): add an explanatory comment for the below
         for r in range(n_qubits):
             for s in range(n_qubits):  # pylint: disable=invalid-name
                 for i in n_occupied:
-                    h1_old_matrix[r][s] += h2_old_matrix[r][i][s][i].copy() - \
-                                           h2_old_matrix[r][i][i][s].copy()
+                    h1_old_matrix[r, s] += h2_old_matrix[r, i, s, i].copy() - \
+                                           h2_old_matrix[r, i, i, s].copy()
         identities_new_sum = 0
 
         for i in range(n_qubits):
             for j in range(n_qubits):
-                indices_1 = [i, j]
+                indices_1 = np.asarray((i, j))
                 array_mapping_1 = '+-'
 
-                h1_new_matrix = np.zeros([n_qubits, n_qubits])
-                h2_new_matrix = np.zeros([n_qubits, n_qubits, n_qubits, n_qubits])
+                h1_new_matrix = np.zeros((n_qubits, n_qubits))
+                h2_new_matrix = np.zeros((n_qubits, n_qubits, n_qubits, n_qubits))
 
                 h1_new_matrix, h2_new_matrix, identities = self._normal_order_integrals(
-                    n_qubits, n_occupied, indices_1, array_mapping_1, h1_old_matrix,
-                    h2_old_matrix, h1_new_matrix, h2_new_matrix)
+                    a_enum, adag_enum, indices_1, array_mapping_1,
+                    h1_old_matrix, h2_old_matrix, h1_new_matrix, h2_new_matrix)
 
                 h1_new_sum += h1_new_matrix
                 h2_new_sum += h2_new_matrix
@@ -106,23 +106,22 @@ class ParticleHoleTransformer(BaseTransformer):
         for i in range(n_qubits):
             for j in range(n_qubits):
                 for k in range(n_qubits):
-                    for l_i in range(n_qubits):
-                        array_to_be_ordered = [i, j, k, l_i]
-
+                    for l in range(n_qubits):  # pylint: disable=invalid-name
+                        indices_2 = np.asarray((i, j, k, l))
                         array_mapping_2 = '++--'
 
-                        h1_new_matrix = np.zeros([n_qubits, n_qubits])
-                        h2_new_matrix = np.zeros([n_qubits, n_qubits, n_qubits, n_qubits])
+                        h1_new_matrix = np.zeros((n_qubits, n_qubits))
+                        h2_new_matrix = np.zeros((n_qubits, n_qubits, n_qubits, n_qubits))
 
                         h1_new_matrix, h2_new_matrix, identities = self._normal_order_integrals(
-                            n_qubits, n_occupied, array_to_be_ordered, array_mapping_2,
+                            a_enum, adag_enum, indices_2, array_mapping_2,
                             h1_old_matrix, h2_old_matrix, h1_new_matrix, h2_new_matrix)
 
                         h1_new_sum += h1_new_matrix
                         h2_new_sum += h2_new_matrix
                         identities_new_sum += identities
 
-        h2_new_sum = np.einsum('IKMJ->IJKM', h2_new_sum)
+        h2_new_sum = np.einsum('ikmj->ijkm', h2_new_sum)
 
         self._h1 = h1_new_sum
         self._h2 = h2_new_sum
@@ -148,7 +147,7 @@ class ParticleHoleTransformer(BaseTransformer):
         to up-down-up-down-up-down-up-down
         """
         # pylint: disable=unsubscriptable-object
-        matrix = np.zeros((self._h1.shape), self._h1.dtype)
+        matrix = np.zeros_like(self._h1)
         n = matrix.shape[0]
         j = np.arange(n // 2)
         matrix[j, 2 * j] = 1.0
@@ -162,7 +161,7 @@ class ParticleHoleTransformer(BaseTransformer):
         to up-up-up-up-down-down-down-down
         """
         # pylint: disable=unsubscriptable-object
-        matrix = np.zeros((self._h1.shape), self._h1.dtype)
+        matrix = np.zeros_like(self._h1)
         n = matrix.shape[0]
         j = np.arange(n // 2)
         matrix[2 * j, j] = 1.0
@@ -204,7 +203,7 @@ class ParticleHoleTransformer(BaseTransformer):
 
         self._h2 = temp_ret
 
-    def _sort(self, seq):
+    def _bubble_sort_with_swap_count(self, seq):
         """
         Tool function for normal order, should not be used separately
 
@@ -226,25 +225,7 @@ class ParticleHoleTransformer(BaseTransformer):
 
         return seq, swap_counter
 
-    def _last_two_indices_swap(self, array_ind_two_body_term):
-        """
-        Swap 2 last indices of an array
-
-        Args:
-            array_ind_two_body_term (list): TBD
-
-        Returns:
-            list: TBD
-        """
-        swapped_indices = [0, 0, 0, 0]
-        swapped_indices[0] = array_ind_two_body_term[0]
-        swapped_indices[1] = array_ind_two_body_term[1]
-        swapped_indices[2] = array_ind_two_body_term[3]
-        swapped_indices[3] = array_ind_two_body_term[2]
-
-        return swapped_indices
-
-    def _normal_order_integrals(self, n_qubits, n_occupied, array_to_normal_order,
+    def _normal_order_integrals(self, a_enum, adag_enum, array_to_normal_order,
                                 array_mapping, h1_old, h2_old,
                                 h1_new, h2_new):
         """
@@ -252,8 +233,8 @@ class ParticleHoleTransformer(BaseTransformer):
         h1,h2,id_terms usable for the generation of the Hamiltonian in Pauli strings form.
 
         Args:
-            n_qubits (int): number of qubits
-            n_occupied (int): number of electrons (occupied orbitals)
+            a_enum (np.ndarray): TODO
+            adag_enum (np.ndarray): TODO
             array_to_normal_order (list):  e.g. [i,j,k,l] indices of the term to normal order
             array_mapping (str): e.g. two body terms '++--', or single body terms '+-'
             h1_old (numpy.ndarray):
@@ -266,11 +247,6 @@ class ParticleHoleTransformer(BaseTransformer):
         Returns:
             Tuple(numpy.ndarray, numpy.ndarray, float): h1_new, h2_new, id_term
         """
-        # TODO: extract these because they remain constant for all invocations of this method
-        a_enum = np.arange(1, n_qubits+1)
-        a_enum[n_occupied] *= -1
-        adag_enum = a_enum * -1
-
         # We want to sort the occurrence of the `+` and `-` operators by their index (as given in
         # array_to_normal_order). Thus, we need to associate each value in this array with a unique
         # label which identifies both, the kind of operator, and it's position -> a_enum, adag_enum.
@@ -279,7 +255,7 @@ class ParticleHoleTransformer(BaseTransformer):
             for ind, val in enumerate(array_to_normal_order)
         ])
 
-        array_sorted, swap_count = self._sort(array_to_sort)
+        array_sorted, swap_count = self._bubble_sort_with_swap_count(array_to_sort)
         sign_no_term = (-1.) ** swap_count
 
         ind_ini_term = array_to_normal_order.copy()  # initial index array
@@ -292,7 +268,7 @@ class ParticleHoleTransformer(BaseTransformer):
             ind_old = (ind_ini_term[0], ind_ini_term[1])
             ind_new = tuple(ind_no_term[np.asarray(indices)])
 
-            h1_new[ind_new] += float((-1) ** sign_flip * sign_no_term * h1_old[ind_old])
+            h1_new[ind_new] += (-1.) ** sign_flip * sign_no_term * h1_old[ind_old]
 
             if id_term is not None:
                 id_term += float(sign_no_term * h1_old[ind_old])
@@ -301,21 +277,21 @@ class ParticleHoleTransformer(BaseTransformer):
 
         def update_h2(indices, sign_flip=False, indices_h1=None, sign_flip_h1=False,
                       id_term=None, sign_flip_id=False):
+            ind_old = tuple(ind_ini_term[np.asarray((0, 1, 3, 2))])
             ind_new = tuple(ind_no_term[np.asarray(indices)])
-            ind_old = tuple(self._last_two_indices_swap(ind_ini_term))
 
-            h2_new[ind_new] += 0.5 * (-1) ** sign_flip * sign_no_term * h2_old[ind_old]
+            h2_new[ind_new] += 0.5 * (-1.) ** sign_flip * sign_no_term * h2_old[ind_old]
 
             if indices_h1:
                 if isinstance(indices_h1, tuple):
                     indices_h1 = [indices_h1]
                 for ind_h1 in indices_h1:
-                    ind_old_1 = tuple(ind_no_term[np.asarray(ind_h1)])
+                    ind_old_ = tuple(ind_no_term[np.asarray(ind_h1)])
 
-                    h1_new[ind_old_1] += 0.5 * (-1) ** sign_flip_h1 * sign_no_term * h2_old[ind_old]
+                    h1_new[ind_old_] += 0.5 * (-1.) ** sign_flip_h1 * sign_no_term * h2_old[ind_old]
 
             if id_term is not None:
-                id_term += float(0.5 * (-1) ** sign_flip_id * sign_no_term * h2_old[ind_old])
+                id_term += 0.5 * (-1.) ** sign_flip_id * sign_no_term * h2_old[ind_old]
 
             return id_term
 
@@ -457,8 +433,7 @@ class ParticleHoleTransformer(BaseTransformer):
 
             elif len(set(ind_no_term)) == 2:
 
-                if ind_no_term[0] == ind_no_term[1] and \
-                        ind_no_term[2] == ind_no_term[3]:
+                if ind_no_term[0] == ind_no_term[1] and ind_no_term[2] == ind_no_term[3]:
 
                     if mapping_no_term == '++--':
                         update_h2((0, 0, 2, 2))
@@ -478,8 +453,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     else:
                         print('ERROR')
 
-                elif ind_no_term[0] == ind_no_term[2] and \
-                        ind_no_term[1] == ind_no_term[3]:
+                elif ind_no_term[0] == ind_no_term[2] and ind_no_term[1] == ind_no_term[3]:
                     if mapping_no_term == '++--':
                         update_h2((0, 1, 0, 1))
                     elif mapping_no_term == '+-+-':
@@ -498,8 +472,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     else:
                         print('ERROR')
 
-                elif ind_no_term[0] == ind_no_term[3] and \
-                        ind_no_term[1] == ind_no_term[2]:
+                elif ind_no_term[0] == ind_no_term[3] and ind_no_term[1] == ind_no_term[2]:
                     if mapping_no_term == '++--':
                         update_h2((0, 1, 1, 0))
                     elif mapping_no_term == '+-+-':
@@ -519,8 +492,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     else:
                         print('ERROR')
 
-                elif ind_no_term[0] == ind_no_term[1] and \
-                        ind_no_term[0] == ind_no_term[2]:
+                elif ind_no_term[0] == ind_no_term[1] and ind_no_term[0] == ind_no_term[2]:
                     if mapping_no_term == '++--':
                         update_h2((0, 0, 0, 3))
                     elif mapping_no_term == '+-+-':
@@ -538,8 +510,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     else:
                         print('ERROR')
 
-                elif ind_no_term[0] == ind_no_term[1] and \
-                        ind_no_term[0] == ind_no_term[3]:
+                elif ind_no_term[0] == ind_no_term[1] and ind_no_term[0] == ind_no_term[3]:
                     if mapping_no_term == '++--':
                         update_h2((0, 0, 0, 2))
                     elif mapping_no_term == '+-+-':
@@ -557,8 +528,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     else:
                         print('ERROR')
 
-                elif ind_no_term[0] == ind_no_term[2] and \
-                        ind_no_term[0] == ind_no_term[3]:
+                elif ind_no_term[0] == ind_no_term[2] and ind_no_term[0] == ind_no_term[3]:
                     if mapping_no_term == '++--':
                         update_h2((0, 1, 0, 0))
                     elif mapping_no_term == '+-+-':
@@ -575,8 +545,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     else:
                         print('ERROR')
 
-                elif ind_no_term[1] == ind_no_term[2] and \
-                        ind_no_term[1] == ind_no_term[3]:
+                elif ind_no_term[1] == ind_no_term[2] and ind_no_term[1] == ind_no_term[3]:
                     if mapping_no_term == '++--':
                         update_h2((0, 1, 1, 1))
                     elif mapping_no_term == '+-+-':
