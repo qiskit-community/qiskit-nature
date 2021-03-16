@@ -294,46 +294,28 @@ class ParticleHoleTransformer(BaseTransformer):
 
         id_term = 0.
 
+        def update_h1(indices, sign_flip=False, id_term=None):
+            ind_old = (ind_ini_term[0], ind_ini_term[1])
+            ind_new = tuple(ind_no_term[np.asarray(indices)])
+
+            h1_new[ind_new] += float((-1) ** sign_flip * sign_no_term * h1_old[ind_old])
+
+            if id_term is not None:
+                id_term += float(sign_no_term * h1_old[ind_old])
+
+            return id_term
+
         if len(array_to_normal_order) == 2:
             if ind_no_term[0] == ind_no_term[1]:
                 if mapping_no_term == ['adag', 'a']:
-                    temp_sign_h1 = float(1 * sign_no_term)
-
-                    ind_old_h1 = [ind_ini_term[i_i], ind_ini_term[j_j]]
-                    ind_new_h1 = [ind_no_term[i_i], ind_no_term[j_j]]
-
-                    h1_new[ind_new_h1[0]][ind_new_h1[1]] \
-                        += float(temp_sign_h1 * h1_old[ind_old_h1[0]][ind_old_h1[1]])
-
+                    update_h1((0, 1))
                 elif mapping_no_term == ['a', 'adag']:
-                    temp_sign_h1 = float(-1 * sign_no_term)
-
-                    ind_old_h1 = [ind_ini_term[i_i], ind_ini_term[j_j]]
-                    ind_new_h1 = [ind_no_term[j_j], ind_no_term[i_i]]
-
-                    h1_new[ind_new_h1[0]][ind_new_h1[1]] \
-                        += float(temp_sign_h1 * h1_old[ind_old_h1[0]][ind_old_h1[1]])
-
-                    id_term += float(sign_no_term * h1_old[ind_old_h1[0]][ind_old_h1[1]])
-
+                    id_term = update_h1((1, 0), sign_flip=True, id_term=id_term)
             else:
                 if mapping_no_term == ['adag', 'a']:
-                    temp_sign_h1 = float(1 * sign_no_term)
-
-                    ind_old_h1 = [ind_ini_term[i_i], ind_ini_term[j_j]]
-                    ind_new_h1 = [ind_no_term[i_i], ind_no_term[j_j]]
-
-                    h1_new[ind_new_h1[0]][ind_new_h1[1]] \
-                        += float(temp_sign_h1 * h1_old[ind_old_h1[0]][ind_old_h1[1]])
-
+                    update_h1((0, 1))
                 elif mapping_no_term == ['a', 'adag']:
-                    temp_sign_h1 = float(-1 * sign_no_term)
-
-                    ind_old_h1 = [ind_ini_term[i_i], ind_ini_term[j_j]]
-                    ind_new_h1 = [ind_no_term[j_j], ind_no_term[i_i]]
-
-                    h1_new[ind_new_h1[0]][ind_new_h1[1]] \
-                        += float(temp_sign_h1 * h1_old[ind_old_h1[0]][ind_old_h1[1]])
+                    update_h1((1, 0), sign_flip=True)
 
         elif len(array_to_normal_order) == 4:
             if len(set(ind_no_term)) == 4:
