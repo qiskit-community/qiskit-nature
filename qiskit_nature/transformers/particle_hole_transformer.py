@@ -71,9 +71,6 @@ class ParticleHoleTransformer(BaseTransformer):
         h2_old_matrix = -2 * h2_old_matrix.copy()
         h2_old_matrix = np.einsum('ijkl->iklj', h2_old_matrix.copy())
 
-        # TODO: What is the point of doing this?!
-        h1_old_matrix = h1_old_matrix.copy()
-
         # put labels of occupied orbitals in the list in interleaved spin convention
         n_occupied = [2 * a for a in range(num_alpha)] + [2 * b + 1 for b in range(num_beta)]
         # map the orbitals to creation and annihilation operators
@@ -132,11 +129,8 @@ class ParticleHoleTransformer(BaseTransformer):
 
         q_molecule_new = copy.deepcopy(q_molecule)
 
-        q_molecule_new.mo_onee_ints = self._h1[:int(self._h1.shape[0]/2), :int(self._h1.shape[1]/2)]
-
-        # TODO calculation of mo_eri is still wrong, because of the doubling of the space.
-        q_molecule_new.mo_eri_ints = self._h2[:int(self._h2.shape[0]/2), :int(self._h2.shape[1]/2),
-                                              :int(self._h2.shape[2]/2), :int(self._h2.shape[3]/2)]
+        q_molecule_new.set_one_body_integrals(self._h1)
+        q_molecule_new.set_two_body_integrals(self._h2)
 
         q_molecule_new.energy_shift['ParticleHoleTransformer'] = identities_new_sum
 

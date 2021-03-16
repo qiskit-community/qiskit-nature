@@ -39,19 +39,15 @@ class TestParticleHoleTransformer(QiskitNatureTestCase):
         ph_shift = q_molecule_transformed.energy_shift['ParticleHoleTransformer']
 
         # ph_shift should be the electronic part of the hartree fock energy
-
         self.assertAlmostEqual(-ph_shift,
                                q_molecule.hf_energy - q_molecule.nuclear_repulsion_energy)
 
-        expected_h1 = np.load(self.get_resource_path('ph_onee_ints_test.npy', 'transformers'))
-        expected_h2 = np.load(self.get_resource_path('ph_eri_ints_test.npy', 'transformers'))
+        expected_h1 = np.load(self.get_resource_path('ph_one_body_ints_test.npy', 'transformers'))
+        expected_h2 = np.load(self.get_resource_path('ph_two_body_ints_test.npy', 'transformers'))
 
+        print('qmol',q_molecule_transformed.two_body_integrals)
         assert np.allclose(expected_h1, q_molecule_transformed.one_body_integrals)
-
-        # TODO fix calculation of two body integrals reverse the twoe_to_spin
-        # or add setter in algorithms
         assert np.allclose(expected_h2, q_molecule_transformed.two_body_integrals)
-
 
 if __name__ == '__main__':
     unittest.main()
