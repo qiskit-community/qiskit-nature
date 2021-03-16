@@ -31,9 +31,7 @@ class TestParticleHoleTransformer(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
-        _ = q_molecule.num_alpha
-
-        trafo = ParticleHoleTransformer(num_electrons=2, num_orbitals=2, num_alpha=1)
+        trafo = ParticleHoleTransformer()
         q_molecule_transformed = trafo.transform(q_molecule)
 
         ph_shift = q_molecule_transformed.energy_shift['ParticleHoleTransformer']

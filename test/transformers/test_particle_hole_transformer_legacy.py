@@ -70,12 +70,7 @@ class TestParticleHole(QiskitNatureTestCase):
 
         fer_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
 
-        trafo = ParticleHoleTransformer(
-            num_electrons=molecule.num_alpha + molecule.num_beta,
-            num_orbitals=molecule.num_orbitals,
-            num_alpha=molecule.num_alpha
-        )
-
+        trafo = ParticleHoleTransformer()
         qmol_new = trafo.transform(molecule)
 
         ph_fer_op = FermionicOperator(trafo._h1, trafo._h2)
