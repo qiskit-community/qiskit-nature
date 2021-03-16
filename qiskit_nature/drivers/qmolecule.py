@@ -142,7 +142,7 @@ class QMolecule:
             return QMolecule.twoe_to_spin(self.mo_eri_ints, self.mo_eri_ints_bb,
                                           self.mo_eri_ints_ba)
 
-    def set_one_body_integrals(self, new_one_body_ints):
+    def set_two_body_integrals(self, new_two_body_ints):
         """ Sets two body integrals manually"""
         self._two_body_integrals = new_two_body_ints
 
