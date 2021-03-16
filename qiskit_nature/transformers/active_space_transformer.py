@@ -73,6 +73,14 @@ class ActiveSpaceTransformer(BaseTransformer):
                  ):
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
 
+        This transformer requires the AO-basis matrices `hcore` and `eri` to be available, as well
+        as the basis-transformation matrix `mo_coeff`. A `QMolecule` produced by Qiskit's drivers in
+        general satisfies these conditions unless it was read from an FCIDump file. However, those
+        integrals are likely already reduced by the code which produced the file or can be
+        transformed using this driver after copying the MO-basis integrals of the produced
+        `QMolecule` into the AO-basis containers and initializing `mo_coeff` with an identity matrix
+        of appropiate size.
+
         Args:
             num_electrons: The number of active electrons. This may only be omitted if `freeze_core`
                            is used.
