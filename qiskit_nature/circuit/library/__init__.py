@@ -33,10 +33,16 @@ Initial states
 
 from .ansaetze import (
     EvolvedOperatorAnsatz,
+    UCC,
 )
 from .initial_states import (
     HartreeFock,
     VSCF
 )
 
-__all__ = ['EvolvedOperatorAnsatz', 'HartreeFock', 'VSCF']
+__all__ = [
+    'EvolvedOperatorAnsatz',
+    'UCC',
+    'HartreeFock',
+    'VSCF',
+]
