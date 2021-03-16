@@ -267,41 +267,25 @@ class ParticleHoleTransformer(BaseTransformer):
         Returns:
             Tuple(numpy.ndarray, numpy.ndarray, float): h1_new, h2_new, id_term
         """
-        a_enum = []
-        adag_enum = []
+        # TODO: extract these because they remain constant for all invocations of this method
+        a_enum = np.arange(1, n_qubits+1)
+        a_enum[n_occupied] *= -1
+        adag_enum = a_enum * -1
 
-        for ind in range(n_qubits):
-            if ind in n_occupied:
-                a_enum.append(-(ind + 1))
-                adag_enum.append(ind + 1)
-            else:
-                a_enum.append(ind + 1)
-                adag_enum.append(-(ind + 1))
+        # We want to sort the occurrence of the `+` and `-` operators by their index (as given in
+        # array_to_normal_order). Thus, we need to associate each value in this array with a unique
+        # label which identifies both, the kind of operator, and it's position -> a_enum, adag_enum.
+        array_to_sort = np.asarray([
+            a_enum[val] if array_mapping[ind] == 'a' else adag_enum[val]
+            for ind, val in enumerate(array_to_normal_order)
+        ])
 
-        array_to_sort = []
+        array_sorted, swap_count = self._sort(array_to_sort)
+        sign_no_term = (-1.) ** swap_count
 
-        for ind, _ in enumerate(array_to_normal_order):
-            if array_mapping[ind] == "adag":
-                array_to_sort.append(adag_enum[array_to_normal_order[ind]])
-            elif array_mapping[ind] == "a":
-                array_to_sort.append(a_enum[array_to_normal_order[ind]])
-
-        sign = (-1.) ** self._sort(array_to_sort)[1]
-        array_sorted = self._sort(array_to_sort)[0]
-
-        ind_ini_term = array_to_normal_order
-
-        mapping_no_term = []
-        ind_no_term = []
-        sign_no_term = sign
-
-        for ind in array_sorted:
-            if ind in a_enum:
-                mapping_no_term.append("a")
-                ind_no_term.append(a_enum.index(ind))
-            elif ind in adag_enum:
-                mapping_no_term.append("adag")
-                ind_no_term.append(adag_enum.index(ind))
+        ind_ini_term = array_to_normal_order.copy()  # initial index array
+        ind_no_term = np.asarray([abs(i) - 1 for i in array_sorted])  # normal-ordered index array
+        mapping_no_term = ['a' if i in a_enum else 'adag' for i in array_sorted]
 
         i_i = 0
         j_j = 1
