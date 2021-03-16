@@ -24,11 +24,10 @@ class TestVibrationalProblem(QiskitNatureTestCase):
     """Tests Vibrational Problem."""
 
     # TODO complete unit test once implementation ready
-    @unittest.skip("Skip test until implementation completed.")
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
-        expected_num_of_sec_quant_ops = 7
+        expected_num_of_sec_quant_ops = 1
         logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
         driver = GaussianForcesDriver(logfile=logfile)
 

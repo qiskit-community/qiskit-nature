@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """ Spin operator builder. """
+from typing import Union, List
 
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
@@ -19,7 +20,7 @@ from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_bu
     create_labels
 
 
-def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size: int,
+def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size: Union[int, List[int]],
                               truncation_order: int):
     """
     Builds a spin operator based on a WatsonHamiltonian object.
@@ -34,7 +35,8 @@ def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian, basis_size:
     """
 
     num_modes = watson_hamiltonian.num_modes
-    basis_size = [basis_size] * num_modes
+    if isinstance(basis_size, int):
+        basis_size = [basis_size] * num_modes
     # TODO make HarmonicBasis an argument and support other bases when implemented
     boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
                                             # type: ignore
