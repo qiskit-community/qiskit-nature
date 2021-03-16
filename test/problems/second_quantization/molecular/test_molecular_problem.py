@@ -59,7 +59,7 @@ class TestMolecularProblem(QiskitNatureTestCase):
                                                             'molecular/resources')
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
+        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
         molecular_problem = MolecularProblem(driver, [trafo])
         second_quantized_ops = molecular_problem.second_q_ops()
