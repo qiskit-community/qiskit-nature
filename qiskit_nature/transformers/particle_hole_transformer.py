@@ -262,21 +262,22 @@ class ParticleHoleTransformer(BaseTransformer):
         ind_no_term = np.asarray([abs(i) - 1 for i in array_sorted])  # normal-ordered index array
         mapping_no_term = ''.join(['-' if i in a_enum else '+' for i in array_sorted])
 
-        id_term = 0.
+        # This is a list in order to make it available in the inlined utility methods below.
+        id_term = [0.]
 
-        def update_h1(indices, sign_flip=False, id_term=None):
+        # This utility method is inlined in order to avoid a lot of data-shuffling
+        def update_h1(indices, sign_flip=False, update_id_term=False):
             ind_old = (ind_ini_term[0], ind_ini_term[1])
             ind_new = tuple(ind_no_term[np.asarray(indices)])
 
             h1_new[ind_new] += (-1.) ** sign_flip * sign_no_term * h1_old[ind_old]
 
-            if id_term is not None:
-                id_term += float(sign_no_term * h1_old[ind_old])
+            if update_id_term:
+                id_term[0] += float(sign_no_term * h1_old[ind_old])
 
-            return id_term
-
+        # This utility method is inlined in order to avoid a lot of data-shuffling
         def update_h2(indices, sign_flip=False, indices_h1=None, sign_flip_h1=False,
-                      id_term=None, sign_flip_id=False):
+                      update_id_term=False, sign_flip_id=False):
             ind_old = tuple(ind_ini_term[np.asarray((0, 1, 3, 2))])
             ind_new = tuple(ind_no_term[np.asarray(indices)])
 
@@ -290,17 +291,15 @@ class ParticleHoleTransformer(BaseTransformer):
 
                     h1_new[ind_old_] += 0.5 * (-1.) ** sign_flip_h1 * sign_no_term * h2_old[ind_old]
 
-            if id_term is not None:
-                id_term += 0.5 * (-1.) ** sign_flip_id * sign_no_term * h2_old[ind_old]
-
-            return id_term
+            if update_id_term:
+                id_term[0] += 0.5 * (-1.) ** sign_flip_id * sign_no_term * h2_old[ind_old]
 
         if len(array_to_normal_order) == 2:
             if ind_no_term[0] == ind_no_term[1]:
                 if mapping_no_term == '+-':
                     update_h1((0, 1))
                 elif mapping_no_term == '-+':
-                    id_term = update_h1((1, 0), sign_flip=True, id_term=id_term)
+                    update_h1((1, 0), sign_flip=True, update_id_term=True)
             else:
                 if mapping_no_term == '+-':
                     update_h1((0, 1))
@@ -445,9 +444,9 @@ class ParticleHoleTransformer(BaseTransformer):
                     elif mapping_no_term == '-++-':
                         update_h2((0, 2, 0, 2), indices_h1=(2, 2))
                     elif mapping_no_term == '-+-+':
-                        id_term = update_h2((0, 2, 0, 2), sign_flip=True,
-                                            indices_h1=[(0, 0), (2, 2)], sign_flip_h1=True,
-                                            id_term=id_term)
+                        update_h2((0, 2, 0, 2), sign_flip=True,
+                                  indices_h1=[(0, 0), (2, 2)], sign_flip_h1=True,
+                                  update_id_term=True)
                     elif mapping_no_term == '--++':
                         update_h2((2, 2, 0, 0))
                     else:
@@ -467,8 +466,8 @@ class ParticleHoleTransformer(BaseTransformer):
                     elif mapping_no_term == '-+-+':
                         update_h2((1, 1, 0, 0), sign_flip=True)
                     elif mapping_no_term == '--++':
-                        id_term = update_h2((0, 1, 0, 1), indices_h1=[(0, 0), (1, 1)],
-                                            id_term=id_term, sign_flip_id=True)
+                        update_h2((0, 1, 0, 1), indices_h1=[(0, 0), (1, 1)],
+                                  update_id_term=True, sign_flip_id=True)
                     else:
                         print('ERROR')
 
@@ -486,9 +485,9 @@ class ParticleHoleTransformer(BaseTransformer):
                         update_h2((1, 0, 0, 1), sign_flip=True,
                                   indices_h1=(1, 1))
                     elif mapping_no_term == '--++':
-                        id_term = update_h2((1, 0, 0, 1),
-                                            indices_h1=[(0, 0), (1, 1)], sign_flip_h1=True,
-                                            id_term=id_term)
+                        update_h2((1, 0, 0, 1),
+                                  indices_h1=[(0, 0), (1, 1)], sign_flip_h1=True,
+                                  update_id_term=True)
                     else:
                         print('ERROR')
 
@@ -573,4 +572,4 @@ class ParticleHoleTransformer(BaseTransformer):
                 else:
                     print('ERROR')
 
-        return h1_new, h2_new, id_term
+        return h1_new, h2_new, id_term[0]
