@@ -64,7 +64,7 @@ setuptools.setup(
         "Topic :: Scientific/Engineering"
     ),
     keywords='qiskit sdk quantum nature chemistry physics',
-    packages=setuptools.find_namespace_packages(include=['qiskit_nature.*']),
+    packages=setuptools.find_packages(include=['qiskit_nature', 'qiskit_nature.*']),
     install_requires=requirements,
     include_package_data=True,
     python_requires=">=3.6",

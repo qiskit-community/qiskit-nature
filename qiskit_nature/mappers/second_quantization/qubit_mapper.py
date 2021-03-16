@@ -21,11 +21,11 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
 
 class QubitMapper(ABC):
-    """The interface for implementing methods which map from a `ParticleOp` to a
+    """The interface for implementing methods which map from a `SecondQuantizedOp` to a
     qubit operator in the form of a `PauliSumOp`.
     """
 
@@ -48,11 +48,11 @@ class QubitMapper(ABC):
         return self._allows_two_qubit_reduction
 
     @abstractmethod
-    def map(self, second_q_op: ParticleOp) -> PauliSumOp:
-        """Maps a `ParticleOp` to a `PauliSumOp`.
+    def map(self, second_q_op: SecondQuantizedOp) -> PauliSumOp:
+        """Maps a `SecondQuantizedOp` to a `PauliSumOp`.
 
         Args:
-            second_q_op: the `ParticleOp` to be mapped.
+            second_q_op: the `SecondQuantizedOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
@@ -60,12 +60,12 @@ class QubitMapper(ABC):
         raise NotImplementedError()
 
     @staticmethod
-    def mode_based_mapping(second_q_op: ParticleOp,
+    def mode_based_mapping(second_q_op: SecondQuantizedOp,
                            pauli_table: List[Tuple[Pauli, Pauli]]) -> PauliSumOp:
-        """Utility method to map a `ParticleOp` to a `PauliSumOp` using a pauli table.
+        """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
 
         Args:
-            second_q_op: the `ParticleOp` to be mapped.
+            second_q_op: the `SecondQuantizedOp` to be mapped.
             pauli_table: a table of paulis built according to the modes of the operator
 
         Returns:
@@ -104,9 +104,8 @@ class QubitMapper(ABC):
 
         ret_op_list = []
 
-        # TODO to_list() is not an attribute of ParticleOp. Change the former to have this or
+        # TODO to_list() is not an attribute of SecondQuantizedOp. Change the former to have this or
         #   change the signature above to take FermionicOp?
-        #
         for label, coeff in second_q_op.to_list():
 
             ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[coeff])
