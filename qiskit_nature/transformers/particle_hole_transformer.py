@@ -52,10 +52,6 @@ class ParticleHoleTransformer(BaseTransformer):
 
         n_qubits = self.num_orbitals * 2
 
-        print('orbs', self.num_orbitals)
-        print('alpha', self.num_alpha)
-        print('electrons', self.num_electrons)
-
         self._convert_to_interleaved_spins()
 
         h1_old_matrix = self._h1
