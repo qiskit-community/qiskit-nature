@@ -90,7 +90,7 @@ class ParticleHoleTransformer(BaseTransformer):
         for i in range(n_qubits):
             for j in range(n_qubits):
                 indices_1 = [i, j]
-                array_mapping_1 = ['adag', 'a']
+                array_mapping_1 = '+-'
 
                 h1_new_matrix = np.zeros([n_qubits, n_qubits])
                 h2_new_matrix = np.zeros([n_qubits, n_qubits, n_qubits, n_qubits])
@@ -109,7 +109,7 @@ class ParticleHoleTransformer(BaseTransformer):
                     for l_i in range(n_qubits):
                         array_to_be_ordered = [i, j, k, l_i]
 
-                        array_mapping_2 = ['adag', 'adag', 'a', 'a']
+                        array_mapping_2 = '++--'
 
                         h1_new_matrix = np.zeros([n_qubits, n_qubits])
                         h2_new_matrix = np.zeros([n_qubits, n_qubits, n_qubits, n_qubits])
@@ -255,8 +255,7 @@ class ParticleHoleTransformer(BaseTransformer):
             n_qubits (int): number of qubits
             n_occupied (int): number of electrons (occupied orbitals)
             array_to_normal_order (list):  e.g. [i,j,k,l] indices of the term to normal order
-            array_mapping (list): e.g. two body terms list  ['adag', 'adag', 'a', 'a'],
-            single body terms list (list): ['adag', 'a']
+            array_mapping (str): e.g. two body terms '++--', or single body terms '+-'
             h1_old (numpy.ndarray):
                            e.g. rFs.dat (dim(rsgtu) = [n_qubits,n_qubits,n_qubits,n_qubits])
                            loaded with QuTip function (qutip.fileio.qload) or numpy.array
@@ -276,7 +275,7 @@ class ParticleHoleTransformer(BaseTransformer):
         # array_to_normal_order). Thus, we need to associate each value in this array with a unique
         # label which identifies both, the kind of operator, and it's position -> a_enum, adag_enum.
         array_to_sort = np.asarray([
-            a_enum[val] if array_mapping[ind] == 'a' else adag_enum[val]
+            a_enum[val] if array_mapping[ind] == '-' else adag_enum[val]
             for ind, val in enumerate(array_to_normal_order)
         ])
 
@@ -285,7 +284,7 @@ class ParticleHoleTransformer(BaseTransformer):
 
         ind_ini_term = array_to_normal_order.copy()  # initial index array
         ind_no_term = np.asarray([abs(i) - 1 for i in array_sorted])  # normal-ordered index array
-        mapping_no_term = ['a' if i in a_enum else 'adag' for i in array_sorted]
+        mapping_no_term = ''.join(['-' if i in a_enum else '+' for i in array_sorted])
 
         i_i = 0
         j_j = 1
@@ -327,134 +326,134 @@ class ParticleHoleTransformer(BaseTransformer):
 
         if len(array_to_normal_order) == 2:
             if ind_no_term[0] == ind_no_term[1]:
-                if mapping_no_term == ['adag', 'a']:
+                if mapping_no_term == '+-':
                     update_h1((0, 1))
-                elif mapping_no_term == ['a', 'adag']:
+                elif mapping_no_term == '-+':
                     id_term = update_h1((1, 0), sign_flip=True, id_term=id_term)
             else:
-                if mapping_no_term == ['adag', 'a']:
+                if mapping_no_term == '+-':
                     update_h1((0, 1))
-                elif mapping_no_term == ['a', 'adag']:
+                elif mapping_no_term == '-+':
                     update_h1((1, 0), sign_flip=True)
 
         elif len(array_to_normal_order) == 4:
             if len(set(ind_no_term)) == 4:
-                if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                if mapping_no_term == '++--':
                     update_h2((i_i, j_j, k_k, l_l))
-                elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                elif mapping_no_term == '+-+-':
                     update_h2((i_i, k_k, j_j, l_l), sign_flip=True)
-                elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                elif mapping_no_term == '+--+':
                     update_h2((i_i, l_l, j_j, k_k))
-                elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                elif mapping_no_term == '-++-':
                     update_h2((j_j, k_k, i_i, l_l))
-                elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                elif mapping_no_term == '-+-+':
                     update_h2((j_j, l_l, i_i, k_k), sign_flip=True)
-                elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                elif mapping_no_term == '--++':
                     update_h2((k_k, l_l, i_i, j_j))
                 else:
                     print('ERROR 1')
 
             elif len(set(ind_no_term)) == 3:
                 if ind_no_term[0] == ind_no_term[1]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, i_i, k_k, l_l))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, k_k, i_i, l_l), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, l_l, i_i, k_k))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((i_i, k_k, i_i, l_l), indices_h1=(k_k, l_l))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((i_i, l_l, i_i, k_k), sign_flip=True,
                                   indices_h1=(l_l, k_k), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((k_k, l_l, i_i, i_i))
                     else:
                         print('ERROR 2')
 
                 elif ind_no_term[0] == ind_no_term[2]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, i_i, l_l))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, i_i, j_j, l_l), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, l_l, j_j, i_i))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, i_i, i_i, l_l),
                                   indices_h1=(j_j, l_l), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, l_l, j_j, l_l), sign_flip=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((i_i, l_l, i_i, j_j), indices_h1=(l_l, j_j))
                     else:
                         print('ERROR 3')
 
                 elif ind_no_term[0] == ind_no_term[3]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, k_k, i_i))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, k_k, j_j, i_i), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, i_i, j_j, k_k))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, k_k, i_i, i_i))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, i_i, i_i, k_k), sign_flip=True,
                                   indices_h1=(j_j, k_k))
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((k_k, i_i, i_i, j_j),
                                   indices_h1=(k_k, j_j), sign_flip_h1=True)
                     else:
                         print('ERROR 4')
 
                 elif ind_no_term[1] == ind_no_term[2]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, j_j, l_l))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, j_j, j_j, l_l), sign_flip=True,
                                   indices_h1=(i_i, l_l))
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, l_l, j_j, j_j))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, j_j, i_i, l_l))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, l_l, i_i, j_j), sign_flip=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((j_j, l_l, i_i, j_j),
                                   indices_h1=(l_l, i_i), sign_flip_h1=True)
                     else:
                         print('ERROR 5')
 
                 elif ind_no_term[1] == ind_no_term[3]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, k_k, j_j))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, k_k, j_j, j_j), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, j_j, j_j, k_k),
                                   indices_h1=(i_i, k_k), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, k_k, i_i, j_j))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, j_j, i_i, k_k), sign_flip=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((k_k, j_j, i_i, j_j), indices_h1=(k_k, i_i))
                     else:
                         print('ERROR 6')
 
                 elif ind_no_term[2] == ind_no_term[3]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, k_k, k_k))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, k_k, j_j, k_k), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, k_k, j_j, k_k), indices_h1=(i_i, j_j))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, k_k, i_i, k_k))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, k_k, i_i, k_k), sign_flip=True,
                                   indices_h1=(j_j, i_i), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((k_k, k_k, i_i, j_j))
                     else:
                         print('ERROR 7')
@@ -466,39 +465,39 @@ class ParticleHoleTransformer(BaseTransformer):
                 if ind_no_term[0] == ind_no_term[1] and \
                         ind_no_term[2] == ind_no_term[3]:
 
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, i_i, k_k, k_k))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, k_k, i_i, k_k), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, k_k, k_k, i_i), sign_flip=True,
                                   indices_h1=(i_i, i_i))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((i_i, k_k, i_i, k_k), indices_h1=(k_k, k_k))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         id_term = update_h2((i_i, k_k, i_i, k_k), sign_flip=True,
                                             indices_h1=[(i_i, i_i), (k_k, k_k)], sign_flip_h1=True,
                                             id_term=id_term)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((k_k, k_k, i_i, i_i))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[2] and \
                         ind_no_term[1] == ind_no_term[3]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, i_i, j_j))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, i_i, j_j, j_j), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, j_j, j_j, i_i),
                                   indices_h1=(i_i, i_i), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, i_i, i_i, j_j),
                                   indices_h1=(j_j, j_j), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, j_j, i_i, i_i), sign_flip=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         id_term = update_h2((i_i, j_j, i_i, j_j), indices_h1=[(i_i, i_i), (j_j, j_j)],
                                             id_term=id_term, sign_flip_id=True)
                     else:
@@ -506,19 +505,19 @@ class ParticleHoleTransformer(BaseTransformer):
 
                 elif ind_no_term[0] == ind_no_term[3] and \
                         ind_no_term[1] == ind_no_term[2]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, j_j, i_i))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, j_j, j_j, i_i), sign_flip=True,
                                   indices_h1=(i_i, i_i))
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, i_i, j_j, j_j))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, j_j, i_i, i_i))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, i_i, i_i, j_j), sign_flip=True,
                                   indices_h1=(j_j, j_j))
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         id_term = update_h2((j_j, i_i, i_i, j_j),
                                             indices_h1=[(i_i, i_i), (j_j, j_j)], sign_flip_h1=True,
                                             id_term=id_term)
@@ -527,75 +526,75 @@ class ParticleHoleTransformer(BaseTransformer):
 
                 elif ind_no_term[0] == ind_no_term[1] and \
                         ind_no_term[0] == ind_no_term[2]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, i_i, i_i, l_l))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, i_i, i_i, l_l), sign_flip=True,
                                   indices_h1=(i_i, l_l))
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, l_l, i_i, i_i))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((i_i, i_i, i_i, l_l))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((i_i, l_l, i_i, i_i), sign_flip=True,
                                   indices_h1=(l_l, i_i), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((i_i, l_l, i_i, i_i))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[1] and \
                         ind_no_term[0] == ind_no_term[3]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, i_i, i_i, k_k))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, i_i, i_i, k_k), sign_flip=True,
                                   indices_h1=(i_i, k_k))
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, k_k, i_i, i_i))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((i_i, i_i, i_i, k_k))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((i_i, k_k, i_i, i_i), sign_flip=True,
                                   indices_h1=(k_k, i_i), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((i_i, k_k, i_i, i_i))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[0] == ind_no_term[2] and \
                         ind_no_term[0] == ind_no_term[3]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, i_i, i_i))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, i_i, j_j, i_i), sign_flip=True)
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, i_i, j_j, i_i), indices_h1=(i_i, j_j))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, i_i, i_i, i_i), sign_flip=True,
                                   indices_h1=(j_j, i_i), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, i_i, i_i, i_i), sign_flip=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((i_i, i_i, i_i, j_j))
                     else:
                         print('ERROR')
 
                 elif ind_no_term[1] == ind_no_term[2] and \
                         ind_no_term[1] == ind_no_term[3]:
-                    if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                    if mapping_no_term == '++--':
                         update_h2((i_i, j_j, j_j, j_j))
-                    elif mapping_no_term == ['adag', 'a', 'adag', 'a']:
+                    elif mapping_no_term == '+-+-':
                         update_h2((i_i, j_j, j_j, j_j), sign_flip=True,
                                   indices_h1=(i_i, j_j))
-                    elif mapping_no_term == ['adag', 'a', 'a', 'adag']:
+                    elif mapping_no_term == '+--+':
                         update_h2((i_i, j_j, j_j, j_j))
-                    elif mapping_no_term == ['a', 'adag', 'adag', 'a']:
+                    elif mapping_no_term == '-++-':
                         update_h2((j_j, j_j, i_i, j_j))
-                    elif mapping_no_term == ['a', 'adag', 'a', 'adag']:
+                    elif mapping_no_term == '-+-+':
                         update_h2((j_j, j_j, i_i, j_j), sign_flip=True,
                                   indices_h1=(j_j, i_i), sign_flip_h1=True)
-                    elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                    elif mapping_no_term == '--++':
                         update_h2((j_j, j_j, i_i, j_j))
                     else:
                         print('ERROR')
@@ -603,9 +602,9 @@ class ParticleHoleTransformer(BaseTransformer):
                     print('ERROR')
 
             if len(set(ind_no_term)) == 1:
-                if mapping_no_term == ['adag', 'adag', 'a', 'a']:
+                if mapping_no_term == '++--':
                     update_h2((i_i, i_i, i_i, i_i))
-                elif mapping_no_term == ['a', 'a', 'adag', 'adag']:
+                elif mapping_no_term == '--++':
                     update_h2((i_i, i_i, i_i, i_i))
                 else:
                     print('ERROR')
