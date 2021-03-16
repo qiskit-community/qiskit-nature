@@ -110,6 +110,6 @@ class ExcitationBuilder:
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)
             op *= 1j
-            operators.append(SecondQuantizedOp([op]))
+            operators.append(op)
 
         return operators
