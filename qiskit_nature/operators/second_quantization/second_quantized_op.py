@@ -10,84 +10,47 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Second-Quantized Operator."""
+"""The Sum Operator base interface."""
 
-from numbers import Number
-from typing import List, Dict
+from abc import ABC, abstractmethod
+from typing import Optional
 
-from qiskit_nature import QiskitNatureError
-from .fermionic_op import FermionicOp
-from .particle_op import ParticleOp
-from .spin_op import SpinOp
+from qiskit.quantum_info.operators.mixins import TolerancesMixin
+
 from .star_algebra import StarAlgebraMixin
 
 
-class SecondQuantizedOp(StarAlgebraMixin):
-    """A general second-quantized operator.
+class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
+    """The Second Quantized Operator base interface.
 
-    This class is used to combine operators of different particle type.
+    This interface should be implemented by all creation- and annihilation-type particle operators
+    in the second-quantized formulation.
     """
 
-    def __init__(self, operator_list: List[ParticleOp]):
+    @property
+    @abstractmethod
+    def register_length(self) -> int:
+        """Getter for the length of the particle register that the SumOp acts on."""
+        raise NotImplementedError
+
+    def __pow__(self, power):
+        if power == 0:
+            return self.__class__("I" * self.register_length)
+
+        return super().__pow__(power)
+
+    @abstractmethod
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
         """
+        Reduce the operator.
+
+        `Reduce` merges terms with same labels and chops terms with coefficients close to 0.
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
+
+        Returns:
+            The reduced operator`
         """
-        # TODO: validation of operator_list
-
-        self._fermion = None
-        self._boson = None
-        self._spin: Dict[int, SpinOp] = {}
-
-        for op in operator_list:
-            if isinstance(op, FermionicOp) and self._fermion is None:
-                self._fermion = op
-            elif isinstance(op, FermionicOp) and self._fermion is not None:
-                raise QiskitNatureError("Only one FermionicOp can be set in initializer.")
-            # if isinstance(op, BosonicOp):
-            # if isinstance(op, SpinOp):
-
-    def __repr__(self):
-        return f"SecondQuantizedOp([{repr(self._fermion)}])"
-
-    @property
-    def fermion(self):
-        """fermionic part"""
-        return self._fermion
-
-    @property
-    def boson(self):
-        """bosonic part"""
-        return self._boson
-
-    @property
-    def spin(self):
-        """spin part"""
-        return self._spin
-
-    def mul(self, other):
-        if not isinstance(other, Number):
-            raise TypeError("Unsupported operand type(s) for *: 'SecondQuantizedOperator' and "
-                            "'{}'".format(type(other).__name__))
-
-        operator_list = []
-        if self._fermion is not None:
-            operator_list.append(other * self._fermion)
-
-        return SecondQuantizedOp(operator_list)
-
-    def compose(self, other):
-        if not isinstance(other, SecondQuantizedOp):
-            raise TypeError("Unsupported operand type(s) for @: 'SecondQuantizedOp' and "
-                            "'{}'".format(type(other).__name__))
-
-    def add(self, other):
-        if not isinstance(other, SecondQuantizedOp):
-            raise TypeError("Unsupported operand type(s) for +: 'SecondQuantizedSumOp' and "
-                            "'{}'".format(type(other).__name__))
-        # TODO: implement
-
-    def adjoint(self):
-        daggered_operator_list = []
-        if self._fermion is not None:
-            daggered_operator_list.append(self._fermion.dagger)
-
-        return SecondQuantizedOp(daggered_operator_list)
+        raise NotImplementedError

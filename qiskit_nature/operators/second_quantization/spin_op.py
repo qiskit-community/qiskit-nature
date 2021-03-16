@@ -27,10 +27,10 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from .second_quantized_op import SecondQuantizedOp
 
 
-class SpinOp(ParticleOp):
+class SpinOp(SecondQuantizedOp):
     """Spin type operators. A class for products and powers of XYZ-ordered Spin operators.
 
     **Label**
