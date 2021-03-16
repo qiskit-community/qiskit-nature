@@ -12,7 +12,7 @@
 
 """Hartree-Fock initial state."""
 
-from typing import Union, List, Tuple
+from typing import List, Tuple
 import logging
 import numpy as np
 
@@ -30,14 +30,13 @@ class HartreeFock(QuantumCircuit):
 
     def __init__(self,
                  num_spin_orbitals: int,
-                 num_particles: Union[Tuple[int, int], int],
+                 num_particles: Tuple[int, int],
                  qubit_converter: QubitConverter) -> None:
         """
         Args:
             num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
-            num_particles: The number of particles. If this is an integer, it is the total (even)
-                number of particles. If a tuple, the first number is alpha and the second number is
-                beta.
+            num_particles: The number of particles as a tuple storing the number of alpha- and
+                           beta-spin electrons in the first and second number, respectively.
             qubit_converter: a QubitConverter instance.
         """
 
@@ -63,13 +62,13 @@ class HartreeFock(QuantumCircuit):
 
 
 def hartree_fock_bitstring(num_spin_orbitals: int,
-                           num_particles: Union[Tuple[int, int], int]) -> List[bool]:
+                           num_particles: Tuple[int, int]) -> List[bool]:
     """Compute the bitstring representing the Hartree-Fock state for the specified system.
 
     Args:
         num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
-        num_particles: The number of particles. If this is an integer, it is the total (even) number
-            of particles. If a tuple, the first number is alpha and the second number is beta.
+        num_particles: The number of particles as a tuple storing the number of alpha- and beta-spin
+                       electrons in the first and second number, respectively.
 
     Returns:
         The bitstring representing the state of the Hartree-Fock state as array of bools.
@@ -79,16 +78,9 @@ def hartree_fock_bitstring(num_spin_orbitals: int,
     """
     # validate the input
     validate_min('num_spin_orbitals', num_spin_orbitals, 1)
+    num_alpha, num_beta = num_particles
 
-    if isinstance(num_particles, tuple):
-        num_alpha, num_beta = num_particles
-    else:
-        logger.info('We assume that the number of alphas and betas are the same.')
-        num_alpha = num_beta = num_particles // 2
-
-    num_particles = num_alpha + num_beta
-
-    if num_particles > num_spin_orbitals:
+    if sum(num_particles) > num_spin_orbitals:
         raise ValueError('# of particles must be less than or equal to # of orbitals.')
 
     half_orbitals = num_spin_orbitals // 2

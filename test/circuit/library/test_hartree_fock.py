@@ -29,7 +29,7 @@ class TestHartreeFock(QiskitNatureTestCase):
 
     def test_bitstring(self):
         """Simple test for the bitstring function."""
-        bitstr = hartree_fock_bitstring(4, 2)
+        bitstr = hartree_fock_bitstring(4, (1, 1))
         self.assertTrue(all(bitstr == np.array([True, False, True, False])))
 
     def test_bitstring_invalid_input(self):
@@ -37,11 +37,11 @@ class TestHartreeFock(QiskitNatureTestCase):
 
         with self.subTest('too many particles'):
             with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(4, 6)
+                _ = hartree_fock_bitstring(4, (3, 3))
 
         with self.subTest('too few orbitals'):
             with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(-1, 4)
+                _ = hartree_fock_bitstring(-1, (2, 2))
 
     def test_qubits_4_jw_h2(self):
         """ qubits 4 jw h2 test """
@@ -67,7 +67,7 @@ class TestHartreeFock(QiskitNatureTestCase):
     @unittest.skip('Missing symmetry reduction code in QubitConverter')
     def test_qubits_2_py_h2(self):
         """ qubits 2 py h2 test """
-        state = HartreeFock(4, 2, QubitConverter(ParityMapper()))
+        state = HartreeFock(4, (1, 1), QubitConverter(ParityMapper()))
         ref = QuantumCircuit(2)
         ref.x(0)
         self.assertEqual(state, ref)
