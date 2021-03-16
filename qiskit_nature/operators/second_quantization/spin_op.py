@@ -25,8 +25,8 @@ from itertools import product
 from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
-
 from qiskit.utils.validation import validate_min
+
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
 
@@ -198,22 +198,27 @@ class SpinOp(ParticleOp):
             )
         self._dim = int(2 * spin + 1)
 
-        if isinstance(data, tuple):
+        if isinstance(data, tuple) and all(isinstance(datum, np.ndarray) for datum in data):
             self._spin_array = np.array(data[0], dtype=np.uint8)
             self._register_length = self._spin_array.shape[2]
             self._coeffs = np.array(data[1], dtype=dtype)
+
+        if (
+            isinstance(data, tuple)
+            and isinstance(data[0], str)
+            and isinstance(data[1], (int, float, complex))
+        ):
+            data = [data]
 
         if isinstance(data, str):
             data = [(data, 1)]
 
         if isinstance(data, list):
-            sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+(\^1)?)"
-            label_pattern = re.compile(
-                rf"^({sparse}\s)*{sparse}(?!\s)$|^[IXYZ\+\-]+$"
-            )
-            invalid_labels = [
-                label for label, _ in data if not label_pattern.match(label)
-            ]
+            # [IXYZ]_index^power (power is optional) or [+-]_index
+            sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+?)"
+            # space (\s) separated sparse label or dense label (repeat of [IXYZ+-])
+            label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$|^[IXYZ\+\-]+$")
+            invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
             if invalid_labels:
                 raise ValueError(f"Invalid labels: {invalid_labels}")
             data = self._flatten_ladder_ops(data)
@@ -226,9 +231,7 @@ class SpinOp(ParticleOp):
                 label_pattern = re.compile(r"^[IXYZ]+$")
                 invalid_labels = [label for label in labels if not label_pattern.match(label)]
                 if invalid_labels:
-                    raise ValueError(
-                        f"Invalid labels for dense labels are given: {invalid_labels}"
-                    )
+                    raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
                 self._spin_array = np.array(
                     [
                         [[char == "X", char == "Y", char == "Z"] for char in label]
@@ -238,7 +241,6 @@ class SpinOp(ParticleOp):
                 ).transpose((2, 0, 1))
             else:  # Sparse label
                 validate_min("register_length", register_length, 1)
-
                 label_pattern = re.compile(r"^[IXYZ]_\d+(\^\d+)?$")
                 invalid_labels = [
                     label
@@ -257,9 +259,16 @@ class SpinOp(ParticleOp):
         self._coeffs.flags.writeable = False
 
     def __repr__(self) -> str:
-        if len(self) == 1 and self._coeffs[0] == 1:
-            return f"SpinOp('{self.to_list()[0][0]}')"
-        return f"SpinOp({self.to_list()}, spin={self.spin})"  # TODO truncate
+        spin = self.spin
+        reg_len = self.register_length
+        if len(self) == 1:
+            if self._coeffs[0] == 1:  # str
+                data_str = f"'{self.to_list()[0][0]}'"
+            else:  # tuple
+                data_str = repr(self.to_list()[0])
+        else:  # list
+            data_str = repr(self.to_list())
+        return f"SpinOp({data_str}, spin={spin}, register_length={reg_len})"  # TODO truncate
 
     def __str__(self) -> str:
         if len(self) == 1:
@@ -334,7 +343,7 @@ class SpinOp(ParticleOp):
     def mul(self, other: complex) -> "SpinOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
-                "Unsupported operand type(s) for *: 'SpinOp' and " f"'{type(other).__name__}'"
+                f"Unsupported operand type(s) for *: 'SpinOp' and '{type(other).__name__}'"
             )
 
         return SpinOp((self._spin_array, self._coeffs * other), spin=self.spin)
@@ -447,7 +456,7 @@ class SpinOp(ParticleOp):
         )
         mat = cast(np.ndarray, mat)
         mat.flags.writeable = False
-        return mat
+        return mat.view()
 
     def _from_sparse_label(self, labels):
         xyz_dict = {"X": 0, "Y": 1, "Z": 2}
@@ -456,7 +465,7 @@ class SpinOp(ParticleOp):
         self._spin_array = np.zeros((3, len(labels), self._register_length), dtype=np.uint8)
         for term, label in enumerate(labels):
             for split_label in label.split():
-                xyz, nums = splitted_label.split("_", 1)
+                xyz, nums = split_label.split("_", 1)
 
                 if xyz not in xyz_dict:
                     continue

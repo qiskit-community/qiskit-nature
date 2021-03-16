@@ -16,7 +16,7 @@ import re
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-from qiskit.utils.validation import validate_min
+from qiskit.utils.validation import validate_min, validate_range_exclusive_max
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
@@ -148,11 +148,15 @@ class FermionicOp(ParticleOp):
             ValueError: given data is invalid value.
             TypeError: given data has invalid type.
         """
+        self._register_length: int
+        self._coeffs: np.ndarray
+        self._labels: List[str]
+
         if not isinstance(data, (tuple, list, str)):
             raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
 
         if isinstance(data, tuple):
-            if not isinstance(data[0], str) or isinstance(data[1], (int, float, complex)):
+            if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
                 raise TypeError(
                     f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
                 )
@@ -161,53 +165,56 @@ class FermionicOp(ParticleOp):
         if isinstance(data, str):
             data = [(data, 1)]
 
-        if isinstance(data, list):
-            if not all(
-                isinstance(label, str) and isinstance(coeff, (int, float, complex))
-                for label, coeff in data
-            ):
-                raise TypeError("Data list must be [(str, number)].")
+        if not all(
+            isinstance(label, str) and isinstance(coeff, (int, float, complex))
+            for label, coeff in data
+        ):
+            raise TypeError("Data list must be [(str, number)].")
 
-            labels, coeffs = zip(*data)  # type: ignore
-            self._coeffs = np.array(coeffs, np.complex128)
+        labels, coeffs = zip(*data)
+        self._coeffs = np.array(coeffs, np.complex128)
 
-            if register_length is None:  # Dense label
-                self._register_length = len(labels[0])
-                label_pattern = re.compile(r"^[I\+\-NE]+$")
-                invalid_labels = [label for label in labels if not label_pattern.match(label)]
-                if invalid_labels:
-                    raise ValueError(
-                        f"Invalid labels for dense labels are given: {invalid_labels}"
-                    )
-                self._labels = labels
-            else:  # Sparse label
-                validate_min("register_length", register_length, 1)
-                self._register_length = register_length
-                label_pattern = re.compile(r"^[I\+\-NE]_\d+$")
-                invalid_labels = [
-                    label
-                    for label in labels
-                    if not all(label_pattern.match(l) for l in label.split())
-                ]
-                if invalid_labels:
-                    raise ValueError(
-                        f"Invalid labels for sparse labels are given: {invalid_labels}"
-                    )
-                self._from_sparse_label(labels)
+        if register_length is None:  # Dense label
+            self._register_length = len(labels[0])
+            if not all(len(label) == self._register_length for label in labels):
+                raise ValueError("Lengths of strings of label are different.")
+            label_pattern = re.compile(r"^[I\+\-NE]+$")
+            invalid_labels = [label for label in labels if not label_pattern.match(label)]
+            if invalid_labels:
+                raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
+            self._labels = list(labels)
+        else:  # Sparse label
+            validate_min("register_length", register_length, 1)
+            self._register_length = register_length
+            label_pattern = re.compile(r"^[I\+\-NE]_\d+$")
+            invalid_labels = [
+                label for label in labels if not all(label_pattern.match(l) for l in label.split())
+            ]
+            if invalid_labels:
+                raise ValueError(f"Invalid labels for sparse labels are given: {invalid_labels}")
+            list_label = [["I"] * self._register_length for _ in labels]
+            for term, label in enumerate(labels):
+                prev_index = -1
+                for split_label in label.split():
+                    op_label, index_str = split_label.split("_", 1)
+                    index = int(index_str)
+                    validate_range_exclusive_max("index", index, 0, self._register_length)
+                    if 0 <= prev_index < index:
+                        raise ValueError("Indices of labels must be in descending order.")
+                    list_label[term][self._register_length - index - 1] = op_label
+                    prev_index = index
+
+            self._labels = ["".join(l) for l in list_label]
 
     def __repr__(self) -> str:
-        if len(self) == 1 and self._coeffs == 1:
-            return f"FermionicOp('{self._labels[0]}')"
+        if len(self) == 1:
+            if self._coeffs[0] == 1:
+                return f"FermionicOp('{self._labels[0]}')"
+            return f"FermionicOp({self.to_list()[0]})"
         return f"FermionicOp({self.to_list()})"  # TODO truncate
 
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
-
-        # 1. Treat the case of the zero-operator:
-        if len(self) == 0:
-            return "Empty operator ({})".format(self.register_length)
-
-        # 2. Treat the general case:
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{label} * {coeff}"
@@ -228,9 +235,7 @@ class FermionicOp(ParticleOp):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
-        return FermionicOp(
-            list(zip(self._labels, [coeff * other for coeff in self._coeffs.tolist()]))
-        )
+        return FermionicOp(list(zip(self._labels, (other * self._coeffs).tolist())))
 
     def compose(self, other: "FermionicOp") -> "FermionicOp":
         if isinstance(other, FermionicOp):
@@ -248,13 +253,12 @@ class FermionicOp(ParticleOp):
                     new_data.append((new_label, cf1 * cf2 * sign))
 
             if not new_data:
-                return FermionicOp([("I" * self._register_length, 0)])
+                return FermionicOp(("I" * self._register_length, 0))
 
             return FermionicOp(new_data)
 
         raise TypeError(
-            "Unsupported operand type(s) for *: 'FermionicOp' and "
-            "'{}'".format(type(other).__name__)
+            f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
         )
 
     # Map the products of two operators on a single fermionic mode to their result.
@@ -324,8 +328,7 @@ class FermionicOp(ParticleOp):
     def add(self, other: "FermionicOp") -> "FermionicOp":
         if not isinstance(other, FermionicOp):
             raise TypeError(
-                "Unsupported operand type(s) for +: 'FermionicOp' and "
-                "'{}'".format(type(other).__name__)
+                f"Unsupported operand type(s) for +: 'FermionicOp' and '{type(other).__name__}'"
             )
 
         # Check compatibility (i.e. operators act on same register length)
@@ -379,23 +382,3 @@ class FermionicOp(ParticleOp):
         if not non_zero:
             return FermionicOp(("I" * self.register_length, 0))
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
-
-    def _from_sparse_label(self, labels):
-        list_label = [["I"] * self._register_length for _ in labels]
-        for term, label in enumerate(labels):
-            prev_index = -1
-            for single_label in label.split():
-                op_label, index_str = single_label.split("_", 1)
-                index = int(index_str)
-
-                if index >= self._register_length:
-                    raise ValueError("index must be smaller than register_length.")
-
-                if 0 <= prev_index < index:
-                    raise ValueError("Indices of labels must be in descending order.")
-
-                register = self._register_length - index - 1
-                list_label[term][register] = op_label
-                prev_index = index
-
-        self._labels = ["".join(l) for l in list_label]
