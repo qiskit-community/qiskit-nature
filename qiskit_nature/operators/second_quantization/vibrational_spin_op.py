@@ -14,7 +14,6 @@ Note: this implementation differs fundamentally from the `FermionicOperator` and
 as it relies an the mathematical representation of spin matrices as (e.g.) explained in [1].
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
 """
-import re
 from fractions import Fraction
 from typing import List, Tuple, Union
 
@@ -49,9 +48,6 @@ class VibrationalSpinOp(SpinOp):
     scalar multiplication, and dagger(adjoint).
     """
 
-    # _VALID_VIBR_LABEL_PATTERN = re.compile(
-    #     r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
-
     def __init__(self, data: Union[List[Tuple[str, complex]],], num_modes: int,
                  num_modals: Union[int, List[int]],
                  spin: Union[float, Fraction] = Fraction(1, 2)):
@@ -67,11 +63,6 @@ class VibrationalSpinOp(SpinOp):
             QiskitNatureError: invalid spin value.
         """
         validate_vibrational_labels(data, num_modes, num_modals)
-        # if isinstance(data, list):
-        #     invalid_labels = [label for label, _ in data if
-        #                       not self._VALID_VIBR_LABEL_PATTERN.match(label)]
-        #     if invalid_labels:
-        #         raise ValueError(f"Invalid labels: {invalid_labels}")
 
         self._vibrational_data = data
         self._num_modals = num_modals
