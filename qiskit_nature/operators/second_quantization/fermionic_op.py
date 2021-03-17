@@ -17,10 +17,10 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from .particle_op import ParticleOp
+from .second_quantized_op import SecondQuantizedOp
 
 
-class FermionicOp(ParticleOp):
+class FermionicOp(SecondQuantizedOp):
     r"""
     N-mode Fermionic operator.
 

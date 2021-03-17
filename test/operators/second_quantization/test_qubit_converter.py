@@ -19,7 +19,6 @@ from qiskit.opflow import X, Y, Z, I
 
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
 
@@ -51,7 +50,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         q_molecule = driver.run()
         second_q_ops = []
         fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
-        second_q_ops.append(SecondQuantizedOp([fermionic_op]))
+        second_q_ops.append(fermionic_op)
         jw_mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(jw_mapper)
         qubit_ops = qubit_conv.to_qubit_ops(second_q_ops)
@@ -73,9 +72,9 @@ class TestQubitConverter(QiskitNatureTestCase):
         second_q_ops = []
         fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
         # We create 3 of the same operator as a simple/quick test
-        second_q_ops.append(SecondQuantizedOp([fermionic_op]))
-        second_q_ops.append(SecondQuantizedOp([fermionic_op]))
-        second_q_ops.append(SecondQuantizedOp([fermionic_op]))
+        second_q_ops.append(fermionic_op)
+        second_q_ops.append(fermionic_op)
+        second_q_ops.append(fermionic_op)
         jw_mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(jw_mapper)
         qubit_ops = qubit_conv.to_qubit_ops(second_q_ops)
