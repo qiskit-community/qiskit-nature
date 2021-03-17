@@ -74,7 +74,7 @@ def build_excitation_ops(num_excitations: int,
             # validate an excitation by asserting that all indices are unique:
             #   1. get the frozen set of indices in the excitation
             exc_set = frozenset(itertools.chain.from_iterable(exc))
-            #   2. all indicies must be unique (size of set equals 2 * num_excitations)
+            #   2. all indices must be unique (size of set equals 2 * num_excitations)
             #   3. and we also don't want to include permuted variants of identical excitations
             if len(exc_set) == num_excitations * 2 and exc_set not in visited_excitations:
                 visited_excitations.add(exc_set)
