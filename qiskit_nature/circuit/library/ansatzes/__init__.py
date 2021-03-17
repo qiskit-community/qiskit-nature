@@ -13,13 +13,11 @@
 """Ansatz circuits and utilities thereof."""
 
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
-from .excitation_builder import ExcitationBuilder
 from .ucc import UCC
 from .uccsd import UCCSD
 
 __all__ = [
     'EvolvedOperatorAnsatz',
-    'ExcitationBuilder',
     'UCC',
     'UCCSD',
     ]

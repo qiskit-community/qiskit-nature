@@ -16,7 +16,7 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
-from qiskit_nature.circuit.library.ansatzes import ExcitationBuilder
+from qiskit_nature.circuit.library.ansatzes.excitation_builder import build_excitation_ops
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
@@ -78,8 +78,7 @@ class TestExcitationBuilder(QiskitNatureTestCase):
     )
     def test_build_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles, expect):
         """TODO"""
-        ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
-                                                     num_particles)
+        ops = build_excitation_ops(num_excitations, num_spin_orbitals, num_particles)
         assert len(ops) == len(expect)
         for op, exp in zip(ops, expect):
             assert op._labels == exp._labels
@@ -118,8 +117,8 @@ class TestExcitationBuilder(QiskitNatureTestCase):
     def test_max_spin_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
                                      max_spin, expect):
         """TODO"""
-        ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
-                                                     num_particles, max_spin_excitation=max_spin)
+        ops = build_excitation_ops(num_excitations, num_spin_orbitals, num_particles,
+                                   max_spin_excitation=max_spin)
         assert len(ops) == len(expect)
         for op, exp in zip(ops, expect):
             assert op._labels == exp._labels
@@ -136,8 +135,8 @@ class TestExcitationBuilder(QiskitNatureTestCase):
     def test_pure_alpha_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
                                        expect):
         """TODO"""
-        ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
-                                                     num_particles, beta_spin=False)
+        ops = build_excitation_ops(num_excitations, num_spin_orbitals, num_particles,
+                                   beta_spin=False)
         assert len(ops) == len(expect)
         for op, exp in zip(ops, expect):
             assert op._labels == exp._labels
@@ -154,8 +153,8 @@ class TestExcitationBuilder(QiskitNatureTestCase):
     def test_pure_beta_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
                                       expect):
         """TODO"""
-        ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
-                                                     num_particles, alpha_spin=False)
+        ops = build_excitation_ops(num_excitations, num_spin_orbitals, num_particles,
+                                   alpha_spin=False)
         assert len(ops) == len(expect)
         for op, exp in zip(ops, expect):
             assert op._labels == exp._labels

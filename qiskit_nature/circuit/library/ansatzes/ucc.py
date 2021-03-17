@@ -22,7 +22,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
-from .excitation_builder import ExcitationBuilder
+from .excitation_builder import build_excitation_ops
 
 logger = logging.getLogger(__name__)
 
@@ -184,20 +184,20 @@ class UCC(EvolvedOperatorAnsatz):
         if isinstance(self.excitations, str):
             for exc in self.excitations:
                 generators.append(partial(
-                    ExcitationBuilder.build_excitation_ops,
+                    build_excitation_ops,
                     num_excitations=self.EXCITATION_TYPE[exc],
                     **extra_kwargs
                 ))
         elif isinstance(self.excitations, int):
             generators.append(partial(
-                ExcitationBuilder.build_excitation_ops,
+                build_excitation_ops,
                 num_excitations=self.excitations,
                 **extra_kwargs
             ))
         elif isinstance(self.excitations, list):
             for exc in self.excitations:  # type: ignore
                 generators.append(partial(
-                    ExcitationBuilder.build_excitation_ops,
+                    build_excitation_ops,
                     num_excitations=exc,
                     **extra_kwargs
                 ))
