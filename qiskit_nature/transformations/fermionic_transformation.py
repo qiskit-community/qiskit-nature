@@ -416,26 +416,22 @@ class FermionicTransformation(Transformation):
                     aux_ops[i] = None  # Discard since no meaningful measurement can be done
 
             if self._z2symmetry_reduction == 'auto':
-                from ..circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
-                hf_bitstr = hartree_fock_bitstring(
-                    num_orbitals=self._molecule_info['num_orbitals'],
-                    qubit_mapping=self._qubit_mapping,
-                    two_qubit_reduction=self._two_qubit_reduction,
-                    num_particles=self._molecule_info['num_particles']
-                    )
-                z2_symmetries = FermionicTransformation._pick_sector(z2_symmetries, hf_bitstr)
-            else:
-                if len(self._z2symmetry_reduction) != len(z2_symmetries.symmetries):
-                    raise QiskitNatureError('z2symmetry_reduction tapering values list has '
-                                            'invalid length {} should be {}'.
-                                            format(len(self._z2symmetry_reduction),
-                                                   len(z2_symmetries.symmetries)))
-                valid = np.all(np.isin(self._z2symmetry_reduction, [-1, 1]))
-                if not valid:
-                    raise QiskitNatureError('z2symmetry_reduction tapering values list must '
-                                            'contain -1\'s and/or 1\'s only was {}'.
-                                            format(self._z2symmetry_reduction,))
-                z2_symmetries.tapering_values = self._z2symmetry_reduction
+                logger.warning('This class will be removed shortly and the new HartreeFock '
+                               'implementation is incompatible with this approach. Rather than '
+                               'spending time fixing something which will be removed, this '
+                               'functionality has been disabled.')
+
+            if len(self._z2symmetry_reduction) != len(z2_symmetries.symmetries):
+                raise QiskitNatureError('z2symmetry_reduction tapering values list has '
+                                        'invalid length {} should be {}'.
+                                        format(len(self._z2symmetry_reduction),
+                                               len(z2_symmetries.symmetries)))
+            valid = np.all(np.isin(self._z2symmetry_reduction, [-1, 1]))
+            if not valid:
+                raise QiskitNatureError('z2symmetry_reduction tapering values list must '
+                                        'contain -1\'s and/or 1\'s only was {}'.
+                                        format(self._z2symmetry_reduction,))
+            z2_symmetries.tapering_values = self._z2symmetry_reduction
 
             logger.debug('Apply symmetry with tapering values %s', z2_symmetries.tapering_values)
             chop_to = 0.00000001  # Use same threshold as qubit mapping to chop tapered operator
