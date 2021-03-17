@@ -10,7 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-TODO.
+This method is used by the :class:`~.UCC` Ansatz in order to construct its excitation operators. It
+must be called for each type of excitation (singles, doubles, etc.) that is to be considered in the
+Ansatz.
+Some keyword arguments are allowed through which the excitations can be filtered to fit the user's
+needs. `alpha_spin` and `beta_spin` are boolean flags which can be set to `False` in order to
+disable the inclusion of alpha-spin or beta-spin excitation, respectively.
+`max_spin_excitation` takes an integer value which defines the maximum number of excitations that
+can occur within the same spin. Thus, setting `max_spin_excitation=1` and `num_excitations=2` yields
+the SUCC Ansatz.
 """
 
 from typing import List, Tuple, Optional
