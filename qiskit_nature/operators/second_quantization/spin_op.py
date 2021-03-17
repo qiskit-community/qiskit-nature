@@ -48,19 +48,19 @@ class SpinOp(ParticleOp):
           - :math:`I`
           - Identity operator
         * - `X`
-          - :math:`S_x`
+          - :math:`S^x`
           - :math:`x`-component of the spin operator
         * - `Y`
-          - :math:`S_y`
+          - :math:`S^y`
           - :math:`y`-component of the spin operator
         * - `Z`
-          - :math:`S_z`
+          - :math:`S^z`
           - :math:`z`-component of the spin operator
         * - `+`
-          - :math:`S_+`
+          - :math:`S^+`
           - Raising operator
         * - `-`
-          - :math:`S_-`
+          - :math:`S^-`
           - Lowering operator
 
     There are two types of label modes for :class:`SpinOp`.
@@ -111,16 +111,18 @@ class SpinOp(ParticleOp):
     The :class:`SpinOp` can be initialized by the list of tuples.
     For example,
 
-    .. code-block:: python
+    .. jupyter-execute::
+
+        from qiskit_nature.operators import SpinOp
 
         x = SpinOp("X", spin=3/2)
         y = SpinOp("Y", spin=3/2)
         z = SpinOp("Z", spin=3/2)
 
-    are :math:`S_x, S_y, S_z` for spin 3/2 system.
+    are :math:`S^x, S^y, S^z` for spin 3/2 system.
     Two qutrit Heisenberg model with transverse magnetic field is
 
-    .. code-block:: python
+    .. jupyter-execute::
 
         SpinOp(
             [
@@ -133,7 +135,7 @@ class SpinOp(ParticleOp):
             spin=1
         )
 
-    This means :math:`- X_1 X_0 - Y_1 Y_0 - Z_1 Z_0 - 0.3 Z_0 - 0.3 Z_1`.
+    This means :math:`- S^x_1 S^x_0 - S^y_1 S^y_0 - S^z_1 S^z_0 - 0.3 S^z_0 - 0.3 S^z_1`.
 
     :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
     In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
@@ -148,25 +150,17 @@ class SpinOp(ParticleOp):
     scalar multiplication, and dagger(adjoint).
     For example,
 
+    Raising Operator (addition and scalar multiplication)
+
     .. jupyter-execute::
 
-        from qiskit_nature.operators import SpinOp
+        x + 1j * y
 
-        x = SpinOp("X", spin=3/2)
-        y = SpinOp("Y", spin=3/2)
-        z = SpinOp("Z", spin=3/2)
+    Dagger
 
-        print("Raising operator:")
-        print(x + 1j * y)
-        plus = SpinOp("+", spin=3/2)
-        print("This is same with: ", plus)
-        print("Lowering operator:")
-        print(x - 1j * y)
-        minus = SpinOp("-", spin=3/2)
-        print("This is same with: ", minus)
+    .. jupyter-execute::
 
-        print("Dagger")
-        print(~(1j * z))
+        ~(1j * z)
 
     """
 
@@ -387,7 +381,7 @@ class SpinOp(ParticleOp):
                 ),
                 spin=self.spin,
             )
-        new_array = flatten_array[non_zero].T.reshape((3, len(non_zero), self._register_length))
+        new_array = flatten_array[non_zero].T.reshape((3, len(non_zero), self.register_length))
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
@@ -468,7 +462,7 @@ class SpinOp(ParticleOp):
         xyz_dict = {"X": 0, "Y": 1, "Z": 2}
 
         # 3-dimensional ndarray (XYZ, terms, register)
-        self._spin_array = np.zeros((3, len(labels), self._register_length), dtype=np.uint8)
+        self._spin_array = np.zeros((3, len(labels), self.register_length), dtype=np.uint8)
         for term, label in enumerate(labels):
             for split_label in label.split():
                 xyz, nums = split_label.split("_", 1)
@@ -478,12 +472,14 @@ class SpinOp(ParticleOp):
 
                 xyz_num = xyz_dict[xyz]
                 index, power = map(int, nums.split("^", 1)) if "^" in nums else (int(nums), 1)
-                if index >= self._register_length:
-                    raise ValueError("index must be smaller than register_length.")
-                register = self._register_length - index - 1
+                if index >= self.register_length:
+                    raise ValueError(
+                        f"Index {index} must be smaller than register_length {self.register_length}"
+                    )
+                register = self.register_length - index - 1
                 # Check the order of X, Y, and Z whether it has been already assigned.
                 if self._spin_array[range(xyz_num + 1, 3), term, register].any():
-                    raise ValueError("Label must be in XYZ order.")
+                    raise ValueError(f"Label must be in XYZ order, but {label}.")
                 # same label is not assigned.
                 if self._spin_array[xyz_num, term, register]:
                     raise ValueError("Duplicate label.")
@@ -528,7 +524,7 @@ class SpinOp(ParticleOp):
                     if minus_pos - plus_pos == 1:
                         positions.append(plus_pos)
                         indices.append(i)
-            for ops in product(*[[f"X_{i}^2", f"Y_{i}^2", f"Z_{i}"] for i in indices]):
+            for ops in product(*([f"X_{i}^2", f"Y_{i}^2", f"Z_{i}"] for i in indices)):
                 label_list = label.split()
                 for pos, op in zip(positions, ops):
                     label_list[pos] = op

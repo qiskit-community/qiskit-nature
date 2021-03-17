@@ -107,18 +107,30 @@ class FermionicOp(ParticleOp):
     multiplication, operator multiplication, and dagger(adjoint).
     For example,
 
+    Addition
+
     .. jupyter-execute::
 
       from qiskit_nature.operators import FermionicOp
+      0.5 * FermionicOp("I+") + FermionicOp("+I")
 
-      print("Addition")
-      print(0.5 * FermionicOp("I+") + FermionicOp("+I"))
-      print("Sum")
-      print(0.25 * sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN']))
-      print("Operator multiplication")
+    Sum
+
+    .. jupyter-execute::
+
+      0.25 * sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN'])
+
+    Operator multiplication
+
+    .. jupyter-execute::
+
       print(FermionicOp("+-") @ FermionicOp("E+"))
-      print("Dagger")
-      print(FermionicOp("+").dagger)
+
+    Dagger
+
+    .. jupyter-execute::
+
+      ~FermionicOp("+")
 
     In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
     addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
