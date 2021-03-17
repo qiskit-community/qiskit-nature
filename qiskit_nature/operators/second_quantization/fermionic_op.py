@@ -13,6 +13,7 @@
 """The Fermionic-particle Operator."""
 
 import re
+from itertools import product
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -394,3 +395,39 @@ class FermionicOp(SecondQuantizedOp):
         if not non_zero:
             return FermionicOp(("I" * self.register_length, 0))
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
+
+    def to_normal_order(self) -> "FermionicOp":
+        """Convert to normal order representation.
+        `E` is convertd into `I-N` and the order of label is `+N-`.
+        """
+        normal_ordered_list = []
+        reduced_op = self.reduce()
+
+        # E = I - N
+        for label, coeff in reduced_op.to_list():
+            splits = label.split("E")
+
+            for inter_ops in product("IN", repeat=len(splits)-1):
+                sign = (-1) ** inter_ops.count("N")
+
+                label = splits[0]
+                for link, next_base in zip(inter_ops, splits[1:]):
+                    label += link + next_base
+
+                minus_pos = [i.start() for i in re.finditer(r"-", label)]
+                plus_pos = [i.start() for i in re.finditer(r"\+", label)]
+                number_pos = [i.start() for i in re.finditer(r"N", label)]
+                list_label = list(label)
+                for i, pos in enumerate(i.start() for i in re.finditer(r"[\-\+N]", label)):
+                    if i < len(plus_pos):
+                        list_label[pos] = "+"
+                    elif i < len(plus_pos) + len(number_pos):
+                        list_label[pos] = "N"
+                    else:
+                        list_label[pos] = "-"
+                sign_swap = (-1) ** sum(1 for p in plus_pos for m in minus_pos if p > m)
+                label = "".join(list_label)
+
+                normal_ordered_list.append((label, coeff * sign * sign_swap))
+
+        return FermionicOp(normal_ordered_list)
