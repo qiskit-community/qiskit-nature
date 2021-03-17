@@ -67,16 +67,17 @@ def build_excitation_ops(num_excitations: int,
         beta_excitations = list(itertools.product(beta_occ, beta_unocc))
 
     excitations = list()
+    visited_excitations = set()
 
     def add_excitations(pool):
         for exc in pool:
             # validate an excitation by asserting that all indices are unique:
-            #   1. flatten the tuple of tuples (chain.from_iterable)
-            #   2. the length equals twice the number of excitations (one excitation gives to
-            #      indices)
-            if len(set(itertools.chain.from_iterable(exc))) == num_excitations * 2:
-                # we zip the tuple of tuples to obtain a new one which has the structure:
-                #   ((occupied indices), (unoccupied indices))
+            #   1. get the frozen set of indices in the excitation
+            exc_set = frozenset(itertools.chain.from_iterable(exc))
+            #   2. all indicies must be unique (size of set equals 2 * num_excitations)
+            #   3. and we also don't want to include permuted variants of identical excitations
+            if len(exc_set) == num_excitations * 2 and exc_set not in visited_excitations:
+                visited_excitations.add(exc_set)
                 excitations.append(tuple(zip(*exc)))
 
     # we can find the actual list of excitations by doing the following:
