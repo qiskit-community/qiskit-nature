@@ -21,6 +21,8 @@ from typing import List, Tuple, Union
 from .. import SpinOp
 from ...problems.second_quantization.vibrational.vibr_to_spin_op_label_converter import \
     convert_to_spin_op_labels
+from ...problems.second_quantization.vibrational.vibrational_labels_validator import \
+    validate_vibrational_labels
 
 
 class VibrationalSpinOp(SpinOp):
@@ -45,23 +47,10 @@ class VibrationalSpinOp(SpinOp):
     :class:`VibrationalSpinOp` supports the following basic arithmetic operations: addition,
     subtraction,
     scalar multiplication, and dagger(adjoint).
-    For example,
-    .. jupyter-execute::
-        from qiskit_nature.operators import VibrationalSpinOp
-        print("Raising operator:")
-        print(x + 1j * y)
-        plus = SpinOp("+", spin=3/2)
-        print("This is same with: ", plus)
-        print("Lowering operator:")
-        print(x - 1j * y)
-        minus = SpinOp("-", spin=3/2)
-        print("This is same with: ", minus)
-        print("Dagger")
-        print(~(1j * z))
     """
 
-    _VALID_VIBR_LABEL_PATTERN = re.compile(
-        r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
+    # _VALID_VIBR_LABEL_PATTERN = re.compile(
+    #     r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
     def __init__(self, data: Union[List[Tuple[str, complex]],], num_modes: int,
                  num_modals: Union[int, List[int]],
@@ -77,12 +66,12 @@ class VibrationalSpinOp(SpinOp):
             ValueError: invalid data is given.
             QiskitNatureError: invalid spin value.
         """
-
-        if isinstance(data, list):
-            invalid_labels = [label for label, _ in data if
-                              not self._VALID_VIBR_LABEL_PATTERN.match(label)]
-            if invalid_labels:
-                raise ValueError(f"Invalid labels: {invalid_labels}")
+        validate_vibrational_labels(data, num_modes, num_modals)
+        # if isinstance(data, list):
+        #     invalid_labels = [label for label, _ in data if
+        #                       not self._VALID_VIBR_LABEL_PATTERN.match(label)]
+        #     if invalid_labels:
+        #         raise ValueError(f"Invalid labels: {invalid_labels}")
 
         self._vibrational_data = data
         self._num_modals = num_modals
@@ -91,7 +80,7 @@ class VibrationalSpinOp(SpinOp):
         self._spin_op_labels = convert_to_spin_op_labels(self._vibrational_data,
                                                          self._num_modes, self.num_modals)
         self._register_length = sum(self._num_modals) if isinstance(self._num_modals,
-                                                                    list) else self._num_modals *\
+                                                                    list) else self._num_modals * \
                                                                                self._num_modes
 
         super().__init__(self._spin_op_labels, spin, self._register_length)

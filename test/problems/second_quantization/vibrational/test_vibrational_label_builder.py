@@ -160,5 +160,4 @@ class TestVibrationalLabelBuilder(QiskitNatureTestCase):
         boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,  # type: ignore
                                                 basis_size, truncation_order).convert()
         labels = create_labels(boson_hamilt_harm_basis, truncation_order)
-        print(labels)
         assert labels == expected_labels
