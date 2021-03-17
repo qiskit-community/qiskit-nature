@@ -58,17 +58,17 @@ class MolecularProblem:
         total_angular_momentum_ferm_op = self._create_total_angular_momentum_operator(num_modes)
         total_particle_number_ferm_op = self._create_total_particle_number_operator(num_modes)
 
-        second_quantized_ops_list = [SecondQuantizedOp([electronic_fermionic_op]),
-                                     SecondQuantizedOp([total_magnetization_ferm_op]),
-                                     SecondQuantizedOp([total_angular_momentum_ferm_op]),
-                                     SecondQuantizedOp([total_particle_number_ferm_op])]
+        second_quantized_ops_list = [electronic_fermionic_op,
+                                     total_magnetization_ferm_op,
+                                     total_angular_momentum_ferm_op,
+                                     total_particle_number_ferm_op]
 
         if q_molecule_transformed.has_dipole_integrals():
             x_dipole_operator, y_dipole_operator, z_dipole_operator = self._create_dipole_operators(
                 q_molecule_transformed)
-            second_quantized_ops_list += [SecondQuantizedOp([x_dipole_operator]),
-                                          SecondQuantizedOp([y_dipole_operator]),
-                                          SecondQuantizedOp([z_dipole_operator])]
+            second_quantized_ops_list += [x_dipole_operator,
+                                          y_dipole_operator,
+                                          z_dipole_operator]
 
         return second_quantized_ops_list
 

@@ -28,10 +28,10 @@ import numpy as np
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from .second_quantized_op import SecondQuantizedOp
 
 
-class SpinOp(ParticleOp):
+class SpinOp(SecondQuantizedOp):
     """XYZ-ordered Spin operators.
 
     **Label**

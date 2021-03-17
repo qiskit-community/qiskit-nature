@@ -19,10 +19,10 @@ import numpy as np
 from qiskit.utils.validation import validate_min, validate_range_exclusive_max
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization.particle_op import ParticleOp
+from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 
 
-class FermionicOp(ParticleOp):
+class FermionicOp(SecondQuantizedOp):
     r"""
     N-mode Fermionic operator.
 
