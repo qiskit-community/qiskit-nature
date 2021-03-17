@@ -46,5 +46,5 @@ class BaseProblem(ABC):
 
     def _transform(self, data):
         for transformer in self.transformers:
-            transformed_data = transformer.transform(data)
-        return transformed_data
+            data = transformer.transform(data)
+        return data

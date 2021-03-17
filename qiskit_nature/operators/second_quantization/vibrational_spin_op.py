@@ -48,7 +48,7 @@ class VibrationalSpinOp(SpinOp):
     scalar multiplication, and dagger(adjoint).
     """
 
-    def __init__(self, data: Union[List[Tuple[str, complex]]], num_modes: int,
+    def __init__(self, data: Union[List[Tuple[str, float]]], num_modes: int,
                  num_modals: Union[int, List[int]],
                  spin: Union[float, Fraction] = Fraction(1, 2)):
         r"""

@@ -15,13 +15,14 @@ from qiskit_nature.problems.second_quantization.vibrational.vibr_to_spin_op_labe
     convert_to_spin_op_labels
 
 
+# TODO add more tests
 class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
     """Tests Vibrational Spin Op to Spin Op Label Converter."""
 
     def test_convert_to_spin_op_labels(self):
         """Tests that VibrationalSpinOp labels are converted to SpinOp labels correctly."""
-        expected_spin_op_labels = [('+_0 -_1', 1215.375), ('+_4 +_0 -_5 -_1', -6.385)]
-        vibrational_labels = [('+_0*0 -_0*1', 1215.375), ('+_2*0 +_0*0 -_2*1 -_0*1', -6.385)]
+        expected_spin_op_labels = [('-_1 +_0', 1215.375), ('-_5 +_4 -_1 +_0', -6.385)]
+        vibrational_labels = [('-_0*1 +_0*0', 1215.375), ('-_2*1 +_2*0 -_0*1 +_0*0', -6.385)]
         num_modes = 3
         num_modals = 2
 
@@ -32,8 +33,8 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
     def test_convert_to_spin_op_labels_listed_modals(self):
         """Tests that VibrationalSpinOp labels are converted to SpinOp labels correctly when
         number of modals are provided as a list."""
-        expected_spin_op_labels = [('+_0 -_1', 1215.375), ('+_4 +_2 -_5 -_3', -6.385)]
-        vibrational_labels = [('+_0*0 -_0*1', 1215.375), ('+_2*0 +_1*0 -_2*1 -_1*1', -6.385)]
+        expected_spin_op_labels = [('-_1 +_0', 1215.375), ('-_5 +_4 -_3 +_2', -6.385)]
+        vibrational_labels = [('-_0*1 +_0*0', 1215.375), ('-_2*1 +_2*0 -_1*1 +_1*0', -6.385)]
         num_modes = 3
         num_modals = [2, 2, 2]
 

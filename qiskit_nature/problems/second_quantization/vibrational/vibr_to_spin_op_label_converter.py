@@ -15,9 +15,12 @@ This module converts labels from the `VibrationalSpinOp` to 'SpinOp` notation.
 import re
 from typing import List, Tuple, Union
 
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_labels_validator import \
+    validate_vibrational_labels
 
-def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
-                              num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
+
+def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, float]], num_modes: int,
+                              num_modals: Union[int, List[int]]) -> List[Tuple[str, float]]:
     """Converts `VibrationalSpinOp` labels to `SpinOp` labels.
 
     Args:
@@ -38,10 +41,7 @@ def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num
     if len(num_modals) != num_modes:
         raise ValueError("num_modes does not agree with the size of num_modals")
 
-    if not _is_labels_valid(vibrational_labels, num_modes, num_modals):
-        raise ValueError(
-            "Provided labels are not valid - indexing out of range or non-matching raising "
-            "and lowering operators per mode in a term")
+    validate_vibrational_labels(vibrational_labels, num_modes, num_modals)
 
     partial_sum_modals = _calc_partial_sum_modals(num_modals)
 
@@ -52,7 +52,7 @@ def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num
     return spin_op_labels
 
 
-def _calc_partial_sum_modals(num_modals: Union[int, List[int]]) -> List[int]:
+def _calc_partial_sum_modals(num_modals: List[int]) -> List[int]:
     summed = 0
     partial_sum_modals = [0]
     if isinstance(num_modals, list):
@@ -64,38 +64,23 @@ def _calc_partial_sum_modals(num_modals: Union[int, List[int]]) -> List[int]:
         raise ValueError(f"num_modals of incorrect type {type(num_modals)}.")
 
 
-def _build_coeff_spin_op_labels(labels: str, partial_sum_modals: List[int]):
+def _build_coeff_spin_op_labels(labels: str, partial_sum_modals: List[int]) -> str:
     coeff_labels_split = labels.split(" ")
     coeff_new_labels = []
     for label in coeff_labels_split:
         new_label = _build_spin_op_label(label, partial_sum_modals)
         coeff_new_labels.append(new_label)
-    coeff_new_labels = " ".join(coeff_new_labels)
-    return coeff_new_labels
+    coeff_new_labels_str = " ".join(coeff_new_labels)
+    return coeff_new_labels_str
 
 
-def _build_spin_op_label(label: str, partial_sum_modals: List[int]):
+def _build_spin_op_label(label: str, partial_sum_modals: List[int]) -> str:
     op, mode_index, modal_index = re.split('[*_]', label)
     index = _get_ind_from_mode_modal(partial_sum_modals, int(mode_index), int(modal_index))
     new_label = "".join([op, "_", str(index)])
     return new_label
 
 
-def _get_ind_from_mode_modal(partial_sum_modals: List[int], mode_index: int, modal_index: int):
+def _get_ind_from_mode_modal(partial_sum_modals: List[int], mode_index: int,
+                             modal_index: int) -> int:
     return partial_sum_modals[mode_index] + modal_index
-
-
-def _is_labels_valid(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
-                     num_modals: Union[int, List[int]]):
-    for labels, _ in vibrational_labels:
-        coeff_labels_split = labels.split(" ")
-        check_list = [0] * num_modes
-        for label in coeff_labels_split:
-            op, mode_index, modal_index = re.split('[*_]', label)
-            if int(mode_index) >= num_modes or int(modal_index) >= num_modals[int(mode_index)]:
-                return False
-            increment = 1 if op == "+" else -1
-            check_list[int(mode_index)] += increment
-        if not all(v == 0 for v in check_list):
-            return False
-    return True
