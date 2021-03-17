@@ -44,7 +44,7 @@ class UCC(EvolvedOperatorAnsatz):
                      [Tuple[int, int], int], List[SecondQuantizedOp]]]] = None,
                  alpha_spin: bool = True,
                  beta_spin: bool = True,
-                 pure_spin: bool = False,
+                 max_spin_excitation: Optional[int] = None,
                  reps: int = 1):
         """
 
@@ -69,7 +69,10 @@ class UCC(EvolvedOperatorAnsatz):
                   and must return a `List[SecondQuantizedOp]`.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
-            pure_spin: boolean flag whether to include only pure-spin excitations.
+            max_spin_excitation: the largest number of excitations within a spin. E.g. you can set
+                                 this to 1 and `num_excitations` to 2 in order to obtain only
+                                 mixed-spin double excitations (alpha,beta) but no pure-spin double
+                                 excitations (alpha,alpha or beta,beta).
             reps: The number of times to repeat the evolved operators.
         """
         self._qubit_converter = qubit_converter
@@ -78,7 +81,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._excitations = excitations
         self._alpha_spin = alpha_spin
         self._beta_spin = beta_spin
-        self._pure_spin = pure_spin
+        self._max_spin_excitation = max_spin_excitation
         # TODO: Added to pass lint, need change
         super().__init__([], reps=reps, evolution=None)
 
@@ -176,7 +179,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         extra_kwargs = {'alpha_spin': self._alpha_spin,
                         'beta_spin': self._beta_spin,
-                        'pure_spin': self._pure_spin}
+                        'max_spin_excitation': self._max_spin_excitation}
 
         if isinstance(self.excitations, str):
             for exc in self.excitations:

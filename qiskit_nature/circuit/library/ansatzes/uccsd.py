@@ -49,5 +49,5 @@ class UCCSD(UCC):
                          excitations='sd',
                          alpha_spin=True,
                          beta_spin=True,
-                         pure_spin=False,
+                         max_spin_excitation=None,
                          reps=reps)

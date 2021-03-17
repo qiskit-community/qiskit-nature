@@ -87,25 +87,39 @@ class TestExcitationBuilder(QiskitNatureTestCase):
 
     @unpack
     @data(
-        (1, 4, [1, 1], [FermionicOp([('+-II', 1j), ('-+II', 1j)]),
-                        FermionicOp([('II+-', 1j), ('II-+', 1j)])]),
-        (2, 4, [1, 1], []),
-        (1, 6, [1, 1], [FermionicOp([('+-IIII', 1j), ('-+IIII', 1j)]),
-                        FermionicOp([('+I-III', 1j), ('-I+III', 1j)]),
-                        FermionicOp([('III+-I', 1j), ('III-+I', 1j)]),
-                        FermionicOp([('III+I-', 1j), ('III-I+', 1j)])]),
-        (2, 6, [1, 1], []),
-        (2, 6, [2, 2], []),
-        (2, 8, [2, 2], [FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)]),
-                        FermionicOp([('++--IIII', 1j), ('--++IIII', -1j)]),
-                        FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)]),
-                        FermionicOp([('IIII++--', 1j), ('IIII--++', -1j)])]),
+        (1, 4, [1, 1], 1, [FermionicOp([('+-II', 1j), ('-+II', 1j)]),
+                           FermionicOp([('II+-', 1j), ('II-+', 1j)])]),
+        (2, 4, [1, 1], 1, [FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
+        (1, 6, [1, 1], 1, [FermionicOp([('+-IIII', 1j), ('-+IIII', 1j)]),
+                           FermionicOp([('+I-III', 1j), ('-I+III', 1j)]),
+                           FermionicOp([('III+-I', 1j), ('III-+I', 1j)]),
+                           FermionicOp([('III+I-', 1j), ('III-I+', 1j)])]),
+        (2, 6, [1, 1], 1, [FermionicOp([('+-I+-I', 1j), ('-+I-+I', -1j)]),
+                           FermionicOp([('+-I+I-', 1j), ('-+I-I+', -1j)]),
+                           FermionicOp([('+I-+-I', 1j), ('-I+-+I', -1j)]),
+                           FermionicOp([('+I-+I-', 1j), ('-I+-I+', -1j)])]),
+        (2, 8, [2, 2], 1, [FermionicOp([('+I-I+I-I', 1j), ('-I+I-I+I', -1j)]),
+                           FermionicOp([('+I-I+II-', 1j), ('-I+I-II+', -1j)]),
+                           FermionicOp([('+I-II+-I', 1j), ('-I+II-+I', -1j)]),
+                           FermionicOp([('+I-II+I-', 1j), ('-I+II-I+', -1j)]),
+                           FermionicOp([('+II-+I-I', 1j), ('-II+-I+I', -1j)]),
+                           FermionicOp([('+II-+II-', 1j), ('-II+-II+', -1j)]),
+                           FermionicOp([('+II-I+-I', 1j), ('-II+I-+I', -1j)]),
+                           FermionicOp([('+II-I+I-', 1j), ('-II+I-I+', -1j)]),
+                           FermionicOp([('I+-I+I-I', 1j), ('I-+I-I+I', -1j)]),
+                           FermionicOp([('I+-I+II-', 1j), ('I-+I-II+', -1j)]),
+                           FermionicOp([('I+-II+-I', 1j), ('I-+II-+I', -1j)]),
+                           FermionicOp([('I+-II+I-', 1j), ('I-+II-I+', -1j)]),
+                           FermionicOp([('I+I-+I-I', 1j), ('I-I+-I+I', -1j)]),
+                           FermionicOp([('I+I-+II-', 1j), ('I-I+-II+', -1j)]),
+                           FermionicOp([('I+I-I+-I', 1j), ('I-I+I-+I', -1j)]),
+                           FermionicOp([('I+I-I+I-', 1j), ('I-I+I-I+', -1j)])]),
     )
-    def test_pure_spin_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
-                                      expect):
+    def test_max_spin_excitation_ops(self, num_excitations, num_spin_orbitals, num_particles,
+                                     max_spin, expect):
         """TODO"""
         ops = ExcitationBuilder.build_excitation_ops(num_excitations, num_spin_orbitals,
-                                                     num_particles, pure_spin=True)
+                                                     num_particles, max_spin_excitation=max_spin)
         assert len(ops) == len(expect)
         for op, exp in zip(ops, expect):
             assert op._labels == exp._labels

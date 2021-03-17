@@ -13,7 +13,7 @@
 TODO.
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import itertools
 import logging
@@ -32,7 +32,7 @@ class ExcitationBuilder:
                              num_particles: Tuple[int, int],
                              alpha_spin: bool = True,
                              beta_spin: bool = True,
-                             pure_spin: bool = False,
+                             max_spin_excitation: Optional[int] = None,
                              ) -> List[SecondQuantizedOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
@@ -45,15 +45,14 @@ class ExcitationBuilder:
             num_particles: number of alpha and beta particles.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
-            pure_spin: boolean flag whether to include only pure-spin excitations.
+            max_spin_excitation: the largest number of excitations within a spin. E.g. you can set
+                                 this to 1 and `num_excitations` to 2 in order to obtain only
+                                 mixed-spin double excitations (alpha,beta) but no pure-spin double
+                                 excitations (alpha,alpha or beta,beta).
 
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
-        # ensure that pure_spin is consistent when only a single spin species is chosen
-        if not alpha_spin or not beta_spin:
-            pure_spin = True
-
         alpha_excitations = []
         if alpha_spin:
             # generate alpha-spin orbital indices for occupied and unoccupied ones
@@ -87,14 +86,27 @@ class ExcitationBuilder:
         # we can find the actual list of excitations by doing the following:
         #   1. combine the single alpha- and beta-spin excitations
         #   2. find all possible combinations of length `num_excitations`
-        if not pure_spin:
-            # in this case, cross terms are also considered
-            add_excitations(itertools.combinations(alpha_excitations + beta_excitations,
-                                                   num_excitations))
-        else:
-            # here, however, we only treat pure spin excitations
-            add_excitations(itertools.combinations(alpha_excitations, num_excitations))
-            add_excitations(itertools.combinations(beta_excitations, num_excitations))
+        pool = itertools.combinations(alpha_excitations + beta_excitations, num_excitations)
+
+        # if max_spin_excitation is set, we need to filter the pool of excitations
+        if max_spin_excitation is not None:
+            # first, remove all those excitations, in which more than max_spin_excitation alpha
+            # excitations are performed at ones
+            if alpha_excitations:  # False if empty list
+                alpha_exc_set = set(alpha_excitations)
+                pool = itertools.filterfalse(
+                    lambda exc: len(set(exc) & alpha_exc_set) > max_spin_excitation,
+                    pool
+                )
+            # then, do the same for beta
+            if beta_excitations:  # False if empty list
+                beta_exc_set = set(beta_excitations)
+                pool = itertools.filterfalse(
+                    lambda exc: len(set(exc) & beta_exc_set) > max_spin_excitation,
+                    pool
+                )
+
+        add_excitations(pool)
 
         operators = []
         for exc in excitations:
