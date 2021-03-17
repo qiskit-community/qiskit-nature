@@ -24,6 +24,8 @@ from qiskit.algorithms.optimizers import AQGD
 from qiskit.opflow import PauliExpectation
 from qiskit_nature.algorithms.pes_samplers.bopes_sampler import BOPESSampler
 from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.drivers import Molecule, PySCFDriver
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
@@ -45,6 +47,9 @@ class TestBOPES(unittest.TestCase):
                                ['H', [0., 0.45, 1.]]],
                      degrees_of_freedom=[dof])
 
+        mapper = ParityMapper()
+        converter = QubitConverter(mappers=mapper)
+
         f_t = FermionicTransformation()
         driver = PySCFDriver(molecule=m)
 
@@ -58,12 +63,9 @@ class TestBOPES(unittest.TestCase):
         quantum_instance.compile_config['seed_transpiler'] = seed
 
         # Variational form
-        i_state = HartreeFock(num_orbitals=f_t._molecule_info['num_orbitals'],
-                              qubit_mapping=f_t._qubit_mapping,
-                              two_qubit_reduction=f_t._two_qubit_reduction,
+        i_state = HartreeFock(num_spin_orbitals=f_t._molecule_info['num_orbitals'],
                               num_particles=f_t._molecule_info['num_particles'],
-                              sq_list=f_t._molecule_info['z2_symmetries'].sq_list
-                              )
+                              qubit_converter=converter)
         var_form = RealAmplitudes(qubitop.num_qubits, reps=1, entanglement='full',
                                   skip_unentangled_qubits=False)
         var_form.compose(i_state, front=True)
