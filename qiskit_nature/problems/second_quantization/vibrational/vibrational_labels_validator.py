@@ -14,7 +14,7 @@ import re
 from typing import List, Tuple, Union
 
 
-def validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
+def validate_vibrational_labels(vibrational_labels: List[Tuple[str, float]], num_modes: int,
                                 num_modals: Union[int, List[int]]):
     """
         Validates vibrational labels in the following aspects:
@@ -38,17 +38,18 @@ def validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], n
         """
     if isinstance(num_modals, int):
         num_modals = [num_modals] * num_modes
+
     _validate_data_type(vibrational_labels)
     _validate_regex(vibrational_labels)
     _validate_indices(vibrational_labels, num_modes, num_modals)
 
 
-def _validate_data_type(vibrational_labels: List[Tuple[str, complex]]):
+def _validate_data_type(vibrational_labels: List[Tuple[str, float]]):
     if not isinstance(vibrational_labels, list):
         raise ValueError("Invalid data type.")
 
 
-def _validate_regex(vibrational_labels: List[Tuple[str, complex]]):
+def _validate_regex(vibrational_labels: List[Tuple[str, float]]):
     valid_vibr_label_pattern = re.compile(r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
     invalid_labels = [label for label, _ in vibrational_labels if
                       not valid_vibr_label_pattern.match(label)]
@@ -56,15 +57,16 @@ def _validate_regex(vibrational_labels: List[Tuple[str, complex]]):
         raise ValueError(f"Invalid labels: {invalid_labels}")
 
 
-def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
-                      num_modals: Union[int, List[int]]):
+def _validate_indices(vibrational_labels: List[Tuple[str, float]], num_modes: int,
+                      num_modals: List[int]):
     for labels, _ in vibrational_labels:
         coeff_labels_split = labels.split(" ")
         check_list = [0] * num_modes
         last_op, last_mode_index, last_modal_index = "+", num_modes, max(num_modals)
         for label in coeff_labels_split:
-            op, mode_index, modal_index = re.split('[*_]', label)
-            mode_index, modal_index = int(mode_index), int(modal_index)
+            op, mode_index_str, modal_index_str = re.split('[*_]', label)
+            mode_index = int(mode_index_str)
+            modal_index = int(modal_index_str)
             if _is_index_out_of_range(mode_index, num_modes, modal_index, num_modals):
                 raise ValueError(f"Indices out of the declared range for label {label}.")
             if _is_label_duplicated(mode_index, last_mode_index, modal_index, last_modal_index, op,
@@ -85,31 +87,34 @@ def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: 
                 f"Modes of raising and lowering operators do not agree for labels {labels}.")
 
 
-def _is_index_out_of_range(mode_index, num_modes, modal_index, num_modals):
-    return int(mode_index) >= num_modes or int(modal_index) >= num_modals[int(mode_index)]
+def _is_index_out_of_range(mode_index: int, num_modes: int, modal_index: int,
+                           num_modals: List[int]) -> bool:
+    return mode_index >= num_modes or modal_index >= num_modals[int(mode_index)]
 
 
-def _is_label_duplicated(mode_index, last_mode_index, modal_index, last_modal_index, op, last_op):
+def _is_label_duplicated(mode_index: int, last_mode_index: int, modal_index: int,
+                         last_modal_index: int, op: str, last_op: str) -> bool:
     return modal_index == last_modal_index and mode_index == last_mode_index and op == last_op
 
 
-def _is_order_incorrect(mode_index, last_mode_index, modal_index, last_modal_index, op, last_op):
+def _is_order_incorrect(mode_index: int, last_mode_index: int, modal_index: int,
+                        last_modal_index: int, op: str, last_op: str) -> bool:
     return _is_mode_order_incorrect(mode_index, last_mode_index) or \
            _is_modal_order_incorrect(last_mode_index, mode_index, last_modal_index, modal_index) \
            or _is_operator_order_incorrect(mode_index, last_mode_index, modal_index,
                                            last_modal_index, op, last_op)
 
 
-def _is_mode_order_incorrect(mode_index, last_mode_index):
-    return int(mode_index) > last_mode_index
+def _is_mode_order_incorrect(mode_index: int, last_mode_index: int) -> bool:
+    return mode_index > last_mode_index
 
 
-def _is_modal_order_incorrect(last_mode_index, mode_index, last_modal_index, modal_index):
-    return int(mode_index) == last_mode_index and int(
-        modal_index) > last_modal_index
+def _is_modal_order_incorrect(last_mode_index: int, mode_index: int, last_modal_index: int,
+                              modal_index: int) -> bool:
+    return mode_index == last_mode_index and modal_index > last_modal_index
 
 
-def _is_operator_order_incorrect(mode_index, last_mode_index, modal_index, last_modal_index,
-                                 op, last_op):
-    return int(mode_index) == last_mode_index and int(
-        modal_index) == last_modal_index and last_op == "-" and op == "+"
+def _is_operator_order_incorrect(mode_index: int, last_mode_index: int, modal_index: int,
+                                 last_modal_index: int, op: str, last_op: str) -> bool:
+    return mode_index == last_mode_index and modal_index == last_modal_index and last_op == "-" \
+           and op == "+"
