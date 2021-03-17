@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Tests Vibrational Problem."""
+from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
 from test import QiskitNatureTestCase
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
@@ -21,7 +22,6 @@ from qiskit_nature.drivers import GaussianForcesDriver
 class TestVibrationalProblem(QiskitNatureTestCase):
     """Tests Vibrational Problem."""
 
-    # TODO complete unit test once implementation ready
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
@@ -36,14 +36,10 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         basis_size = [basis_size] * num_modes
         vibrational_problem = VibrationalProblem(driver, basis_size, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[0]
+        vibrational_spin_op = second_quantized_ops[0]
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            for second_quantized_op in second_quantized_ops:
-                assert isinstance(second_quantized_op, SecondQuantizedOp)
-        # with self.subTest("Check components of electronic second quantized operator."):
-        #     assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
-        #                zip(expected_spin_op, electr_sec_quant_op.spin.to_list()))
-        #     assert electr_sec_quant_op.boson is None
-        #     assert electr_sec_quant_op.fermion is None
+            assert isinstance(vibrational_spin_op, VibrationalSpinOp)
+
+
