@@ -10,23 +10,28 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test the UCCSD Ansatz."""
+"""Test the UCC Ansatz."""
 
 from test import QiskitNatureTestCase
 
-from qiskit_nature.circuit.library.ansaetze import UCCSD
+from ddt import ddt, data
+
+from qiskit_nature.circuit.library.ansatzes import UCC
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
-class TestUCCSD(QiskitNatureTestCase):
-    """Tests for the UCCSD Ansatz."""
+@ddt
+class TestUCC(QiskitNatureTestCase):
+    """Tests for the UCC Ansatz."""
 
-    def test_ucc_ansatz(self):
-        """Tests the UCCSD Ansatz."""
+    @data('sd', [1, 2])
+    def test_ucc_ansatz(self, excitations):
+        """Tests the UCC Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = UCCSD(qubit_converter=converter, num_particles=[1, 1], num_spin_orbitals=4)
+        ansatz = UCC(qubit_converter=converter, num_particles=[1, 1], num_spin_orbitals=4,
+                     excitations=excitations)
 
         ansatz._build()
         print(vars(ansatz))

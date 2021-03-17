@@ -17,7 +17,7 @@ from ddt import ddt, data
 
 from qiskit.opflow import X, H, Z
 
-from qiskit_nature.circuit.library.ansaetze import EvolvedOperatorAnsatz
+from qiskit_nature.circuit.library.ansatzes import EvolvedOperatorAnsatz
 
 
 @ddt

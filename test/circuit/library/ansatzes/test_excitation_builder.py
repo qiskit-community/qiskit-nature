@@ -16,7 +16,7 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
-from qiskit_nature.circuit.library.ansaetze import ExcitationBuilder
+from qiskit_nature.circuit.library.ansatzes import ExcitationBuilder
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 

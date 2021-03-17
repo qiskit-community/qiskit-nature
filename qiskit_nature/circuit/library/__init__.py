@@ -31,7 +31,7 @@ Initial states
 
 """
 
-from .ansaetze import (
+from .ansatzes import (
     EvolvedOperatorAnsatz,
     UCC,
     UCCSD,
