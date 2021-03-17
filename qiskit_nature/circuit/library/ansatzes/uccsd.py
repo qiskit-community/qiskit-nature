@@ -37,7 +37,7 @@ class UCCSD(UCC):
 
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
-            :code:`~.SecondQuantizedOp` to a :code:`~.PauliSumOp` as well as performing all
+            :class:`~.SecondQuantizedOp` to a :class:`~.PauliSumOp` as well as performing all
             configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spin_orbitals: the number of spin orbitals.

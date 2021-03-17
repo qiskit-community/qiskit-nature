@@ -50,7 +50,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
-            :code:`~.SecondQuantizedOp` to a :code:`~.PauliSumOp` as well as performing all
+            :class:`~.SecondQuantizedOp` to a :class:`~.PauliSumOp` as well as performing all
             configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spin_orbitals: the number of spin orbitals.
@@ -82,8 +82,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._alpha_spin = alpha_spin
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
-        # TODO: Added to pass lint, need change
-        super().__init__([], reps=reps, evolution=None)
+        super().__init__(reps=reps, evolution=None)
 
     @property
     def qubit_converter(self) -> QubitConverter:
