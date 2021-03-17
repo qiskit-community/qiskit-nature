@@ -50,8 +50,7 @@ class VibrationalProblem(BaseProblem):
                                                         self.basis_size,
                                                         self.truncation_order)
 
-        second_quantized_ops_list = [SecondQuantizedOp(
-            [vibrational_spin_op])]  # TODO SecondQuantizedOp does not support spin component yet
+        second_quantized_ops_list = [vibrational_spin_op]
 
         return second_quantized_ops_list
 
