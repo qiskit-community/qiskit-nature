@@ -14,6 +14,7 @@
 
 import re
 from functools import reduce
+from itertools import product
 from typing import List, Optional, Tuple, Union, cast
 
 from qiskit_nature.operators.second_quantization.legacy_fermionic_op import _LegacyFermionicOp
@@ -140,18 +141,19 @@ class FermionicOp(SecondQuantizedOp):
             fermion += FermionicOp(somedata)
 
     """
-    _label_display_mode_is_dense: bool = True
 
     def __init__(
         self,
         data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
         register_length: Optional[int] = None,
+        sparse_label: bool = False,
     ):
         """
         Args:
             data: Input data for FermionicOp. The allowed data is label str,
                   tuple (label, coeff), or list [(label, coeff)].
             register_length: positive integer that represents the length of registers.
+            sparse_label: the label is represented by sparse mode.
 
         Raises:
             ValueError: given data is invalid value.
@@ -198,6 +200,7 @@ class FermionicOp(SecondQuantizedOp):
             (self._substituted_label(label), complex(coeff))  # type: ignore
             for label, coeff in data
         ]
+        self.sparse_label = sparse_label
 
     @staticmethod
     def _substituted_label(label):
@@ -210,9 +213,18 @@ class FermionicOp(SecondQuantizedOp):
         data = self.to_list()
         if len(self) == 1:
             if data[0][1] == 1:
-                return f"FermionicOp('{data[0][0]}', register_length={self.register_length})"
-            return f"FermionicOp({data[0]}, register_length={self.register_length})"
-        return f"FermionicOp({data}, register_length={self.register_length})"  # TODO truncate
+                data_str = f"'{data[0][0]}'"
+            data_str = f"'{data[0]}'"
+        data_str = f"{data}"
+
+        # TODO truncate
+        return (
+            "FermionicOp("
+            f"{data_str}, "
+            f"register_length={self.register_length}, "
+            f"sparse_label={self.sparse_label}"
+            ")"
+        )
 
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
@@ -237,6 +249,7 @@ class FermionicOp(SecondQuantizedOp):
         return FermionicOp(
             [(label, coeff * other) for label, coeff in self._data],
             register_length=self.register_length,
+            sparse_label=self.sparse_label,
         )
 
     def compose(self, other: "FermionicOp") -> "FermionicOp":
@@ -269,6 +282,7 @@ class FermionicOp(SecondQuantizedOp):
         return FermionicOp(
             self._data + other._data,
             max(self.register_length, other.register_length),
+            self.sparse_label or other.sparse_label,
         )
 
     def to_list(self) -> List[Tuple[str, complex]]:
@@ -277,9 +291,9 @@ class FermionicOp(SecondQuantizedOp):
         Returns:
             A list of tuples consisting of the dense label and corresponding coefficient.
         """
-        if FermionicOp._label_display_mode_is_dense:
-            return self._to_legacy().to_list()
-        return self._data.copy()
+        if self.sparse_label:
+            return self._data.copy()
+        return self._to_legacy().to_list()
 
     def adjoint(self) -> "FermionicOp":
         data = []
@@ -301,8 +315,7 @@ class FermionicOp(SecondQuantizedOp):
         op = self._to_legacy().reduce(atol, rtol)
         return FermionicOp._from_legacy(op)
 
-    @classmethod
-    def set_label_display_mode(cls, mode: str):
+    def set_label_display_mode(self, mode: str):
         """Set the display mode of labels.
 
         Args:
@@ -312,10 +325,10 @@ class FermionicOp(SecondQuantizedOp):
             ValueError: invalid mode is given
         """
         mode_lower = mode.lower()
-        if mode_lower == "dense":
-            cls._label_display_mode_is_dense = True
-        elif mode_lower == "sparse":
-            cls._label_display_mode_is_dense = False
+        if mode_lower == "sparse":
+            self.sparse_label = True
+        elif mode_lower == "dense":
+            self.sparse_label = False
         else:
             raise ValueError(f"Invalid `mode` {mode} is given. `mode` must be 'dense' or 'sparse'.")
 
@@ -357,6 +370,36 @@ class FermionicOp(SecondQuantizedOp):
         return " ".join(
             filter(None, (label_transformation[c].format(i=i) for i, c in enumerate(label)))
         )
+
+    def to_normal_order(self) -> "FermionicOp":
+        """Convert to the normal order. The returned operator is a sparse label mode."""
+        self.sparse_label = False
+        ret = 0
+
+        for label, coeff in self.to_list():
+            splits = label.split("E")
+
+            for inter_ops in product("IN", repeat=len(splits) - 1):
+                label = splits[0]
+                label += "".join(link + next_base for link, next_base in zip(inter_ops, splits[1:]))
+
+                pluses = [it.start() for it in re.finditer(r"\+|N", label)]
+                minuses = [it.start() for it in re.finditer(r"-|N", label)]
+
+                count = sum(1 for plus in pluses for minus in minuses if plus > minus)
+                sign_swap = (-1) ** count
+                sign_n = (-1) ** inter_ops.count("N")
+                new_coeff = coeff * sign_n * sign_swap
+
+                ret += new_coeff * FermionicOp(
+                    " ".join([f"+_{i}" for i in pluses] + [f"-_{i}" for i in minuses]),
+                    self.register_length,
+                    True,
+                )
+
+        if isinstance(ret, FermionicOp):
+            return ret
+        return FermionicOp(("", 0), self.register_length, True)
 
     @classmethod
     def zero(cls, register_length: int) -> "FermionicOp":
