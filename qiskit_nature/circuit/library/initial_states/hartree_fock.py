@@ -12,63 +12,79 @@
 
 """Hartree-Fock initial state."""
 
-import warnings
-from typing import Optional, Union, List, Tuple
+from typing import List, Tuple
 import logging
 import numpy as np
+
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.utils.validation import validate_min, validate_in_set
+from qiskit.utils.validation import validate_min
+
+from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 logger = logging.getLogger(__name__)
+
+# TODO: There are still some open questions on the exact design/implementation of this class, which
+# can only be resolved once we finalize the QubitConverter and implement the Z2 symmetry reduction
+# logic into there.
+# The reason being, that we would like to be able to use the HF bit-string as an indicator of the Z2
+# symmetry sector in which the ground state lies. In the past, this is what hartree_fock_bitstring
+# was used for, but as of now, it does not support that.
+# If we want to support that, we must be able to use the QubitConverter in such a way that it
+# performs the mapping as well as the two_qubit_reduction (if specified) but not the tapering, when
+# trying to find the sector of the ground state.
+# However, when actually constructing the initial state to be used in a circuit, the symmetry
+# reductions need to be applied.
+#
+# We are leaving the exact implementation of this open for now, because the final API of the
+# QubitConverter is not clear yet. As of now, this implementation works as intended for all
+# purposes, because Z2 symmetries are not yet supported by the QubitConverter at all, anyways.
 
 
 class HartreeFock(QuantumCircuit):
     """A Hartree-Fock initial state."""
 
     def __init__(self,
-                 num_orbitals: int,
-                 num_particles: Union[Tuple[int, int], int],
-                 qubit_mapping: str = 'parity',
-                 two_qubit_reduction: bool = True,
-                 sq_list: Optional[List[int]] = None) -> None:
+                 num_spin_orbitals: int,
+                 num_particles: Tuple[int, int],
+                 qubit_converter: QubitConverter) -> None:
         """
         Args:
-            num_orbitals: The number of spin orbitals, has a min. value of 1.
-            num_particles: The number of particles. If this is an integer, it is the total (even)
-                number of particles. If a tuple, the first number is alpha and the second number is
-                beta.
-            qubit_mapping: The mapping type for qubit operator.
-            two_qubit_reduction: A flag indicating whether or not two qubit is reduced.
-            sq_list: The position of the single-qubit operators that anticommute with the cliffords.
+            num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
+            num_particles: The number of particles as a tuple storing the number of alpha- and
+                           beta-spin electrons in the first and second number, respectively.
+            qubit_converter: a QubitConverter instance.
         """
+
         # get the bitstring encoding the Hartree Fock state
-        bitstr = hartree_fock_bitstring(num_orbitals, num_particles, qubit_mapping,
-                                        two_qubit_reduction, sq_list)
+        bitstr = hartree_fock_bitstring(num_spin_orbitals, num_particles)
+
+        # encode the bitstring as a `FermionicOp`
+        label = ['+' if bit else 'I' for bit in bitstr]
+        bitstr_op = FermionicOp(''.join(label))
+
+        # map the `FermionicOp` to a qubit operator
+        qubit_op = qubit_converter.to_qubit_ops([bitstr_op])[0]
 
         # construct the circuit
-        qr = QuantumRegister(len(bitstr), 'q')
+        qr = QuantumRegister(qubit_op.num_qubits, 'q')
         super().__init__(qr, name='HF')
 
-        # add gates in the right positions
-        for i, bit in enumerate(reversed(bitstr)):
+        # Add gates in the right positions: we are only interested in the `X` gates because we want
+        # to create particles (0 -> 1) where the initial state introduced a creation (`+`) operator.
+        for i, bit in enumerate(qubit_op.primitive.table.X[0]):
             if bit:
                 self.x(i)
 
 
-def hartree_fock_bitstring(num_orbitals: int,
-                           num_particles: Union[Tuple[int, int], int],
-                           qubit_mapping: str = 'parity',
-                           two_qubit_reduction: bool = True,
-                           sq_list: Optional[List[int]] = None) -> List[bool]:
+def hartree_fock_bitstring(num_spin_orbitals: int,
+                           num_particles: Tuple[int, int]) -> List[bool]:
     """Compute the bitstring representing the Hartree-Fock state for the specified system.
 
     Args:
-        num_orbitals: The number of spin orbitals, has a min. value of 1.
-        num_particles: The number of particles. If this is an integer, it is the total (even) number
-            of particles. If a tuple, the first number is alpha and the second number is beta.
-        qubit_mapping: The mapping type for qubit operator.
-        two_qubit_reduction: A flag indicating whether or not two qubit is reduced.
-        sq_list: The position of the single-qubit operators that anticommute with the cliffords.
+        num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
+        num_particles: The number of particles as a tuple storing the number of alpha- and beta-spin
+                       electrons in the first and second number, respectively.
 
     Returns:
         The bitstring representing the state of the Hartree-Fock state as array of bools.
@@ -77,55 +93,15 @@ def hartree_fock_bitstring(num_orbitals: int,
         ValueError: If the total number of particles is larger than the number of orbitals.
     """
     # validate the input
-    validate_min('num_orbitals', num_orbitals, 1)
-    validate_in_set('qubit_mapping', qubit_mapping,
-                    {'jordan_wigner', 'parity', 'bravyi_kitaev'})
+    validate_min('num_spin_orbitals', num_spin_orbitals, 1)
+    num_alpha, num_beta = num_particles
 
-    if qubit_mapping != 'parity' and two_qubit_reduction:
-        warnings.warn('two_qubit_reduction only works with parity qubit mapping '
-                      'but you have %s. We switch two_qubit_reduction '
-                      'to False.' % qubit_mapping)
-        two_qubit_reduction = False
-
-    if isinstance(num_particles, tuple):
-        num_alpha, num_beta = num_particles
-    else:
-        logger.info('We assume that the number of alphas and betas are the same.')
-        num_alpha = num_beta = num_particles // 2
-
-    num_particles = num_alpha + num_beta
-
-    if num_particles > num_orbitals:
+    if sum(num_particles) > num_spin_orbitals:
         raise ValueError('# of particles must be less than or equal to # of orbitals.')
 
-    half_orbitals = num_orbitals // 2
-    bitstr = np.zeros(num_orbitals, bool)
-    bitstr[-num_alpha:] = True
-    bitstr[-(half_orbitals + num_beta):-half_orbitals] = True
+    half_orbitals = num_spin_orbitals // 2
+    bitstr = np.zeros(num_spin_orbitals, bool)
+    bitstr[:num_alpha] = True
+    bitstr[half_orbitals:(half_orbitals + num_beta)] = True
 
-    if qubit_mapping == 'parity':
-        new_bitstr = bitstr.copy()
-
-        t_r = np.triu(np.ones((num_orbitals, num_orbitals)))
-        new_bitstr = t_r.dot(new_bitstr.astype(int)) % 2  # pylint: disable=no-member
-
-        bitstr = np.append(new_bitstr[1:half_orbitals], new_bitstr[half_orbitals + 1:]) \
-            if two_qubit_reduction else new_bitstr
-
-    elif qubit_mapping == 'bravyi_kitaev':
-        binary_superset_size = int(np.ceil(np.log2(num_orbitals)))
-        beta = np.array([1])
-        basis = np.asarray([[1, 0], [0, 1]])
-        for _ in range(binary_superset_size):
-            beta = np.kron(basis, beta)
-            beta[0, :] = 1
-        start_idx = beta.shape[0] - num_orbitals
-        beta = beta[start_idx:, start_idx:]
-        new_bitstr = beta.dot(bitstr.astype(int)) % 2  # type: ignore
-        bitstr = new_bitstr.astype(bool)
-
-    if sq_list is not None:
-        sq_list = [len(bitstr) - 1 - position for position in sq_list]
-        bitstr = np.delete(bitstr, sq_list)
-
-    return bitstr.astype(bool).tolist()
+    return bitstr.tolist()

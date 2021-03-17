@@ -19,6 +19,9 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature.mappers.second_quantization import (BravyiKitaevMapper, JordanWignerMapper,
+                                                       ParityMapper)
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
 class TestHartreeFock(QiskitNatureTestCase):
@@ -26,55 +29,53 @@ class TestHartreeFock(QiskitNatureTestCase):
 
     def test_bitstring(self):
         """Simple test for the bitstring function."""
-        bitstr = hartree_fock_bitstring(4, 2, 'parity', True)
-        self.assertTrue(all(bitstr[::-1] == np.array([True, False])))  # big endian notation
+        bitstr = hartree_fock_bitstring(4, (1, 1))
+        self.assertTrue(all(bitstr == np.array([True, False, True, False])))
 
     def test_bitstring_invalid_input(self):
         """Test passing invalid input raises."""
 
         with self.subTest('too many particles'):
             with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(4, 4, 'jordan-wigner')
+                _ = hartree_fock_bitstring(4, (3, 3))
 
         with self.subTest('too few orbitals'):
             with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(-1, 4, 'parity', True)
-
-        with self.subTest('invalid qubit mapping'):
-            with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(4, 2, 'parit', True)
+                _ = hartree_fock_bitstring(-1, (2, 2))
 
     def test_qubits_4_jw_h2(self):
         """ qubits 4 jw h2 test """
-        state = HartreeFock(4, (1, 1), 'jordan_wigner', False)
+        state = HartreeFock(4, (1, 1), QubitConverter(JordanWignerMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 2])
         self.assertEqual(state, ref)
 
     def test_qubits_4_py_h2(self):
         """ qubits 4 py h2 test """
-        state = HartreeFock(4, (1, 1), 'parity', False)
+        state = HartreeFock(4, (1, 1), QubitConverter(ParityMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1])
         self.assertEqual(state, ref)
 
     def test_qubits_4_bk_h2(self):
         """ qubits 4 bk h2 test """
-        state = HartreeFock(4, (1, 1), 'bravyi_kitaev', False)
+        state = HartreeFock(4, (1, 1), QubitConverter(BravyiKitaevMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1, 2])
         self.assertEqual(state, ref)
 
+    @unittest.skip('Missing symmetry reduction code in QubitConverter')
     def test_qubits_2_py_h2(self):
         """ qubits 2 py h2 test """
-        state = HartreeFock(4, 2, 'parity', True)
+        state = HartreeFock(4, (1, 1), QubitConverter(ParityMapper()))
         ref = QuantumCircuit(2)
         ref.x(0)
         self.assertEqual(state, ref)
 
+    @unittest.skip('Missing symmetry reduction code in QubitConverter')
     def test_qubits_6_py_lih(self):
         """ qubits 6 py lih test """
-        state = HartreeFock(10, (1, 1), 'parity', True, [1, 2])
+        state = HartreeFock(10, (1, 1), QubitConverter(ParityMapper()))
         ref = QuantumCircuit(6)
         ref.x([0, 1])
         self.assertEqual(state, ref)

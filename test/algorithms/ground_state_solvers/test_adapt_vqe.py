@@ -25,6 +25,8 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit_nature import QiskitNatureError, FermionicOperator
 from qiskit_nature.components.variational_forms import UCCSD
 from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFactory
 from qiskit_nature.transformations import FermionicTransformation
@@ -84,8 +86,10 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 qubit_mapping = transformation.qubit_mapping
                 two_qubit_reduction = transformation.molecule_info['two_qubit_reduction']
                 z2_symmetries = transformation.molecule_info['z2_symmetries']
-                initial_state = HartreeFock(num_orbitals, num_particles, qubit_mapping,
-                                            two_qubit_reduction, z2_symmetries.sq_list)
+
+                mapper = ParityMapper()
+                converter = QubitConverter(mappers=mapper)
+                initial_state = HartreeFock(num_orbitals, num_particles, converter)
                 var_form = UCCSD(num_orbitals=num_orbitals,
                                  num_particles=num_particles,
                                  initial_state=initial_state,
