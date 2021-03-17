@@ -9,12 +9,33 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Validator of Vibrational Labels."""
 import re
 from typing import List, Tuple, Union
 
 
 def validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
                                 num_modals: Union[int, List[int]]):
+    """
+        Validates vibrational labels in the following aspects:
+            - vibrational labels stored in a correct data structure,
+            - labels for each coefficient conform with a regular expression,
+            - indices of operators in each label are correct and ordered correctly:
+                * indices for modes and modals do not exceed declared ranges,
+                * there are no duplicated operators for each coefficient,
+                * operators in each label are sorted in the decreasing order of modes and modals,
+                if both are equal then '+' comes before '-',
+                * for each `+` operator in each label, there is a corresponding '-' operator
+                acting on the same mode.
+
+        Args:
+            vibrational_labels: list of vibrational labels with coefficients.
+            num_modes: the number of modes.
+            num_modals: the number of modals.
+
+        Raises:
+            ValueError: if invalid vibrational labels provided.
+        """
     if isinstance(num_modals, int):
         num_modals = [num_modals] * num_modes
     _validate_data_type(vibrational_labels)
@@ -53,7 +74,7 @@ def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: 
                                    last_op):
                 raise ValueError(
                     f"Incorrect order of operators for label {label} and previous label "
-                    f"{str(last_op) + str('_') + str(last_mode_index) + str('*') + str(last_modal_index)}.")
+                    f"{str(last_op) + '_' + str(last_mode_index) + '*' + str(last_modal_index)}.")
 
             last_op, last_mode_index, last_modal_index = op, mode_index, modal_index
 

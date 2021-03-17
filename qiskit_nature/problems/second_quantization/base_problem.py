@@ -44,6 +44,7 @@ class BaseProblem(ABC):
         """
         raise NotImplementedError()
 
-    @abstractmethod
-    def _transform(self, molecule):
-        raise NotImplementedError()
+    def _transform(self, data):
+        for transformer in self.transformers:
+            transformed_data = transformer.transform(data)
+        return transformed_data

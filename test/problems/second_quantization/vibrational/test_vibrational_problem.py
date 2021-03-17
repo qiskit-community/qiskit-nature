@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 
 """Tests Vibrational Problem."""
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from test import QiskitNatureTestCase
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
     VibrationalProblem
 from qiskit_nature.drivers import GaussianForcesDriver

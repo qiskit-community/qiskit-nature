@@ -12,7 +12,6 @@
 """The Vibrational Problem class."""
 from typing import List, Optional, Union
 
-from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.drivers import BosonicDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
@@ -53,9 +52,3 @@ class VibrationalProblem(BaseProblem):
         second_quantized_ops_list = [vibrational_spin_op]
 
         return second_quantized_ops_list
-
-    def _transform(self, watson_hamiltonian: WatsonHamiltonian) -> WatsonHamiltonian:
-        for transformer in self.transformers:
-            watson_hamiltonian = transformer.transform(
-                watson_hamiltonian)
-        return watson_hamiltonian

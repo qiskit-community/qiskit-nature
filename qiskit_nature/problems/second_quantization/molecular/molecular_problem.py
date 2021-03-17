@@ -70,11 +70,6 @@ class MolecularProblem(BaseProblem):
 
         return second_quantized_ops_list
 
-    def _transform(self, q_molecule) -> QMolecule:
-        for transformer in self.transformers:
-            q_molecule = transformer.transform(q_molecule)
-        return q_molecule
-
     def _create_dipole_operators(self, q_molecule: QMolecule) -> \
             Tuple[FermionicOp, FermionicOp, FermionicOp]:
         x_dipole_operator = build_ferm_op_from_ints(q_molecule.x_dipole_integrals)
