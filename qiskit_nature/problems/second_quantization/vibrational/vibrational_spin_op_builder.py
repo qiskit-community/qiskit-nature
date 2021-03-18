@@ -40,7 +40,6 @@ def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian,
         basis_size = [basis_size] * num_modes
     # TODO make HarmonicBasis an argument and support other bases when implemented
     boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
-                                            # type: ignore
                                             basis_size, truncation_order).convert()
     all_labels = create_labels(boson_hamilt_harm_basis, truncation_order)
 

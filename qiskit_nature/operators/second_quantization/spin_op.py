@@ -175,7 +175,6 @@ class SpinOp(SecondQuantizedOp):
             data: Union[
                 str,
                 List[Tuple[str, complex]],
-                List[Tuple[str, float]],
                 Tuple[np.ndarray, np.ndarray],
             ],
             spin: Union[float, Fraction] = Fraction(1, 2),

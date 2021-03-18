@@ -12,7 +12,6 @@
 
 """The Seniority-Zero Transformer interface."""
 
-
 from .base_transformer import BaseTransformer
 from ..drivers import QMolecule
 
@@ -20,7 +19,7 @@ from ..drivers import QMolecule
 class SeniorityZeroTransformer(BaseTransformer):
     """The Seniority-Zero transformer."""
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, q_molecule: QMolecule) -> QMolecule:  # type: ignore
         """Transforms the given `QMolecule` into a seniority-zero (i.e.
         restricted-spin) variant.
 

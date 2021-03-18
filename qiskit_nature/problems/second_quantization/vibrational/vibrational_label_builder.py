@@ -48,10 +48,10 @@ def _create_label_for_coeff(indices: List[List[int]]) -> str:
     complete_labels_list = []
     for mode, modal_raise, modal_lower in indices:
         if modal_raise >= modal_lower:
-            complete_labels_list.append("".join(['+_', str(mode), '*', str(modal_raise)]))
-            complete_labels_list.append("".join(['-_', str(mode), '*', str(modal_lower)]))
+            complete_labels_list.append(f"+_{mode}*{modal_raise}")
+            complete_labels_list.append(f"-_{mode}*{modal_lower}")
         else:
-            complete_labels_list.append("".join(['-_', str(mode), '*', str(modal_lower)]))
-            complete_labels_list.append("".join(['+_', str(mode), '*', str(modal_raise)]))
+            complete_labels_list.append(f"-_{mode}*{modal_lower}")
+            complete_labels_list.append(f"+_{mode}*{modal_raise}")
     complete_label = " ".join(complete_labels_list)
     return complete_label

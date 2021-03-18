@@ -12,7 +12,6 @@
 
 """The Freeze-Core Transformer interface."""
 
-
 from .base_transformer import BaseTransformer
 from ..drivers import QMolecule
 
@@ -20,7 +19,7 @@ from ..drivers import QMolecule
 class FreezeCoreTransformer(BaseTransformer):
     """The Freeze-Core transformer."""
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, q_molecule: QMolecule) -> QMolecule:  # type: ignore
         """Transforms the given `QMolecule` according to the specified frozen core.
 
         Args:

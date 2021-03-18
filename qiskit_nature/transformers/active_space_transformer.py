@@ -82,7 +82,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         self.num_alpha = num_alpha
         self.active_orbitals = active_orbitals
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, q_molecule: QMolecule) -> QMolecule:  # type: ignore
         """Reduces the given `QMolecule` to a given active space.
 
         Args:
@@ -137,7 +137,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         if self.active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
             inactive_orbs_idxs = list(range(norbs_inactive))
-            active_orbs_idxs = list(range(norbs_inactive, norbs_inactive+self.num_orbitals))
+            active_orbs_idxs = list(range(norbs_inactive, norbs_inactive + self.num_orbitals))
         else:
             active_orbs_idxs = self.active_orbitals
             inactive_orbs_idxs = [o for o in range(nelec_total // 2) if o not in
@@ -258,11 +258,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         Returns:
             The pair of alpha- and beta-spin inactive density matrices.
         """
-        density_inactive_a = np.dot(mo_coeff_inactive[0]*mo_occ_inactive[0],
+        density_inactive_a = np.dot(mo_coeff_inactive[0] * mo_occ_inactive[0],
                                     np.transpose(mo_coeff_inactive[0]))
         density_inactive_b = None
         if mo_occ_inactive[1] is not None and mo_occ_inactive[1] is not None:
-            density_inactive_b = np.dot(mo_coeff_inactive[1]*mo_occ_inactive[1],
+            density_inactive_b = np.dot(mo_coeff_inactive[1] * mo_occ_inactive[1],
                                         np.transpose(mo_coeff_inactive[1]))
         return (density_inactive_a, density_inactive_b)
 
@@ -318,10 +318,10 @@ class ActiveSpaceTransformer(BaseTransformer):
         # compute inactive energy
         e_inactive = 0.0
         if not beta and mo_coeff_inactive[0].size > 0:
-            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[0], hcore[0]+fock_inactive[0])
+            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[0], hcore[0] + fock_inactive[0])
         elif beta and mo_coeff_inactive[1].size > 0:
-            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[0], hcore[0]+fock_inactive[0])
-            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[1], hcore[1]+fock_inactive[1])
+            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[0], hcore[0] + fock_inactive[0])
+            e_inactive += 0.5 * np.einsum('ij,ji', density_inactive[1], hcore[1] + fock_inactive[1])
 
         return e_inactive
 
@@ -330,9 +330,9 @@ class ActiveSpaceTransformer(BaseTransformer):
                                   fock_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
                                   eri: np.ndarray,
                                   ) -> Tuple[
-                                      Tuple[np.ndarray, Optional[np.ndarray]],
-                                      Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]
-                                      ]:
+        Tuple[np.ndarray, Optional[np.ndarray]],
+        Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]
+]:
         """Computes the h1 and h2 integrals for the active space.
 
         Args:

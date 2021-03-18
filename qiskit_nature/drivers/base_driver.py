@@ -50,6 +50,10 @@ class BaseDriver(ABC):
         self._hf_method = hf_method
         self._supports_molecule = supports_molecule
 
+    @abstractmethod
+    def run(self):
+        raise NotImplementedError()
+
     @property
     def supports_molecule(self) -> bool:
         """

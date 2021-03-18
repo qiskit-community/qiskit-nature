@@ -56,7 +56,10 @@ class VibrationalSpinOp(SpinOp):
             data: list of labels and coefficients. See the label section in
                   the documentation of :class:`VibrationalSpinOp` for more details.
             num_modes : number of modes.
-            num_modals: number of modals.
+            num_modals: number of modals - described by a list of integers where each integer
+                        describes the number of modals in a corresponding mode; in case of the
+                        same number of modals in each mode it is enough to provide an integer
+                        that describes the number of them.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
         Raises:
             ValueError: invalid data is given.

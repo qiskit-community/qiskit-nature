@@ -11,9 +11,8 @@
 # that they have been altered from the originals.
 
 """Tests Vibrational Problem."""
-from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
 from test import QiskitNatureTestCase
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
     VibrationalProblem
 from qiskit_nature.drivers import GaussianForcesDriver
@@ -41,5 +40,3 @@ class TestVibrationalProblem(QiskitNatureTestCase):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
             assert isinstance(vibrational_spin_op, VibrationalSpinOp)
-
-
