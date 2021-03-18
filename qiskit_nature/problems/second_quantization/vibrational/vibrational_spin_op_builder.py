@@ -16,7 +16,8 @@ from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
 
 from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
+    .vibrational_label_builder import \
     create_labels
 
 
@@ -41,6 +42,6 @@ def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian,
     # TODO make HarmonicBasis an argument and support other bases when implemented
     boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
                                             basis_size, truncation_order).convert()
-    all_labels = create_labels(boson_hamilt_harm_basis, truncation_order)
+    all_labels = create_labels(boson_hamilt_harm_basis)
 
     return VibrationalSpinOp(all_labels, num_modes, basis_size)

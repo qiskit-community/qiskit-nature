@@ -18,9 +18,11 @@ from fractions import Fraction
 from typing import List, Tuple, Union
 
 from .. import SpinOp
-from ...problems.second_quantization.vibrational.vibr_to_spin_op_label_converter import \
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
+    .vibr_to_spin_op_label_converter import \
     convert_to_spin_op_labels
-from ...problems.second_quantization.vibrational.vibrational_labels_validator import \
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
+    .vibrational_labels_validator import \
     validate_vibrational_labels
 
 

@@ -13,7 +13,8 @@
 
 from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
-from qiskit_nature.problems.second_quantization.vibrational.vibr_to_spin_op_label_converter import \
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
+    .vibr_to_spin_op_label_converter import \
     convert_to_spin_op_labels
 
 

@@ -17,7 +17,8 @@ import operator
 import re
 from typing import List, Tuple, Union
 
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_labels_validator import \
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
+    .vibrational_labels_validator import \
     validate_vibrational_labels
 
 

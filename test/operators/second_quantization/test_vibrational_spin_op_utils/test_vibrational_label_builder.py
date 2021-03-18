@@ -13,7 +13,8 @@
 from test import QiskitNatureTestCase
 from qiskit_nature.drivers import GaussianForcesDriver
 from qiskit_nature.components.bosonic_bases import HarmonicBasis
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
+    .vibrational_label_builder import \
     create_labels
 
 
@@ -159,5 +160,5 @@ class TestVibrationalLabelBuilder(QiskitNatureTestCase):
         basis_size = [basis_size] * num_modes
         boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,  # type: ignore
                                                 basis_size, truncation_order).convert()
-        labels = create_labels(boson_hamilt_harm_basis, truncation_order)
+        labels = create_labels(boson_hamilt_harm_basis)
         assert labels == expected_labels

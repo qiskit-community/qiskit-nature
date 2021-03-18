@@ -15,20 +15,18 @@ This module builds labels for `VibrationalSpinOp`.
 from typing import Tuple, List, Union
 
 
-def create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]],
-                  truncation_order: int) -> List[Tuple[str, complex]]:
+def create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]]) -> \
+        List[Tuple[str, complex]]:
     """Creates `VibrationalSpinOp` labels from a data structure returned by a convert() method in
     `HarmonicBasis`.
 
     Args:
         boson_hamilt_harm_basis: A data structure returned by a convert() method in `HarmonicBasis`.
-        truncation_order: order at which an n-body expansion is truncated.
     Returns:
         A list of labels and corresponding coefficients that describe a vibrational problem.
     """
     all_labels = []
-    for num_body in range(truncation_order):
-        num_body_data = boson_hamilt_harm_basis[num_body]
+    for num_body_data in boson_hamilt_harm_basis:
         num_body_labels = _create_num_body_labels(num_body_data)
         all_labels.extend(num_body_labels)
     return all_labels
