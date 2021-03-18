@@ -20,6 +20,7 @@ import numpy as np
 from qiskit.utils.validation import validate_min, validate_range_exclusive_max
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.operators.second_quantization.normal_order import NormalOrder
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 
 
@@ -396,31 +397,29 @@ class FermionicOp(SecondQuantizedOp):
             return FermionicOp(("I" * self.register_length, 0))
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
-    def to_normal_order_list(self) -> List[Tuple[str, complex]]:
-        """Convert to normal order representation. `E` is converted into `I - N`.
-        """
+    def to_normal_order_list(self) -> List[NormalOrder]:
+        """Convert to the normal order. `E` is converted into `I - N`."""
         normal_order_list = []
-        reduced_op = self.reduce()
 
-        for label, coeff in reduced_op.to_list():
+        for label, coeff in self.to_list():
             splits = label.split("E")
 
-            for inter_ops in product("IN", repeat=len(splits)-1):
-                sign_n = (-1) ** inter_ops.count("N")
-
+            for inter_ops in product("IN", repeat=len(splits) - 1):
                 label = splits[0]
                 label += "".join(link + next_base for link, next_base in zip(inter_ops, splits[1:]))
 
-                pluses = [it.start() for it in re.finditer(r"\+|N", label)]
-                minuses = [it.start() for it in re.finditer(r"-|N", label)]
+                pluses = [
+                    self.register_length - it.start() - 1 for it in re.finditer(r"\+|N", label)
+                ]
+                minuses = [
+                    self.register_length - it.start() - 1 for it in re.finditer(r"-|N", label)
+                ]
 
-                list_label = [f"+_{plus}" for plus in pluses] + [f"-_{minus}" for minus in minuses]
-                label = " ".join(list_label)
-
-                count = sum(1 for plus in pluses for minus in minuses if plus > minus)
+                count = sum(1 for plus in pluses for minus in minuses if plus < minus)
                 sign_swap = (-1) ** count
-
+                sign_n = (-1) ** inter_ops.count("N")
                 coeff = coeff * sign_n * sign_swap
-                normal_order_list.append((label, coeff))
+
+                normal_order_list.append(NormalOrder(pluses, minuses, coeff))
 
         return normal_order_list
