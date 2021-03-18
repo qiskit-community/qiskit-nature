@@ -418,8 +418,8 @@ class FermionicOp(SecondQuantizedOp):
                 count = sum(1 for plus in pluses for minus in minuses if plus < minus)
                 sign_swap = (-1) ** count
                 sign_n = (-1) ** inter_ops.count("N")
-                coeff = coeff * sign_n * sign_swap
+                new_coeff = coeff * sign_n * sign_swap
 
-                normal_order_list.append(NormalOrder(pluses, minuses, coeff))
+                normal_order_list.append(NormalOrder(pluses, minuses, new_coeff))
 
         return normal_order_list
