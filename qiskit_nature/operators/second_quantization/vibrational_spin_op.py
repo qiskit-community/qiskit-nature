@@ -48,7 +48,7 @@ class VibrationalSpinOp(SpinOp):
     scalar multiplication, and dagger(adjoint).
     """
 
-    def __init__(self, data: Union[List[Tuple[str, float]]], num_modes: int,
+    def __init__(self, data: Union[List[Tuple[str, complex]]], num_modes: int,
                  num_modals: Union[int, List[int]],
                  spin: Union[float, Fraction] = Fraction(1, 2)):
         r"""
@@ -59,7 +59,8 @@ class VibrationalSpinOp(SpinOp):
             num_modals: number of modals - described by a list of integers where each integer
                         describes the number of modals in a corresponding mode; in case of the
                         same number of modals in each mode it is enough to provide an integer
-                        that describes the number of them.
+                        that describes the number of them; the total number of modals defines a
+                        `register_length`
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
         Raises:
             ValueError: invalid data is given.

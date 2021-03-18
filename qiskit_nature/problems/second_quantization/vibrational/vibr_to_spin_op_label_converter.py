@@ -21,8 +21,8 @@ from qiskit_nature.problems.second_quantization.vibrational.vibrational_labels_v
     validate_vibrational_labels
 
 
-def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, float]], num_modes: int,
-                              num_modals: Union[int, List[int]]) -> List[Tuple[str, float]]:
+def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
+                              num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
     """Converts `VibrationalSpinOp` labels to `SpinOp` labels.
 
     Args:

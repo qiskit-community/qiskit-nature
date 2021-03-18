@@ -116,7 +116,7 @@ class HarmonicBasis(BosonicBasis):
         return in_basis
 
     def convert(self, threshold: float = 1e-6
-                ) -> List[List[Tuple[List[List[int]], float]]]:
+                ) -> List[List[Tuple[List[List[int]], complex]]]:
         """
         This prepares an array object representing a bosonic hamiltonian expressed
         in the harmonic basis. This object can directly be given to the BosonicOperator
@@ -246,7 +246,7 @@ class HarmonicBasis(BosonicBasis):
                 raise ValueError('Expansion of the PES is too large, only '
                                  'up to 3-body terms are supported')
 
-        harmonics = []  # type: List[List[Tuple[List[List[int]], float]]]
+        harmonics = []  # type: List[List[Tuple[List[List[int]], complex]]]
         for idx in range(1, self._truncation_order + 1):
             all_indices = np.nonzero(harmonic_dict[idx])
             if len(all_indices[0]) != 0:

@@ -332,7 +332,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                                   ) -> Tuple[
         Tuple[np.ndarray, Optional[np.ndarray]],
         Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]
-]:
+    ]:
         """Computes the h1 and h2 integrals for the active space.
 
         Args:

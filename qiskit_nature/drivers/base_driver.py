@@ -52,6 +52,9 @@ class BaseDriver(ABC):
 
     @abstractmethod
     def run(self):
+        """
+        Runs a driver to produce an output data structure.
+        """
         raise NotImplementedError()
 
     @property
