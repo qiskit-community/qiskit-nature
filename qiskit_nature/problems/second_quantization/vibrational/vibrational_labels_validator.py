@@ -18,7 +18,7 @@ from typing import List, Tuple, Union
 _VALID_VIBR_LABEL_PATTERN = re.compile(r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
 
-def validate_vibrational_labels(vibrational_labels: List[Tuple[str, float]], num_modes: int,
+def validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
                                 num_modals: Union[int, List[int]]):
     """Validates vibrational labels in the following aspects:
         - vibrational labels stored in a correct data structure,
@@ -47,19 +47,19 @@ def validate_vibrational_labels(vibrational_labels: List[Tuple[str, float]], num
     _validate_indices(vibrational_labels, num_modes, num_modals)
 
 
-def _validate_data_type(vibrational_labels: List[Tuple[str, float]]):
+def _validate_data_type(vibrational_labels: List[Tuple[str, complex]]):
     if not isinstance(vibrational_labels, list):
         raise ValueError("Invalid data type.")
 
 
-def _validate_regex(vibrational_labels: List[Tuple[str, float]]):
+def _validate_regex(vibrational_labels: List[Tuple[str, complex]]):
     invalid_labels = [label for label, _ in vibrational_labels if
                       not _VALID_VIBR_LABEL_PATTERN.match(label)]
     if invalid_labels:
         raise ValueError(f"Invalid labels: {invalid_labels}")
 
 
-def _validate_indices(vibrational_labels: List[Tuple[str, float]], num_modes: int,
+def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
                       num_modals: List[int]):
     for labels, _ in vibrational_labels:
         coeff_labels_split = labels.split()
