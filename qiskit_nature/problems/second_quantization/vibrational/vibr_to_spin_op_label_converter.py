@@ -12,6 +12,8 @@
 """
 This module converts labels from the `VibrationalSpinOp` to 'SpinOp` notation.
 """
+import itertools
+import operator
 import re
 from typing import List, Tuple, Union
 
@@ -43,7 +45,7 @@ def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, float]], num_m
 
     validate_vibrational_labels(vibrational_labels, num_modes, num_modals)
 
-    partial_sum_modals = _calc_partial_sum_modals(num_modals)
+    partial_sum_modals = [0] + list(itertools.accumulate(num_modals, operator.add))
 
     spin_op_labels = []
     for labels, coeff in vibrational_labels:
@@ -52,20 +54,8 @@ def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, float]], num_m
     return spin_op_labels
 
 
-def _calc_partial_sum_modals(num_modals: List[int]) -> List[int]:
-    summed = 0
-    partial_sum_modals = [0]
-    if isinstance(num_modals, list):
-        for mode_len in num_modals:
-            summed += mode_len
-            partial_sum_modals.append(summed)
-        return partial_sum_modals
-    else:
-        raise ValueError(f"num_modals of incorrect type {type(num_modals)}.")
-
-
 def _build_coeff_spin_op_labels(labels: str, partial_sum_modals: List[int]) -> str:
-    coeff_labels_split = labels.split(" ")
+    coeff_labels_split = labels.split()
     coeff_new_labels = []
     for label in coeff_labels_split:
         new_label = _build_spin_op_label(label, partial_sum_modals)
@@ -77,7 +67,7 @@ def _build_coeff_spin_op_labels(labels: str, partial_sum_modals: List[int]) -> s
 def _build_spin_op_label(label: str, partial_sum_modals: List[int]) -> str:
     op, mode_index, modal_index = re.split('[*_]', label)
     index = _get_ind_from_mode_modal(partial_sum_modals, int(mode_index), int(modal_index))
-    new_label = "".join([op, "_", str(index)])
+    new_label = f"{op}_{index}"
     return new_label
 
 
