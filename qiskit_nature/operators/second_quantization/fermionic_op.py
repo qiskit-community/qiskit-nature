@@ -396,38 +396,31 @@ class FermionicOp(SecondQuantizedOp):
             return FermionicOp(("I" * self.register_length, 0))
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
-    def to_normal_order(self) -> "FermionicOp":
-        """Convert to normal order representation.
-        `E` is convertd into `I-N` and the order of label is `+N-`.
+    def to_normal_order_list(self) -> List[Tuple[str, complex]]:
+        """Convert to normal order representation. `E` is converted into `I - N`.
         """
-        normal_ordered_list = []
+        normal_order_list = []
         reduced_op = self.reduce()
 
-        # E = I - N
         for label, coeff in reduced_op.to_list():
             splits = label.split("E")
 
             for inter_ops in product("IN", repeat=len(splits)-1):
-                sign = (-1) ** inter_ops.count("N")
+                sign_n = (-1) ** inter_ops.count("N")
 
                 label = splits[0]
-                for link, next_base in zip(inter_ops, splits[1:]):
-                    label += link + next_base
+                label += "".join(link + next_base for link, next_base in zip(inter_ops, splits[1:]))
 
-                minus_pos = [i.start() for i in re.finditer(r"-", label)]
-                plus_pos = [i.start() for i in re.finditer(r"\+", label)]
-                number_pos = [i.start() for i in re.finditer(r"N", label)]
-                list_label = list(label)
-                for i, pos in enumerate(i.start() for i in re.finditer(r"[\-\+N]", label)):
-                    if i < len(plus_pos):
-                        list_label[pos] = "+"
-                    elif i < len(plus_pos) + len(number_pos):
-                        list_label[pos] = "N"
-                    else:
-                        list_label[pos] = "-"
-                sign_swap = (-1) ** sum(1 for p in plus_pos for m in minus_pos if p > m)
-                label = "".join(list_label)
+                pluses = [it.start() for it in re.finditer(r"\+|N", label)]
+                minuses = [it.start() for it in re.finditer(r"-|N", label)]
 
-                normal_ordered_list.append((label, coeff * sign * sign_swap))
+                list_label = [f"+_{plus}" for plus in pluses] + [f"-_{minus}" for minus in minuses]
+                label = " ".join(list_label)
 
-        return FermionicOp(normal_ordered_list)
+                count = sum(1 for plus in pluses for minus in minuses if plus > minus)
+                sign_swap = (-1) ** count
+
+                coeff = coeff * sign_n * sign_swap
+                normal_order_list.append((label, coeff))
+
+        return normal_order_list
