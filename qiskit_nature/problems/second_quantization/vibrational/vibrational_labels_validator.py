@@ -63,7 +63,7 @@ def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: 
                       num_modals: List[int]):
     for labels, _ in vibrational_labels:
         coeff_labels_split = labels.split()
-        part_num_in_mode_conserved_check = [0] * num_modes
+        par_num_mode_conserved_check = [0] * num_modes
         prev_op, prev_mode_index, prev_modal_index = "+", num_modes, max(num_modals)
         for label in coeff_labels_split:
             op, mode_index_str, modal_index_str = re.split('[*_]', label)
@@ -82,8 +82,8 @@ def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: 
 
             prev_op, prev_mode_index, prev_modal_index = op, mode_index, modal_index
 
-            part_num_in_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
-        if not all(v == 0 for v in part_num_in_mode_conserved_check):
+            par_num_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
+        if not all(v == 0 for v in par_num_mode_conserved_check):
             raise ValueError(
                 f"Modes of raising and lowering operators do not agree for labels {labels}.")
 

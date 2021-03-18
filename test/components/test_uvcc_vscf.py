@@ -13,17 +13,16 @@
 """ Test of UVCC and VSCF extensions """
 import unittest
 import warnings
+from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
+
+from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit.aqua import QuantumInstance
-from qiskit.utils import algorithm_globals
-
 from qiskit_nature import BosonicOperator
 from qiskit_nature.circuit.library import VSCF
 from qiskit_nature.components.variational_forms import UVCC
-from test import QiskitNatureTestCase
 
 
 @unittest.skip("Skip test until refactored.")
