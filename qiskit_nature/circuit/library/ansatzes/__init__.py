@@ -15,11 +15,4 @@
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 from .ucc import UCC
 from .uccsd import UCCSD
-
-# TODO: Add q-p-UCCD and q-UCCD0 subclasses as per: https://arxiv.org/abs/1911.10864 [ooVQE]
-
-__all__ = [
-    'EvolvedOperatorAnsatz',
-    'UCC',
-    'UCCSD',
-    ]
+from .succd import SUCCD
