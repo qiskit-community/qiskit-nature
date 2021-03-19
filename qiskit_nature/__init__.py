@@ -154,6 +154,7 @@ Submodules
 
 """
 
+from qiskit_nature.drivers.watson_hamiltonian import WatsonHamiltonian
 from .bosonic_operator import BosonicOperator
 from .exceptions import QiskitNatureError
 from .fermionic_operator import FermionicOperator
