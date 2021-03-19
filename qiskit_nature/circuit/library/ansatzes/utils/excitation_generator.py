@@ -74,6 +74,10 @@ def generate_excitations(num_excitations: int,
         # the Cartesian product of these lists gives all possible single beta-spin excitations
         beta_excitations = list(itertools.product(beta_occ, beta_unocc))
 
+    if not alpha_excitations and not beta_excitations:
+        # nothing to do, let's return early
+        return []
+
     # we can find the actual list of excitations by doing the following:
     #   1. combine the single alpha- and beta-spin excitations
     #   2. find all possible combinations of length `num_excitations`
