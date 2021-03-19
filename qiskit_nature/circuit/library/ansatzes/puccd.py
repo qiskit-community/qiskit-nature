@@ -32,6 +32,9 @@ class PUCCD(UCC):
     The PUCCD Ansatz enforces all excitations to occur in parallel in the alpha and beta species.
     For more information see also [1].
 
+    Note, that this Ansatz can only work for singlet-spin systems. Therefore, the number of alpha
+    and beta electrons must be equal.
+
     This is a convenience subclass of the UCC Ansatz.
 
     References:
@@ -52,7 +55,11 @@ class PUCCD(UCC):
             num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spin_orbitals: the number of spin orbitals.
             reps: The number of times to repeat the evolved operators.
+
+        Raises:
+            QiskitNatureError: if the number of alpha and beta electrons is not equal.
         """
+        self._validate_num_particles(num_particles)
         super().__init__(qubit_converter=qubit_converter,
                          num_particles=num_particles,
                          num_spin_orbitals=num_spin_orbitals,
@@ -79,13 +86,7 @@ class PUCCD(UCC):
             tuples. The first tuple contains the occupied spin orbital indices whereas the second
             one contains the indices of the unoccipied spin orbitals.
         """
-        try:
-            assert num_particles[0] == num_particles[1]
-        except AssertionError:
-            raise QiskitNatureError(
-                'The PUCC Ansatz only works for singlet-spin systems. However, you specified '
-                'differing numbers of alpha and beta electrons: %s', str(num_particles)
-            )
+        self._validate_num_particles(num_particles)
 
         num_electrons = num_particles[0]
         beta_index_shift = num_spin_orbitals // 2
@@ -104,3 +105,12 @@ class PUCCD(UCC):
             print((alpha_exc, beta_exc))
 
         return double_excitations
+
+    def _validate_num_particles(self, num_particles):
+        try:
+            assert num_particles[0] == num_particles[1]
+        except AssertionError as exc:
+            raise QiskitNatureError(
+                'The PUCC Ansatz only works for singlet-spin systems. However, you specified '
+                'differing numbers of alpha and beta electrons:', str(num_particles)
+            ) from exc
