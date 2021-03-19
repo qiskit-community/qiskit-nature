@@ -9,11 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""A Vibrational Spin operator.
-Note: this implementation differs fundamentally from the `FermionicOperator` and `BosonicOperator`
-as it relies an the mathematical representation of spin matrices as (e.g.) explained in [1].
-[1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
-"""
+"""A Vibrational Spin operator."""
+
 from fractions import Fraction
 from typing import List, Tuple, Union
 from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
@@ -35,19 +32,20 @@ class VibrationalSpinOp(SpinOp):
         * - `-`
           - :math:`S_-`
           - Lowering operator
-    1. Labels
     :class:`VibrationalSpinOp` accepts the notation that encodes raising (+) and lowering (-)
     operators together with indices of modes and modals that they act on, e.g. "+_{mode_index}*{
     modal_index}". Each modal can be excited at most once.
     **Initialization**
-    # TODO
+    The :class:`VibrationalSpinOp` can be initialized by the list of tuples that each contains a
+    string with a label as explained above and a corresponding coefficient. This argument must be
+    accompanied by the number of modes and modals, and possibly, the value of a spin.
     **Algebra**
     :class:`VibrationalSpinOp` supports the following basic arithmetic operations: addition,
     subtraction,
     scalar multiplication, and dagger(adjoint).
     """
 
-    def __init__(self, data: Union[List[Tuple[str, complex]]], num_modes: int,
+    def __init__(self, data: List[Tuple[str, complex]], num_modes: int,
                  num_modals: Union[int, List[int]],
                  spin: Union[float, Fraction] = Fraction(1, 2)):
         r"""

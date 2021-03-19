@@ -16,8 +16,8 @@ from typing import Dict, List, Tuple, cast
 
 import numpy as np
 
-from qiskit_nature import WatsonHamiltonian
 from .bosonic_basis import BosonicBasis
+from .. import WatsonHamiltonian
 
 
 class HarmonicBasis(BosonicBasis):
