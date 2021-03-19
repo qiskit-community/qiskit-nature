@@ -225,11 +225,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         if mo_occ_full[0] is None:
             # QMolecule provided by driver without `mo_occ` information available. Constructing
             # occupation numbers based on ground state HF case.
-            occ_alpha = [1.] * molecule_data.num_alpha + [0.] * (molecule_data.num_orbitals -
-                                                                 molecule_data.num_alpha)
+            occ_alpha = [1.] * molecule_data.num_alpha \
+                + [0.] * (molecule_data.num_molecular_orbitals - molecule_data.num_alpha)
             if self._beta:
-                occ_beta = [1.] * molecule_data.num_beta + [0.] * (molecule_data.num_orbitals -
-                                                                   molecule_data.num_beta)
+                occ_beta = [1.] * molecule_data.num_beta \
+                    + [0.] * (molecule_data.num_molecular_orbitals - molecule_data.num_beta)
             else:
                 occ_alpha[:molecule_data.num_beta] = [o + 1 for o in
                                                       occ_alpha[:molecule_data.num_beta]]
@@ -295,13 +295,13 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
-            if norbs_inactive + self._num_molecular_orbitals > molecule_data.num_orbitals:
+            if norbs_inactive + self._num_molecular_orbitals > molecule_data.num_molecular_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
             if self._num_molecular_orbitals != len(self._active_orbitals):
                 raise QiskitNatureError("The number of selected active orbital indices does not "
                                         "match the specified number of active orbitals.")
-            if max(self._active_orbitals) >= molecule_data.num_orbitals:
+            if max(self._active_orbitals) >= molecule_data.num_molecular_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
             if sum(self._mo_occ_total[self._active_orbitals]) != self._num_electrons:
                 raise QiskitNatureError("The number of electrons in the selected active orbitals "

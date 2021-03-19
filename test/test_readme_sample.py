@@ -67,7 +67,7 @@ class TestReadmeSample(QiskitNatureTestCase):
                              basis='sto3g')
         molecule = driver.run()
         num_particles = molecule.num_alpha + molecule.num_beta
-        num_spin_orbitals = molecule.num_orbitals * 2
+        num_spin_orbitals = molecule.num_molecular_orbitals * 2
 
         # Build the qubit operator, which is the input to the VQE algorithm
         ferm_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
