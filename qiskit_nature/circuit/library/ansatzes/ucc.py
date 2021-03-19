@@ -14,7 +14,7 @@ The Unitary Coupled-Cluster Ansatz.
 """
 
 from functools import partial
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import logging
 
@@ -57,7 +57,7 @@ class UCC(EvolvedOperatorAnsatz):
                  num_particles: Optional[Tuple[int, int]] = None,
                  num_spin_orbitals: Optional[int] = None,
                  excitations: Optional[Union[str, int, List[int], Callable[
-                     [int, Tuple[int, int]], List[SecondQuantizedOp]]]] = None,
+                     [int, Tuple[int, int]], List[Tuple[Tuple[Any, ...], ...]]]]] = None,
                  alpha_spin: bool = True,
                  beta_spin: bool = True,
                  max_spin_excitation: Optional[int] = None,
