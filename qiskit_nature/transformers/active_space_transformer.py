@@ -103,7 +103,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                              shifts into account.
         """
         self.num_electrons = num_electrons
-        self.num_orbitals = num_molecular_orbitals
+        self.num_molecular_orbitals = num_molecular_orbitals
         self.num_alpha = num_alpha
         self.active_orbitals = active_orbitals
         self.freeze_core = freeze_core
@@ -159,7 +159,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new QMolecule
         q_molecule_reduced = copy.deepcopy(q_molecule)
         # Energies and orbitals
-        q_molecule_reduced.num_orbitals = self.num_orbitals
+        q_molecule_reduced.num_orbitals = self.num_molecular_orbitals
         q_molecule_reduced.num_alpha = self._num_particles[0]
         q_molecule_reduced.num_beta = self._num_particles[1]
         q_molecule_reduced.mo_coeff = self._mo_coeff_active[0]
@@ -202,7 +202,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         # either freeze_core is specified
         valid = self.freeze_core
         # or at least num_electrons and num_molecular_orbitals must be valid
-        valid |= isinstance(self.num_electrons, int) and isinstance(self.num_orbitals, int)
+        valid |= isinstance(self.num_electrons, int) and \
+            isinstance(self.num_molecular_orbitals, int)
 
         return valid
 
@@ -266,7 +267,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         if self.active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
             inactive_orbs_idxs = list(range(norbs_inactive))
-            active_orbs_idxs = list(range(norbs_inactive, norbs_inactive+self.num_orbitals))
+            active_orbs_idxs = list(range(norbs_inactive,
+                                          norbs_inactive+self.num_molecular_orbitals))
         else:
             active_orbs_idxs = self.active_orbitals
             inactive_orbs_idxs = [o for o in range(nelec_total // 2) if o not in
@@ -304,10 +306,10 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         if self.active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
-            if norbs_inactive + self.num_orbitals > q_molecule.num_orbitals:
+            if norbs_inactive + self.num_molecular_orbitals > q_molecule.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
-            if self.num_orbitals != len(self.active_orbitals):
+            if self.num_molecular_orbitals != len(self.active_orbitals):
                 raise QiskitNatureError("The number of selected active orbital indices does not "
                                         "match the specified number of active orbitals.")
             if max(self.active_orbitals) >= q_molecule.num_orbitals:
