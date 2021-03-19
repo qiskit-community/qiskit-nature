@@ -1,0 +1,106 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""
+The paired-UCCD variational form.
+"""
+
+from typing import Any, List, Optional, Tuple
+
+import itertools
+import logging
+
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+
+from .ucc import UCC
+
+logger = logging.getLogger(__name__)
+
+
+class PUCCD(UCC):
+    """The PUCCD Ansatz.
+
+    The PUCCD Ansatz enforces all excitations to occur in parallel in the alpha and beta species.
+    For more information see also [1].
+
+    This is a convenience subclass of the UCC Ansatz.
+
+    References:
+
+        [1] https://arxiv.org/abs/1911.10864
+    """
+
+    def __init__(self, qubit_converter: Optional[QubitConverter] = None,
+                 num_particles: Optional[Tuple[int, int]] = None,
+                 num_spin_orbitals: Optional[int] = None,
+                 reps: int = 1):
+        """
+
+        Args:
+            qubit_converter: the QubitConverter instance which takes care of mapping a
+            :class:`~.SecondQuantizedOp` to a :class:`~.PauliSumOp` as well as performing all
+            configured symmetry reductions on it.
+            num_particles: the tuple of the number of alpha- and beta-spin particles.
+            num_spin_orbitals: the number of spin orbitals.
+            reps: The number of times to repeat the evolved operators.
+        """
+        super().__init__(qubit_converter=qubit_converter,
+                         num_particles=num_particles,
+                         num_spin_orbitals=num_spin_orbitals,
+                         excitations=self.generate_excitations,
+                         alpha_spin=True,
+                         beta_spin=True,
+                         max_spin_excitation=None,
+                         reps=reps)
+
+    def generate_excitations(self, num_spin_orbitals: int,
+                             num_particles: Tuple[int, int]) -> List[Tuple[Tuple[Any, ...], ...]]:
+        """Generates the excitations for the PUCC Ansatz.
+
+        Args:
+            num_spin_orbitals: the number of spin orbitals.
+            num_particles: the number of alpha and beta electrons. Note, these must be identical for
+            this class.
+
+        Raises:
+            QiskitNatureError: if the number of alpha and beta electrons is not equal.
+
+        Returns:
+            The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
+            tuples. The first tuple contains the occupied spin orbital indices whereas the second
+            one contains the indices of the unoccipied spin orbitals.
+        """
+        try:
+            assert num_particles[0] == num_particles[1]
+        except AssertionError:
+            raise QiskitNatureError(
+                'The PUCC Ansatz only works for singlet-spin systems. However, you specified '
+                'differing numbers of alpha and beta electrons: %s', str(num_particles)
+            )
+
+        num_electrons = num_particles[0]
+        beta_index_shift = num_spin_orbitals // 2
+
+        # generate alpha-spin orbital indices for occupied and unoccupied ones
+        alpha_occ = list(range(num_electrons))
+        alpha_unocc = list(range(num_electrons, beta_index_shift))
+        # the Cartesian product of these lists gives all possible single alpha-spin excitations
+        alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
+
+        double_excitations = []
+
+        for alpha_exc in alpha_excitations:
+            beta_exc = (alpha_exc[0] + beta_index_shift, alpha_exc[1] + beta_index_shift)
+            double_excitations.append(tuple(zip(alpha_exc, beta_exc)))
+            print((alpha_exc, beta_exc))
+
+        return double_excitations
