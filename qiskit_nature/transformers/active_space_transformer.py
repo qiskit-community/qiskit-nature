@@ -82,11 +82,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         self.num_alpha = num_alpha
         self.active_orbitals = active_orbitals
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, molecule_data: QMolecule) -> QMolecule:
         """Reduces the given `QMolecule` to a given active space.
 
         Args:
-            q_molecule: the `QMolecule` to be transformed.
+            molecule_data: the `QMolecule` to be transformed.
 
         Returns:
             A new `QMolecule` instance.
@@ -97,26 +97,27 @@ class ActiveSpaceTransformer(BaseTransformer):
                                selected active orbital indices does not match `num_orbitals`.
         """
         # get molecular orbital coefficients
-        mo_coeff_full = (q_molecule.mo_coeff, q_molecule.mo_coeff_b)
+        mo_coeff_full = (molecule_data.mo_coeff, molecule_data.mo_coeff_b)
         beta = mo_coeff_full[1] is not None
         # get molecular orbital occupation numbers
-        mo_occ_full = (q_molecule.mo_occ, q_molecule.mo_occ_b)
+        mo_occ_full = (molecule_data.mo_occ, molecule_data.mo_occ_b)
         if mo_occ_full[0] is None:
             # QMolecule provided by driver without `mo_occ` information available. Constructing
             # occupation numbers based on ground state HF case.
-            occ_alpha = [1.] * q_molecule.num_alpha + [0.] * (q_molecule.num_orbitals -
-                                                              q_molecule.num_alpha)
+            occ_alpha = [1.] * molecule_data.num_alpha + [0.] * (molecule_data.num_orbitals -
+                                                                 molecule_data.num_alpha)
             if beta:
-                occ_beta = [1.] * q_molecule.num_beta + [0.] * (q_molecule.num_orbitals -
-                                                                q_molecule.num_beta)
+                occ_beta = [1.] * molecule_data.num_beta + [0.] * (molecule_data.num_orbitals -
+                                                                   molecule_data.num_beta)
             else:
-                occ_alpha[:q_molecule.num_beta] = [o + 1 for o in occ_alpha[:q_molecule.num_beta]]
+                occ_alpha[:molecule_data.num_beta] = [o + 1 for o in
+                                                      occ_alpha[:molecule_data.num_beta]]
                 occ_beta = None
             mo_occ_full = (np.asarray(occ_alpha), np.asarray(occ_beta))
         mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if beta else mo_occ_full[0]
 
         # compute number of inactive electrons
-        nelec_total = q_molecule.num_alpha + q_molecule.num_beta
+        nelec_total = molecule_data.num_alpha + molecule_data.num_beta
         nelec_inactive = nelec_total - self.num_electrons
         if self.num_alpha is not None:
             if not beta:
@@ -127,11 +128,11 @@ class ActiveSpaceTransformer(BaseTransformer):
             num_alpha = self.num_alpha
             num_beta = self.num_electrons - self.num_alpha
         else:
-            num_beta = (self.num_electrons - (q_molecule.multiplicity - 1)) // 2
+            num_beta = (self.num_electrons - (molecule_data.multiplicity - 1)) // 2
             num_alpha = self.num_electrons - num_beta
 
         self._validate_num_electrons(nelec_inactive)
-        self._validate_num_orbitals(nelec_inactive, q_molecule, mo_occ_total)
+        self._validate_num_orbitals(nelec_inactive, molecule_data, mo_occ_total)
 
         # determine active and inactive orbital indices
         if self.active_orbitals is None:
@@ -154,8 +155,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         density_inactive = self._compute_inactive_density_matrix(mo_occ_inactive, mo_coeff_inactive)
 
         # extract core Hamiltonian and electron-repulsion-integral matrices from QMolecule
-        hcore = (q_molecule.hcore, q_molecule.hcore_b if beta else None)
-        eri = q_molecule.eri
+        hcore = (molecule_data.hcore, molecule_data.hcore_b if beta else None)
+        eri = molecule_data.eri
 
         fock_inactive = self._compute_inactive_fock_op(hcore, eri, density_inactive)
 
@@ -165,7 +166,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         hij, hijkl = self._compute_active_integrals(mo_coeff_active, fock_inactive, eri)
 
         # construct new QMolecule
-        q_molecule_reduced = copy.deepcopy(q_molecule)
+        q_molecule_reduced = copy.deepcopy(molecule_data)
         # Energies and orbits
         q_molecule_reduced.energy_shift['ActiveSpaceTransformer'] = e_inactive
         q_molecule_reduced.num_orbitals = self.num_orbitals
@@ -173,9 +174,10 @@ class ActiveSpaceTransformer(BaseTransformer):
         q_molecule_reduced.num_beta = num_beta
         q_molecule_reduced.mo_coeff = mo_coeff_active[0]
         q_molecule_reduced.mo_coeff_b = mo_coeff_active[1]
-        q_molecule_reduced.orbital_energies = q_molecule.orbital_energies[active_orbs_idxs]
+        q_molecule_reduced.orbital_energies = molecule_data.orbital_energies[active_orbs_idxs]
         if beta:
-            q_molecule_reduced.orbital_energies_b = q_molecule.orbital_energies_b[active_orbs_idxs]
+            q_molecule_reduced.orbital_energies_b = molecule_data.orbital_energies_b[
+                active_orbs_idxs]
         # 1 and 2 electron integrals in MO basis
         q_molecule_reduced.mo_onee_ints = hij[0]
         q_molecule_reduced.mo_onee_ints_b = hij[1]
@@ -329,10 +331,9 @@ class ActiveSpaceTransformer(BaseTransformer):
                                   mo_coeff_active: Tuple[np.ndarray, Optional[np.ndarray]],
                                   fock_inactive: Tuple[np.ndarray, Optional[np.ndarray]],
                                   eri: np.ndarray,
-                                  ) -> Tuple[
-        Tuple[np.ndarray, Optional[np.ndarray]],
-        Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]
-    ]:
+                                  ) -> \
+            Tuple[Tuple[np.ndarray, Optional[np.ndarray]],
+                  Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]]:
         """Computes the h1 and h2 integrals for the active space.
 
         Args:

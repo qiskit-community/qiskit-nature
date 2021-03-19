@@ -19,11 +19,11 @@ from ..drivers import QMolecule
 class FreezeCoreTransformer(BaseTransformer):
     """The Freeze-Core transformer."""
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, molecule_data: QMolecule) -> QMolecule:
         """Transforms the given `QMolecule` according to the specified frozen core.
 
         Args:
-            q_molecule: the `QMolecule` to be transformed.
+            molecule_data: the `QMolecule` to be transformed.
 
         Returns:
             A new `QMolecule` instance.
