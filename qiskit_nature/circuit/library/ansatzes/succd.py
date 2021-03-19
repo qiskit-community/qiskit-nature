@@ -120,6 +120,7 @@ class SUCCD(UCC):
         alpha_unocc = list(range(num_electrons, beta_index_shift))
         # the Cartesian product of these lists gives all possible single alpha-spin excitations
         alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
+        logger.debug('Generated list of single alpha excitations: %s', alpha_excitations)
 
         # Find all possible double excitations constructed from the list of single excitations.
         # Note, that we use `combinations_with_replacement` here, in order to also get those double
@@ -130,7 +131,9 @@ class SUCCD(UCC):
         for exc in pool:
             alpha_exc, second_exc = exc[0], exc[1]
             beta_exc = (second_exc[0] + beta_index_shift, second_exc[1] + beta_index_shift)
-            excitations.append(tuple(zip(alpha_exc, beta_exc)))
+            exc_tuple = tuple(zip(alpha_exc, beta_exc))
+            excitations.append(exc_tuple)
+            logger.debug('Added the excitation: %s', exc_tuple)
 
         return excitations
 

@@ -173,12 +173,14 @@ class UCC(EvolvedOperatorAnsatz):
 
         excitation_ops = self.excitation_ops()
 
+        logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
         converted_ops = self.qubit_converter.to_qubit_ops(excitation_ops)
 
         # we don't append to this property directly in order to only perform the checks done during
         # its setter once
         self.operators = converted_ops
 
+        logger.debug('Building QuantumCircuit...')
         super()._build()
 
     def excitation_ops(self) -> List[SecondQuantizedOp]:
@@ -221,6 +223,7 @@ class UCC(EvolvedOperatorAnsatz):
         else:
             raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
 
+        logger.debug('Generating excitation list...')
         excitations = []
         for gen in generators:
             excitations.extend(gen(
@@ -228,6 +231,7 @@ class UCC(EvolvedOperatorAnsatz):
                 num_particles=self.num_particles
             ))
 
+        logger.debug('Converting excitations into SecondQuantizedOps...')
         excitation_ops = self._build_fermionic_excitation_ops(excitations)
 
         return excitation_ops

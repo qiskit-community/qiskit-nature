@@ -116,10 +116,13 @@ class PUCCD(UCC):
         alpha_unocc = list(range(num_electrons, beta_index_shift))
         # the Cartesian product of these lists gives all possible single alpha-spin excitations
         alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
+        logger.debug('Generated list of single alpha excitations: %s', alpha_excitations)
 
         for alpha_exc in alpha_excitations:
             beta_exc = (alpha_exc[0] + beta_index_shift, alpha_exc[1] + beta_index_shift)
-            excitations.append(tuple(zip(alpha_exc, beta_exc)))
+            exc_tuple = tuple(zip(alpha_exc, beta_exc))
+            excitations.append(exc_tuple)
+            logger.debug('Added the excitation: %s', exc_tuple)
 
         return excitations
 
