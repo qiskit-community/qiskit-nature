@@ -67,6 +67,8 @@ Driver Common
    UnitsType
    BasisType
    InitialGuess
+   BosonicBasis
+   HarmonicBasis
 
 Drivers
 =======

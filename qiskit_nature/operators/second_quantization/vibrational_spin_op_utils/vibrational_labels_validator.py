@@ -83,9 +83,11 @@ def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: 
             prev_op, prev_mode_index, prev_modal_index = op, mode_index, modal_index
 
             par_num_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
-        if not all(v == 0 for v in par_num_mode_conserved_check):
-            raise ValueError(
-                f"Modes of raising and lowering operators do not agree for labels {labels}.")
+        for index, item in enumerate(par_num_mode_conserved_check):
+            if item != 0:
+                raise ValueError(
+                    f"Number of raising and lowering operators do not agree for mode {index} in "
+                    f"label {labels}.")
 
 
 def _is_index_out_of_range(mode_index: int, num_modes: int, modal_index: int,
