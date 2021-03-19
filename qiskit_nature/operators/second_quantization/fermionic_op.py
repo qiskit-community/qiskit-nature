@@ -215,6 +215,8 @@ class FermionicOp(SecondQuantizedOp):
                     validate_range_exclusive_max("index", index, 0, self._register_length)
                     if 0 <= prev_index < index:
                         raise ValueError("Indices of labels must be in descending order.")
+                    if list_label[term][self._register_length - index - 1] != "I":
+                        raise ValueError(f"Duplicate index {index} is given.")
                     list_label[term][self._register_length - index - 1] = op_label
                     prev_index = index
 

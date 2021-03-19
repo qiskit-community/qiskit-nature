@@ -41,11 +41,18 @@ class TestFermionicOp(QiskitNatureTestCase):
         """Test __init__"""
         self.assertListEqual(FermionicOp(label).to_list(), [(label, 1)])
 
-    @data("INX", [("++", 1), ("EF", 1)], "", "+_0 -_2")
-    def test_init_invalid_label(self, labels):
+    @data(
+        ("INX", None),
+        ([("++", 1), ("EF", 1)], None),
+        ("", None),
+        ("+_0 -_2", 3),
+        ("+_3 -_2 +_0 -_0", 4),
+    )
+    @unpack
+    def test_init_invalid_label(self, label, register_length):
         """Test __init__ with invalid label"""
         with self.assertRaises(ValueError):
-            FermionicOp(labels)
+            FermionicOp(label, register_length=register_length)
 
     def test_init_multiterm(self):
         """Test __init__ with multi terms"""
