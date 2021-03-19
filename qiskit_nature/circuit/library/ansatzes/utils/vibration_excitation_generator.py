@@ -49,7 +49,7 @@ def generate_vibration_excitations(num_excitations: int,
 
     partial_sum_modals = list(itertools.accumulate(num_modals, operator.add))
 
-    # Frist, we construct the list of single excitations:
+    # First, we construct the list of single excitations:
     single_excitations = []
     idx_sum = 0
 

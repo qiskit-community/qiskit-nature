@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class SUCCD(UCC):
     """The SUCCD Ansatz.
 
-    The SUCCD Ansatz only contains double excitations. Furthermore, it only consideres the set of
+    The SUCCD Ansatz only contains double excitations. Furthermore, it only considers the set of
     excitations which is symmetrically invariant with respect to spin-flips of both particles. For
     more information see also [1].
 
