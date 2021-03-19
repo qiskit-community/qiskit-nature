@@ -14,7 +14,7 @@ from test import QiskitNatureTestCase
 from test.problems.second_quantization.vibrational.resources.expected_labels import \
     _co2_freq_b3lyp_labels
 from qiskit_nature.drivers import GaussianForcesDriver
-from qiskit_nature.components.bosonic_bases import HarmonicBasis
+from qiskit_nature.drivers.bosonic_bases import HarmonicBasis
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
     _create_labels
 

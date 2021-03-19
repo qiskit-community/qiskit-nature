@@ -28,7 +28,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import QiskitNatureError
 from qiskit_nature import WatsonHamiltonian
 from qiskit_nature.bosonic_operator import BosonicOperator
-from qiskit_nature.components.bosonic_bases import HarmonicBasis
+from qiskit_nature.drivers.bosonic_bases import HarmonicBasis
 from qiskit_nature.components.variational_forms import UVCC
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.results import EigenstateResult, VibronicStructureResult

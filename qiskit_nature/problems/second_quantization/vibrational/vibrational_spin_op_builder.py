@@ -13,7 +13,7 @@
 from typing import Union, List
 
 from qiskit_nature import WatsonHamiltonian
-from qiskit_nature.components.bosonic_bases import HarmonicBasis
+from qiskit_nature.drivers.bosonic_bases import HarmonicBasis
 
 from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \

@@ -16,7 +16,7 @@ from typing import Union, List, Optional
 import logging
 
 from ..units_type import UnitsType
-from ...watson_hamiltonian import WatsonHamiltonian
+from qiskit_nature.drivers.watson_hamiltonian import WatsonHamiltonian
 from ..bosonic_driver import BosonicDriver
 from ..molecule import Molecule
 from ...exceptions import QiskitNatureError
