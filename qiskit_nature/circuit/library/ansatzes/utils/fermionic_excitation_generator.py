@@ -29,13 +29,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def generate_excitations(num_excitations: int,
-                         num_spin_orbitals: int,
-                         num_particles: Tuple[int, int],
-                         alpha_spin: bool = True,
-                         beta_spin: bool = True,
-                         max_spin_excitation: Optional[int] = None,
-                         ) -> List[Tuple[Tuple[Any, ...], ...]]:
+def generate_fermionic_excitations(num_excitations: int,
+                                   num_spin_orbitals: int,
+                                   num_particles: Tuple[int, int],
+                                   alpha_spin: bool = True,
+                                   beta_spin: bool = True,
+                                   max_spin_excitation: Optional[int] = None,
+                                   ) -> List[Tuple[Tuple[Any, ...], ...]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
 

@@ -22,7 +22,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
-from .utils.excitation_generator import generate_excitations
+from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
 logger = logging.getLogger(__name__)
 
@@ -201,20 +201,20 @@ class UCC(EvolvedOperatorAnsatz):
         if isinstance(self.excitations, str):
             for exc in self.excitations:
                 generators.append(partial(
-                    generate_excitations,
+                    generate_fermionic_excitations,
                     num_excitations=self.EXCITATION_TYPE[exc],
                     **extra_kwargs
                 ))
         elif isinstance(self.excitations, int):
             generators.append(partial(
-                generate_excitations,
+                generate_fermionic_excitations,
                 num_excitations=self.excitations,
                 **extra_kwargs
             ))
         elif isinstance(self.excitations, list):
             for exc in self.excitations:  # type: ignore
                 generators.append(partial(
-                    generate_excitations,
+                    generate_fermionic_excitations,
                     num_excitations=exc,
                     **extra_kwargs
                 ))

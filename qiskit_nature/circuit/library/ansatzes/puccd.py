@@ -22,7 +22,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 from .ucc import UCC
-from .utils.excitation_generator import generate_excitations as default_excitation_generator
+from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
 logger = logging.getLogger(__name__)
 
@@ -104,9 +104,9 @@ class PUCCD(UCC):
         self._validate_num_particles(num_particles)
 
         excitations = list()
-        excitations.extend(default_excitation_generator(1, num_spin_orbitals, num_particles,
-                                                        alpha_spin=self.include_singles[0],
-                                                        beta_spin=self.include_singles[1]))
+        excitations.extend(generate_fermionic_excitations(1, num_spin_orbitals, num_particles,
+                                                          alpha_spin=self.include_singles[0],
+                                                          beta_spin=self.include_singles[1]))
 
         num_electrons = num_particles[0]
         beta_index_shift = num_spin_orbitals // 2

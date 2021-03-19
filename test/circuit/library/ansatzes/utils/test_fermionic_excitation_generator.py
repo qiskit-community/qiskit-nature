@@ -16,7 +16,8 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
-from qiskit_nature.circuit.library.ansatzes.utils.excitation_generator import generate_excitations
+from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import \
+    generate_fermionic_excitations
 
 
 @ddt
@@ -44,7 +45,9 @@ class TestExcitationGenerator(QiskitNatureTestCase):
     )
     def test_generate_excitations(self, num_excitations, num_spin_orbitals, num_particles, expect):
         """TODO"""
-        excitations = generate_excitations(num_excitations, num_spin_orbitals, num_particles)
+        excitations = generate_fermionic_excitations(num_excitations,
+                                                     num_spin_orbitals,
+                                                     num_particles)
         self.assertEqual(excitations, expect)
 
     @unpack
@@ -61,8 +64,10 @@ class TestExcitationGenerator(QiskitNatureTestCase):
     def test_max_spin_excitation(self, num_excitations, num_spin_orbitals, num_particles,
                                  max_spin, expect):
         """TODO"""
-        excitations = generate_excitations(num_excitations, num_spin_orbitals, num_particles,
-                                           max_spin_excitation=max_spin)
+        excitations = generate_fermionic_excitations(num_excitations,
+                                                     num_spin_orbitals,
+                                                     num_particles,
+                                                     max_spin_excitation=max_spin)
         self.assertEqual(excitations, expect)
 
     @unpack
@@ -73,8 +78,10 @@ class TestExcitationGenerator(QiskitNatureTestCase):
     )
     def test_pure_alpha_excitation(self, num_excitations, num_spin_orbitals, num_particles, expect):
         """TODO"""
-        excitations = generate_excitations(num_excitations, num_spin_orbitals, num_particles,
-                                           beta_spin=False)
+        excitations = generate_fermionic_excitations(num_excitations,
+                                                     num_spin_orbitals,
+                                                     num_particles,
+                                                     beta_spin=False)
         self.assertEqual(excitations, expect)
 
     @unpack
@@ -85,6 +92,8 @@ class TestExcitationGenerator(QiskitNatureTestCase):
     )
     def test_pure_beta_excitation(self, num_excitations, num_spin_orbitals, num_particles, expect):
         """TODO"""
-        excitations = generate_excitations(num_excitations, num_spin_orbitals, num_particles,
-                                           alpha_spin=False)
+        excitations = generate_fermionic_excitations(num_excitations,
+                                                     num_spin_orbitals,
+                                                     num_particles,
+                                                     alpha_spin=False)
         self.assertEqual(excitations, expect)
