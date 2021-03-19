@@ -18,7 +18,7 @@ needs. `alpha_spin` and `beta_spin` are boolean flags which can be set to `False
 disable the inclusion of alpha-spin or beta-spin excitation, respectively.
 `max_spin_excitation` takes an integer value which defines the maximum number of excitations that
 can occur within the same spin. Thus, setting `max_spin_excitation=1` and `num_excitations=2` yields
-the SUCC Ansatz.
+only those double excitations which do not excite the same spin species twice.
 """
 
 from typing import Any, List, Tuple, Optional
