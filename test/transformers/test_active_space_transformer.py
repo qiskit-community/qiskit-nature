@@ -199,6 +199,5 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         self.assertQMolecule(q_molecule_reduced, expected)
 
 
-
 if __name__ == '__main__':
     unittest.main()
