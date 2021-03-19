@@ -70,6 +70,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                  num_alpha: Optional[int] = None,
                  active_orbitals: Optional[List[int]] = None,
                  freeze_core: bool = False,
+                 remove_orbitals: Optional[List[int]] = None,
                  ):
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
 
@@ -93,13 +94,20 @@ class ActiveSpaceTransformer(BaseTransformer):
                              around the Fermi level.
             freeze_core: A convenience argument to quickly enable the inactivity of the
                          `QMolecule.core_orbitals`. This keyword overwrites the use of all other
-                         keywords and, thus, cannot be used in combination with them.
+                         keywords (except `remove_orbitals`) and, thus, cannot be used in
+                         combination with them.
+            remove_orbitals: A list of indices specifying molecular orbitals which are removed in
+                             combination with the `freeze_core` option. No checks are performed on
+                             the nature of these orbitals, so the user must make sure that these are
+                             _unoccupied_ orbitals, which can be removed without taking any energy
+                             shifts into account.
         """
         self.num_electrons = num_electrons
         self.num_orbitals = num_molecular_orbitals
         self.num_alpha = num_alpha
         self.active_orbitals = active_orbitals
         self.freeze_core = freeze_core
+        self.remove_orbitals = remove_orbitals
 
         self._beta: bool = None
         self._mo_occ_total: np.ndarray = None
@@ -219,6 +227,8 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         if self.freeze_core:
             inactive_orbs_idxs = q_molecule.core_orbitals
+            if self.remove_orbitals is not None:
+                inactive_orbs_idxs.extend(self.remove_orbitals)
             active_orbs_idxs = [o for o in range(q_molecule.num_orbitals)
                                 if o not in inactive_orbs_idxs]
 

@@ -185,6 +185,20 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         self.assertQMolecule(q_molecule_reduced, expected)
 
+    def test_freeze_core_with_remove_orbitals(self):
+        """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g.hdf5', 'transformers'))
+        q_molecule = driver.run()
+
+        trafo = ActiveSpaceTransformer(freeze_core=True, remove_orbitals=[4, 5])
+        q_molecule_reduced = trafo.transform(q_molecule)
+
+        expected = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g_reduced.hdf5',
+                                                                'transformers')).run()
+
+        self.assertQMolecule(q_molecule_reduced, expected)
+
+
 
 if __name__ == '__main__':
     unittest.main()
