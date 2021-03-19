@@ -13,25 +13,9 @@
 """The Second Quantized Operator Qubit Mappers."""
 
 from .bravyi_kitaev_mapper import BravyiKitaevMapper
-from .bravyi_kitaev_super_fast_mapper import BravyiKitaevSuperFastMapper
-from .direct_mapper import DirectMapper
 from .fermionic_mapper import FermionicMapper
 from .jordan_wigner_mapper import JordanWignerMapper
 from .linear_mapper import LinearMapper
-from .logarithmic_mapper import LogarithmicMapper
 from .parity_mapper import ParityMapper
 from .qubit_mapper import QubitMapper
 from .spin_mapper import SpinMapper
-
-__all__ = [
-        'BravyiKitaevMapper',
-        'BravyiKitaevSuperFastMapper',
-        'DirectMapper',
-        'FermionicMapper',
-        'JordanWignerMapper',
-        'LinearMapper',
-        'LogarithmicMapper',
-        'ParityMapper',
-        'QubitMapper',
-        'SpinMapper',
-]
