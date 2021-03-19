@@ -21,25 +21,23 @@ can occur within the same spin. Thus, setting `max_spin_excitation=1` and `num_e
 the SUCC Ansatz.
 """
 
-from typing import List, Tuple, Optional
+from typing import Any, List, Tuple, Optional
 
 import itertools
 import logging
 
-from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
-
 logger = logging.getLogger(__name__)
 
 
-def build_excitation_ops(num_excitations: int,
+def generate_excitations(num_excitations: int,
                          num_spin_orbitals: int,
                          num_particles: Tuple[int, int],
                          alpha_spin: bool = True,
                          beta_spin: bool = True,
                          max_spin_excitation: Optional[int] = None,
-                         ) -> List[SecondQuantizedOp]:
-    """Builds all possible excitation operators with the given number of excitations for the
-    specified number of particles distributed in the number of orbitals.
+                         ) -> List[Tuple[Tuple[Any, ...], ...]]:
+    """Generates all possible excitations with the given number of excitations for the specified
+    number of particles distributed among the given number of spin orbitals.
 
     This method assumes block-ordered spin-orbitals.
 
@@ -55,7 +53,9 @@ def build_excitation_ops(num_excitations: int,
                              excitations (alpha,alpha or beta,beta).
 
     Returns:
-        The list of excitation operators in the second quantized formalism.
+        The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
+        tuples. The first tuple contains the occupied spin orbital indices whereas the second one
+        contains the indices of the unoccipied spin orbitals.
     """
     alpha_excitations = []
     if alpha_spin:
@@ -73,20 +73,6 @@ def build_excitation_ops(num_excitations: int,
         beta_unocc = list(range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals))
         # the Cartesian product of these lists gives all possible single beta-spin excitations
         beta_excitations = list(itertools.product(beta_occ, beta_unocc))
-
-    excitations = list()
-    visited_excitations = set()
-
-    def add_excitations(pool):
-        for exc in pool:
-            # validate an excitation by asserting that all indices are unique:
-            #   1. get the frozen set of indices in the excitation
-            exc_set = frozenset(itertools.chain.from_iterable(exc))
-            #   2. all indices must be unique (size of set equals 2 * num_excitations)
-            #   3. and we also don't want to include permuted variants of identical excitations
-            if len(exc_set) == num_excitations * 2 and exc_set not in visited_excitations:
-                visited_excitations.add(exc_set)
-                excitations.append(tuple(zip(*exc)))
 
     # we can find the actual list of excitations by doing the following:
     #   1. combine the single alpha- and beta-spin excitations
@@ -111,22 +97,17 @@ def build_excitation_ops(num_excitations: int,
                 pool
             )
 
-    add_excitations(pool)
+    excitations = list()
+    visited_excitations = set()
 
-    operators = []
-    for exc in excitations:
-        label = ['I'] * num_spin_orbitals
-        for occ in exc[0]:
-            label[occ] = '+'
-        for unocc in exc[1]:
-            label[unocc] = '-'
-        op = FermionicOp(''.join(label))
-        # TODO: this is UCC specific. Do we want to keep this here and make this a UCC-specific
-        # excitation builder?
-        op -= op.adjoint()
-        # we need to account for an additional imaginary phase in the exponent (see also
-        # `PauliTrotterEvolution.convert`)
-        op *= 1j
-        operators.append(op)
+    for exc in pool:
+        # validate an excitation by asserting that all indices are unique:
+        #   1. get the frozen set of indices in the excitation
+        exc_set = frozenset(itertools.chain.from_iterable(exc))
+        #   2. all indices must be unique (size of set equals 2 * num_excitations)
+        #   3. and we also don't want to include permuted variants of identical excitations
+        if len(exc_set) == num_excitations * 2 and exc_set not in visited_excitations:
+            visited_excitations.add(exc_set)
+            excitations.append(tuple(zip(*exc)))
 
-    return operators
+    return excitations
