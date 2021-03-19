@@ -42,7 +42,7 @@ def generate_vibration_excitations(num_excitations: int,
     Returns:
         The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
         tuples. The first tuple contains the occupied spin orbital indices whereas the second one
-        contains the indices of the unoccipied spin orbitals.
+        contains the indices of the unoccupied spin orbitals.
     """
     if isinstance(num_modals, int):
         num_modals = [num_modals] * num_modes

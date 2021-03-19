@@ -99,7 +99,7 @@ class PUCCD(UCC):
         Returns:
             The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
             tuples. The first tuple contains the occupied spin orbital indices whereas the second
-            one contains the indices of the unoccipied spin orbitals.
+            one contains the indices of the unoccupied spin orbitals.
         """
         self._validate_num_particles(num_particles)
 
