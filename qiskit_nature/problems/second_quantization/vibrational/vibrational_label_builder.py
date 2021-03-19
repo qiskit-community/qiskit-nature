@@ -15,7 +15,7 @@ This module builds labels for `VibrationalSpinOp`.
 from typing import Tuple, List
 
 
-def create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]]) -> \
+def _create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]]) -> \
         List[Tuple[str, complex]]:
     """Creates `VibrationalSpinOp` labels from a data structure returned by a convert() method in
     `HarmonicBasis`.

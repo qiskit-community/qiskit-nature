@@ -18,8 +18,8 @@ from typing import List, Tuple, Union
 _VALID_VIBR_LABEL_PATTERN = re.compile(r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
 
-def validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
-                                num_modals: Union[int, List[int]]):
+def _validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
+                                 num_modals: Union[int, List[int]]):
     """Validates vibrational labels in the following aspects:
         - vibrational labels stored in a correct data structure,
         - labels for each coefficient conform with a regular expression,

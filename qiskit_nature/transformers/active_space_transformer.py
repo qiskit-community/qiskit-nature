@@ -82,7 +82,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         self.num_alpha = num_alpha
         self.active_orbitals = active_orbitals
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:  # type: ignore
+    def transform(self, q_molecule: QMolecule) -> QMolecule:
         """Reduces the given `QMolecule` to a given active space.
 
         Args:

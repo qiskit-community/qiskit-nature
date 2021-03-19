@@ -13,9 +13,8 @@
 
 from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
-from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
-    .vibr_to_spin_op_label_converter import \
-    convert_to_spin_op_labels
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
+    .vibr_to_spin_op_label_converter import _convert_to_spin_op_labels
 
 
 @ddt
@@ -55,7 +54,7 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
     def test_convert_to_spin_op_labels(self, vibrational_labels, num_modes, num_modals, expected):
         """Tests that VibrationalSpinOp labels are converted to SpinOp labels correctly."""
 
-        spin_op_labels = convert_to_spin_op_labels(vibrational_labels, num_modes, num_modals)
+        spin_op_labels = _convert_to_spin_op_labels(vibrational_labels, num_modes, num_modals)
 
         self.assertListEqual(spin_op_labels, expected)
 
@@ -65,5 +64,5 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
                                                       num_modals):
         """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when
         provided with invalid labels."""
-        self.assertRaises(ValueError, convert_to_spin_op_labels, vibrational_labels, num_modes,
+        self.assertRaises(ValueError, _convert_to_spin_op_labels, vibrational_labels, num_modes,
                           num_modals)

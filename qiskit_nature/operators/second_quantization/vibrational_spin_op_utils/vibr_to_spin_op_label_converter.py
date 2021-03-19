@@ -17,13 +17,12 @@ import operator
 import re
 from typing import List, Tuple, Union
 
-from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
-    .vibrational_labels_validator import \
-    validate_vibrational_labels
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
+    .vibrational_labels_validator import _validate_vibrational_labels
 
 
-def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
-                              num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
+def _convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
+                               num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
     """Converts `VibrationalSpinOp` labels to `SpinOp` labels.
 
     Args:
@@ -44,7 +43,7 @@ def convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num
     if len(num_modals) != num_modes:
         raise ValueError("num_modes does not agree with the size of num_modals")
 
-    validate_vibrational_labels(vibrational_labels, num_modes, num_modals)
+    _validate_vibrational_labels(vibrational_labels, num_modes, num_modals)
 
     partial_sum_modals = [0] + list(itertools.accumulate(num_modals, operator.add))
 

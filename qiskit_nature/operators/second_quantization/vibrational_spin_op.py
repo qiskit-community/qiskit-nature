@@ -16,14 +16,11 @@ as it relies an the mathematical representation of spin matrices as (e.g.) expla
 """
 from fractions import Fraction
 from typing import List, Tuple, Union
-
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
+    .vibr_to_spin_op_label_converter import _convert_to_spin_op_labels
+from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
+    .vibrational_labels_validator import _validate_vibrational_labels
 from .. import SpinOp
-from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
-    .vibr_to_spin_op_label_converter import \
-    convert_to_spin_op_labels
-from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils\
-    .vibrational_labels_validator import \
-    validate_vibrational_labels
 
 
 class VibrationalSpinOp(SpinOp):
@@ -68,14 +65,14 @@ class VibrationalSpinOp(SpinOp):
             ValueError: invalid data is given.
             QiskitNatureError: invalid spin value.
         """
-        validate_vibrational_labels(data, num_modes, num_modals)
+        _validate_vibrational_labels(data, num_modes, num_modals)
 
         self._vibrational_data = data
         self._num_modals = num_modals
         self._num_modes = num_modes
 
-        self._spin_op_labels = convert_to_spin_op_labels(self._vibrational_data,
-                                                         self._num_modes, self.num_modals)
+        self._spin_op_labels = _convert_to_spin_op_labels(self._vibrational_data,
+                                                          self._num_modes, self.num_modals)
         self._register_length = sum(self._num_modals) if isinstance(self._num_modals, list) \
             else self._num_modals * self._num_modes
 

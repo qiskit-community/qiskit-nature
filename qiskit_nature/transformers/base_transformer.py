@@ -13,10 +13,7 @@
 """The Base Operator Transformer interface."""
 
 from abc import ABC, abstractmethod
-from typing import Union
-
-from qiskit_nature import WatsonHamiltonian
-from qiskit_nature.drivers import QMolecule
+from typing import Any
 
 
 class BaseTransformer(ABC):
@@ -26,7 +23,7 @@ class BaseTransformer(ABC):
     """
 
     @abstractmethod
-    def transform(self, molecule_data: Union[QMolecule, WatsonHamiltonian]):
+    def transform(self, molecule_data: Any):
         """Transforms one `QMolecule` or 'WatsonHamiltonian' into another one. This may or may
         not affect the size of the Hilbert space.
 

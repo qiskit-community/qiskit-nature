@@ -28,15 +28,15 @@ from ..base_problem import BaseProblem
 class MolecularProblem(BaseProblem):
     """Molecular Problem"""
 
-    def __init__(self, fermionic_driver: FermionicDriver,
+    def __init__(self, driver: FermionicDriver,
                  q_molecule_transformers: Optional[List[BaseTransformer]] = None):
         """
 
         Args:
-            fermionic_driver: A fermionic driver encoding the molecule information.
+            driver: A fermionic driver encoding the molecule information.
             q_molecule_transformers: A list of transformations to be applied to the molecule.
         """
-        super().__init__(fermionic_driver, q_molecule_transformers)
+        super().__init__(driver, q_molecule_transformers)
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
