@@ -245,9 +245,10 @@ class QMolecule:
                     self.z_dip_energy_shift = {}
 
                 # Orbitals
-                data = file["orbitals/num_molecular_orbitals"][...]
-                self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
-                if self.num_molecular_orbitals is None:
+                try:
+                    data = file["orbitals/num_molecular_orbitals"][...]
+                    self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
+                except KeyError:
                     # try the legacy attribute name
                     data = file["orbitals/num_orbitals"][...]
                     self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
