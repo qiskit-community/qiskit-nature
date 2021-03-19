@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Validator of Vibrational Labels."""
+"""Methods Validating Vibrational Labels."""
 import re
 from typing import List, Tuple, Union
 

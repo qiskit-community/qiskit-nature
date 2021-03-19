@@ -363,4 +363,4 @@ class ActiveSpaceTransformer(BaseTransformer):
                                  mo_coeff_active[1], mo_coeff_active[0], mo_coeff_active[0],
                                  optimize=True)
 
-        return ((hij, hij_b), (hijkl, hijkl_ba, hijkl_bb))
+        return (hij, hij_b), (hijkl, hijkl_ba, hijkl_bb)
