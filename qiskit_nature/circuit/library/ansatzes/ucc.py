@@ -145,7 +145,15 @@ class UCC(EvolvedOperatorAnsatz):
         self._alpha_spin = alpha_spin
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
+
         super().__init__(reps=reps, evolution=None)
+
+        # We store some of our temporary data for two reasons:
+        #   1. for the adaptivity of the Ansatz (see :class:`~.AdaptVQE`)
+        #   2. to simplify testing
+        self._excitation_generators = None
+        self._excitation_list = None
+        self._excitation_ops = None
 
     @property
     def qubit_converter(self) -> QubitConverter:
@@ -239,6 +247,39 @@ class UCC(EvolvedOperatorAnsatz):
         Returns:
             The list of generated excitation operators.
         """
+        if self._excitation_ops is not None:
+            return self._excitation_ops
+
+        excitations = self._get_excitation_list()
+
+        logger.debug('Converting excitations into SecondQuantizedOps...')
+        excitation_ops = self._build_fermionic_excitation_ops(excitations)
+
+        self._excitation_ops = excitation_ops
+        return excitation_ops
+
+    def _get_excitation_list(self) -> List[Tuple[Tuple[Any, ...], ...]]:
+        if self._excitation_list is not None:
+            return self._excitation_list
+
+        generators = self._get_excitation_generators()
+
+        logger.debug('Generating excitation list...')
+        excitations = []
+        for gen in generators:
+            excitations.extend(gen(
+                num_spin_orbitals=self.num_spin_orbitals,
+                num_particles=self.num_particles
+            ))
+
+        self._excitation_list = excitations
+        return excitations
+
+    def _get_excitation_generators(self) -> List[Callable]:
+        if self._excitation_generators is not None:
+            return self._excitation_generators
+
+        logger.debug('Gathering excitation generators...')
         generators: List[Callable] = []
 
         extra_kwargs = {'alpha_spin': self._alpha_spin,
@@ -270,18 +311,8 @@ class UCC(EvolvedOperatorAnsatz):
         else:
             raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
 
-        logger.debug('Generating excitation list...')
-        excitations = []
-        for gen in generators:
-            excitations.extend(gen(
-                num_spin_orbitals=self.num_spin_orbitals,
-                num_particles=self.num_particles
-            ))
-
-        logger.debug('Converting excitations into SecondQuantizedOps...')
-        excitation_ops = self._build_fermionic_excitation_ops(excitations)
-
-        return excitation_ops
+        self._excitation_generators = generators
+        return generators
 
     def _build_fermionic_excitation_ops(self, excitations: List[Tuple]) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
