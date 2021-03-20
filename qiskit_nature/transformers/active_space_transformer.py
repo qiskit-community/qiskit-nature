@@ -12,7 +12,7 @@
 
 """The Active-Space Reduction interface."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 import copy
 import logging
 import numpy as np
@@ -65,9 +65,8 @@ class ActiveSpaceTransformer(BaseTransformer):
     """
 
     def __init__(self,
-                 num_electrons: Optional[int] = None,
+                 num_electrons: Optional[Union[int, Tuple[int, int]]] = None,
                  num_molecular_orbitals: Optional[int] = None,
-                 num_alpha: Optional[int] = None,
                  active_orbitals: Optional[List[int]] = None,
                  ):
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
@@ -81,9 +80,12 @@ class ActiveSpaceTransformer(BaseTransformer):
         of appropriate size.
 
         Args:
-            num_electrons: The number of active electrons.
+            num_electrons: The number of active electrons. If this is a tuple, it represents the
+                           number of alpha and beta electrons. If this is a number, it is
+                           interpreted as the total number of active electrons, should be even, and
+                           implies that the number of alpha and beta electrons equals half of this
+                           value, respectively.
             num_molecular_orbitals: The number of active orbitals.
-            num_alpha: The optional number of active alpha-spin electrons.
             active_orbitals: A list of indices specifying the molecular orbitals of the active
                              space. This argument must match with the remaining arguments and should
                              only be used to enforce an active space that is not chosen purely
@@ -91,7 +93,6 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         self._num_electrons = num_electrons
         self._num_molecular_orbitals = num_molecular_orbitals
-        self._num_alpha = num_alpha
         self._active_orbitals = active_orbitals
 
         self._beta: bool = None
@@ -117,10 +118,10 @@ class ActiveSpaceTransformer(BaseTransformer):
                                selected active orbital indices does not match
                                `num_molecular_orbitals`.
         """
-        valid = self._check_configuration()
-        if not valid:
-            raise QiskitNatureError("Insufficient Active-Space configuration. You must either use "
-                                    "the `freeze_core` option or choose another active space.")
+        try:
+            self._check_configuration()
+        except QiskitNatureError as exc:
+            raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
         # get molecular orbital coefficients
         mo_coeff_full = (q_molecule.mo_coeff, q_molecule.mo_coeff_b)
@@ -184,10 +185,39 @@ class ActiveSpaceTransformer(BaseTransformer):
         return q_molecule_reduced
 
     def _check_configuration(self):
-        valid = isinstance(self._num_electrons, int) and \
-            isinstance(self._num_molecular_orbitals, int)
+        if isinstance(self._num_electrons, int):
+            if self._num_electrons % 2 != 0:
+                raise QiskitNatureError(
+                    "The number of active electrons must be even! Otherwise you must specify them "
+                    "as a tuple, not as:", self._num_electrons
+                )
+            if self._num_electrons < 0:
+                raise QiskitNatureError(
+                    "The number of active electrons cannot be negative:", self._num_electrons
+                )
+        elif isinstance(self._num_electrons, tuple):
+            if not all(isinstance(n_elec, int) and n_elec >= 0 for n_elec in self._num_electrons):
+                raise QiskitNatureError(
+                    "Neither the number of alpha, nor the number of beta electrons can be "
+                    "negative:", self._num_electrons
+                )
+        else:
+            raise QiskitNatureError(
+                "The number of active electrons must be an int, or a tuple thereof, not:",
+                self._num_electrons
+            )
 
-        return valid
+        if isinstance(self._num_molecular_orbitals, int):
+            if self._num_molecular_orbitals < 0:
+                raise QiskitNatureError(
+                    "The number of active orbitals cannot be negative:",
+                    self._num_molecular_orbitals
+                )
+        else:
+            raise QiskitNatureError(
+                "The number of active orbitals must be an int, not:",
+                self._num_electrons
+            )
 
     def _extract_mo_occupation_vector(self, q_molecule: QMolecule):
         mo_occ_full = (q_molecule.mo_occ, q_molecule.mo_occ_b)
@@ -206,21 +236,14 @@ class ActiveSpaceTransformer(BaseTransformer):
         return mo_occ_full
 
     def _determine_active_space(self, q_molecule: QMolecule):
-        nelec_total = q_molecule.num_alpha + q_molecule.num_beta
+        if isinstance(self._num_electrons, tuple):
+            num_alpha, num_beta = self._num_electrons
+        elif isinstance(self._num_electrons, int):
+            num_alpha = num_beta = self._num_electrons // 2
 
         # compute number of inactive electrons
-        nelec_inactive = nelec_total - self._num_electrons
-        if self._num_alpha is not None:
-            if not self._beta:
-                warning = 'The provided instance of QMolecule does not provide any beta ' \
-                          + 'coefficients but you tried to specify a separate number of alpha' \
-                          + ' electrons. Continuing as if it does not matter.'
-                logger.warning(warning)
-            num_alpha = self._num_alpha
-            num_beta = self._num_electrons - self._num_alpha
-        else:
-            num_beta = (self._num_electrons - (q_molecule.multiplicity - 1)) // 2
-            num_alpha = self._num_electrons - num_beta
+        nelec_total = q_molecule.num_alpha + q_molecule.num_beta
+        nelec_inactive = nelec_total - num_alpha - num_beta
 
         self._num_particles = (num_alpha, num_beta)
 

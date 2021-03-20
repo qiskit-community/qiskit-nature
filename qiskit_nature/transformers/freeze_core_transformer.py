@@ -79,7 +79,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         return q_molecule_new
 
     def _check_configuration(self):
-        return True
+        pass
 
     def _determine_active_space(self, q_molecule: QMolecule):
         nelec_total = q_molecule.num_alpha + q_molecule.num_beta

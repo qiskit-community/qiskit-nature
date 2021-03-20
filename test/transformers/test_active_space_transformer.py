@@ -103,7 +103,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g.hdf5', 'transformers'))
         q_molecule = driver.run()
 
-        trafo = ActiveSpaceTransformer(num_electrons=3, num_molecular_orbitals=3, num_alpha=2)
+        trafo = ActiveSpaceTransformer(num_electrons=(2, 1), num_molecular_orbitals=3)
         q_molecule_reduced = trafo.transform(q_molecule)
 
         expected = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g_reduced.hdf5',
@@ -140,8 +140,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     @idata([
         [2, 3, None, "More active orbitals requested than available in total."],
-        [3, 2, None, "More active electrons requested than available in total."],
-        [1, 2, None, "The number of inactive electrons may not be odd."],
+        [4, 2, None, "More active electrons requested than available in total."],
+        [(1, 0), 2, None, "The number of inactive electrons may not be odd."],
         [2, 2, [0, 1, 2], "The number of active orbitals do not match."],
         [2, 2, [1, 2], "The number of active electrons do not match."],
     ])
