@@ -22,25 +22,32 @@ logger = logging.getLogger(__name__)
 
 
 class FreezeCoreTransformer(ActiveSpaceTransformer):
-    """The Freeze-Core reduction.
-
-    """
+    """The Freeze-Core reduction."""
 
     def __init__(self, freeze_core: bool = True,
                  remove_orbitals: Optional[List[int]] = None,
                  ):
-        """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
+        """Initializes a transformer which reduces a `QMolecule` by removing some molecular
+        orbitals.
+
+        The orbitals to be removed are specified in two ways:
+            1. When `freeeze_core` is enabled (the default), the `core_orbitals` listed in the
+               `QMolecule` are made inactive and removed in the same fashion as in the
+               :class:`ActiveSpaceTransformer`.
+            2. Additionally, unoccupied molecular orbitals can be removed via a list of indices
+               passed to `remove_orbitals`. It is the user's responsibility to ensure that these are
+               indeed unoccupied orbitals, as no checks are performed.
+
+        If you want to remove additional occupied orbitals, please use the
+        :class:`ActiveSpaceTransformer` instead.
 
         Args:
-            freeze_core: A convenience argument to quickly enable the inactivity of the
-                         `QMolecule.core_orbitals`. This keyword overwrites the use of all other
-                         keywords (except `remove_orbitals`) and, thus, cannot be used in
-                         combination with them.
-            remove_orbitals: A list of indices specifying molecular orbitals which are removed in
-                             combination with the `freeze_core` option. No checks are performed on
-                             the nature of these orbitals, so the user must make sure that these are
-                             _unoccupied_ orbitals, which can be removed without taking any energy
-                             shifts into account.
+            freeze_core: A boolean indicating whether to remove the molecular orbitals specified by
+                        `QMolecule.core_orbitals.
+            remove_orbitals: A list of indices specifying molecular orbitals which are removed.
+                             No checks are performed on the nature of these orbitals, so the user
+                             must make sure that these are _unoccupied_ orbitals, which can be
+                             removed without taking any energy shifts into account.
         """
         self._freeze_core = freeze_core
         self._remove_orbitals = remove_orbitals
@@ -48,7 +55,8 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         super().__init__()
 
     def transform(self, q_molecule: QMolecule) -> QMolecule:
-        """Reduces the given `QMolecule` to a given active space.
+        """Reduces the given `QMolecule` by removing the core and optionally defined unoccupied
+        molecular orbitals.
 
         Args:
             q_molecule: the `QMolecule` to be transformed.
