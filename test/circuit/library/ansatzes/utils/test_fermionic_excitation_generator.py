@@ -21,8 +21,8 @@ from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator
 
 
 @ddt
-class TestExcitationGenerator(QiskitNatureTestCase):
-    """TODO"""
+class TestFermionicExcitationGenerator(QiskitNatureTestCase):
+    """Tests for the default fermionic excitation generator method."""
 
     @unpack
     @data(
@@ -44,7 +44,7 @@ class TestExcitationGenerator(QiskitNatureTestCase):
         (3, 8, [2, 1], [((0, 1, 4), (2, 3, 5)), ((0, 1, 4), (2, 3, 6)), ((0, 1, 4), (2, 3, 7))]),
     )
     def test_generate_excitations(self, num_excitations, num_spin_orbitals, num_particles, expect):
-        """TODO"""
+        """Test standard input arguments."""
         excitations = generate_fermionic_excitations(num_excitations,
                                                      num_spin_orbitals,
                                                      num_particles)
@@ -63,7 +63,7 @@ class TestExcitationGenerator(QiskitNatureTestCase):
     )
     def test_max_spin_excitation(self, num_excitations, num_spin_orbitals, num_particles,
                                  max_spin, expect):
-        """TODO"""
+        """Test limiting the maximum number of excitations per spin species."""
         excitations = generate_fermionic_excitations(num_excitations,
                                                      num_spin_orbitals,
                                                      num_particles,
@@ -77,7 +77,7 @@ class TestExcitationGenerator(QiskitNatureTestCase):
         (2, 8, [2, 2], [((0, 1), (2, 3))]),
     )
     def test_pure_alpha_excitation(self, num_excitations, num_spin_orbitals, num_particles, expect):
-        """TODO"""
+        """Test disabling beta-spin excitations."""
         excitations = generate_fermionic_excitations(num_excitations,
                                                      num_spin_orbitals,
                                                      num_particles,
@@ -91,7 +91,7 @@ class TestExcitationGenerator(QiskitNatureTestCase):
         (2, 8, [2, 2], [((4, 5), (6, 7))]),
     )
     def test_pure_beta_excitation(self, num_excitations, num_spin_orbitals, num_particles, expect):
-        """TODO"""
+        """Test disabling alpha-spin excitations."""
         excitations = generate_fermionic_excitations(num_excitations,
                                                      num_spin_orbitals,
                                                      num_particles,

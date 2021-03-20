@@ -21,6 +21,8 @@ import itertools
 import logging
 import operator
 
+from qiskit_nature import QiskitNatureError
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,11 +41,18 @@ def generate_vibration_excitations(num_excitations: int,
         num_modals: the number of modals per mode. If this is a single integer, the same number of
                     modals will be used for all modes.
 
+    Raises:
+        QiskitNatureError: if `isinstance(num_modals, list) && len(num_modals) != num_modes`.
+
     Returns:
         The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
         tuples. The first tuple contains the occupied spin orbital indices whereas the second one
         contains the indices of the unoccupied spin orbitals.
     """
+    if isinstance(num_modals, list) and len(num_modals) != num_modes:
+        raise QiskitNatureError(
+            'The length of `num_modals` must equal `num_modes`: ', str(num_modals), str(num_modes)
+        )
     if isinstance(num_modals, int):
         num_modals = [num_modals] * num_modes
 
@@ -63,7 +72,6 @@ def generate_vibration_excitations(num_excitations: int,
         idx_sum = accumulated_sum
 
     logger.debug('Generated list of single excitations: %s', single_excitations)
-    print(single_excitations)
 
     # we can find the actual list of excitations by doing the following:
     #   1. combine the single alpha- and beta-spin excitations
@@ -83,7 +91,6 @@ def generate_vibration_excitations(num_excitations: int,
             visited_excitations.add(exc_set)
             exc_tuple = tuple(zip(*exc))
             excitations.append(exc_tuple)
-            print(exc_tuple)
             logger.debug('Added the excitation: %s', exc_tuple)
 
     return excitations
