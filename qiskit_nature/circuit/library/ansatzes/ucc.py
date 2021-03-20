@@ -151,9 +151,9 @@ class UCC(EvolvedOperatorAnsatz):
         # We store some of our temporary data for two reasons:
         #   1. for the adaptivity of the Ansatz (see :class:`~.AdaptVQE`)
         #   2. to simplify testing
-        self._excitation_generators = None
-        self._excitation_list = None
-        self._excitation_ops = None
+        self._excitation_generators: List[Callable] = None
+        self._excitation_list: List[Tuple[Tuple[Any, ...], ...]] = None
+        self._excitation_ops: List[SecondQuantizedOp] = None
 
     @property
     def qubit_converter(self) -> QubitConverter:
