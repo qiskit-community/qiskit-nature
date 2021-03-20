@@ -203,6 +203,7 @@ prebuilt
 prepend
 preprocesses
 pucc
+puccd
 py
 pyquante
 pyscf
@@ -247,6 +248,7 @@ subclasses
 submodules
 substrings
 succ
+succd
 sudo
 superclass
 superfast
