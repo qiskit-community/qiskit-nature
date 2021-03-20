@@ -14,20 +14,80 @@
 
 from test import QiskitNatureTestCase
 
+from ddt import ddt, data, unpack
+
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library.ansatzes import SUCCD
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
+@ddt
 class TestSUCCD(QiskitNatureTestCase):
-    """Tests for the UCCSD Ansatz."""
+    """Tests for the SUCCD Ansatz."""
 
-    def test_ucc_ansatz(self):
-        """Tests the UCCSD Ansatz."""
+    @unpack
+    @data(
+        (4, (1, 1), [FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
+        (8, (2, 2), [FermionicOp([('+I-I+I-I', 1j), ('-I+I-I+I', -1j)]),
+                     FermionicOp([('+I-I+II-', 1j), ('-I+I-II+', -1j)]),
+                     FermionicOp([('+I-II+-I', 1j), ('-I+II-+I', -1j)]),
+                     FermionicOp([('+I-II+I-', 1j), ('-I+II-I+', -1j)]),
+                     FermionicOp([('+II-+II-', 1j), ('-II+-II+', -1j)]),
+                     FermionicOp([('+II-I+-I', 1j), ('-II+I-+I', -1j)]),
+                     FermionicOp([('+II-I+I-', 1j), ('-II+I-I+', -1j)]),
+                     FermionicOp([('I+-II+-I', 1j), ('I-+II-+I', -1j)]),
+                     FermionicOp([('I+-II+I-', 1j), ('I-+II-I+', -1j)]),
+                     FermionicOp([('I+I-I+I-', 1j), ('I-I+I-I+', -1j)])]),
+    )
+    def test_succd_ansatz(self, num_spin_orbitals, num_particles, expect):
+        """Tests the SUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = SUCCD(qubit_converter=converter, num_particles=[2, 2], num_spin_orbitals=8)
+        ansatz = SUCCD(qubit_converter=converter,
+                       num_particles=num_particles,
+                       num_spin_orbitals=num_spin_orbitals)
 
         ansatz._build()
 
-        assert ansatz.num_qubits == 8
+        self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
+        for op, exp in zip(ansatz.excitation_ops(), expect):
+            self.assertEqual(op._labels, exp._labels)
+            self.assertEqual(op._coeffs, exp._coeffs)
+
+        # TODO: assert actual QuantumCircuit
+
+    @unpack
+    @data(
+        (4, (1, 1), (True, True), [FermionicOp([('+-II', 1j), ('-+II', 1j)]),
+                                   FermionicOp([('II+-', 1j), ('II-+', 1j)]),
+                                   FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
+        (4, (1, 1), (True, False), [FermionicOp([('+-II', 1j), ('-+II', 1j)]),
+                                    FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
+        (4, (1, 1), (False, True), [FermionicOp([('II+-', 1j), ('II-+', 1j)]),
+                                    FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
+    )
+    def test_succd_ansatz_with_singles(self, num_spin_orbitals, num_particles, include_singles,
+                                       expect):
+        """Tests the SUCCD Ansatz with included single excitations."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = SUCCD(qubit_converter=converter,
+                       num_particles=num_particles,
+                       num_spin_orbitals=num_spin_orbitals,
+                       include_singles=include_singles)
+
+        ansatz._build()
+
+        self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
+        for op, exp in zip(ansatz.excitation_ops(), expect):
+            self.assertEqual(op._labels, exp._labels)
+            self.assertEqual(op._coeffs, exp._coeffs)
+
+        # TODO: assert actual QuantumCircuit
+
+    def test_raise_non_singlet(self):
+        """Test an error is raised when the number of alpha and beta electrons differ."""
+        with self.assertRaises(QiskitNatureError):
+            SUCCD(num_particles=(2, 1))
