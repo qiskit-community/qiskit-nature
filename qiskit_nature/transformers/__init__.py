@@ -12,6 +12,14 @@
 
 """The `QMolecule` Transformers."""
 
+# TODO(sphinx): documentation
+
 from .active_space_transformer import ActiveSpaceTransformer
 from .base_transformer import BaseTransformer
 from .freeze_core_transformer import FreezeCoreTransformer
+
+__all__ = [
+    'ActiveSpaceTransformer',
+    'BaseTransformer',
+    'FreezeCoreTransformer',
+]
