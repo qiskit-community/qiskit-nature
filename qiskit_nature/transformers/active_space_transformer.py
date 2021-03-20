@@ -69,8 +69,6 @@ class ActiveSpaceTransformer(BaseTransformer):
                  num_molecular_orbitals: Optional[int] = None,
                  num_alpha: Optional[int] = None,
                  active_orbitals: Optional[List[int]] = None,
-                 freeze_core: bool = False,
-                 remove_orbitals: Optional[List[int]] = None,
                  ):
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
 
@@ -83,31 +81,18 @@ class ActiveSpaceTransformer(BaseTransformer):
         of appropriate size.
 
         Args:
-            num_electrons: The number of active electrons. This may only be omitted if `freeze_core`
-                           is used.
-            num_molecular_orbitals: The number of active orbitals. This may only be omitted if
-                                    `freeze_core` is used.
+            num_electrons: The number of active electrons.
+            num_molecular_orbitals: The number of active orbitals.
             num_alpha: The optional number of active alpha-spin electrons.
             active_orbitals: A list of indices specifying the molecular orbitals of the active
                              space. This argument must match with the remaining arguments and should
                              only be used to enforce an active space that is not chosen purely
                              around the Fermi level.
-            freeze_core: A convenience argument to quickly enable the inactivity of the
-                         `QMolecule.core_orbitals`. This keyword overwrites the use of all other
-                         keywords (except `remove_orbitals`) and, thus, cannot be used in
-                         combination with them.
-            remove_orbitals: A list of indices specifying molecular orbitals which are removed in
-                             combination with the `freeze_core` option. No checks are performed on
-                             the nature of these orbitals, so the user must make sure that these are
-                             _unoccupied_ orbitals, which can be removed without taking any energy
-                             shifts into account.
         """
-        self.num_electrons = num_electrons
-        self.num_molecular_orbitals = num_molecular_orbitals
-        self.num_alpha = num_alpha
-        self.active_orbitals = active_orbitals
-        self.freeze_core = freeze_core
-        self.remove_orbitals = remove_orbitals
+        self._num_electrons = num_electrons
+        self._num_molecular_orbitals = num_molecular_orbitals
+        self._num_alpha = num_alpha
+        self._active_orbitals = active_orbitals
 
         self._beta: bool = None
         self._mo_occ_total: np.ndarray = None
@@ -159,7 +144,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new QMolecule
         q_molecule_reduced = copy.deepcopy(q_molecule)
         # Energies and orbitals
-        q_molecule_reduced.num_orbitals = self.num_molecular_orbitals
+        q_molecule_reduced.num_orbitals = self._num_molecular_orbitals
         q_molecule_reduced.num_alpha = self._num_particles[0]
         q_molecule_reduced.num_beta = self._num_particles[1]
         q_molecule_reduced.mo_coeff = self._mo_coeff_active[0]
@@ -199,11 +184,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         return q_molecule_reduced
 
     def _check_configuration(self):
-        # either freeze_core is specified
-        valid = self.freeze_core
-        # or at least num_electrons and num_molecular_orbitals must be valid
-        valid |= isinstance(self.num_electrons, int) and \
-            isinstance(self.num_molecular_orbitals, int)
+        valid = isinstance(self._num_electrons, int) and \
+            isinstance(self._num_molecular_orbitals, int)
 
         return valid
 
@@ -226,37 +208,19 @@ class ActiveSpaceTransformer(BaseTransformer):
     def _determine_active_space(self, q_molecule: QMolecule):
         nelec_total = q_molecule.num_alpha + q_molecule.num_beta
 
-        if self.freeze_core:
-            inactive_orbs_idxs = q_molecule.core_orbitals
-            if self.remove_orbitals is not None:
-                inactive_orbs_idxs.extend(self.remove_orbitals)
-            active_orbs_idxs = [o for o in range(q_molecule.num_orbitals)
-                                if o not in inactive_orbs_idxs]
-
-            # compute number of active electrons
-            nelec_inactive = sum([self._mo_occ_total[o] for o in inactive_orbs_idxs])
-            nelec_active = nelec_total - nelec_inactive
-
-            num_alpha = (nelec_active - (q_molecule.multiplicity - 1)) // 2
-            num_beta = nelec_active - num_alpha
-
-            self._num_particles = (num_alpha, num_beta)
-
-            return (active_orbs_idxs, inactive_orbs_idxs)
-
         # compute number of inactive electrons
-        nelec_inactive = nelec_total - self.num_electrons
-        if self.num_alpha is not None:
+        nelec_inactive = nelec_total - self._num_electrons
+        if self._num_alpha is not None:
             if not self._beta:
                 warning = 'The provided instance of QMolecule does not provide any beta ' \
                           + 'coefficients but you tried to specify a separate number of alpha' \
                           + ' electrons. Continuing as if it does not matter.'
                 logger.warning(warning)
-            num_alpha = self.num_alpha
-            num_beta = self.num_electrons - self.num_alpha
+            num_alpha = self._num_alpha
+            num_beta = self._num_electrons - self._num_alpha
         else:
-            num_beta = (self.num_electrons - (q_molecule.multiplicity - 1)) // 2
-            num_alpha = self.num_electrons - num_beta
+            num_beta = (self._num_electrons - (q_molecule.multiplicity - 1)) // 2
+            num_alpha = self._num_electrons - num_beta
 
         self._num_particles = (num_alpha, num_beta)
 
@@ -264,15 +228,15 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._validate_num_orbitals(nelec_inactive, q_molecule)
 
         # determine active and inactive orbital indices
-        if self.active_orbitals is None:
+        if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
             inactive_orbs_idxs = list(range(norbs_inactive))
             active_orbs_idxs = list(range(norbs_inactive,
-                                          norbs_inactive+self.num_molecular_orbitals))
+                                          norbs_inactive+self._num_molecular_orbitals))
         else:
-            active_orbs_idxs = self.active_orbitals
+            active_orbs_idxs = self._active_orbitals
             inactive_orbs_idxs = [o for o in range(nelec_total // 2) if o not in
-                                  self.active_orbitals and self._mo_occ_total[o] > 0]
+                                  self._active_orbitals and self._mo_occ_total[o] > 0]
 
         return (active_orbs_idxs, inactive_orbs_idxs)
 
@@ -304,17 +268,17 @@ class ActiveSpaceTransformer(BaseTransformer):
                                number of selected orbitals mismatches the specified number of active
                                orbitals.
         """
-        if self.active_orbitals is None:
+        if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
-            if norbs_inactive + self.num_molecular_orbitals > q_molecule.num_orbitals:
+            if norbs_inactive + self._num_molecular_orbitals > q_molecule.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
-            if self.num_molecular_orbitals != len(self.active_orbitals):
+            if self._num_molecular_orbitals != len(self._active_orbitals):
                 raise QiskitNatureError("The number of selected active orbital indices does not "
                                         "match the specified number of active orbitals.")
-            if max(self.active_orbitals) >= q_molecule.num_orbitals:
+            if max(self._active_orbitals) >= q_molecule.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
-            if sum(self._mo_occ_total[self.active_orbitals]) != self.num_electrons:
+            if sum(self._mo_occ_total[self._active_orbitals]) != self._num_electrons:
                 raise QiskitNatureError("The number of electrons in the selected active orbitals "
                                         "does not match the specified number of active electrons.")
 

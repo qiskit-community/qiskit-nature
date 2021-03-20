@@ -28,35 +28,34 @@ from qiskit_nature.transformers import ActiveSpaceTransformer
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""
 
-    def assertQMolecule(self, q_molecule, expected):
+    def assertQMolecule(self, q_molecule, expected, dict_key='ActiveSpaceTransformer'):
         """Asserts that the two `QMolecule object's relevant fields are equivalent."""
         with self.subTest('MO 1-electron integrals'):
             np.testing.assert_array_almost_equal(q_molecule.mo_onee_ints, expected.mo_onee_ints)
         with self.subTest('MO 2-electron integrals'):
             np.testing.assert_array_almost_equal(q_molecule.mo_eri_ints, expected.mo_eri_ints)
         with self.subTest('Inactive energy'):
-            self.assertAlmostEqual(q_molecule.energy_shift['ActiveSpaceTransformer'],
+            self.assertAlmostEqual(q_molecule.energy_shift[dict_key],
                                    expected.energy_shift['ActiveSpaceTransformer'])
 
         with self.subTest('MO 1-electron x dipole integrals'):
             np.testing.assert_array_almost_equal(q_molecule.x_dip_mo_ints, expected.x_dip_mo_ints)
         with self.subTest('X dipole energy shift'):
-            self.assertAlmostEqual(q_molecule.x_dip_energy_shift['ActiveSpaceTransformer'],
+            self.assertAlmostEqual(q_molecule.x_dip_energy_shift[dict_key],
                                    expected.x_dip_energy_shift['ActiveSpaceTransformer'])
         with self.subTest('MO 1-electron y dipole integrals'):
             np.testing.assert_array_almost_equal(q_molecule.y_dip_mo_ints, expected.y_dip_mo_ints)
         with self.subTest('Y dipole energy shift'):
-            self.assertAlmostEqual(q_molecule.y_dip_energy_shift['ActiveSpaceTransformer'],
+            self.assertAlmostEqual(q_molecule.y_dip_energy_shift[dict_key],
                                    expected.y_dip_energy_shift['ActiveSpaceTransformer'])
         with self.subTest('MO 1-electron z dipole integrals'):
             np.testing.assert_array_almost_equal(q_molecule.z_dip_mo_ints, expected.z_dip_mo_ints)
         with self.subTest('Z dipole energy shift'):
-            self.assertAlmostEqual(q_molecule.z_dip_energy_shift['ActiveSpaceTransformer'],
+            self.assertAlmostEqual(q_molecule.z_dip_energy_shift[dict_key],
                                    expected.z_dip_energy_shift['ActiveSpaceTransformer'])
 
     @idata([
         {'num_electrons': 2, 'num_molecular_orbitals': 2},
-        {'freeze_core': True},
     ])
     def test_full_active_space(self, kwargs):
         """Test that transformer has no effect when all orbitals are active."""
@@ -171,32 +170,6 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         q_molecule_reduced = trafo.transform(q_molecule)
 
         self.assertQMolecule(q_molecule_reduced, q_molecule)
-
-    def test_freeze_core(self):
-        """Test the `freeze_core` convenience argument."""
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('LiH_sto3g.hdf5', 'transformers'))
-        q_molecule = driver.run()
-
-        trafo = ActiveSpaceTransformer(freeze_core=True)
-        q_molecule_reduced = trafo.transform(q_molecule)
-
-        expected = HDF5Driver(hdf5_input=self.get_resource_path('LiH_sto3g_reduced.hdf5',
-                                                                'transformers')).run()
-
-        self.assertQMolecule(q_molecule_reduced, expected)
-
-    def test_freeze_core_with_remove_orbitals(self):
-        """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g.hdf5', 'transformers'))
-        q_molecule = driver.run()
-
-        trafo = ActiveSpaceTransformer(freeze_core=True, remove_orbitals=[4, 5])
-        q_molecule_reduced = trafo.transform(q_molecule)
-
-        expected = HDF5Driver(hdf5_input=self.get_resource_path('BeH_sto3g_reduced.hdf5',
-                                                                'transformers')).run()
-
-        self.assertQMolecule(q_molecule_reduced, expected)
 
 
 if __name__ == '__main__':
