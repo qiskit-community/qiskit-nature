@@ -14,12 +14,12 @@
 
 import unittest
 
+from test.transformers.test_active_space_transformer import TestActiveSpaceTransformer
+
 from ddt import ddt, idata
 
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.transformers import FreezeCoreTransformer
-
-from .test_active_space_transformer import TestActiveSpaceTransformer
 
 
 @ddt
