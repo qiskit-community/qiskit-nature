@@ -57,8 +57,8 @@ class UCC(EvolvedOperatorAnsatz):
         uccd = UCC(excitations=[2])
 
         # combinations of excitations:
-        custom_ucc_sd = UCC(excitations='sd')  # see also the convience sub-class UCCSD
-        custom_ucc_sd = UCC(excitations=[1, 2])  # see also the convience sub-class UCCSD
+        custom_ucc_sd = UCC(excitations='sd')  # see also the convenience sub-class UCCSD
+        custom_ucc_sd = UCC(excitations=[1, 2])  # see also the convenience sub-class UCCSD
         custom_ucc_sdt = UCC(excitations='sdt')
         custom_ucc_sdt = UCC(excitations=[1, 2, 3])
         custom_ucc_st = UCC(excitations='st')

@@ -1,4 +1,5 @@
 adag
+adaptivity
 adjoint
 aer
 aij
@@ -233,6 +234,7 @@ scf
 scikit
 scipy
 sd
+sdt
 secondquantizedop
 seeley
 sergey

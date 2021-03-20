@@ -26,7 +26,7 @@ from qiskit_nature.operators.second_quantization.qubit_converter import QubitCon
 class TestUCC(QiskitNatureTestCase):
     """Tests for the UCC Ansatz."""
 
-    # Note: many variantions of this class are tested by its sub-classes UCCSD, PUCCD and SUCCD.
+    # Note: many variations of this class are tested by its sub-classes UCCSD, PUCCD and SUCCD.
     # Thus, the tests here mainly cover edge cases which those classes cannot account for.
 
     @unpack

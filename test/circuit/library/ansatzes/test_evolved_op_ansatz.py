@@ -31,6 +31,5 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
         ops = [Z ^ num_qubits, H ^ num_qubits, X ^ num_qubits]
 
         evo = EvolvedOperatorAnsatz(ops, insert_barriers=True)
-        # print(evo.draw())
 
         self.assertEqual(evo.num_qubits, num_qubits)
