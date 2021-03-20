@@ -46,6 +46,7 @@ class TestPUCC(QiskitNatureTestCase):
         ansatz._build()
 
         self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
+        self.assertEqual(len(ansatz.excitation_ops()), len(expect))
         for op, exp in zip(ansatz.excitation_ops(), expect):
             self.assertEqual(op._labels, exp._labels)
             self.assertEqual(op._coeffs, exp._coeffs)
@@ -75,6 +76,7 @@ class TestPUCC(QiskitNatureTestCase):
         ansatz._build()
 
         self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
+        self.assertEqual(len(ansatz.excitation_ops()), len(expect))
         for op, exp in zip(ansatz.excitation_ops(), expect):
             self.assertEqual(op._labels, exp._labels)
             self.assertEqual(op._coeffs, exp._coeffs)
