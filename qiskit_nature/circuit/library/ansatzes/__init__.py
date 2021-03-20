@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+# TODO(sphinx): documentation
+
 """Ansatz circuits and utilities thereof."""
 
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
@@ -17,3 +19,11 @@ from .puccd import PUCCD
 from .ucc import UCC
 from .uccsd import UCCSD
 from .succd import SUCCD
+
+__all__ = [
+    'EvolvedOperatorAnsatz',
+    'PUCCD',
+    'UCC',
+    'UCCSD',
+    'SUCCD',
+]

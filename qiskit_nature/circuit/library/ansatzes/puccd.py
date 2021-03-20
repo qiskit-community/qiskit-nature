@@ -30,13 +30,14 @@ logger = logging.getLogger(__name__)
 class PUCCD(UCC):
     """The PUCCD Ansatz.
 
-    The PUCCD Ansatz enforces all excitations to occur in parallel in the alpha and beta species.
-    For more information see also [1].
+    The PUCCD Ansatz (by default) only contains double excitations. Furthermore, it enforces all
+    excitations to occur in parallel in the alpha and beta species. For more information see also
+    [1].
 
     Note, that this Ansatz can only work for singlet-spin systems. Therefore, the number of alpha
     and beta electrons must be equal.
 
-    This is a convenience subclass of the UCC Ansatz.
+    This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
 
     References:
 
@@ -86,7 +87,7 @@ class PUCCD(UCC):
 
     def generate_excitations(self, num_spin_orbitals: int,
                              num_particles: Tuple[int, int]) -> List[Tuple[Tuple[Any, ...], ...]]:
-        """Generates the excitations for the PUCC Ansatz.
+        """Generates the excitations for the PUCCD Ansatz.
 
         Args:
             num_spin_orbitals: the number of spin orbitals.
@@ -119,7 +120,9 @@ class PUCCD(UCC):
         logger.debug('Generated list of single alpha excitations: %s', alpha_excitations)
 
         for alpha_exc in alpha_excitations:
+            # create the beta-spin excitation by shifting into the upper block-spin orbital indices
             beta_exc = (alpha_exc[0] + beta_index_shift, alpha_exc[1] + beta_index_shift)
+            # add the excitation tuple
             exc_tuple = tuple(zip(alpha_exc, beta_exc))
             excitations.append(exc_tuple)
             logger.debug('Added the excitation: %s', exc_tuple)
@@ -131,6 +134,6 @@ class PUCCD(UCC):
             assert num_particles[0] == num_particles[1]
         except AssertionError as exc:
             raise QiskitNatureError(
-                'The PUCC Ansatz only works for singlet-spin systems. However, you specified '
+                'The PUCCD Ansatz only works for singlet-spin systems. However, you specified '
                 'differing numbers of alpha and beta electrons:', str(num_particles)
             ) from exc

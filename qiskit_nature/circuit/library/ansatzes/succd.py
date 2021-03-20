@@ -33,14 +33,14 @@ logger = logging.getLogger(__name__)
 class SUCCD(UCC):
     """The SUCCD Ansatz.
 
-    The SUCCD Ansatz only contains double excitations. Furthermore, it only considers the set of
-    excitations which is symmetrically invariant with respect to spin-flips of both particles. For
-    more information see also [1].
+    The SUCCD Ansatz (by default) only contains double excitations. Furthermore, it only considers
+    the set of excitations which is symmetrically invariant with respect to spin-flips of both
+    particles. For more information see also [1].
 
     Note, that this Ansatz can only work for singlet-spin systems. Therefore, the number of alpha
     and beta electrons must be equal.
 
-    This is a convenience subclass of the UCC Ansatz.
+    This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
 
     References:
 
@@ -129,8 +129,11 @@ class SUCCD(UCC):
         pool = itertools.combinations_with_replacement(alpha_excitations, 2)
 
         for exc in pool:
+            # find the two excitations (Note: SUCCD only works for double excitations!)
             alpha_exc, second_exc = exc[0], exc[1]
+            # shift the second excitation into the beta-spin orbital index range
             beta_exc = (second_exc[0] + beta_index_shift, second_exc[1] + beta_index_shift)
+            # add the excitation tuple
             exc_tuple = tuple(zip(alpha_exc, beta_exc))
             excitations.append(exc_tuple)
             logger.debug('Added the excitation: %s', exc_tuple)

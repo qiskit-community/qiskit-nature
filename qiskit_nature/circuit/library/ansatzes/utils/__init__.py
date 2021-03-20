@@ -9,3 +9,15 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
+# TODO(sphinx): documentation
+
+"""Excitation generator utilities."""
+
+from .fermionic_excitation_generator import generate_fermionic_excitations
+from .vibration_excitation_generator import generate_vibration_excitations
+
+__all__ = [
+    'generate_fermionic_excitations',
+    'generate_vibration_excitations',
+]

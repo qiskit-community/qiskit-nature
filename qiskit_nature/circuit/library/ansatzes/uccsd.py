@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 class UCCSD(UCC):
     """The UCCSD Ansatz.
 
-    This is a convenience subclass of the UCC Ansatz.
+    This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
     """
 
     def __init__(self, qubit_converter: Optional[QubitConverter] = None,
@@ -34,7 +34,6 @@ class UCCSD(UCC):
                  num_spin_orbitals: Optional[int] = None,
                  reps: int = 1):
         """
-
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
             :class:`~.SecondQuantizedOp` to a :class:`~.PauliSumOp` as well as performing all
