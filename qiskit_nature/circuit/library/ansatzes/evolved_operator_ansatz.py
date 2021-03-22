@@ -55,9 +55,9 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
                 raise ValueError('The operators are not set.')
             return False
 
-        if self.reps < 0:
+        if self.reps < 1:
             if raise_on_failure:
-                raise ValueError('The reps cannot be smaller than 0.')
+                raise ValueError('The reps cannot be smaller than 1.')
             return False
 
         return True
@@ -127,7 +127,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
         # get the evolved operators as circuits
         coeff = Parameter('c')
         evolved_ops = [self.evolution.convert((coeff * op).exp_i()) for op in self.operators]
-        circuits = [evolved_op.to_circuit() for evolved_op in evolved_ops]
+        circuits = [evolved_op.reduce().to_circuit() for evolved_op in evolved_ops]
 
         # set the registers
         num_qubits = circuits[0].num_qubits
