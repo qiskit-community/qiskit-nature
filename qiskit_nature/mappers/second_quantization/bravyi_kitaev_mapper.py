@@ -146,7 +146,7 @@ class BravyiKitaevMapper(FermionicMapper):
             y_j = Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
             y_j.z[j] = True
             y_j.x[j] = True
-            pauli_table.append((update_pauli[j] * x_j * parity_pauli[j],
-                                update_pauli[j] * y_j * remainder_pauli[j]))
+            pauli_table.append((parity_pauli[j] & x_j & update_pauli[j],
+                                remainder_pauli[j] & y_j & update_pauli[j]))
 
         return QubitMapper.mode_based_mapping(second_q_op, pauli_table)
