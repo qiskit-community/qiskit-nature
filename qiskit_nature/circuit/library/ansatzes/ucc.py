@@ -150,9 +150,8 @@ class UCC(EvolvedOperatorAnsatz):
         self._alpha_spin = alpha_spin
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
-        self._initial_state = initial_state
 
-        super().__init__(reps=reps, evolution=None)
+        super().__init__(reps=reps, evolution=None, initial_state=initial_state)
 
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
@@ -202,17 +201,6 @@ class UCC(EvolvedOperatorAnsatz):
         """Sets the excitations."""
         self._invalidate()
         self._excitations = exc
-
-    @property
-    def initial_state(self) -> QuantumCircuit:
-        """The initial state."""
-        return self._initial_state
-
-    @initial_state.setter
-    def initial_state(self, initial_state: QuantumCircuit) -> None:
-        """Sets the initial state."""
-        self._invalidate()
-        self._initial_state = initial_state
 
     # TODO: the `preferred_init_points`-implementation can (and should!) be improved!
     @property
@@ -270,9 +258,6 @@ class UCC(EvolvedOperatorAnsatz):
 
         logger.debug('Building QuantumCircuit...')
         super()._build()
-
-        if self._initial_state:
-            self.compose(self._initial_state, front=True, inplace=True)
 
     def excitation_ops(self) -> List[SecondQuantizedOp]:
         """Parses the excitations and generates the list of operators.

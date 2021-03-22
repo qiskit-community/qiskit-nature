@@ -14,7 +14,7 @@
 
 from typing import List, Union, Optional
 
-from qiskit.circuit import Parameter, ParameterVector, QuantumRegister
+from qiskit.circuit import Parameter, ParameterVector, QuantumRegister, QuantumCircuit
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import OperatorBase, EvolutionBase, PauliTrotterEvolution
 
@@ -27,7 +27,8 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
                  reps: int = 1,
                  evolution: Optional[EvolutionBase] = None,
                  insert_barriers: bool = False,
-                 name: str = 'EvolvedOps') -> None:
+                 name: str = 'EvolvedOps',
+                 initial_state: Optional[QuantumCircuit] = None):
         """
         Args:
             operators: The operators to evolve.
@@ -36,6 +37,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
                 Defaults to Trotterization.
             insert_barriers: Whether to insert barriers in between each evolution.
             name: The name of the circuit.
+            initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
         if evolution is None:
             evolution = PauliTrotterEvolution()
@@ -45,6 +47,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
         self._evolution = evolution
         self._reps = reps
         self._insert_barriers = insert_barriers
+        self._initial_state = initial_state
 
         # use setter to set operators
         self.operators = operators
@@ -83,6 +86,17 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
         """Sets the evolution converter used to compute the evolution."""
         self._invalidate()
         self._evolution = evol
+
+    @property
+    def initial_state(self) -> QuantumCircuit:
+        """The initial state."""
+        return self._initial_state
+
+    @initial_state.setter
+    def initial_state(self, initial_state: QuantumCircuit) -> None:
+        """Sets the initial state."""
+        self._invalidate()
+        self._initial_state = initial_state
 
     @property
     def operators(self) -> List[OperatorBase]:
@@ -147,3 +161,6 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
                     if self._insert_barriers:
                         self.barrier()
                 self.compose(circuit.assign_parameters({coeff: next(times_it)}), inplace=True)
+
+        if self._initial_state:
+            self.compose(self._initial_state, front=True, inplace=True)
