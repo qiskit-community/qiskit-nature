@@ -67,8 +67,7 @@ Driver Common
    UnitsType
    BasisType
    InitialGuess
-   BosonicBasis
-   HarmonicBasis
+   WatsonHamiltonian
 
 Drivers
 =======
@@ -135,7 +134,6 @@ of interest that is parsed from the log.
 """
 
 from .base_driver import BaseDriver
-from .bosonic_bases import BosonicBasis
 from .qmolecule import QMolecule
 from .watson_hamiltonian import WatsonHamiltonian
 from .molecule import Molecule
@@ -152,7 +150,6 @@ from .pyscfd import PySCFDriver, InitialGuess
 __all__ = ['HFMethodType',
            'QMolecule',
            'Molecule',
-           'BosonicBasis',
            'WatsonHamiltonian',
            'BaseDriver',
            'BosonicDriver',
