@@ -19,7 +19,7 @@ from qiskit_nature.problems.second_quantization.molecular import fermionic_op_bu
 from qiskit_nature.drivers import HDF5Driver
 
 
-class TestFermionicOperatorBuilder(QiskitNatureTestCase):
+class TestFermionicOpBuilder(QiskitNatureTestCase):
     """Tests Fermionic Operator builder."""
 
     def test_build_fermionic_op(self):
