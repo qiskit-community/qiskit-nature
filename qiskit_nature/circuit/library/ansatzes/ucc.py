@@ -18,6 +18,7 @@ from typing import Any, Callable, List, Optional, Tuple, Union
 
 import logging
 
+from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -108,7 +109,8 @@ class UCC(EvolvedOperatorAnsatz):
                  alpha_spin: bool = True,
                  beta_spin: bool = True,
                  max_spin_excitation: Optional[int] = None,
-                 reps: int = 1):
+                 reps: int = 1,
+                 initial_state: Optional[QuantumCircuit] = None):
         """
 
         Args:
@@ -137,6 +139,7 @@ class UCC(EvolvedOperatorAnsatz):
                                  mixed-spin double excitations (alpha,beta) but no pure-spin double
                                  excitations (alpha,alpha or beta,beta).
             reps: The number of times to repeat the evolved operators.
+            initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
@@ -145,6 +148,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._alpha_spin = alpha_spin
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
+        self._initial_state = initial_state
 
         super().__init__(reps=reps, evolution=None)
 
@@ -197,6 +201,17 @@ class UCC(EvolvedOperatorAnsatz):
         self._invalidate()
         self._excitations = exc
 
+    @property
+    def initial_state(self) -> QuantumCircuit:
+        """The initial state."""
+        return self._initial_state
+
+    @initial_state.setter
+    def initial_state(self, initial_state: QuantumCircuit) -> None:
+        """Sets the initial state."""
+        self._invalidate()
+        self._initial_state = initial_state
+
     def _invalidate(self):
         self._excitation_ops = None
         super()._invalidate()
@@ -240,6 +255,9 @@ class UCC(EvolvedOperatorAnsatz):
 
         logger.debug('Building QuantumCircuit...')
         super()._build()
+
+        if self._initial_state:
+            self.compose(self._initial_state, front=True, inplace=True)
 
     def excitation_ops(self) -> List[SecondQuantizedOp]:
         """Parses the excitations and generates the list of operators.

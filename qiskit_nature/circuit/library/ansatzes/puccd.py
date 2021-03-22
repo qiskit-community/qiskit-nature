@@ -18,6 +18,7 @@ from typing import Any, List, Optional, Tuple
 import itertools
 import logging
 
+from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
@@ -48,6 +49,7 @@ class PUCCD(UCC):
                  num_particles: Optional[Tuple[int, int]] = None,
                  num_spin_orbitals: Optional[int] = None,
                  reps: int = 1,
+                 initial_state: Optional[QuantumCircuit] = None,
                  include_singles: Tuple[bool, bool] = (False, False),
                  ):
         """
@@ -59,6 +61,7 @@ class PUCCD(UCC):
             num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spin_orbitals: the number of spin orbitals.
             reps: The number of times to repeat the evolved operators.
+            initial_state: A `QuantumCircuit` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
 
         Raises:
@@ -73,7 +76,8 @@ class PUCCD(UCC):
                          alpha_spin=True,
                          beta_spin=True,
                          max_spin_excitation=None,
-                         reps=reps)
+                         reps=reps,
+                         initial_state=initial_state)
 
     @property
     def include_singles(self) -> Tuple[bool, bool]:

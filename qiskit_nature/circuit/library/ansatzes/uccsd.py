@@ -17,6 +17,7 @@ from typing import Optional, Tuple
 
 import logging
 
+from qiskit.circuit import QuantumCircuit
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from .ucc import UCC
 
@@ -32,7 +33,8 @@ class UCCSD(UCC):
     def __init__(self, qubit_converter: Optional[QubitConverter] = None,
                  num_particles: Optional[Tuple[int, int]] = None,
                  num_spin_orbitals: Optional[int] = None,
-                 reps: int = 1):
+                 reps: int = 1,
+                 initial_state: Optional[QuantumCircuit] = None):
         """
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
@@ -41,6 +43,7 @@ class UCCSD(UCC):
             num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spin_orbitals: the number of spin orbitals.
             reps: The number of times to repeat the evolved operators.
+            initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
         super().__init__(qubit_converter=qubit_converter,
                          num_particles=num_particles,
@@ -49,4 +52,5 @@ class UCCSD(UCC):
                          alpha_spin=True,
                          beta_spin=True,
                          max_spin_excitation=None,
-                         reps=reps)
+                         reps=reps,
+                         initial_state=initial_state)
