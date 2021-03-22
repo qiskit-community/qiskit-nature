@@ -226,10 +226,10 @@ class ActiveSpaceTransformer(BaseTransformer):
             # QMolecule provided by driver without `mo_occ` information available. Constructing
             # occupation numbers based on ground state HF case.
             occ_alpha = [1.] * molecule_data.num_alpha + [0.] * (molecule_data.num_orbitals -
-                                                              molecule_data.num_alpha)
+                                                                 molecule_data.num_alpha)
             if self._beta:
                 occ_beta = [1.] * molecule_data.num_beta + [0.] * (molecule_data.num_orbitals -
-                                                                molecule_data.num_beta)
+                                                                   molecule_data.num_beta)
             else:
                 occ_alpha[:molecule_data.num_beta] = [o + 1 for o in
                                                       occ_alpha[:molecule_data.num_beta]]
