@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-Bosonic basis (:mod:`qiskit_nature.components.bosonic_bases`)
+Bosonic basis (:mod:`qiskit_nature.drivers.bosonic_bases`)
 ================================================================
 Basis for bosonic operations.
 
-.. currentmodule:: qiskit_nature.components.bosonic_bases
+.. currentmodule:: qiskit_nature.drivers.bosonic_bases
 
 Bosonic Basis
 =============

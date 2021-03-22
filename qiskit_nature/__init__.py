@@ -137,7 +137,6 @@ Chemistry Classes
 
    BosonicOperator
    FermionicOperator
-   WatsonHamiltonian
    MP2Info
 
 Submodules
@@ -159,10 +158,8 @@ from .bosonic_operator import BosonicOperator
 from .exceptions import QiskitNatureError
 from .fermionic_operator import FermionicOperator
 from .mp2info import MP2Info
-from .watson_hamiltonian import WatsonHamiltonian
 
 __all__ = ['QiskitNatureError',
-           'WatsonHamiltonian',
            'BosonicOperator',
            'FermionicOperator',
            'MP2Info']
