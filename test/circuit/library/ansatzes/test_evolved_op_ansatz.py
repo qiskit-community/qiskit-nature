@@ -13,15 +13,13 @@
 """Test the evolved operator ansatz."""
 
 from test import QiskitNatureTestCase
-from ddt import ddt, data
 
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import X, Y, Z, I, MatrixEvolution, Suzuki
+from qiskit.opflow import X, Y, Z, I, MatrixEvolution
 
 from qiskit_nature.circuit.library.ansatzes import EvolvedOperatorAnsatz
 
 
-@ddt
 class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
     """Test the evolved operator ansatz."""
 
@@ -30,9 +28,9 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
         num_qubits = 3
 
         ops = [Z ^ num_qubits, Y ^ num_qubits, X ^ num_qubits]
-        strings = ['z' * num_qubits, 'y' * num_qubits, 'x' * num_qubits]
+        strings = ['z' * num_qubits, 'y' * num_qubits, 'x' * num_qubits] * 2
 
-        evo = EvolvedOperatorAnsatz(ops)
+        evo = EvolvedOperatorAnsatz(ops, 2)
         evo._build()  # fixed by speedup parameter binds PR
 
         reference = QuantumCircuit(num_qubits)
@@ -69,11 +67,31 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
         reference.rx(2 * parameters[0], 0)
         reference.ry(2 * parameters[1], 0)
 
-        print(evo, reference)
         self.assertEqual(evo, reference)
+
+    def test_invalid_reps(self):
+        """Test setting an invalid number of reps."""
+        evo = EvolvedOperatorAnsatz(X, reps=0)
+        with self.assertRaises(ValueError):
+            _ = evo.count_ops()
+
+    def test_insert_barriers(self):
+        """Test using insert_barriers."""
+        evo = EvolvedOperatorAnsatz(Z, reps=4, insert_barriers=True)
+        evo._build()
+        ref = QuantumCircuit(1)
+        for parameter in evo.parameters:
+            ref.rz(2.0 * parameter, 0)
+            # ref.rx(2.0 * parameter, 0)
+            if parameter != evo.parameters[-1]:
+                ref.barrier()
+
+        self.assertEqual(evo, ref)
 
 
 def evolve(pauli_string, time):
+    """Get the reference evolution circuit for a single Pauli string."""
+
     num_qubits = len(pauli_string)
     forward = QuantumCircuit(num_qubits)
     for i, pauli in enumerate(pauli_string):
