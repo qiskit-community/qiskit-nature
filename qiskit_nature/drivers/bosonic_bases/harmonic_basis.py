@@ -153,22 +153,22 @@ class HarmonicBasis(BosonicBasis):
             if any(index < 0 for index in indices):
                 kinetic_term = True
                 indices = np.absolute(indices)
-            indices = {}  # type: Dict[int, int]
+            index_dict = {}  # type: Dict[int, int]
             for i in indices:
-                if indices.get(i) is None:
-                    indices[i] = 1
+                if index_dict.get(i) is None:
+                    index_dict[i] = 1
                 else:
-                    indices[i] += 1
+                    index_dict[i] += 1
 
-            order = len(indices.keys())
-            modes = list(indices.keys())
+            order = len(index_dict.keys())
+            modes = list(index_dict.keys())
 
             if order == 1:
                 for m in range(num_modals):
                     for n in range(m+1):
 
                         coeff = coeff0 * self._harmonic_integrals(
-                            m, n, indices[modes[0]], kinetic_term=kinetic_term)
+                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term)
 
                         if abs(coeff) > threshold:
                             harmonic_dict[1][modes[0]-1, m, n] += coeff
@@ -179,11 +179,11 @@ class HarmonicBasis(BosonicBasis):
                 for m in range(num_modals):
                     for n in range(m+1):
                         coeff1 = coeff0 * self._harmonic_integrals(
-                            m, n, indices[modes[0]], kinetic_term=kinetic_term)
+                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term)
                         for j in range(num_modals):
                             for k in range(j+1):
                                 coeff = coeff1 * self._harmonic_integrals(
-                                    j, k, indices[modes[1]], kinetic_term=kinetic_term)
+                                    j, k, index_dict[modes[1]], kinetic_term=kinetic_term)
                                 if abs(coeff) > threshold:
                                     harmonic_dict[2][modes[0] - 1, m, n,
                                                      modes[1] - 1, j, k] += coeff
@@ -200,16 +200,16 @@ class HarmonicBasis(BosonicBasis):
                 for m in range(num_modals):
                     for n in range(m+1):
                         coeff1 = coeff0 * self._harmonic_integrals(
-                            m, n, indices[modes[0]], kinetic_term=kinetic_term)
+                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term)
                         for j in range(num_modals):
                             for k in range(j+1):
                                 coeff2 = coeff1 * self._harmonic_integrals(
-                                    j, k, indices[modes[1]], kinetic_term=kinetic_term)
+                                    j, k, index_dict[modes[1]], kinetic_term=kinetic_term)
                                 # pylint: disable=locally-disabled, invalid-name
                                 for p in range(num_modals):
                                     for q in range(p+1):
                                         coeff = coeff2 * self._harmonic_integrals(
-                                            p, q, indices[modes[2]], kinetic_term=kinetic_term)
+                                            p, q, index_dict[modes[2]], kinetic_term=kinetic_term)
                                         if abs(coeff) > threshold:
                                             harmonic_dict[3][modes[0] - 1, m, n,
                                                              modes[1] - 1, j, k,
