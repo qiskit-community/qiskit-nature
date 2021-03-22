@@ -41,7 +41,7 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
         self.assertEqual(evo, reference)
 
     def test_custom_evolution(self):
-        """Test using another evolution than the default (e.g. matrix evo)."""
+        """Test using another evolution than the default (e.g. matrix evolution)."""
 
         op = X ^ I ^ Z
         matrix = op.to_matrix()
