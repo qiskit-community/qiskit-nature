@@ -17,32 +17,43 @@ from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
     .vibr_to_spin_op_label_converter import _convert_to_spin_op_labels
 from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
     .vibrational_labels_validator import _validate_vibrational_labels
-from .. import SpinOp
+from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 
 
 class VibrationalSpinOp(SpinOp):
     """Vibrational Spin type operators.
+
     **Label**
-    Allowed characters for primitives of labels are + and -.
+
+    Allowed characters for primitives of labels are `+` and `-`.
+
     .. list-table::
         :header-rows: 1
+
+        * - Label
+          - Mathematical Representation
+          - Meaning
         * - `+`
           - :math:`S_+`
           - Raising operator
         * - `-`
           - :math:`S_-`
           - Lowering operator
-    :class:`VibrationalSpinOp` accepts the notation that encodes raising (+) and lowering (-)
-    operators together with indices of modes and modals that they act on, e.g. "+_{mode_index}*{
-    modal_index}". Each modal can be excited at most once.
+
+    :class:`VibrationalSpinOp` accepts the notation that encodes raising (`+`) and lowering (`-`)
+    operators together with indices of modes and modals that they act on, e.g.
+    `+_{mode_index}*{modal_index}`. Each modal can be excited at most once.
+
     **Initialization**
+
     The :class:`VibrationalSpinOp` can be initialized by the list of tuples that each contains a
     string with a label as explained above and a corresponding coefficient. This argument must be
     accompanied by the number of modes and modals, and possibly, the value of a spin.
+
     **Algebra**
+
     :class:`VibrationalSpinOp` supports the following basic arithmetic operations: addition,
-    subtraction,
-    scalar multiplication, and dagger(adjoint).
+    subtraction, scalar multiplication, and dagger(adjoint).
     """
 
     def __init__(self, data: List[Tuple[str, complex]], num_modes: int,

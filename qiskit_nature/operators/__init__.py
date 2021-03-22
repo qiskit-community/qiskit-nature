@@ -27,7 +27,9 @@ Second-Quantization Operators
 
    FermionicOp
    SpinOp
+   VibrationalSpinOp
 """
 
 from .second_quantization import FermionicOp
 from .second_quantization import SpinOp
+from .second_quantization import VibrationalSpinOp
