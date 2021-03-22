@@ -13,14 +13,12 @@
 """The Fermionic-particle Operator."""
 
 import re
-from itertools import product
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from qiskit.utils.validation import validate_min, validate_range_exclusive_max
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization.normal_order import NormalOrder
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 
 
@@ -398,30 +396,3 @@ class FermionicOp(SecondQuantizedOp):
         if not non_zero:
             return FermionicOp(("I" * self.register_length, 0))
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
-
-    def to_normal_order_list(self) -> List[NormalOrder]:
-        """Convert to the normal order. `E` is converted into `I - N`."""
-        normal_order_list = []
-
-        for label, coeff in self.to_list():
-            splits = label.split("E")
-
-            for inter_ops in product("IN", repeat=len(splits) - 1):
-                label = splits[0]
-                label += "".join(link + next_base for link, next_base in zip(inter_ops, splits[1:]))
-
-                pluses = [
-                    self.register_length - it.start() - 1 for it in re.finditer(r"\+|N", label)
-                ]
-                minuses = [
-                    self.register_length - it.start() - 1 for it in re.finditer(r"-|N", label)
-                ]
-
-                count = sum(1 for plus in pluses for minus in minuses if plus < minus)
-                sign_swap = (-1) ** count
-                sign_n = (-1) ** inter_ops.count("N")
-                new_coeff = coeff * sign_n * sign_swap
-
-                normal_order_list.append(NormalOrder(pluses, minuses, new_coeff))
-
-        return normal_order_list
