@@ -232,7 +232,7 @@ class UCC(EvolvedOperatorAnsatz):
             # The qubit operators are cached by the `EvolvedOperatorAnsatz` class. We only generate
             # them from the `SecondQuantizedOp`s produced by the generators, if they are not already
             # present. This behavior also enables the adaptive usage of the `UCC` class by
-            # algorihtms such as `AdaptVQE`.
+            # algorithms such as `AdaptVQE`.
             excitation_ops = self.excitation_ops()
 
             logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
