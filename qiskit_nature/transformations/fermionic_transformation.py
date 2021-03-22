@@ -192,7 +192,7 @@ class FermionicTransformation(Transformation):
         # Unoccupied orbitals are just discarded.
         # Because freeze and eliminate is done in separate steps,
         # with freeze first, we have to re-base
-        # the indexes for elimination according to how many orbitals were removed when freezing.
+        # the indices for elimination according to how many orbitals were removed when freezing.
         #
         orb_list = list(set(core_list + reduce_list))
         num_alpha = qmolecule.num_alpha
@@ -222,7 +222,7 @@ class FermionicTransformation(Transformation):
                         np.append(np.array(orbitals_list),
                                   np.array(orbitals_list) + qmolecule.num_molecular_orbitals))
             logger.info("    => freezing spin orbitals: %s", freeze_list)
-            logger.info("    => removing spin orbitals: %s (indexes accounting for freeze %s)",
+            logger.info("    => removing spin orbitals: %s (indices accounting for freeze %s)",
                         np.append(remove_list_alpha,
                                   np.array(remove_list_beta) + qmolecule.num_molecular_orbitals),
                         remove_list)

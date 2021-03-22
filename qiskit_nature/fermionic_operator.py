@@ -58,7 +58,7 @@ class FermionicOperator:
 
         and the integral values are used for the coefficients of the second-quantized
         Hamiltonian that is built. The integrals input here should be in block spin
-        format and also have indexes reordered as follows 'ijkl->ljik'
+        format and also have indices reordered as follows 'ijkl->ljik'
 
         There is another popular notation, the '*physicist*' notation
 
@@ -220,7 +220,7 @@ class FermionicOperator:
             n (int): number of modes
 
          Returns:
-             numpy.ndarray: Array of mode indexes
+             numpy.ndarray: Array of mode indices
         """
 
         def parity_set(j, n):
@@ -232,18 +232,18 @@ class FermionicOperator:
                 n (int) : the total number of modes
 
             Returns:
-                numpy.ndarray: Array of mode indexes
+                numpy.ndarray: Array of mode indices
             """
-            indexes = np.array([])
+            indices = np.array([])
             if n % 2 != 0:
-                return indexes
+                return indices
 
             if j < n / 2:
-                indexes = np.append(indexes, parity_set(j, n / 2))
+                indices = np.append(indices, parity_set(j, n / 2))
             else:
-                indexes = np.append(indexes, np.append(
+                indices = np.append(indices, np.append(
                     parity_set(j - n / 2, n / 2) + n / 2, n / 2 - 1))
-            return indexes
+            return indices
 
         def update_set(j, n):
             """
@@ -254,17 +254,17 @@ class FermionicOperator:
                 n (int) : the total number of modes
 
             Returns:
-                numpy.ndarray: Array of mode indexes
+                numpy.ndarray: Array of mode indices
             """
-            indexes = np.array([])
+            indices = np.array([])
             if n % 2 != 0:
-                return indexes
+                return indices
             if j < n / 2:
-                indexes = np.append(indexes, np.append(
+                indices = np.append(indices, np.append(
                     n - 1, update_set(j, n / 2)))
             else:
-                indexes = np.append(indexes, update_set(j - n / 2, n / 2) + n / 2)
-            return indexes
+                indices = np.append(indices, update_set(j - n / 2, n / 2) + n / 2)
+            return indices
 
         def flip_set(j, n):
             """
@@ -275,19 +275,19 @@ class FermionicOperator:
                 n (int) : the total number of modes
 
             Returns:
-                numpy.ndarray: Array of mode indexes
+                numpy.ndarray: Array of mode indices
             """
-            indexes = np.array([])
+            indices = np.array([])
             if n % 2 != 0:
-                return indexes
+                return indices
             if j < n / 2:
-                indexes = np.append(indexes, flip_set(j, n / 2))
+                indices = np.append(indices, flip_set(j, n / 2))
             elif j >= n / 2 and j < n - 1:  # pylint: disable=chained-comparison
-                indexes = np.append(indexes, flip_set(j - n / 2, n / 2) + n / 2)
+                indices = np.append(indices, flip_set(j - n / 2, n / 2) + n / 2)
             else:
-                indexes = np.append(np.append(indexes, flip_set(
+                indices = np.append(np.append(indices, flip_set(
                     j - n / 2, n / 2) + n / 2), n / 2 - 1)
-            return indexes
+            return indices
 
         a_list = []
         # FIND BINARY SUPERSET SIZE

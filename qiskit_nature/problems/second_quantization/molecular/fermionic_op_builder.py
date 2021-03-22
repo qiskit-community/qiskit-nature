@@ -45,7 +45,7 @@ def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
     the coefficients of the second-quantized Hamiltonian that is built. If integrals are stored
     in the '*chemist*' notation
              h2(i,j,k,l) --> adag_i adag_k a_l a_j
-    they are required to be in block spin format and also have indexes reordered as follows
+    they are required to be in block spin format and also have indices reordered as follows
     'ijkl->ljik'.
     There is another popular notation, the '*physicist*' notation
              h2(i,j,k,l) --> adag_i adag_j a_k a_l
