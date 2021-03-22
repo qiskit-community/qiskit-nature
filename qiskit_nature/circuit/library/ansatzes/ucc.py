@@ -18,6 +18,8 @@ from typing import Any, Callable, List, Optional, Tuple, Union
 
 import logging
 
+import numpy as np
+
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
@@ -223,7 +225,7 @@ class UCC(EvolvedOperatorAnsatz):
             # not start from a random point. Thus, we return an all-zero initial point for the
             # optimizer which is used (unless it gets overwritten by a higher-priority setting at
             # runtime of the VQE).
-            return np.zeros(self._num_parameters, dtype=float)
+            return np.zeros(self.reps * len(self.operators), dtype=float)
 
     def _invalidate(self):
         self._excitation_ops = None
