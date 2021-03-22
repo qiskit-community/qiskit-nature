@@ -79,12 +79,13 @@ class SpinOp(SecondQuantizedOp):
 
         "X_0"
         "Y_0^2"
-        "Y_1^2 Z_1^3 X_0^1 Y_0^2 Z_0^2"
+        "Y_0^2 Z_0^3 X_1^1 Y_1^2 Z_1^2"
 
     are possible labels.
     For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
     this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
     Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
+    The indices must be ascending order.
 
     2. Dense Label (if underscore `_` does not exist in the label)
 
@@ -129,7 +130,7 @@ class SpinOp(SecondQuantizedOp):
             spin=1
         )
 
-    This means :math:`- X_1 X_0 - Y_1 Y_0 - Z_1 Z_0 - 0.3 Z_0 - 0.3 Z_1`.
+    This means :math:`- S^x_0 S^x_1 - S^y_0 S^y_1 - S^z_0 S^z_1 - 0.3 S^z_0 - 0.3 S^z_1`.
 
     :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
     In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
@@ -273,7 +274,7 @@ class SpinOp(SecondQuantizedOp):
     @property
     def x(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) X operators on the spin system.
-        I.e. [0, 4, 2] corresponds to X_2^0 \\otimes X_1^4 \\otimes X_0^2, where X_i acts on the
+        I.e. [0, 4, 2] corresponds to X_0^0 \\otimes X_1^4 \\otimes X_2^2, where X_i acts on the
         i-th spin system in the register.
         """
         return self._spin_array[0]
@@ -281,7 +282,7 @@ class SpinOp(SecondQuantizedOp):
     @property
     def y(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) Y operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Y_2^0 \\otimes Y_1^4 \\otimes Y_0^2, where Y_i acts on the
+        I.e. [0, 4, 2] corresponds to Y_0^0 \\otimes Y_1^4 \\otimes Y_2^2, where Y_i acts on the
         i-th spin system in the register.
         """
         return self._spin_array[1]
@@ -289,7 +290,7 @@ class SpinOp(SecondQuantizedOp):
     @property
     def z(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) Z operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Z_2^0 \\otimes Z_1^4 \\otimes Z_0^2, where Z_i acts on the
+        I.e. [0, 4, 2] corresponds to Z_0^0 \\otimes Z_1^4 \\otimes Z_2^2, where Z_i acts on the
         i-th spin system in the register.
         """
         return self._spin_array[2]
@@ -376,21 +377,20 @@ class SpinOp(SecondQuantizedOp):
         """Generates the string description of `self`."""
         labels_list = []
         for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
-            rev_pos = self.register_length - pos - 1
             if n_x == n_y == n_z == 0:
-                labels_list.append(f"I_{rev_pos}")
+                labels_list.append(f"I_{pos}")
                 continue
             if n_x >= 1:
-                labels_list.append(f"X_{rev_pos}" + (f"^{n_x}" if n_x > 1 else ""))
+                labels_list.append(f"X_{pos}" + (f"^{n_x}" if n_x > 1 else ""))
             if n_y >= 1:
-                labels_list.append(f"Y_{rev_pos}" + (f"^{n_y}" if n_y > 1 else ""))
+                labels_list.append(f"Y_{pos}" + (f"^{n_y}" if n_y > 1 else ""))
             if n_z >= 1:
-                labels_list.append(f"Z_{rev_pos}" + (f"^{n_z}" if n_z > 1 else ""))
+                labels_list.append(f"Z_{pos}" + (f"^{n_z}" if n_z > 1 else ""))
         return " ".join(labels_list)
 
     @lru_cache()
     def to_matrix(self) -> np.ndarray:
-        """Convert to dense matrix
+        """Convert to dense matrix.
 
         Returns:
             The matrix (numpy.ndarray with dtype=numpy.complex128)
@@ -441,31 +441,26 @@ class SpinOp(SecondQuantizedOp):
         parsed_data = []
         max_index = 0
         for term, label in enumerate(labels):
-            label_list = label.split()
-            for single_label in label_list:
-                xyz, nums = single_label.split("_", 1)
-                index_str, power_str = nums.split("^", 1) if "^" in nums else (nums, "1")
+            for split_label in label.split():
+                xyz, nums = split_label.split("_", 1)
 
-                index = int(index_str)
-                power = int(power_str)
-                max_index = max(max_index, index)
+                if xyz not in xyz_dict:
+                    continue
 
-                if xyz in self._XYZ_DICT:
-                    parsed_data.append((term, self._XYZ_DICT[xyz], index, power))
+                xyz_num = xyz_dict[xyz]
+                index, power = map(int, nums.split("^", 1)) if "^" in nums else (int(nums), 1)
+                if index >= self.register_length:
+                    raise ValueError(
+                        f"Index {index} must be smaller than register_length {self.register_length}"
+                    )
+                # Check the order of X, Y, and Z whether it has been already assigned.
+                if self._spin_array[range(xyz_num + 1, 3), term, index].any():
+                    raise ValueError(f"Label must be in XYZ order, but {label}.")
+                # same index is not assigned.
+                if self._spin_array[xyz_num, term, index]:
+                    raise ValueError(f"Duplicate index label {index} is given.")
 
-        self._register_length = max_index + 1
-        self._spin_array = np.zeros((3, num_terms, self._register_length), dtype=np.uint8)
-        for term, xyz_num, index, power in parsed_data:
-            register = self._register_length - index - 1
-
-            # Check the order of X, Y, and Z whether it has been already assigned.
-            if self._spin_array[range(xyz_num + 1, 3), term, register].any():
-                raise ValueError("Label must be XYZ order.")
-            # same label is not assigned.
-            if self._spin_array[xyz_num, term, register]:
-                raise ValueError("Duplicate label.")
-
-            self._spin_array[xyz_num, term, register] = power
+                self._spin_array[xyz_num, term, index] = power
 
     @staticmethod
     def _flatten_ladder_ops(data):

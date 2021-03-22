@@ -72,8 +72,8 @@ class TestSpinOp(QiskitNatureTestCase):
     @data(*spin_labels(2))
     def test_init_len2_label(self, label):
         """Test __init__"""
-        spin = SpinOp(f"{label[1]}_1 {label[0]}_0")
-        self.assertListEqual(spin.to_list(), [(f"{label[1]}_1 {label[0]}_0", 1)])
+        spin = SpinOp(f"{label[1]}_0 {label[0]}_1", register_length=2)
+        self.assertListEqual(spin.to_list(), [(f"{label[1]}_0 {label[0]}_1", 1)])
 
     def test_init_pm_label(self):
         """Test __init__ with plus and minus label"""
@@ -98,13 +98,19 @@ class TestSpinOp(QiskitNatureTestCase):
             self.assertSpinEqual(minus, desired)
 
         with self.subTest("plus tensor minus"):
-            plus_tensor_minus = SpinOp([("+_1 -_0", 3)])
-            desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
+            plus_tensor_minus = SpinOp([("+_0 -_1", 3)], register_length=2)
+            desired = SpinOp(
+                [("X_0 X_1", 3), ("Y_0 X_1", 3j), ("X_0 Y_1", -3j), ("Y_0 Y_1", 3)],
+                register_length=2,
+            )
             self.assertSpinEqual(plus_tensor_minus, desired)
 
         with self.subTest("dense plus tensor minus"):
             plus_tensor_minus = SpinOp([("+-", 3)])
-            desired = SpinOp([("X_1 X_0", 3), ("X_1 Y_0", -3j), ("Y_1 X_0", 3j), ("Y_1 Y_0", 3)])
+            desired = SpinOp(
+                [("X_0 X_1", 3), ("Y_0 X_1", 3j), ("X_0 Y_1", -3j), ("Y_0 Y_1", 3)],
+                register_length=2,
+            )
             self.assertSpinEqual(plus_tensor_minus, desired)
 
     def test_init_heisenberg(self):
@@ -129,14 +135,48 @@ class TestSpinOp(QiskitNatureTestCase):
             desired = SpinOp([(f"{label}_0", 1 + 1j)])
         elif len(label) == 2:
             actual = SpinOp([(f"{label}", 1)])
-            desired = SpinOp([(f"{label[0]}_1 {label[1]}_0", 1)])
+            desired = SpinOp([(f"{label[0]}_0 {label[1]}_1", 1)], register_length=2)
         self.assertSpinEqual(actual, desired)
+
+    def test_init_multiple_digits(self):
+        """Test __init__ for sparse label with multiple digits"""
+        actual = SpinOp([("X_10^20", 1 + 2j), ("X_12^34", 56)], Fraction(5, 2), register_length=13)
+        desired = [
+            ("I_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7 I_8 I_9 X_10^20 I_11 I_12", 1 + 2j),
+            ("I_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7 I_8 I_9 I_10 I_11 X_12^34", 56),
+        ]
+        self.assertListEqual(actual.to_list(), desired)
 
     @data("IJX", "Z_0 X_0", "Z_0 +_0", "+_0 X_0")
     def test_init_invalid_label(self, label):
         """Test __init__ for invalid label"""
         with self.assertRaises(ValueError):
             SpinOp(label)
+
+    def test_init_raising_lowering_ops(self):
+        """Test __init__ for +_i -_i pattern"""
+        with self.subTest("one reg"):
+            actual = SpinOp("+_0 -_0", spin=1, register_length=1)
+            expected = SpinOp([("X_0^2", 1), ("Y_0^2", 1), ("Z_0", 1)], spin=1, register_length=1)
+            self.assertSpinEqual(actual, expected)
+        with self.subTest("two reg"):
+            actual = SpinOp("+_1 -_1 +_0 -_0", spin=3 / 2, register_length=2)
+            expected = SpinOp(
+                [
+                    ("X_0^2 X_1^2", 1),
+                    ("X_0^2 Y_1^2", 1),
+                    ("X_0^2 Z_1", 1),
+                    ("Y_0^2 X_1^2", 1),
+                    ("Y_0^2 Y_1^2", 1),
+                    ("Y_0^2 Z_1", 1),
+                    ("Z_0 X_1^2", 1),
+                    ("Z_0 Y_1^2", 1),
+                    ("Z_0 Z_1", 1),
+                ],
+                spin=3 / 2,
+                register_length=2,
+            )
+            self.assertSpinEqual(actual, expected)
 
     def test_neg(self):
         """Test __neg__"""
@@ -202,7 +242,7 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test reduce"""
         with self.subTest("trivial reduce"):
             actual = (self.heisenberg - self.heisenberg).reduce()
-            self.assertListEqual(actual.to_list(), [("I_1 I_0", 0)])
+            self.assertListEqual(actual.to_list(), [("I_0 I_1", 0)])
 
         with self.subTest("nontrivial reduce"):
             test_op = SpinOp(
@@ -213,7 +253,7 @@ class TestSpinOp(QiskitNatureTestCase):
                 spin=3 / 2,
             )
             actual = test_op.reduce()
-            self.assertListEqual(actual.to_list(), [("Z_1 X_0", 4)])
+            self.assertListEqual(actual.to_list(), [("Z_0 X_1", 4)])
 
         with self.subTest("nontrivial reduce 2"):
             test_op = SpinOp(
@@ -230,7 +270,7 @@ class TestSpinOp(QiskitNatureTestCase):
                 spin=3 / 2,
             )
             actual = test_op.reduce()
-            self.assertListEqual(actual.to_list(), [("Z_1 X_0", 4), ("X_1 X_0", 2)])
+            self.assertListEqual(actual.to_list(), [("Z_0 X_1", 4), ("X_0 X_1", 2)])
 
     @data(*spin_labels(1))
     def test_to_matrix_single_qutrit(self, label):

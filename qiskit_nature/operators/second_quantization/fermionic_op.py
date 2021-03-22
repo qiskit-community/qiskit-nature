@@ -50,6 +50,41 @@ class FermionicOp(SecondQuantizedOp):
           - :math:`I - n = c c^\dagger`
           - Hole number
 
+    There are two types of label modes for :class:`FermionicOp`.
+    The label mode is automatically detected.
+
+    1. Dense Label (default, `register_length = None`)
+
+    Dense labels are strings with allowed characters above.
+    This is similar to Qiskit's string-based representation of qubit operators.
+    For example,
+
+    .. code-block:: python
+
+        "+"
+        "II++N-IE"
+
+    are possible labels.
+
+    2. Sparse Label (`register_length` is passed)
+
+    When the parameter `register_length` is passed to :meth:`~FermionicOp.__init__`,
+    label is assumed to be a sparse label.
+    A sparse label is a string consisting of a space-separated list of words.
+    Each word must look like :code:`[+-INE]_<index>`, where the :code:`<index>`
+    is a non-negative integer representing the index of the fermionic mode.
+    For example,
+
+    .. code-block:: python
+
+        "+_0"
+        "-_2"
+        "+_0 -_1 +_4 +_10"
+
+    are possible labels.
+    The :code:`index` must be in ascending order, and it does not allow duplicated indices.
+    Thus, :code:`"+_1 N_0"` and `+_0 -_0` are invalid labels.
+
     **Initialization**
 
     The FermionicOp can be initialized in several ways:
@@ -136,22 +171,53 @@ class FermionicOp(SecondQuantizedOp):
                     "Label must be a string consisting only of "
                     f"['I','+','-','N','E'] not: {label}"
                 )
-            self._register_length = len(label)
-            self._labels = [label]
-            self._coeffs = [1]
+            data = [data]
 
-        elif isinstance(data, list):
-            if all(
-                    isinstance(datum[0], str)
-                    and isinstance(datum[1], (int, float, complex))
-                    for datum in data
-            ):
-                self._register_length = len(data[0][0])
-                self._labels, self._coeffs = zip(*data)  # type: ignore
-                if not all(self._validate_label(label) for label in self._labels):
-                    raise QiskitNatureError("Invalid labels are given.")
-            else:
-                raise QiskitNatureError("Data list must be [(str, number)].")
+        if isinstance(data, str):
+            data = [(data, 1)]
+
+        if not all(
+            isinstance(label, str) and isinstance(coeff, (int, float, complex))
+            for label, coeff in data
+        ):
+            raise TypeError("Data list must be [(str, number)].")
+
+        labels, coeffs = zip(*data)
+        self._coeffs = np.array(coeffs, np.complex128)
+
+        if register_length is None:  # Dense label
+            self._register_length = len(labels[0])
+            if not all(len(label) == self._register_length for label in labels):
+                raise ValueError("Lengths of strings of label are different.")
+            label_pattern = re.compile(r"^[I\+\-NE]+$")
+            invalid_labels = [label for label in labels if not label_pattern.match(label)]
+            if invalid_labels:
+                raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
+            self._labels = list(labels)
+        else:  # Sparse label
+            validate_min("register_length", register_length, 1)
+            self._register_length = register_length
+            label_pattern = re.compile(r"^[I\+\-NE]_\d+$")
+            invalid_labels = [
+                label for label in labels if not all(label_pattern.match(l) for l in label.split())
+            ]
+            if invalid_labels:
+                raise ValueError(f"Invalid labels for sparse labels are given: {invalid_labels}")
+            list_label = [["I"] * self._register_length for _ in labels]
+            prev_index: Optional[int] = None
+            for term, label in enumerate(labels):
+                for split_label in label.split():
+                    op_label, index_str = split_label.split("_", 1)
+                    index = int(index_str)
+                    validate_range_exclusive_max("index", index, 0, self._register_length)
+                    if prev_index is not None and prev_index > index:
+                        raise ValueError("Indices of labels must be in ascending order.")
+                    if list_label[term][index] != "I":
+                        raise ValueError(f"Duplicate index {index} is given.")
+                    list_label[term][index] = op_label
+                    prev_index = index
+
+            self._labels = ["".join(l) for l in list_label]
 
     def __repr__(self) -> str:
         if len(self) == 1:
