@@ -54,12 +54,12 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         super().__init__()
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, molecule_data: QMolecule) -> QMolecule:
         """Reduces the given `QMolecule` by removing the core and optionally defined unoccupied
         molecular orbitals.
 
         Args:
-            q_molecule: the `QMolecule` to be transformed.
+            molecule_data: the `QMolecule` to be transformed.
 
         Returns:
             A new `QMolecule` instance.
@@ -70,7 +70,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
                                selected active orbital indices does not match
                                `num_molecular_orbitals`.
         """
-        q_molecule_new = super().transform(q_molecule)
+        molecule_data_new = super().transform(molecule_data)
 
         def rename_dict_key(energy_shift_dict):
             try:
@@ -79,30 +79,30 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             except KeyError:
                 pass
 
-        rename_dict_key(q_molecule_new.energy_shift)
-        rename_dict_key(q_molecule_new.x_dip_energy_shift)
-        rename_dict_key(q_molecule_new.y_dip_energy_shift)
-        rename_dict_key(q_molecule_new.z_dip_energy_shift)
+        rename_dict_key(molecule_data_new.energy_shift)
+        rename_dict_key(molecule_data_new.x_dip_energy_shift)
+        rename_dict_key(molecule_data_new.y_dip_energy_shift)
+        rename_dict_key(molecule_data_new.z_dip_energy_shift)
 
-        return q_molecule_new
+        return molecule_data_new
 
     def _check_configuration(self):
         pass
 
-    def _determine_active_space(self, q_molecule: QMolecule):
-        nelec_total = q_molecule.num_alpha + q_molecule.num_beta
+    def _determine_active_space(self, molecule_data: QMolecule):
+        nelec_total = molecule_data.num_alpha + molecule_data.num_beta
 
-        inactive_orbs_idxs = q_molecule.core_orbitals
+        inactive_orbs_idxs = molecule_data.core_orbitals
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
-        active_orbs_idxs = [o for o in range(q_molecule.num_orbitals)
+        active_orbs_idxs = [o for o in range(molecule_data.num_orbitals)
                             if o not in inactive_orbs_idxs]
 
         # compute number of active electrons
         nelec_inactive = sum([self._mo_occ_total[o] for o in inactive_orbs_idxs])
         nelec_active = nelec_total - nelec_inactive
 
-        num_alpha = (nelec_active - (q_molecule.multiplicity - 1)) // 2
+        num_alpha = (nelec_active - (molecule_data.multiplicity - 1)) // 2
         num_beta = nelec_active - num_alpha
 
         self._num_particles = (num_alpha, num_beta)

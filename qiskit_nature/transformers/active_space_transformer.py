@@ -103,11 +103,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._density_inactive: Tuple[np.ndarray, np.ndarray] = None
         self._num_particles: Tuple[int, int] = None
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, molecule_data: QMolecule) -> QMolecule:
         """Reduces the given `QMolecule` to a given active space.
 
         Args:
-            q_molecule: the `QMolecule` to be transformed.
+            molecule_data: the `QMolecule` to be transformed.
 
         Returns:
             A new `QMolecule` instance.
@@ -124,13 +124,13 @@ class ActiveSpaceTransformer(BaseTransformer):
             raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
         # get molecular orbital coefficients
-        mo_coeff_full = (q_molecule.mo_coeff, q_molecule.mo_coeff_b)
+        mo_coeff_full = (molecule_data.mo_coeff, molecule_data.mo_coeff_b)
         self._beta = mo_coeff_full[1] is not None
         # get molecular orbital occupation numbers
-        mo_occ_full = self._extract_mo_occupation_vector(q_molecule)
+        mo_occ_full = self._extract_mo_occupation_vector(molecule_data)
         self._mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if self._beta else mo_occ_full[0]
 
-        active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(q_molecule)
+        active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(molecule_data)
 
         # split molecular orbitals coefficients into active and inactive parts
         self._mo_coeff_inactive = (mo_coeff_full[0][:, inactive_orbs_idxs],
@@ -143,21 +143,22 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._compute_inactive_density_matrix()
 
         # construct new QMolecule
-        q_molecule_reduced = copy.deepcopy(q_molecule)
+        molecule_data_reduced = copy.deepcopy(molecule_data)
         # Energies and orbitals
-        q_molecule_reduced.num_orbitals = self._num_molecular_orbitals
-        q_molecule_reduced.num_alpha = self._num_particles[0]
-        q_molecule_reduced.num_beta = self._num_particles[1]
-        q_molecule_reduced.mo_coeff = self._mo_coeff_active[0]
-        q_molecule_reduced.mo_coeff_b = self._mo_coeff_active[1]
-        q_molecule_reduced.orbital_energies = q_molecule.orbital_energies[active_orbs_idxs]
+        molecule_data_reduced.num_orbitals = self._num_molecular_orbitals
+        molecule_data_reduced.num_alpha = self._num_particles[0]
+        molecule_data_reduced.num_beta = self._num_particles[1]
+        molecule_data_reduced.mo_coeff = self._mo_coeff_active[0]
+        molecule_data_reduced.mo_coeff_b = self._mo_coeff_active[1]
+        molecule_data_reduced.orbital_energies = molecule_data.orbital_energies[active_orbs_idxs]
         if self._beta:
-            q_molecule_reduced.orbital_energies_b = q_molecule.orbital_energies_b[active_orbs_idxs]
-        q_molecule_reduced.kinetic = None
-        q_molecule_reduced.overlap = None
+            molecule_data_reduced.orbital_energies_b = \
+                molecule_data.orbital_energies_b[active_orbs_idxs]
+        molecule_data_reduced.kinetic = None
+        molecule_data_reduced.overlap = None
 
         # reduce electronic energy integrals
-        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
                                      'energy_shift',
                                      ('hcore', 'hcore_b'),
                                      ('mo_onee_ints', 'mo_onee_ints_b'),
@@ -166,23 +167,23 @@ class ActiveSpaceTransformer(BaseTransformer):
                                      )
 
         # reduce dipole moment integrals
-        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
                                      'x_dip_energy_shift',
                                      ('x_dip_ints', None),
                                      ('x_dip_mo_ints', 'x_dip_mo_ints_b')
                                      )
-        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
                                      'y_dip_energy_shift',
                                      ('y_dip_ints', None),
                                      ('y_dip_mo_ints', 'y_dip_mo_ints_b')
                                      )
-        self._reduce_to_active_space(q_molecule, q_molecule_reduced,
+        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
                                      'z_dip_energy_shift',
                                      ('z_dip_ints', None),
                                      ('z_dip_mo_ints', 'z_dip_mo_ints_b')
                                      )
 
-        return q_molecule_reduced
+        return molecule_data_reduced
 
     def _check_configuration(self):
         if isinstance(self._num_electrons, int):
@@ -219,36 +220,37 @@ class ActiveSpaceTransformer(BaseTransformer):
                 self._num_electrons
             )
 
-    def _extract_mo_occupation_vector(self, q_molecule: QMolecule):
-        mo_occ_full = (q_molecule.mo_occ, q_molecule.mo_occ_b)
+    def _extract_mo_occupation_vector(self, molecule_data: QMolecule):
+        mo_occ_full = (molecule_data.mo_occ, molecule_data.mo_occ_b)
         if mo_occ_full[0] is None:
             # QMolecule provided by driver without `mo_occ` information available. Constructing
             # occupation numbers based on ground state HF case.
-            occ_alpha = [1.] * q_molecule.num_alpha + [0.] * (q_molecule.num_orbitals -
-                                                              q_molecule.num_alpha)
+            occ_alpha = [1.] * molecule_data.num_alpha + [0.] * (molecule_data.num_orbitals -
+                                                              molecule_data.num_alpha)
             if self._beta:
-                occ_beta = [1.] * q_molecule.num_beta + [0.] * (q_molecule.num_orbitals -
-                                                                q_molecule.num_beta)
+                occ_beta = [1.] * molecule_data.num_beta + [0.] * (molecule_data.num_orbitals -
+                                                                molecule_data.num_beta)
             else:
-                occ_alpha[:q_molecule.num_beta] = [o + 1 for o in occ_alpha[:q_molecule.num_beta]]
+                occ_alpha[:molecule_data.num_beta] = [o + 1 for o in
+                                                      occ_alpha[:molecule_data.num_beta]]
                 occ_beta = None
             mo_occ_full = (np.asarray(occ_alpha), np.asarray(occ_beta))
         return mo_occ_full
 
-    def _determine_active_space(self, q_molecule: QMolecule):
+    def _determine_active_space(self, molecule_data: QMolecule):
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, int):
             num_alpha = num_beta = self._num_electrons // 2
 
         # compute number of inactive electrons
-        nelec_total = q_molecule.num_alpha + q_molecule.num_beta
+        nelec_total = molecule_data.num_alpha + molecule_data.num_beta
         nelec_inactive = nelec_total - num_alpha - num_beta
 
         self._num_particles = (num_alpha, num_beta)
 
         self._validate_num_electrons(nelec_inactive)
-        self._validate_num_orbitals(nelec_inactive, q_molecule)
+        self._validate_num_orbitals(nelec_inactive, molecule_data)
 
         # determine active and inactive orbital indices
         if self._active_orbitals is None:
@@ -279,12 +281,12 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     def _validate_num_orbitals(self,
                                nelec_inactive: int,
-                               q_molecule: QMolecule):
+                               molecule_data: QMolecule):
         """Validates the number of orbitals.
 
         Args:
             nelec_inactive: the computed number of inactive electrons.
-            q_molecule: the `QMolecule` to be transformed.
+            molecule_data: the `QMolecule` to be transformed.
 
         Raises:
             QiskitNatureError: if more orbitals were requested than are available in total or if the
@@ -293,13 +295,13 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
-            if norbs_inactive + self._num_molecular_orbitals > q_molecule.num_orbitals:
+            if norbs_inactive + self._num_molecular_orbitals > molecule_data.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
             if self._num_molecular_orbitals != len(self._active_orbitals):
                 raise QiskitNatureError("The number of selected active orbital indices does not "
                                         "match the specified number of active orbitals.")
-            if max(self._active_orbitals) >= q_molecule.num_orbitals:
+            if max(self._active_orbitals) >= molecule_data.num_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
             if sum(self._mo_occ_total[self._active_orbitals]) != self._num_electrons:
                 raise QiskitNatureError("The number of electrons in the selected active orbitals "
@@ -316,8 +318,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._density_inactive = (density_inactive_a, density_inactive_b)
 
     def _reduce_to_active_space(self,
-                                q_molecule: QMolecule,
-                                q_molecule_reduced: QMolecule,
+                                molecule_data: QMolecule,
+                                molecule_data_reduced: QMolecule,
                                 energy_shift_attribute: str,
                                 ao_1e_attribute: Tuple[str, str],
                                 mo_1e_attribute: Tuple[str, str],
@@ -327,18 +329,18 @@ class ActiveSpaceTransformer(BaseTransformer):
         """A utility method which performs the actual orbital reduction computation.
 
         Args:
-            q_molecule: the original `QMolecule` object.
-            q_molecule_reduced: the reduced `QMolecule` object.
+            molecule_data: the original `QMolecule` object.
+            molecule_data_reduced: the reduced `QMolecule` object.
             energy_shift_attribute: the name of the attribute which stores the energy shift.
             ao_1e_attribute: the names of the AO-basis 1-electron matrices.
             mo_1e_attribute: the names of the MO-basis 1-electron matrices.
             ao_2e_attribute: the name of the AO-basis 2-electron matrix.
             mo_2e_attribute: the names of the MO-basis 2-electron matrices.
         """
-        ao_1e_matrix = (getattr(q_molecule, ao_1e_attribute[0]),
-                        getattr(q_molecule, ao_1e_attribute[1]) if self._beta else None)
+        ao_1e_matrix = (getattr(molecule_data, ao_1e_attribute[0]),
+                        getattr(molecule_data, ao_1e_attribute[1]) if self._beta else None)
         if ao_2e_attribute:
-            ao_2e_matrix = getattr(q_molecule, ao_2e_attribute)
+            ao_2e_matrix = getattr(molecule_data, ao_2e_attribute)
         else:
             ao_2e_matrix = None
 
@@ -352,17 +354,18 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         mo_1e_matrix, mo_2e_matrix = self._compute_active_integrals(inactive_op, ao_2e_matrix)
 
-        getattr(q_molecule_reduced, energy_shift_attribute)['ActiveSpaceTransformer'] = energy_shift
-        setattr(q_molecule_reduced, ao_1e_attribute[0], inactive_op[0])
-        setattr(q_molecule_reduced, mo_1e_attribute[0], mo_1e_matrix[0])
+        getattr(molecule_data_reduced, energy_shift_attribute)['ActiveSpaceTransformer'] = \
+            energy_shift
+        setattr(molecule_data_reduced, ao_1e_attribute[0], inactive_op[0])
+        setattr(molecule_data_reduced, mo_1e_attribute[0], mo_1e_matrix[0])
         if self._beta:
-            setattr(q_molecule_reduced, ao_1e_attribute[1], inactive_op[1])
-            setattr(q_molecule_reduced, mo_1e_attribute[1], mo_1e_matrix[1])
+            setattr(molecule_data_reduced, ao_1e_attribute[1], inactive_op[1])
+            setattr(molecule_data_reduced, mo_1e_attribute[1], mo_1e_matrix[1])
         if mo_2e_matrix is not None:
-            setattr(q_molecule_reduced, mo_2e_attribute[0], mo_2e_matrix[0])
+            setattr(molecule_data_reduced, mo_2e_attribute[0], mo_2e_matrix[0])
             if self._beta:
-                setattr(q_molecule_reduced, mo_2e_attribute[1], mo_2e_matrix[1])
-                setattr(q_molecule_reduced, mo_2e_attribute[2], mo_2e_matrix[2])
+                setattr(molecule_data_reduced, mo_2e_attribute[1], mo_2e_matrix[1])
+                setattr(molecule_data_reduced, mo_2e_attribute[2], mo_2e_matrix[2])
 
     def _compute_inactive_fock_op(self,
                                   hcore: Tuple[np.ndarray, Optional[np.ndarray]],
@@ -467,4 +470,4 @@ class ActiveSpaceTransformer(BaseTransformer):
                                  self._mo_coeff_active[0], self._mo_coeff_active[0],
                                  optimize=True)
 
-        return ((hij, hij_b), (hijkl, hijkl_ba, hijkl_bb))
+        return (hij, hij_b), (hijkl, hijkl_ba, hijkl_bb)

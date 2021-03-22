@@ -17,8 +17,7 @@ import copy
 import logging
 import re
 
-from qiskit_nature import WatsonHamiltonian
-
+from ..watson_hamiltonian import WatsonHamiltonian
 
 logger = logging.getLogger(__name__)
 

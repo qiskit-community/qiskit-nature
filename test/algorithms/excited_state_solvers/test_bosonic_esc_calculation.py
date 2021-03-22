@@ -13,13 +13,13 @@
 """ Test NumericalqEOM excited states calculation """
 
 import unittest
+
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature import WatsonHamiltonian
-from qiskit_nature.drivers import BaseDriver
+from qiskit_nature.drivers import BaseDriver, WatsonHamiltonian
 from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory,
     VQEUVCCSDFactory

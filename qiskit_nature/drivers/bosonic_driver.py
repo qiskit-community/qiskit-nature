@@ -16,7 +16,7 @@ This module implements the abstract base class for bosonic driver modules.
 
 from abc import abstractmethod
 
-from ..watson_hamiltonian import WatsonHamiltonian
+from qiskit_nature.drivers.watson_hamiltonian import WatsonHamiltonian
 from .base_driver import BaseDriver
 
 

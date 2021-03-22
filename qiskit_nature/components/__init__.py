@@ -25,7 +25,6 @@ Submodules
 .. autosummary::
    :toctree:
 
-   bosonic_bases
    variational_forms
 
 """
