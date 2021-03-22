@@ -13,6 +13,7 @@
 """Test the SUCCD Ansatz."""
 
 from test import QiskitNatureTestCase
+from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 
 from ddt import ddt, data, unpack
 
@@ -49,15 +50,7 @@ class TestSUCCD(QiskitNatureTestCase):
                        num_particles=num_particles,
                        num_spin_orbitals=num_spin_orbitals)
 
-        ansatz._build()
-
-        self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
-        self.assertEqual(len(ansatz.excitation_ops()), len(expect))
-        for op, exp in zip(ansatz.excitation_ops(), expect):
-            self.assertEqual(op._labels, exp._labels)
-            self.assertEqual(op._coeffs, exp._coeffs)
-
-        # TODO: assert actual QuantumCircuit
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
 
     @unpack
     @data(
@@ -79,15 +72,7 @@ class TestSUCCD(QiskitNatureTestCase):
                        num_spin_orbitals=num_spin_orbitals,
                        include_singles=include_singles)
 
-        ansatz._build()
-
-        self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
-        self.assertEqual(len(ansatz.excitation_ops()), len(expect))
-        for op, exp in zip(ansatz.excitation_ops(), expect):
-            self.assertEqual(op._labels, exp._labels)
-            self.assertEqual(op._coeffs, exp._coeffs)
-
-        # TODO: assert actual QuantumCircuit
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
 
     def test_raise_non_singlet(self):
         """Test an error is raised when the number of alpha and beta electrons differ."""

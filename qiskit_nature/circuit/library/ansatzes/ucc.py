@@ -148,11 +148,9 @@ class UCC(EvolvedOperatorAnsatz):
 
         super().__init__(reps=reps, evolution=None)
 
-        # We store some of our temporary data for two reasons:
-        #   1. for the adaptivity of the Ansatz (see :class:`~.AdaptVQE`)
-        #   2. to simplify testing
-        self._excitation_generators: List[Callable] = None
-        self._excitation_list: List[Tuple[Tuple[Any, ...], ...]] = None
+        # We cache these, because the generation may be quite expensive (depending on the generator)
+        # and the user may want quick access to inspect these. Also, it speeds up testing for the
+        # same reason!
         self._excitation_ops: List[SecondQuantizedOp] = None
 
     @property
@@ -199,6 +197,10 @@ class UCC(EvolvedOperatorAnsatz):
         self._invalidate()
         self._excitations = exc
 
+    def _invalidate(self):
+        self._excitation_ops = None
+        super()._invalidate()
+
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
         if self.num_spin_orbitals < 0:
             if raise_on_failure:
@@ -226,14 +228,15 @@ class UCC(EvolvedOperatorAnsatz):
         if self._data is not None:
             return
 
-        excitation_ops = self.excitation_ops()
+        if self.operators is None or self.operators == [None]:
+            # The qubit operators are cached by the `EvolvedOperatorAnsatz` class. We only generate
+            # them from the `SecondQuantizedOp`s produced by the generators, if they are not already
+            # present. This behavior also enables the adaptive usage of the `UCC` class by
+            # algorihtms such as `AdaptVQE`.
+            excitation_ops = self.excitation_ops()
 
-        logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
-        converted_ops = self.qubit_converter.to_qubit_ops(excitation_ops)
-
-        # we don't append to this property directly in order to only perform the checks done during
-        # its setter once
-        self.operators = converted_ops
+            logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
+            self.operators = self.qubit_converter.to_qubit_ops(excitation_ops)
 
         logger.debug('Building QuantumCircuit...')
         super()._build()
@@ -259,9 +262,6 @@ class UCC(EvolvedOperatorAnsatz):
         return excitation_ops
 
     def _get_excitation_list(self) -> List[Tuple[Tuple[Any, ...], ...]]:
-        if self._excitation_list is not None:
-            return self._excitation_list
-
         generators = self._get_excitation_generators()
 
         logger.debug('Generating excitation list...')
@@ -272,13 +272,9 @@ class UCC(EvolvedOperatorAnsatz):
                 num_particles=self.num_particles
             ))
 
-        self._excitation_list = excitations
         return excitations
 
     def _get_excitation_generators(self) -> List[Callable]:
-        if self._excitation_generators is not None:
-            return self._excitation_generators
-
         logger.debug('Gathering excitation generators...')
         generators: List[Callable] = []
 
@@ -311,7 +307,6 @@ class UCC(EvolvedOperatorAnsatz):
         else:
             raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
 
-        self._excitation_generators = generators
         return generators
 
     def _build_fermionic_excitation_ops(self, excitations: List[Tuple]) -> List[FermionicOp]:

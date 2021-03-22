@@ -22,6 +22,19 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
+def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
+    """Assertion utility."""
+    excitation_ops = ansatz.excitation_ops()
+
+    test_case.assertEqual(len(excitation_ops), len(expected_ops))
+    for op, exp in zip(excitation_ops, expected_ops):
+        test_case.assertEqual(op._labels, exp._labels)
+        test_case.assertEqual(op._coeffs.tolist(), exp._coeffs.tolist())
+
+    ansatz._build()
+    test_case.assertEqual(ansatz.num_qubits, num_spin_orbitals)
+
+
 @ddt
 class TestUCC(QiskitNatureTestCase):
     """Tests for the UCC Ansatz."""
@@ -54,12 +67,4 @@ class TestUCC(QiskitNatureTestCase):
                      num_spin_orbitals=num_spin_orbitals,
                      excitations=excitations)
 
-        ansatz._build()
-
-        self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
-        self.assertEqual(len(ansatz.excitation_ops()), len(expect))
-        for op, exp in zip(ansatz.excitation_ops(), expect):
-            self.assertEqual(op._labels, exp._labels)
-            self.assertEqual(op._coeffs, exp._coeffs)
-
-        # TODO: assert actual QuantumCircuit
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)

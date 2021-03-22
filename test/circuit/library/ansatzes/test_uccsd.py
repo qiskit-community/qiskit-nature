@@ -13,6 +13,7 @@
 """Test the UCCSD Ansatz."""
 
 from test import QiskitNatureTestCase
+from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 
 from ddt import ddt, data, unpack
 
@@ -86,12 +87,4 @@ class TestUCCSD(QiskitNatureTestCase):
                        num_particles=num_particles,
                        num_spin_orbitals=num_spin_orbitals)
 
-        ansatz._build()
-
-        self.assertEqual(ansatz.num_qubits, num_spin_orbitals)
-        self.assertEqual(len(ansatz.excitation_ops()), len(expect))
-        for op, exp in zip(ansatz.excitation_ops(), expect):
-            self.assertEqual(op._labels, exp._labels)
-            self.assertEqual(op._coeffs, exp._coeffs)
-
-        # TODO: assert actual QuantumCircuit
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
