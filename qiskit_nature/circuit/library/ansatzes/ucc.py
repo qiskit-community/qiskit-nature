@@ -21,6 +21,7 @@ import logging
 import numpy as np
 
 from qiskit.circuit import QuantumCircuit
+from qiskit.opflow import PauliTrotterEvolution
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -151,7 +152,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
 
-        super().__init__(reps=reps, evolution=None, initial_state=initial_state)
+        super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
