@@ -13,6 +13,7 @@
 """Test for SpinOp"""
 
 import unittest
+from fractions import Fraction
 from itertools import product
 from test import QiskitNatureTestCase
 from typing import Callable, Optional
@@ -66,7 +67,7 @@ class TestSpinOp(QiskitNatureTestCase):
     @data(*spin_labels(1))
     def test_init_label(self, label):
         """Test __init__"""
-        spin = SpinOp(f"{label}_0")
+        spin = SpinOp(f"{label}_0", register_length=1)
         self.assertListEqual(spin.to_list(), [(f"{label}_0", 1)])
 
     @data(*spin_labels(2))
@@ -78,23 +79,23 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_init_pm_label(self):
         """Test __init__ with plus and minus label"""
         with self.subTest("plus"):
-            plus = SpinOp([("+_0", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
+            plus = SpinOp([("+_0", 2)], register_length=1)
+            desired = SpinOp([("X_0", 2), ("Y_0", 2j)], register_length=1)
             self.assertSpinEqual(plus, desired)
 
         with self.subTest("dense plus"):
             plus = SpinOp([("+", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", 2j)])
+            desired = SpinOp([("X_0", 2), ("Y_0", 2j)], register_length=1)
             self.assertSpinEqual(plus, desired)
 
         with self.subTest("minus"):
-            minus = SpinOp([("-_0", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
+            minus = SpinOp([("-_0", 2)], register_length=1)
+            desired = SpinOp([("X_0", 2), ("Y_0", -2j)], register_length=1)
             self.assertSpinEqual(minus, desired)
 
         with self.subTest("minus"):
             minus = SpinOp([("-", 2)])
-            desired = SpinOp([("X_0", 2), ("Y_0", -2j)])
+            desired = SpinOp([("X_0", 2), ("Y_0", -2j)], register_length=1)
             self.assertSpinEqual(minus, desired)
 
         with self.subTest("plus tensor minus"):
@@ -132,7 +133,7 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test __init__ for dense label"""
         if len(label) == 1:
             actual = SpinOp([(f"{label}", 1 + 1j)])
-            desired = SpinOp([(f"{label}_0", 1 + 1j)])
+            desired = SpinOp([(f"{label}_0", 1 + 1j)], register_length=1)
         elif len(label) == 2:
             actual = SpinOp([(f"{label}", 1)])
             desired = SpinOp([(f"{label[0]}_0 {label[1]}_1", 1)], register_length=2)

@@ -12,12 +12,14 @@
 
 """The Fermionic-particle Operator."""
 
+import re
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+from qiskit.utils.validation import validate_min, validate_range_exclusive_max
 
 from qiskit_nature import QiskitNatureError
-from .second_quantized_op import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 
 
 class FermionicOp(SecondQuantizedOp):
@@ -105,18 +107,30 @@ class FermionicOp(SecondQuantizedOp):
     multiplication, operator multiplication, and dagger(adjoint).
     For example,
 
+    Addition
+
     .. jupyter-execute::
 
       from qiskit_nature.operators import FermionicOp
+      0.5 * FermionicOp("I+") + FermionicOp("+I")
 
-      print("Addition")
-      print(0.5 * FermionicOp("I+") + FermionicOp("+I"))
-      print("Sum")
-      print(0.25 * sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN']))
-      print("Operator multiplication")
+    Sum
+
+    .. jupyter-execute::
+
+      0.25 * sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN'])
+
+    Operator multiplication
+
+    .. jupyter-execute::
+
       print(FermionicOp("+-") @ FermionicOp("E+"))
-      print("Dagger")
-      print(FermionicOp("+").dagger)
+
+    Dagger
+
+    .. jupyter-execute::
+
+      ~FermionicOp("+")
 
     In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
     addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
@@ -132,44 +146,31 @@ class FermionicOp(SecondQuantizedOp):
     """
 
     def __init__(
-            self,
-            data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
+        self,
+        data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
+        register_length: Optional[int] = None,
     ):
-        """Initialize the FermionicOp.
-
+        """
         Args:
             data: Input data for FermionicOp. The allowed data is label str,
                   tuple (label, coeff), or list [(label, coeff)].
+            register_length: positive integer that represents the length of registers.
 
         Raises:
-            QiskitNatureError: given data is invalid.
+            ValueError: given data is invalid value.
+            TypeError: given data has invalid type.
         """
+        self._register_length: int
+        self._coeffs: np.ndarray
+        self._labels: List[str]
+
         if not isinstance(data, (tuple, list, str)):
-            raise QiskitNatureError("Invalid input data for FermionicOp.")
+            raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
 
         if isinstance(data, tuple):
-            if isinstance(data[0], str) and isinstance(data[1], (int, float, complex)):
-                label = data[0]
-                if not self._validate_label(label):
-                    raise QiskitNatureError(
-                        "Label must be a string consisting only of "
-                        f"['I','+','-','N','E'] not: {label}"
-                    )
-                self._register_length = len(label)
-                self._labels = [label]
-                self._coeffs = [data[1]]
-            else:
-                raise QiskitNatureError(
-                    "Data tuple must be (str, number), "
-                    f"but ({type(data[0])}, {type(data[1])}) is given."
-                )
-
-        elif isinstance(data, str):
-            label = data
-            if not self._validate_label(label):
-                raise QiskitNatureError(
-                    "Label must be a string consisting only of "
-                    f"['I','+','-','N','E'] not: {label}"
+            if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
+                raise TypeError(
+                    f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
                 )
             data = [data]
 
@@ -221,35 +222,34 @@ class FermionicOp(SecondQuantizedOp):
 
     def __repr__(self) -> str:
         if len(self) == 1:
-            if self._coeffs == 1:
+            if self._coeffs[0] == 1:
                 return f"FermionicOp('{self._labels[0]}')"
-            else:
-                return f"FermionicOp(('{self._labels[0]}', {self._coeffs[0]}))"
+            return f"FermionicOp({self.to_list()[0]})"
         return f"FermionicOp({self.to_list()})"  # TODO truncate
 
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
-
-        # 1. Treat the case of the zero-operator:
-        if len(self) == 0:
-            return "Empty operator ({})".format(self.register_length)
-
-        # 2. Treat the general case:
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{label} * {coeff}"
-        return "  " + "\n+ ".join(
-            [f"{label} * {coeff}" for label, coeff in self.to_list()]
-        )
+        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
+
+    def __len__(self):
+        return len(self._labels)
+
+    @property
+    def register_length(self) -> int:
+        """Getter for the length of the fermionic register that the FermionicOp `self` acts
+        on.
+        """
+        return self._register_length
 
     def mul(self, other: complex) -> "FermionicOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
-        return FermionicOp(
-            list(zip(self._labels, [coeff * other for coeff in self._coeffs]))
-        )
+        return FermionicOp(list(zip(self._labels, (other * self._coeffs).tolist())))
 
     def compose(self, other: "FermionicOp") -> "FermionicOp":
         if isinstance(other, FermionicOp):
@@ -272,8 +272,7 @@ class FermionicOp(SecondQuantizedOp):
             return FermionicOp(new_data)
 
         raise TypeError(
-            "Unsupported operand type(s) for *: 'FermionicOp' and "
-            "'{}'".format(type(other).__name__)
+            f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
         )
 
     # Map the products of two operators on a single fermionic mode to their result.
@@ -338,40 +337,33 @@ class FermionicOp(SecondQuantizedOp):
             if count % 2 and char2 in "+-":
                 sign *= -1
 
-        return ''.join(new_label), sign
+        return "".join(new_label), sign
 
     def add(self, other: "FermionicOp") -> "FermionicOp":
         if not isinstance(other, FermionicOp):
             raise TypeError(
-                "Unsupported operand type(s) for +: 'FermionicOp' and "
-                "'{}'".format(type(other).__name__)
+                f"Unsupported operand type(s) for +: 'FermionicOp' and '{type(other).__name__}'"
             )
 
         # Check compatibility (i.e. operators act on same register length)
         if self.register_length != other.register_length:
             raise TypeError("Incompatible register lengths for '+'.")
 
-        label1, coeffs1 = zip(*self.to_list())
-        label2, coeffs2 = zip(*other.to_list())
-
-        return FermionicOp(list(zip(label1 + label2, coeffs1 + coeffs2)))
+        return FermionicOp(
+            list(
+                zip(self._labels + other._labels, np.hstack((self._coeffs, other._coeffs)).tolist())
+            )
+        )
 
     def to_list(self) -> List[Tuple[str, complex]]:
         """Getter for the operator_list of `self`"""
-        return list(zip(self._labels, self._coeffs))
-
-    @property
-    def register_length(self) -> int:
-        """Getter for the length of the fermionic register that the FermionicOp `self` acts
-        on.
-        """
-        return self._register_length
+        return list(zip(self._labels, self._coeffs.tolist()))
 
     def adjoint(self) -> "FermionicOp":
         dagger_map = {"+": "-", "-": "+", "I": "I", "N": "N", "E": "E"}
         label_list = []
         coeff_list = []
-        for label, coeff in zip(self._labels, self._coeffs):
+        for label, coeff in zip(self._labels, self._coeffs.tolist()):
             conjugated_coeff = coeff.conjugate()
 
             daggered_label = []
@@ -383,10 +375,10 @@ class FermionicOp(SecondQuantizedOp):
                     if count % 2 == 1:
                         conjugated_coeff *= -1
 
-            label_list.append(''.join(daggered_label))
+            label_list.append("".join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
-        return FermionicOp(list(zip(label_list, coeff_list)))
+        return FermionicOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))))
 
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "FermionicOp":
         if atol is None:
@@ -395,23 +387,12 @@ class FermionicOp(SecondQuantizedOp):
             rtol = self.rtol
 
         label_list, indexes = np.unique(self._labels, return_inverse=True, axis=0)
-        coeff_list = [0] * len(self._coeffs)
+        coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
         for i, val in zip(indexes, self._coeffs):
             coeff_list[i] += val
         non_zero = [
-            i
-            for i, v in enumerate(coeff_list)
-            if not np.isclose(v, 0, atol=atol, rtol=rtol)
+            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
             return FermionicOp(("I" * self.register_length, 0))
-        new_labels = label_list[non_zero].tolist()
-        new_coeffs = np.array(coeff_list)[non_zero].tolist()
-        return FermionicOp(list(zip(new_labels, new_coeffs)))
-
-    def __len__(self):
-        return len(self._labels)
-
-    @staticmethod
-    def _validate_label(label: str) -> bool:
-        return set(label).issubset({"I", "+", "-", "N", "E"})
+        return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
