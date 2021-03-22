@@ -67,6 +67,7 @@ Driver Common
    UnitsType
    BasisType
    InitialGuess
+   WatsonHamiltonian
 
 Drivers
 =======
@@ -129,11 +130,19 @@ of interest that is parsed from the log.
    GaussianLogDriver
    GaussianLogResult
 
+Submodules
+==========
+
+.. autosummary::
+   :toctree:
+
+   bosonic_bases
 
 """
 
 from .base_driver import BaseDriver
 from .qmolecule import QMolecule
+from .watson_hamiltonian import WatsonHamiltonian
 from .molecule import Molecule
 from .bosonic_driver import BosonicDriver
 from .fermionic_driver import FermionicDriver, HFMethodType
@@ -148,6 +157,7 @@ from .pyscfd import PySCFDriver, InitialGuess
 __all__ = ['HFMethodType',
            'QMolecule',
            'Molecule',
+           'WatsonHamiltonian',
            'BaseDriver',
            'BosonicDriver',
            'FermionicDriver',

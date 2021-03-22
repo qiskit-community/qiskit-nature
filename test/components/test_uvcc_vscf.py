@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """ Test of UVCC and VSCF extensions """
-
 import unittest
 import warnings
 from test import QiskitNatureTestCase

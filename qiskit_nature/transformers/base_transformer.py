@@ -13,24 +13,24 @@
 """The Base Operator Transformer interface."""
 
 from abc import ABC, abstractmethod
-
-from qiskit_nature.drivers import QMolecule
+from typing import Any
 
 
 class BaseTransformer(ABC):
-    """The interface for implementing methods which map from one `QMolecule` to another. These
-    methods may or may not affect the size of the Hilbert space.
+    """The interface for implementing methods which map from one `QMolecule` or
+    'WatsonHamiltonian' to another. These methods may or may not affect the size of the Hilbert
+    space.
     """
 
     @abstractmethod
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
-        """Transforms one `QMolecule` into another one. This may or may not affect the size of the
-        Hilbert space.
+    def transform(self, molecule_data: Any):
+        """Transforms one `QMolecule` or 'WatsonHamiltonian' into another one. This may or may
+        not affect the size of the Hilbert space.
 
         Args:
-            q_molecule: the `QMolecule` to be transformed.
+            molecule_data: the `QMolecule` or 'WatsonHamiltonian' to be transformed.
 
         Returns:
-            A new `QMolecule` instance.
+            A new `QMolecule` or 'WatsonHamiltonian' instance.
         """
         raise NotImplementedError()
