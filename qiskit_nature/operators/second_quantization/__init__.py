@@ -11,9 +11,24 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Operators (:mod:`qiskit_nature.operators.second_quantization`)
+Second-Quantization Operators for Qiskit Nature (:mod:`qiskit_nature.operators.second_quantization`)
+=======================================================================
+
+.. currentmodule:: qiskit_nature.operators.second_quantization
+
+Second-Quantization Operators
+==============================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   FermionicOp
+   SpinOp
+   SecondQuantizedOp
+   VibrationalSpinOp
 """
 
 from .fermionic_op import FermionicOp
 from .spin_op import SpinOp
 from .second_quantized_op import SecondQuantizedOp
+from .vibrational_spin_op import VibrationalSpinOp

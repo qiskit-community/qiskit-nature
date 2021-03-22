@@ -1,4 +1,5 @@
 adag
+adaptivity
 adjoint
 aer
 aij
@@ -203,6 +204,7 @@ prebuilt
 prepend
 preprocesses
 pucc
+puccd
 py
 pyquante
 pyscf
@@ -232,6 +234,7 @@ scf
 scikit
 scipy
 sd
+sdt
 secondquantizedop
 seeley
 sergey
@@ -247,6 +250,7 @@ subclasses
 submodules
 substrings
 succ
+succd
 sudo
 superclass
 superfast

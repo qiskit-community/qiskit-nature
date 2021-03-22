@@ -19,11 +19,11 @@ from .base_transformer import BaseTransformer
 class ParticleHoleTransformer(BaseTransformer):
     """The Particle/Hole transformer."""
 
-    def transform(self, q_molecule: QMolecule) -> QMolecule:
+    def transform(self, molecule_data: QMolecule) -> QMolecule:
         """Transforms the given `QMolecule` into the particle/hole view.
 
         Args:
-            q_molecule: the `QMolecule` to be transformed.
+            molecule_data: the `QMolecule` to be transformed.
 
         Returns:
             A new `QMolecule` instance.
