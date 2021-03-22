@@ -137,7 +137,6 @@ Chemistry Classes
 
    BosonicOperator
    FermionicOperator
-   WatsonHamiltonian
 
 Submodules
 ==========
@@ -157,11 +156,9 @@ Submodules
 from .bosonic_operator import BosonicOperator
 from .exceptions import QiskitNatureError
 from .fermionic_operator import FermionicOperator
-from .watson_hamiltonian import WatsonHamiltonian
 
 __all__ = [
     'QiskitNatureError',
-    'WatsonHamiltonian',
     'BosonicOperator',
     'FermionicOperator',
 ]
