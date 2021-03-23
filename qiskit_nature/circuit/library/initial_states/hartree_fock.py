@@ -13,7 +13,7 @@
 """Hartree-Fock initial state."""
 
 from typing import List, Tuple
-import logging
+
 import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
@@ -21,8 +21,6 @@ from qiskit.utils.validation import validate_min
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-
-logger = logging.getLogger(__name__)
 
 # TODO: There are still some open questions on the exact design/implementation of this class, which
 # can only be resolved once we finalize the QubitConverter and implement the Z2 symmetry reduction
