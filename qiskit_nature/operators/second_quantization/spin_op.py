@@ -527,7 +527,7 @@ class SpinOp(SecondQuantizedOp):
                 label_list = label.split()
                 for pos, op in zip(positions, ops):
                     label_list[pos] = op
-                for pos, op in zip(positions, ops):
+                for pos in sorted(positions, reverse=True):
                     label_list.pop(pos+1)
                 new_data.append((" ".join(label_list), coeff))
         return new_data
