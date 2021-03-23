@@ -1,3 +1,4 @@
+include LICENSE.txt
 include requirements.txt
 recursive-include qiskit_nature *.txt
 graft qiskit_nature/drivers/gaussiand/gauopen
