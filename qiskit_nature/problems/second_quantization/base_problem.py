@@ -48,3 +48,6 @@ class BaseProblem(ABC):
         for transformer in self.transformers:
             data = transformer.transform(data)
         return data
+
+    def interpret(self, raw_mes_result):
+        pass

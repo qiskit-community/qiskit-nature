@@ -664,7 +664,7 @@ class FermionicTransformation(Transformation):
                 symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
                 commuting = qubit_op.primitive.table.commutes_with_all(
                     symmetry_op.primitive.table)
-                anticommuting = qubit_op.primtive.table.anticommutes_with_all(
+                anticommuting = qubit_op.primitive.table.anticommutes_with_all(
                     symmetry_op.primitive.table)
 
                 if commuting != anticommuting:  # only one of them is True
