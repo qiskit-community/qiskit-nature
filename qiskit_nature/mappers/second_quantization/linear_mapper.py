@@ -13,83 +13,112 @@
 """The Linear Mapper."""
 
 import numpy as np
+from typing import List, Optional, Union
+from fractions import Fraction
+import copy
 
 from qiskit.opflow import PauliSumOp
 from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
 from .spin_mapper import SpinMapper
-from .qubit_mapper import QubitMapper
-from ... import QiskitNatureError
-from typing import List, Tuple
-
 
 class LinearMapper(SpinMapper):
     """The Linear spin-to-qubit mapping. """
 
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
 
-        nmodes = second_q_op.register_length
+        qubit_ops_list = []
 
-        pauli_table = []
-        for i in range(nmodes):
-            a_z = np.asarray([0] * i + [0] + [0] * (nmodes - i - 1), dtype=bool)
-            a_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
-            b_z = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
-            b_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
+        # get transformed generalised spin matrices transformed_xyzi
+        spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
 
-            pauli_table.append((Pauli(a_z, a_x), Pauli(b_z, b_x)))
+        for _, op in enumerate(second_q_op.to_list()):
 
-        return self.mode_based_mapping(second_q_op, pauli_table)
+            operatorlist = []
 
-    @staticmethod
-    def mode_based_mapping(second_q_op: SecondQuantizedOp,
-                           pauli_table: List[Tuple[Pauli, Pauli]]) -> PauliSumOp:
-        """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
+            oper, coeff = op
 
+            for nx, ny, nz in zip(second_q_op.x[_], second_q_op.y[_], second_q_op.z[_]):
+
+                operator_on_spin_i = []
+
+                if nx > 0:
+                    # construct the qubit operator embed(X^nx)
+                    operator_on_spin_i.append(self._operator_product([spinx for i in range(int(nx))]))
+
+                if ny > 0:
+                    # construct the qubit operator embed(Y^ny)
+                    operator_on_spin_i.append(self._operator_product([spiny for i in range(int(ny))]))
+
+                if nz > 0:
+                    # construct the qubit operator embed(Z^nz)
+                    operator_on_spin_i.append(self._operator_product([spinz for i in range(int(nz))]))
+
+                if np.any([nx, ny, nz]) > 0:
+                    # multiply X^nx * Y^ny * Z^nz
+                    operator_on_spin_i = self._operator_product(operator_on_spin_i)
+                    operatorlist.append(operator_on_spin_i)
+
+                else:
+                    # If nx=ny=nz=0, simply add the embedded Identity operator.
+                    operatorlist.append(identity)
+
+                # `operatorlist` is now a list of (sums of pauli strings) which still need to be tensored together
+                # to get the final operator
+                # first we reduce operators
+
+                operatorlist_red = []
+
+                for op in operatorlist:
+                    operatorlist_red.append(op.reduce())
+
+                operatorlist = operatorlist_red
+
+            qubit_ops_list.append(self._tensor_ops(operatorlist, coeff))
+
+        qubit_op = self._operator_sum(qubit_ops_list)
+
+        return qubit_op
+
+    def _operator_sum(self, op_list):
+        """Calculates the sum of all elements of a non-empty list
         Args:
-            second_q_op: the `SecondQuantizedOp` to be mapped.
-            pauli_table: a table of paulis built according to the modes of the operator
-
+            op_list (list):
+                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
         Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-
-        Raises:
-            QiskitNatureError: If number length of pauli table does not match the number
-                of operator modes, or if the operator has unexpected label content
+            obj1 + obj2 + ... + objN
         """
-        # nmodes = len(pauli_table)
-        #
-        # if nmodes != second_q_op.register_length:
-        #     raise QiskitNatureError(f"Pauli table len {nmodes} does not match"
-        #                             f"operator register length {second_q_op.register_length}")
-        #
-        # all_false = np.asarray([False] * nmodes, dtype=bool)
-        #
-        # ret_op_list = []
-        #
-        # for label, coeff in second_q_op.to_list():
-        #
-        #     ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[coeff])
-        #
-        #     for char in label.split(' '):
-        #         ixyz, rest = char.split('_')
-        #         rest = rest.split('^')
-        #         position = int(rest[0])
-        #
-        #         power = None
-        #         if len(rest) == 2:
-        #             power = rest[1]
-        #
-        #         print(ixyz, position, power)
-        #
-        # zero_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[0])
-        #return PauliSumOp(sum(ret_op_list, zero_op)).reduce()
+        assert len(op_list) > 0, 'Operator list must be non-empty'
 
-        raise NotImplementedError()
+        if len(op_list) == 1:
+            return copy.deepcopy(op_list[0])
+        else:
+            op_sum = copy.deepcopy(op_list[0])
+            for elem in op_list[1:]:
+                op_sum += elem
+        return op_sum
 
-    def _linear_encoding(self, spin):
+    def _operator_product(self,op_list):
+        """
+        Calculates the product of all elements in a non-empty list.
+        Args:
+            op_list (list):
+                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
+        Returns:
+            obj1 * obj2 * ... * objN
+        """
+        assert len(op_list) > 0, 'Operator list must be non-empty'
+
+        if len(op_list) == 1:
+            return op_list[0]
+        else:
+            op_prod = op_list[0]
+            for elem in op_list[1:]:
+                op_prod = op_prod @ elem
+        return op_prod
+
+    def _linear_encoding(self, S: Union[Fraction, float]):
         """
         Generates a 'linear_encoding' of the spin S operators 'X', 'Y', 'Z' and 'identity'
         to qubit operators (linear combinations of pauli strings).
@@ -103,9 +132,6 @@ class LinearMapper(SpinMapper):
                     self.transformed_XYZI[0] corresponds to the linear combination of pauli strings needed
                     to represent the embedded 'X' operator
         """
-        print('Linear encoding is calculated.')
-
-        S = spin
 
         transformed_XYZI = []
         dim_S = int(2 * S + 1)
@@ -136,6 +162,10 @@ class LinearMapper(SpinMapper):
         for i, coeff in enumerate(np.diag(SpinOp("Z", spin=S).to_matrix())):  # get the first upper diagonal of coeff.
             z_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_z(i)) +
                                          coeff / 2. * SparsePauliOp(pauli_id)))
+
+        #             WeightedPauliOperator(paulis=[[coeff/2., pauli_z(i)],
+        #                                            [coeff/2., pauli_id]])
+        #                           )
         z_operator = self._operator_sum(z_summands)
         transformed_XYZI.append(z_operator)
 
@@ -145,39 +175,17 @@ class LinearMapper(SpinMapper):
         # return the lookup table for the transformed XYZI operators
         return transformed_XYZI
 
-    def _operator_sum(op_list):
-        """Calculates the sum of all elements of a non-empty list
-        Args:
-            op_list (list):
-                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
-        Returns:
-            obj1 + obj2 + ... + objN
-        """
-        assert len(op_list) > 0, 'Operator list must be non-empty'
+    def _tensor_ops(self, operatorlist: List, coeff: complex):
 
-        if len(op_list) == 1:
-            return copy.deepcopy(op_list[0])
+        if len(operatorlist) == 1:
+            tensored_op = operatorlist[0]
+
+        elif len(operatorlist) > 1:
+            tensored_op = operatorlist[0]
+
+            for op in operatorlist[1:]:
+                tensored_op = tensored_op ^ op
         else:
-            op_sum = copy.deepcopy(op_list[0])
-            for elem in op_list[1:]:
-                op_sum += elem
-        return op_sum
+            raise 'Unsupported list provided'
 
-    def _operator_product(op_list):
-        """
-        Calculates the product of all elements in a non-empty list.
-        Args:
-            op_list (list):
-                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
-        Returns:
-            obj1 * obj2 * ... * objN
-        """
-        assert len(op_list) > 0, 'Operator list must be non-empty'
-
-        if len(op_list) == 1:
-            return op_list[0]
-        else:
-            op_prod = op_list[0]
-            for elem in op_list[1:]:
-                op_prod *= elem
-        return op_prod
+        return coeff * tensored_op
