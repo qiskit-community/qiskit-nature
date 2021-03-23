@@ -18,8 +18,6 @@ from typing import Any, Callable, List, Optional, Tuple, Union
 
 import logging
 
-import numpy as np
-
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import PauliTrotterEvolution
 from qiskit_nature import QiskitNatureError
@@ -202,19 +200,6 @@ class UCC(EvolvedOperatorAnsatz):
         """Sets the excitations."""
         self._invalidate()
         self._excitations = exc
-
-    # TODO: the `preferred_init_points`-implementation can (and should!) be improved!
-    @property
-    def preferred_init_points(self):
-        """Getter of preferred initial points based on the given initial state."""
-        if self._initial_state is None:
-            return None
-        else:
-            # If an initial state was set by the user, then we want to make sure that the VQE does
-            # not start from a random point. Thus, we return an all-zero initial point for the
-            # optimizer which is used (unless it gets overwritten by a higher-priority setting at
-            # runtime of the VQE).
-            return np.zeros(self.reps * len(self.operators), dtype=float)
 
     def _invalidate(self):
         self._excitation_ops = None
