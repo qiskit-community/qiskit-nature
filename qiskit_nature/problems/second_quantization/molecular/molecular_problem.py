@@ -11,7 +11,8 @@
 # that they have been altered from the originals.
 
 """The Molecular Problem class."""
-from typing import List, Tuple, Optional, cast, Union
+from functools import partial
+from typing import List, Tuple, Optional, cast, Union, Callable
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 import numpy as np
@@ -182,3 +183,26 @@ class MolecularProblem(BaseProblem):
                          self._q_molecule_transformed.z_dip_energy_shift))
 
         return result
+
+    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
+                                                                 Optional[List[float]]], bool]]:
+        """Returns a default filter criterion method to filter the eigenvalues computed by the
+        eigen solver. For more information see also
+        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+
+        In the fermionic case the default filter ensures that the number of particles is being
+        preserved.
+        """
+
+        # pylint: disable=unused-argument
+        def filter_criterion(self, eigenstate, eigenvalue, aux_values):
+            # the first aux_value is the evaluated number of particles
+            num_particles_aux = aux_values[0][0]
+            # the second aux_value is the total angular momentum which (for singlets) should be zero
+            total_angular_momentum_aux = aux_values[1][0]
+            return np.isclose(
+                sum(self._q_molecule_transformed.num_alpha, self._q_molecule_transformed.num_beta),
+                num_particles_aux) and \
+                   np.isclose(0., total_angular_momentum_aux)
+
+        return partial(filter_criterion, self)

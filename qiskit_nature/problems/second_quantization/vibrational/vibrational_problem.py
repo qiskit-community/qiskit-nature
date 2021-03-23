@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """The Vibrational Problem class."""
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Callable
 
 from qiskit.algorithms import MinimumEigensolverResult, EigensolverResult
 import numpy as np
@@ -105,3 +105,15 @@ class VibrationalProblem(BaseProblem):
                 result.num_occupied_modals_per_mode.append(occ_modals)  # type: ignore
 
         return result
+
+    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
+                                                                 Optional[List[float]]], bool]]:
+        """Returns a default filter criterion method to filter the eigenvalues computed by the
+        eigen solver. For more information see also
+        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+
+        In the fermionic case the default filter ensures that the number of particles is being
+        preserved.
+        """
+
+        raise NotImplementedError()
