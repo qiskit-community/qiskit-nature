@@ -11,8 +11,9 @@
 # that they have been altered from the originals.
 # This code is part of Qiskit.
 """The Base Problem class."""
+import numpy as np
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Callable, Union
 
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.transformers import BaseTransformer
@@ -50,4 +51,16 @@ class BaseProblem(ABC):
         return data
 
     def interpret(self, raw_mes_result):
-        pass
+        raise NotImplementedError()
+
+    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
+                                                                 Optional[List[float]]], bool]]:
+        """Returns a default filter criterion method to filter the eigenvalues computed by the
+        eigen solver. For more information see also
+        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+
+        In the fermionic case the default filter ensures that the number of particles is being
+        preserved.
+        """
+
+        raise NotImplementedError()
