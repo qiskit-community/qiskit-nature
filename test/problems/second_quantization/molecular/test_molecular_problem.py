@@ -51,13 +51,13 @@ class TestMolecularProblem(QiskitNatureTestCase):
     def test_second_q_ops_with_active_space(self):
         """Tests that the correct second quantized operator is created if an active space
         transformer is provided."""
-        expected_num_of_sec_quant_ops = 4
+        expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_active_space',
                                                             'problems/second_quantization/'
                                                             'molecular/resources')
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_orbitals=2)
+        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
         molecular_problem = MolecularProblem(driver, [trafo])
         second_quantized_ops = molecular_problem.second_q_ops()
