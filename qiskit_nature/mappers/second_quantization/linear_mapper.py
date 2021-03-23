@@ -88,3 +88,60 @@ class LinearMapper(SpinMapper):
         #return PauliSumOp(sum(ret_op_list, zero_op)).reduce()
 
         raise NotImplementedError()
+
+    def _linear_encoding(self, spin):
+        """
+        Generates a 'linear_encoding' of the spin S operators 'X', 'Y', 'Z' and 'identity'
+        to qubit operators (linear combinations of pauli strings).
+        In this 'linear_encoding' each individual spin S system is represented via
+        2S+1 qubits and the state |s> is mapped to the state |00...010..00>, where the s-th qubit is
+        in state 1.
+        Returns:
+            self.transformed_XYZI: list,
+                The 4-element list of transformed spin S 'X', 'Y', 'Z' and 'identity' operators.
+                I.e.
+                    self.transformed_XYZI[0] corresponds to the linear combination of pauli strings needed
+                    to represent the embedded 'X' operator
+        """
+        print('Linear encoding is calculated.')
+
+        S = spin
+
+        transformed_XYZI = []
+        dim_S = int(2 * S + 1)
+        nqubits = dim_S
+
+        # quick functions to generate a pauli with X / Y / Z at location `i`
+        pauli_id = Pauli.from_label('I' * nqubits)
+        pauli_x = lambda i: Pauli.from_label('I' * i + 'X' + 'I' * (nqubits - i - 1))
+        pauli_y = lambda i: Pauli.from_label('I' * i + 'Y' + 'I' * (nqubits - i - 1))
+        pauli_z = lambda i: Pauli.from_label('I' * i + 'Z' + 'I' * (nqubits - i - 1))
+
+        # 1. build the non-diagonal X operator
+        x_summands = []
+        for i, coeff in enumerate(np.diag(SpinOp("X", spin=S).to_matrix(), 1)):
+            x_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_x(i) * pauli_x(i + 1)) +
+                                         coeff / 2. * SparsePauliOp(pauli_y(i) * pauli_y(i + 1))))
+        transformed_XYZI.append(operator_sum(x_summands))
+
+        # 2. build the non-diagonal Y operator
+        y_summands = []
+        for i, coeff in enumerate(np.diag(SpinOp("Y", spin=S).to_matrix(), 1)):
+            y_summands.append(PauliSumOp(-1j * coeff / 2. * SparsePauliOp(pauli_x(i) * pauli_y(i + 1)) +
+                                         1j * coeff / 2. * SparsePauliOp(pauli_y(i) * pauli_x(i + 1))))
+        transformed_XYZI.append(operator_sum(y_summands))
+
+        # 3. build the diagonal Z
+        z_summands = []
+        for i, coeff in enumerate(np.diag(SpinOp("Z", spin=S).to_matrix())):  # get the first upper diagonal of coeff.
+            z_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_z(i)) +
+                                         coeff / 2. * SparsePauliOp(pauli_id)))
+        z_operator = operator_sum(z_summands)
+        transformed_XYZI.append(z_operator)
+
+        # 4. add the identity operator
+        transformed_XYZI.append(PauliSumOp(1. * SparsePauliOp(pauli_id)))
+
+        # return the lookup table for the transformed XYZI operators
+        return transformed_XYZI
+
