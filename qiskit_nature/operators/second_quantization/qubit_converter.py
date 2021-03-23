@@ -40,7 +40,7 @@ class QubitConverter:
         self._mapper = mapper
         self._two_qubit_reduction = two_qubit_reduction
         self._z2symmetry_reduction = None
-        self.z2symmetry_reduction = z2symmetry_reduction # Setter does validation
+        self.z2symmetry_reduction = z2symmetry_reduction  # Setter does validation
 
         self._conversion_done = False
         self._did_two_qubit_reduction = False
@@ -57,9 +57,10 @@ class QubitConverter:
         self._conversion_done = True
 
     def _check_valid(self):
-        if not self._conversion_done :
+        if not self._conversion_done:
             raise QiskitNatureError("Properties are valid only after a conversion has been done"
                                     "Conversion state is reset if any settings are updated")
+
     @property
     def _no_symmetries(self) -> Z2Symmetries:
         return Z2Symmetries([], [], [], None)
@@ -146,6 +147,10 @@ class QubitConverter:
             then the position in the output list will be set to `None` to preserve the order.
         """
         self._invalidate()  # Invalidate state before conversion is attempted
+        # TODO, do not reset state rather allow subsequent uses of the conversion
+        # where they are done according to the first one. Any use of setters to change
+        # properties will of course reset things so the next conversion will be locked in
+        # and so on
 
         if z2symmetry_reduction is not None:
             self.z2symmetry_reduction = z2symmetry_reduction
