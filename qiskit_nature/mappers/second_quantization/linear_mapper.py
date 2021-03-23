@@ -122,21 +122,21 @@ class LinearMapper(SpinMapper):
         for i, coeff in enumerate(np.diag(SpinOp("X", spin=S).to_matrix(), 1)):
             x_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_x(i) * pauli_x(i + 1)) +
                                          coeff / 2. * SparsePauliOp(pauli_y(i) * pauli_y(i + 1))))
-        transformed_XYZI.append(operator_sum(x_summands))
+        transformed_XYZI.append(self._operator_sum(x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
         for i, coeff in enumerate(np.diag(SpinOp("Y", spin=S).to_matrix(), 1)):
             y_summands.append(PauliSumOp(-1j * coeff / 2. * SparsePauliOp(pauli_x(i) * pauli_y(i + 1)) +
                                          1j * coeff / 2. * SparsePauliOp(pauli_y(i) * pauli_x(i + 1))))
-        transformed_XYZI.append(operator_sum(y_summands))
+        transformed_XYZI.append(self._operator_sum(y_summands))
 
         # 3. build the diagonal Z
         z_summands = []
         for i, coeff in enumerate(np.diag(SpinOp("Z", spin=S).to_matrix())):  # get the first upper diagonal of coeff.
             z_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_z(i)) +
                                          coeff / 2. * SparsePauliOp(pauli_id)))
-        z_operator = operator_sum(z_summands)
+        z_operator = self._operator_sum(z_summands)
         transformed_XYZI.append(z_operator)
 
         # 4. add the identity operator
@@ -145,3 +145,39 @@ class LinearMapper(SpinMapper):
         # return the lookup table for the transformed XYZI operators
         return transformed_XYZI
 
+    def _operator_sum(op_list):
+        """Calculates the sum of all elements of a non-empty list
+        Args:
+            op_list (list):
+                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
+        Returns:
+            obj1 + obj2 + ... + objN
+        """
+        assert len(op_list) > 0, 'Operator list must be non-empty'
+
+        if len(op_list) == 1:
+            return copy.deepcopy(op_list[0])
+        else:
+            op_sum = copy.deepcopy(op_list[0])
+            for elem in op_list[1:]:
+                op_sum += elem
+        return op_sum
+
+    def _operator_product(op_list):
+        """
+        Calculates the product of all elements in a non-empty list.
+        Args:
+            op_list (list):
+                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
+        Returns:
+            obj1 * obj2 * ... * objN
+        """
+        assert len(op_list) > 0, 'Operator list must be non-empty'
+
+        if len(op_list) == 1:
+            return op_list[0]
+        else:
+            op_prod = op_list[0]
+            for elem in op_list[1:]:
+                op_prod *= elem
+        return op_prod
