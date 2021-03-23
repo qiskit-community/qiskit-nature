@@ -35,7 +35,6 @@ class CHC:
 
     def __init__(self, num_qubits: Optional[int] = None, reps: int = 1, ladder: bool = False,
                  excitations: Optional[List[List[int]]] = None,
-                 entanglement: Union[str, List[int]] = 'full',  # pylint: disable=unused-argument
                  initial_state: Optional[QuantumCircuit] = None) -> None:
         """
 
@@ -44,7 +43,6 @@ class CHC:
             reps: number of replica of basic module
             ladder: use ladder of CNOTs between to indices in the entangling block
             excitations: indices corresponding to the excitations to include in the circuit
-            entanglement: physical connections between the qubits
             initial_state: an initial state to prepend to the variational form
         """
 
@@ -52,7 +50,6 @@ class CHC:
         self._num_qubits = num_qubits
         self._reps = reps
         self._excitations = None
-        self._entangler_map = None
         self._initial_state = None
         self._ladder = ladder
         self._num_parameters = len(excitations) * reps
