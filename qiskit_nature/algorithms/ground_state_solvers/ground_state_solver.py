@@ -18,13 +18,19 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit.algorithms import MinimumEigensolver
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.opflow import OperatorBase, PauliSumOp
+
+from .. import MinimumEigensolverFactory
 from ...fermionic_operator import FermionicOperator
 from ...bosonic_operator import BosonicOperator
 from ...drivers.base_driver import BaseDriver
+from ...mappers.second_quantization import QubitMapper
+from ...operators.second_quantization.qubit_converter import QubitConverter
+from ...problems.second_quantization.base_problem import BaseProblem
 from ...results.electronic_structure_result import ElectronicStructureResult
 from ...results.vibronic_structure_result import VibronicStructureResult
 from ...transformations.transformation import Transformation
@@ -33,30 +39,16 @@ from ...transformations.transformation import Transformation
 class GroundStateSolver(ABC):
     """The ground state calculation interface"""
 
-    def __init__(self, transformation: Transformation) -> None:
+    def __init__(self, qubit_converter: QubitConverter) -> None:
         """
         Args:
-            transformation: transformation from driver to qubit operator (and aux. operators)
+            qubit_mappers: transformation from driver to qubit operator (and aux. operators)
         """
-        self._transformation = transformation
-
-    @property
-    def transformation(self) -> Transformation:
-        """Returns the transformation used to obtain a qubit operator from the molecule."""
-        return self._transformation
-
-    @transformation.setter
-    def transformation(self, transformation: Transformation) -> None:
-        """Sets the transformation used to obtain a qubit operator from the molecule."""
-        self._transformation = transformation
+        self._qubit_converter=qubit_converter
 
     @abstractmethod
-    def solve(self,
-              driver: BaseDriver,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None) \
+    def solve(self, problem: BaseProblem) \
             -> Union[ElectronicStructureResult, VibronicStructureResult]:
-
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:

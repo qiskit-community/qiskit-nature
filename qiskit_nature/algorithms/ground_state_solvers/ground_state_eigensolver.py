@@ -25,6 +25,9 @@ from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 from ...fermionic_operator import FermionicOperator
 from ...bosonic_operator import BosonicOperator
 from ...drivers.base_driver import BaseDriver
+from ...mappers.second_quantization import QubitMapper
+from ...operators.second_quantization.qubit_converter import QubitConverter
+from ...problems.second_quantization.base_problem import BaseProblem
 from ...transformations.transformation import Transformation
 from ...results.electronic_structure_result import ElectronicStructureResult
 from ...results.vibronic_structure_result import VibronicStructureResult
@@ -36,15 +39,15 @@ from .minimum_eigensolver_factories import MinimumEigensolverFactory
 class GroundStateEigensolver(GroundStateSolver):
     """Ground state computation using a minimum eigensolver."""
 
-    def __init__(self, transformation: Transformation,
+    def __init__(self, qubit_converter: QubitConverter,
                  solver: Union[MinimumEigensolver, MinimumEigensolverFactory]) -> None:
         """
 
         Args:
-            transformation: Qubit Operator Transformation
+
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
-        super().__init__(transformation)
+        super().__init__(qubit_converter)
         self._solver = solver
 
     @property
@@ -61,20 +64,13 @@ class GroundStateEigensolver(GroundStateSolver):
         """Whether the eigensolver returns the ground state or only ground state energy."""
         return self._solver.supports_aux_operators()
 
-    def solve(self,
-              driver: BaseDriver,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None) \
+    def solve(self, problem: BaseProblem) \
             -> Union[ElectronicStructureResult, VibronicStructureResult]:
 
         """Compute Ground State properties.
 
         Args:
-            driver: a chemistry driver object which defines the chemical problem that is to be
-                    solved by this calculation.
-            aux_operators: Additional auxiliary operators to evaluate at the ground state.
-                Depending on whether a fermionic or bosonic system is solved, the type of the
-                operators must be ``FermionicOperator`` or ``BosonicOperator``, respectively.
+
 
         Raises:
             NotImplementedError: If an operator in ``aux_operators`` is not of type
@@ -87,21 +83,27 @@ class GroundStateEigensolver(GroundStateSolver):
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        operator, aux_ops = self.transformation.transform(driver, aux_operators)
+        second_quant_operator, *second_quant_aux_ops = problem.second_q_ops()
+        qubit_operator = self._qubit_converter.to_qubit_ops(second_quant_operator)
+        qubit_ops_aux = []
+        for aux_op in second_quant_aux_ops:
+            qubit_ops_aux.append(self._qubit_converter.to_qubit_ops(aux_op))
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
-            solver = self._solver.get_solver(self.transformation)
+            solver = self._solver.get_solver(
+                problem.get_default_filter_criterion())  # TODO what to input here?
         else:
             solver = self._solver
-
         # if the eigensolver does not support auxiliary operators, reset them
-        if not solver.supports_aux_operators():
-            aux_ops = None
+        if not self.solver.supports_aux_operators():
+            qubit_ops_aux = None
 
-        raw_mes_result = solver.compute_minimum_eigenvalue(operator, aux_ops)
+        # TODO incompatible types
+        main_operator = qubit_operator[0]
+        raw_mes_result = self.solver.compute_minimum_eigenvalue(main_operator, qubit_ops_aux)
 
-        result = self.transformation.interpret(raw_mes_result)
+        result = problem.interpret(raw_mes_result)
         return result
 
     def evaluate_operators(self,
