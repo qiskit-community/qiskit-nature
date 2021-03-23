@@ -48,7 +48,7 @@ class TestBOPES(unittest.TestCase):
                      degrees_of_freedom=[dof])
 
         mapper = ParityMapper()
-        converter = QubitConverter(mappers=mapper)
+        converter = QubitConverter(mapper=mapper)
 
         f_t = FermionicTransformation()
         driver = PySCFDriver(molecule=m)

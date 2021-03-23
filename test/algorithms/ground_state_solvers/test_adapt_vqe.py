@@ -88,7 +88,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 z2_symmetries = transformation.molecule_info['z2_symmetries']
 
                 mapper = ParityMapper()
-                converter = QubitConverter(mappers=mapper)
+                converter = QubitConverter(mapper=mapper)
                 initial_state = HartreeFock(num_orbitals, num_particles, converter)
                 var_form = UCCSD(num_orbitals=num_orbitals,
                                  num_particles=num_particles,

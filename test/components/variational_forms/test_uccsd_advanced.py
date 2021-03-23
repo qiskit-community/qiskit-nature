@@ -46,7 +46,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
                                       charge=0,
                                       spin=0,
                                       basis='631g')
-            self.qubit_converter = QubitConverter(mappers=ParityMapper())
+            self.qubit_converter = QubitConverter(mapper=ParityMapper())
             self.fermionic_transformation = \
                 FermionicTransformation(transformation=FermionicTransformationType.FULL,
                                         qubit_mapping=FermionicQubitMappingType.PARITY,

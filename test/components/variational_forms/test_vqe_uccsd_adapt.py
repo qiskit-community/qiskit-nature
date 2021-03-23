@@ -55,7 +55,7 @@ class TestAdaptVQEUCCSD(QiskitNatureTestCase):
         qubit_op = fer_op.mapping(map_type)
         self.qubit_op = TwoQubitReduction(num_particles=self.num_particles).convert(qubit_op)
         self.num_qubits = self.qubit_op.num_qubits
-        converter = QubitConverter(mappers=ParityMapper())
+        converter = QubitConverter(mapper=ParityMapper())
         self.init_state = HartreeFock(self.num_spin_orbitals, self.num_particles, converter)
         self.var_form_base = None
 
@@ -85,7 +85,7 @@ class TestAdaptVQEUCCSD(QiskitNatureTestCase):
             def get_solver(self, transformation):
                 num_orbitals = transformation.molecule_info['num_orbitals']
                 num_particles = transformation.molecule_info['num_particles']
-                converter = QubitConverter(mappers=ParityMapper())
+                converter = QubitConverter(mapper=ParityMapper())
                 initial_state = HartreeFock(num_orbitals, num_particles, converter)
                 var_form = UCCSD(num_orbitals,
                                  num_particles,
