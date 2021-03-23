@@ -23,7 +23,8 @@ from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature import BosonicOperator
 from qiskit_nature.circuit.library import VSCF
-from qiskit_nature.components.variational_forms import UVCC, CHC
+from qiskit_nature.circuit.library.ansatzes import CHC
+from qiskit_nature.components.variational_forms import UVCC
 
 
 @unittest.skip("Skip test until refactored.")

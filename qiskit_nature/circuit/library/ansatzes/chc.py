@@ -17,11 +17,12 @@ from typing import List, Optional, Union
 import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
+from qiskit.circuit.library import BlueprintCircuit
 
 from qiskit.circuit import ParameterVector, Parameter
 
 
-class CHC:
+class CHC(BlueprintCircuit):
     """ This trial wavefunction is the Compact Heuristic for Chemistry.
 
     The trial wavefunction is as defined in
@@ -33,31 +34,41 @@ class CHC:
         with the number of excitations.
     """
 
-    def __init__(self, num_qubits: Optional[int] = None, reps: int = 1, ladder: bool = False,
+    def __init__(self,
+                 num_qubits: Optional[int] = None,
                  excitations: Optional[List[List[int]]] = None,
+                 reps: int = 1,
+                 ladder: bool = False,
                  initial_state: Optional[QuantumCircuit] = None) -> None:
         """
 
         Args:
             num_qubits: number of qubits
+            excitations: indices corresponding to the excitations to include in the circuit
             reps: number of replica of basic module
             ladder: use ladder of CNOTs between to indices in the entangling block
-            excitations: indices corresponding to the excitations to include in the circuit
             initial_state: an initial state to prepend to the variational form
         """
 
         super().__init__()
-        self._num_qubits = num_qubits
         self._reps = reps
+        self._bounds = None
+        self._ladder = ladder
+        self._num_qubits = None
         self._excitations = None
         self._initial_state = None
-        self._ladder = ladder
-        self._num_parameters = len(excitations) * reps
-        self._excitations = excitations
-        self._bounds = [(-np.pi, np.pi)] * self._num_parameters
-        self._num_qubits = num_qubits
-        self._initial_state = initial_state
+        self._num_parameters = None
+        self._ordered_parameters = ParameterVector(name='θ')
         self._support_parameterized_circuit = True
+
+        if num_qubits is not None:
+            self.num_qubits = num_qubits
+
+        if excitations is not None:
+            self.excitations = excitations
+
+        if initial_state is not None:
+            self._initial_state = initial_state
 
     @property
     def num_qubits(self) -> int:
@@ -75,10 +86,110 @@ class CHC:
         Args:
            num_qubits: An integer indicating the number of qubits.
         """
-        self._num_qubits = num_qubits
+        if self._num_qubits != num_qubits:
+            # invalidate the circuit
+            self._invalidate()
+            self._num_qubits = num_qubits
+            self.qregs = [QuantumRegister(num_qubits, name='q')]
 
-    def construct_circuit(self, parameters: Union[np.ndarray, List[Parameter], ParameterVector],
-                          q: Optional[QuantumRegister] = None) -> QuantumCircuit:
+    @property
+    def excitations(self) -> List[List[int]]:
+        """The excitation indices to be included in the circuit."""
+        return self._excitations
+
+    @excitations.setter
+    def excitations(self, excitations: List[List[int]]) -> None:
+        """Sets the excitation indices to be included in the circuit."""
+        self._invalidate()
+        self._excitations = excitations
+        self._num_parameters = len(excitations) * self._reps
+        self._bounds = [(-np.pi, np.pi)] * self._num_parameters
+
+    @property
+    def initial_state(self) -> QuantumCircuit:
+        """The initial state."""
+        return self._initial_state
+
+    @initial_state.setter
+    def initial_state(self, initial_state: QuantumCircuit) -> None:
+        """Sets the initial state."""
+        self._invalidate()
+        self._initial_state = initial_state
+
+    def _check_configuration(self, raise_on_failure: bool = True) -> bool:
+        """Check if the configuration of the CHC class is valid.
+
+        Args:
+            raise_on_failure: Whether to raise on failure.
+
+        Returns:
+            True, if the configuration is valid and the circuit can be constructed. Otherwise
+            an ValueError is raised.
+
+        Raises:
+            ValueError: If the number of qubits is not specified.
+            ValueError: If the number of parameters is not specified.
+            ValueError: If the excitation list is not specified.
+        """
+        error_msg = 'The %s is None but must be set before the circuit can be built.'
+        if self._num_qubits is None:
+            if raise_on_failure:
+                raise ValueError(error_msg, 'number of qubits')
+            return False
+
+        if self._num_parameters is None:
+            if raise_on_failure:
+                raise ValueError(error_msg, 'number of parameters')
+            return False
+
+        if self._excitations is None:
+            if raise_on_failure:
+                raise ValueError(error_msg, 'excitation list')
+            return False
+
+        return True
+
+    @property
+    def ordered_parameters(self) -> List[Parameter]:
+        """The parameters used in the underlying circuit.
+
+        This includes float values and duplicates.
+
+        For more details see :class:`~.NLocal`.
+        TODO: check docstring.
+
+        Returns:
+            The parameters objects used in the circuit.
+        """
+        if isinstance(self._ordered_parameters, ParameterVector):
+            self._ordered_parameters.resize(self._num_parameters)
+            return list(self._ordered_parameters)
+
+        return self._ordered_parameters
+
+    @ordered_parameters.setter
+    def ordered_parameters(self, parameters: Union[ParameterVector, List[Parameter]]
+                           ) -> None:
+        """Set the parameters used in the underlying circuit.
+
+        Args:
+            The parameters to be used in the underlying circuit.
+
+        Raises:
+            ValueError: If the length of ordered parameters does not match the number of
+                parameters in the circuit and they are not a ``ParameterVector`` (which could
+                be resized to fit the number of parameters).
+        """
+        if not isinstance(parameters, ParameterVector) \
+                and len(parameters) != self._num_parameters:
+            raise ValueError('The length of ordered parameters must be equal to the number of '
+                             'parameters in the circuit ({}), but is {}'.format(
+                                 self._num_parameters, len(parameters)
+                             ))
+        self._ordered_parameters = parameters
+        self._invalidate()
+
+    def _build(self) -> None:
         """
         Construct the variational form, given its parameters.
 
@@ -90,28 +201,14 @@ class CHC:
             QuantumCircuit: a quantum circuit with given `parameters`
 
         Raises:
-            ValueError: the number of parameters is incorrect.
-            ValueError: if num_qubits has not been set and is still None
             ValueError: only supports single and double excitations at the moment.
         """
 
-        if len(parameters) != self._num_parameters:
-            raise ValueError('The number of parameters has to be {}'.format(self._num_parameters))
-
-        if self._num_qubits is None:
-            raise ValueError('The number of qubits is None and must be set before the circuit '
-                             'can be created.')
-
-        if q is None:
-            q = QuantumRegister(self._num_qubits, name='q')
+        parameters = self.ordered_parameters
+        q = self.qregs
 
         if isinstance(self._initial_state, QuantumCircuit):
-            circuit = QuantumCircuit(q)
-            circuit.append(self._initial_state.to_gate(), range(self._initial_state.num_qubits))
-        elif self._initial_state is not None:
-            circuit = self._initial_state.construct_circuit('circuit', q)
-        else:
-            circuit = QuantumCircuit(q)
+            self.append(self._initial_state.to_gate(), range(self._initial_state.num_qubits))
 
         count = 0
         for _ in range(self._reps):
@@ -122,31 +219,31 @@ class CHC:
                     i = idx[0]
                     r = idx[1]
 
-                    circuit.p(-parameters[count] / 4 + np.pi / 4, q[i])
-                    circuit.p(-parameters[count] / 4 - np.pi / 4, q[r])
+                    self.p(-parameters[count] / 4 + np.pi / 4, q[i])
+                    self.p(-parameters[count] / 4 - np.pi / 4, q[r])
 
-                    circuit.h(q[i])
-                    circuit.h(q[r])
+                    self.h(q[i])
+                    self.h(q[r])
 
                     if self._ladder:
                         for qubit in range(i, r):
-                            circuit.cx(q[qubit], q[qubit + 1])
+                            self.cx(q[qubit], q[qubit + 1])
                     else:
-                        circuit.cx(q[i], q[r])
+                        self.cx(q[i], q[r])
 
-                    circuit.p(parameters[count], q[r])
+                    self.p(parameters[count], q[r])
 
                     if self._ladder:
                         for qubit in range(r, i, -1):
-                            circuit.cx(q[qubit - 1], q[qubit])
+                            self.cx(q[qubit - 1], q[qubit])
                     else:
-                        circuit.cx(q[i], q[r])
+                        self.cx(q[i], q[r])
 
-                    circuit.h(q[i])
-                    circuit.h(q[r])
+                    self.h(q[i])
+                    self.h(q[r])
 
-                    circuit.p(-parameters[count] / 4 - np.pi / 4, q[i])
-                    circuit.p(-parameters[count] / 4 + np.pi / 4, q[r])
+                    self.p(-parameters[count] / 4 - np.pi / 4, q[i])
+                    self.p(-parameters[count] / 4 + np.pi / 4, q[r])
 
                 elif len(idx) == 4:
 
@@ -155,55 +252,53 @@ class CHC:
                     j = idx[2]
                     s = idx[3]  # pylint: disable=locally-disabled, invalid-name
 
-                    circuit.sdg(q[r])
+                    self.sdg(q[r])
 
-                    circuit.h(q[i])
-                    circuit.h(q[r])
-                    circuit.h(q[j])
-                    circuit.h(q[s])
+                    self.h(q[i])
+                    self.h(q[r])
+                    self.h(q[j])
+                    self.h(q[s])
 
                     if self._ladder:
                         for qubit in range(i, r):
-                            circuit.cx(q[qubit], q[qubit+1])
-                            circuit.barrier(q[qubit], q[qubit+1])
+                            self.cx(q[qubit], q[qubit+1])
+                            self.barrier(q[qubit], q[qubit+1])
                     else:
-                        circuit.cx(q[i], q[r])
-                    circuit.cx(q[r], q[j])
+                        self.cx(q[i], q[r])
+                    self.cx(q[r], q[j])
                     if self._ladder:
                         for qubit in range(j, s):
-                            circuit.cx(q[qubit], q[qubit+1])
-                            circuit.barrier(q[qubit], q[qubit + 1])
+                            self.cx(q[qubit], q[qubit+1])
+                            self.barrier(q[qubit], q[qubit + 1])
                     else:
-                        circuit.cx(q[j], q[s])
+                        self.cx(q[j], q[s])
 
-                    circuit.p(parameters[count], q[s])
+                    self.p(parameters[count], q[s])
 
                     if self._ladder:
                         for qubit in range(s, j, -1):
-                            circuit.cx(q[qubit-1], q[qubit])
-                            circuit.barrier(q[qubit-1], q[qubit])
+                            self.cx(q[qubit-1], q[qubit])
+                            self.barrier(q[qubit-1], q[qubit])
                     else:
-                        circuit.cx(q[j], q[s])
-                    circuit.cx(q[r], q[j])
+                        self.cx(q[j], q[s])
+                    self.cx(q[r], q[j])
                     if self._ladder:
                         for qubit in range(r, i, -1):
-                            circuit.cx(q[qubit-1], q[qubit])
-                            circuit.barrier(q[qubit - 1], q[qubit])
+                            self.cx(q[qubit-1], q[qubit])
+                            self.barrier(q[qubit - 1], q[qubit])
                     else:
-                        circuit.cx(q[i], q[r])
+                        self.cx(q[i], q[r])
 
-                    circuit.h(q[i])
-                    circuit.h(q[r])
-                    circuit.h(q[j])
-                    circuit.h(q[s])
+                    self.h(q[i])
+                    self.h(q[r])
+                    self.h(q[j])
+                    self.h(q[s])
 
-                    circuit.p(-parameters[count] / 2 + np.pi / 2, q[i])
-                    circuit.p(-parameters[count] / 2 + np.pi, q[r])
+                    self.p(-parameters[count] / 2 + np.pi / 2, q[i])
+                    self.p(-parameters[count] / 2 + np.pi, q[r])
 
                 else:
                     raise ValueError('Limited to single and double excitations, '
                                      'higher order is not implemented')
 
                 count += 1
-
-        return circuit
