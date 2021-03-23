@@ -18,10 +18,8 @@ from test import QiskitNatureTestCase
 
 from qiskit.opflow import X, Y, Z, I
 from qiskit_nature.operators import SpinOp
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_spin_op_builder import \
-    build_vibrational_spin_op
 from qiskit_nature.mappers.second_quantization import LinearMapper
-from qiskit_nature.drivers import GaussianForcesDriver
+
 
 class TestLinearMapper(QiskitNatureTestCase):
     """ Test Jordan Wigner Mapper """
@@ -30,30 +28,30 @@ class TestLinearMapper(QiskitNatureTestCase):
     ref_qubit_op1 = (-0.054 + 0.165j) * (I ^ I) + (0.054 - 0.165j) * (Z ^ Z)
 
     spin_op2 = SpinOp(('I_1 X_0 Z_0', -1.139 + 0.083j), 0.5, 2)
-    ref_qubit_op2 = (0.010375 + 0.142375j) * (I ^ I ^ Y ^ X) + (-0.010375 - 0.142375j) * (I ^ I ^ X ^ Y)
+    ref_qubit_op2 = (0.010375 + 0.142375j) * (I ^ I ^ Y ^ X) + \
+                    (-0.010375 - 0.142375j) * (I ^ I ^ X ^ Y)
 
     spin_op3 = SpinOp(('Y_2 Z_2 X_1 Y_1 X_0 Y_0^2 Z_0', -0.18 + 1.204j), 0.5, 3)
     ref_qubit_op3 = (0.000587890625 + 8.7890625e-05j) * (Y ^ Y ^ I ^ Z ^ Y ^ X) + \
-                   (0.000587890625 + 8.7890625e-05j) * (X ^ X ^ I ^ Z ^ Y ^ X) + \
-                   (-0.000587890625 - 8.7890625e-05j) * (Y ^ Y ^ Z ^ I ^ Y ^ X) + \
-                   (-0.000587890625 - 8.7890625e-05j) * (X ^ X ^ Z ^ I ^ Y ^ X) + \
-                   (-0.000587890625 - 8.7890625e-05j) * (Y ^ Y ^ I ^ Z ^ X ^ Y) + \
-                   (-0.000587890625 - 8.7890625e-05j) * (X ^ X ^ I ^ Z ^ X ^ Y) + \
-                   (0.000587890625 + 8.7890625e-05j) * (Y ^ Y ^ Z ^ I ^ X ^ Y) + \
-                   (0.000587890625 + 8.7890625e-05j) * (X ^ X ^ Z ^ I ^ X ^ Y)
+                    (0.000587890625 + 8.7890625e-05j) * (X ^ X ^ I ^ Z ^ Y ^ X) + \
+                    (-0.000587890625 - 8.7890625e-05j) * (Y ^ Y ^ Z ^ I ^ Y ^ X) + \
+                    (-0.000587890625 - 8.7890625e-05j) * (X ^ X ^ Z ^ I ^ Y ^ X) + \
+                    (-0.000587890625 - 8.7890625e-05j) * (Y ^ Y ^ I ^ Z ^ X ^ Y) + \
+                    (-0.000587890625 - 8.7890625e-05j) * (X ^ X ^ I ^ Z ^ X ^ Y) + \
+                    (0.000587890625 + 8.7890625e-05j) * (Y ^ Y ^ Z ^ I ^ X ^ Y) + \
+                    (0.000587890625 + 8.7890625e-05j) * (X ^ X ^ Z ^ I ^ X ^ Y)
 
     spin_op4 = SpinOp(('Z_1 I_0', -0.875 - 0.075j), 1.5, 2)
     ref_qubit_op4 = (-0.65625 - 0.05625j) * (Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + \
-                   (-0.21875 - 0.01875j) * (I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + \
-                   (0.21875 + 0.01875j) * (I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) + \
-                   (0.65625 + 0.05625j) * (I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
+                    (-0.21875 - 0.01875j) * (I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + \
+                    (0.21875 + 0.01875j) * (I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) + \
+                    (0.65625 + 0.05625j) * (I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
 
     spin_op5 = SpinOp(('I_7 I_6 I_5 I_4 I_3 I_2 I_1 X_0', 4 + 0j), 0.5, 8) + \
-                SpinOp(('I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0^2', 8 + 0j), 0.5, 8)
-
-    ref_qubit_op5 = (8.0+0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) +\
-                    (1.0+0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ X ^ X) +\
-                    (1.0+0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Y ^ Y)
+               SpinOp(('I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0^2', 8 + 0j), 0.5, 8)
+    ref_qubit_op5 = (8.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + \
+                    (1.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ X ^ X) + \
+                    (1.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Y ^ Y)
 
     REFERENCE = [(spin_op1, ref_qubit_op1),
                  (spin_op2, ref_qubit_op2),
@@ -70,6 +68,7 @@ class TestLinearMapper(QiskitNatureTestCase):
             qubit_op = mapper.map(spin_op)
 
             self.assertEqual(qubit_op, ref_qubit_op)
+
 
 if __name__ == '__main__':
     unittest.main()
