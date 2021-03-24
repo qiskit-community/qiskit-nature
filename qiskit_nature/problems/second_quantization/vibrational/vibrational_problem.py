@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """The Vibrational Problem class."""
+from functools import partial
 from typing import List, Optional, Union, Callable
 
 from qiskit.algorithms import MinimumEigensolverResult, EigensolverResult
@@ -39,6 +40,8 @@ class VibrationalProblem(BaseProblem):
         self.basis_size = basis_size
         self.truncation_order = truncation_order
         self._num_modes = None
+        self._watson_hamiltonian = None
+        self._watson_hamiltonian_transformed = None
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -48,7 +51,11 @@ class VibrationalProblem(BaseProblem):
             A list of `SecondQuantizedOp` in the following order: ... .
         """
         watson_hamiltonian = self.driver.run()
+        self._watson_hamiltonian = watson_hamiltonian
+
         watson_hamiltonian_transformed = self._transform(watson_hamiltonian)
+        self._watson_hamiltonian_transformed = watson_hamiltonian_transformed
+
         self._num_modes = watson_hamiltonian_transformed.num_modes  # TODO handle it nicer?
         vibrational_spin_op = build_vibrational_spin_op(watson_hamiltonian_transformed,
                                                         self.basis_size,
@@ -58,6 +65,7 @@ class VibrationalProblem(BaseProblem):
 
         return second_quantized_ops_list
 
+    # TODO refactor by decomposing and eliminate ifs
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
                                           MinimumEigensolverResult]) -> VibronicStructureResult:
         """Interprets an EigenstateResult in the context of this transformation.
@@ -111,9 +119,16 @@ class VibrationalProblem(BaseProblem):
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
-
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
         """
 
-        raise NotImplementedError()
+        # pylint: disable=unused-argument
+        def filter_criterion(self, eigenstate, eigenvalue, aux_values):
+            # the first num_modes aux_value is the evaluated number of particles for the given mode
+            for mode in range(self._num_modes):
+                if not np.isclose(aux_values[mode][0], 1):
+                    return False
+            return True
+
+        return partial(filter_criterion, self)
