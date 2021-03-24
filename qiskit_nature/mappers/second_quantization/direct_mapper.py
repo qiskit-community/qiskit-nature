@@ -24,16 +24,15 @@ from .vibration_mapper import VibrationMapper
 
 
 class DirectMapper(VibrationMapper):
-    """The Direct boson-to-qubit mapping. """
+    """The Direct mapper.
+
+    This mapper maps a :class:`~.VibrationOp` to a :class:`~.PauliSumOp`.
+    In doing so, each modal of the the `VibrationOp` gets mapped to a single qubit.
+    """
 
     def map(self, second_q_op: VibrationOp) -> PauliSumOp:
 
-        if isinstance(second_q_op.num_modals, int):
-            modals_per_mode = [second_q_op.num_modals] * second_q_op.num_modes
-        else:
-            modals_per_mode = second_q_op.num_modals
-
-        nmodes = sum(modals_per_mode)
+        nmodes = sum(second_q_op.num_modals)
 
         pauli_table = []
         for i in range(nmodes):
