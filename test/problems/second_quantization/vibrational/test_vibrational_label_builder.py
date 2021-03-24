@@ -30,12 +30,12 @@ class TestVibrationalLabelBuilder(QiskitNatureTestCase):
         logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
         driver = GaussianForcesDriver(logfile=logfile)
         watson_hamiltonian = driver.run()
-        basis_size = 2
+        num_modals = 2
         truncation_order = 3
         num_modes = watson_hamiltonian.num_modes
-        basis_size = [basis_size] * num_modes
+        num_modals = [num_modals] * num_modes
         boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
-                                                basis_size, truncation_order).convert()
+                                                num_modals, truncation_order).convert()
         labels, coeffs = zip(*_create_labels(boson_hamilt_harm_basis))
         self.assertSetEqual(frozenset(labels), frozenset(expected_labels))
         self.assertSetEqual(frozenset(coeffs), frozenset(expected_coeffs))

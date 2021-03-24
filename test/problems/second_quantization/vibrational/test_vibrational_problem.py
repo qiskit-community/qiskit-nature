@@ -29,11 +29,11 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         driver = GaussianForcesDriver(logfile=logfile)
 
         watson_hamiltonian = driver.run()
-        basis_size = 2
+        num_modals = 2
         truncation_order = 3
         num_modes = watson_hamiltonian.num_modes
-        basis_size = [basis_size] * num_modes
-        vibrational_problem = VibrationalProblem(driver, basis_size, truncation_order)
+        num_modals = [num_modals] * num_modes
+        vibrational_problem = VibrationalProblem(driver, num_modals, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
         vibrational_op = second_quantized_ops[0]
         with self.subTest("Check expected length of the list of second quantized operators."):

@@ -32,21 +32,21 @@ class HarmonicBasis(BosonicBasis):
 
     """
 
-    def __init__(self, watson_hamiltonian: WatsonHamiltonian, basis: List[int],
+    def __init__(self, watson_hamiltonian: WatsonHamiltonian, num_modals: List[int],
                  truncation_order: int = 3) -> None:
         """
         Args:
             watson_hamiltonian: A ``WatsonHamiltonian`` object which contains the hamiltonian
                 information.
-            basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-                with 4 modals per mode ``basis = [4, 4, 4]``.
+            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
+                with 4 modals per mode ``num_modals = [4, 4, 4]``.
             truncation_order: where is the Hamiltonian expansion truncation (1 for having only
                 1-body terms, 2 for having on 1- and 2-body terms...)
         """
 
         self._watson = watson_hamiltonian
-        self._basis = basis
-        self._basis_size = max(basis)
+        self._num_modals = num_modals
+        self._max_num_modals = max(num_modals)
         self._truncation_order = truncation_order
 
     @staticmethod
@@ -110,7 +110,7 @@ class HarmonicBasis(BosonicBasis):
         in_basis = True
         for j in range(order):
             for modal in [1, 2]:
-                if indices[3 * j + modal][i] >= self._basis[indices[3 * j][i]]:
+                if indices[3 * j + modal][i] >= self._num_modals[indices[3 * j][i]]:
                     in_basis = False
 
         return in_basis
@@ -132,8 +132,8 @@ class HarmonicBasis(BosonicBasis):
             ValueError: If problem with order value from computed modes
         """
 
-        num_modes = len(self._basis)
-        num_modals = self._basis_size
+        num_modes = len(self._num_modals)
+        num_modals = self._max_num_modals
 
         harmonic_dict = {1: np.zeros((num_modes, num_modals, num_modals)),
                          2: np.zeros((num_modes, num_modals, num_modals,

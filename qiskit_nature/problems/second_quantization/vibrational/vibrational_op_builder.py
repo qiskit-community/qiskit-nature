@@ -21,14 +21,14 @@ from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_bu
 
 
 def build_vibrational_op(watson_hamiltonian: WatsonHamiltonian,
-                         basis_size: Union[int, List[int]],
+                         num_modals: Union[int, List[int]],
                          truncation_order: int) -> VibrationalOp:
     """
     Builds a VibrationalOp based on a WatsonHamiltonian object.
 
     Args:
         watson_hamiltonian (WatsonHamiltonian): WatsonHamiltonian instance.
-        basis_size: size of a basis
+        num_modals: the number of modals per mode.
         truncation_order: order at which an n-body expansion is truncated
 
     Returns:
@@ -36,13 +36,13 @@ def build_vibrational_op(watson_hamiltonian: WatsonHamiltonian,
     """
     num_modes = watson_hamiltonian.num_modes
 
-    if isinstance(basis_size, int):
-        basis_size = [basis_size] * num_modes
+    if isinstance(num_modals, int):
+        num_modals = [num_modals] * num_modes
 
     # TODO: make HarmonicBasis an argument and support other bases when implemented
     boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
-                                            basis_size, truncation_order).convert()
+                                            num_modals, truncation_order).convert()
 
     all_labels = _create_labels(boson_hamilt_harm_basis)
 
-    return VibrationalOp(all_labels, num_modes, basis_size)
+    return VibrationalOp(all_labels, num_modes, num_modals)

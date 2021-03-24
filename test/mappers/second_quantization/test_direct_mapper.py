@@ -31,10 +31,10 @@ class TestDirectMapper(QiskitNatureTestCase):
         driver = GaussianForcesDriver(logfile=self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log'))
         watson_hamiltonian = driver.run()
 
-        basis_size = 2
+        num_modals = 2
         truncation = 3
 
-        vibration_op = build_vibrational_op(watson_hamiltonian, basis_size, truncation)
+        vibration_op = build_vibrational_op(watson_hamiltonian, num_modals, truncation)
 
         mapper = DirectMapper()
         qubit_op = mapper.map(vibration_op)

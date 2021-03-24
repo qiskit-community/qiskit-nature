@@ -32,10 +32,10 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
         driver = GaussianForcesDriver(logfile=logfile)
 
         watson_hamiltonian = driver.run()
-        basis_size = 2
+        num_modals = 2
         truncation_order = 3
 
-        vibrational_op = build_vibrational_op(watson_hamiltonian, basis_size, truncation_order)
+        vibrational_op = build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
 
         assert isinstance(vibrational_op, VibrationalOp)
         labels, coeffs = zip(*vibrational_op.to_list())
