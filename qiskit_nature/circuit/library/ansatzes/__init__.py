@@ -17,15 +17,17 @@
 from .chc import CHC
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 from .puccd import PUCCD
+from .succd import SUCCD
 from .ucc import UCC
 from .uccsd import UCCSD
-from .succd import SUCCD
+from .uvcc import UVCC
 
 __all__ = [
     'CHC',
     'EvolvedOperatorAnsatz',
     'PUCCD',
+    'SUCCD',
     'UCC',
     'UCCSD',
-    'SUCCD',
+    'UVCC',
 ]

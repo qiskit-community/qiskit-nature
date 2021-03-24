@@ -20,7 +20,7 @@ import logging
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import PauliTrotterEvolution
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp, SpinOp
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp, VibrationalOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 from .utils.vibration_excitation_generator import generate_vibration_excitations
@@ -44,7 +44,7 @@ class UVCC(EvolvedOperatorAnsatz):
 
     def __init__(self,
                  qubit_converter: Optional[QubitConverter] = None,
-                 basis: Optional[List[int]] = None,
+                 num_modals: Optional[List[int]] = None,
                  excitations: Optional[Union[str, int, List[int], Callable[
                      [int, Tuple[int, int]], List[Tuple[Tuple[Any, ...], ...]]]]] = None,
                  reps: int = 1,
@@ -55,8 +55,8 @@ class UVCC(EvolvedOperatorAnsatz):
             qubit_converter: the QubitConverter instance which takes care of mapping a
             :class:`~.SecondQuantizedOp` to a :class:`~.PauliSumOp` as well as performing all
             configured symmetry reductions on it.
-            basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-                with 4 modals per mode basis = [4,4,4]
+            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
+                with 4 modals per mode num_modals = [4,4,4]
             excitations: this can be any of the following:
                 - a `str` which contains the types of excitations. Allowed characters are:
                     - `s` for singles
@@ -67,13 +67,13 @@ class UVCC(EvolvedOperatorAnsatz):
                 - a list of positive integers
                 - a `callable` object which is used to generate the excitations. The `callable` must
                   take the following __keyword__ arguments:
-                      - `basis`: the same as above
+                      - `num_modals`: the same as above
                   and must return a `List[Tuple[Tuple[Any, ...], ...]]`.
             reps: number of replica of basic module
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
         self._qubit_converter = qubit_converter
-        self._basis = basis
+        self._num_modals = num_modals
         self._excitations = excitations
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
@@ -95,15 +95,15 @@ class UVCC(EvolvedOperatorAnsatz):
         self._qubit_converter = conv
 
     @property
-    def basis(self) -> List[int]:
-        """The basis."""
-        return self._basis
+    def num_modals(self) -> List[int]:
+        """The number of modals."""
+        return self._num_modals
 
-    @basis.setter
-    def basis(self, basis: List[int]) -> None:
-        """Sets the basis."""
+    @num_modals.setter
+    def num_modals(self, num_modals: List[int]) -> None:
+        """Sets the number of modals."""
         self._invalidate()
-        self._basis = basis
+        self._num_modals = num_modals
 
     @property
     def excitations(self) -> Union[str, int, List[int], Callable]:
@@ -121,9 +121,10 @@ class UVCC(EvolvedOperatorAnsatz):
         super()._invalidate()
 
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
-        if self.basis is None or any(b < 0 for b in self.basis):
+        if self.num_modals is None or any(b < 0 for b in self.num_modals):
             if raise_on_failure:
-                raise ValueError('The basis cannot contain negative values but is ', self.basis)
+                raise ValueError('The number of modals cannot contain negative values but is ',
+                                 self.num_modals)
             return False
 
         if self.excitations is None:
@@ -178,7 +179,7 @@ class UVCC(EvolvedOperatorAnsatz):
         excitations = []
         for gen in generators:
             excitations.extend(gen(
-                basis=self.basis,
+                num_modals=self.num_modals,
             ))
 
         return excitations
@@ -211,7 +212,7 @@ class UVCC(EvolvedOperatorAnsatz):
 
         return generators
 
-    def _build_vibration_excitation_ops(self, excitations: List[Tuple]) -> List[SpinOp]:
+    def _build_vibration_excitation_ops(self, excitations: List[Tuple]) -> List[VibrationalOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 
@@ -223,16 +224,15 @@ class UVCC(EvolvedOperatorAnsatz):
         """
         operators = []
 
-        sum_modes = sum(self.basis)
+        sum_modes = sum(self.num_modals)
 
         for exc in excitations:
-            print(exc)
-            label = []
+            label = ['I'] * label_length
             for occ in exc[0]:
-                label.append(f'+_{occ}')
+                label[occ] = '+'
             for unocc in exc[1]:
-                label.append(f'-_{unocc}')
-            op = SpinOp(' '.join(label), register_length=sum_modes)
+                label[unocc] = '-'
+            op = VibrationalOp(''.join(label), len(self.num_modals), self.num_modals)
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)
