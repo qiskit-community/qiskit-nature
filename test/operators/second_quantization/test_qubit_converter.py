@@ -14,11 +14,11 @@
 
 import unittest
 
-from qiskit_nature import QiskitNatureError
 from test import QiskitNatureTestCase
 
 from qiskit.opflow import X, Y, Z, I, PauliSumOp
 
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -185,6 +185,12 @@ class TestQubitConverter(QiskitNatureTestCase):
                 self.assertFalse(qubit_conv.two_qubit_reduction)
                 qubit_ops = qubit_conv.convert(second_q_ops)
                 self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY)
+
+    def test_z2_symmetry(self):
+        mapper = JordanWignerMapper()
+        qubit_conv = QubitConverter(mapper)
+        qubit_op = qubit_conv.convert(self.h2_op, z2symmetry_reduction=[-1, 1, -1])
+        # TODO complete this
 
 
 if __name__ == '__main__':
