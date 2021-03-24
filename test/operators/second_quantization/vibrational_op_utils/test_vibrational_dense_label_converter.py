@@ -38,11 +38,6 @@ class TestVibrationalDenseLabelConverter(QiskitNatureTestCase):
         ],
     ]
 
-    part_num_not_conserved = [
-        [("+_0*0 -_1*1", 1215.375), ("+_0*0 -_1*0 +_2*0 -_2*1", -6.385)],
-        3,
-        [2, 2, 2],
-    ]
     mode_out_of_range = ([("+_1*0 -_1*1", 1215.375), ("+_2*0 -_2*1 +_3*0 -_3*0", -6.385)], 3, 2)
     modal_out_of_range = [[("+_0*0 -_0*2", 1215.375), ("+_1*0 -_1*0 +_2*0 -_2*1", -6.385)], 3, 2]
     mode_order_incorrect = [[("+_0*0 -_0*0", 1215.375), ("-_1*0 -_2*1 +_1*0 +_2*0", -6.385)], 3, 2]
@@ -55,7 +50,6 @@ class TestVibrationalDenseLabelConverter(QiskitNatureTestCase):
     ]
 
     test_cases_with_exceptions = [
-        part_num_not_conserved,
         mode_out_of_range,
         modal_out_of_range,
         mode_order_incorrect,

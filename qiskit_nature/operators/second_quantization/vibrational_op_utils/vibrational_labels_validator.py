@@ -10,8 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Methods Validating Vibrational Labels."""
+import logging
 import re
 from typing import List, Tuple, Union
+
+logger = logging.getLogger(__name__)
 
 # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
 # followed by "*" and a modal index, possibly appearing multiple times and separated by a space
@@ -29,7 +32,8 @@ def _validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], 
             * operators in each label are sorted in the decreasing order of modes and modals,
             if both are equal then '+' comes before '-' (i.e. they are normal ordered),
             * for each `+` operator in each label, there is a corresponding '-' operator
-            acting on the same mode (i.e. the number of particles is preserved per mode).
+            acting on the same mode (i.e. the number of particles is preserved per mode) [this last
+            case will only log a warning]
 
         Args:
             vibrational_labels: list of vibrational labels with coefficients.
@@ -83,11 +87,11 @@ def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: 
             prev_op, prev_mode_index, prev_modal_index = op, mode_index, modal_index
 
             par_num_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
-        # for index, item in enumerate(par_num_mode_conserved_check):
-        #     if item != 0:
-        #         raise ValueError(
-        #             f"Number of raising and lowering operators do not agree for mode {index} in "
-        #             f"label {labels}.")
+        for index, item in enumerate(par_num_mode_conserved_check):
+            if item != 0:
+                logger.warning(
+                    "Number of raising and lowering operators do not agree for mode %s in "
+                    "label %s.", index, labels)
 
 
 def _is_index_out_of_range(mode_index: int, num_modes: int, modal_index: int,
