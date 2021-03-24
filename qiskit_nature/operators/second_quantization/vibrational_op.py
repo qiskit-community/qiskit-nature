@@ -31,6 +31,10 @@ class VibrationalOp(SecondQuantizedOp):
 
     **Label**
 
+    :class:`VibrationalOp` supports two kinds of labels: sparse and dense ones.
+
+    1. Sparse Labels:
+
     Allowed characters for primitives of labels are `+` and `-`.
 
     .. list-table::
@@ -49,6 +53,21 @@ class VibrationalOp(SecondQuantizedOp):
     :class:`VibrationalOp` accepts the notation that encodes raising (`+`) and lowering (`-`)
     operators together with indices of modes and modals that they act on, e.g.
     `+_{mode_index}*{modal_index}`. Each modal can be excited at most once.
+
+    For more information on how the sparse label notation works, please refer to the more extensive
+    examples in the :class:`SpinOp` class.
+
+    2. Dense Labels:
+
+    Internally, a :class:`VibrationalOp` is stored as a dense label in an identical notation to that
+    of the :class:`FermionicOp`. Thus, each modal is mapped onto a position of the string and can be
+    one of the following characters: `I`, `+`, `-`, `N` and `E`. Here, `N` and `E` are shorthands
+    for `+-` and `-+` applied on the same modal, respectively.
+    The length of a dense label is given by `register_length` and can be computed as the sum of all
+    modals over all modes.
+
+    For more information on how the dense label notation works, please refer to the more extensive
+    examples in the :class:`FermionicOp` class.
 
     **Initialization**
 
