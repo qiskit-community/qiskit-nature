@@ -15,22 +15,21 @@
 import copy
 import unittest
 
-from test import QiskitNatureTestCase
-
 import numpy as np
-
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
+
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
+from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError, FermionicOperator
 from qiskit_nature.drivers import PySCFDriver, UnitsType
-from qiskit_nature.transformations import (FermionicTransformation,
-                                           FermionicQubitMappingType)
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
-    (VQEUCCSDFactory, NumPyMinimumEigensolverFactory)
+    (VQEUCCSDFactory, NumPyMinimumEigensolverFactory, )
 
 
-@unittest.skip("Skip test until refactored.")
 class TestGroundStateEigensolver(QiskitNatureTestCase):
     """ Test GroundStateEigensolver """
 
@@ -47,35 +46,37 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         self.reference_energy = -1.137306
 
-        self.transformation = FermionicTransformation(
-            qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER)
+        # self.transformation = FermionicTransformation(
+        #     qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER)
+        self.qubit_converter = QubitConverter(JordanWignerMapper())
+        self.molecular_problem = MolecularProblem(self.driver)
 
     def test_npme(self):
         """ Test NumPyMinimumEigensolver """
         solver = NumPyMinimumEigensolverFactory()
-        calc = GroundStateEigensolver(self.transformation, solver)
-        res = calc.solve(self.driver)
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.molecular_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_npme_with_default_filter(self):
         """ Test NumPyMinimumEigensolver with default filter """
         solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
-        calc = GroundStateEigensolver(self.transformation, solver)
-        res = calc.solve(self.driver)
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.molecular_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_uccsd(self):
         """ Test VQE UCCSD case """
         solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
-        calc = GroundStateEigensolver(self.transformation, solver)
-        res = calc.solve(self.driver)
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.molecular_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_aux_ops_reusability(self):
         """ Test that the auxiliary operators can be reused """
         # Regression test against #1475
         solver = NumPyMinimumEigensolverFactory()
-        calc = GroundStateEigensolver(self.transformation, solver)
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
 
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
@@ -83,14 +84,14 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         aux_ops = [FermionicOperator(h_1, h_2)]
         aux_ops_copy = copy.deepcopy(aux_ops)
 
-        _ = calc.solve(self.driver, aux_ops)
+        _ = calc.solve(self.molecular_problem)
         assert all(a == b for a, b in zip(aux_ops, aux_ops_copy))
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
         solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
-        calc = GroundStateEigensolver(self.transformation, solver)
-        res = calc.solve(self.driver)
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.molecular_problem)
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators

@@ -79,8 +79,8 @@ class QubitConverter:
             raise NotImplementedError
 
         qubit_ops: List[PauliSumOp] = []
-        for op in second_q_ops:
-            qubit_ops.append(self._mappers.map(op))
+        for operator in second_q_ops:
+            qubit_ops.append(self._mappers.map(operator))
 
         return qubit_ops
 

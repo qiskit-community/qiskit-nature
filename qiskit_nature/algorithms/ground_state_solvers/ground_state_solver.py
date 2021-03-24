@@ -13,27 +13,19 @@
 """The ground state calculation interface."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
 import numpy as np
-
 from qiskit import QuantumCircuit
-from qiskit.algorithms import MinimumEigensolver
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.opflow import OperatorBase, PauliSumOp
 
-from .. import MinimumEigensolverFactory
-from ...fermionic_operator import FermionicOperator
-from ...bosonic_operator import BosonicOperator
-from ...drivers.base_driver import BaseDriver
-from ...mappers.second_quantization import QubitMapper
 from ...operators.second_quantization.qubit_converter import QubitConverter
 from ...problems.second_quantization.base_problem import BaseProblem
 from ...results.electronic_structure_result import ElectronicStructureResult
 from ...results.vibronic_structure_result import VibronicStructureResult
-from ...transformations.transformation import Transformation
 
 
 class GroundStateSolver(ABC):

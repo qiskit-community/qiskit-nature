@@ -14,6 +14,8 @@
 
 from abc import ABC, abstractmethod
 from qiskit.algorithms import MinimumEigensolver
+
+from ....problems.second_quantization.base_problem import BaseProblem
 from ....transformations.transformation import Transformation
 
 
@@ -21,7 +23,7 @@ class MinimumEigensolverFactory(ABC):
     """A factory to construct a minimum eigensolver based on a qubit operator transformation."""
 
     @abstractmethod
-    def get_solver(self, transformation: Transformation) -> MinimumEigensolver:
+    def get_solver(self, problem: BaseProblem) -> MinimumEigensolver:
         """Returns a minimum eigensolver, based on the qubit operator transformation.
 
         Args:

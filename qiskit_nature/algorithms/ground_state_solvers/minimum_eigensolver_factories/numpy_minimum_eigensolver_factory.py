@@ -16,6 +16,8 @@ from typing import Optional, Union, List, Callable
 import numpy as np
 
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
+
+from ....problems.second_quantization.base_problem import BaseProblem
 from ....transformations.transformation import Transformation
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -63,7 +65,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """ sets whether to use the default filter criterion """
         self._use_default_filter_criterion = value
 
-    def get_solver(self, transformation: Transformation) -> MinimumEigensolver:
+    def get_solver(self, problem: BaseProblem) -> MinimumEigensolver:
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``transformation``.
 
@@ -76,7 +78,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """
         filter_criterion = self._filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:
-            filter_criterion = transformation.get_default_filter_criterion()
+            filter_criterion = problem.get_default_filter_criterion()
 
         npme = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
         return npme
