@@ -100,7 +100,8 @@ class SpinOp(SecondQuantizedOp):
 
     are possible labels.
     For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
-    this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
+    this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`
+    because ladder operators will be parsed into `X` and `Y`.
     Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
     The indices must be ascending order.
 
