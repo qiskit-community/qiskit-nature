@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The referance PauliSumOp for the DirectMapper."""
+"""The reference PauliSumOp for the DirectMapper."""
 
 from qiskit.opflow import X, Y, Z, I
 
