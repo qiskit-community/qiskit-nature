@@ -64,7 +64,7 @@ def _validate_indices(vibrational_labels: List[Tuple[str, complex]], num_modes: 
     for labels, _ in vibrational_labels:
         coeff_labels_split = labels.split()
         par_num_mode_conserved_check = [0] * num_modes
-        prev_op, prev_mode_index, prev_modal_index = "+", num_modes, max(num_modals)
+        prev_op, prev_mode_index, prev_modal_index = "+", -1, -1
         for label in coeff_labels_split:
             op, mode_index_str, modal_index_str = re.split('[*_]', label)
             mode_index = int(mode_index_str)
@@ -109,12 +109,12 @@ def _is_order_incorrect(mode_index: int, prev_mode_index: int, modal_index: int,
 
 
 def _is_mode_order_incorrect(mode_index: int, prev_mode_index: int) -> bool:
-    return mode_index > prev_mode_index
+    return mode_index < prev_mode_index
 
 
 def _is_modal_order_incorrect(prev_mode_index: int, mode_index: int, prev_modal_index: int,
                               modal_index: int) -> bool:
-    return mode_index == prev_mode_index and modal_index > prev_modal_index
+    return mode_index == prev_mode_index and modal_index < prev_modal_index
 
 
 def _is_operator_order_incorrect(mode_index: int, prev_mode_index: int, modal_index: int,

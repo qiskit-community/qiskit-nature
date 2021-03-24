@@ -36,7 +36,7 @@ def _create_num_body_labels(num_body_data: List[Tuple[List[List[int]], complex]]
         List[Tuple[str, complex]]:
     num_body_labels = []
     for indices, coeff in num_body_data:
-        indices.sort(reverse=True)
+        indices.sort()
         coeff_label = _create_label_for_coeff(indices)
         num_body_labels.append((coeff_label, coeff))
     return num_body_labels
@@ -45,7 +45,7 @@ def _create_num_body_labels(num_body_data: List[Tuple[List[List[int]], complex]]
 def _create_label_for_coeff(indices: List[List[int]]) -> str:
     complete_labels_list = []
     for mode, modal_raise, modal_lower in indices:
-        if modal_raise >= modal_lower:
+        if modal_raise <= modal_lower:
             complete_labels_list.append(f"+_{mode}*{modal_raise}")
             complete_labels_list.append(f"-_{mode}*{modal_lower}")
         else:
