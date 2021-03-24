@@ -32,4 +32,4 @@ Second-Quantization Operators
 
 from .second_quantization import FermionicOp
 from .second_quantization import SpinOp
-from .second_quantization import VibrationOp
+from .second_quantization import VibrationalOp

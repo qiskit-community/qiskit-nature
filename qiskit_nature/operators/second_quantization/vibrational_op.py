@@ -20,13 +20,13 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 
-from .vibrational_spin_op_utils.vibrational_labels_validator import _validate_vibrational_labels
-from .vibrational_spin_op_utils.vibr_to_spin_op_label_converter import _convert_to_dense_labels
+from .vibrational_op_utils.vibrational_labels_validator import _validate_vibrational_labels
+from .vibrational_op_utils.vibrational_dense_label_converter import _convert_to_dense_labels
 
 from .second_quantized_op import SecondQuantizedOp
 
 
-class VibrationOp(SecondQuantizedOp):
+class VibrationalOp(SecondQuantizedOp):
     """Vibration type operators.
 
     **Label**
@@ -46,19 +46,19 @@ class VibrationOp(SecondQuantizedOp):
           - :math:`S_-`
           - Lowering operator
 
-    :class:`VibrationOp` accepts the notation that encodes raising (`+`) and lowering (`-`)
+    :class:`VibrationalOp` accepts the notation that encodes raising (`+`) and lowering (`-`)
     operators together with indices of modes and modals that they act on, e.g.
     `+_{mode_index}*{modal_index}`. Each modal can be excited at most once.
 
     **Initialization**
 
-    The :class:`VibrationOp` can be initialized by the list of tuples that each contains a
+    The :class:`VibrationalOp` can be initialized by the list of tuples that each contains a
     string with a label as explained above and a corresponding coefficient. This argument must be
     accompanied by the number of modes and modals, and possibly, the value of a spin.
 
     **Algebra**
 
-    :class:`VibrationOp` supports the following basic arithmetic operations: addition,
+    :class:`VibrationalOp` supports the following basic arithmetic operations: addition,
     subtraction, scalar multiplication, and dagger(adjoint).
     """
 
@@ -102,52 +102,47 @@ class VibrationOp(SecondQuantizedOp):
         self._coeffs: np.ndarray
         self._labels: List[str]
 
-        self._num_modes = num_modes
-
         if isinstance(num_modals, int):
             num_modals = [num_modals] * num_modes
 
+        self._num_modes = num_modes
         self._num_modals = num_modals
-
-        self._register_length = sum(self._num_modals) if isinstance(self._num_modals, list) \
-            else self._num_modals * self._num_modes
+        self._register_length = sum(self._num_modals)
 
         labels, coeffs = zip(*data)
         self._coeffs = np.array(coeffs, np.complex128)
 
-        try:
+        if not any('_' in label for label in labels):
+            # Dense label
+            if not all(len(label) == self._register_length for label in labels):
+                raise ValueError("Lengths of strings of label are different.")
+            label_pattern = re.compile(r"^[I\+\-NE]+$")
+            invalid_labels = [label for label in labels if not label_pattern.match(label)]
+            if invalid_labels:
+                raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
+            self._labels = list(labels)
+        else:
             # Sparse label
             _validate_vibrational_labels(data, num_modes, num_modals)
             dense_labels = _convert_to_dense_labels(data, num_modes, num_modals)
 
             ops = []
-            for dense_label in dense_labels:
+            for dense_label, coeff in dense_labels:
                 new_op = reduce(lambda a, b: a @ b, (
-                        VibrationOp((lbl, 1), num_modals=num_modals, num_modes=num_modes)
-                        for lbl in dense_label[0]
+                        VibrationalOp((label, 1), num_modes, num_modals) for label in dense_label
                 ))
-                ops.append(dense_label[1] * new_op)
+                ops.append(coeff * new_op)
 
             op = sum(ops)
 
             self._labels = op._labels.copy()
-        except ValueError as exc:
-            # Dense label
-            if not all(len(label) == self._register_length for label in labels):
-                raise ValueError("Lengths of strings of label are different.") from exc
-            label_pattern = re.compile(r"^[I\+\-NE]+$")
-            invalid_labels = [label for label in labels if not label_pattern.match(label)]
-            if invalid_labels:
-                raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}") \
-                    from exc
-            self._labels = list(labels)
 
     def __repr__(self) -> str:
         if len(self) == 1:
             if self._coeffs[0] == 1:
-                return f"VibrationOp('{self._labels[0]}')"
-            return f"VibrationOp({self.to_list()[0]})"
-        return f"VibrationOp({self.to_list()})"  # TODO truncate
+                return f"VibrationalOp('{self._labels[0]}')"
+            return f"VibrationalOp({self.to_list()[0]})"
+        return f"VibrationalOp({self.to_list()})"  # TODO truncate
 
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
@@ -177,42 +172,42 @@ class VibrationOp(SecondQuantizedOp):
 
     @property
     def register_length(self) -> int:
-        """Getter for the length of the fermionic register that the VibrationOp `self` acts
+        """Getter for the length of the fermionic register that the VibrationalOp `self` acts
         on.
         """
         return self._register_length
 
-    def mul(self, other: complex) -> "VibrationOp":
+    def mul(self, other: complex) -> "VibrationalOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
-                f"Unsupported operand type(s) for *: 'VibrationOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for *: 'VibrationalOp' and '{type(other).__name__}'"
             )
-        return VibrationOp(list(zip(self._labels, (other * self._coeffs).tolist())),
-                           num_modals=self._num_modals, num_modes=self._num_modes)
+        return VibrationalOp(list(zip(self._labels, (other * self._coeffs).tolist())),
+                             self._num_modes, self._num_modals)
 
-    def add(self, other: "VibrationOp") -> "VibrationOp":
-        if not isinstance(other, VibrationOp):
+    def add(self, other: "VibrationalOp") -> "VibrationalOp":
+        if not isinstance(other, VibrationalOp):
             raise TypeError(
-                f"Unsupported operand type(s) for +: 'VibrationOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for +: 'VibrationalOp' and '{type(other).__name__}'"
             )
 
         # Check compatibility
         if self.num_modes != other.num_modes or self.num_modals != other.num_modals:
             raise TypeError("Incompatible register lengths for '+'.")
 
-        return VibrationOp(
+        return VibrationalOp(
             list(
                 zip(self._labels + other._labels, np.hstack((self._coeffs, other._coeffs)).tolist())
             ),
-            num_modals=self._num_modals,
-            num_modes=self._num_modes
+            self._num_modes,
+            self._num_modals,
         )
 
     def to_list(self) -> List[Tuple[str, complex]]:
         """Getter for the operator_list of `self`"""
         return list(zip(self._labels, self._coeffs.tolist()))
 
-    def adjoint(self) -> "VibrationOp":
+    def adjoint(self) -> "VibrationalOp":
         dagger_map = {"+": "-", "-": "+", "I": "I"}
         label_list = []
         coeff_list = []
@@ -231,10 +226,10 @@ class VibrationOp(SecondQuantizedOp):
             label_list.append("".join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
-        return VibrationOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))),
-                           num_modals=self._num_modals, num_modes=self._num_modes)
+        return VibrationalOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))),
+                             self._num_modes, self._num_modals)
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationOp":
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationalOp":
         if atol is None:
             atol = self.atol
         if rtol is None:
@@ -248,33 +243,33 @@ class VibrationOp(SecondQuantizedOp):
             i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
-            return VibrationOp(("I_0*0", 0), num_modals=self._num_modals, num_modes=self._num_modes)
-        return VibrationOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
-                           num_modals=self._num_modals, num_modes=self._num_modes)
+            return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
+        return VibrationalOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
+                             self._num_modes, self._num_modals)
 
-    def compose(self, other: "VibrationOp") -> "VibrationOp":
-        if isinstance(other, VibrationOp):
+    def compose(self, other: "VibrationalOp") -> "VibrationalOp":
+        if isinstance(other, VibrationalOp):
             # Initialize new operator_list for the returned Vibration operator
             new_data = []
 
             # Compute the product (Vibration type operators consist of a sum of
-            # VibrationOperator): F1 * F2 = (B1 + B2 + ...) * (C1 + C2 + ...) where Bi and Ci
-            # are VibrationOperators
+            # VibrationalOperator): F1 * F2 = (B1 + B2 + ...) * (C1 + C2 + ...) where Bi and Ci
+            # are VibrationalOperators
             for label1, cf1 in self.to_list():
                 for label2, cf2 in other.to_list():
                     new_label, sign = self._single_mul(label1, label2)
                     if sign == 0:
                         continue
+                    # TODO: do we need to consider the sign in this application?
                     new_data.append((new_label, cf1 * cf2 * sign))
 
             if not new_data:
-                return VibrationOp(("I" * self._register_length, 0), num_modals=self._num_modals,
-                                   num_modes=self._num_modes)
+                return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
 
-            return VibrationOp(new_data, num_modals=self._num_modals, num_modes=self._num_modes)
+            return VibrationalOp(new_data, self._num_modes, self._num_modals)
 
         raise TypeError(
-            f"Unsupported operand type(s) for *: 'VibrationOp' and '{type(other).__name__}'"
+            f"Unsupported operand type(s) for *: 'VibrationalOp' and '{type(other).__name__}'"
         )
 
     # Map the products of two operators on a single fermionic mode to their result.
@@ -311,7 +306,7 @@ class VibrationOp(SecondQuantizedOp):
     @classmethod
     def _single_mul(cls, label1: str, label2: str) -> Tuple[str, complex]:
         if len(label1) != len(label2):
-            raise QiskitNatureError("Operators act on Vibration Registers of different length")
+            raise QiskitNatureError("Operators act on Fermion Registers of different length")
 
         new_label = []
         sign = 1

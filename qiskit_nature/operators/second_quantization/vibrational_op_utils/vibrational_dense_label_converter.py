@@ -10,20 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-This module converts labels from the `VibrationalSpinOp` to 'SpinOp` notation.
+This module converts labels from the `VibrationalOp` to 'SpinOp` notation.
 """
 import itertools
 import operator
 import re
 from typing import List, Tuple, Union
 
-from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
-    .vibrational_labels_validator import _validate_vibrational_labels
+from .vibrational_labels_validator import _validate_vibrational_labels
 
 
 def _convert_to_dense_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
                              num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
-    """Converts `VibrationalSpinOp` labels to `SpinOp` labels.
+    """Converts `VibrationalOp` labels to `SpinOp` labels.
 
     Args:
         vibrational_labels: list of labels and corresponding coefficients that describe a

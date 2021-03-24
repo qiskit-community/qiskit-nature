@@ -9,32 +9,32 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Tests Vibrational Spin Op to Spin Op Label Converter."""
+"""Tests Vibrational Dense Label Converter."""
 
 from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
-from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
-    .vibr_to_spin_op_label_converter import _convert_to_spin_op_labels
+from qiskit_nature.operators.second_quantization.vibrational_op_utils \
+    .vibrational_dense_label_converter import _convert_to_dense_labels
 
 
 @ddt
-class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
-    """Tests Vibrational Spin Op to Spin Op Label Converter."""
+class TestVibrationalDenseLabelConverter(QiskitNatureTestCase):
+    """Tests Vibrational Dense Label Converter."""
 
     test_cases_correct = [
         [
             [("+_0*0 -_0*1", 1215.375), ("+_0*0 -_0*1 +_2*0 -_2*1", -6.385)],
             3,
             2,
-            [("+_0 -_1", 1215.375), ("+_0 -_1 +_4 -_5", -6.385)],
+            [(["+IIIII", "I-IIII"], 1215.375), (["+IIIII", "I-IIII", "IIII+I", "IIIII-"], -6.385)],
         ],
         [
             [("+_0*0 -_0*1", 1215.375), ("+_1*0 -_1*1 +_2*0 -_2*1", -6.385)],
             3,
             [2, 2, 2],
-            [("+_0 -_1", 1215.375), ("+_2 -_3 +_4 -_5", -6.385)],
+            [(["+IIIII", "I-IIII"], 1215.375), (["II+III", "III-II", "IIII+I", "IIIII-"], -6.385)],
         ],
     ]
 
@@ -66,19 +66,19 @@ class TestVibrToSpinOpLabelConverter(QiskitNatureTestCase):
 
     @data(*test_cases_correct)
     @unpack
-    def test_convert_to_spin_op_labels(self, vibrational_labels, num_modes, num_modals, expected):
+    def test_convert_to_dense_labels(self, vibrational_labels, num_modes, num_modals, expected):
         """Tests that VibrationalSpinOp labels are converted to SpinOp labels correctly."""
 
-        spin_op_labels = _convert_to_spin_op_labels(vibrational_labels, num_modes, num_modals)
+        spin_op_labels = _convert_to_dense_labels(vibrational_labels, num_modes, num_modals)
 
         self.assertListEqual(spin_op_labels, expected)
 
     @data(*test_cases_with_exceptions)
     @unpack
-    def test_convert_to_spin_op_labels_invalid_labels(
+    def test_convert_to_dense_labels_invalid_labels(
         self, vibrational_labels, num_modes, num_modals
     ):
         """Tests that VibrationalSpinOp to SpinOp labels converter throws an exception when
         provided with invalid labels."""
         with self.assertRaises(ValueError):
-            _convert_to_spin_op_labels(vibrational_labels, num_modes, num_modals)
+            _convert_to_dense_labels(vibrational_labels, num_modes, num_modals)
