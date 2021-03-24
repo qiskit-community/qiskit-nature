@@ -194,7 +194,7 @@ class QubitConverter:
         return qubit_ops_tapered
 
     def convert_more(self, second_q_ops: Union[SecondQuantizedOp, List[SecondQuantizedOp]]
-                ) -> Union[PauliSumOp, List[Optional[PauliSumOp]]]:
+                     ) -> Union[PauliSumOp, List[Optional[PauliSumOp]]]:
         """
         Maps the given second quantized operators to qubit operators using the same mapping,
         reductions as was done on a preceding successful call to :meth:`convert`. This allows
