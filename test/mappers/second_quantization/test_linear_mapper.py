@@ -47,8 +47,9 @@ class TestLinearMapper(QiskitNatureTestCase):
                     (0.21875 + 0.01875j) * (I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) + \
                     (0.65625 + 0.05625j) * (I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
 
-    spin_op5 = SpinOp(('I_7 I_6 I_5 I_4 I_3 I_2 I_1 X_0', 4 + 0j), 0.5, 8) + \
-               SpinOp(('I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0^2', 8 + 0j), 0.5, 8)
+    spin_op5_i = SpinOp(('I_7 I_6 I_5 I_4 I_3 I_2 I_1 X_0', 4 + 0j), 0.5, 8)
+    spin_op5_ii = SpinOp(('I_7 I_6 I_5 I_4 I_3 I_2 I_1 I_0^2', 8 + 0j), 0.5, 8)
+    spin_op5 = spin_op5_i + spin_op5_ii
     ref_qubit_op5 = (8.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + \
                     (1.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ X ^ X) + \
                     (1.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Y ^ Y)
