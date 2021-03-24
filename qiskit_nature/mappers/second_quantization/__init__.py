@@ -22,6 +22,7 @@ from .logarithmic_mapper import LogarithmicMapper
 from .parity_mapper import ParityMapper
 from .qubit_mapper import QubitMapper
 from .spin_mapper import SpinMapper
+from .vibration_mapper import VibrationMapper
 
 __all__ = [
         'BravyiKitaevMapper',
@@ -34,4 +35,5 @@ __all__ = [
         'ParityMapper',
         'QubitMapper',
         'SpinMapper',
+        'VibrationMapper',
 ]
