@@ -17,20 +17,20 @@ import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
-from qiskit_nature.operators.second_quantization import VibrationOp
+from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from .qubit_mapper import QubitMapper
-from .vibration_mapper import VibrationMapper
+from .vibrational_mapper import VibrationalMapper
 
 
-class DirectMapper(VibrationMapper):
+class DirectMapper(VibrationalMapper):
     """The Direct mapper.
 
-    This mapper maps a :class:`~.VibrationOp` to a :class:`~.PauliSumOp`.
-    In doing so, each modal of the the `VibrationOp` gets mapped to a single qubit.
+    This mapper maps a :class:`~.VibrationalOp` to a :class:`~.PauliSumOp`.
+    In doing so, each modal of the the `VibrationalOp` gets mapped to a single qubit.
     """
 
-    def map(self, second_q_op: VibrationOp) -> PauliSumOp:
+    def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
 
         nmodes = sum(second_q_op.num_modals)
 

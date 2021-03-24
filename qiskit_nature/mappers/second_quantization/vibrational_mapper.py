@@ -10,25 +10,25 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Vibration Mapper."""
+"""Vibrational Mapper."""
 
 from abc import abstractmethod
 
 from qiskit.opflow import PauliSumOp
-from qiskit_nature.operators import VibrationOp
+from qiskit_nature.operators import VibrationalOp
 
 from .qubit_mapper import QubitMapper
 
 
-class VibrationMapper(QubitMapper):
-    """ Mapper of Vibration Operator to Qubit Operator """
+class VibrationalMapper(QubitMapper):
+    """ Mapper of Vibrational Operator to Qubit Operator """
 
     @abstractmethod
-    def map(self, second_q_op: VibrationOp) -> PauliSumOp:
-        """Maps a class:`VibrationOp` to a `PauliSumOp`.
+    def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
+        """Maps a class:`VibrationalOp` to a `PauliSumOp`.
 
         Args:
-            second_q_op: the :class:`VibrationOp` to be mapped.
+            second_q_op: the :class:`VibrationalOp` to be mapped.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.

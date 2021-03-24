@@ -15,13 +15,12 @@
 import unittest
 
 from test import QiskitNatureTestCase
+from test.mappers.second_quantization.resources.reference_direct_mapper import REFERENCE
 
 from qiskit_nature.drivers import GaussianForcesDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_spin_op_builder import \
-        build_vibrational_spin_op
-
-from .resources.reference_direct_mapper import REFERENCE
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
+        build_vibrational_op
 
 
 class TestDirectMapper(QiskitNatureTestCase):
@@ -35,7 +34,7 @@ class TestDirectMapper(QiskitNatureTestCase):
         basis_size = 2
         truncation = 3
 
-        vibration_op = build_vibrational_spin_op(watson_hamiltonian, basis_size, truncation)
+        vibration_op = build_vibrational_op(watson_hamiltonian, basis_size, truncation)
 
         mapper = DirectMapper()
         qubit_op = mapper.map(vibration_op)
