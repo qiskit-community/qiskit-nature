@@ -156,11 +156,11 @@ class CHC(BlueprintCircuit):
         This includes float values and duplicates.
 
         For more details see :class:`~.NLocal`.
-        TODO: check docstring.
 
         Returns:
             The parameters objects used in the circuit.
         """
+        # TODO: check doc-string
         if isinstance(self._ordered_parameters, ParameterVector):
             self._ordered_parameters.resize(self._num_parameters)
             return list(self._ordered_parameters)
