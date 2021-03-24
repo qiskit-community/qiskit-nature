@@ -31,7 +31,7 @@ class LinearMapper(SpinMapper):
 
         qubit_ops_list = []
 
-        # get transformed generalised spin matrices transformed_xyzi
+        # get transformed general spin matrices
         spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
 
         for _, op in enumerate(second_q_op.to_list()):
@@ -45,41 +45,41 @@ class LinearMapper(SpinMapper):
                 operator_on_spin_i = []
 
                 if n_x > 0:
-                    # construct the qubit operator embed(X^nx)
+                    # construct the qubit operator embed
                     operator_on_spin_i.append(
                         self._operator_product([spinx for i in range(int(n_x))]))
 
                 if n_y > 0:
-                    # construct the qubit operator embed(Y^ny)
+                    # construct the qubit operator embed
                     operator_on_spin_i.append(
                         self._operator_product([spiny for i in range(int(n_y))]))
 
                 if n_z > 0:
-                    # construct the qubit operator embed(Z^nz)
+                    # construct the qubit operator embed
                     operator_on_spin_i.append(
                         self._operator_product([spinz for i in range(int(n_z))]))
 
                 if np.any([n_x, n_y, n_z]) > 0:
-                    # multiply X^nx * Y^ny * Z^nz
+                    # multiply X^n_x * Y^n_y * Z^n_z
                     operator_on_spin_i = self._operator_product(operator_on_spin_i)
-                    operatorlist.append(operator_on_spin_i)
+                    operatorlist.append(operator_on_spin_i.reduce())
 
                 else:
-                    # If nx=ny=nz=0, simply add the embedded Identity operator.
+                    # If n_x=n_y=n_z=0, simply add the embedded Identity operator.
                     operatorlist.append(identity)
 
-                # `operatorlist` is now a list of (sums of pauli strings)
-                # which still need to be tensored together
+                # A list which still need to tensor together
                 # to get the final operator
                 # first we reduce operators
 
-                operatorlist_red = []
+                tmp_operatorlist = []
 
-                for oper in operatorlist:
-                    operatorlist_red.append(oper.reduce())
+                for tmp_op in operatorlist:
+                    print(type(tmp_op))
+                    tmp_operatorlist.append(tmp_op.reduce())
 
-                operatorlist = operatorlist_red
-
+                operatorlist = tmp_operatorlist
+            assert False
             qubit_ops_list.append(self._tensor_ops(operatorlist, coeff))
 
         qubit_op = self._operator_sum(qubit_ops_list)
@@ -190,14 +190,14 @@ class LinearMapper(SpinMapper):
     def _tensor_ops(self, operatorlist: List, coeff: complex) -> PauliSumOp:
 
         if len(operatorlist) == 1:
-            tensored_op = operatorlist[0]
+            tensor_op = operatorlist[0]
 
         elif len(operatorlist) > 1:
-            tensored_op = operatorlist[0]
+            tensor_op = operatorlist[0]
 
             for op in operatorlist[1:]:
-                tensored_op = tensored_op ^ op
+                tensor_op = tensor_op ^ op
         else:
             raise 'Unsupported list provided'
 
-        return coeff * tensored_op
+        return coeff * tensor_op
