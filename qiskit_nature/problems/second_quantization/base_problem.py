@@ -51,6 +51,14 @@ class BaseProblem(ABC):
         return data
 
     def interpret(self, raw_mes_result):
+        """Interprets an EigenstateResult in the context of this transformation.
+
+        Args:
+            raw_result: an eigenstate result object.
+
+        Returns:
+            An electronic structure result.
+        """
         raise NotImplementedError()
 
     def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,

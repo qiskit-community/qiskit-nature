@@ -27,7 +27,7 @@ class MinimumEigensolverFactory(ABC):
         """Returns a minimum eigensolver, based on the qubit operator transformation.
 
         Args:
-            transformation: The qubit operator transformation.
+            problem: a class encoding a problem to be solved.
 
         Returns:
             A minimum eigensolver suitable to compute the ground state of the molecule transformed

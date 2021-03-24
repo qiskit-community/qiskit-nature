@@ -165,14 +165,14 @@ class SpinOp(SecondQuantizedOp):
     """
 
     def __init__(
-        self,
-        data: Union[
-            str,
-            List[Tuple[str, complex]],
-            Tuple[np.ndarray, np.ndarray],
-        ],
-        spin: Union[float, Fraction] = Fraction(1, 2),
-        register_length: Optional[int] = None,
+            self,
+            data: Union[
+                str,
+                List[Tuple[str, complex]],
+                Tuple[np.ndarray, np.ndarray],
+            ],
+            spin: Union[float, Fraction] = Fraction(1, 2),
+            register_length: Optional[int] = None,
     ):
         r"""
         Args:
@@ -201,9 +201,9 @@ class SpinOp(SecondQuantizedOp):
             self._coeffs = np.array(data[1], dtype=dtype)
 
         if (
-            isinstance(data, tuple)
-            and isinstance(data[0], str)
-            and isinstance(data[1], (int, float, complex))
+                isinstance(data, tuple)
+                and isinstance(data[0], str)
+                and isinstance(data[1], (int, float, complex))
         ):
             data = [data]
 
@@ -529,6 +529,6 @@ class SpinOp(SecondQuantizedOp):
                 for pos, op in zip(positions, ops):
                     label_list[pos] = op
                 for pos, op in zip(positions, ops):
-                    label_list.pop(pos+1)
+                    label_list.pop(pos + 1)
                 new_data.append((" ".join(label_list), coeff))
         return new_data

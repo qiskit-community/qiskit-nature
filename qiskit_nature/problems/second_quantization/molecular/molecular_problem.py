@@ -216,7 +216,6 @@ class MolecularProblem(BaseProblem):
             total_angular_momentum_aux = aux_values[1][0]
             return np.isclose(
                 self._q_molecule_transformed.num_alpha + self._q_molecule_transformed.num_beta,
-                num_particles_aux) and \
-                   np.isclose(0., total_angular_momentum_aux)
+                num_particles_aux) and np.isclose(0., total_angular_momentum_aux)
 
         return partial(filter_criterion, self)

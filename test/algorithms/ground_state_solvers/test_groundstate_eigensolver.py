@@ -15,6 +15,7 @@
 import copy
 import unittest
 
+from test import QiskitNatureTestCase
 import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
@@ -22,7 +23,6 @@ from qiskit.utils import QuantumInstance
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
-from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError, FermionicOperator
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver

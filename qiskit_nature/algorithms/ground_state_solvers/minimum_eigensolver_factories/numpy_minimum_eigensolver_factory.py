@@ -13,12 +13,11 @@
 """The numpy minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, List, Callable
-import numpy as np
 
+import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
 
 from ....problems.second_quantization.base_problem import BaseProblem
-from ....transformations.transformation import Transformation
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -70,7 +69,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         provided by the ``transformation``.
 
         Args:
-            transformation: a fermionic/bosonic qubit operator transformation.
+            problem: a class encoding a problem to be solved.
 
         Returns:
             A NumPyMinimumEigensolver suitable to compute the ground state of the molecule
