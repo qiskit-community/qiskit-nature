@@ -15,7 +15,7 @@ from typing import Union, List
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.drivers.bosonic_bases import HarmonicBasis
 
-from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
+from qiskit_nature.operators.second_quantization.vibration_op import VibrationOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
     _create_labels
 
@@ -43,4 +43,4 @@ def build_vibrational_spin_op(watson_hamiltonian: WatsonHamiltonian,
                                             basis_size, truncation_order).convert()
     all_labels = _create_labels(boson_hamilt_harm_basis)
 
-    return VibrationalSpinOp(all_labels, num_modes, basis_size)
+    return VibrationOp(all_labels, num_modes, basis_size)
