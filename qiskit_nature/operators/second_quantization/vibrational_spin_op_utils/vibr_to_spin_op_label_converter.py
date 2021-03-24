@@ -21,8 +21,8 @@ from qiskit_nature.operators.second_quantization.vibrational_spin_op_utils \
     .vibrational_labels_validator import _validate_vibrational_labels
 
 
-def _convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
-                               num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
+def _convert_to_dense_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
+                             num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
     """Converts `VibrationalSpinOp` labels to `SpinOp` labels.
 
     Args:
@@ -47,28 +47,28 @@ def _convert_to_spin_op_labels(vibrational_labels: List[Tuple[str, complex]], nu
 
     partial_sum_modals = [0] + list(itertools.accumulate(num_modals, operator.add))
 
-    spin_op_labels = []
+    dense_labels = []
     for labels, coeff in vibrational_labels:
-        coeff_new_labels = _build_coeff_spin_op_labels(labels, partial_sum_modals)
-        spin_op_labels.append((coeff_new_labels, coeff))
-    return spin_op_labels
+        coeff_new_labels = _build_coeff_dense_labels(labels, partial_sum_modals)
+        dense_labels.append((coeff_new_labels, coeff))
+    return dense_labels
 
 
-def _build_coeff_spin_op_labels(labels: str, partial_sum_modals: List[int]) -> str:
+def _build_coeff_dense_labels(labels: str, partial_sum_modals: List[int]) -> str:
     coeff_labels_split = labels.split()
     coeff_new_labels = []
     for label in coeff_labels_split:
-        new_label = _build_spin_op_label(label, partial_sum_modals)
-        coeff_new_labels.append(new_label)
-    coeff_new_labels_str = " ".join(coeff_new_labels)
-    return coeff_new_labels_str
+        op, index = _build_dense_label(label, partial_sum_modals)
+        new_label = ['I'] * partial_sum_modals[-1]
+        new_label[index] = op
+        coeff_new_labels.append(''.join(new_label))
+    return coeff_new_labels
 
 
-def _build_spin_op_label(label: str, partial_sum_modals: List[int]) -> str:
+def _build_dense_label(label: str, partial_sum_modals: List[int]) -> str:
     op, mode_index, modal_index = re.split('[*_]', label)
     index = _get_ind_from_mode_modal(partial_sum_modals, int(mode_index), int(modal_index))
-    new_label = f"{op}_{index}"
-    return new_label
+    return (op, index)
 
 
 def _get_ind_from_mode_modal(partial_sum_modals: List[int], mode_index: int,
