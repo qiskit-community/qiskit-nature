@@ -118,12 +118,17 @@ class VibrationOp(SecondQuantizedOp):
         try:
             # Sparse label
             _validate_vibrational_labels(data, num_modes, num_modals)
-            dense_labels = _convert_to_dense_labels(data, num_modes, num_modals)[0]
+            dense_labels = _convert_to_dense_labels(data, num_modes, num_modals)
 
-            op = reduce(lambda a, b: a @ b, (
-                    VibrationOp((lbl, 1), num_modals=num_modals, num_modes=num_modes)
-                    for lbl in dense_labels[0]
-            ))
+            ops = []
+            for dense_label in dense_labels:
+                new_op = reduce(lambda a, b: a @ b, (
+                        VibrationOp((lbl, 1), num_modals=num_modals, num_modes=num_modes)
+                        for lbl in dense_label[0]
+                ))
+                ops.append(dense_label[1] * new_op)
+
+            op = sum(ops)
 
             self._labels = op._labels.copy()
         except ValueError as exc:
@@ -192,7 +197,7 @@ class VibrationOp(SecondQuantizedOp):
             )
 
         # Check compatibility
-        if self.num_modes != other.num_modes or any(self.num_modals != other.num_modals):
+        if self.num_modes != other.num_modes or self.num_modals != other.num_modals:
             raise TypeError("Incompatible register lengths for '+'.")
 
         return VibrationOp(
@@ -230,11 +235,22 @@ class VibrationOp(SecondQuantizedOp):
                            num_modals=self._num_modals, num_modes=self._num_modes)
 
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationOp":
-        # if atol is None:
-        #     atol = self.atol
-        # if rtol is None:
-        #     rtol = self.rtol
-        raise NotImplementedError
+        if atol is None:
+            atol = self.atol
+        if rtol is None:
+            rtol = self.rtol
+
+        label_list, indices = np.unique(self._labels, return_inverse=True, axis=0)
+        coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
+        for i, val in zip(indices, self._coeffs):
+            coeff_list[i] += val
+        non_zero = [
+            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
+        ]
+        if not non_zero:
+            return VibrationOp(("I_0*0", 0), num_modals=self._num_modals, num_modes=self._num_modes)
+        return VibrationOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
+                           num_modals=self._num_modals, num_modes=self._num_modes)
 
     def compose(self, other: "VibrationOp") -> "VibrationOp":
         if isinstance(other, VibrationOp):
