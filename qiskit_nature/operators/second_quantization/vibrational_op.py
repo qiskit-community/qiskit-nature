@@ -86,8 +86,7 @@ class VibrationalOp(SecondQuantizedOp):
                  num_modals: Union[int, List[int]]):
         r"""
         Args:
-            data: list of labels and coefficients. See the label section in
-                  the documentation of :class:`VibrationalSpinOp` for more details.
+            data: list of labels and coefficients.
             num_modes : number of modes.
             num_modals: number of modals - described by a list of integers where each integer
                         describes the number of modals in a corresponding mode; in case of the
