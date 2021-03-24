@@ -126,14 +126,15 @@ class VibrationalOp(SecondQuantizedOp):
             _validate_vibrational_labels(data, num_modes, num_modals)
             dense_labels = _convert_to_dense_labels(data, num_modes, num_modals)
 
-            ops = []
+            ops: List[VibrationalOp] = []
             for dense_label, coeff in dense_labels:
                 new_op = reduce(lambda a, b: a @ b, (
                         VibrationalOp((label, 1), num_modes, num_modals) for label in dense_label
                 ))
-                ops.append(coeff * new_op)
+                # We ignore the type here because mypy only sees the complex coefficient
+                ops.append(coeff * new_op)  # type: ignore
 
-            op = sum(ops)
+            op = reduce(lambda a, b: a + b, ops)
 
             self._labels = op._labels.copy()
 

@@ -21,7 +21,7 @@ from .vibrational_labels_validator import _validate_vibrational_labels
 
 
 def _convert_to_dense_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
-                             num_modals: Union[int, List[int]]) -> List[Tuple[str, complex]]:
+                             num_modals: Union[int, List[int]]) -> List[Tuple[List[str], complex]]:
     """Converts `VibrationalOp` labels to `SpinOp` labels.
 
     Args:
@@ -53,7 +53,7 @@ def _convert_to_dense_labels(vibrational_labels: List[Tuple[str, complex]], num_
     return dense_labels
 
 
-def _build_coeff_dense_labels(labels: str, partial_sum_modals: List[int]) -> str:
+def _build_coeff_dense_labels(labels: str, partial_sum_modals: List[int]) -> List[str]:
     coeff_labels_split = labels.split()
     coeff_new_labels = []
     for label in coeff_labels_split:
@@ -64,7 +64,7 @@ def _build_coeff_dense_labels(labels: str, partial_sum_modals: List[int]) -> str
     return coeff_new_labels
 
 
-def _build_dense_label(label: str, partial_sum_modals: List[int]) -> str:
+def _build_dense_label(label: str, partial_sum_modals: List[int]) -> Tuple[str, int]:
     op, mode_index, modal_index = re.split('[*_]', label)
     index = _get_ind_from_mode_modal(partial_sum_modals, int(mode_index), int(modal_index))
     return (op, index)
