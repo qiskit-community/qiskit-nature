@@ -12,15 +12,15 @@
 
 """The Linear Mapper."""
 
-import numpy as np
-from typing import List, Optional, Union
-from fractions import Fraction
 import copy
 
-from qiskit.opflow import PauliSumOp
-from qiskit_nature.operators.second_quantization.spin_op import SpinOp
-from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from fractions import Fraction
+from typing import List, Union
+import numpy as np
 
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from qiskit_nature.operators.second_quantization.spin_op import SpinOp
 from .spin_mapper import SpinMapper
 
 
@@ -40,26 +40,26 @@ class LinearMapper(SpinMapper):
 
             oper, coeff = op
 
-            for nx, ny, nz in zip(second_q_op.x[_], second_q_op.y[_], second_q_op.z[_]):
+            for n_x, n_y, n_z in zip(second_q_op.x[_], second_q_op.y[_], second_q_op.z[_]):
 
                 operator_on_spin_i = []
 
-                if nx > 0:
+                if n_x > 0:
                     # construct the qubit operator embed(X^nx)
                     operator_on_spin_i.append(
-                        self._operator_product([spinx for i in range(int(nx))]))
+                        self._operator_product([spinx for i in range(int(n_x))]))
 
-                if ny > 0:
+                if n_y > 0:
                     # construct the qubit operator embed(Y^ny)
                     operator_on_spin_i.append(
-                        self._operator_product([spiny for i in range(int(ny))]))
+                        self._operator_product([spiny for i in range(int(n_y))]))
 
-                if nz > 0:
+                if n_z > 0:
                     # construct the qubit operator embed(Z^nz)
                     operator_on_spin_i.append(
-                        self._operator_product([spinz for i in range(int(nz))]))
+                        self._operator_product([spinz for i in range(int(n_z))]))
 
-                if np.any([nx, ny, nz]) > 0:
+                if np.any([n_x, n_y, n_z]) > 0:
                     # multiply X^nx * Y^ny * Z^nz
                     operator_on_spin_i = self._operator_product(operator_on_spin_i)
                     operatorlist.append(operator_on_spin_i)
@@ -75,8 +75,8 @@ class LinearMapper(SpinMapper):
 
                 operatorlist_red = []
 
-                for op in operatorlist:
-                    operatorlist_red.append(op.reduce())
+                for oper in operatorlist:
+                    operatorlist_red.append(oper.reduce())
 
                 operatorlist = operatorlist_red
 
@@ -86,7 +86,7 @@ class LinearMapper(SpinMapper):
 
         return qubit_op
 
-    def _operator_sum(self, op_list):
+    def _operator_sum(self, op_list: List) -> PauliSumOp:
         """Calculates the sum of all elements of a non-empty list
         Args:
             op_list (list):
@@ -104,7 +104,7 @@ class LinearMapper(SpinMapper):
                 op_sum += elem
         return op_sum
 
-    def _operator_product(self, op_list):
+    def _operator_product(self, op_list) -> PauliSumOp:
         """
         Calculates the product of all elements in a non-empty list.
         Args:
@@ -123,7 +123,7 @@ class LinearMapper(SpinMapper):
                 op_prod = op_prod @ elem
         return op_prod
 
-    def _linear_encoding(self, S: Union[Fraction, float]):
+    def _linear_encoding(self, spin: Union[Fraction, float]) -> List:
         """
         Generates a 'linear_encoding' of the spin S operators 'X', 'Y', 'Z' and 'identity'
         to qubit operators (linear combinations of pauli strings).
@@ -139,9 +139,9 @@ class LinearMapper(SpinMapper):
                     to represent the embedded 'X' operator
         """
 
-        transformed_XYZI = []
-        dim_S = int(2 * S + 1)
-        nqubits = dim_S
+        trafo_xzyi = []
+        dspin = int(2 * spin + 1)
+        nqubits = dspin
 
         # quick functions to generate a pauli with X / Y / Z at location `i`
         pauli_id = Pauli.from_label('I' * nqubits)
@@ -157,40 +157,37 @@ class LinearMapper(SpinMapper):
 
         # 1. build the non-diagonal X operator
         x_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp("X", spin=S).to_matrix(), 1)):
+        for i, coeff in enumerate(np.diag(SpinOp("X", spin=spin).to_matrix(), 1)):
             x_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_x(i) * pauli_x(i + 1)) +
                                          coeff / 2. * SparsePauliOp(pauli_y(i) * pauli_y(i + 1))))
-        transformed_XYZI.append(self._operator_sum(x_summands))
+        trafo_xzyi.append(self._operator_sum(x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp("Y", spin=S).to_matrix(), 1)):
+        for i, coeff in enumerate(np.diag(SpinOp("Y", spin=spin).to_matrix(), 1)):
             y_summands.append(PauliSumOp(-1j * coeff / 2. *
                                          SparsePauliOp(pauli_x(i) * pauli_y(i + 1)) +
                                          1j * coeff / 2. *
                                          SparsePauliOp(pauli_y(i) * pauli_x(i + 1))))
-        transformed_XYZI.append(self._operator_sum(y_summands))
+        trafo_xzyi.append(self._operator_sum(y_summands))
 
         # 3. build the diagonal Z
         z_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp("Z", spin=S).to_matrix())):
+        for i, coeff in enumerate(np.diag(SpinOp("Z", spin=spin).to_matrix())):
             # get the first upper diagonal of coeff.
             z_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_z(i)) +
                                          coeff / 2. * SparsePauliOp(pauli_id)))
 
-        #             WeightedPauliOperator(paulis=[[coeff/2., pauli_z(i)],
-        #                                            [coeff/2., pauli_id]])
-        #                           )
         z_operator = self._operator_sum(z_summands)
-        transformed_XYZI.append(z_operator)
+        trafo_xzyi.append(z_operator)
 
         # 4. add the identity operator
-        transformed_XYZI.append(PauliSumOp(1. * SparsePauliOp(pauli_id)))
+        trafo_xzyi.append(PauliSumOp(1. * SparsePauliOp(pauli_id)))
 
         # return the lookup table for the transformed XYZI operators
-        return transformed_XYZI
+        return trafo_xzyi
 
-    def _tensor_ops(self, operatorlist: List, coeff: complex):
+    def _tensor_ops(self, operatorlist: List, coeff: complex) -> PauliSumOp:
 
         if len(operatorlist) == 1:
             tensored_op = operatorlist[0]
