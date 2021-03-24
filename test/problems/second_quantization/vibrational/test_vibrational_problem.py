@@ -12,7 +12,7 @@
 
 """Tests Vibrational Problem."""
 from test import QiskitNatureTestCase
-from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
+from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
     VibrationalProblem
 from qiskit_nature.drivers import GaussianForcesDriver
@@ -35,8 +35,9 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         basis_size = [basis_size] * num_modes
         vibrational_problem = VibrationalProblem(driver, basis_size, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
-        vibrational_spin_op = second_quantized_ops[0]
+        vibrational_op = second_quantized_ops[0]
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            assert isinstance(vibrational_spin_op, VibrationalSpinOp)
+            assert isinstance(vibrational_op, VibrationalOp)
+        # TODO: add more checks once the algorithms are fully in place

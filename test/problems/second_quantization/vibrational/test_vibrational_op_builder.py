@@ -9,33 +9,35 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Tests Vibrational Label Builder."""
+"""Tests Fermionic Operator builder."""
+
 from test import QiskitNatureTestCase
 from test.problems.second_quantization.vibrational.resources.expected_labels import \
-    _co2_freq_b3lyp_sparse_labels as expected_labels
+    _co2_freq_b3lyp_dense_labels as expected_labels
 from test.problems.second_quantization.vibrational.resources.expected_labels import \
     _co2_freq_b3lyp_coeffs as expected_coeffs
 
+from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
+    build_vibrational_op
 from qiskit_nature.drivers import GaussianForcesDriver
-from qiskit_nature.drivers.bosonic_bases import HarmonicBasis
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
-    _create_labels
 
 
-class TestVibrationalLabelBuilder(QiskitNatureTestCase):
-    """Tests Vibrational Label Builder."""
+class TestVibrationalOpBuilder(QiskitNatureTestCase):
+    """Tests Vibrational Op builder."""
 
-    def test_create_labels(self):
-        """Tests that correct labels are built."""
+    def test_vibrational_op_builder(self):
+        """Tests that a VibrationalOp is created correctly from a driver."""
         logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
         driver = GaussianForcesDriver(logfile=logfile)
+
         watson_hamiltonian = driver.run()
         basis_size = 2
         truncation_order = 3
-        num_modes = watson_hamiltonian.num_modes
-        basis_size = [basis_size] * num_modes
-        boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
-                                                basis_size, truncation_order).convert()
-        labels, coeffs = zip(*_create_labels(boson_hamilt_harm_basis))
+
+        vibrational_op = build_vibrational_op(watson_hamiltonian, basis_size, truncation_order)
+
+        assert isinstance(vibrational_op, VibrationalOp)
+        labels, coeffs = zip(*vibrational_op.to_list())
         self.assertSetEqual(frozenset(labels), frozenset(expected_labels))
         self.assertSetEqual(frozenset(coeffs), frozenset(expected_coeffs))

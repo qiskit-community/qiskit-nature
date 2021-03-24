@@ -15,8 +15,8 @@ from typing import List, Optional, Union
 from qiskit_nature.drivers import BosonicDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_spin_op_builder import \
-    build_vibrational_spin_op
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
+    build_vibrational_op
 from qiskit_nature.transformers import BaseTransformer
 
 
@@ -45,9 +45,9 @@ class VibrationalProblem(BaseProblem):
         """
         watson_hamiltonian = self.driver.run()
         watson_hamiltonian_transformed = self._transform(watson_hamiltonian)
-        vibrational_spin_op = build_vibrational_spin_op(watson_hamiltonian_transformed,
-                                                        self.basis_size,
-                                                        self.truncation_order)
+        vibrational_spin_op = build_vibrational_op(watson_hamiltonian_transformed,
+                                                   self.basis_size,
+                                                   self.truncation_order)
 
         second_quantized_ops_list = [vibrational_spin_op]
 
