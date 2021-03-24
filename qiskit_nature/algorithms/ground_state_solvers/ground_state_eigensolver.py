@@ -15,24 +15,18 @@
 from typing import Union, List, Optional, Dict
 
 import numpy as np
-
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.algorithms import MinimumEigensolver
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
-from ...fermionic_operator import FermionicOperator
-from ...bosonic_operator import BosonicOperator
-from ...drivers.base_driver import BaseDriver
-from ...mappers.second_quantization import QubitMapper
+
 from ...operators.second_quantization.qubit_converter import QubitConverter
 from ...problems.second_quantization.base_problem import BaseProblem
-from ...transformations.transformation import Transformation
 from ...results.electronic_structure_result import ElectronicStructureResult
 from ...results.vibronic_structure_result import VibronicStructureResult
 from .ground_state_solver import GroundStateSolver
-
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
 
@@ -83,25 +77,23 @@ class GroundStateEigensolver(GroundStateSolver):
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        second_quant_operator, *second_quant_aux_ops = problem.second_q_ops()
-        qubit_operator = self._qubit_converter.to_qubit_ops(second_quant_operator)
-        qubit_ops_aux = []
-        for aux_op in second_quant_aux_ops:
-            qubit_ops_aux.append(self._qubit_converter.to_qubit_ops(aux_op))
+        second_q_ops = problem.second_q_ops()
+        qubit_ops = self._qubit_converter.to_qubit_ops(second_q_ops)
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
-            solver = self._solver.get_solver(
-                problem.get_default_filter_criterion())  # TODO what to input here?
+            self._solver = self._solver.get_solver(
+                problem)  # TODO what to input here?
         else:
             solver = self._solver
         # if the eigensolver does not support auxiliary operators, reset them
         if not self.solver.supports_aux_operators():
-            qubit_ops_aux = None
+            qubit_ops = None
 
         # TODO incompatible types
-        main_operator = qubit_operator[0]
-        raw_mes_result = self.solver.compute_minimum_eigenvalue(main_operator, qubit_ops_aux)
+        main_operator = qubit_ops[0]
+        aux_ops = qubit_ops[1:]
+        raw_mes_result = self.solver.compute_minimum_eigenvalue(main_operator, aux_ops)
 
         result = problem.interpret(raw_mes_result)
         return result

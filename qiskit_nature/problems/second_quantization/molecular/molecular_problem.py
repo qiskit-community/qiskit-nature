@@ -60,14 +60,15 @@ class MolecularProblem(BaseProblem):
         num_modes = q_molecule_transformed.one_body_integrals.shape[0]
 
         electronic_fermionic_op = build_fermionic_op(q_molecule_transformed)
-        total_magnetization_ferm_op = self._create_total_magnetization_operator(num_modes)
-        total_angular_momentum_ferm_op = self._create_total_angular_momentum_operator(num_modes)
         total_particle_number_ferm_op = self._create_total_particle_number_operator(num_modes)
+        total_angular_momentum_ferm_op = self._create_total_angular_momentum_operator(num_modes)
+        total_magnetization_ferm_op = self._create_total_magnetization_operator(num_modes)
 
         second_quantized_ops_list = [electronic_fermionic_op,
-                                     total_magnetization_ferm_op,
+                                     total_particle_number_ferm_op,
                                      total_angular_momentum_ferm_op,
-                                     total_particle_number_ferm_op]
+                                     total_magnetization_ferm_op,
+                                     ]
 
         if q_molecule_transformed.has_dipole_integrals():
             x_dipole_operator, y_dipole_operator, z_dipole_operator = self._create_dipole_operators(
@@ -133,10 +134,10 @@ class MolecularProblem(BaseProblem):
         result.nuclear_repulsion_energy = self._q_molecule.nuclear_repulsion_energy
         if self._q_molecule.nuclear_dipole_moment is not None:
             result.nuclear_dipole_moment = tuple(x for x in self._q_molecule.nuclear_dipole_moment)
-        result.ph_extracted_energy = self._q_molecule_transformed.ph_energy_shift.get(
-            "ParticleHoleTransformer", None)
+        result.ph_extracted_energy = self._q_molecule_transformed.energy_shift.get(
+            "ParticleHoleTransformer", 0)
         result.frozen_extracted_energy = self._q_molecule_transformed.energy_shift.get(
-            "FreezeCoreTransformer", None)
+            "FreezeCoreTransformer", 0)
         if result.aux_operator_eigenvalues is not None:
             # the first three values are hardcoded to number of particles, angular momentum
             # and magnetization in this order
@@ -165,7 +166,8 @@ class MolecularProblem(BaseProblem):
                     result.magnetization.append(aux_op_eigenvalues[2][0].real)  # type: ignore
 
                 # the next three are hardcoded to Dipole moments, if they are set
-                if len(aux_op_eigenvalues) >= 6 and self._q_molecule.has_dipole_moments:
+                if len(
+                        aux_op_eigenvalues) >= 6 and self._q_molecule.has_dipole_integrals:
                     # check if the names match
                     # extract dipole moment in each axis
                     dipole_moment = []
@@ -179,20 +181,20 @@ class MolecularProblem(BaseProblem):
                     result.computed_dipole_moment.append(cast(DipoleTuple,
                                                               tuple(dipole_moment)))
                     result.ph_extracted_dipole_moment.append(
-                        (self._q_molecule_transformed.ph_x_dipole_shift.get(
-                            "ParticleHoleTransformer", None),
-                         self._q_molecule_transformed.ph_y_dipole_shift.get(
-                             "ParticleHoleTransformer", None),
-                         self._q_molecule_transformed.ph_z_dipole_shift.get(
-                             "ParticleHoleTransformer", None)))
+                        (self._q_molecule_transformed.x_dip_energy_shift.get(
+                            "ParticleHoleTransformer", 0),
+                         self._q_molecule_transformed.y_dip_energy_shift.get(
+                             "ParticleHoleTransformer", 0),
+                         self._q_molecule_transformed.z_dip_energy_shift.get(
+                             "ParticleHoleTransformer", 0)))
 
                     result.frozen_extracted_dipole_moment.append(
-                        (self._q_molecule_transformed.x_dip_energy_shift.energy_shift.get(
-                            "FreezeCoreTransformer", None),
-                         self._q_molecule_transformed.y_dip_energy_shift.energy_shift.get(
-                             "FreezeCoreTransformer", None),
-                         self._q_molecule_transformed.z_dip_energy_shift.energy_shift.get(
-                             "FreezeCoreTransformer", None)))
+                        (self._q_molecule_transformed.x_dip_energy_shift.get(
+                            "FreezeCoreTransformer", 0),
+                         self._q_molecule_transformed.y_dip_energy_shift.get(
+                             "FreezeCoreTransformer", 0),
+                         self._q_molecule_transformed.z_dip_energy_shift.get(
+                             "FreezeCoreTransformer", 0)))
 
         return result
 
@@ -213,7 +215,7 @@ class MolecularProblem(BaseProblem):
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
             return np.isclose(
-                sum(self._q_molecule_transformed.num_alpha, self._q_molecule_transformed.num_beta),
+                self._q_molecule_transformed.num_alpha + self._q_molecule_transformed.num_beta,
                 num_particles_aux) and \
                    np.isclose(0., total_angular_momentum_aux)
 
