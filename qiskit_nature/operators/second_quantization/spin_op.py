@@ -96,12 +96,14 @@ class SpinOp(SecondQuantizedOp):
 
         "X_0"
         "Y_0^2"
-        "Y_1^2 Z_1^3 X_0^1 Y_0^2 Z_0^2"
+        "Y_0^2 Z_0^3 X_1^1 Y_1^2 Z_1^2"
 
     are possible labels.
     For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
-    this order. `+` and `-` are same order with `X` and cannot be used with `X` and `Y`.
+    this order. `+` and `-` cannot be used with `X` and `Y`
+    because ladder operators will be parsed into `X` and `Y`.
     Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
+    The indices must be ascending order.
 
     :code:`"+_i -_i"` is supported.
     This pattern is parsed to :code:`+_i -_i = X_i^2 + Y_i^2 + Z_i`.
@@ -135,7 +137,7 @@ class SpinOp(SecondQuantizedOp):
             spin=1
         )
 
-    This means :math:`- S^x_1 S^x_0 - S^y_1 S^y_0 - S^z_1 S^z_0 - 0.3 S^z_0 - 0.3 S^z_1`.
+    This means :math:`- S^x_0 S^x_1 - S^y_0 S^y_1 - S^z_0 S^z_1 - 0.3 S^z_0 - 0.3 S^z_1`.
 
     :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
     In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
@@ -295,7 +297,7 @@ class SpinOp(SecondQuantizedOp):
     @property
     def x(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) X operators on the spin system.
-        I.e. [0, 4, 2] corresponds to X_2^0 \\otimes X_1^4 \\otimes X_0^2, where X_i acts on the
+        I.e. [0, 4, 2] corresponds to X_0^0 \\otimes X_1^4 \\otimes X_2^2, where X_i acts on the
         i-th spin system in the register.
         """
         return self._spin_array[0]
@@ -303,7 +305,7 @@ class SpinOp(SecondQuantizedOp):
     @property
     def y(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) Y operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Y_2^0 \\otimes Y_1^4 \\otimes Y_0^2, where Y_i acts on the
+        I.e. [0, 4, 2] corresponds to Y_0^0 \\otimes Y_1^4 \\otimes Y_2^2, where Y_i acts on the
         i-th spin system in the register.
         """
         return self._spin_array[1]
@@ -311,7 +313,7 @@ class SpinOp(SecondQuantizedOp):
     @property
     def z(self) -> np.ndarray:
         """A np.ndarray storing the power i of (spin) Z operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Z_2^0 \\otimes Z_1^4 \\otimes Z_0^2, where Z_i acts on the
+        I.e. [0, 4, 2] corresponds to Z_0^0 \\otimes Z_1^4 \\otimes Z_2^2, where Z_i acts on the
         i-th spin system in the register.
         """
         return self._spin_array[2]
@@ -398,21 +400,20 @@ class SpinOp(SecondQuantizedOp):
         """Generates the string description of `self`."""
         labels_list = []
         for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
-            rev_pos = self.register_length - pos - 1
             if n_x == n_y == n_z == 0:
-                labels_list.append(f"I_{rev_pos}")
+                labels_list.append(f"I_{pos}")
                 continue
             if n_x >= 1:
-                labels_list.append(f"X_{rev_pos}" + (f"^{n_x}" if n_x > 1 else ""))
+                labels_list.append(f"X_{pos}" + (f"^{n_x}" if n_x > 1 else ""))
             if n_y >= 1:
-                labels_list.append(f"Y_{rev_pos}" + (f"^{n_y}" if n_y > 1 else ""))
+                labels_list.append(f"Y_{pos}" + (f"^{n_y}" if n_y > 1 else ""))
             if n_z >= 1:
-                labels_list.append(f"Z_{rev_pos}" + (f"^{n_z}" if n_z > 1 else ""))
+                labels_list.append(f"Z_{pos}" + (f"^{n_z}" if n_z > 1 else ""))
         return " ".join(labels_list)
 
     @lru_cache()
     def to_matrix(self) -> np.ndarray:
-        """Convert to dense matrix
+        """Convert to dense matrix.
 
         Returns:
             The matrix (numpy.ndarray with dtype=numpy.complex128)
@@ -476,15 +477,14 @@ class SpinOp(SecondQuantizedOp):
                     raise ValueError(
                         f"Index {index} must be smaller than register_length {self.register_length}"
                     )
-                register = self.register_length - index - 1
                 # Check the order of X, Y, and Z whether it has been already assigned.
-                if self._spin_array[range(xyz_num + 1, 3), term, register].any():
+                if self._spin_array[range(xyz_num + 1, 3), term, index].any():
                     raise ValueError(f"Label must be in XYZ order, but {label}.")
-                # same label is not assigned.
-                if self._spin_array[xyz_num, term, register]:
-                    raise ValueError("Duplicate label.")
+                # same index is not assigned.
+                if self._spin_array[xyz_num, term, index]:
+                    raise ValueError(f"Duplicate index label {index} is given.")
 
-                self._spin_array[xyz_num, term, register] = power
+                self._spin_array[xyz_num, term, index] = power
 
     @staticmethod
     def _flatten_ladder_ops(data):
@@ -528,7 +528,7 @@ class SpinOp(SecondQuantizedOp):
                 label_list = label.split()
                 for pos, op in zip(positions, ops):
                     label_list[pos] = op
-                for pos, op in zip(positions, ops):
+                for pos in sorted(positions, reverse=True):
                     label_list.pop(pos+1)
                 new_data.append((" ".join(label_list), coeff))
         return new_data
