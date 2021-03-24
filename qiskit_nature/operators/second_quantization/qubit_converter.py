@@ -13,7 +13,7 @@
 """A converter from Second-Quantized to Qubit Operators."""
 import copy
 import logging
-from typing import List, Optional, Tuple, cast
+from typing import cast, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -44,22 +44,33 @@ class QubitConverter:
 
         self._conversion_done = False
         self._did_two_qubit_reduction = False
+        self._num_particles = None
         self._z2symmetries = self._no_symmetries
 
     def _invalidate(self):
         self._conversion_done = False
         self._did_two_qubit_reduction = False
+        self._num_particles = None
         self._z2symmetries = self._no_symmetries
 
-    def _set_valid(self, did_two_qubit_reduction: bool, z2symmetries: Z2Symmetries):
+    def _set_valid(self, did_two_qubit_reduction: bool,
+                   num_particles: Optional[Tuple[int, int]],
+                   z2symmetries: Z2Symmetries):
         self._did_two_qubit_reduction = did_two_qubit_reduction
+        self._num_particles = num_particles
         self._z2symmetries = z2symmetries
         self._conversion_done = True
 
-    def _check_valid(self):
+    def _check_valid(self, converting: bool = False):
         if not self._conversion_done:
-            raise QiskitNatureError("Properties are valid only after a conversion has been done"
-                                    "Conversion state is reset if any settings are updated")
+            if not converting:
+                raise QiskitNatureError("Properties are valid only after a convert() has "
+                                        "been called successfully. "
+                                        "Conversion state is reset if any settings are updated.")
+            else:
+                raise QiskitNatureError("convert_more() can only be used after a convert() has "
+                                        "been called successfully as long as no settings "
+                                        "were updated since that call.")
 
     @property
     def _no_symmetries(self) -> Z2Symmetries:
@@ -115,8 +126,18 @@ class QubitConverter:
         return self._did_two_qubit_reduction
 
     @property
-    def z2symmetries(self) -> Z2Symmetries:
-        """Get z2symmetries as detected from conversion. This may indicate no symmetries
+    def num_particles(self) -> Optional[Tuple[int, int]]:
+        """Get the number of particles as supplied to conversion
+
+        Raises:
+            QiskitNatureError: If property is accessed before a successful conversion
+        """
+        self._check_valid()
+        return self._num_particles
+
+    @property
+    def z2_symmetries(self) -> Z2Symmetries:
+        """Get z2_symmetries as detected from conversion. This may indicate no symmetries
         if none were detected.
 
         Raises:
@@ -125,43 +146,90 @@ class QubitConverter:
         self._check_valid()
         return copy.deepcopy(self._z2symmetries)
 
-    def to_qubit_ops(self, second_q_ops: List[SecondQuantizedOp],
-                     num_particles: Optional[Tuple[int, int]] = None,
-                     z2symmetry_reduction: Optional[List[int]] = None,
-                     ) -> List[Optional[PauliSumOp]]:
+    def convert(self, second_q_ops: Union[SecondQuantizedOp, List[SecondQuantizedOp]],
+                num_particles: Optional[Tuple[int, int]] = None,
+                z2symmetry_reduction: Optional[List[int]] = None,
+                ) -> Union[PauliSumOp, List[Optional[PauliSumOp]]]:
         """
         Maps the given list of second quantized operators to qubit operators. Also it will
         carry out z2 symmetry reduction on the qubit operators if z2symmetry_reduction has
-        been specified.
+        been specified. For convenience a single operator may be passed, without wrapping
+        it in a List, and in which case a single qubit operator will likewise be returned.
 
         Args:
-            second_q_ops: The list of second quantized operators to be converted
+            second_q_ops: A second quantized operator, or list thereof to be converted.
             num_particles: Needed for two qubit reduction to determine correct sector. If
                 not supplied, even if two_qubit_reduction is possible, it will not be done.
             z2symmetry_reduction: Optional z2symmetry reduction, the sector of the symmetry
 
         Returns:
-            A list of qubit operators or the same length as the second_q_ops list. The first
+            A qubit operator or list of thereof the same length as the second_q_ops list. The first
             operator in the second_q_ops list is treated as the main operator and others must
             commute with its symmetry, when symmetry reduction is being done. If it does not
             then the position in the output list will be set to `None` to preserve the order.
         """
         self._invalidate()  # Invalidate state before conversion is attempted
-        # TODO, do not reset state rather allow subsequent uses of the conversion
-        # where they are done according to the first one. Any use of setters to change
-        # properties will of course reset things so the next conversion will be locked in
-        # and so on
+
+        # To allow a single operator to be converted, but use the same logic that does the
+        # actual conversions, we make a single entry list of it here and unwrap to return.
+        wrapped = False
+        if isinstance(second_q_ops, SecondQuantizedOp):
+            second_q_ops = [second_q_ops]
+            wrapped = True
 
         if z2symmetry_reduction is not None:
             self.z2symmetry_reduction = z2symmetry_reduction
 
         qubit_ops = self._map_to_qubits(second_q_ops)
         qubit_ops_reduced, did_2_q = self._two_qubit_reduce(qubit_ops, num_particles)
-        qubit_ops_tapered, z2symmetries = self._symmetry_reduce(qubit_ops_reduced)
+        qubit_ops_tapered, z2symmetries = self._find_symmetry_reduce(qubit_ops_reduced)
 
         # Set the state (i.e. whether we did two qubit reductions and the Z2Symmetries)
         # now that a conversion was successful
-        self._set_valid(did_2_q, z2symmetries)
+        self._set_valid(did_2_q, num_particles, z2symmetries)
+
+        if wrapped:
+            qubit_ops_tapered = qubit_ops_tapered[0]
+
+        return qubit_ops_tapered
+
+    def convert_more(self, second_q_ops: Union[SecondQuantizedOp, List[SecondQuantizedOp]]
+                ) -> Union[PauliSumOp, List[Optional[PauliSumOp]]]:
+        """
+        Maps the given second quantized operators to qubit operators using the same mapping,
+        reductions as was done on a preceding successful call to :meth:`convert`. This allows
+        other modules, that may build operators, to conform them to the mapping and reduction
+        that would have been  done to the problem operators.
+        but will do so only after
+
+        Args:
+            second_q_ops: A second quantized operator, or list thereof to be converted.
+
+        Returns:
+            A qubit operator or list of thereof the same length as the second_q_ops list. All
+            operators in the second_q_ops list must commute with the symmetry detected when
+            :meth:`convert` was called. If it does not then the position in the output list
+            will be set to `None` to preserve the order; or None may be directly returned
+            in the case when a single operator is provided
+
+        Raises:
+            QiskitNatureError: If property is accessed before a successful conversion
+        """
+        self._check_valid(True)
+
+        # To allow a single operator to be converted, but use the same logic that does the
+        # actual conversions, we make a single entry list of it here and unwrap to return.
+        wrapped = False
+        if isinstance(second_q_ops, SecondQuantizedOp):
+            second_q_ops = [second_q_ops]
+            wrapped = True
+
+        qubit_ops = self._map_to_qubits(second_q_ops)
+        qubit_ops_reduced, _ = self._two_qubit_reduce(qubit_ops, self.num_particles)
+        qubit_ops_tapered = self._symmetry_reduce(qubit_ops_reduced)
+
+        if wrapped:
+            qubit_ops_tapered = qubit_ops_tapered[0]
 
         return qubit_ops_tapered
 
@@ -191,7 +259,7 @@ class QubitConverter:
 
         return reduced_qubit_ops, did_2_q
 
-    def _symmetry_reduce(self, qubit_ops: List[PauliSumOp])\
+    def _find_symmetry_reduce(self, qubit_ops: List[PauliSumOp])\
             -> Tuple[List[Optional[PauliSumOp]], Z2Symmetries]:
 
         if self.z2symmetry_reduction is None:
@@ -231,6 +299,34 @@ class QubitConverter:
                     tapered_qubit_ops.append(op)
 
         return tapered_qubit_ops, z2_symmetries
+
+    def _symmetry_reduce(self, qubit_ops: List[PauliSumOp])\
+            -> List[Optional[PauliSumOp]]:
+
+        if self.z2symmetry_reduction is None:
+            tapered_qubit_ops = qubit_ops
+        else:
+            z2_symmetries = self.z2_symmetries
+            if z2_symmetries.is_empty():
+                tapered_qubit_ops = qubit_ops
+            else:
+                logger.debug('Checking operators commute with symmetry:')
+                symmetry_ops = []
+                for symmetry in z2_symmetries.symmetries:
+                    symmetry_ops.append(PauliSumOp.from_list([(symmetry.to_label(), 1.0)]))
+                commuted = []
+                for i, qubit_op in enumerate(qubit_ops):
+                    commutes = QubitConverter._check_commutes(symmetry_ops, qubit_op)
+                    commuted.append(commutes)
+                    logger.debug("Qubit operators commuted with symmetry %s", commuted)
+
+                # Tapering values were set from prior convert so we go ahead and taper operators
+                tapered_qubit_ops = []
+                for i, commutes in enumerate(commuted):
+                    op = z2_symmetries.taper(qubit_ops[i]) if commutes else None
+                    tapered_qubit_ops.append(op)
+
+        return tapered_qubit_ops
 
     @staticmethod
     def _check_commutes(cliffords: List[PauliSumOp], qubit_op: PauliSumOp) -> bool:

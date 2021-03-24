@@ -64,7 +64,7 @@ class HartreeFock(QuantumCircuit):
         bitstr_op = FermionicOp(''.join(label))
 
         # map the `FermionicOp` to a qubit operator
-        qubit_op = qubit_converter.to_qubit_ops([bitstr_op])[0]
+        qubit_op = qubit_converter.convert([bitstr_op])[0]
 
         # construct the circuit
         qr = QuantumRegister(qubit_op.num_qubits, 'q')

@@ -53,7 +53,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         second_q_ops.append(fermionic_op)
         jw_mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(jw_mapper)
-        qubit_ops = qubit_conv.to_qubit_ops(second_q_ops)
+        qubit_ops = qubit_conv.convert(second_q_ops)
 
         self.assertEqual(len(qubit_ops), 1)
 
@@ -77,7 +77,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         second_q_ops.append(fermionic_op)
         jw_mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(jw_mapper)
-        qubit_ops = qubit_conv.to_qubit_ops(second_q_ops)
+        qubit_ops = qubit_conv.convert(second_q_ops)
 
         self.assertEqual(len(qubit_ops), 3)
 
