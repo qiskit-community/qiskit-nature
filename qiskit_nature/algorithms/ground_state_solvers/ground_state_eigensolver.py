@@ -38,7 +38,8 @@ class GroundStateEigensolver(GroundStateSolver):
         """
 
         Args:
-
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
         super().__init__(qubit_converter)
@@ -64,7 +65,7 @@ class GroundStateEigensolver(GroundStateSolver):
         """Compute Ground State properties.
 
         Args:
-
+            problem: a class encoding a problem to be solved.
 
         Raises:
             NotImplementedError: If an operator in ``aux_operators`` is not of type
@@ -72,7 +73,7 @@ class GroundStateEigensolver(GroundStateSolver):
 
         Returns:
             An eigenstate result. Depending on the transformation this can be an electronic
-            structure or bosonic result.
+            structure or vibronic result.
         """
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
@@ -85,7 +86,7 @@ class GroundStateEigensolver(GroundStateSolver):
             self._solver = self._solver.get_solver(
                 problem)  # TODO what to input here?
         else:
-            solver = self._solver
+            self.solver = self._solver
         # if the eigensolver does not support auxiliary operators, reset them
         if not self.solver.supports_aux_operators():
             qubit_ops = None

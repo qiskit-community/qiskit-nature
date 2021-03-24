@@ -34,9 +34,10 @@ class GroundStateSolver(ABC):
     def __init__(self, qubit_converter: QubitConverter) -> None:
         """
         Args:
-            qubit_mappers: transformation from driver to qubit operator (and aux. operators)
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
         """
-        self._qubit_converter=qubit_converter
+        self._qubit_converter = qubit_converter
 
     @abstractmethod
     def solve(self, problem: BaseProblem) \
@@ -44,11 +45,7 @@ class GroundStateSolver(ABC):
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
-            driver: a chemistry driver object which defines the chemical problem that is to be
-                    solved by this calculation.
-            aux_operators: Additional auxiliary operators to evaluate. Must be of type
-                ``FermionicOperator`` if the qubit transformation is fermionic and of type
-                ``BosonicOperator`` it is bosonic.
+            problem: a class encoding a problem to be solved.
 
         Returns:
             An eigenstate result.
