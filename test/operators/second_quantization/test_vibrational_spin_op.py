@@ -12,6 +12,7 @@
 """Test for VibrationOp"""
 
 from test import QiskitNatureTestCase
+
 import numpy as np
 from ddt import data, ddt
 
@@ -24,12 +25,16 @@ class TestVibrationOp(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.labels = [('-_1*1 +_1*0', 1215.375), ('+_3*0 -_3*0 -_2*1 +_2*0', -6.385)]
-        self.labels_double = [('-_1*1 +_1*0', 2 * 1215.375),
-                              ('+_3*0 -_3*0 -_2*1 +_2*0', -2 * 6.385)]
-        self.labels_divided_3 = [('-_1*1 +_1*0', 1215.375 / 3),
-                                 ('+_3*0 -_3*0 -_2*1 +_2*0', -6.385 / 3)]
-        self.labels_neg = [('-_1*1 +_1*0', -1215.375), ('+_3*0 -_3*0 -_2*1 +_2*0', 6.385)]
+        self.labels = [("+_1*0 -_1*1", 1215.375), ("+_2*0 -_2*1 +_3*0 -_3*0", -6.385)]
+        self.labels_double = [
+            ("+_1*0 -_1*1", 2 * 1215.375),
+            ("+_2*0 -_2*1 +_3*0 -_3*0", -2 * 6.385),
+        ]
+        self.labels_divided_3 = [
+            ("+_1*0 -_1*1", 1215.375 / 3),
+            ("+_2*0 -_2*1 +_3*0 -_3*0", -6.385 / 3),
+        ]
+        self.labels_neg = [("+_1*0 -_1*1", -1215.375), ("+_2*0 -_2*1 +_3*0 -_3*0", 6.385)]
         self.vibr_spin_op = VibrationOp(self.labels, 4, 2)
 
     def assertSpinEqual(self, first: VibrationOp, second: VibrationOp):
@@ -40,22 +45,23 @@ class TestVibrationOp(QiskitNatureTestCase):
     def test_init_pm_label(self):
         """Test __init__ with plus and minus label"""
         with self.subTest("minus plus"):
-            result = VibrationOp([("-_0*1 +_0*0", 2)], 1, 2)
+            result = VibrationOp([("+_0*0 -_0*1", 2)], 1, 2)
             desired = [('+-', (2 + 0j))]
             self.assertEqual(result.to_list(), desired)
 
         with self.subTest("plus minus"):
-            result = VibrationOp([("+_0*1 -_0*0", 2)], 1, 2)
+            result = VibrationOp([("-_0*0 +_0*1", 2)], 1, 2)
             desired = [('-+', (2 + 0j))]
             self.assertEqual(result.to_list(), desired)
 
         with self.subTest("plus minus minus plus"):
-            result = VibrationOp([("+_1*1 -_1*0 -_0*1 +_0*0", 3)], 2, 2)
+            result = VibrationOp([("+_0*0 -_0*1 -_1*0 +_1*1", 3)], 2, 2)
             desired = [('+--+', (3 + 0j))]
 
-            self.assertEqual(result.to_list(), desired)
+            # Note: the order of list is irrelevant.
+            self.assertSetEqual(frozenset(result.to_list()), frozenset(desired))
 
-    @data("+_0*0 X_0*0")
+    @data("X_0*0 +_0*0")
     def test_init_invalid_label(self, label):
         """Test __init__ for invalid label"""
         with self.assertRaises(ValueError):
