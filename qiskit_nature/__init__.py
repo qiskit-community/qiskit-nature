@@ -137,7 +137,6 @@ Chemistry Classes
 
    BosonicOperator
    FermionicOperator
-   MP2Info
 
 Submodules
 ==========
@@ -157,9 +156,9 @@ Submodules
 from .bosonic_operator import BosonicOperator
 from .exceptions import QiskitNatureError
 from .fermionic_operator import FermionicOperator
-from .mp2info import MP2Info
 
-__all__ = ['QiskitNatureError',
-           'BosonicOperator',
-           'FermionicOperator',
-           'MP2Info']
+__all__ = [
+    'QiskitNatureError',
+    'BosonicOperator',
+    'FermionicOperator',
+]
