@@ -22,7 +22,7 @@ from qiskit_nature.mappers.second_quantization import LinearMapper
 
 
 class TestLinearMapper(QiskitNatureTestCase):
-    """ Test Jordan Wigner Mapper """
+    """ Test Linear Mapper """
 
     spin_op1 = SpinOp([('Y_0^2', -0.432 + 1.32j)], 0.5, 1)
     ref_qubit_op1 = (-0.054 + 0.165j) * (I ^ I) + (0.054 - 0.165j) * (Z ^ Z)
