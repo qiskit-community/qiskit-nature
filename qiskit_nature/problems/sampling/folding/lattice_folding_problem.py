@@ -26,8 +26,7 @@ class LatticeFoldingProblem:
                  lambda_chiral = 10,
                  lambda_back = 10,
                  lambda_1 = 10,
-                 lambda_contacts = 0,
-                 N_contacts = 0) -> None:
+                 lambda_contacts = 0) -> None:
         """
         Args:
             residue_sequence: Letter sequence of peptide to be analyzed
@@ -42,7 +41,6 @@ class LatticeFoldingProblem:
                          back onto itself
             lambda_1: 
             lambda_contacts:
-            N_contacts:
 
         Raises:
         """
@@ -55,11 +53,11 @@ class LatticeFoldingProblem:
         self._lambda_back = lambda_back
         self._lambda_1 = lambda_1
         self._lambda_contacts = lambda_contacts
-        self._N_contacts = N_contacts
-        self._pair_energies = np.zeros((num_beads, 2, num_beads, 2))
+        self._pair_energies = np.zeros((self._num_beads, 2, self._num_beads, 2))
         self._path = "./mj_matrix"
+        self._N_contacts = 0        
 
-        if interaction_type == 'MJ'or interaction_type == 'mix':
+        if interaction_type == 'MJ' or interaction_type == 'mix':
             self.sequence = list(residue_sequence)
             side_chains = [0]*self._num_beads
             for s in list_side_chains:

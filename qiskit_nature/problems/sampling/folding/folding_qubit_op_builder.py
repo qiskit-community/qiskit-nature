@@ -10,7 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Lattice Folding qubit operator builder. """
+""" 
+Lattice Folding qubit operator builder
+
+The functions in this module utilize symbolic mathematics (See https://www.sympy.org/en/index.html)
+to represent the Hamiltonian representing the lattice folding problem of a N-letter peptide.
+Here, the configuration of a peptide is densely coded wherein each turn is represented by 
+two qubits. A sparser encoding (4 qubits/turn) is described in the literature 
+below that embodies this work.
+
+Robert, A., Barkoutsos, P.K., Woerner, S. et al. 
+Resource-efficient quantum algorithm for protein folding. 
+npj Quantum Inf 7, 38 (2021). https://doi.org/10.1038/s41534-021-00368-4
+"""
 
 import itertools
 from typing import List, Tuple
@@ -436,7 +448,6 @@ def _create_new_qubit_list(N, side_chain, pauli_conf, pauli_contacts):
     return new_qubits
 
 def _get_symbolic_hamiltonian(N,side_chain,pair_energies,lambda_chiral,lambda_back,lambda_1,lambda_contacts,N_contacts):
-    
     
     '''the first binaries are in the article'''
     if len(side_chain)!=N:
