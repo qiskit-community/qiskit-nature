@@ -192,9 +192,9 @@ class LinearMapper(SpinMapper):
             tensor_op = operatorlist[0]
 
         elif len(operatorlist) > 1:
-            tensor_op = operatorlist[0]
+            tensor_op = operatorlist[-1]
 
-            for op in operatorlist[1:]:
+            for op in reversed(operatorlist[:-1]):
                 tensor_op = tensor_op ^ op
         else:
             raise 'Unsupported list provided'

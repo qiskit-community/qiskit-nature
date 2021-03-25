@@ -67,8 +67,7 @@ class TestLinearMapper(QiskitNatureTestCase):
 
         for spin_op, ref_qubit_op in TestLinearMapper.REFERENCE:
             qubit_op = mapper.map(spin_op)
-            print(qubit_op)
-            print(ref_qubit_op)
+
             self.assertEqual(qubit_op, ref_qubit_op)
 
 
