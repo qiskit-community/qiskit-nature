@@ -28,7 +28,7 @@ class BaseTestDriverFCIDumpDumper(ABC):
         self.log = None
         self.dumped = None
         self.core_energy = None
-        self.num_orbitals = None
+        self.num_molecular_orbitals = None
         self.num_electrons = None
         self.spin_number = None
         self.wf_symmetry = None
@@ -56,10 +56,10 @@ class BaseTestDriverFCIDumpDumper(ABC):
         self.log.debug('Dumped inactive energy is {:g}'.format(self.dumped['ECORE']))
         self.assertAlmostEqual(self.dumped['ECORE'], self.core_energy, places=3)
 
-    def test_dumped_num_orbitals(self):
+    def test_dumped_num_molecular_orbitals(self):
         """ dumped number of orbitals test """
         self.log.debug('Dumped number of orbitals is {:d}'.format(self.dumped['NORB']))
-        self.assertEqual(self.dumped['NORB'], self.num_orbitals)
+        self.assertEqual(self.dumped['NORB'], self.num_molecular_orbitals)
 
     def test_dumped_num_electrons(self):
         """ dumped number of electrons test """
@@ -100,7 +100,7 @@ class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper)
     def setUp(self):
         super().setUp()
         self.core_energy = 0.7199
-        self.num_orbitals = 2
+        self.num_molecular_orbitals = 2
         self.num_electrons = 2
         self.spin_number = 0
         self.wf_symmetry = 1

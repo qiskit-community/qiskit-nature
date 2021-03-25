@@ -386,9 +386,9 @@ class FermionicOp(SecondQuantizedOp):
         if rtol is None:
             rtol = self.rtol
 
-        label_list, indexes = np.unique(self._labels, return_inverse=True, axis=0)
+        label_list, indices = np.unique(self._labels, return_inverse=True, axis=0)
         coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
-        for i, val in zip(indexes, self._coeffs):
+        for i, val in zip(indices, self._coeffs):
             coeff_list[i] += val
         non_zero = [
             i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)

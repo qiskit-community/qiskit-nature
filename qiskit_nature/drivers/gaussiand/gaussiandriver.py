@@ -232,7 +232,7 @@ class GaussianDriver(FermionicDriver):
         # Energies and orbits
         _q_.hf_energy = mel.scalar('ETOTAL')
         _q_.nuclear_repulsion_energy = mel.scalar('ENUCREP')
-        _q_.num_orbitals = 0  # updated below from orbital coeffs size
+        _q_.num_molecular_orbitals = 0  # updated below from orbital coeffs size
         _q_.num_alpha = (mel.ne + mel.multip - 1) // 2
         _q_.num_beta = (mel.ne - mel.multip + 1) // 2
         moc = GaussianDriver._get_matrix(mel, 'ALPHA MO COEFFICIENTS')
@@ -240,7 +240,7 @@ class GaussianDriver(FermionicDriver):
         if np.array_equal(moc, moc_b):
             logger.debug('ALPHA and BETA MO COEFFS identical, keeping only ALPHA')
             moc_b = None
-        _q_.num_orbitals = moc.shape[0]
+        _q_.num_molecular_orbitals = moc.shape[0]
         _q_.mo_coeff = moc
         _q_.mo_coeff_b = moc_b
         orbs_energy = GaussianDriver._get_matrix(mel, 'ALPHA ORBITAL ENERGIES')

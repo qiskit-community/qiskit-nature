@@ -105,7 +105,7 @@ class UVCC:
         or a higher order excitation.
 
         Args:
-            index: the indexes defining the excitation
+            index: the indices defining the excitation
             basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode basis = [4,4,4]
             qubit_mapping: the qubits mapping type. Only 'direct' is supported at the moment.
@@ -241,7 +241,7 @@ class UVCC:
                 degrees=[0,1])
 
         Returns:
-            List of excitation indexes in terms of modes and modals
+            List of excitation indices in terms of modes and modals
 
         Raises:
             ValueError: If excitation degree is greater than size of basis
@@ -257,10 +257,10 @@ class UVCC:
             else:
                 results.append(tmp)
 
-        def indexes(excitations, results, modes, n, basis):
+        def indices(excitations, results, modes, n, basis):
             if n >= 0:
                 for j in range(1, basis[modes[n]]):
-                    indexes(excitations + [[modes[n], 0, j]], results, modes, n - 1, basis)
+                    indices(excitations + [[modes[n], 0, j]], results, modes, n - 1, basis)
             else:
                 results.append(excitations)
 
@@ -277,16 +277,16 @@ class UVCC:
             combine_modes(modes, [], combined_modes, degree)
 
             for element in combined_modes:
-                indexes([], excitation_list, element, len(element)-1, basis)
+                indices([], excitation_list, element, len(element)-1, basis)
 
         return excitation_list
 
     def excitations_in_qubit_format(self) -> List[List[int]]:
-        """Gives the list of excitation indexes in terms of qubit indexes rather
+        """Gives the list of excitation indices in terms of qubit indices rather
          than in modes and modals
 
         Returns:
-            List of excitation indexes
+            List of excitation indices
 
         """
 
