@@ -294,6 +294,11 @@ class TestSpinOp(QiskitNatureTestCase):
             actual = test_op.reduce()
             self.assertListEqual(actual.to_list(), [("Z_0 X_1", 4), ("X_0 X_1", 2)])
 
+        with self.subTest("nontrivial reduce 3"):
+            test_op = SpinOp([("+_0 -_0", 1)], register_length=4)
+            actual = test_op.reduce()
+            self.assertListEqual(actual.to_list(), [("Z_0", 1), ("Y_0^2", 1), ("X_0^2", 1)])
+
     @data(*dense_labels(1))
     def test_to_matrix_single_qutrit(self, label):
         """Test to_matrix for single qutrit op"""

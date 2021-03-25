@@ -397,7 +397,11 @@ class SpinOp(SecondQuantizedOp):
                 ),
                 spin=self.spin,
             )
-        new_array = flatten_array[non_zero].T.reshape((3, len(non_zero), self.register_length))
+        new_array = (
+            flatten_array[non_zero]
+            .reshape((len(non_zero), 3, self.register_length))
+            .transpose(1, 0, 2)
+        )
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
