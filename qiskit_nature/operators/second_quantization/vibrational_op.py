@@ -191,9 +191,7 @@ class VibrationalOp(SecondQuantizedOp):
 
     @property
     def register_length(self) -> int:
-        """Getter for the length of the fermionic register that the VibrationalOp `self` acts
-        on.
-        """
+        """Getter for the length of the register that the VibrationalOp `self` acts on."""
         return self._register_length
 
     def mul(self, other: complex) -> "VibrationalOp":
@@ -271,16 +269,15 @@ class VibrationalOp(SecondQuantizedOp):
             # Initialize new operator_list for the returned Vibration operator
             new_data = []
 
-            # Compute the product (Vibration type operators consist of a sum of
-            # VibrationalOperator): F1 * F2 = (B1 + B2 + ...) * (C1 + C2 + ...) where Bi and Ci
-            # are VibrationalOperators
+            # Compute the product (Vibration type operators consist of a sum of VibrationalOp):
+            # F1 * F2 = (B1 + B2 + ...) * (C1 + C2 + ...) where Bi and Ci are VibrationalOp labels
             for label1, cf1 in self.to_list():
                 for label2, cf2 in other.to_list():
-                    new_label, sign = self._single_mul(label1, label2)
-                    if sign == 0:
+                    new_label, not_empty = self._single_mul(label1, label2)
+                    if not not_empty:
+                        # empty operator
                         continue
-                    # TODO: do we need to consider the sign in this application?
-                    new_data.append((new_label, cf1 * cf2 * sign))
+                    new_data.append((new_label, cf1 * cf2))
 
             if not new_data:
                 return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
@@ -291,7 +288,7 @@ class VibrationalOp(SecondQuantizedOp):
             f"Unsupported operand type(s) for *: 'VibrationalOp' and '{type(other).__name__}'"
         )
 
-    # Map the products of two operators on a single fermionic mode to their result.
+    # Map the products of two operators on a single vibrational mode to their result.
     _MAPPING = {
         # 0                   - if product vanishes,
         # new label           - if product does not vanish
@@ -323,34 +320,19 @@ class VibrationalOp(SecondQuantizedOp):
     }
 
     @classmethod
-    def _single_mul(cls, label1: str, label2: str) -> Tuple[str, complex]:
+    def _single_mul(cls, label1: str, label2: str) -> Tuple[str, bool]:
         if len(label1) != len(label2):
             raise QiskitNatureError("Operators act on Fermion Registers of different length")
 
         new_label = []
-        sign = 1
-
-        # count the number of `+` and `-` in the first label ahead of time
-        count = label1.count("+") + label1.count("-")
 
         for pair in zip(label1, label2):
-            # update the count as we progress
-            char1, char2 = pair
-            if char1 in "+-":
-                count -= 1
-
             # Check what happens to the symbol
             new_char = cls._MAPPING[pair]
             if new_char == "0":
-                return "I" * len(label1), 0
+                return "I" * len(label1), False
             new_label.append(new_char)
             # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught
             # by the `if`-statement above.
 
-            # If char2 is one of `+` or `-` we pick up a phase when commuting it to the position
-            # of char1. However, we only care about this if the number of permutations has odd
-            # parity.
-            if count % 2 and char2 in "+-":
-                sign *= -1
-
-        return "".join(new_label), sign
+        return "".join(new_label), True
