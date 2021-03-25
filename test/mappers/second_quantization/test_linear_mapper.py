@@ -16,11 +16,14 @@ import unittest
 
 from test import QiskitNatureTestCase
 
+from ddt import ddt, data, unpack
+
 from qiskit.opflow import X, Y, Z, I
 from qiskit_nature.operators import SpinOp
 from qiskit_nature.mappers.second_quantization import LinearMapper
 
 
+@ddt
 class TestLinearMapper(QiskitNatureTestCase):
     """ Test Linear Mapper """
 
@@ -47,28 +50,25 @@ class TestLinearMapper(QiskitNatureTestCase):
                     (0.21875 + 0.01875j) * (I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) + \
                     (0.65625 + 0.05625j) * (I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
 
-    spin_op5_i = SpinOp([('X_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7', 4 + 0j)], 0.5, 8)
-    spin_op5_ii = SpinOp([('I_0^2 I_2 I_3 I_4 I_5 I_6 I_7 I_8', 8 + 0j)], 0.5, 8)
-    spin_op5 = spin_op5_i + spin_op5_ii
+    spin_op5 = SpinOp([('X_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7', 4 + 0j)], 0.5, 8) + \
+        SpinOp([('I_0^2 I_2 I_3 I_4 I_5 I_6 I_7 I_8', 8 + 0j)], 0.5, 8)
     ref_qubit_op5 = (8.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + \
                     (1.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ X ^ X) + \
                     (1.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Y ^ Y)
 
-    REFERENCE = [(spin_op1, ref_qubit_op1),
-                 (spin_op2, ref_qubit_op2),
-                 (spin_op3, ref_qubit_op3),
-                 (spin_op4, ref_qubit_op4),
-                 (spin_op5, ref_qubit_op5)]
-
-    def test_mapping(self):
+    @data(
+        (spin_op1, ref_qubit_op1),
+        (spin_op2, ref_qubit_op2),
+        (spin_op3, ref_qubit_op3),
+        (spin_op4, ref_qubit_op4),
+        (spin_op5, ref_qubit_op5),
+    )
+    @unpack
+    def test_mapping(self, spin_op, ref_qubit_op):
         """ Test mapping to qubit operator """
-
         mapper = LinearMapper()
-
-        for spin_op, ref_qubit_op in TestLinearMapper.REFERENCE:
-            qubit_op = mapper.map(spin_op)
-
-            self.assertEqual(qubit_op, ref_qubit_op)
+        qubit_op = mapper.map(spin_op)
+        self.assertEqual(qubit_op, ref_qubit_op)
 
 
 if __name__ == '__main__':
