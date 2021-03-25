@@ -61,7 +61,7 @@ class VibrationalOp(SecondQuantizedOp):
 
     Internally, a :class:`VibrationalOp` is stored as a dense label in an identical notation to that
     of the :class:`FermionicOp`. Thus, each modal is mapped onto a position of the string and can be
-    one of the following characters: `I`, `+`, `-`, `N` and `E`. Here, `N` and `E` are shorthands
+    one of the following characters: `I`, `+`, `-`, `N` and `E`. Here, `N` and `E` are shorthand
     for `+-` and `-+` applied on the same modal, respectively.
     The length of a dense label is given by `register_length` and can be computed as the sum of all
     modals over all modes.
