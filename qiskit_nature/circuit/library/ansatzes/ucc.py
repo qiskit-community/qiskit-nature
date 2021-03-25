@@ -247,7 +247,9 @@ class UCC(EvolvedOperatorAnsatz):
             # the converter inserting None as the result if an operator did not commute. Here
             # we are not interested in that just getting the valid set of operators so that
             # behavior is suppressed.
-            self.operators = self.qubit_converter.convert_more(excitation_ops, suppress_none=True)
+            # TODO sort this out
+            # self.operators = self.qubit_converter.convert_more(excitation_ops, suppress_none=True)
+            self.operators = self.qubit_converter.convert(excitation_ops)
 
         logger.debug('Building QuantumCircuit...')
         super()._build()
