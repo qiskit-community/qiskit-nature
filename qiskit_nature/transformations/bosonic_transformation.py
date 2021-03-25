@@ -245,7 +245,7 @@ class BosonicTransformation(Transformation):
         or a higher order excitation.
 
         Args:
-            index: the indexes defining the excitation
+            index: the indices defining the excitation
             basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode basis = [4,4,4]
             qubit_mapping: the qubits mapping type. Only 'direct' is supported at the moment.

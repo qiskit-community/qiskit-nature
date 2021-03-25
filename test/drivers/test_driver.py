@@ -55,10 +55,11 @@ class TestDriver(ABC):
             self.qmolecule.nuclear_repulsion_energy))
         self.assertAlmostEqual(self.qmolecule.nuclear_repulsion_energy, 0.72, places=2)
 
-    def test_driver_num_orbitals(self):
-        """ driver num orbitals test """
-        self.log.debug('QMolecule Number of orbitals is {}'.format(self.qmolecule.num_orbitals))
-        self.assertEqual(self.qmolecule.num_orbitals, 2)
+    def test_driver_num_molecular_orbitals(self):
+        """ driver num molecular orbitals test """
+        self.log.debug('QMolecule Number of orbitals is {}'.format(
+            self.qmolecule.num_molecular_orbitals))
+        self.assertEqual(self.qmolecule.num_molecular_orbitals, 2)
 
     def test_driver_num_alpha(self):
         """ driver num alpha test """

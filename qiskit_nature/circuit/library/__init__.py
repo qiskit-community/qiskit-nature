@@ -31,11 +31,14 @@ Initial states
 
 """
 
+# TODO(sphinx): documentation for Ansatzes module
+
 from .ansatzes import (
     EvolvedOperatorAnsatz,
     UCC,
     UCCSD,
 )
+
 from .initial_states import (
     HartreeFock,
     VSCF

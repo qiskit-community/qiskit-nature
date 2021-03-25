@@ -222,7 +222,7 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     # Energies and orbits
     _q_.hf_energy = ehf
     _q_.nuclear_repulsion_energy = enuke
-    _q_.num_orbitals = norbs
+    _q_.num_molecular_orbitals = norbs
     _q_.num_alpha = mol.nelec[0]
     _q_.num_beta = mol.nelec[1]
     _q_.mo_coeff = mo_coeff
