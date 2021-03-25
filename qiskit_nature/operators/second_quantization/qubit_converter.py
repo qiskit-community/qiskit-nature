@@ -63,14 +63,14 @@ class QubitConverter:
 
     def _check_valid(self, converting: bool = False):
         if not self._conversion_done:
-            if not converting:
-                raise QiskitNatureError("Properties are valid only after a convert() has "
-                                        "been called successfully. "
-                                        "Conversion state is reset if any settings are updated.")
-            else:
+            if converting:
                 raise QiskitNatureError("convert_more() can only be used after a convert() has "
                                         "been called successfully as long as no settings "
                                         "were updated since that call.")
+
+            raise QiskitNatureError("Properties are valid only after a convert() has "
+                                    "been called successfully. "
+                                    "Conversion state is reset if any settings are updated.")
 
     @property
     def _no_symmetries(self) -> Z2Symmetries:
@@ -163,7 +163,7 @@ class QubitConverter:
             z2symmetry_reduction: Optional z2symmetry reduction, the sector of the symmetry
 
         Returns:
-            A qubit operator or list of thereof the same length as the second_q_ops list. The first
+            A qubit operator or list thereof of the same length as the second_q_ops list. The first
             operator in the second_q_ops list is treated as the main operator and others must
             commute with its symmetry, when symmetry reduction is being done. If it does not
             then the position in the output list will be set to `None` to preserve the order.
@@ -206,7 +206,7 @@ class QubitConverter:
             second_q_ops: A second quantized operator, or list thereof to be converted.
 
         Returns:
-            A qubit operator or list of thereof the same length as the second_q_ops list. All
+            A qubit operator or list thereof of the same length as the second_q_ops list. All
             operators in the second_q_ops list must commute with the symmetry detected when
             :meth:`convert` was called. If it does not then the position in the output list
             will be set to `None` to preserve the order; or None may be directly returned

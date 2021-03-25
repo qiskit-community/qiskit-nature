@@ -69,6 +69,16 @@ class TestQubitConverter(QiskitNatureTestCase):
         - 0.01128010423438501 * (Z ^ Z) \
         + 0.18093119996471000 * (X ^ X)
 
+    REF_H2_JW_TAPERED = \
+        - 1.04109314222921270 * I \
+        - 0.79587484566286240 * Z \
+        + 0.18093119996470988 * X
+
+    REF_H2_PARITY_2Q_REDUCED_TAPERED = \
+        - 1.04109314222921250 * I \
+        - 0.79587484566286300 * Z \
+        - 0.18093119996470994 * X
+
     def setUp(self):
         super().setUp()
         driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
@@ -187,10 +197,63 @@ class TestQubitConverter(QiskitNatureTestCase):
                 self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY)
 
     def test_z2_symmetry(self):
+        z2_sector = [-1, 1, -1]
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper)
-        qubit_op = qubit_conv.convert(self.h2_op, z2symmetry_reduction=[-1, 1, -1])
-        # TODO complete this
+        qubit_op = qubit_conv.convert(self.h2_op, z2symmetry_reduction=z2_sector)
+        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+
+        with self.subTest('convert_more()'):
+            qubit_op = qubit_conv.convert_more(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+            self.assertFalse(qubit_conv.did_two_qubit_reduction)
+            self.assertIsNone(qubit_conv.num_particles)
+            self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, z2_sector)
+
+        with self.subTest('Change setting: properties and convert_more() should raise error'):
+            qubit_conv.z2symmetry_reduction = [1, 1, 1]  # Will reset state
+            with self.assertRaises(QiskitNatureError):
+                self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, [])
+            with self.assertRaises(QiskitNatureError):
+                _ = qubit_conv.convert_more(self.h2_op)
+
+    def test_two_qubit_reduction_and_z2_symmetry(self):
+        z2_sector = [-1]
+        mapper = ParityMapper()
+        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
+        qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, z2_sector)
+        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPERED)
+        self.assertTrue(qubit_conv.did_two_qubit_reduction)
+        self.assertEqual(qubit_conv.num_particles, self.num_particles)
+        self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, z2_sector)
+
+        with self.subTest('convert_more()'):
+            qubit_op = qubit_conv.convert_more(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPERED)
+            self.assertTrue(qubit_conv.did_two_qubit_reduction)
+            self.assertEqual(qubit_conv.num_particles, self.num_particles)
+            self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, z2_sector)
+
+        with self.subTest('Change setting: properties and convert_more() should raise error'):
+            qubit_conv.z2symmetry_reduction = [1]  # Will reset state
+            with self.assertRaises(QiskitNatureError):
+                self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, [])
+
+        with self.subTest('Specify sector upfront'):
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True,
+                                        z2symmetry_reduction=z2_sector)
+            qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPERED)
+
+        with self.subTest('Specify sector upfront, but invalid content'):
+            with self.assertRaises(ValueError):
+                _ = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction=[5])
+
+        with self.subTest('Specify sector upfront, but invalid length'):
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True,
+                                        z2symmetry_reduction=[-1, 1])
+            with self.assertRaises(QiskitNatureError):
+                _ = qubit_conv.convert(self.h2_op, self.num_particles)
 
 
 if __name__ == '__main__':
