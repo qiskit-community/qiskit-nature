@@ -31,7 +31,7 @@ class LinearMapper(SpinMapper):
 
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
 
-        qubit_ops_list = []
+        qubit_ops_list: List[PauliSumOp] = []
 
         # get transformed general spin matrices
         spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
@@ -71,17 +71,8 @@ class LinearMapper(SpinMapper):
                     # If n_x=n_y=n_z=0, simply add the embedded Identity operator.
                     operatorlist.append(identity)
 
-                # A list which still need to tensor together
-                # to get the final operator
-                # first we reduce operators
-
-                tmp_operatorlist = []
-
-                for tmp_op in operatorlist:
-                    tmp_operatorlist.append(tmp_op.reduce())
-
-                operatorlist = tmp_operatorlist
-
+            # Now, we can tensor all operators in this list
+            # NOTE: in Qiskit's opflow the `XOR` (i.e. `^`) operator does the tensor product
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 
         qubit_op = reduce(operator.add, qubit_ops_list)
@@ -104,36 +95,38 @@ class LinearMapper(SpinMapper):
                     to represent the embedded 'X' operator
         """
 
-        trafo_xzyi = []
+        trafo_xzyi: List[PauliSumOp] = []
         dspin = int(2 * spin + 1)
         nqubits = dspin
 
         # quick functions to generate a pauli with X / Y / Z at location `i`
-        pauli_id = Pauli.from_label('I' * nqubits)
+        pauli_id = Pauli('I' * nqubits)
 
         def pauli_x(i):
-            return Pauli.from_label('I' * i + 'X' + 'I' * (nqubits - i - 1))
+            return Pauli('I' * i + 'X' + 'I' * (nqubits - i - 1))
 
         def pauli_y(i):
-            return Pauli.from_label('I' * i + 'Y' + 'I' * (nqubits - i - 1))
+            return Pauli('I' * i + 'Y' + 'I' * (nqubits - i - 1))
 
         def pauli_z(i):
-            return Pauli.from_label('I' * i + 'Z' + 'I' * (nqubits - i - 1))
+            return Pauli('I' * i + 'Z' + 'I' * (nqubits - i - 1))
 
         # 1. build the non-diagonal X operator
         x_summands = []
         for i, coeff in enumerate(np.diag(SpinOp("X", spin=spin).to_matrix(), 1)):
-            x_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_x(i) * pauli_x(i + 1)) +
-                                         coeff / 2. * SparsePauliOp(pauli_y(i) * pauli_y(i + 1))))
+            x_summands.append(PauliSumOp(
+                coeff / 2. * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1))) +
+                coeff / 2. * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
+            ))
         trafo_xzyi.append(reduce(operator.add, x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
         for i, coeff in enumerate(np.diag(SpinOp("Y", spin=spin).to_matrix(), 1)):
-            y_summands.append(PauliSumOp(-1j * coeff / 2. *
-                                         SparsePauliOp(pauli_x(i) * pauli_y(i + 1)) +
-                                         1j * coeff / 2. *
-                                         SparsePauliOp(pauli_y(i) * pauli_x(i + 1))))
+            y_summands.append(PauliSumOp(
+                -1j * coeff / 2. * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1))) +
+                1j * coeff / 2. * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
+            ))
         trafo_xzyi.append(reduce(operator.add, y_summands))
 
         # 3. build the diagonal Z
