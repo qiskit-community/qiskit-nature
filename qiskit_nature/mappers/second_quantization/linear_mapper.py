@@ -39,31 +39,34 @@ class LinearMapper(SpinMapper):
 
         for idx, (_, coeff) in enumerate(second_q_op.to_list()):
 
-            operatorlist = []
+            operatorlist: List[PauliSumOp] = []
 
             for n_x, n_y, n_z in zip(second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]):
 
-                operator_on_spin_i = []
+                operator_on_spin_i: List[PauliSumOp] = []
 
                 if n_x > 0:
                     # construct the qubit operator embed
                     operator_on_spin_i.append(
-                        reduce(operator.matmul, [spinx for i in range(int(n_x))]))
+                        reduce(operator.matmul, [spinx for i in range(int(n_x))])
+                    )
 
                 if n_y > 0:
                     # construct the qubit operator embed
                     operator_on_spin_i.append(
-                        reduce(operator.matmul, [spiny for i in range(int(n_y))]))
+                        reduce(operator.matmul, [spiny for i in range(int(n_y))])
+                    )
 
                 if n_z > 0:
                     # construct the qubit operator embed
                     operator_on_spin_i.append(
-                        reduce(operator.matmul, [spinz for i in range(int(n_z))]))
+                        reduce(operator.matmul, [spinz for i in range(int(n_z))])
+                    )
 
                 if np.any([n_x, n_y, n_z]) > 0:
                     # multiply X^n_x * Y^n_y * Z^n_z
-                    operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
-                    operatorlist.append(operator_on_spin_i.reduce())
+                    single_operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
+                    operatorlist.append(single_operator_on_spin_i.reduce())
 
                 else:
                     # If n_x=n_y=n_z=0, simply add the embedded Identity operator.
@@ -86,7 +89,7 @@ class LinearMapper(SpinMapper):
 
         return qubit_op
 
-    def _linear_encoding(self, spin: Union[Fraction, float]) -> List:
+    def _linear_encoding(self, spin: Union[Fraction, float]) -> List[PauliSumOp]:
         """
         Generates a 'linear_encoding' of the spin S operators 'X', 'Y', 'Z' and 'identity'
         to qubit operators (linear combinations of pauli strings).
