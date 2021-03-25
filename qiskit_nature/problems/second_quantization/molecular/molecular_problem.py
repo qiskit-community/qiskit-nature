@@ -12,20 +12,17 @@
 
 """The Molecular Problem class."""
 from functools import partial
-from typing import List, Tuple, Optional, cast, Union, Callable
+from typing import List, Optional, cast, Union, Callable
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 import numpy as np
-from qiskit_nature.drivers.qmolecule import QMolecule
+
 from qiskit_nature.drivers import FermionicDriver
-from qiskit_nature.operators import FermionicOp
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult, DipoleTuple
 from qiskit_nature.transformers import BaseTransformer
-from .integrals_calculators import calc_total_ang_momentum_ints
-from .fermionic_op_builder import build_fermionic_op, build_ferm_op_from_ints
-from .integrals_calculators import calc_total_magnetization_ints
-from .integrals_calculators import calc_total_particle_num_ints
+from .aux_fermionic_ops_builder import create_all_aux_operators
+from .fermionic_op_builder import build_fermionic_op
 from ..base_problem import BaseProblem
 
 
@@ -57,48 +54,11 @@ class MolecularProblem(BaseProblem):
         self._q_molecule = q_molecule
         q_molecule_transformed = self._transform(q_molecule)
         self._q_molecule_transformed = q_molecule_transformed
-        num_modes = q_molecule_transformed.one_body_integrals.shape[0]
 
         electronic_fermionic_op = build_fermionic_op(q_molecule_transformed)
-        total_particle_number_ferm_op = self._create_total_particle_number_operator(num_modes)
-        total_angular_momentum_ferm_op = self._create_total_angular_momentum_operator(num_modes)
-        total_magnetization_ferm_op = self._create_total_magnetization_operator(num_modes)
-
-        second_quantized_ops_list = [electronic_fermionic_op,
-                                     total_particle_number_ferm_op,
-                                     total_angular_momentum_ferm_op,
-                                     total_magnetization_ferm_op,
-                                     ]
-
-        if q_molecule_transformed.has_dipole_integrals():
-            x_dipole_operator, y_dipole_operator, z_dipole_operator = self._create_dipole_operators(
-                q_molecule_transformed)
-            second_quantized_ops_list += [x_dipole_operator,
-                                          y_dipole_operator,
-                                          z_dipole_operator]
+        second_quantized_ops_list = [electronic_fermionic_op] + create_all_aux_operators(q_molecule)
 
         return second_quantized_ops_list
-
-    @staticmethod
-    def _create_dipole_operators(q_molecule: QMolecule) -> \
-            Tuple[FermionicOp, FermionicOp, FermionicOp]:
-        x_dipole_operator = build_ferm_op_from_ints(q_molecule.x_dipole_integrals)
-        y_dipole_operator = build_ferm_op_from_ints(q_molecule.y_dipole_integrals)
-        z_dipole_operator = build_ferm_op_from_ints(q_molecule.z_dipole_integrals)
-
-        return x_dipole_operator, y_dipole_operator, z_dipole_operator
-
-    @staticmethod
-    def _create_total_magnetization_operator(num_modes) -> FermionicOp:
-        return build_ferm_op_from_ints(*calc_total_magnetization_ints(num_modes))
-
-    @staticmethod
-    def _create_total_angular_momentum_operator(num_modes) -> FermionicOp:
-        return build_ferm_op_from_ints(*calc_total_ang_momentum_ints(num_modes))
-
-    @staticmethod
-    def _create_total_particle_number_operator(num_modes) -> FermionicOp:
-        return build_ferm_op_from_ints(*calc_total_particle_num_ints(num_modes))
 
     # TODO refactor by decomposing and eliminate ifs
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
