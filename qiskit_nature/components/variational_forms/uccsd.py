@@ -31,13 +31,12 @@ from qiskit.tools.events import TextProgressBar
 
 from qiskit.utils import algorithm_globals
 from qiskit.opflow import PauliSumOp, Z2Symmetries, TwoQubitReduction
-from qiskit.algorithms.variational_forms import VariationalForm
 from qiskit_nature.fermionic_operator import FermionicOperator
 
 logger = logging.getLogger(__name__)
 
 
-class UCCSD(VariationalForm):
+class UCCSD:
     """
     This trial wavefunction is a Unitary Coupled-Cluster Single and Double excitations
     variational form.

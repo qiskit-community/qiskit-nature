@@ -81,11 +81,11 @@ class FermionicOp(SecondQuantizedOp):
 
         "+_0"
         "-_2"
-        "+_10 -_4 +_1 +_0"
+        "+_0 -_1 +_4 +_10"
 
     are possible labels.
-    The :code:`index` must be in descending order.
-    Thus, :code:`"+_0 N_1"` is an invalid label.
+    The :code:`index` must be in ascending order, and it does not allow duplicated indices.
+    Thus, :code:`"+_1 N_0"` and `+_0 -_0` are invalid labels.
 
     **Initialization**
 
@@ -205,17 +205,17 @@ class FermionicOp(SecondQuantizedOp):
             if invalid_labels:
                 raise ValueError(f"Invalid labels for sparse labels are given: {invalid_labels}")
             list_label = [["I"] * self._register_length for _ in labels]
+            prev_index: Optional[int] = None
             for term, label in enumerate(labels):
-                prev_index = -1
                 for split_label in label.split():
                     op_label, index_str = split_label.split("_", 1)
                     index = int(index_str)
                     validate_range_exclusive_max("index", index, 0, self._register_length)
-                    if 0 <= prev_index < index:
-                        raise ValueError("Indices of labels must be in descending order.")
-                    if list_label[term][self._register_length - index - 1] != "I":
+                    if prev_index is not None and prev_index > index:
+                        raise ValueError("Indices of labels must be in ascending order.")
+                    if list_label[term][index] != "I":
                         raise ValueError(f"Duplicate index {index} is given.")
-                    list_label[term][self._register_length - index - 1] = op_label
+                    list_label[term][index] = op_label
                     prev_index = index
 
             self._labels = ["".join(l) for l in list_label]
