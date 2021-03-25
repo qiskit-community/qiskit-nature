@@ -70,7 +70,7 @@ class FCIDumpDriver(FermionicDriver):
         q_mol = QMolecule()
 
         q_mol.nuclear_repulsion_energy = fcidump_data.get('ecore', None)
-        q_mol.num_orbitals = fcidump_data.get('NORB')
+        q_mol.num_molecular_orbitals = fcidump_data.get('NORB')
         q_mol.multiplicity = fcidump_data.get('MS2', 0) + 1
         q_mol.molecular_charge = 0  # ensures QMolecule.log() works
         q_mol.num_beta = (fcidump_data.get('NELEC') - (q_mol.multiplicity - 1)) // 2
@@ -101,7 +101,7 @@ class FCIDumpDriver(FermionicDriver):
             isym: The spatial symmetry of the wave function.
         """
         dump(outpath,
-             q_mol.num_orbitals, q_mol.num_alpha + q_mol.num_beta,
+             q_mol.num_molecular_orbitals, q_mol.num_alpha + q_mol.num_beta,
              (q_mol.mo_onee_ints, q_mol.mo_onee_ints_b),  # type: ignore
              (q_mol.mo_eri_ints, q_mol.mo_eri_ints_ba, q_mol.mo_eri_ints_bb),  # type: ignore
              q_mol.nuclear_repulsion_energy, ms2=q_mol.multiplicity - 1, orbsym=orbsym, isym=isym)

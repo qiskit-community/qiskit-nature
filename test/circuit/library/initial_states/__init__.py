@@ -9,19 +9,3 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""The Logarithmic Mapper."""
-
-from qiskit.opflow import PauliSumOp
-
-from qiskit_nature.operators.second_quantization.spin_op import SpinOp
-
-from .spin_mapper import SpinMapper
-
-
-class LogarithmicMapper(SpinMapper):
-    """The Logarithmic spin-to-qubit mapping. """
-
-    def map(self, second_q_op: SpinOp) -> PauliSumOp:
-        # TODO
-        raise NotImplementedError()

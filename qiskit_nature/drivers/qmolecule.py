@@ -68,7 +68,7 @@ class QMolecule:
         # Energies and orbits
         self.hf_energy = None
         self.nuclear_repulsion_energy = None
-        self.num_orbitals = None
+        self.num_molecular_orbitals = None
         self.num_alpha = None
         self.num_beta = None
         self.mo_coeff = None
@@ -245,8 +245,13 @@ class QMolecule:
                     self.z_dip_energy_shift = {}
 
                 # Orbitals
-                data = file["orbitals/num_orbitals"][...]
-                self.num_orbitals = int(data) if data.dtype.num != 0 else None
+                try:
+                    data = file["orbitals/num_molecular_orbitals"][...]
+                    self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
+                except KeyError:
+                    # try the legacy attribute name
+                    data = file["orbitals/num_orbitals"][...]
+                    self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
                 data = file["orbitals/num_alpha"][...]
                 self.num_alpha = int(data) if data.dtype.num != 0 else None
                 data = file["orbitals/num_beta"][...]
@@ -364,7 +369,7 @@ class QMolecule:
 
             # Orbitals
             g_orbitals = file.create_group("orbitals")
-            create_dataset(g_orbitals, "num_orbitals", self.num_orbitals)
+            create_dataset(g_orbitals, "num_molecular_orbitals", self.num_molecular_orbitals)
             create_dataset(g_orbitals, "num_alpha", self.num_alpha)
             create_dataset(g_orbitals, "num_beta", self.num_beta)
             create_dataset(g_orbitals, "mo_coeff", self.mo_coeff)
@@ -611,7 +616,7 @@ class QMolecule:
             if None not in (self.hf_energy, self.nuclear_repulsion_energy):
                 logger.info("One and two electron Hartree-Fock energy: %s",
                             self.hf_energy - self.nuclear_repulsion_energy)
-            logger.info("Number of orbitals is %s", self.num_orbitals)
+            logger.info("Number of orbitals is %s", self.num_molecular_orbitals)
             logger.info("%s alpha and %s beta electrons", self.num_alpha, self.num_beta)
             logger.info("Molecule comprises %s atoms and in xyz format is ::", self.num_atoms)
             logger.info("  %s, %s", self.molecular_charge, self.multiplicity)

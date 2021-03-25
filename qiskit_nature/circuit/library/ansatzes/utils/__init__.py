@@ -12,4 +12,12 @@
 
 # TODO(sphinx): documentation
 
-# TODO: possibly expose imports on this level, too?
+"""Excitation generator utilities."""
+
+from .fermionic_excitation_generator import generate_fermionic_excitations
+from .vibration_excitation_generator import generate_vibration_excitations
+
+__all__ = [
+    'generate_fermionic_excitations',
+    'generate_vibration_excitations',
+]

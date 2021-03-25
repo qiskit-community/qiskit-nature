@@ -31,9 +31,23 @@ Initial states
 
 """
 
+# TODO(sphinx): documentation for Ansatzes module
+
+from .ansatzes import (
+    EvolvedOperatorAnsatz,
+    UCC,
+    UCCSD,
+)
+
 from .initial_states import (
     HartreeFock,
     VSCF
 )
 
-__all__ = ['HartreeFock', 'VSCF']
+__all__ = [
+    'EvolvedOperatorAnsatz',
+    'UCC',
+    'UCCSD',
+    'HartreeFock',
+    'VSCF',
+]

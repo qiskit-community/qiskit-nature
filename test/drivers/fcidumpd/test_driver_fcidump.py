@@ -30,7 +30,7 @@ class BaseTestDriverFCIDump(ABC):
         self.log = None
         self.qmolecule = None
         self.nuclear_repulsion_energy = None
-        self.num_orbitals = None
+        self.num_molecular_orbitals = None
         self.num_alpha = None
         self.num_beta = None
         self.mo_onee = None
@@ -61,10 +61,11 @@ class BaseTestDriverFCIDump(ABC):
         self.assertAlmostEqual(self.qmolecule.nuclear_repulsion_energy,
                                self.nuclear_repulsion_energy, places=3)
 
-    def test_driver_num_orbitals(self):
+    def test_driver_num_molecular_orbitals(self):
         """ driver num orbitals test """
-        self.log.debug('QMolecule Number of orbitals is {}'.format(self.qmolecule.num_orbitals))
-        self.assertEqual(self.qmolecule.num_orbitals, self.num_orbitals)
+        self.log.debug('QMolecule Number of orbitals is {}'.format(
+            self.qmolecule.num_molecular_orbitals))
+        self.assertEqual(self.qmolecule.num_molecular_orbitals, self.num_molecular_orbitals)
 
     def test_driver_num_alpha(self):
         """ driver num alpha test """
@@ -129,7 +130,7 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
     def setUp(self):
         super().setUp()
         self.nuclear_repulsion_energy = 0.7199
-        self.num_orbitals = 2
+        self.num_molecular_orbitals = 2
         self.num_alpha = 1
         self.num_beta = 1
         self.mo_onee = np.array([[1.2563, 0.0], [0.0, 0.4719]])
@@ -151,7 +152,7 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
     def setUp(self):
         super().setUp()
         self.nuclear_repulsion_energy = 0.9924
-        self.num_orbitals = 6
+        self.num_molecular_orbitals = 6
         self.num_alpha = 2
         self.num_beta = 2
         loaded = np.load(self.get_resource_path('test_driver_fcidump_lih.npz',
@@ -172,7 +173,7 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
     def setUp(self):
         super().setUp()
         self.nuclear_repulsion_energy = 11.3412
-        self.num_orbitals = 6
+        self.num_molecular_orbitals = 6
         self.num_alpha = 5
         self.num_beta = 4
         loaded = np.load(self.get_resource_path('test_driver_fcidump_oh.npz',

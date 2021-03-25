@@ -10,17 +10,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Super-Fast Bravyi-Kitaev Mapper."""
+# TODO(sphinx): documentation
 
-from qiskit.opflow import PauliSumOp
-from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
+"""Ansatz circuits and utilities thereof."""
 
-from .qubit_mapper import QubitMapper
+from .evolved_operator_ansatz import EvolvedOperatorAnsatz
+from .puccd import PUCCD
+from .ucc import UCC
+from .uccsd import UCCSD
+from .succd import SUCCD
 
-
-class BravyiKitaevSuperFastMapper(QubitMapper):
-    """The Super-Fast Bravyi-Kitaev fermion-to-qubit mapping. """
-
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
-        # TODO
-        raise NotImplementedError()
+__all__ = [
+    'EvolvedOperatorAnsatz',
+    'PUCCD',
+    'UCC',
+    'UCCSD',
+    'SUCCD',
+]
