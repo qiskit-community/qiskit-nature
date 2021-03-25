@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-This module converts labels from the `VibrationalOp` to 'SpinOp` notation.
+This module converts sparse labels from the :class:`VibrationalOp` to dense labels.
 """
 import itertools
 import operator
@@ -22,7 +22,8 @@ from .vibrational_labels_validator import _validate_vibrational_labels
 
 def _convert_to_dense_labels(vibrational_labels: List[Tuple[str, complex]], num_modes: int,
                              num_modals: Union[int, List[int]]) -> List[Tuple[List[str], complex]]:
-    """Converts `VibrationalOp` labels to `SpinOp` labels.
+    """Converts sparse :class:`VibrationalOp` labels to dense ones.
+    The dense labels match the notation of :class:`FermionicOp`.
 
     Args:
         vibrational_labels: list of labels and corresponding coefficients that describe a
@@ -30,8 +31,7 @@ def _convert_to_dense_labels(vibrational_labels: List[Tuple[str, complex]], num_
         num_modes: number of modes.
         num_modals: number of modals in each mode.
     Returns:
-        A list of labels and corresponding coefficients that describe a
-        vibrational problem in terms of labels accepted by `SpinOp`.
+        The converted list of dense labels.
     Raises:
         ValueError: if invalid labels provided or the length of list of modal sizes do not agree
         with the number of modes provided

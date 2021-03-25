@@ -31,7 +31,7 @@ class VibrationalOp(SecondQuantizedOp):
 
     **Label**
 
-    :class:`VibrationalOp` supports two kinds of labels: sparse and dense ones.
+    This class supports two kinds of labels: sparse and dense ones.
 
     1. Sparse Labels:
 
@@ -50,7 +50,7 @@ class VibrationalOp(SecondQuantizedOp):
           - :math:`S_-`
           - Lowering operator
 
-    :class:`VibrationalOp` accepts the notation that encodes raising (`+`) and lowering (`-`)
+    This class accepts the notation that encodes raising (`+`) and lowering (`-`)
     operators together with indices of modes and modals that they act on, e.g.
     `+_{mode_index}*{modal_index}`. Each modal can be excited at most once.
 
@@ -59,7 +59,7 @@ class VibrationalOp(SecondQuantizedOp):
 
     2. Dense Labels:
 
-    Internally, a :class:`VibrationalOp` is stored as a dense label in an identical notation to that
+    Internally, this class is stored as a dense label in an identical notation to that
     of the :class:`FermionicOp`. Thus, each modal is mapped onto a position of the string and can be
     one of the following characters: `I`, `+`, `-`, `N` and `E`. Here, `N` and `E` are shorthand
     for `+-` and `-+` applied on the same modal, respectively.
@@ -71,14 +71,14 @@ class VibrationalOp(SecondQuantizedOp):
 
     **Initialization**
 
-    The :class:`VibrationalOp` can be initialized by the list of tuples that each contains a
-    string with a label as explained above and a corresponding coefficient. This argument must be
-    accompanied by the number of modes and modals, and possibly, the value of a spin.
+    This class can be initialized by the list of tuples that each contains a string with a label as
+    explained above and a corresponding coefficient. This argument must be accompanied by the number
+    of modes and modals, and possibly, the value of a spin.
 
     **Algebra**
 
-    :class:`VibrationalOp` supports the following basic arithmetic operations: addition,
-    subtraction, scalar multiplication, and dagger(adjoint).
+    This class supports the following basic arithmetic operations: addition, subtraction, scalar
+    multiplication, and dagger(adjoint).
     """
 
     def __init__(self, data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
@@ -191,7 +191,7 @@ class VibrationalOp(SecondQuantizedOp):
 
     @property
     def register_length(self) -> int:
-        """Getter for the length of the register that the VibrationalOp `self` acts on."""
+        """Gets the register length."""
         return self._register_length
 
     def mul(self, other: complex) -> "VibrationalOp":
@@ -221,7 +221,11 @@ class VibrationalOp(SecondQuantizedOp):
         )
 
     def to_list(self) -> List[Tuple[str, complex]]:
-        """Getter for the operator_list of `self`"""
+        """Returns the operators internal contents in list-format.
+
+        Returns:
+            A list of tuples consisting of the dense label and corresponding coefficient.
+        """
         return list(zip(self._labels, self._coeffs.tolist()))
 
     def adjoint(self) -> "VibrationalOp":
@@ -327,9 +331,9 @@ class VibrationalOp(SecondQuantizedOp):
         new_label = []
 
         for pair in zip(label1, label2):
-            # Check what happens to the symbol
             new_char = cls._MAPPING[pair]
             if new_char == "0":
+                # if the new symbol is a zero-op, return early
                 return "I" * len(label1), False
             new_label.append(new_char)
             # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught

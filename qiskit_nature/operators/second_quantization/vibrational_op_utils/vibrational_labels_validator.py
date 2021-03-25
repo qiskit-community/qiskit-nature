@@ -31,9 +31,10 @@ def _validate_vibrational_labels(vibrational_labels: List[Tuple[str, complex]], 
             * there are no duplicated operators for each coefficient,
             * operators in each label are sorted in the decreasing order of modes and modals,
             if both are equal then '+' comes before '-' (i.e. they are normal ordered),
-            * for each `+` operator in each label, there is a corresponding '-' operator
-            acting on the same mode (i.e. the number of particles is preserved per mode) [this last
-            case will only log a warning]
+            * Finally, a warning will be logged if the number of particles is not preserved within
+            each mode. This corresponds to a mismatching number of `+` and `-` operators. This case
+            only leads to a warning because it allows re-use of the :class:`VibrationalOp` for state
+            initialization, where only `+` operators are present.
 
         Args:
             vibrational_labels: list of vibrational labels with coefficients.
