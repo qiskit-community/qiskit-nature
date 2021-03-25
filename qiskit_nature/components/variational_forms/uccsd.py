@@ -512,7 +512,7 @@ class UCCSD:
 
         beta_idx = num_orbitals // 2
 
-        # making lists of indexes of MOs involved in excitations
+        # making lists of indices of MOs involved in excitations
         if active_occ_list is not None:
             active_occ_list = [i if i >= 0 else i + max(num_alpha, num_beta) for i in
                                active_occ_list]
