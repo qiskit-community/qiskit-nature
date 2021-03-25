@@ -145,7 +145,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new QMolecule
         molecule_data_reduced = copy.deepcopy(molecule_data)
         # Energies and orbitals
-        molecule_data_reduced.num_orbitals = self._num_molecular_orbitals
+        molecule_data_reduced.num_molecular_orbitals = self._num_molecular_orbitals
         molecule_data_reduced.num_alpha = self._num_particles[0]
         molecule_data_reduced.num_beta = self._num_particles[1]
         molecule_data_reduced.mo_coeff = self._mo_coeff_active[0]
