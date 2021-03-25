@@ -75,11 +75,10 @@ class LinearMapper(SpinMapper):
                 tmp_operatorlist = []
 
                 for tmp_op in operatorlist:
-                    print(type(tmp_op))
                     tmp_operatorlist.append(tmp_op.reduce())
 
                 operatorlist = tmp_operatorlist
-            assert False
+
             qubit_ops_list.append(self._tensor_ops(operatorlist, coeff))
 
         qubit_op = self._operator_sum(qubit_ops_list)
