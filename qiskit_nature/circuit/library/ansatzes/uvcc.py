@@ -227,7 +227,7 @@ class UVCC(EvolvedOperatorAnsatz):
         sum_modes = sum(self.num_modals)
 
         for exc in excitations:
-            label = ['I'] * label_length
+            label = ['I'] * sum_modes
             for occ in exc[0]:
                 label[occ] = '+'
             for unocc in exc[1]:

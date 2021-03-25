@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def generate_vibration_excitations(num_excitations: int,
-                                   basis: List[int],
+                                   num_modals: List[int],
                                    ) -> List[Tuple[Tuple[Any, ...], ...]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
@@ -34,14 +34,14 @@ def generate_vibration_excitations(num_excitations: int,
 
     Args:
         num_excitations: number of excitations per operator (1 means single excitations, etc.).
-        basis: the number of modals per mode.
+        num_modals: the number of modals per mode.
 
     Returns:
         The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
         tuples. The first tuple contains the occupied spin orbital indices whereas the second one
         contains the indices of the unoccupied spin orbitals.
     """
-    partial_sum_modals = list(itertools.accumulate(basis, operator.add))
+    partial_sum_modals = list(itertools.accumulate(num_modals, operator.add))
 
     # First, we construct the list of single excitations:
     single_excitations = []
