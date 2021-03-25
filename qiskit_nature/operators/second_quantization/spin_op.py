@@ -217,8 +217,8 @@ class SpinOp(SecondQuantizedOp):
             if register_length is not None:  # Sparse label
                 # [IXYZ]_index^power (power is optional) or [+-]_index
                 sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+?)"
-                # space (\s) separated sparse label
-                label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$")
+                # space (\s) separated sparse label or empty string
+                label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$|^$")
                 invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
                 if invalid_labels:
                     raise ValueError(f"Invalid labels for sparse labels: {invalid_labels}.")
@@ -414,15 +414,14 @@ class SpinOp(SecondQuantizedOp):
         """Generates the string description of `self`."""
         labels_list = []
         for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
-            if n_x == n_y == n_z == 0:
-                labels_list.append(f"I_{pos}")
-                continue
             if n_x >= 1:
                 labels_list.append(f"X_{pos}" + (f"^{n_x}" if n_x > 1 else ""))
             if n_y >= 1:
                 labels_list.append(f"Y_{pos}" + (f"^{n_y}" if n_y > 1 else ""))
             if n_z >= 1:
                 labels_list.append(f"Z_{pos}" + (f"^{n_z}" if n_z > 1 else ""))
+        if not labels_list:
+            return f"I_{self.register_length - 1}"
         return " ".join(labels_list)
 
     @lru_cache()

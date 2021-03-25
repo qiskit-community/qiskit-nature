@@ -87,7 +87,10 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_init_label(self, label, pre_processing):
         """Test __init__"""
         spin = SpinOp(pre_processing(label), register_length=len(label) // 3)
-        self.assertListEqual(spin.to_list(), [(label, 1)])
+        expected_label = " ".join(l for l in label.split() if l[0] != "I")
+        if not expected_label:
+            expected_label = f"I_{len(label) // 3 - 1}"
+        self.assertListEqual(spin.to_list(), [(expected_label, 1)])
         self.assertSpinEqual(eval(repr(spin)), spin)  # pylint: disable=eval-used
 
     @data(
@@ -163,10 +166,7 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
         actual = SpinOp([("X_10^20", 1 + 2j), ("X_12^34", 56)], Fraction(5, 2), register_length=13)
-        desired = [
-            ("I_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7 I_8 I_9 X_10^20 I_11 I_12", 1 + 2j),
-            ("I_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7 I_8 I_9 I_10 I_11 X_12^34", 56),
-        ]
+        desired = [("X_10^20", 1 + 2j), ("X_12^34", 56)]
         self.assertListEqual(actual.to_list(), desired)
 
     @data("IJX", "Z_0 X_0", "Z_0 +_0", "+_0 X_0")
@@ -264,7 +264,7 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test reduce"""
         with self.subTest("trivial reduce"):
             actual = (self.heisenberg - self.heisenberg).reduce()
-            self.assertListEqual(actual.to_list(), [("I_0 I_1", 0)])
+            self.assertListEqual(actual.to_list(), [("I_1", 0)])
 
         with self.subTest("nontrivial reduce"):
             test_op = SpinOp(
