@@ -34,13 +34,11 @@ class LinearMapper(SpinMapper):
         # get transformed general spin matrices
         spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
 
-        for _, op in enumerate(second_q_op.to_list()):
+        for idx, (_, coeff) in enumerate(second_q_op.to_list()):
 
             operatorlist = []
 
-            oper, coeff = op
-
-            for n_x, n_y, n_z in zip(second_q_op.x[_], second_q_op.y[_], second_q_op.z[_]):
+            for n_x, n_y, n_z in zip(second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]):
 
                 operator_on_spin_i = []
 
