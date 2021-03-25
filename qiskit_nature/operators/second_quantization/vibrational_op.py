@@ -14,16 +14,18 @@
 from functools import reduce
 from typing import List, Tuple, Union, Optional
 
+import itertools
+import logging
+import operator
 import re
 
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
 
-from .vibrational_op_utils.vibrational_labels_validator import _validate_vibrational_labels
-from .vibrational_op_utils.vibrational_dense_label_converter import _convert_to_dense_labels
-
 from .second_quantized_op import SecondQuantizedOp
+
+logger = logging.getLogger(__name__)
 
 
 class VibrationalOp(SecondQuantizedOp):
@@ -80,6 +82,10 @@ class VibrationalOp(SecondQuantizedOp):
     This class supports the following basic arithmetic operations: addition, subtraction, scalar
     multiplication, and dagger(adjoint).
     """
+
+    # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
+    # followed by "*" and a modal index, possibly appearing multiple times and separated by a space
+    _VALID_VIBR_LABEL_PATTERN = re.compile(r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
     def __init__(self, data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
                  num_modes: int,
@@ -141,8 +147,7 @@ class VibrationalOp(SecondQuantizedOp):
             self._labels = list(labels)
         else:
             # Sparse label
-            _validate_vibrational_labels(data, num_modes, num_modals)
-            dense_labels = _convert_to_dense_labels(data, num_modes, num_modals)
+            dense_labels = self._convert_to_dense_labels(data, num_modals)
 
             ops: List[VibrationalOp] = []
             for dense_label, coeff in dense_labels:
@@ -340,3 +345,138 @@ class VibrationalOp(SecondQuantizedOp):
             # by the `if`-statement above.
 
         return "".join(new_label), True
+
+    def _validate_vibrational_labels(self,
+                                     vibrational_labels: List[Tuple[str, complex]],
+                                     num_modals: List[int]):
+        """Validates vibrational labels in the following aspects:
+            - vibrational labels stored in a correct data structure,
+            - labels for each coefficient conform with a regular expression,
+            - indices of operators in each label are correct and ordered correctly:
+                * indices for modes and modals do not exceed declared ranges,
+                * there are no duplicated operators for each coefficient,
+                * operators in each label are sorted in the decreasing order of modes and modals,
+                if both are equal then '+' comes before '-' (i.e. they are normal ordered),
+                * Finally, a warning will be logged if the number of particles is not preserved
+                within each mode. This corresponds to a mismatching number of `+` and `-` operators.
+                This case only leads to a warning because it allows re-use of the
+                :class:`VibrationalOp` for state initialization, where only `+` operators are
+                present.
+
+            Args:
+                vibrational_labels: list of vibrational labels with coefficients.
+                num_modes: the number of modes.
+                num_modals: the number of modals.
+
+            Raises:
+                ValueError: if invalid vibrational labels provided.
+            """
+        if not isinstance(vibrational_labels, list):
+            raise ValueError("Invalid data type.")
+
+        invalid_labels = [label for label, _ in vibrational_labels if
+                          not self._VALID_VIBR_LABEL_PATTERN.match(label)]
+        if invalid_labels:
+            raise ValueError(f"Invalid labels: {invalid_labels}")
+
+        self._validate_indices(vibrational_labels, num_modals)
+
+    def _validate_indices(self, vibrational_labels: List[Tuple[str, complex]],
+                          num_modals: List[int]):
+        for labels, _ in vibrational_labels:
+            coeff_labels_split = labels.split()
+            num_modes = len(num_modals)
+            par_num_mode_conserved_check = [0] * num_modes
+            prev_op, prev_mode_index, prev_modal_index = "+", -1, -1
+            for label in coeff_labels_split:
+                op, mode_index_str, modal_index_str = re.split('[*_]', label)
+                mode_index = int(mode_index_str)
+                modal_index = int(modal_index_str)
+                if self._is_index_out_of_range(mode_index, num_modes, modal_index, num_modals):
+                    raise ValueError(f"Indices out of the declared range for label {label}.")
+                if self._is_label_duplicated(mode_index, prev_mode_index, modal_index,
+                                             prev_modal_index, op, prev_op):
+                    raise ValueError(f"Operators in a label duplicated for label {label}.")
+                if self._is_order_incorrect(mode_index, prev_mode_index, modal_index,
+                                            prev_modal_index, op, prev_op):
+                    raise ValueError(
+                        f"Incorrect order of operators for label {label} and previous label "
+                        f"{str(prev_op)}_{str(prev_mode_index)}*{str(prev_modal_index)}.")
+
+                prev_op, prev_mode_index, prev_modal_index = op, mode_index, modal_index
+
+                par_num_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
+            for index, item in enumerate(par_num_mode_conserved_check):
+                if item != 0:
+                    logger.warning(
+                        "Number of raising and lowering operators do not agree for mode %s in "
+                        "label %s.", index, labels)
+
+    def _is_index_out_of_range(self, mode_index: int, num_modes: int, modal_index: int,
+                               num_modals: List[int]) -> bool:
+        return mode_index >= num_modes or modal_index >= num_modals[int(mode_index)]
+
+    def _is_label_duplicated(self, mode_index: int, prev_mode_index: int, modal_index: int,
+                             prev_modal_index: int, op: str, prev_op: str) -> bool:
+        return modal_index == prev_modal_index and mode_index == prev_mode_index and op == prev_op
+
+    def _is_order_incorrect(self, mode_index: int, prev_mode_index: int, modal_index: int,
+                            prev_modal_index: int, op: str, prev_op: str) -> bool:
+        return self._is_mode_order_incorrect(mode_index, prev_mode_index) \
+            or self._is_modal_order_incorrect(prev_mode_index, mode_index,
+                                              prev_modal_index, modal_index) \
+            or self._is_operator_order_incorrect(mode_index, prev_mode_index, modal_index,
+                                                 prev_modal_index, op, prev_op)
+
+    def _is_mode_order_incorrect(self, mode_index: int, prev_mode_index: int) -> bool:
+        return mode_index < prev_mode_index
+
+    def _is_modal_order_incorrect(self, prev_mode_index: int, mode_index: int,
+                                  prev_modal_index: int, modal_index: int) -> bool:
+        return mode_index == prev_mode_index and modal_index < prev_modal_index
+
+    def _is_operator_order_incorrect(self, mode_index: int, prev_mode_index: int, modal_index: int,
+                                     prev_modal_index: int, op: str, prev_op: str) -> bool:
+        return mode_index == prev_mode_index and modal_index == prev_modal_index \
+            and prev_op == "-" and op == "+"
+
+    def _convert_to_dense_labels(self, vibrational_labels: List[Tuple[str, complex]],
+                                 num_modals: List[int]
+                                 ) -> List[Tuple[List[str], complex]]:
+        """Converts sparse :class:`VibrationalOp` labels to dense ones.
+        The dense labels match the notation of :class:`FermionicOp`.
+
+        Args:
+            vibrational_labels: list of labels and corresponding coefficients that describe a
+            vibrational problem.
+            num_modals: number of modals in each mode.
+        Returns:
+            The converted list of dense labels.
+        Raises:
+            ValueError: if invalid labels provided or the length of list of modal sizes do not agree
+            with the number of modes provided
+        """
+        self._validate_vibrational_labels(vibrational_labels, num_modals)
+
+        partial_sum_modals = [0] + list(itertools.accumulate(num_modals, operator.add))
+
+        dense_labels = []
+        for labels, coeff in vibrational_labels:
+            coeff_new_labels = self._build_coeff_dense_labels(labels, partial_sum_modals)
+            dense_labels.append((coeff_new_labels, coeff))
+        return dense_labels
+
+    def _build_coeff_dense_labels(self, labels: str, partial_sum_modals: List[int]) -> List[str]:
+        coeff_labels_split = labels.split()
+        coeff_new_labels = []
+        for label in coeff_labels_split:
+            op, index = self._build_dense_label(label, partial_sum_modals)
+            new_label = ['I'] * partial_sum_modals[-1]
+            new_label[index] = op
+            coeff_new_labels.append(''.join(new_label))
+        return coeff_new_labels
+
+    def _build_dense_label(self, label: str, partial_sum_modals: List[int]) -> Tuple[str, int]:
+        op, mode_index, modal_index = re.split('[*_]', label)
+        index = partial_sum_modals[int(mode_index)] + int(modal_index)
+        return (op, index)
