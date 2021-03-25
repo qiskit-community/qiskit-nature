@@ -20,10 +20,8 @@ from qiskit import QuantumRegister, QuantumCircuit
 
 from qiskit.circuit import ParameterVector, Parameter
 
-from qiskit.algorithms.variational_forms import VariationalForm
 
-
-class CHC(VariationalForm):
+class CHC:
     """ This trial wavefunction is the Compact Heuristic for Chemistry.
 
     The trial wavefunction is as defined in
@@ -37,7 +35,7 @@ class CHC(VariationalForm):
 
     def __init__(self, num_qubits: Optional[int] = None, reps: int = 1, ladder: bool = False,
                  excitations: Optional[List[List[int]]] = None,
-                 entanglement: Union[str, List[int]] = 'full',
+                 entanglement: Union[str, List[int]] = 'full',  # pylint: disable=unused-argument
                  initial_state: Optional[QuantumCircuit] = None) -> None:
         """
 
@@ -61,10 +59,6 @@ class CHC(VariationalForm):
         self._excitations = excitations
         self._bounds = [(-np.pi, np.pi)] * self._num_parameters
         self._num_qubits = num_qubits
-        if isinstance(entanglement, str):
-            self._entangler_map = VariationalForm.get_entangler_map(entanglement, num_qubits)
-        else:
-            self._entangler_map = VariationalForm.validate_entangler_map(entanglement, num_qubits)
         self._initial_state = initial_state
         self._support_parameterized_circuit = True
 

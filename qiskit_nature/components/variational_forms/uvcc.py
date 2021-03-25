@@ -25,13 +25,12 @@ from qiskit.circuit import ParameterVector, Parameter
 
 from qiskit.utils import algorithm_globals
 from qiskit.opflow import PauliSumOp
-from qiskit.algorithms.variational_forms import VariationalForm
 from qiskit_nature.bosonic_operator import BosonicOperator
 
 logger = logging.getLogger(__name__)
 
 
-class UVCC(VariationalForm):
+class UVCC:
     """
     This trial wavefunction is a Unitary Vibrational Coupled-Cluster Single and Double excitations
     variational form.
