@@ -62,7 +62,6 @@ class GroundStateEigensolver(GroundStateSolver):
 
     def solve(self, problem: BaseProblem) \
             -> Union[ElectronicStructureResult, VibronicStructureResult]:
-
         """Compute Ground State properties.
 
         Args:
