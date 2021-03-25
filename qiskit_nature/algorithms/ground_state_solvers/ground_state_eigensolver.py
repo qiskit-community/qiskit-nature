@@ -81,6 +81,9 @@ class GroundStateEigensolver(GroundStateSolver):
         second_q_ops = problem.second_q_ops()
         qubit_ops = self._qubit_converter.to_qubit_ops(second_q_ops)
 
+        main_operator = qubit_ops[0]
+        aux_ops = qubit_ops[1:]
+
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem, self._qubit_converter)
@@ -88,10 +91,8 @@ class GroundStateEigensolver(GroundStateSolver):
             self.solver = self._solver
         # if the eigensolver does not support auxiliary operators, reset them
         if not self.solver.supports_aux_operators():
-            qubit_ops = None
+            aux_ops = None
 
-        main_operator = qubit_ops[0]
-        aux_ops = qubit_ops[1:]
         raw_mes_result = self.solver.compute_minimum_eigenvalue(main_operator, aux_ops)
 
         result = problem.interpret(raw_mes_result)
