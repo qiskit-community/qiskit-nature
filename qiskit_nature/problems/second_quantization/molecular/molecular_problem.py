@@ -41,6 +41,14 @@ class MolecularProblem(BaseProblem):
         self._q_molecule = None
         self._q_molecule_transformed = None
 
+    @property
+    def q_molecule(self):
+        return self._q_molecule
+
+    @property
+    def q_molecule_transformed(self):
+        return self._q_molecule_transformed
+
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.

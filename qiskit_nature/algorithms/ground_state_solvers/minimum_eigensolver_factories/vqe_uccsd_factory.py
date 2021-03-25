@@ -13,34 +13,23 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, Callable
-import numpy as np
 
+import numpy as np
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import MinimumEigensolver, VQE
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.algorithms.optimizers import Optimizer
-from qiskit_nature.exceptions import QiskitNatureError
+
 from qiskit_nature.circuit.library.ansatzes import UCCSD
 from qiskit_nature.circuit.library.initial_states import HartreeFock
-from qiskit_nature.mappers.second_quantization import (BravyiKitaevMapper, JordanWignerMapper,
-                                                       ParityMapper)
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from ....transformations import Transformation
-from ....transformations.fermionic_transformation import FermionicTransformation
-
+from ....problems.second_quantization.molecular.molecular_problem import MolecularProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
 class VQEUCCSDFactory(MinimumEigensolverFactory):
     """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction."""
-
-    # TODO: remove this once we fully integrate the `QubitConverter into the algorithm stack
-    MAPPER_DICT = {
-        'bravyi_kitaev': BravyiKitaevMapper(),
-        'jordan_wigner': JordanWignerMapper(),
-        'parity': ParityMapper(),
-    }
 
     def __init__(self,
                  quantum_instance: QuantumInstance,
@@ -201,12 +190,15 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
         """Setter of the ``same_spin_doubles`` setting for the ``same_spin_doubles`` setting."""
         self._same_spin_doubles = same_spin_doubles
 
-    def get_solver(self, transformation: Transformation) -> MinimumEigensolver:
+    def get_solver(self, problem: MolecularProblem,
+                   qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a VQE with a UCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``FermionicTransformation``.
 
         Args:
-            transformation: a fermionic qubit operator transformation.
+            problem: a class encoding a problem to be solved.
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule transformed
@@ -215,21 +207,16 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
         Raises:
             QiskitNatureError: in case a Transformation of wrong type is given.
         """
-        if not isinstance(transformation, FermionicTransformation):
-            raise QiskitNatureError(
-                'VQEUCCSDFactory.getsolver() requires a FermionicTransformation')
 
-        num_orbitals = transformation.molecule_info['num_orbitals']
-        num_particles = transformation.molecule_info['num_particles']
-        qubit_mapping = transformation.qubit_mapping
+        q_molecule_transformed = problem.q_molecule_transformed
+        num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
+        num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
+        num_spin_orbitals = 2 * num_molecular_orbitals
 
-        if qubit_mapping not in self.MAPPER_DICT.keys():
-            raise QiskitNatureError(f'Currently unsupported QubitMapper: {qubit_mapping}')
-        converter = QubitConverter(mappers=self.MAPPER_DICT[qubit_mapping])
-        initial_state = HartreeFock(num_orbitals, num_particles, converter)
-        var_form = UCCSD(qubit_converter=converter,
+        initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
+        var_form = UCCSD(qubit_converter=qubit_converter,
                          num_particles=num_particles,
-                         num_spin_orbitals=num_orbitals)
+                         num_spin_orbitals=num_spin_orbitals)
         self._vqe.var_form = initial_state.compose(var_form)
 
         return self._vqe

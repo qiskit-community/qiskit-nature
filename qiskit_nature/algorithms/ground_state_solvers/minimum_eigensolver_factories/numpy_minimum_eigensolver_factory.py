@@ -17,6 +17,7 @@ from typing import Optional, Union, List, Callable
 import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
 
+from ....operators.second_quantization.qubit_converter import QubitConverter
 from ....problems.second_quantization.base_problem import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -64,7 +65,10 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """ sets whether to use the default filter criterion """
         self._use_default_filter_criterion = value
 
-    def get_solver(self, problem: BaseProblem) -> MinimumEigensolver:
+    def get_solver(self, problem: BaseProblem,
+                   qubit_converter: QubitConverter) -> MinimumEigensolver:  # TODO
+        # qubit_converter not used here but necessary due to inheritance from
+        # MinimumEigensolverFactory
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``transformation``.
 
