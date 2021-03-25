@@ -10,14 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-This module builds labels for `VibrationalSpinOp`.
+This module builds labels for `VibrationalOp`.
 """
 from typing import Tuple, List
 
 
 def _create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]]) -> \
         List[Tuple[str, complex]]:
-    """Creates `VibrationalSpinOp` labels from a data structure returned by a convert() method in
+    """Creates `VibrationalOp` labels from a data structure returned by the convert() method in
     `HarmonicBasis`.
 
     Args:
