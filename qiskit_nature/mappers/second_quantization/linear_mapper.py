@@ -33,7 +33,7 @@ class LinearMapper(SpinMapper):
 
         qubit_ops_list: List[PauliSumOp] = []
 
-        # get transformed general spin matrices
+        # get linear encoding of the general spin matrices
         spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
 
         for idx, (_, coeff) in enumerate(second_q_op.to_list()):
@@ -45,25 +45,21 @@ class LinearMapper(SpinMapper):
                 operator_on_spin_i: List[PauliSumOp] = []
 
                 if n_x > 0:
-                    # construct the qubit operator embed
                     operator_on_spin_i.append(
                         reduce(operator.matmul, [spinx for i in range(int(n_x))])
                     )
 
                 if n_y > 0:
-                    # construct the qubit operator embed
                     operator_on_spin_i.append(
                         reduce(operator.matmul, [spiny for i in range(int(n_y))])
                     )
 
                 if n_z > 0:
-                    # construct the qubit operator embed
                     operator_on_spin_i.append(
                         reduce(operator.matmul, [spinz for i in range(int(n_z))])
                     )
 
                 if np.any([n_x, n_y, n_z]) > 0:
-                    # multiply X^n_x * Y^n_y * Z^n_z
                     single_operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
                     operatorlist.append(single_operator_on_spin_i.reduce())
 
@@ -86,16 +82,14 @@ class LinearMapper(SpinMapper):
         In this 'linear_encoding' each individual spin S system is represented via
         2S+1 qubits and the state |s> is mapped to the state |00...010..00>, where the s-th qubit is
         in state 1.
+
         Returns:
-            self.transformed_XYZI: list,
-                The 4-element list of transformed spin S 'X', 'Y', 'Z' and 'identity' operators.
-                I.e.
-                    self.transformed_XYZI[0] corresponds to the linear
-                    combination of pauli strings needed
-                    to represent the embedded 'X' operator
+            The 4-element list of transformed spin S 'X', 'Y', 'Z' and 'identity' operators.
+            I.e. spin_op_encoding[0]` corresponds to the linear combination of pauli strings needed
+            to represent the embedded 'X' operator
         """
 
-        trafo_xzyi: List[PauliSumOp] = []
+        spin_op_encoding: List[PauliSumOp] = []
         dspin = int(2 * spin + 1)
         nqubits = dspin
 
@@ -118,7 +112,7 @@ class LinearMapper(SpinMapper):
                 coeff / 2. * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1))) +
                 coeff / 2. * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
             ))
-        trafo_xzyi.append(reduce(operator.add, x_summands))
+        spin_op_encoding.append(reduce(operator.add, x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
@@ -127,7 +121,7 @@ class LinearMapper(SpinMapper):
                 -1j * coeff / 2. * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1))) +
                 1j * coeff / 2. * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
             ))
-        trafo_xzyi.append(reduce(operator.add, y_summands))
+        spin_op_encoding.append(reduce(operator.add, y_summands))
 
         # 3. build the diagonal Z
         z_summands = []
@@ -137,10 +131,10 @@ class LinearMapper(SpinMapper):
                                          coeff / 2. * SparsePauliOp(pauli_id)))
 
         z_operator = reduce(operator.add, z_summands)
-        trafo_xzyi.append(z_operator)
+        spin_op_encoding.append(z_operator)
 
         # 4. add the identity operator
-        trafo_xzyi.append(PauliSumOp(1. * SparsePauliOp(pauli_id)))
+        spin_op_encoding.append(PauliSumOp(1. * SparsePauliOp(pauli_id)))
 
         # return the lookup table for the transformed XYZI operators
-        return trafo_xzyi
+        return spin_op_encoding
