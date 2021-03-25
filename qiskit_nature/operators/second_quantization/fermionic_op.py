@@ -52,7 +52,7 @@ class FermionicOp(SecondQuantizedOp):
           - :math:`I - n = c c^\dagger`
           - Hole number
 
-    There are two types of label modes for :class:`FermionicOp`.
+    There are two types of label modes for this class.
     The label mode is automatically detected.
 
     1. Dense Label (default, `register_length = None`)
@@ -103,7 +103,7 @@ class FermionicOp(SecondQuantizedOp):
 
     **Algebra**
 
-    `FermionicOp` supports the following basic arithmetic operations: addition, subtraction, scalar
+    This class supports the following basic arithmetic operations: addition, subtraction, scalar
     multiplication, operator multiplication, and dagger(adjoint).
     For example,
 
@@ -239,9 +239,7 @@ class FermionicOp(SecondQuantizedOp):
 
     @property
     def register_length(self) -> int:
-        """Getter for the length of the fermionic register that the FermionicOp `self` acts
-        on.
-        """
+        """Gets the register length."""
         return self._register_length
 
     def mul(self, other: complex) -> "FermionicOp":
@@ -323,9 +321,9 @@ class FermionicOp(SecondQuantizedOp):
             if char1 in "+-":
                 count -= 1
 
-            # Check what happens to the symbol
             new_char = cls._MAPPING[pair]
             if new_char == "0":
+                # if the new symbol is a zero-op, return early
                 return "I" * len(label1), 0
             new_label.append(new_char)
             # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught
@@ -356,7 +354,11 @@ class FermionicOp(SecondQuantizedOp):
         )
 
     def to_list(self) -> List[Tuple[str, complex]]:
-        """Getter for the operator_list of `self`"""
+        """Returns the operators internal contents in list-format.
+
+        Returns:
+            A list of tuples consisting of the dense label and corresponding coefficient.
+        """
         return list(zip(self._labels, self._coeffs.tolist()))
 
     def adjoint(self) -> "FermionicOp":

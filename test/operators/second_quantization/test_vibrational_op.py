@@ -9,19 +9,19 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Test for VibrationalSpinOp"""
+"""Test for VibrationalOp"""
 
 from test import QiskitNatureTestCase
 
 import numpy as np
 from ddt import data, ddt
 
-from qiskit_nature.operators.second_quantization.vibrational_spin_op import VibrationalSpinOp
+from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
 
 
 @ddt
-class TestVibrationalSpinOp(QiskitNatureTestCase):
-    """VibrationalSpinOp tests."""
+class TestVibrationalOp(QiskitNatureTestCase):
+    """VibrationalOp tests."""
 
     def setUp(self):
         super().setUp()
@@ -35,55 +35,28 @@ class TestVibrationalSpinOp(QiskitNatureTestCase):
             ("+_2*0 -_2*1 +_3*0 -_3*0", -6.385 / 3),
         ]
         self.labels_neg = [("+_1*0 -_1*1", -1215.375), ("+_2*0 -_2*1 +_3*0 -_3*0", 6.385)]
-        self.vibr_spin_op = VibrationalSpinOp(self.labels, 4, 2)
+        self.vibr_spin_op = VibrationalOp(self.labels, 4, 2)
 
-    @staticmethod
-    def assertSpinEqual(first: VibrationalSpinOp, second: VibrationalSpinOp):
-        """Fail if two VibrationalSpinOps have different matrix representations."""
-        np.testing.assert_array_almost_equal(first.to_matrix(), second.to_matrix())
+    def assertSpinEqual(self, first: VibrationalOp, second: VibrationalOp):
+        """Fail if two VibrationalOps have different matrix representations."""
+        self.assertEqual(first._labels, second._labels)
+        np.testing.assert_array_almost_equal(first._coeffs, second._coeffs)
 
     def test_init_pm_label(self):
         """Test __init__ with plus and minus label"""
         with self.subTest("minus plus"):
-            result = VibrationalSpinOp([("+_0*0 -_0*1", 2)], 1, 2)
-            desired = [
-                ("X_0 X_1", (2 + 0j)),
-                ("X_0 Y_1", -2j),
-                ("Y_0 X_1", 2j),
-                ("Y_0 Y_1", (2 + 0j)),
-            ]
+            result = VibrationalOp([("+_0*0 -_0*1", 2)], 1, 2)
+            desired = [('+-', (2 + 0j))]
             self.assertEqual(result.to_list(), desired)
 
         with self.subTest("plus minus"):
-            result = VibrationalSpinOp([("-_0*0 +_0*1", 2)], 1, 2)
-            desired = [
-                ("X_0 X_1", (2 + 0j)),
-                ("Y_0 X_1", -2j),
-                ("X_0 Y_1", 2j),
-                ("Y_0 Y_1", (2 + 0j)),
-            ]
+            result = VibrationalOp([("-_0*0 +_0*1", 2)], 1, 2)
+            desired = [('-+', (2 + 0j))]
             self.assertEqual(result.to_list(), desired)
 
         with self.subTest("plus minus minus plus"):
-            result = VibrationalSpinOp([("+_0*0 -_0*1 -_1*0 +_1*1", 3)], 2, 2)
-            desired = [
-                ("X_0 X_1 X_2 X_3", (3 + 0j)),
-                ("X_0 Y_1 X_2 X_3", -3j),
-                ("X_0 X_1 Y_2 X_3", -3j),
-                ("X_0 Y_1 Y_2 X_3", (-3 - 0j)),
-                ("Y_0 X_1 X_2 X_3", 3j),
-                ("Y_0 Y_1 X_2 X_3", (3 + 0j)),
-                ("Y_0 X_1 Y_2 X_3", (3 + 0j)),
-                ("Y_0 Y_1 Y_2 X_3", -3j),
-                ("X_0 X_1 X_2 Y_3", 3j),
-                ("X_0 Y_1 X_2 Y_3", (3 + 0j)),
-                ("X_0 X_1 Y_2 Y_3", (3 + 0j)),
-                ("X_0 Y_1 Y_2 Y_3", -3j),
-                ("Y_0 X_1 X_2 Y_3", (-3 + 0j)),
-                ("Y_0 Y_1 X_2 Y_3", 3j),
-                ("Y_0 X_1 Y_2 Y_3", 3j),
-                ("Y_0 Y_1 Y_2 Y_3", (3 + 0j)),
-            ]
+            result = VibrationalOp([("+_0*0 -_0*1 -_1*0 +_1*1", 3)], 2, 2)
+            desired = [('+--+', (3 + 0j))]
 
             # Note: the order of list is irrelevant.
             self.assertSetEqual(frozenset(result.to_list()), frozenset(desired))
@@ -92,28 +65,28 @@ class TestVibrationalSpinOp(QiskitNatureTestCase):
     def test_init_invalid_label(self, label):
         """Test __init__ for invalid label"""
         with self.assertRaises(ValueError):
-            VibrationalSpinOp(label, 1, 1)
+            VibrationalOp(label, 1, 1)
 
     def test_neg(self):
         """Test __neg__"""
         actual = -self.vibr_spin_op
-        desired = VibrationalSpinOp(self.labels_neg, 4, 2)
+        desired = VibrationalOp(self.labels_neg, 4, 2)
         self.assertSpinEqual(actual, desired)
 
     def test_mul(self):
         """Test __mul__, and __rmul__"""
         actual = self.vibr_spin_op * 2
-        desired = VibrationalSpinOp(self.labels_double, 4, 2)
+        desired = VibrationalOp(self.labels_double, 4, 2)
         self.assertSpinEqual(actual, desired)
 
     def test_div(self):
         """Test __truediv__"""
         actual = self.vibr_spin_op / 3
-        desired = VibrationalSpinOp(self.labels_divided_3, 4, 2)
+        desired = VibrationalOp(self.labels_divided_3, 4, 2)
         self.assertSpinEqual(actual, desired)
 
     def test_add(self):
         """Test __add__"""
-        actual = self.vibr_spin_op + self.vibr_spin_op
-        desired = VibrationalSpinOp(self.labels_double, 4, 2)
+        actual = (self.vibr_spin_op + self.vibr_spin_op).reduce()
+        desired = VibrationalOp(self.labels_double, 4, 2)
         self.assertSpinEqual(actual, desired)

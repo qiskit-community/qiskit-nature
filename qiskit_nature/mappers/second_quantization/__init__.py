@@ -15,19 +15,23 @@
 # TODO(sphinx): documentation
 
 from .bravyi_kitaev_mapper import BravyiKitaevMapper
+from .direct_mapper import DirectMapper
 from .fermionic_mapper import FermionicMapper
 from .jordan_wigner_mapper import JordanWignerMapper
 from .linear_mapper import LinearMapper
 from .parity_mapper import ParityMapper
 from .qubit_mapper import QubitMapper
 from .spin_mapper import SpinMapper
+from .vibrational_mapper import VibrationalMapper
 
 __all__ = [
     'BravyiKitaevMapper',
+    'DirectMapper',
     'FermionicMapper',
     'JordanWignerMapper',
     'LinearMapper',
     'ParityMapper',
     'QubitMapper',
     'SpinMapper',
+    'VibrationalMapper',
 ]
