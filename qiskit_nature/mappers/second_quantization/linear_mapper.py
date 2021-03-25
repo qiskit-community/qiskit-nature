@@ -12,7 +12,6 @@
 
 """The Linear Mapper."""
 
-import copy
 import operator
 
 from fractions import Fraction
