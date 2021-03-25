@@ -31,6 +31,8 @@ Variational Forms
    CHC
 
 """
+# TODO: to be removed (#66)
+
 from .uccsd import UCCSD
 from .uvcc import UVCC
 from .chc import CHC

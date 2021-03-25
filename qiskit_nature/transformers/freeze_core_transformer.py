@@ -95,7 +95,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         inactive_orbs_idxs = molecule_data.core_orbitals
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
-        active_orbs_idxs = [o for o in range(molecule_data.num_orbitals)
+        active_orbs_idxs = [o for o in range(molecule_data.num_molecular_orbitals)
                             if o not in inactive_orbs_idxs]
 
         # compute number of active electrons

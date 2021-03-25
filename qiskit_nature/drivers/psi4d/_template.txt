@@ -14,7 +14,7 @@ _q_molecule.origin_driver_version = psi4.__version__
 # Energies and orbits
 _q_molecule.hf_energy                = _q_hf_energy
 _q_molecule.nuclear_repulsion_energy = _q_mol.nuclear_repulsion_energy()
-_q_molecule.num_orbitals             = _q_hf_wavefn.nmo()
+_q_molecule.num_molecular_orbitals   = _q_hf_wavefn.nmo()
 _q_molecule.num_alpha                = _q_hf_wavefn.nalpha()
 _q_molecule.num_beta                 = _q_hf_wavefn.nbeta()
 _q_molecule.mo_coeff                 = numpy.asarray(_q_hf_wavefn.Ca())

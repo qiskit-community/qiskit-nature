@@ -49,7 +49,7 @@ class TestAdaptVQEUCCSD(QiskitNatureTestCase):
 
         molecule = self.driver.run()
         self.num_particles = molecule.num_alpha + molecule.num_beta
-        self.num_spin_orbitals = molecule.num_orbitals * 2
+        self.num_spin_orbitals = molecule.num_molecular_orbitals * 2
         fer_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
         map_type = 'PARITY'
         qubit_op = fer_op.mapping(map_type)

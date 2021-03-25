@@ -54,6 +54,8 @@ Bosonic Transformation
 
 """
 
+# TODO: to be removed (#83)
+
 from .fermionic_transformation import (FermionicTransformation,
                                        FermionicQubitMappingType,
                                        FermionicTransformationType)

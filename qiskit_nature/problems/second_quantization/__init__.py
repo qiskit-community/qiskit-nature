@@ -9,3 +9,13 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
+"""Second-Quantized problems."""
+
+# TODO(sphinx): documentation
+
+from .molecular import MolecularProblem
+
+__all__ = [
+    'MolecularProblem',
+]

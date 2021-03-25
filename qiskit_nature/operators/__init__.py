@@ -30,6 +30,14 @@ Second-Quantization Operators
    VibrationalSpinOp
 """
 
+# TODO(sphinx): improve documentation
+
 from .second_quantization import FermionicOp
 from .second_quantization import SpinOp
 from .second_quantization import VibrationalSpinOp
+
+__all__ = [
+    'FermionicOp',
+    'SpinOp',
+    'VibrationalSpinOp',
+]
