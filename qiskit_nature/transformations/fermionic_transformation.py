@@ -175,7 +175,8 @@ class FermionicTransformation(Transformation):
             logger.info("Freeze_core specified. Core orbitals to be frozen: %s", core_list)
         if reduce_list:
             logger.info("Configured orbital reduction list: %s", reduce_list)
-            reduce_list = [x + qmolecule.num_orbitals if x < 0 else x for x in reduce_list]
+            reduce_list = [x + qmolecule.num_molecular_orbitals if x < 0 else x
+                           for x in reduce_list]
 
         freeze_list = []
         remove_list = []
@@ -191,7 +192,7 @@ class FermionicTransformation(Transformation):
         # Unoccupied orbitals are just discarded.
         # Because freeze and eliminate is done in separate steps,
         # with freeze first, we have to re-base
-        # the indexes for elimination according to how many orbitals were removed when freezing.
+        # the indices for elimination according to how many orbitals were removed when freezing.
         #
         orb_list = list(set(core_list + reduce_list))
         num_alpha = qmolecule.num_alpha
@@ -201,28 +202,30 @@ class FermionicTransformation(Transformation):
         if orb_list:
             orbitals_list = np.array(orb_list)
             orbitals_list = orbitals_list[(cast(np.ndarray, orbitals_list) >= 0) &
-                                          (orbitals_list < qmolecule.num_orbitals)]
+                                          (orbitals_list < qmolecule.num_molecular_orbitals)]
 
             freeze_list_alpha = [i for i in orbitals_list if i < num_alpha]
             freeze_list_beta = [i for i in orbitals_list if i < num_beta]
-            freeze_list = np.append(freeze_list_alpha,
-                                    [i + qmolecule.num_orbitals for i in freeze_list_beta])
+            freeze_list = np.append(freeze_list_alpha, [i + qmolecule.num_molecular_orbitals
+                                                        for i in freeze_list_beta])
 
             remove_list_alpha = [i for i in orbitals_list if i >= num_alpha]
             remove_list_beta = [i for i in orbitals_list if i >= num_beta]
             rla_adjust = -len(freeze_list_alpha)
-            rlb_adjust = -len(freeze_list_alpha) - len(freeze_list_beta) + qmolecule.num_orbitals
+            rlb_adjust = -len(freeze_list_alpha) - len(freeze_list_beta) \
+                + qmolecule.num_molecular_orbitals
             remove_list = np.append([i + rla_adjust for i in remove_list_alpha],
                                     [i + rlb_adjust for i in remove_list_beta])
 
             logger.info("Combined orbital reduction list: %s", orbitals_list)
             logger.info("  converting to spin orbital reduction list: %s",
                         np.append(np.array(orbitals_list),
-                                  np.array(orbitals_list) + qmolecule.num_orbitals))
+                                  np.array(orbitals_list) + qmolecule.num_molecular_orbitals))
             logger.info("    => freezing spin orbitals: %s", freeze_list)
-            logger.info("    => removing spin orbitals: %s (indexes accounting for freeze %s)",
+            logger.info("    => removing spin orbitals: %s (indices accounting for freeze %s)",
                         np.append(remove_list_alpha,
-                                  np.array(remove_list_beta) + qmolecule.num_orbitals), remove_list)
+                                  np.array(remove_list_beta) + qmolecule.num_molecular_orbitals),
+                        remove_list)
 
             new_num_alpha -= len(freeze_list_alpha)
             new_num_beta -= len(freeze_list_beta)
@@ -350,7 +353,7 @@ class FermionicTransformation(Transformation):
 
         logger.info('Molecule num electrons: %s, remaining for processing: %s',
                     [num_alpha, num_beta], new_nel)
-        nspinorbs = qmolecule.num_orbitals * 2
+        nspinorbs = qmolecule.num_molecular_orbitals * 2
         new_nspinorbs = nspinorbs - len(freeze_list) - len(remove_list)
         logger.info('Molecule num spin orbitals: %s, remaining for processing: %s',
                     nspinorbs, new_nspinorbs)

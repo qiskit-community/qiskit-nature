@@ -126,7 +126,7 @@ def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, max
     # Energies and orbits
     _q_.hf_energy = ehf[0]
     _q_.nuclear_repulsion_energy = enuke
-    _q_.num_orbitals = norbs
+    _q_.num_molecular_orbitals = norbs
     _q_.num_alpha = molecule.nup()
     _q_.num_beta = molecule.ndown()
     _q_.mo_coeff = orbs
