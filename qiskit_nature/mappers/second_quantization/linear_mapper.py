@@ -13,9 +13,12 @@
 """The Linear Mapper."""
 
 import copy
+import operator
 
 from fractions import Fraction
+from functools import reduce
 from typing import List, Union
+
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
@@ -45,21 +48,21 @@ class LinearMapper(SpinMapper):
                 if n_x > 0:
                     # construct the qubit operator embed
                     operator_on_spin_i.append(
-                        self._operator_product([spinx for i in range(int(n_x))]))
+                        reduce(operator.matmul, [spinx for i in range(int(n_x))]))
 
                 if n_y > 0:
                     # construct the qubit operator embed
                     operator_on_spin_i.append(
-                        self._operator_product([spiny for i in range(int(n_y))]))
+                        reduce(operator.matmul, [spiny for i in range(int(n_y))]))
 
                 if n_z > 0:
                     # construct the qubit operator embed
                     operator_on_spin_i.append(
-                        self._operator_product([spinz for i in range(int(n_z))]))
+                        reduce(operator.matmul, [spinz for i in range(int(n_z))]))
 
                 if np.any([n_x, n_y, n_z]) > 0:
                     # multiply X^n_x * Y^n_y * Z^n_z
-                    operator_on_spin_i = self._operator_product(operator_on_spin_i)
+                    operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
                     operatorlist.append(operator_on_spin_i.reduce())
 
                 else:
@@ -77,48 +80,11 @@ class LinearMapper(SpinMapper):
 
                 operatorlist = tmp_operatorlist
 
-            qubit_ops_list.append(self._tensor_ops(operatorlist, coeff))
+            qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 
-        qubit_op = self._operator_sum(qubit_ops_list)
+        qubit_op = reduce(operator.add, qubit_ops_list)
 
         return qubit_op
-
-    def _operator_sum(self, op_list: List) -> PauliSumOp:
-        """Calculates the sum of all elements of a non-empty list
-        Args:
-            op_list (list):
-                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
-        Returns:
-            obj1 + obj2 + ... + objN
-        """
-        assert len(op_list) > 0, 'Operator list must be non-empty'
-
-        if len(op_list) == 1:
-            return copy.deepcopy(op_list[0])
-        else:
-            op_sum = copy.deepcopy(op_list[0])
-            for elem in op_list[1:]:
-                op_sum += elem
-        return op_sum
-
-    def _operator_product(self, op_list) -> PauliSumOp:
-        """
-        Calculates the product of all elements in a non-empty list.
-        Args:
-            op_list (list):
-                The list of objects to sum, i.e. [obj1, obj2, ..., objN]
-        Returns:
-            obj1 * obj2 * ... * objN
-        """
-        assert len(op_list) > 0, 'Operator list must be non-empty'
-
-        if len(op_list) == 1:
-            return op_list[0]
-        else:
-            op_prod = op_list[0]
-            for elem in op_list[1:]:
-                op_prod = op_prod @ elem
-        return op_prod
 
     def _linear_encoding(self, spin: Union[Fraction, float]) -> List:
         """
@@ -157,7 +123,7 @@ class LinearMapper(SpinMapper):
         for i, coeff in enumerate(np.diag(SpinOp("X", spin=spin).to_matrix(), 1)):
             x_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_x(i) * pauli_x(i + 1)) +
                                          coeff / 2. * SparsePauliOp(pauli_y(i) * pauli_y(i + 1))))
-        trafo_xzyi.append(self._operator_sum(x_summands))
+        trafo_xzyi.append(reduce(operator.add, x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
@@ -166,7 +132,7 @@ class LinearMapper(SpinMapper):
                                          SparsePauliOp(pauli_x(i) * pauli_y(i + 1)) +
                                          1j * coeff / 2. *
                                          SparsePauliOp(pauli_y(i) * pauli_x(i + 1))))
-        trafo_xzyi.append(self._operator_sum(y_summands))
+        trafo_xzyi.append(reduce(operator.add, y_summands))
 
         # 3. build the diagonal Z
         z_summands = []
@@ -175,7 +141,7 @@ class LinearMapper(SpinMapper):
             z_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_z(i)) +
                                          coeff / 2. * SparsePauliOp(pauli_id)))
 
-        z_operator = self._operator_sum(z_summands)
+        z_operator = reduce(operator.add, z_summands)
         trafo_xzyi.append(z_operator)
 
         # 4. add the identity operator
@@ -183,18 +149,3 @@ class LinearMapper(SpinMapper):
 
         # return the lookup table for the transformed XYZI operators
         return trafo_xzyi
-
-    def _tensor_ops(self, operatorlist: List, coeff: complex) -> PauliSumOp:
-
-        if len(operatorlist) == 1:
-            tensor_op = operatorlist[0]
-
-        elif len(operatorlist) > 1:
-            tensor_op = operatorlist[-1]
-
-            for op in reversed(operatorlist[:-1]):
-                tensor_op = tensor_op ^ op
-        else:
-            raise 'Unsupported list provided'
-
-        return coeff * tensor_op
