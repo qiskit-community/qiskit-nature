@@ -1,4 +1,5 @@
 adag
+adaptivity
 adjoint
 aer
 aij
@@ -183,6 +184,7 @@ ollitrault
 onee
 onwards
 oo
+opflow
 orbsym
 otimes
 outpath
@@ -202,6 +204,7 @@ prebuilt
 prepend
 preprocesses
 pucc
+puccd
 py
 pyquante
 pyscf
@@ -231,6 +234,8 @@ scf
 scikit
 scipy
 sd
+sdt
+secondquantizedop
 seeley
 sergey
 setia
@@ -245,6 +250,7 @@ subclasses
 submodules
 substrings
 succ
+succd
 sudo
 superclass
 superfast
@@ -261,6 +267,7 @@ toctree
 tol
 tran
 tranter
+trotterization
 über
 ucc
 uccd
