@@ -30,6 +30,7 @@ from qiskit_nature.operators.second_quantization.qubit_converter import QubitCon
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
     _create_labels
 
+
 def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):
     """Assertion utility."""
     excitation_ops = ansatz.excitation_ops()

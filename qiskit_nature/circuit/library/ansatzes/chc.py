@@ -12,7 +12,7 @@
 
 """ Compact heuristic ansatz for Chemistry """
 
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -36,7 +36,7 @@ class CHC(BlueprintCircuit):
 
     def __init__(self,
                  num_qubits: Optional[int] = None,
-                 excitations: Optional[List[List[int]]] = None,
+                 excitations: Optional[List[Tuple[Tuple[Any, ...], ...]]] = None,
                  reps: int = 1,
                  ladder: bool = False,
                  initial_state: Optional[QuantumCircuit] = None) -> None:
@@ -44,7 +44,10 @@ class CHC(BlueprintCircuit):
 
         Args:
             num_qubits: number of qubits
-            excitations: indices corresponding to the excitations to include in the circuit
+            excitations: The list of excitations encoded as tuples of tuples. Each tuple in the list
+                         is a pair of tuples. The first tuple contains the occupied spin orbital
+                         indices whereas the second one contains the indices of the unoccupied spin
+                         orbitals.
             reps: number of replica of basic module
             ladder: use ladder of CNOTs between to indices in the entangling block
             initial_state: an initial state to prepend to the variational form
@@ -93,12 +96,12 @@ class CHC(BlueprintCircuit):
             self.qregs = [QuantumRegister(num_qubits, name='q')]
 
     @property
-    def excitations(self) -> List[List[int]]:
+    def excitations(self) -> List[Tuple[Tuple[Any, ...], ...]]:
         """The excitation indices to be included in the circuit."""
         return self._excitations
 
     @excitations.setter
-    def excitations(self, excitations: List[List[int]]) -> None:
+    def excitations(self, excitations: List[Tuple[Tuple[Any, ...], ...]]) -> None:
         """Sets the excitation indices to be included in the circuit."""
         self._invalidate()
         self._excitations = excitations
@@ -203,10 +206,11 @@ class CHC(BlueprintCircuit):
         Raises:
             ValueError: only supports single and double excitations at the moment.
         """
-        if self._data is not None:
+        if self._data is not None:  # type: ignore
             return
 
-        self._data = []
+        self._check_configuration()
+        self._data = []  # type: ignore
 
         parameters = self.ordered_parameters
         q = self.qubits
@@ -216,7 +220,7 @@ class CHC(BlueprintCircuit):
 
         count = 0
         for _ in range(self._reps):
-            for exc in self._excitations:
+            for exc in self.excitations:
                 occ, unocc = exc
                 if len(occ) == 1:
 
