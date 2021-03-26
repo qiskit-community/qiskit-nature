@@ -240,16 +240,14 @@ class UCC(EvolvedOperatorAnsatz):
             excitation_ops = self.excitation_ops()
 
             logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
-            # Convert operators according to save state in converter from the conversion of the
+            # Convert operators according to saved state in converter from the conversion of the
             # main operator since these need to be compatible. If Z2 Symmetry tapering was done
             # the it may be that one or more excitation operators do not commute with the
             # symmetry. Normally the converted operators are maintained at the same index by
             # the converter inserting None as the result if an operator did not commute. Here
             # we are not interested in that just getting the valid set of operators so that
             # behavior is suppressed.
-            # TODO sort this out
-            # self.operators = self.qubit_converter.convert_more(excitation_ops, suppress_none=True)
-            self.operators = self.qubit_converter.convert(excitation_ops)
+            self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
 
         logger.debug('Building QuantumCircuit...')
         super()._build()

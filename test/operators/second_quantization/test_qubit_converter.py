@@ -89,22 +89,6 @@ class TestQubitConverter(QiskitNatureTestCase):
 
     def test_mapping_basic(self):
         """ Test mapping to qubit operator """
-        second_q_ops = [self.h2_op]
-        mapper = JordanWignerMapper()
-        qubit_conv = QubitConverter(mapper)
-        qubit_ops = qubit_conv.convert(second_q_ops)
-
-        self.assertEqual(len(qubit_ops), 1)
-
-        # Note: The PauliSumOp equals, as used in the test below, use the equals of the
-        #       SparsePauliOp which in turn uses np.allclose() to determine equality of
-        #       coeffs. So the reference operator above will be matched on that basis so
-        #       we don't need to worry about tiny precision changes for any reason.
-
-        self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_JW)
-
-    def test_mapping_basic_nolist(self):
-        """ Test mapping to qubit operator """
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper)
         qubit_op = qubit_conv.convert(self.h2_op)
@@ -122,79 +106,59 @@ class TestQubitConverter(QiskitNatureTestCase):
             qubit_op = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
 
-        with self.subTest('convert_more()'):
-            qubit_op = qubit_conv.convert_more(self.h2_op)
+        with self.subTest('convert_match()'):
+            qubit_op = qubit_conv.convert_match(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
 
-    def test_mapping_basic_list(self):
-        """ Test mapping to qubit operator of a list > 1 """
-        # We create 3 of the same operator as a simple/quick test
-        second_q_ops = [self.h2_op] * 3
-        mapper = JordanWignerMapper()
-        qubit_conv = QubitConverter(mapper)
-        qubit_ops = qubit_conv.convert(second_q_ops)
+        with self.subTest('Re-use with different mapper'):
+            qubit_conv.mapper = ParityMapper()
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
-        self.assertEqual(len(qubit_ops), 3)
+        with self.subTest('Set two qubit reduction - no effect without num particles'):
+            qubit_conv.two_qubit_reduction = True
+            qubit_op = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
-        # Since we created 3 identical operators (the qubit converter should not be
-        # doing any optimization in that regard) lets make sure they were converted
-        # independently by checking they are different instance via their ids.
-        self.assertNotEqual(id(qubit_ops[0]), id(qubit_ops[1]))
-        self.assertNotEqual(id(qubit_ops[0]), id(qubit_ops[2]))
-        self.assertNotEqual(id(qubit_ops[1]), id(qubit_ops[2]))
-
-        self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_JW)
-        self.assertEqual(qubit_ops[1], TestQubitConverter.REF_H2_JW)
-        self.assertEqual(qubit_ops[2], TestQubitConverter.REF_H2_JW)
+        with self.subTest('Force match set num particles'):
+            qubit_conv.force_match(self.num_particles)
+            qubit_op = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
 
     def test_two_qubit_reduction(self):
         """ Test mapping to qubit operator with two qubit reduction """
-        second_q_ops = [self.h2_op]
         mapper = ParityMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
 
         with self.subTest('Two qubit reduction ignored as no num particles given'):
-            qubit_ops = qubit_conv.convert(second_q_ops)
-            self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY)
-            self.assertFalse(qubit_conv.did_two_qubit_reduction)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
             self.assertIsNone(qubit_conv.num_particles)
 
         with self.subTest('Two qubit reduction, num particles given'):
-            qubit_ops = qubit_conv.convert(second_q_ops, self.num_particles)
-            self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
-            self.assertTrue(qubit_conv.did_two_qubit_reduction)
+            qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
             self.assertEqual(qubit_conv.num_particles, self.num_particles)
 
-            with self.subTest('convert_more()'):
-                qubit_ops = qubit_conv.convert_more(second_q_ops)
-                self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
-                self.assertTrue(qubit_conv.did_two_qubit_reduction)
-                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+        with self.subTest('convert_match()'):
+            qubit_op = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+            self.assertEqual(qubit_conv.num_particles, self.num_particles)
 
-            with self.subTest('Change setting: properties and convert_more() should raise error'):
-                qubit_conv.two_qubit_reduction = True  # Will reset state
-                self.assertTrue(qubit_conv.two_qubit_reduction)
-                with self.assertRaises(QiskitNatureError):
-                    _ = qubit_conv.did_two_qubit_reduction
-                with self.assertRaises(QiskitNatureError):
-                    _ = qubit_conv.num_particles
-                with self.assertRaises(QiskitNatureError):
-                    _ = qubit_conv.convert_more(second_q_ops)
+        with self.subTest('State is reset (Num particles lost)'):
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+            self.assertIsNone(qubit_conv.num_particles)
 
-            with self.subTest('State is reset (Num particles lost)'):
-                qubit_ops = qubit_conv.convert(second_q_ops)
-                self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY)
-                self.assertIsNone(qubit_conv.num_particles)
+        with self.subTest('Num particles given again'):
+            qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
 
-            with self.subTest('Num particles given again'):
-                qubit_ops = qubit_conv.convert(second_q_ops, self.num_particles)
-                self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
-
-            with self.subTest('Set for no two qubit reduction'):
-                qubit_conv.two_qubit_reduction = False
-                self.assertFalse(qubit_conv.two_qubit_reduction)
-                qubit_ops = qubit_conv.convert(second_q_ops)
-                self.assertEqual(qubit_ops[0], TestQubitConverter.REF_H2_PARITY)
+        with self.subTest('Set for no two qubit reduction'):
+            qubit_conv.two_qubit_reduction = False
+            self.assertFalse(qubit_conv.two_qubit_reduction)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
     def test_z2_symmetry(self):
         """ Test mapping to qubit operator with z2 symmetry tapering """
@@ -204,19 +168,11 @@ class TestQubitConverter(QiskitNatureTestCase):
         qubit_op = qubit_conv.convert(self.h2_op, z2symmetry_reduction=z2_sector)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
-        with self.subTest('convert_more()'):
-            qubit_op = qubit_conv.convert_more(self.h2_op)
+        with self.subTest('convert_match()'):
+            qubit_op = qubit_conv.convert_match(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
-            self.assertFalse(qubit_conv.did_two_qubit_reduction)
             self.assertIsNone(qubit_conv.num_particles)
-            self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, z2_sector)
-
-        with self.subTest('Change setting: properties and convert_more() should raise error'):
-            qubit_conv.z2symmetry_reduction = [1, 1, 1]  # Will reset state
-            with self.assertRaises(QiskitNatureError):
-                self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, [])
-            with self.assertRaises(QiskitNatureError):
-                _ = qubit_conv.convert_more(self.h2_op)
+            self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
 
     def test_two_qubit_reduction_and_z2_symmetry(self):
         """ Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction """
@@ -225,21 +181,22 @@ class TestQubitConverter(QiskitNatureTestCase):
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
         qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, z2_sector)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
-        self.assertTrue(qubit_conv.did_two_qubit_reduction)
         self.assertEqual(qubit_conv.num_particles, self.num_particles)
-        self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, z2_sector)
+        self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
 
-        with self.subTest('convert_more()'):
-            qubit_op = qubit_conv.convert_more(self.h2_op)
+        with self.subTest('convert_match()'):
+            qubit_op = qubit_conv.convert_match(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
-            self.assertTrue(qubit_conv.did_two_qubit_reduction)
             self.assertEqual(qubit_conv.num_particles, self.num_particles)
-            self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, z2_sector)
+            self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
 
-        with self.subTest('Change setting: properties and convert_more() should raise error'):
-            qubit_conv.z2symmetry_reduction = [1]  # Will reset state
-            with self.assertRaises(QiskitNatureError):
-                self.assertListEqual(qubit_conv.z2_symmetries.tapering_values, [])
+        with self.subTest('Change setting'):
+            qubit_conv.z2symmetry_reduction = [1]
+            qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+            self.assertNotEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            qubit_conv.z2symmetry_reduction = [-1]
+            qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
 
         with self.subTest('Specify sector upfront'):
             qubit_conv = QubitConverter(mapper, two_qubit_reduction=True,
