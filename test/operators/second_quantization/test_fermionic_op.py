@@ -13,6 +13,7 @@
 """Test for FermionicOp"""
 
 import unittest
+from functools import lru_cache
 from itertools import product
 from test import QiskitNatureTestCase
 
@@ -20,10 +21,22 @@ from ddt import data, ddt, unpack
 
 from qiskit_nature.operators import FermionicOp
 
+from .utils import str2list, str2str, str2tuple
 
-def fermion_labels(length):
+
+@lru_cache(3)
+def dense_labels(length):
     """Generate list of fermion labels with given length."""
     return ["".join(label) for label in product(["I", "+", "-", "N", "E"], repeat=length)]
+
+
+@lru_cache(3)
+def sparse_labels(length):
+    """Generate list of fermion labels with given length."""
+    return [
+        " ".join(f"{char}_{i}" for i, char in enumerate(label))
+        for label in product(["I", "+", "-", "N", "E"], repeat=length)
+    ]
 
 
 @ddt
@@ -36,10 +49,36 @@ class TestFermionicOp(QiskitNatureTestCase):
         """
         self.assertSetEqual(frozenset(first.to_list()), frozenset(second.to_list()))
 
-    @data(*fermion_labels(1), *fermion_labels(2))
-    def test_init(self, label):
+    @data(
+        *product(
+            (*dense_labels(1), *dense_labels(2), *dense_labels(3)),
+            (str2str, str2tuple, str2list),
+        )
+    )
+    @unpack
+    def test_init(self, label, pre_processing):
         """Test __init__"""
-        self.assertListEqual(FermionicOp(label).to_list(), [(label, 1)])
+        fer_op = FermionicOp(pre_processing(label))
+        self.assertListEqual(fer_op.to_list(), [(label, 1)])
+        self.assertFermionEqual(eval(repr(fer_op)), fer_op)  # pylint: disable=eval-used
+
+    @data(
+        *product(
+            (
+                *zip(dense_labels(1), sparse_labels(1)),
+                *zip(dense_labels(2), sparse_labels(2)),
+                *zip(dense_labels(3), sparse_labels(3)),
+            ),
+            (str2str, str2tuple, str2list),
+        )
+    )
+    @unpack
+    def test_init_sparse_label(self, labels, pre_processing):
+        """Test __init__ with sparse label"""
+        dense_label, sparse_label = labels
+        fer_op = FermionicOp(pre_processing(sparse_label), register_length=len(dense_label))
+        targ = FermionicOp(dense_label)
+        self.assertFermionEqual(fer_op, targ)
 
     @data(
         ("INX", None),
@@ -59,20 +98,6 @@ class TestFermionicOp(QiskitNatureTestCase):
         labels = [("N", 2), ("-", 3.14)]
         self.assertListEqual(FermionicOp(labels).to_list(), labels)
 
-    @data(*fermion_labels(1))
-    def test_init_sparse_label(self, label):
-        """Test __init__ with sparse label"""
-        fer_op = FermionicOp(f"{label}_0", register_length=1)
-        targ = FermionicOp([(label, 1)])
-        self.assertFermionEqual(fer_op, targ)
-
-    @data(*fermion_labels(2))
-    def test_init_sparse_label_len_four(self, label):
-        """Test __init__ with sparse label"""
-        fer_op = FermionicOp(f"{label[0]}_0 {label[1]}_3", register_length=4)
-        targ = FermionicOp([(f"{label[0]}II{label[1]}", 1)])
-        self.assertFermionEqual(fer_op, targ)
-
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
         actual = FermionicOp([("-_2 +_10", 1 + 2j), ("-_12", 56)], register_length=13)
@@ -81,6 +106,13 @@ class TestFermionicOp(QiskitNatureTestCase):
             ("IIIIIIIIIIII-", 56),
         ]
         self.assertListEqual(actual.to_list(), desired)
+
+    @data(str2str, str2tuple, str2list)
+    def test_init_empty_str(self, pre_processing):
+        """Test __init__ with empty string"""
+        actual = FermionicOp(pre_processing(""), register_length=3)
+        desired = FermionicOp("III")
+        self.assertFermionEqual(actual, desired)
 
     def test_neg(self):
         """Test __neg__"""
@@ -122,7 +154,7 @@ class TestFermionicOp(QiskitNatureTestCase):
         targ = FermionicOp([("++", 3), ("--", -2)])
         self.assertFermionEqual(fer_op, targ)
 
-    @data(*product(fermion_labels(1), fermion_labels(1)))
+    @data(*product(dense_labels(1), dense_labels(1)))
     @unpack
     def test_matmul(self, label1, label2):
         """Test matrix multiplication"""
