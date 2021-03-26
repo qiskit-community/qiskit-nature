@@ -13,7 +13,6 @@
 """ Test of CHC and VSCF extensions """
 
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
 
@@ -21,13 +20,17 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature import BosonicOperator
-from qiskit_nature.circuit.library import VSCF
 from qiskit_nature.circuit.library.ansatzes import CHC
-from qiskit_nature.components.variational_forms import UVCC
+from qiskit_nature.circuit.library.initial_states import VSCF
+from qiskit_nature.circuit.library.ansatzes.utils.vibration_excitation_generator import \
+    generate_vibration_excitations
+from qiskit_nature.mappers.second_quantization.direct_mapper import DirectMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
+    _create_labels
 
 
-@unittest.skip("Skip test until refactored.")
 class TestCHCVSCF(QiskitNatureTestCase):
     """Test for these extensions."""
 
@@ -59,19 +62,22 @@ class TestCHCVSCF(QiskitNatureTestCase):
                                      [[[0, 0, 1], [1, 1, 1]], -167.7433236025723],
                                      [[[0, 1, 0], [1, 1, 1]], -167.7433236025723],
                                      [[[0, 1, 1], [1, 1, 1]], -179.0536532281924]]]
+        num_modes = 2
+        num_modals = [2, 2]
 
-        basis = [2, 2]
+        vibrational_op_labels = _create_labels(co2_2modes_2modals_2body)
+        vibr_op = VibrationalOp(vibrational_op_labels, num_modes, num_modals)
 
-        bosonic_op = BosonicOperator(co2_2modes_2modals_2body, basis)
-        qubit_op = bosonic_op.mapping('direct', threshold=1e-5)
+        converter = QubitConverter(DirectMapper())
 
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            init_state = VSCF(basis)
+        qubit_op = converter.to_qubit_ops([vibr_op])[0]
 
-        num_qubits = sum(basis)
-        uvcc_varform = UVCC(num_qubits, basis, [0, 1])
-        excitations = uvcc_varform.excitations_in_qubit_format()
+        init_state = VSCF(num_modals)
+
+        num_qubits = sum(num_modals)
+        excitations = []
+        excitations += generate_vibration_excitations(num_excitations=1, num_modals=num_modals)
+        excitations += generate_vibration_excitations(num_excitations=2, num_modals=num_modals)
         chc_varform = CHC(num_qubits, ladder=False, excitations=excitations,
                           initial_state=init_state)
 
@@ -83,8 +89,7 @@ class TestCHCVSCF(QiskitNatureTestCase):
                    optimizer=optimizer,
                    quantum_instance=backend)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
-
-        energy = vqe_result['optimal_value']
+        energy = vqe_result.optimal_value
 
         self.assertAlmostEqual(energy, self.reference_energy, places=4)
 

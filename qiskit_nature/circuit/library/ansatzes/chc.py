@@ -203,21 +203,25 @@ class CHC(BlueprintCircuit):
         Raises:
             ValueError: only supports single and double excitations at the moment.
         """
+        if self._data is not None:
+            return
+
+        self._data = []
 
         parameters = self.ordered_parameters
-        q = self.qregs
+        q = self.qubits
 
         if isinstance(self._initial_state, QuantumCircuit):
             self.append(self._initial_state.to_gate(), range(self._initial_state.num_qubits))
 
         count = 0
         for _ in range(self._reps):
-            for idx in self._excitations:
+            for exc in self._excitations:
+                occ, unocc = exc
+                if len(occ) == 1:
 
-                if len(idx) == 2:
-
-                    i = idx[0]
-                    r = idx[1]
+                    i = occ[0]
+                    r = unocc[0]
 
                     self.p(-parameters[count] / 4 + np.pi / 4, q[i])
                     self.p(-parameters[count] / 4 - np.pi / 4, q[r])
@@ -245,12 +249,12 @@ class CHC(BlueprintCircuit):
                     self.p(-parameters[count] / 4 - np.pi / 4, q[i])
                     self.p(-parameters[count] / 4 + np.pi / 4, q[r])
 
-                elif len(idx) == 4:
+                elif len(occ) == 2:
 
-                    i = idx[0]
-                    r = idx[1]
-                    j = idx[2]
-                    s = idx[3]  # pylint: disable=locally-disabled, invalid-name
+                    i = occ[0]
+                    r = unocc[0]
+                    j = occ[1]
+                    s = unocc[1]  # pylint: disable=locally-disabled, invalid-name
 
                     self.sdg(q[r])
 
