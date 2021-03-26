@@ -46,8 +46,9 @@ class VSCF(QuantumCircuit):
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
             qubit_converter: a QubitConverter instance. This argument is currently being ignored
-            because only a single usecase is supported at the time of release: that of the
-            :class:`DirectMapper`. However, for future-compatibility of this functions signature,
+                             because only a single use-case is supported at the time of release:
+                             that of the :class:`DirectMapper`. However, for future-compatibility of
+                             this functions signature,
             the argument has already been inserted.
         """
         # get the bitstring encoding initial state
