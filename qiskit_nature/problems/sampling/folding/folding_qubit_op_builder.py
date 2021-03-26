@@ -10,17 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" 
+"""
 Lattice Folding qubit operator builder
 
 The functions in this module utilize symbolic mathematics (See https://www.sympy.org/en/index.html)
 to represent the Hamiltonian representing the lattice folding problem of a N-letter peptide.
-Here, the configuration of a peptide is densely coded wherein each turn is represented by 
-two qubits. A sparser encoding (4 qubits/turn) is described in the literature 
+Here, the configuration of a peptide is densely coded wherein each turn is represented by
+two qubits. A sparser encoding (4 qubits/turn) is described in the literature
 below that embodies this work.
 
-Robert, A., Barkoutsos, P.K., Woerner, S. et al. 
-Resource-efficient quantum algorithm for protein folding. 
+Robert, A., Barkoutsos, P.K., Woerner, S. et al.
+Resource-efficient quantum algorithm for protein folding.
 npj Quantum Inf 7, 38 (2021). https://doi.org/10.1038/s41534-021-00368-4
 """
 
@@ -64,8 +64,23 @@ def _create_qubits_for_conf(pauli_conf):
     return qubits
 
 def _create_indic_turn(N, side_chain, qubits):
+    """
+    Creates indicator functions that specify the axis chosen for a
+    corresponding turn. Here, each turn, i (ranging from 1 to total
+    backbone beads, N) is (densely) coded on two qubits:
+    q_(2i-1)q_(2i). Each function returned is of the form
+    indic_a(i) which returns 1 if axis, a = 0,1,2,3 is chosen at turn i.
+
+    Args:
+        N:
+        side_chain:
+        qubits:
+
+    Returns:
+        (indic0, indic1, indic2, indic3, num_qubits):
+    """
     if len(side_chain)!= N:
-        raise Exception('size of side_chain list is not equal to N ')
+        raise Exception('size of side_chain list is not equal to N')
     indic0, indic1, indic2, indic3 = dict(), dict(), dict(), dict()
     for i in range(1, N):
         indic0[i]=dict()
@@ -80,7 +95,7 @@ def _create_indic_turn(N, side_chain, qubits):
     for i in range(1, N):   # There are N-1 turns starting at turn 1
         for m in range(2):
             if m == 1:
-                if side_chain[i-1]==0 :
+                if side_chain[i-1] == 0 :
                     continue
                 else:
                     pass
@@ -210,13 +225,24 @@ def _first_neighbor(i, p, j, s, lambda_1, pair_energies, x_dist, pauli_conf):
     return expr
 
 def _check_turns(i, p, j, s, indic0, indic1, indic2, indic3, pauli_conf):
+    """
+    Checks if consecutive turns are along the same axis. Specifically, 
+    the function is the summation over all axes, a = 0,1,2,3, of the 
+    product of turn indicators, indica(i)*indica(j) for turns i and j.
+    """
     return _simplify(pauli_conf, indic0[i][p]*indic0[j][s] + indic1[i][p]*indic1[j][s] +
-                    indic2[i][p]*indic2[j][s] +indic3[i][p]*indic3[j][s])
+                     indic2[i][p]*indic2[j][s] +indic3[i][p]*indic3[j][s])
 
 def _create_H_back(N, lambda_back, indic0, indic1, indic2, indic3, pauli_conf):
+    """
+    Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns
+    along the same axis are penalized by a factor, lambda_back.
+    """
     H_back = 0
-    for i in range(1, N - 1):
-        H_back += lambda_back*_check_turns(i, 0, i + 1, 0, indic0, indic1, indic2, indic3, pauli_conf)
+    for turn in range(1, N - 1):
+        # note only checking turns of backbone beads
+        H_back += lambda_back*_check_turns(turn, 0, turn + 1, 0, 
+                                           indic0, indic1, indic2, indic3, pauli_conf)
     H_back = _simplify(pauli_conf, H_back)
     return H_back
 
@@ -448,13 +474,13 @@ def _create_new_qubit_list(N, side_chain, pauli_conf, pauli_contacts):
     return new_qubits
 
 def _get_symbolic_hamiltonian(N,side_chain,pair_energies,lambda_chiral,lambda_back,lambda_1,lambda_contacts,N_contacts):
-    
+
     '''the first binaries are in the article'''
     if len(side_chain)!=N:
         raise Exception('size the side_chain is not equal to N')
     if side_chain[0]==1 or side_chain[-1]==1 or side_chain[1]==1:
         raise Exception('please add extra bead instead of side chain on terminal bead')
-        
+
     pauli_conf = _create_pauli_for_conf(N)
     qubits = _create_qubits_for_conf(pauli_conf)
     indic0, indic1, indic2, indic3, n_conf = _create_indic_turn(N, side_chain, qubits)
@@ -473,10 +499,10 @@ def _get_symbolic_hamiltonian(N,side_chain,pair_energies,lambda_chiral,lambda_ba
     H_contacts = _create_H_contacts(pauli_conf, new_qubits, n_contact, lambda_contacts, N_contacts)
     H_tot = _simplify(pauli_conf, H_chiral + H_back + H_short + H_BBBB + H_BBSC + H_SCBB + H_SCSC + H_contacts)
     n_qubits = n_conf + n_contact
-    
+
     print('total number of qubits required :', n_qubits)
     print('number of terms in the hamiltonian : ',len(H_tot.args))
-                
+
     return H_tot,pauli_conf,pauli_contacts,n_qubits,n_conf,n_contact,new_qubits
 
 def _create_mask_for_tensor(H, new_qubits):

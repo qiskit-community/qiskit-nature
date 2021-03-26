@@ -112,7 +112,7 @@ class LatticeFoldingProblem:
 
     def pauli_op(self):
         """Get the qubit operator from the builder"""
-
+	self._construct_specific_pair_energy_matrix()
         operator = _build_qubit_op(self._num_beads, self._side_chains, self._pair_energies, 
                                    self._lambda_chiral, self._lambda_back, self._lambda_1,
                                    self._lambda_contacts, self._N_contacts)
