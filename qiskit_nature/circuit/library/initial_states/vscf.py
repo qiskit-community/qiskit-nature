@@ -30,14 +30,14 @@ class VSCF(QuantumCircuit):
         [1] Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
-    def __init__(self, basis: List[int]) -> None:
+    def __init__(self, num_modals: List[int]) -> None:
         """
         Args:
-            basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-                with 4 modals per mode basis = [4,4,4]
+            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
+                with 4 modals per mode num_modals = [4,4,4]
         """
         # get the bitstring encoding initial state
-        bitstr = vscf_bitstring(basis)
+        bitstr = vscf_bitstring(num_modals)
 
         # construct the circuit
         qr = QuantumRegister(len(bitstr), 'q')
@@ -49,20 +49,20 @@ class VSCF(QuantumCircuit):
                 self.x(i)
 
 
-def vscf_bitstring(basis: List[int]) -> List[bool]:
+def vscf_bitstring(num_modals: List[int]) -> List[bool]:
     """Compute the bitstring representing the VSCF initial state based on the modals per mode.
 
     Args:
-        basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-            with 4 modals per mode basis = [4,4,4].
+        num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
+            with 4 modals per mode num_modals = [4,4,4].
 
     Returns:
         The bitstring representing the state of the VSCF state as array of bools.
     """
-    num_qubits = sum(basis)
+    num_qubits = sum(num_modals)
     bitstr = np.zeros(num_qubits, bool)
     count = 0
-    for modal in basis:
+    for modal in num_modals:
         bitstr[num_qubits - count - 1] = True
         count += modal
 
