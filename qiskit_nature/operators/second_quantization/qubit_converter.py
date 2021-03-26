@@ -172,7 +172,7 @@ class QubitConverter:
             will override any values stored from :meth:`convert`.
 
             Args:
-                num_particles: The number or particles pertaining to two quibt reduction
+                num_particles: The number or particles pertaining to two qubit reduction
                 z2symmetries: Z2Symmetry information for tapering
 
             Raises:
