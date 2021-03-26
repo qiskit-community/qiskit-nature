@@ -85,9 +85,7 @@ class TestCHCVSCF(QiskitNatureTestCase):
                                   seed_transpiler=2, seed_simulator=2)
         optimizer = COBYLA(maxiter=1000)
 
-        algo = VQE(chc_varform,
-                   optimizer=optimizer,
-                   quantum_instance=backend)
+        algo = VQE(chc_varform, optimizer=optimizer, quantum_instance=backend)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
         energy = vqe_result.optimal_value
 
