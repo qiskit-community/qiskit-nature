@@ -13,25 +13,25 @@
 """ Test NumericalqEOM excited states calculation """
 
 import unittest
-from test import QiskitNatureTestCase
-import numpy as np
 
+import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
-
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
+
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization import MolecularProblem
+from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
-from qiskit_nature.transformations import (FermionicTransformation,
-                                           FermionicQubitMappingType)
 from qiskit_nature.algorithms.ground_state_solvers import (GroundStateEigensolver,
-                                                           VQEUCCSDFactory)
+                                                           VQEUCCSDFactory, )
 from qiskit_nature.algorithms.excited_states_solvers import (
-    NumPyEigensolverFactory, ExcitedStatesEigensolver, QEOM
+    NumPyEigensolverFactory, ExcitedStatesEigensolver, QEOM,
 )
 
 
-@unittest.skip("Skip test until refactored.")
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """ Test NumericalqEOM excited states calculation """
 
@@ -49,8 +49,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         self.reference_energies = [-1.8427016, -1.8427016 + 0.5943372, -1.8427016 + 0.95788352,
                                    -1.8427016 + 1.5969296]
-        self.transformation = \
-            FermionicTransformation(qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER)
+        self.qubit_converter = QubitConverter(JordanWignerMapper())
+        self.molecular_problem = MolecularProblem(self.driver)
         solver = NumPyEigensolver()
         self.ref = solver
         self.quantum_instance = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
@@ -59,9 +59,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     def test_numpy_mes(self):
         """ Test NumPyMinimumEigenSolver with QEOM """
         solver = NumPyMinimumEigensolver()
-        gsc = GroundStateEigensolver(self.transformation, solver)
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
-        results = esc.solve(self.driver)
+        results = esc.solve(self.molecular_problem)
 
         for idx in range(len(self.reference_energies)):
             self.assertAlmostEqual(results.computed_energies[idx], self.reference_energies[idx],
@@ -70,9 +70,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     def test_vqe_mes(self):
         """ Test VQEUCCSDFactory with QEOM """
         solver = VQEUCCSDFactory(self.quantum_instance)
-        gsc = GroundStateEigensolver(self.transformation, solver)
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
-        results = esc.solve(self.driver)
+        results = esc.solve(self.molecular_problem)
 
         for idx in range(len(self.reference_energies)):
             self.assertAlmostEqual(results.computed_energies[idx], self.reference_energies[idx],
@@ -86,8 +86,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             return np.isclose(aux_values[0][0], 2.)
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
-        esc = ExcitedStatesEigensolver(self.transformation, solver)
-        results = esc.solve(self.driver)
+        esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
+        results = esc.solve(self.molecular_problem)
 
         # filter duplicates from list
         computed_energies = [results.computed_energies[0]]

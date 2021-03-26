@@ -17,15 +17,15 @@ from typing import List, Union, Optional, Any
 
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
+
 from qiskit_nature import FermionicOperator
-from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.results import (EigenstateResult,
                                    ElectronicStructureResult,
-                                   VibronicStructureResult)
-from qiskit_nature.transformations import Transformation
-
+                                   VibronicStructureResult, )
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
+from ...operators.second_quantization.qubit_converter import QubitConverter
+from ...problems.second_quantization.base_problem import BaseProblem
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class ExcitedStatesEigensolver(ExcitedStatesSolver):
     """The calculation of excited states via an Eigensolver algorithm"""
 
-    def __init__(self, transformation: Transformation,
+    def __init__(self, qubit_converter: QubitConverter,
                  solver: Union[Eigensolver, EigensolverFactory]) -> None:
         """
 
@@ -41,7 +41,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
             transformation: Qubit Operator Transformation
             solver: Minimum Eigensolver or MESFactory object.
         """
-        self._transformation = transformation
+        self._qubit_converter = qubit_converter
         self._solver = solver
 
     @property
@@ -54,24 +54,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         """Sets the minimum eigensolver or factory."""
         self._solver = solver
 
-    @property
-    def transformation(self) -> Transformation:
-        """Returns the transformation used to obtain a qubit operator from the molecule."""
-        return self._transformation
-
-    @transformation.setter
-    def transformation(self, transformation: Transformation) -> None:
-        """Sets the transformation used to obtain a qubit operator from the molecule."""
-        self._transformation = transformation
-
-    def solve(self, driver: BaseDriver,
+    def solve(self, problem: BaseProblem,
               aux_operators: Optional[List[Any]] = None
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Compute Ground and Excited States properties.
 
         Args:
-            driver: a chemistry driver object which defines the chemical problem that is to be
-                    solved by this calculation.
             aux_operators: Additional auxiliary operators to evaluate. Must be of type
                 ``FermionicOperator`` if the qubit transformation is fermionic and of type
                 ``BosonicOperator`` it is bosonic.
@@ -92,11 +80,15 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_operators`` contains not only the transformed ``aux_operators`` passed
         # by the user but also additional ones from the transformation
-        operator, aux_operators = self.transformation.transform(driver, aux_operators)
+        second_q_ops = problem.second_q_ops()
+        qubit_ops = self._qubit_converter.to_qubit_ops(second_q_ops)
+
+        main_operator = qubit_ops[0]
+        aux_operators = qubit_ops[1:]
 
         if isinstance(self._solver, EigensolverFactory):
             # this must be called after transformation.transform
-            solver = self._solver.get_solver(self.transformation)
+            solver = self._solver.get_solver(problem)
         else:
             solver = self._solver
 
@@ -104,12 +96,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         if not solver.supports_aux_operators():
             aux_operators = None
 
-        raw_es_result = solver.compute_eigenvalues(operator, aux_operators)
+        raw_es_result = solver.compute_eigenvalues(main_operator, aux_operators)
 
         eigenstate_result = EigenstateResult()
         eigenstate_result.raw_result = raw_es_result
         eigenstate_result.eigenenergies = raw_es_result.eigenvalues
         eigenstate_result.eigenstates = raw_es_result.eigenstates
         eigenstate_result.aux_operator_eigenvalues = raw_es_result.aux_operator_eigenvalues
-        result = self.transformation.interpret(eigenstate_result)
+        result = problem.interpret(eigenstate_result)
         return result

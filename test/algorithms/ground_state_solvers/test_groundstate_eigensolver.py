@@ -46,8 +46,6 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         self.reference_energy = -1.137306
 
-        # self.transformation = FermionicTransformation(
-        #     qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER)
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.molecular_problem = MolecularProblem(self.driver)
 

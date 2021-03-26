@@ -47,7 +47,7 @@ class _DummyBosonicDriver(BaseDriver):
         return self._watson
 
 
-@unittest.skip("Skip test until refactored.")
+
 class TestBosonicESCCalculation(QiskitNatureTestCase):
     """ Test Numerical QEOM excited states calculation """
 

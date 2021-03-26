@@ -38,6 +38,7 @@ class GroundStateSolver(ABC):
                              according to a mapper it is initialized with.
         """
         self._qubit_converter = qubit_converter
+        self._untapered_qubit_ops = None
 
     @abstractmethod
     def solve(self, problem: BaseProblem) \
@@ -83,3 +84,7 @@ class GroundStateSolver(ABC):
             format of the provided operators.
         """
         raise NotImplementedError
+
+    @property
+    def qubit_converter(self):
+        return self._qubit_converter

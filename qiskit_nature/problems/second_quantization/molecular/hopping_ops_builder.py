@@ -10,8 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 from typing import Union, List, Dict, Tuple, Any
+
 import numpy as np
-from qiskit.opflow import PauliSumOp, TwoQubitReduction
+from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
@@ -34,7 +35,7 @@ def _build_single_hopping_operator(index, num_particles, num_orbitals,
         i, j, k, m = index
         h_2[i, j, k, m] = 16.0
     fer_op = fermionic_op_builder.build_ferm_op_from_ints(h_1, h_2)
-    qubit_op = qubit_converter.to_qubit_ops([fer_op])
+    qubit_op = qubit_converter.to_qubit_ops([fer_op])[0]  # TODO more elegant way than index
     # if qubit_mapping == 'parity' and two_qubit_reduction:
     #     qubit_op = TwoQubitReduction(num_particles=num_particles).convert(qubit_op[0])
 

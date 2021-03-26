@@ -44,6 +44,7 @@ class GroundStateEigensolver(GroundStateSolver):
         """
         super().__init__(qubit_converter)
         self._solver = solver
+        self._untapered_qubit_ops = None
 
     @property
     def solver(self) -> Union[MinimumEigensolver, MinimumEigensolverFactory]:
@@ -79,7 +80,8 @@ class GroundStateEigensolver(GroundStateSolver):
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
-        qubit_ops = self._qubit_converter.to_qubit_ops(second_q_ops)
+        self._untapered_qubit_ops = self._qubit_converter._map_to_qubits(second_q_ops)
+        qubit_ops = self._qubit_converter._symmetry_reduce(self._untapered_qubit_ops)
 
         main_operator = qubit_ops[0]
         aux_ops = qubit_ops[1:]

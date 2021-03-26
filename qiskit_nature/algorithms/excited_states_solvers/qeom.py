@@ -16,22 +16,23 @@ from typing import List, Union, Optional, Tuple, Dict, cast
 import itertools
 import logging
 import sys
+
 import numpy as np
 from scipy import linalg
-
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
 from qiskit.algorithms import AlgorithmResult
 from qiskit.opflow import (Z2Symmetries, anti_commutator, commutator,
-                           double_commutator, PauliSumOp)
-from qiskit_nature import FermionicOperator, BosonicOperator
-from qiskit_nature.drivers import BaseDriver
-from qiskit_nature.results import (ElectronicStructureResult, VibronicStructureResult,
-                                   EigenstateResult)
+                           double_commutator, PauliSumOp, )
 
+from qiskit_nature import FermionicOperator, BosonicOperator
+from qiskit_nature.results import (ElectronicStructureResult, VibronicStructureResult,
+                                   EigenstateResult, )
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver
+from ...problems.second_quantization.base_problem import BaseProblem
+from ...problems.second_quantization.molecular.hopping_ops_builder import build_hopping_operators
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class QEOM(ExcitedStatesSolver):
                                  '(singles and doubles)')
         self._excitations = excitations
 
-    def solve(self, driver: BaseDriver,
+    def solve(self, problem: BaseProblem,
               aux_operators: Optional[Union[List[FermionicOperator],
                                             List[BosonicOperator]]] = None
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
@@ -95,14 +96,15 @@ class QEOM(ExcitedStatesSolver):
                            "evaluated on the ground state.")
 
         # 1. Run ground state calculation
-        groundstate_result = self._gsc.solve(driver, aux_operators)
+        groundstate_result = self._gsc.solve(problem)
 
         # 2. Prepare the excitation operators
-        matrix_operators_dict, size = self._prepare_matrix_operators()
+        matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
         measurement_results = self._gsc.evaluate_operators(
-            groundstate_result.raw_result['eigenstate'],
+            groundstate_result.raw_result.eigenstate,
+            # TODO access depends on the interpret function
             matrix_operators_dict)
         measurement_results = cast(Dict[str, List[float]], measurement_results)
 
@@ -135,21 +137,22 @@ class QEOM(ExcitedStatesSolver):
                                                     np.asarray([groundstate_result.eigenenergies[0]
                                                                 + gap for gap in energy_gaps]))
 
-        result = self._gsc.transformation.interpret(eigenstate_result)
+        result = problem.interpret(eigenstate_result)
 
         return result
 
-    def _prepare_matrix_operators(self) -> Tuple[dict, int]:
+    def _prepare_matrix_operators(self, problem) -> Tuple[dict, int]:
         """Construct the excitation operators for each matrix element.
 
         Returns:
             a dictionary of all matrix elements operators and the number of excitations
             (or the size of the qEOM pseudo-eigenvalue problem)
         """
-        data = self._gsc.transformation.build_hopping_operators(self._excitations)
+        data = build_hopping_operators(problem.q_molecule, self._gsc.qubit_converter,
+                                       self._excitations)  # TODO should work for vibrational too
         hopping_operators, type_of_commutativities, excitation_indices = data
 
-        size = int(len(list(excitation_indices.keys()))/2)
+        size = int(len(list(excitation_indices.keys())) / 2)
 
         eom_matrix_operators = self._build_all_commutators(
             hopping_operators, type_of_commutativities, size)
@@ -177,7 +180,7 @@ class QEOM(ExcitedStatesSolver):
 
         mus, nus = np.triu_indices(size)
 
-        def _build_one_sector(available_hopping_ops, untapered_op, z2_symmetries, sign):
+        def _build_one_sector(available_hopping_ops, untapered_op, z2_symmetries):
 
             to_be_computed_list = []
             for idx, _ in enumerate(mus):
@@ -191,6 +194,7 @@ class QEOM(ExcitedStatesSolver):
             if logger.isEnabledFor(logging.INFO):
                 logger.info("Building all commutators:")
                 TextProgressBar(sys.stderr)
+            sign = False  # we only need commutators, not anti-commutators
             results = parallel_map(self._build_commutator_routine,
                                    to_be_computed_list,
                                    task_args=(untapered_op, z2_symmetries, sign),
@@ -210,10 +214,10 @@ class QEOM(ExcitedStatesSolver):
         try:
             # The next step only works in the case of the FermionicTransformation. Thus, it is done
             # in a try-except block. However, mypy doesn't detect this and thus we ignore it.
-            z2_symmetries = self._gsc.transformation.molecule_info['z2_symmetries']  # type: ignore
+            z2_symmetries = self._gsc.qubit_converter.z2symmetries  # type: ignore
         except AttributeError:
             z2_symmetries = Z2Symmetries([], [], [])
-
+        untapered_qubit_op_main = self._gsc._untapered_qubit_ops[0]
         if not z2_symmetries.is_empty():
             combinations = itertools.product([1, -1], repeat=len(z2_symmetries.symmetries))
             for targeted_tapering_values in combinations:
@@ -228,16 +232,14 @@ class QEOM(ExcitedStatesSolver):
                         available_hopping_ops[key] = hopping_operators[key]
                 # untapered_qubit_op is a PauliSumOp and should not be exposed.
                 _build_one_sector(available_hopping_ops,
-                                  self._gsc.transformation.untapered_qubit_op,  # type: ignore
-                                  z2_symmetries,
-                                  self._gsc.transformation.commutation_rule)
+                                  untapered_qubit_op_main,  # type: ignore
+                                  z2_symmetries)
 
         else:
             # untapered_qubit_op is a PauliSumOp and should not be exposed.
             _build_one_sector(hopping_operators,
-                              self._gsc.transformation.untapered_qubit_op,  # type: ignore
-                              z2_symmetries,
-                              self._gsc.transformation.commutation_rule)
+                              untapered_qubit_op_main,  # type: ignore
+                              z2_symmetries)
 
         return all_matrix_operators
 
@@ -360,10 +362,10 @@ class QEOM(ExcitedStatesSolver):
         m_mat = np.real(m_mat)
         v_mat = np.real(v_mat)
 
-        q_mat_std = q_mat_std / float(size**2)
-        w_mat_std = w_mat_std / float(size**2)
-        m_mat_std = m_mat_std / float(size**2)
-        v_mat_std = v_mat_std / float(size**2)
+        q_mat_std = q_mat_std / float(size ** 2)
+        w_mat_std = w_mat_std / float(size ** 2)
+        m_mat_std = m_mat_std / float(size ** 2)
+        v_mat_std = v_mat_std / float(size ** 2)
 
         logger.debug("\nQ:=========================\n%s", q_mat)
         logger.debug("\nW:=========================\n%s", w_mat)

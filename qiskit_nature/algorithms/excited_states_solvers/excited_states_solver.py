@@ -15,8 +15,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
-from qiskit_nature.drivers import BaseDriver
 from qiskit_nature import FermionicOperator, BosonicOperator
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult, VibronicStructureResult
 
 
@@ -24,7 +24,7 @@ class ExcitedStatesSolver(ABC):
     """The excited states calculation interface"""
 
     @abstractmethod
-    def solve(self, driver: BaseDriver,
+    def solve(self, problem: BaseProblem,
               aux_operators: Optional[Union[List[FermionicOperator],
                                             List[BosonicOperator]]] = None
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
