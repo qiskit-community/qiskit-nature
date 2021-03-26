@@ -28,6 +28,7 @@ import numpy as np
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
+
 from .second_quantized_op import SecondQuantizedOp
 
 
@@ -213,21 +214,34 @@ class SpinOp(SecondQuantizedOp):
             data = [(data, 1)]
 
         if isinstance(data, list):
-            # [IXYZ]_index^power (power is optional) or [+-]_index
-            sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+?)"
-            # space (\s) separated sparse label or dense label (repeat of [IXYZ+-])
-            label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$|^[IXYZ\+\-]+$")
-            invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
-            if invalid_labels:
-                raise ValueError(f"Invalid labels: {invalid_labels}")
+            if register_length is not None:  # Sparse label
+                # [IXYZ]_index^power (power is optional) or [+-]_index
+                sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+?)"
+                # space (\s) separated sparse label or empty string
+                label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$|^$")
+                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
+                if invalid_labels:
+                    raise ValueError(f"Invalid labels for sparse labels: {invalid_labels}.")
+            else:  # dense_label
+                # dense label (repeat of [IXYZ+-])
+                label_pattern = re.compile(r"^[IXYZ\+\-]+$")
+                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
+                if invalid_labels:
+                    raise ValueError(
+                        f"Invalid labels for dense labels: {invalid_labels} (if you want to use "
+                        "sparse label, you forgot a parameter `register_length`.)"
+                    )
 
+            # Parse ladder operators for special patterns.
             if register_length is not None:
                 data = self._flatten_raising_lowering_ops(data, register_length)
             data = self._flatten_ladder_ops(data)
 
+            # set coeffs
             labels, coeffs = zip(*data)
             self._coeffs = np.array(coeffs, dtype=dtype)
 
+            # set labels
             if register_length is None:  # Dense label
                 self._register_length = len(labels[0])
                 label_pattern = re.compile(r"^[IXYZ]+$")
@@ -383,7 +397,11 @@ class SpinOp(SecondQuantizedOp):
                 ),
                 spin=self.spin,
             )
-        new_array = flatten_array[non_zero].T.reshape((3, len(non_zero), self.register_length))
+        new_array = (
+            flatten_array[non_zero]
+            .reshape((len(non_zero), 3, self.register_length))
+            .transpose(1, 0, 2)
+        )
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
@@ -400,15 +418,14 @@ class SpinOp(SecondQuantizedOp):
         """Generates the string description of `self`."""
         labels_list = []
         for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
-            if n_x == n_y == n_z == 0:
-                labels_list.append(f"I_{pos}")
-                continue
             if n_x >= 1:
                 labels_list.append(f"X_{pos}" + (f"^{n_x}" if n_x > 1 else ""))
             if n_y >= 1:
                 labels_list.append(f"Y_{pos}" + (f"^{n_y}" if n_y > 1 else ""))
             if n_z >= 1:
                 labels_list.append(f"Z_{pos}" + (f"^{n_z}" if n_z > 1 else ""))
+        if not labels_list:
+            return f"I_{self.register_length - 1}"
         return " ".join(labels_list)
 
     @lru_cache()
@@ -529,6 +546,6 @@ class SpinOp(SecondQuantizedOp):
                 for pos, op in zip(positions, ops):
                     label_list[pos] = op
                 for pos in sorted(positions, reverse=True):
-                    label_list.pop(pos+1)
+                    label_list.pop(pos + 1)
                 new_data.append((" ".join(label_list), coeff))
         return new_data
