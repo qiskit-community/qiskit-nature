@@ -12,11 +12,18 @@
 
 """Initial state for vibrational modes."""
 
-from typing import List
+from typing import List, Optional
+
+import logging
 
 import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
+from qiskit_nature.mappers.second_quantization.direct_mapper import DirectMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
+
+logger = logging.getLogger(__name__)
 
 
 class VSCF(QuantumCircuit):
@@ -30,21 +37,42 @@ class VSCF(QuantumCircuit):
         [1] Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
-    def __init__(self, num_modals: List[int]) -> None:
+    def __init__(self,
+                 num_modals: List[int],
+                 qubit_converter: Optional[QubitConverter] = None,
+                 ) -> None:
         """
         Args:
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
+            qubit_converter: a QubitConverter instance. This argument is currently being ignored
+            because only a single usecase is supported at the time of release: that of the
+            :class:`DirectMapper`. However, for future-compatibility of this functions signature,
+            the argument has already been inserted.
         """
         # get the bitstring encoding initial state
         bitstr = vscf_bitstring(num_modals)
 
+        # encode the bitstring in a `VibrationalOp`
+        label = ['+' if bit else 'I' for bit in bitstr]
+        bitstr_op = VibrationalOp(''.join(label), num_modes=len(num_modals), num_modals=num_modals)
+
+        # map the `VibrationalOp` to a qubit operator
+        if qubit_converter is not None:
+            logger.warning(
+                'The only supported `QubitConverter` is one with a `DirectMapper` as the mapper '
+                'instance. However you specified %s as an input, which will be ignored until more '
+                'variants will be supported.', str(qubit_converter)
+            )
+        qubit_converter = QubitConverter(DirectMapper())
+        qubit_op = qubit_converter.to_qubit_ops([bitstr_op])[0]
+
         # construct the circuit
-        qr = QuantumRegister(len(bitstr), 'q')
+        qr = QuantumRegister(qubit_op.num_qubits, 'q')
         super().__init__(qr, name='VSCF')
 
         # add gates in the right positions
-        for i, bit in enumerate(reversed(bitstr)):
+        for i, bit in enumerate(qubit_op.primitive.table.X[0]):
             if bit:
                 self.x(i)
 
@@ -63,7 +91,7 @@ def vscf_bitstring(num_modals: List[int]) -> List[bool]:
     bitstr = np.zeros(num_qubits, bool)
     count = 0
     for modal in num_modals:
-        bitstr[num_qubits - count - 1] = True
+        bitstr[count] = True
         count += modal
 
     return bitstr.tolist()

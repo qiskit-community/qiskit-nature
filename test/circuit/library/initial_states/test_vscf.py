@@ -27,7 +27,7 @@ class TestVSCF(QiskitNatureTestCase):
     def test_bitstring(self):
         """Test the vscf_bitstring method."""
         bitstr = vscf_bitstring([2, 2])
-        self.assertTrue(all(bitstr[::-1] == np.array([True, False, True, False])))  # big endian
+        self.assertTrue(all(bitstr == np.array([True, False, True, False])))  # big endian
 
     def test_qubits_4(self):
         """Test 2 modes 2 modals."""
