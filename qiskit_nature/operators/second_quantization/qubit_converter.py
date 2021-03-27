@@ -45,7 +45,7 @@ class QubitConverter:
 
     Also this converter supports Z2 Symmetry reduction to reduce a problem (operator) size
     based on mathematical symmetries that can be detected in the operator. A knowledgeable user
-    can define which sector the problem solution lies in. This sector information can be also
+    can define which sector the problem solution lies in. This sector information can also
     be passed in on :meth:`convert` which will override this value should both be given.
     """
 
