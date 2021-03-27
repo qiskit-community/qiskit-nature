@@ -17,32 +17,34 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
-from qiskit.circuit.library import TwoLocal
-from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
+from qiskit.circuit.library import TwoLocal
+from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.drivers import HDF5Driver
-from qiskit_nature.transformations import (FermionicTransformation,
-                                           FermionicTransformationType,
-                                           FermionicQubitMappingType)
+from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
 
 
-@unittest.skip("Skip test until refactored.")
 class TestEnd2End(QiskitNatureTestCase):
     """End2End VQE tests."""
 
     def setUp(self):
         super().setUp()
+        algorithm_globals.random_seed = 42
+
         driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
                                                               'drivers/hdf5d'))
-        fermionic_transformation = \
-            FermionicTransformation(transformation=FermionicTransformationType.FULL,
-                                    qubit_mapping=FermionicQubitMappingType.PARITY,
-                                    two_qubit_reduction=True,
-                                    freeze_core=False,
-                                    orbital_reduction=[])
-        self.qubit_op, self.aux_ops = fermionic_transformation.transform(driver)
-        self.reference_energy = -1.857275027031588
+        problem = MolecularProblem(driver)
+        second_q_ops = problem.second_q_ops()
+        # TODO: enable two-qubit-reduction after https://github.com/Qiskit/qiskit-terra/issues/6100
+        converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=False)
+        num_particles = (problem.q_molecule_transformed.num_alpha,
+                         problem.q_molecule_transformed.num_beta)
+        self.qubit_op = converter.convert(second_q_ops[0], num_particles)
+        self.aux_ops = converter.convert_match(second_q_ops[1:])
+        self.reference_energy = -1.8557828477150304
 
     def test_end2end_h2(self):
         """ end to end h2 """
