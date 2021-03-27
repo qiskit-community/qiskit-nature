@@ -12,14 +12,14 @@
 
 """ Compact Heuristic ansatz for vibrational Chemistry """
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit.library import BlueprintCircuit
 
-from qiskit.circuit import ParameterVector, Parameter
+from qiskit.circuit import ParameterVector
 
 
 class CHC(BlueprintCircuit):
@@ -48,7 +48,7 @@ class CHC(BlueprintCircuit):
                          is a pair of tuples. The first tuple contains the occupied spin orbital
                          indices whereas the second one contains the indices of the unoccupied spin
                          orbitals.
-            reps: number of replica of basic module
+            reps: number of repetitions of basic module
             ladder: use ladder of CNOTs between to indices in the entangling block
             initial_state: an initial state to prepend to the variational form
         """
@@ -61,7 +61,6 @@ class CHC(BlueprintCircuit):
         self._excitations = None
         self._initial_state = None
         self._num_parameters = None
-        self._ordered_parameters = ParameterVector(name='θ')
         self._support_parameterized_circuit = True
 
         if num_qubits is not None:
@@ -71,10 +70,10 @@ class CHC(BlueprintCircuit):
             self.excitations = excitations
 
         if initial_state is not None:
-            self._initial_state = initial_state
+            self.initial_state = initial_state
 
     @property
-    def num_qubits(self) -> int:
+    def num_qubits(self) -> Optional[int]:
         """Number of qubits of the variational form.
 
         Returns:
@@ -96,7 +95,7 @@ class CHC(BlueprintCircuit):
             self.qregs = [QuantumRegister(num_qubits, name='q')]
 
     @property
-    def excitations(self) -> List[Tuple[Tuple[Any, ...], ...]]:
+    def excitations(self) -> Optional[List[Tuple[Tuple[Any, ...], ...]]]:
         """The excitation indices to be included in the circuit."""
         return self._excitations
 
@@ -109,7 +108,7 @@ class CHC(BlueprintCircuit):
         self._bounds = [(-np.pi, np.pi)] * self._num_parameters
 
     @property
-    def initial_state(self) -> QuantumCircuit:
+    def initial_state(self) -> Optional[QuantumCircuit]:
         """The initial state."""
         return self._initial_state
 
@@ -152,46 +151,6 @@ class CHC(BlueprintCircuit):
 
         return True
 
-    @property
-    def ordered_parameters(self) -> List[Parameter]:
-        """The parameters used in the underlying circuit.
-
-        This includes float values and duplicates.
-
-        For more details see :class:`~.NLocal`.
-
-        Returns:
-            The parameters objects used in the circuit.
-        """
-        # TODO: check doc-string
-        if isinstance(self._ordered_parameters, ParameterVector):
-            self._ordered_parameters.resize(self._num_parameters)
-            return list(self._ordered_parameters)
-
-        return self._ordered_parameters
-
-    @ordered_parameters.setter
-    def ordered_parameters(self, parameters: Union[ParameterVector, List[Parameter]]
-                           ) -> None:
-        """Set the parameters used in the underlying circuit.
-
-        Args:
-            The parameters to be used in the underlying circuit.
-
-        Raises:
-            ValueError: If the length of ordered parameters does not match the number of
-                parameters in the circuit and they are not a ``ParameterVector`` (which could
-                be resized to fit the number of parameters).
-        """
-        if not isinstance(parameters, ParameterVector) \
-                and len(parameters) != self._num_parameters:
-            raise ValueError('The length of ordered parameters must be equal to the number of '
-                             'parameters in the circuit ({}), but is {}'.format(
-                                 self._num_parameters, len(parameters)
-                             ))
-        self._ordered_parameters = parameters
-        self._invalidate()
-
     def _build(self) -> None:
         """
         Construct the variational form, given its parameters.
@@ -212,7 +171,7 @@ class CHC(BlueprintCircuit):
         self._check_configuration()
         self._data = []  # type: ignore
 
-        parameters = self.ordered_parameters
+        parameters = ParameterVector('θ', self._num_parameters)
         q = self.qubits
 
         if isinstance(self._initial_state, QuantumCircuit):

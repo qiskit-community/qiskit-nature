@@ -49,8 +49,7 @@ class VSCF(QuantumCircuit):
             qubit_converter: a QubitConverter instance. This argument is currently being ignored
                              because only a single use-case is supported at the time of release:
                              that of the :class:`DirectMapper`. However, for future-compatibility of
-                             this functions signature,
-            the argument has already been inserted.
+                             this functions signature, the argument has already been inserted.
         """
         # get the bitstring encoding initial state
         bitstr = vscf_bitstring(num_modals)

@@ -69,7 +69,7 @@ class UVCC(EvolvedOperatorAnsatz):
                   take the following __keyword__ arguments:
                       - `num_modals`: the same as above
                   and must return a `List[Tuple[Tuple[Any, ...], ...]]`.
-            reps: number of replica of basic module
+            reps: number of repetitions of basic module
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
         self._qubit_converter = qubit_converter
@@ -84,7 +84,7 @@ class UVCC(EvolvedOperatorAnsatz):
         self._excitation_ops: List[SecondQuantizedOp] = None
 
     @property
-    def qubit_converter(self) -> QubitConverter:
+    def qubit_converter(self) -> Optional[QubitConverter]:
         """The qubit operator converter."""
         return self._qubit_converter
 
@@ -95,7 +95,7 @@ class UVCC(EvolvedOperatorAnsatz):
         self._qubit_converter = conv
 
     @property
-    def num_modals(self) -> List[int]:
+    def num_modals(self) -> Optional[List[int]]:
         """The number of modals."""
         return self._num_modals
 
@@ -106,7 +106,7 @@ class UVCC(EvolvedOperatorAnsatz):
         self._num_modals = num_modals
 
     @property
-    def excitations(self) -> Union[str, int, List[int], Callable]:
+    def excitations(self) -> Optional[Union[str, int, List[int], Callable]]:
         """The excitations."""
         return self._excitations
 
