@@ -225,7 +225,7 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
 
         if qubit_mapping not in self.MAPPER_DICT.keys():
             raise QiskitNatureError(f'Currently unsupported QubitMapper: {qubit_mapping}')
-        converter = QubitConverter(mappers=self.MAPPER_DICT[qubit_mapping])
+        converter = QubitConverter(mapper=self.MAPPER_DICT[qubit_mapping])
         initial_state = HartreeFock(num_orbitals, num_particles, converter)
         var_form = UCCSD(qubit_converter=converter,
                          num_particles=num_particles,
