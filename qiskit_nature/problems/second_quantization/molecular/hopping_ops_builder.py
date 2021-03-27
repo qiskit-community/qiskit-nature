@@ -11,22 +11,26 @@
 # that they have been altered from the originals.
 from typing import Union, List, Dict, Tuple, Any
 
+import itertools
+
 import numpy as np
+
 from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.components.variational_forms import UCCSD
+from qiskit_nature.circuit.library.ansatzes import UCC
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
 
 
-def _build_single_hopping_operator(index, num_particles, num_orbitals,
+def _build_single_hopping_operator(index, num_particles, num_spin_orbitals,
                                    qubit_converter: QubitConverter):
-    h_1 = np.zeros((num_orbitals, num_orbitals), dtype=complex)
-    h_2 = np.zeros((num_orbitals, num_orbitals, num_orbitals, num_orbitals), dtype=complex)
+    h_1 = np.zeros((num_spin_orbitals, num_spin_orbitals), dtype=complex)
+    h_2 = np.zeros((num_spin_orbitals, num_spin_orbitals, num_spin_orbitals, num_spin_orbitals),
+                   dtype=complex)
     z2_symmetries = qubit_converter.z2symmetries
     if len(index) == 2:
         i, j = index
@@ -80,12 +84,12 @@ def build_hopping_operators(qmolecule: QMolecule, qubit_converter: QubitConverte
 
     num_alpha, num_beta = qmolecule.num_alpha, qmolecule.num_beta
     num_molecular_orbitals = qmolecule.num_molecular_orbitals
-    num_orbitals = 2 * num_molecular_orbitals
+    num_spin_orbitals = 2 * num_molecular_orbitals
 
     if isinstance(excitations, str):
-        se_list, de_list = UCCSD.compute_excitation_lists([num_alpha, num_beta], num_orbitals,
-                                                          excitation_type=excitations)
-        excitations_list = se_list + de_list
+        ansatz = UCC(qubit_converter, [num_alpha, num_beta], num_spin_orbitals, excitations)
+        excitations_list = [list(itertools.chain.from_iterable(zip(*exc)))
+                            for exc in ansatz._get_excitation_list()]
     else:
         excitations_list = excitations
 
@@ -111,7 +115,7 @@ def build_hopping_operators(qmolecule: QMolecule, qubit_converter: QubitConverte
     result = parallel_map(_build_single_hopping_operator,
                           to_be_executed_list,
                           task_args=(num_alpha + num_beta,
-                                     num_orbitals,
+                                     num_spin_orbitals,
                                      qubit_converter),
                           num_processes=algorithm_globals.num_processes)
 
