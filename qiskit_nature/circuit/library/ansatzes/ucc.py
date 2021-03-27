@@ -242,7 +242,7 @@ class UCC(EvolvedOperatorAnsatz):
             logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
             # Convert operators according to saved state in converter from the conversion of the
             # main operator since these need to be compatible. If Z2 Symmetry tapering was done
-            # the it may be that one or more excitation operators do not commute with the
+            # it may be that one or more excitation operators do not commute with the
             # symmetry. Normally the converted operators are maintained at the same index by
             # the converter inserting None as the result if an operator did not commute. Here
             # we are not interested in that just getting the valid set of operators so that
