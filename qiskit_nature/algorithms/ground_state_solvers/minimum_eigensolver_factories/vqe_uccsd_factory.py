@@ -207,7 +207,6 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
         Raises:
             QiskitNatureError: in case a Transformation of wrong type is given.
         """
-
         q_molecule_transformed = problem.q_molecule_transformed
         num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
         num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)

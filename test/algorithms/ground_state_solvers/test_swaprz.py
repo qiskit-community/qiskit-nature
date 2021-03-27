@@ -51,7 +51,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
                                                    'drivers/hdf5d'))
 
         mapper = ParityMapper()
-        converter = QubitConverter(mappers=mapper)
+        converter = QubitConverter(mapper=mapper)
 
         fermionic_transformation = \
             FermionicTransformation(qubit_mapping=FermionicQubitMappingType.PARITY,
