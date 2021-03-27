@@ -241,13 +241,10 @@ class VibrationalOp(SecondQuantizedOp):
             conjugated_coeff = coeff.conjugate()
 
             daggered_label = []
-            count = label.count("+") + label.count("-")
             for char in label:
                 daggered_label.append(dagger_map[char])
                 if char in "+-":
-                    count -= 1
-                    if count % 2 == 1:
-                        conjugated_coeff *= -1
+                    conjugated_coeff *= -1
 
             label_list.append("".join(daggered_label))
             coeff_list.append(conjugated_coeff)
