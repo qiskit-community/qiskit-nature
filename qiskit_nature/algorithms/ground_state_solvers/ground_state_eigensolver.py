@@ -79,8 +79,8 @@ class GroundStateEigensolver(GroundStateSolver):
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
-        self._untapered_qubit_ops = self._qubit_converter._map_to_qubits(second_q_ops)
-        qubit_ops = self._qubit_converter._symmetry_reduce(self._untapered_qubit_ops)
+        self._untapered_qubit_ops = self._qubit_converter.map(second_q_ops)
+        qubit_ops = self._qubit_converter._symmetry_reduce(self._untapered_qubit_ops, True)
 
         main_operator = qubit_ops[0]
         aux_ops = qubit_ops[1:]

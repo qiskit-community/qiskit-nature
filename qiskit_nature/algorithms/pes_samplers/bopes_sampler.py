@@ -17,12 +17,13 @@ from typing import Optional, List, Dict
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateSolver
+from qiskit_nature.algorithms.pes_samplers.extrapolator import Extrapolator, WindowExtrapolator
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateSolver
-from qiskit_nature.results.bopes_sampler_result import BOPESSamplerResult
-from qiskit_nature.algorithms.pes_samplers.extrapolator import Extrapolator, WindowExtrapolator
+from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
+from qiskit_nature.results.bopes_sampler_result import BOPESSamplerResult
 
 logger = logging.getLogger(__name__)
 
@@ -58,11 +59,12 @@ class BOPESSampler:
         self._gss = gss
         self._tolerance = tolerance
         self._bootstrap = bootstrap
-        self._driver = None     # type: Optional[BaseDriver]
-        self._points = None     # type: Optional[List[float]]
-        self._energies = None   # type: Optional[List[float]]
-        self._raw_results = None        # type: Optional[Dict[float, EigenstateResult]]
-        self._points_optparams = None   # type: Optional[Dict[float, List[float]]]
+        self._problem: BaseProblem = None
+        self._driver: BaseDriver = None
+        self._points: List[float] = None
+        self._energies: List[float] = None
+        self._raw_results: Dict[float, EigenstateResult] = None
+        self._points_optparams: Dict[float, List[float]] = None
         self._num_bootstrap = num_bootstrap
         self._extrapolator = extrapolator
 
@@ -86,12 +88,12 @@ class BOPESSampler:
             # this will be used when NOT bootstrapping
             self._initial_point = self._gss.solver.initial_point  # type: ignore
 
-    def sample(self, driver: BaseDriver, points: List[float]) -> BOPESSamplerResult:
+    def sample(self, problem: BaseProblem, points: List[float]) -> BOPESSamplerResult:
         """Run the sampler at the given points, potentially with repetitions.
 
         Args:
-            driver: BaseDriver specific for the problem. The driver should be based on
-                    a Molecule object that has perturbations to be varied.
+            problem: BaseProblem whose driver should be based on a Molecule object that has
+                     perturbations to be varied.
             points: The points along the degrees of freedom to evaluate.
 
         Returns:
@@ -100,8 +102,8 @@ class BOPESSampler:
         Raises:
             QiskitNatureError: if the driver does not have a molecule specified.
         """
-
-        self._driver = driver
+        self._problem = problem
+        self._driver = problem.driver
 
         if self._driver.molecule is None:
             raise QiskitNatureError('Driver MUST be configured with a Molecule.')
@@ -112,8 +114,7 @@ class BOPESSampler:
         self._points = list(self._raw_results.keys())
         self._energies = []
         for key in self._raw_results:
-            energy = self._raw_results[key].computed_energies[0] + \
-                     self._raw_results[key].nuclear_repulsion_energy
+            energy = self._raw_results[key].total_energies[0]
             self._energies.append(energy)
 
         result = BOPESSamplerResult(self._points, self._energies, self._raw_results)
@@ -184,7 +185,7 @@ class BOPESSampler:
                     self._gss.solver.initial_point = param_sets.get(point)  # type: ignore
 
         # the output is an instance of EigenstateResult
-        result = self._gss.solve(self._driver)
+        result = self._gss.solve(self._problem)
 
         # Save optimal point to bootstrap
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore

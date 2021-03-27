@@ -16,23 +16,23 @@ import unittest
 from functools import partial
 
 import numpy as np
+
 from qiskit import BasicAer
-from qiskit.circuit.library import RealAmplitudes
-from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE, NumPyMinimumEigensolver
 from qiskit.algorithms.optimizers import AQGD
+from qiskit.circuit.library import RealAmplitudes
 from qiskit.opflow import PauliExpectation
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.algorithms.pes_samplers.bopes_sampler import BOPESSampler
+from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
 from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.drivers import Molecule, PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.drivers import Molecule, PySCFDriver
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
-from qiskit_nature.transformations import FermionicTransformation
+from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
 
 
-@unittest.skip("Skip test until refactored.")
 class TestBOPES(unittest.TestCase):
     """Tests of BOPES Sampler."""
 
@@ -50,10 +50,14 @@ class TestBOPES(unittest.TestCase):
         mapper = ParityMapper()
         converter = QubitConverter(mapper=mapper)
 
-        f_t = FermionicTransformation()
         driver = PySCFDriver(molecule=m)
+        problem = MolecularProblem(driver)
 
-        qubitop, _ = f_t.transform(driver)
+        fer_op = problem.second_q_ops()[0]
+        qubitop = converter.convert(fer_op)
+
+        num_particles = (problem.q_molecule_transformed.num_alpha,
+                         problem.q_molecule_transformed.num_beta)
 
         # Quantum Instance:
         shots = 1
@@ -63,9 +67,7 @@ class TestBOPES(unittest.TestCase):
         quantum_instance.compile_config['seed_transpiler'] = seed
 
         # Variational form
-        i_state = HartreeFock(num_spin_orbitals=f_t._molecule_info['num_orbitals'],
-                              num_particles=f_t._molecule_info['num_particles'],
-                              qubit_converter=converter)
+        i_state = HartreeFock(qubitop.num_qubits, num_particles, converter)
         var_form = RealAmplitudes(qubitop.num_qubits, reps=1, entanglement='full',
                                   skip_unentangled_qubits=False)
         var_form.compose(i_state, front=True)
@@ -87,14 +89,14 @@ class TestBOPES(unittest.TestCase):
                      quantum_instance=quantum_instance,
                      expectation=PauliExpectation())
 
-        me_gss = GroundStateEigensolver(f_t, solver)
+        me_gss = GroundStateEigensolver(converter, solver)
 
         # BOPES sampler
         sampler = BOPESSampler(gss=me_gss)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
-        results = sampler.sample(driver, points)
+        results = sampler.sample(problem, points)
 
         points_run = results.points
         energies = results.energies
@@ -116,19 +118,20 @@ class TestBOPES(unittest.TestCase):
                      degrees_of_freedom=[stretch],
                      masses=[1.6735328E-27, 1.6735328E-27])
 
-        f_t = FermionicTransformation()
-        driver = PySCFDriver(molecule=m)
+        mapper = ParityMapper()
+        converter = QubitConverter(mapper=mapper)
 
-        f_t.transform(driver)
+        driver = PySCFDriver(molecule=m)
+        problem = MolecularProblem(driver)
 
         solver = NumPyMinimumEigensolver()
 
-        me_gss = GroundStateEigensolver(f_t, solver)
+        me_gss = GroundStateEigensolver(converter, solver)
         # Run BOPESSampler with exact eigensolution
         points = np.arange(0.45, 5.3, 0.3)
         sampler = BOPESSampler(gss=me_gss)
 
-        res = sampler.sample(driver, points)
+        res = sampler.sample(problem, points)
 
         # Testing Potential interface
         pot = MorsePotential(m)

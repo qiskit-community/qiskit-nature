@@ -14,8 +14,10 @@
 
 # TODO(sphinx): documentation
 
+from .base_problem import BaseProblem
 from .molecular import MolecularProblem
 
 __all__ = [
+    'BaseProblem',
     'MolecularProblem',
 ]
