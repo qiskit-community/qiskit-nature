@@ -84,7 +84,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         from qiskit_nature.mappers.second_quantization import ParityMapper
         from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
         mapper = ParityMapper()
-        converter = QubitConverter(mappers=mapper)
+        converter = QubitConverter(mapper=mapper)
 
         # setup the initial state for the variational form
         from qiskit_nature.circuit.library import HartreeFock
