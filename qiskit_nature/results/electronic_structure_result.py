@@ -38,6 +38,8 @@ class ElectronicStructureResult(EigenstateResult):
         self._nuclear_repulsion_energy: Optional[float] = None
         self._nuclear_dipole_moment: Optional[DipoleTuple] = None
         self._computed_energies: Optional[np.ndarray] = None
+        self._ph_extracted_energy: float = 0.
+        self._frozen_extracted_energy: float = 0.
 
     @property
     def hartree_fock_energy(self) -> float:

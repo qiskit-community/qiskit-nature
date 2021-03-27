@@ -216,8 +216,9 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
         initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
         var_form = UCCSD(qubit_converter=qubit_converter,
                          num_particles=num_particles,
-                         num_spin_orbitals=num_spin_orbitals)
-        self._vqe.var_form = initial_state.compose(var_form)
+                         num_spin_orbitals=num_spin_orbitals,
+                         initial_state=initial_state)
+        self._vqe.var_form = var_form
 
         return self._vqe
 

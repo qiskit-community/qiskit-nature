@@ -20,9 +20,10 @@ import logging
 
 import numpy as np
 
-from qiskit.utils.validation import validate_min
-from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.algorithms import VQE
+from qiskit.circuit import QuantumCircuit
+from qiskit.opflow import OperatorBase, PauliSumOp
+from qiskit.utils.validation import validate_min
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library.ansatzes import UCC
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -66,6 +67,9 @@ class AdaptVQE(GroundStateEigensolver):
         self._excitation_pool: List[OperatorBase] = []
         self._excitation_list: List[OperatorBase] = []
 
+        self._main_operator: PauliSumOp = None
+        self._var_form: QuantumCircuit = None
+
     def returns_groundstate(self) -> bool:
         return True
 
@@ -86,11 +90,13 @@ class AdaptVQE(GroundStateEigensolver):
         res = []
         # compute gradients for all excitation in operator pool
         for exc in self._excitation_pool:
-            # push next excitation to variational form
-            vqe.var_form = self._excitation_list + [exc]
-            # We also need to invalidate the internally stored expectation operator because it needs
-            # to be updated for the new var_form.
-            vqe._expect_op = None  # TODO: is this really necessary?
+            # add next excitation to variational form
+            self._var_form.operators = self._excitation_list + [exc]
+            # set the current variational form
+            vqe.var_form = self._var_form
+            var_form_params = vqe.var_form._parameter_table.keys()
+            # construt the expectation operator of the VQE
+            vqe._expect_op = vqe.construct_expectation(var_form_params, self._main_operator)
             # evaluate energies
             parameter_sets = theta + [-self._delta] + theta + [self._delta]
             energy_results = vqe._energy_evaluation(np.asarray(parameter_sets))
@@ -145,7 +151,7 @@ class AdaptVQE(GroundStateEigensolver):
         second_q_ops = problem.second_q_ops()
         qubit_ops = self._qubit_converter.to_qubit_ops(second_q_ops)
 
-        main_operator = qubit_ops[0]
+        self._main_operator = qubit_ops[0]
         aux_ops = qubit_ops[1:]
 
         if isinstance(self._solver, MinimumEigensolverFactory):
@@ -153,7 +159,6 @@ class AdaptVQE(GroundStateEigensolver):
         else:
             vqe = self._solver
 
-        vqe.operator = main_operator
         if not isinstance(vqe, VQE):
             raise QiskitNatureError("The AdaptVQE algorithm requires the use of the VQE solver")
         if not isinstance(vqe.var_form, UCC):
@@ -162,8 +167,9 @@ class AdaptVQE(GroundStateEigensolver):
 
         # We construct the variational form once to be able to extract the full set of excitation
         # operators.
-        vqe.var_form._build()
-        self._excitation_pool = copy.deepcopy(vqe.var_form.operators)
+        self._var_form = copy.deepcopy(vqe.var_form)
+        self._var_form._build()
+        self._excitation_pool = copy.deepcopy(self._var_form.operators)
 
         threshold_satisfied = False
         alternating_sequence = False
@@ -208,9 +214,10 @@ class AdaptVQE(GroundStateEigensolver):
             self._excitation_list.append(max_grad[1])
             theta.append(0.0)
             # run VQE on current Ansatz
-            vqe.var_form.operators = self._excitation_list
+            self._var_form.operators = self._excitation_list
+            vqe.var_form = self._var_form
             vqe.initial_point = theta
-            raw_vqe_result = vqe.compute_minimum_eigenvalue(main_operator)
+            raw_vqe_result = vqe.compute_minimum_eigenvalue(self._main_operator)
             theta = raw_vqe_result.optimal_point.tolist()
         else:
             # reached maximum number of iterations

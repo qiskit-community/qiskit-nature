@@ -23,13 +23,12 @@ from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit_nature import QiskitNatureError, FermionicOperator
-from qiskit_nature.components.variational_forms import UCCSD
-from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFactory
+from qiskit_nature.circuit.library import HartreeFock, UCCSD
+from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.drivers import PySCFDriver, UnitsType
-from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFactory
-from qiskit_nature.transformations import FermionicTransformation
+from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
 
 
 class TestAdaptVQE(QiskitNatureTestCase):
@@ -46,22 +45,24 @@ class TestAdaptVQE(QiskitNatureTestCase):
             self.skipTest('PYSCF driver does not appear to be installed')
             return
 
+        self.problem = MolecularProblem(self.driver)
+
         self.expected = -1.85727503
 
-        self.transformation = FermionicTransformation()
+        self.qubit_converter = QubitConverter(ParityMapper())
 
     def test_default(self):
         """ Default execution """
         solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
-        calc = AdaptVQE(self.transformation, solver)
-        res = calc.solve(self.driver)
+        calc = AdaptVQE(self.qubit_converter, solver)
+        res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_aux_ops_reusability(self):
         """ Test that the auxiliary operators can be reused """
         # Regression test against #1475
         solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
-        calc = AdaptVQE(self.transformation, solver)
+        calc = AdaptVQE(self.qubit_converter, solver)
 
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
@@ -69,7 +70,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
         aux_ops = [FermionicOperator(h_1, h_2)]
         aux_ops_copy = copy.deepcopy(aux_ops)
 
-        _ = calc.solve(self.driver, aux_ops)
+        _ = calc.solve(self.problem)
         assert all(a == b for a, b in zip(aux_ops, aux_ops_copy))
 
     def test_custom_minimum_eigensolver(self):
@@ -79,30 +80,25 @@ class TestAdaptVQE(QiskitNatureTestCase):
         class CustomFactory(VQEUCCSDFactory):
             """A custom MESFactory"""
 
-            def get_solver(self, transformation):
-                num_orbitals = transformation.molecule_info['num_orbitals']
-                num_particles = transformation.molecule_info['num_particles']
-                qubit_mapping = transformation.qubit_mapping
-                two_qubit_reduction = transformation.molecule_info['two_qubit_reduction']
-                z2_symmetries = transformation.molecule_info['z2_symmetries']
+            def get_solver(self, problem, qubit_converter):
+                q_molecule_transformed = problem.q_molecule_transformed
+                num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
+                num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
+                num_spin_orbitals = 2 * num_molecular_orbitals
 
-                mapper = ParityMapper()
-                converter = QubitConverter(mappers=mapper)
-                initial_state = HartreeFock(num_orbitals, num_particles, converter)
-                var_form = UCCSD(num_orbitals=num_orbitals,
+                initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
+                var_form = UCCSD(qubit_converter=qubit_converter,
                                  num_particles=num_particles,
-                                 initial_state=initial_state,
-                                 qubit_mapping=qubit_mapping,
-                                 two_qubit_reduction=two_qubit_reduction,
-                                 z2_symmetries=z2_symmetries)
+                                 num_spin_orbitals=num_spin_orbitals,
+                                 initial_state=initial_state)
                 vqe = VQE(var_form=var_form, quantum_instance=self._quantum_instance,
                           optimizer=L_BFGS_B())
                 return vqe
 
         solver = CustomFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
 
-        calc = AdaptVQE(self.transformation, solver)
-        res = calc.solve(self.driver)
+        calc = AdaptVQE(self.qubit_converter, solver)
+        res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_custom_excitation_pool(self):
@@ -111,19 +107,19 @@ class TestAdaptVQE(QiskitNatureTestCase):
         class CustomFactory(VQEUCCSDFactory):
             """A custom MES factory."""
 
-            def get_solver(self, transformation):
-                solver = super().get_solver(transformation)
+            def get_solver(self, problem, qubit_converter):
+                solver = super().get_solver(problem, qubit_converter)
                 # Here, we can create essentially any custom excitation pool.
                 # For testing purposes only, we simply select some hopping operator already
                 # available in the variational form object.
                 # pylint: disable=no-member
-                custom_excitation_pool = [solver.var_form._hopping_ops[2]]
-                solver.var_form.excitation_pool = custom_excitation_pool
+                custom_excitation_pool = [solver.var_form.operators[2]]
+                solver.var_form.operators = custom_excitation_pool
                 return solver
 
         solver = CustomFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
-        calc = AdaptVQE(self.transformation, solver)
-        res = calc.solve(self.driver)
+        calc = AdaptVQE(self.qubit_converter, solver)
+        res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_vqe_adapt_check_cyclicity(self):

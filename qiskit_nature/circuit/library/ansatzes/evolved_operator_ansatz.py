@@ -17,6 +17,7 @@ from typing import List, Union, Optional
 import numpy as np
 
 from qiskit.circuit import Parameter, ParameterVector, QuantumRegister, QuantumCircuit
+from qiskit.circuit.exceptions import CircuitError
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import OperatorBase, EvolutionBase, PauliTrotterEvolution
 
@@ -160,8 +161,12 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
 
         # set the registers
         num_qubits = circuits[0].num_qubits
-        qr = QuantumRegister(num_qubits, 'q')
-        self.add_register(qr)
+        try:
+            qr = QuantumRegister(num_qubits, 'q')
+            self.add_register(qr)
+        except CircuitError:
+            # the register already exists, probably because of a previous composition
+            pass
 
         # build the circuit
         times = ParameterVector('t', self.reps * len(self.operators))
