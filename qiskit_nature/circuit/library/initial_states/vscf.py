@@ -19,6 +19,7 @@ import logging
 import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
+from qiskit.opflow import PauliSumOp
 from qiskit_nature.mappers.second_quantization.direct_mapper import DirectMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
@@ -66,7 +67,7 @@ class VSCF(QuantumCircuit):
                 'variants will be supported.', str(qubit_converter)
             )
         qubit_converter = QubitConverter(DirectMapper())
-        qubit_op = qubit_converter.to_qubit_ops([bitstr_op])[0]
+        qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op)
 
         # construct the circuit
         qr = QuantumRegister(qubit_op.num_qubits, 'q')

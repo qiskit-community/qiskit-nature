@@ -147,7 +147,7 @@ class UVCC(EvolvedOperatorAnsatz):
             excitation_ops = self.excitation_ops()
 
             logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
-            self.operators = self.qubit_converter.to_qubit_ops(excitation_ops)
+            self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
 
         logger.debug('Building QuantumCircuit...')
         super()._build()

@@ -70,7 +70,7 @@ class TestCHCVSCF(QiskitNatureTestCase):
 
         converter = QubitConverter(DirectMapper())
 
-        qubit_op = converter.to_qubit_ops([vibr_op])[0]
+        qubit_op = converter.convert_match(vibr_op)
 
         init_state = VSCF(num_modals)
 

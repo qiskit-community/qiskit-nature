@@ -104,12 +104,11 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         converter = QubitConverter(DirectMapper())
 
-        qubit_op = converter.to_qubit_ops([vibr_op])[0]
+        qubit_op = converter.convert_match(vibr_op)
 
         init_state = VSCF(num_modals)
 
         uvcc_varform = UVCC(converter, num_modals, 'sd', initial_state=init_state)
-        print(uvcc_varform.draw())
 
         q_instance = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
                                      seed_transpiler=90, seed_simulator=12)
