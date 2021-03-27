@@ -194,10 +194,9 @@ class QEOM(ExcitedStatesSolver):
             if logger.isEnabledFor(logging.INFO):
                 logger.info("Building all commutators:")
                 TextProgressBar(sys.stderr)
-            sign = False  # we only need commutators, not anti-commutators
             results = parallel_map(self._build_commutator_routine,
                                    to_be_computed_list,
-                                   task_args=(untapered_op, z2_symmetries, sign),
+                                   task_args=(untapered_op, z2_symmetries),
                                    num_processes=algorithm_globals.num_processes)
             for result in results:
                 m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op = result
@@ -245,7 +244,7 @@ class QEOM(ExcitedStatesSolver):
 
     @staticmethod
     def _build_commutator_routine(params: List, operator: PauliSumOp,
-                                  z2_symmetries: Z2Symmetries, sign: bool
+                                  z2_symmetries: Z2Symmetries
                                   ) -> Tuple[int, int, PauliSumOp, PauliSumOp,
                                              PauliSumOp, PauliSumOp]:
         """Numerically computes the commutator / double commutator between operators.
@@ -255,7 +254,6 @@ class QEOM(ExcitedStatesSolver):
                 excitation operators
             operator: the hamiltonian
             z2_symmetries: z2_symmetries in case of tapering
-            sign: commute or anticommute
 
         Returns:
             The indices of the matrix element and the corresponding qubit
@@ -275,9 +273,15 @@ class QEOM(ExcitedStatesSolver):
                 v_mat_op = None
             else:
                 if right_op_1 is not None:
-                    q_mat_op = double_commutator(left_op, operator, right_op_1, sign=sign)
-                    w_mat_op = commutator(left_op, right_op_1) \
-                        if sign else anti_commutator(left_op, right_op_1)
+                    # The sign which we use in the case of the double commutator is arbitrary. In
+                    # theory, one would choose this according to the nature of the problem (i.e.
+                    # whether it is fermionic or bosonic), but in practice, always choosing the
+                    # anti-commutator has proven to be more robust.
+                    q_mat_op = double_commutator(left_op, operator, right_op_1, sign=False)
+                    # In the case of the single commutator, we are always interested in the energy
+                    # difference of two states. Thus, regardless of the problem's nature, we will
+                    # always use the commutator.
+                    w_mat_op = commutator(left_op, right_op_1)
                     q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
                     w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
                 else:
@@ -285,9 +289,10 @@ class QEOM(ExcitedStatesSolver):
                     w_mat_op = None
 
                 if right_op_2 is not None:
-                    m_mat_op = double_commutator(left_op, operator, right_op_2, sign=sign)
-                    v_mat_op = commutator(left_op, right_op_2) \
-                        if sign else anti_commutator(left_op, right_op_2)
+                    # For explanations on the choice of commutation relation, please refer to the
+                    # comments above.
+                    m_mat_op = double_commutator(left_op, operator, right_op_2, sign=False)
+                    v_mat_op = commutator(left_op, right_op_2)
                     m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
                     v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
                 else:
