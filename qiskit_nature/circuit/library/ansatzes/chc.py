@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Compact heuristic ansatz for Chemistry """
+""" Compact Heuristic ansatz for vibrational Chemistry """
 
 from typing import Any, List, Optional, Tuple, Union
 
@@ -23,7 +23,7 @@ from qiskit.circuit import ParameterVector, Parameter
 
 
 class CHC(BlueprintCircuit):
-    """ This trial wavefunction is the Compact Heuristic for Chemistry.
+    """ This trial wavefunction is the Compact Heuristic for vibrational Chemistry.
 
     The trial wavefunction is as defined in
     Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855. It aims at approximating
