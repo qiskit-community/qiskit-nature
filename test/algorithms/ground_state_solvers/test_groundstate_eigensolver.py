@@ -16,17 +16,23 @@ import copy
 import unittest
 
 from test import QiskitNatureTestCase
-import numpy as np
-from qiskit import BasicAer
-from qiskit.utils import QuantumInstance
 
-from qiskit_nature import QiskitNatureError
-from qiskit_nature.circuit.library.ansatzes import UCC
+import numpy as np
+
+from qiskit import BasicAer
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import SLSQP, SPSA
+from qiskit.opflow import AerPauliExpectation, PauliExpectation
+from qiskit.test import slow_test
+from qiskit.utils import QuantumInstance, algorithm_globals
+
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
     (VQEUCCFactory, NumPyMinimumEigensolverFactory)
-from qiskit_nature.drivers import PySCFDriver, UnitsType
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.circuit.library.ansatzes import UCC, UCCSD
+from qiskit_nature.circuit.library.initial_states import HartreeFock
+from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
 from qiskit_nature.problems.second_quantization.molecular.fermionic_op_builder import \
@@ -38,19 +44,18 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        try:
-            self.driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                                      unit=UnitsType.ANGSTROM,
-                                      charge=0,
-                                      spin=0,
-                                      basis='sto3g')
-        except QiskitNatureError:
-            self.skipTest('PYSCF driver does not appear to be installed')
+        self.driver = HDF5Driver(self.get_resource_path('test_driver_hdf5.hdf5',
+                                                        'drivers/hdf5d'))
+        self.seed = 700
+        algorithm_globals.random_seed = self.seed
 
-        self.reference_energy = -1.137306
+        self.reference_energy = -1.1373060356951838
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.molecular_problem = MolecularProblem(self.driver)
+
+        self.num_spin_orbitals = 4
+        self.num_particles = (1, 1)
 
     def test_npme(self):
         """ Test NumPyMinimumEigensolver """
@@ -199,6 +204,123 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         for name, expected in expected_results.items():
             self.assertAlmostEqual(add_aux_op_res[name][0].real, expected, places=6)
         self.assertIsNone(add_aux_op_res['None'])
+
+    def _prepare_uccsd_hf(self, qubit_converter):
+        initial_state = HartreeFock(self.num_spin_orbitals,
+                                    self.num_particles,
+                                    qubit_converter)
+        var_form = UCCSD(qubit_converter,
+                         self.num_particles,
+                         self.num_spin_orbitals,
+                         initial_state=initial_state)
+
+        return var_form
+
+    def test_uccsd_hf(self):
+        """ uccsd hf test """
+        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+
+        optimizer = SLSQP(maxiter=100)
+        backend = BasicAer.get_backend('statevector_simulator')
+        solver = VQE(var_form=var_form, optimizer=optimizer,
+                     quantum_instance=QuantumInstance(backend=backend))
+
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+
+        result = gsc.solve(self.molecular_problem)
+
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
+
+    @slow_test
+    def test_uccsd_hf_qasm(self):
+        """ uccsd hf test with qasm_simulator. """
+        qubit_converter = QubitConverter(ParityMapper())
+        var_form = self._prepare_uccsd_hf(qubit_converter)
+
+        backend = BasicAer.get_backend('qasm_simulator')
+
+        optimizer = SPSA(maxiter=200, last_avg=5)
+        solver = VQE(var_form=var_form, optimizer=optimizer,
+                     expectation=PauliExpectation(),
+                     quantum_instance=QuantumInstance(
+                         backend=backend,
+                         seed_simulator=algorithm_globals.random_seed,
+                         seed_transpiler=algorithm_globals.random_seed))
+
+        gsc = GroundStateEigensolver(qubit_converter, solver)
+
+        result = gsc.solve(self.molecular_problem)
+        self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
+
+    def test_uccsd_hf_aer_statevector(self):
+        """ uccsd hf test with Aer statevector """
+        try:
+            # pylint: disable=import-outside-toplevel
+            from qiskit import Aer
+            backend = Aer.get_backend('statevector_simulator')
+        except ImportError as ex:  # pylint: disable=broad-except
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            return
+
+        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+
+        optimizer = SLSQP(maxiter=100)
+        solver = VQE(var_form=var_form, optimizer=optimizer,
+                     quantum_instance=QuantumInstance(backend=backend))
+
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+
+        result = gsc.solve(self.molecular_problem)
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
+
+    @slow_test
+    def test_uccsd_hf_aer_qasm(self):
+        """ uccsd hf test with Aer qasm_simulator. """
+        try:
+            # pylint: disable=import-outside-toplevel
+            from qiskit import Aer
+            backend = Aer.get_backend('qasm_simulator')
+        except ImportError as ex:  # pylint: disable=broad-except
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            return
+
+        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+
+        optimizer = SPSA(maxiter=200, last_avg=5)
+        solver = VQE(var_form=var_form, optimizer=optimizer,
+                     expectation=PauliExpectation(),
+                     quantum_instance=QuantumInstance(
+                         backend=backend,
+                         seed_simulator=algorithm_globals.random_seed,
+                         seed_transpiler=algorithm_globals.random_seed))
+
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+
+        result = gsc.solve(self.molecular_problem)
+        self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
+
+    @slow_test
+    def test_uccsd_hf_aer_qasm_snapshot(self):
+        """ uccsd hf test with Aer qasm_simulator snapshot. """
+        try:
+            # pylint: disable=import-outside-toplevel
+            from qiskit import Aer
+            backend = Aer.get_backend('qasm_simulator')
+        except ImportError as ex:  # pylint: disable=broad-except
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            return
+
+        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+
+        optimizer = SPSA(maxiter=200, last_avg=5)
+        solver = VQE(var_form=var_form, optimizer=optimizer,
+                     expectation=AerPauliExpectation(),
+                     quantum_instance=QuantumInstance(backend=backend))
+
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+
+        result = gsc.solve(self.molecular_problem)
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=3)
 
 
 if __name__ == '__main__':
