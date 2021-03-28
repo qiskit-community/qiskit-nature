@@ -50,7 +50,6 @@ class BaseProblem(ABC):
         """Returns the raw transformed molecule data object."""
         return self._molecule_data_transformed
 
-
     @abstractmethod
     def second_q_ops(self):
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations

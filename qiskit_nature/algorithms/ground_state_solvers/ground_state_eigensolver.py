@@ -44,7 +44,6 @@ class GroundStateEigensolver(GroundStateSolver):
         """
         super().__init__(qubit_converter)
         self._solver = solver
-        self._untapered_qubit_ops = None
 
     @property
     def solver(self) -> Union[MinimumEigensolver, MinimumEigensolverFactory]:

@@ -73,10 +73,10 @@ class TestOOVQE(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=1)
         solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                                 optimizer=optimizer,
-                                 excitation_type='d',
-                                 same_spin_doubles=False,
-                                 method_doubles='pucc')
+                               optimizer=optimizer,
+                               excitation_type='d',
+                               same_spin_doubles=False,
+                               method_doubles='pucc')
 
         calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False,
                                       initial_point=self.initial_point1)
@@ -90,10 +90,10 @@ class TestOOVQE(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=3, rhobeg=0.01)
         solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                                 optimizer=optimizer,
-                                 excitation_type='d',
-                                 same_spin_doubles=False,
-                                 method_doubles='pucc')
+                               optimizer=optimizer,
+                               excitation_type='d',
+                               same_spin_doubles=False,
+                               method_doubles='pucc')
 
         calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False,
                                       initial_point=self.initial_point1)
@@ -106,10 +106,10 @@ class TestOOVQE(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
         solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                                 optimizer=optimizer,
-                                 excitation_type='d',
-                                 same_spin_doubles=False,
-                                 method_doubles='pucc')
+                               optimizer=optimizer,
+                               excitation_type='d',
+                               same_spin_doubles=False,
+                               method_doubles='pucc')
 
         calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=True,
                                       initial_point=self.initial_point1, iterative_oo_iterations=2)
@@ -122,10 +122,10 @@ class TestOOVQE(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=2, rhobeg=1)
         solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                                 optimizer=optimizer,
-                                 excitation_type='d',
-                                 same_spin_doubles=False,
-                                 method_doubles='pucc')
+                               optimizer=optimizer,
+                               excitation_type='d',
+                               same_spin_doubles=False,
+                               method_doubles='pucc')
 
         calc = OrbitalOptimizationVQE(self.transformation2, solver, iterative_oo=False)
 
@@ -139,10 +139,10 @@ class TestOOVQE(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
         solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                                 optimizer=optimizer,
-                                 excitation_type='d',
-                                 same_spin_doubles=False,
-                                 method_doubles='pucc')
+                               optimizer=optimizer,
+                               excitation_type='d',
+                               same_spin_doubles=False,
+                               method_doubles='pucc')
 
         calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False)
 
@@ -166,10 +166,10 @@ class TestOOVQE(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=3, rhobeg=0.01)
         solver_factory = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                                         optimizer=optimizer,
-                                         excitation_type='d',
-                                         same_spin_doubles=False,
-                                         method_doubles='pucc')
+                                       optimizer=optimizer,
+                                       excitation_type='d',
+                                       same_spin_doubles=False,
+                                       method_doubles='pucc')
         self.transformation1.transform(self.driver1)
         solver = solver_factory.get_solver(self.transformation1)
 

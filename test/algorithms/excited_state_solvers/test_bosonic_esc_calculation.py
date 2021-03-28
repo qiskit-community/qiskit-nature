@@ -47,7 +47,6 @@ class _DummyBosonicDriver(BaseDriver):
         return self._watson
 
 
-
 class TestBosonicESCCalculation(QiskitNatureTestCase):
     """ Test Numerical QEOM excited states calculation """
 
@@ -91,7 +90,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         """ Test with VQE plus UVCCSD """
         optimizer = COBYLA(maxiter=5000)
         solver = VQEUVCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')),
-                                  optimizer=optimizer)
+                                optimizer=optimizer)
         gsc = GroundStateEigensolver(self.transformation, solver)
         esc = QEOM(gsc, 'sd')
         results = esc.solve(self.driver)

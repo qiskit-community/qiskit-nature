@@ -85,7 +85,7 @@ def build_hopping_operators(qmolecule: QMolecule, qubit_converter: QubitConverte
     num_spin_orbitals = 2 * num_molecular_orbitals
 
     if isinstance(excitations, str):
-        ansatz = UCC(qubit_converter, [num_alpha, num_beta], num_spin_orbitals, excitations)
+        ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
         excitations_list = [list(itertools.chain.from_iterable(zip(*exc)))
                             for exc in ansatz._get_excitation_list()]
     else:
