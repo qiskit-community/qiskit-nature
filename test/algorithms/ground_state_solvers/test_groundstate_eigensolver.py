@@ -20,14 +20,16 @@ import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
+    (VQEUCCSDFactory, NumPyMinimumEigensolverFactory)
+from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
-from qiskit_nature import QiskitNatureError, FermionicOperator
-from qiskit_nature.drivers import PySCFDriver, UnitsType
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
-    (VQEUCCSDFactory, NumPyMinimumEigensolverFactory, )
+from qiskit_nature.problems.second_quantization.molecular.fermionic_op_builder import \
+        build_ferm_op_from_ints
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -79,11 +81,12 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = [FermionicOperator(h_1, h_2)]
+        aux_ops = [build_ferm_op_from_ints(h_1, h_2)]
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.molecular_problem)
-        assert all(a == b for a, b in zip(aux_ops, aux_ops_copy))
+        assert all(frozenset(a.to_list()) == frozenset(b.to_list())
+                   for a, b in zip(aux_ops, aux_ops_copy))
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
