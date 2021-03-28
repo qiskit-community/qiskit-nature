@@ -14,6 +14,8 @@
 import copy
 import unittest
 
+from typing import cast
+
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -25,7 +27,7 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
-from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.drivers import PySCFDriver, UnitsType, QMolecule
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
@@ -82,7 +84,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
             """A custom MESFactory"""
 
             def get_solver(self, problem, qubit_converter):
-                q_molecule_transformed = problem.q_molecule_transformed
+                q_molecule_transformed = cast(QMolecule, problem.molecule_data_transformed)
                 num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
                 num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
                 num_spin_orbitals = 2 * num_molecular_orbitals

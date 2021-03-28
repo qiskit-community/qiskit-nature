@@ -17,7 +17,7 @@ from typing import List, Optional, cast, Union, Callable
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 import numpy as np
 
-from qiskit_nature.drivers import FermionicDriver
+from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult, DipoleTuple
 from qiskit_nature.transformers import BaseTransformer
@@ -38,16 +38,8 @@ class MolecularProblem(BaseProblem):
             q_molecule_transformers: A list of transformations to be applied to the molecule.
         """
         super().__init__(driver, q_molecule_transformers)
-        self._q_molecule = None
-        self._q_molecule_transformed = None
-
-    @property
-    def q_molecule(self):
-        return self._q_molecule
-
-    @property
-    def q_molecule_transformed(self):
-        return self._q_molecule_transformed
+        self._molecule_data = None
+        self._molecule_data_transformed = None
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -59,9 +51,9 @@ class MolecularProblem(BaseProblem):
             operator, and (if available) x, y, z dipole operators.
         """
         q_molecule = self.driver.run()
-        self._q_molecule = q_molecule
+        self._molecule_data = q_molecule
         q_molecule_transformed = self._transform(q_molecule)
-        self._q_molecule_transformed = q_molecule_transformed
+        self._molecule_data_transformed = q_molecule_transformed
 
         electronic_fermionic_op = build_fermionic_op(q_molecule_transformed)
         second_quantized_ops_list = [electronic_fermionic_op] + create_all_aux_operators(q_molecule)
@@ -95,16 +87,19 @@ class MolecularProblem(BaseProblem):
             eigenstate_result.eigenstates = [raw_result.eigenstate]
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
 
+        q_molecule = cast(QMolecule, self._molecule_data)
+        q_molecule_transformed = cast(QMolecule, self._molecule_data_transformed)
+
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
-        result.hartree_fock_energy = self._q_molecule.hf_energy
-        result.nuclear_repulsion_energy = self._q_molecule.nuclear_repulsion_energy
-        if self._q_molecule.nuclear_dipole_moment is not None:
-            result.nuclear_dipole_moment = tuple(x for x in self._q_molecule.nuclear_dipole_moment)
-        result.ph_extracted_energy = self._q_molecule_transformed.energy_shift.get(
+        result.hartree_fock_energy = q_molecule.hf_energy
+        result.nuclear_repulsion_energy = q_molecule.nuclear_repulsion_energy
+        if q_molecule.nuclear_dipole_moment is not None:
+            result.nuclear_dipole_moment = tuple(x for x in q_molecule.nuclear_dipole_moment)
+        result.ph_extracted_energy = q_molecule_transformed.energy_shift.get(
             "ParticleHoleTransformer", 0)
-        result.frozen_extracted_energy = self._q_molecule_transformed.energy_shift.get(
+        result.frozen_extracted_energy = q_molecule_transformed.energy_shift.get(
             "FreezeCoreTransformer", 0)
         if result.aux_operator_eigenvalues is not None:
             # the first three values are hardcoded to number of particles, angular momentum
@@ -135,7 +130,7 @@ class MolecularProblem(BaseProblem):
 
                 # the next three are hardcoded to Dipole moments, if they are set
                 if len(
-                        aux_op_eigenvalues) >= 6 and self._q_molecule.has_dipole_integrals:
+                        aux_op_eigenvalues) >= 6 and q_molecule.has_dipole_integrals:
                     # check if the names match
                     # extract dipole moment in each axis
                     dipole_moment = []
@@ -145,23 +140,23 @@ class MolecularProblem(BaseProblem):
                         else:
                             dipole_moment += [None]
 
-                    result.reverse_dipole_sign = self._q_molecule.reverse_dipole_sign
+                    result.reverse_dipole_sign = q_molecule.reverse_dipole_sign
                     result.computed_dipole_moment.append(cast(DipoleTuple,
                                                               tuple(dipole_moment)))
                     result.ph_extracted_dipole_moment.append(
-                        (self._q_molecule_transformed.x_dip_energy_shift.get(
+                        (q_molecule_transformed.x_dip_energy_shift.get(
                             "ParticleHoleTransformer", 0),
-                         self._q_molecule_transformed.y_dip_energy_shift.get(
+                         q_molecule_transformed.y_dip_energy_shift.get(
                              "ParticleHoleTransformer", 0),
-                         self._q_molecule_transformed.z_dip_energy_shift.get(
+                         q_molecule_transformed.z_dip_energy_shift.get(
                              "ParticleHoleTransformer", 0)))
 
                     result.frozen_extracted_dipole_moment.append(
-                        (self._q_molecule_transformed.x_dip_energy_shift.get(
+                        (q_molecule_transformed.x_dip_energy_shift.get(
                             "FreezeCoreTransformer", 0),
-                         self._q_molecule_transformed.y_dip_energy_shift.get(
+                         q_molecule_transformed.y_dip_energy_shift.get(
                              "FreezeCoreTransformer", 0),
-                         self._q_molecule_transformed.z_dip_energy_shift.get(
+                         q_molecule_transformed.z_dip_energy_shift.get(
                              "FreezeCoreTransformer", 0)))
 
         return result
@@ -182,8 +177,9 @@ class MolecularProblem(BaseProblem):
             num_particles_aux = aux_values[0][0]
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
+            q_molecule_transformed = cast(QMolecule, self._molecule_data_transformed)
             return np.isclose(
-                self._q_molecule_transformed.num_alpha + self._q_molecule_transformed.num_beta,
+                q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
                 num_particles_aux) and np.isclose(0., total_angular_momentum_aux)
 
         return partial(filter_criterion, self)

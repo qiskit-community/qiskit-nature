@@ -12,7 +12,7 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Optional, Union, Callable
+from typing import Optional, Union, Callable, cast
 
 import numpy as np
 from qiskit.algorithms import MinimumEigensolver, VQE
@@ -24,6 +24,7 @@ from qiskit.utils import QuantumInstance
 
 from qiskit_nature.circuit.library.ansatzes import UCC, UCCSD
 from qiskit_nature.circuit.library.initial_states import HartreeFock
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -180,7 +181,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             A VQE suitable to compute the ground state of the molecule transformed
             by ``transformation``.
         """
-        q_molecule_transformed = problem.q_molecule_transformed
+        q_molecule_transformed = cast(QMolecule, problem.molecule_data_transformed)
         num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
         num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
         num_spin_orbitals = 2 * num_molecular_orbitals

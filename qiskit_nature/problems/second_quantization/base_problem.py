@@ -11,11 +11,13 @@
 # that they have been altered from the originals.
 # This code is part of Qiskit.
 """The Base Problem class."""
-import numpy as np
+
 from abc import ABC, abstractmethod
 from typing import List, Optional, Callable, Union
 
-from qiskit_nature.drivers import BaseDriver
+import numpy as np
+
+from qiskit_nature.drivers import BaseDriver, QMolecule, WatsonHamiltonian
 from qiskit_nature.transformers import BaseTransformer
 
 
@@ -34,6 +36,20 @@ class BaseProblem(ABC):
 
         self.driver = driver
         self.transformers = transformers or []
+
+        self._molecule_data: Union[QMolecule, WatsonHamiltonian] = None
+        self._molecule_data_transformed: Union[QMolecule, WatsonHamiltonian] = None
+
+    @property
+    def molecule_data(self) -> Union[QMolecule, WatsonHamiltonian]:
+        """Returns the raw molecule data object."""
+        return self._molecule_data
+
+    @property
+    def molecule_data_transformed(self) -> Union[QMolecule, WatsonHamiltonian]:
+        """Returns the raw transformed molecule data object."""
+        return self._molecule_data_transformed
+
 
     @abstractmethod
     def second_q_ops(self):
