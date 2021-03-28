@@ -81,7 +81,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         # note that ``aux_operators`` contains not only the transformed ``aux_operators`` passed
         # by the user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
-        qubit_ops = self._qubit_converter.to_qubit_ops(second_q_ops)
+        qubit_ops = self._qubit_converter.convert_match(second_q_ops)
 
         main_operator = qubit_ops[0]
         aux_operators = qubit_ops[1:]

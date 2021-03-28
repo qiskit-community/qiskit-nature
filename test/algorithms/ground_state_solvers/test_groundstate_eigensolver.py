@@ -93,7 +93,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        _, *aux_ops = self.qubit_converter.to_qubit_ops(self.molecular_problem.second_q_ops())
+        _, *aux_ops = self.qubit_converter.convert_match(self.molecular_problem.second_q_ops())
         return calc, res, aux_ops
 
     def test_eval_op_single(self):
