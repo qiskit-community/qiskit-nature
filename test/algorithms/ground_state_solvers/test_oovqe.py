@@ -24,8 +24,8 @@ from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.algorithms.ground_state_solvers import OrbitalOptimizationVQE
 from qiskit_nature.transformations import FermionicTransformation
 from qiskit_nature.transformations.fermionic_transformation import FermionicQubitMappingType
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories.\
-            vqe_uccsd_factory import VQEUCCSDFactory
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
+    VQEUCCFactory
 
 
 @unittest.skip("Skip test until refactored.")
@@ -72,7 +72,7 @@ class TestOOVQE(QiskitNatureTestCase):
         """ Test that orbital rotations are performed correctly. """
 
         optimizer = COBYLA(maxiter=1)
-        solver = VQEUCCSDFactory(quantum_instance=self.quantum_instance,
+        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
                                  optimizer=optimizer,
                                  excitation_type='d',
                                  same_spin_doubles=False,
@@ -89,7 +89,7 @@ class TestOOVQE(QiskitNatureTestCase):
         BasicAer's statevector_simulator. """
 
         optimizer = COBYLA(maxiter=3, rhobeg=0.01)
-        solver = VQEUCCSDFactory(quantum_instance=self.quantum_instance,
+        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
                                  optimizer=optimizer,
                                  excitation_type='d',
                                  same_spin_doubles=False,
@@ -105,7 +105,7 @@ class TestOOVQE(QiskitNatureTestCase):
         """ Test the iterative OOVQE using BasicAer's statevector_simulator. """
 
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
-        solver = VQEUCCSDFactory(quantum_instance=self.quantum_instance,
+        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
                                  optimizer=optimizer,
                                  excitation_type='d',
                                  same_spin_doubles=False,
@@ -121,7 +121,7 @@ class TestOOVQE(QiskitNatureTestCase):
         """ Test the OOVQE with frozen core approximation. """
 
         optimizer = COBYLA(maxiter=2, rhobeg=1)
-        solver = VQEUCCSDFactory(quantum_instance=self.quantum_instance,
+        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
                                  optimizer=optimizer,
                                  excitation_type='d',
                                  same_spin_doubles=False,
@@ -138,7 +138,7 @@ class TestOOVQE(QiskitNatureTestCase):
         """ Test the OOVQE with unrestricted HF method. """
 
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
-        solver = VQEUCCSDFactory(quantum_instance=self.quantum_instance,
+        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
                                  optimizer=optimizer,
                                  excitation_type='d',
                                  same_spin_doubles=False,
@@ -165,7 +165,7 @@ class TestOOVQE(QiskitNatureTestCase):
         """ Test the OOVQE with VQE + UCCSD instead of factory. """
 
         optimizer = COBYLA(maxiter=3, rhobeg=0.01)
-        solver_factory = VQEUCCSDFactory(quantum_instance=self.quantum_instance,
+        solver_factory = VQEUCCFactory(quantum_instance=self.quantum_instance,
                                          optimizer=optimizer,
                                          excitation_type='d',
                                          same_spin_doubles=False,

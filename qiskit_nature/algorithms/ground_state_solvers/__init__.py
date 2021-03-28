@@ -18,7 +18,7 @@ from .orbital_optimization_vqe import OrbitalOptimizationVQE
 from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import (MinimumEigensolverFactory,
                                             NumPyMinimumEigensolverFactory,
-                                            VQEUCCSDFactory,
+                                            VQEUCCFactory,
                                             VQEUVCCSDFactory)
 
 __all__ = ['GroundStateSolver',

@@ -15,20 +15,21 @@
 from typing import Optional, Union, Callable
 
 import numpy as np
-from qiskit.utils import QuantumInstance
 from qiskit.algorithms import MinimumEigensolver, VQE
+from qiskit.algorithms.optimizers import Optimizer
+from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
-from qiskit.algorithms.optimizers import Optimizer
+from qiskit.utils import QuantumInstance
 
-from qiskit_nature.circuit.library.ansatzes import UCCSD
+from qiskit_nature.circuit.library.ansatzes import UCC, UCCSD
 from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from ....problems.second_quantization.molecular.molecular_problem import MolecularProblem
+from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
-class VQEUCCSDFactory(MinimumEigensolverFactory):
+class VQEUCCFactory(MinimumEigensolverFactory):
     """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction."""
 
     def __init__(self,
@@ -38,10 +39,9 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
                  gradient: Optional[Union[GradientBase, Callable]] = None,
                  expectation: Optional[ExpectationBase] = None,
                  include_custom: bool = False,
-                 method_singles: str = 'both',
-                 method_doubles: str = 'ucc',
-                 excitation_type: str = 'sd',
-                 same_spin_doubles: bool = True) -> None:
+                 var_form: Optional[UCC] = None,
+                 initial_state: Optional[QuantumCircuit] = None,
+                 ) -> None:
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
@@ -62,26 +62,20 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
                 parameter here to ``True`` (defaults to ``False``).
             include_custom: When `expectation` parameter here is None setting this to ``True`` will
                 allow the factory to include the custom Aer pauli expectation.
-            method_singles: specify the single excitation considered. 'alpha', 'beta',
-                                'both' only alpha or beta spin-orbital single excitations or
-                                both (all of them).
-            method_doubles: specify the single excitation considered. 'ucc' (conventional
-                                ucc), succ (singlet ucc), succ_full (singlet ucc full),
-                                pucc (pair ucc).
-            excitation_type: specify the excitation type 'sd', 's', 'd' respectively
-                                for single and double, only single, only double excitations.
-            same_spin_doubles: enable double excitations of the same spin.
+            var_form: Allows specification of a custom :class:`~.UCC` instance. If this is never set
+                by the user, the factory will default to the :class:`~.UCCSD` Ansatz.
+            initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
+                initial state of the ansatz. If this is never set by the user, the factory will
+                default to the :class:`~.HartreeFock` state.
         """
-        self._quantum_instance = quantum_instance
-        self._optimizer = optimizer
-        self._initial_point = initial_point
-        self._gradient = gradient
-        self._expectation = expectation
-        self._include_custom = include_custom
-        self._method_singles = method_singles
-        self._method_doubles = method_doubles
-        self._excitation_type = excitation_type
-        self._same_spin_doubles = same_spin_doubles
+        self.quantum_instance = quantum_instance
+        self.optimizer = optimizer
+        self.initial_point = initial_point
+        self.gradient = gradient
+        self.expectation = expectation
+        self.include_custom = include_custom
+        self.var_form = var_form
+        self.initial_state = initial_state
         self._vqe = VQE(var_form=None,
                         quantum_instance=self._quantum_instance,
                         optimizer=self._optimizer,
@@ -151,44 +145,26 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
         self._include_custom = include_custom
 
     @property
-    def method_singles(self) -> str:
-        """Getter of the ``method_singles`` setting for the ``method_singles`` setting."""
-        return self._method_singles
+    def var_form(self) -> Optional[UCC]:
+        """Getter of the varitional form."""
+        return self._var_form
 
-    @method_singles.setter
-    def method_singles(self, method_singles: str) -> None:
-        """Setter of the ``method_singles`` setting for the ``method_singles`` setting."""
-        self._method_singles = method_singles
-
-    @property
-    def method_doubles(self) -> str:
-        """Getter of the ``method_doubles`` setting for the ``method_doubles`` setting."""
-        return self._method_doubles
-
-    @method_doubles.setter
-    def method_doubles(self, method_doubles: str) -> None:
-        """Setter of the ``method_doubles`` setting for the ``method_doubles`` setting."""
-        self._method_doubles = method_doubles
+    @var_form.setter
+    def var_form(self, var_form: Optional[UCC]) -> None:
+        """Setter of the variational form. If ``None`` is passed, this factory will default to using
+        the :class:`~.UCCSD` Ansatz."""
+        self._var_form = var_form
 
     @property
-    def excitation_type(self) -> str:
-        """Getter of the ``excitation_type`` setting for the ``excitation_type`` setting."""
-        return self._excitation_type
+    def initial_state(self) -> Optional[QuantumCircuit]:
+        """Getter of the initial state."""
+        return self._initial_state
 
-    @excitation_type.setter
-    def excitation_type(self, excitation_type: str) -> None:
-        """Setter of the ``excitation_type`` setting for the ``excitation_type`` setting."""
-        self._excitation_type = excitation_type
-
-    @property
-    def same_spin_doubles(self) -> bool:
-        """Getter of the ``same_spin_doubles`` setting for the ``same_spin_doubles`` setting."""
-        return self._same_spin_doubles
-
-    @same_spin_doubles.setter
-    def same_spin_doubles(self, same_spin_doubles: bool) -> None:
-        """Setter of the ``same_spin_doubles`` setting for the ``same_spin_doubles`` setting."""
-        self._same_spin_doubles = same_spin_doubles
+    @initial_state.setter
+    def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
+        """Setter of the initial state. If ``None`` is passed, this factory will default to using
+        the :class:`~.HartreeFock`."""
+        self._initial_state = initial_state
 
     def get_solver(self, problem: MolecularProblem,
                    qubit_converter: QubitConverter) -> MinimumEigensolver:
@@ -212,11 +188,18 @@ class VQEUCCSDFactory(MinimumEigensolverFactory):
         num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
         num_spin_orbitals = 2 * num_molecular_orbitals
 
-        initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
-        var_form = UCCSD(qubit_converter=qubit_converter,
-                         num_particles=num_particles,
-                         num_spin_orbitals=num_spin_orbitals,
-                         initial_state=initial_state)
+        initial_state = self.initial_state
+        if initial_state is None:
+            initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
+
+        var_form = self.var_form
+        if var_form is None:
+            var_form = UCCSD()
+        var_form.qubit_converter = qubit_converter
+        var_form.num_particles = num_particles
+        var_form.num_spin_orbitals = num_spin_orbitals
+        var_form.initial_state = initial_state
+
         self._vqe.var_form = var_form
 
         return self._vqe

@@ -21,9 +21,10 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.circuit.library.ansatzes import UCC
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
-    (VQEUCCSDFactory, NumPyMinimumEigensolverFactory)
+    (VQEUCCFactory, NumPyMinimumEigensolverFactory)
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -67,7 +68,17 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_uccsd(self):
         """ Test VQE UCCSD case """
-        solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        solver = VQEUCCFactory(
+                    quantum_instance=QuantumInstance(BasicAer.get_backend('statevector_simulator')),
+                    var_form=UCC(excitations='d'),
+                    )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.molecular_problem)
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_custom(self):
+        """ Test custom var_form in Factory use case """
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.molecular_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -90,7 +101,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
-        solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.molecular_problem)
 

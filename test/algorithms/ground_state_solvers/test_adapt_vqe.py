@@ -23,8 +23,8 @@ from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFactory
-from qiskit_nature.circuit.library import HartreeFock, UCCSD
+from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCFactory
+from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -55,7 +55,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
 
     def test_default(self):
         """ Default execution """
-        solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
@@ -63,7 +63,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
     def test_aux_ops_reusability(self):
         """ Test that the auxiliary operators can be reused """
         # Regression test against #1475
-        solver = VQEUCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
         calc = AdaptVQE(self.qubit_converter, solver)
 
         modes = 4
@@ -78,9 +78,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
 
     def test_custom_minimum_eigensolver(self):
         """ Test custom MES """
-        # Note: the VQEUCCSDFactory actually allows to specify an optimizer through its constructor.
-        # Thus, this example is quite far fetched but for a proof-of-principle test it still works.
-        class CustomFactory(VQEUCCSDFactory):
+        class CustomFactory(VQEUCCFactory):
             """A custom MESFactory"""
 
             def get_solver(self, problem, qubit_converter):
@@ -90,10 +88,11 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 num_spin_orbitals = 2 * num_molecular_orbitals
 
                 initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
-                var_form = UCCSD(qubit_converter=qubit_converter,
-                                 num_particles=num_particles,
-                                 num_spin_orbitals=num_spin_orbitals,
-                                 initial_state=initial_state)
+                var_form = UCC(qubit_converter=qubit_converter,
+                               num_particles=num_particles,
+                               num_spin_orbitals=num_spin_orbitals,
+                               excitations='d',
+                               initial_state=initial_state)
                 vqe = VQE(var_form=var_form, quantum_instance=self._quantum_instance,
                           optimizer=L_BFGS_B())
                 return vqe
@@ -107,7 +106,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
     def test_custom_excitation_pool(self):
         """ Test custom excitation pool """
 
-        class CustomFactory(VQEUCCSDFactory):
+        class CustomFactory(VQEUCCFactory):
             """A custom MES factory."""
 
             def get_solver(self, problem, qubit_converter):

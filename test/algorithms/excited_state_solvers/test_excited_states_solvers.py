@@ -26,7 +26,7 @@ from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.algorithms.ground_state_solvers import (GroundStateEigensolver,
-                                                           VQEUCCSDFactory, )
+                                                           VQEUCCFactory, )
 from qiskit_nature.algorithms.excited_states_solvers import (
     NumPyEigensolverFactory, ExcitedStatesEigensolver, QEOM,
 )
@@ -69,7 +69,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     def test_vqe_mes(self):
         """ Test VQEUCCSDFactory with QEOM """
-        solver = VQEUCCSDFactory(self.quantum_instance)
+        solver = VQEUCCFactory(self.quantum_instance)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
         results = esc.solve(self.molecular_problem)

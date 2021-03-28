@@ -20,7 +20,7 @@ from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit.opflow import TwoQubitReduction
 from qiskit_nature import FermionicOperator
-from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFactory
+from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCFactory
 from qiskit_nature.transformations import FermionicTransformation
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.components.variational_forms import UCCSD
@@ -79,7 +79,7 @@ class TestAdaptVQEUCCSD(QiskitNatureTestCase):
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
-        class CustomFactory(VQEUCCSDFactory):
+        class CustomFactory(VQEUCCFactory):
             """A custom MESFactory"""
 
             def get_solver(self, transformation):
