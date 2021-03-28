@@ -15,13 +15,14 @@
 from typing import Optional, Union, Callable
 import numpy as np
 
-from qiskit.utils import QuantumInstance
 from qiskit.algorithms import MinimumEigensolver, VQE
+from qiskit.algorithms.optimizers import Optimizer
+from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
-from qiskit.algorithms.optimizers import Optimizer
+from qiskit.utils import QuantumInstance
 from qiskit_nature.circuit.library import VSCF
-from qiskit_nature.circuit.library.ansatzes import UVCC
+from qiskit_nature.circuit.library.ansatzes import UVCC, UVCCSD
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
     VibrationalProblem
@@ -29,7 +30,7 @@ from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
-class VQEUVCCSDFactory(MinimumEigensolverFactory):
+class VQEUVCCFactory(MinimumEigensolverFactory):
     """A factory to construct a VQE minimum eigensolver with UVCCSD ansatz wavefunction."""
 
     def __init__(self,
@@ -38,7 +39,10 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
                  initial_point: Optional[np.ndarray] = None,
                  gradient: Optional[Union[GradientBase, Callable]] = None,
                  expectation: Optional[ExpectationBase] = None,
-                 include_custom: bool = False) -> None:
+                 include_custom: bool = False,
+                 var_form: Optional[UVCC] = None,
+                 initial_state: Optional[QuantumCircuit] = None,
+                 ) -> None:
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
@@ -59,6 +63,11 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
                 parameter here to ``True`` (defaults to ``False``).
             include_custom: When `expectation` parameter here is None setting this to ``True`` will
                 allow the factory to include the custom Aer pauli expectation.
+            var_form: Allows specification of a custom :class:`~.UVCC` instance. If this is never
+                set by the user, the factory will default to the :class:`~.UVCCSD` Ansatz.
+            initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
+                initial state of the ansatz. If this is never set by the user, the factory will
+                default to the :class:`~.VSCF` state.
         """
         self._quantum_instance = quantum_instance
         self._optimizer = optimizer
@@ -66,6 +75,15 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
         self._gradient = gradient
         self._expectation = expectation
         self._include_custom = include_custom
+        self.var_form = var_form
+        self.initial_state = initial_state
+        self._vqe = VQE(var_form=None,
+                        quantum_instance=self._quantum_instance,
+                        optimizer=self._optimizer,
+                        initial_point=self._initial_point,
+                        gradient=self._gradient,
+                        expectation=self._expectation,
+                        include_custom=self._include_custom)
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -127,37 +145,63 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
         """Setter of the ``include_custom`` setting for the ``expectation`` setting."""
         self._include_custom = include_custom
 
+    @property
+    def var_form(self) -> Optional[UVCC]:
+        """Getter of the varitional form."""
+        return self._var_form
+
+    @var_form.setter
+    def var_form(self, var_form: Optional[UVCC]) -> None:
+        """Setter of the variational form. If ``None`` is passed, this factory will default to using
+        the :class:`~.UVCCSD` Ansatz."""
+        self._var_form = var_form
+
+    @property
+    def initial_state(self) -> Optional[QuantumCircuit]:
+        """Getter of the initial state."""
+        return self._initial_state
+
+    @initial_state.setter
+    def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
+        """Setter of the initial state. If ``None`` is passed, this factory will default to using
+        the :class:`~.VSCF`."""
+        self._initial_state = initial_state
+
     def get_solver(self, problem: VibrationalProblem,
                    qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``BosonicTransformation``.
 
         Args:
-            transformation: a bosonic qubit operator transformation.
+            problem: a class encoding a problem to be solved.
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule transformed
             by ``transformation``.
         """
 
-        basis = transformation.basis
-        num_modes = transformation.num_modes
+        num_modals = problem.num_modals
+        num_modes = problem.watson_hamiltonian_transformed.num_modes
 
-        if isinstance(basis, int):
-            basis = [basis] * num_modes
+        if isinstance(num_modals, int):
+            num_modals = [num_modals] * num_modes
 
-        num_qubits = sum(basis)
+        initial_state = self.initial_state
+        if initial_state is None:
+            initial_state = VSCF(num_modals)
 
-        initial_state = VSCF(basis)
-        var_form = UVCC(num_qubits, basis, [0, 1], initial_state=initial_state)
-        vqe = VQE(var_form=var_form,
-                  quantum_instance=self._quantum_instance,
-                  optimizer=self._optimizer,
-                  initial_point=self._initial_point,
-                  gradient=self._gradient,
-                  expectation=self._expectation,
-                  include_custom=self._include_custom)
-        return vqe
+        var_form = self.var_form
+        if var_form is None:
+            var_form = UVCCSD()
+        var_form.qubit_converter = qubit_converter
+        var_form.num_modals = num_modals
+        var_form.initial_state = initial_state
+
+        self._vqe.var_form = var_form
+
+        return self._vqe
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()

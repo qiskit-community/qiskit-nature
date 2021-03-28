@@ -21,6 +21,7 @@ from .succd import SUCCD
 from .ucc import UCC
 from .uccsd import UCCSD
 from .uvcc import UVCC
+from .uvccsd import UVCCSD
 
 __all__ = [
     'CHC',
@@ -30,4 +31,5 @@ __all__ = [
     'UCC',
     'UCCSD',
     'UVCC',
+    'UVCCSD',
 ]

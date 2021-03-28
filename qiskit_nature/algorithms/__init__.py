@@ -114,7 +114,7 @@ from .excited_states_solvers import (ExcitedStatesEigensolver, ExcitedStatesSolv
 from .ground_state_solvers import (AdaptVQE, GroundStateEigensolver, GroundStateSolver,
                                    OrbitalOptimizationVQE, MinimumEigensolverFactory,
                                    NumPyMinimumEigensolverFactory, VQEUCCFactory,
-                                   VQEUVCCSDFactory)
+                                   VQEUVCCFactory)
 from .pes_samplers import BOPESSampler
 
 __all__ = [

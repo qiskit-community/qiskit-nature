@@ -22,7 +22,7 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature.drivers import BaseDriver, WatsonHamiltonian
 from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory,
-    VQEUVCCSDFactory
+    VQEUVCCFactory
 )
 from qiskit_nature.algorithms.excited_states_solvers import (
     QEOM, ExcitedStatesEigensolver, NumPyEigensolverFactory
@@ -90,7 +90,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
     def test_vqe_uvccsd_factory(self):
         """ Test with VQE plus UVCCSD """
         optimizer = COBYLA(maxiter=5000)
-        solver = VQEUVCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')),
+        solver = VQEUVCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')),
                                   optimizer=optimizer)
         gsc = GroundStateEigensolver(self.transformation, solver)
         esc = QEOM(gsc, 'sd')

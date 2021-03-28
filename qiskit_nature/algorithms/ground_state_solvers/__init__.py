@@ -19,7 +19,7 @@ from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import (MinimumEigensolverFactory,
                                             NumPyMinimumEigensolverFactory,
                                             VQEUCCFactory,
-                                            VQEUVCCSDFactory)
+                                            VQEUVCCFactory)
 
 __all__ = ['GroundStateSolver',
            'AdaptVQE',

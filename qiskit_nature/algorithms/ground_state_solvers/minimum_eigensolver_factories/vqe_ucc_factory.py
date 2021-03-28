@@ -179,9 +179,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Returns:
             A VQE suitable to compute the ground state of the molecule transformed
             by ``transformation``.
-
-        Raises:
-            QiskitNatureError: in case a Transformation of wrong type is given.
         """
         q_molecule_transformed = problem.q_molecule_transformed
         num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals

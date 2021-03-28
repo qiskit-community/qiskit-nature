@@ -36,6 +36,14 @@ class VibrationalProblem(BaseProblem):
         self.num_modals = num_modals
         self.truncation_order = truncation_order
 
+    @property
+    def watson_hamiltonian(self):
+        return self._watson_hamiltonian
+
+    @property
+    def watson_hamiltonian_transformed(self):
+        return self._watson_hamiltonian_transformed
+
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
@@ -43,9 +51,9 @@ class VibrationalProblem(BaseProblem):
         Returns:
             A list of `SecondQuantizedOp` in the following order: ... .
         """
-        watson_hamiltonian = self.driver.run()
-        watson_hamiltonian_transformed = self._transform(watson_hamiltonian)
-        vibrational_spin_op = build_vibrational_op(watson_hamiltonian_transformed,
+        self._watson_hamiltonian = self.driver.run()
+        self._watson_hamiltonian_transformed = self._transform(self._watson_hamiltonian)
+        vibrational_spin_op = build_vibrational_op(self._watson_hamiltonian_transformed,
                                                    self.num_modals,
                                                    self.truncation_order)
 
