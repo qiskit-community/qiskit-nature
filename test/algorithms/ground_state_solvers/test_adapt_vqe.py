@@ -22,13 +22,15 @@ from qiskit.providers.basicaer import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
-from qiskit_nature import QiskitNatureError, FermionicOperator
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCSDFactory
 from qiskit_nature.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
+from qiskit_nature.problems.second_quantization.molecular.fermionic_op_builder import \
+        build_ferm_op_from_ints
 
 
 class TestAdaptVQE(QiskitNatureTestCase):
@@ -67,11 +69,12 @@ class TestAdaptVQE(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = [FermionicOperator(h_1, h_2)]
+        aux_ops = [build_ferm_op_from_ints(h_1, h_2)]
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.problem)
-        assert all(a == b for a, b in zip(aux_ops, aux_ops_copy))
+        assert all(frozenset(a.to_list()) == frozenset(b.to_list())
+                   for a, b in zip(aux_ops, aux_ops_copy))
 
     def test_custom_minimum_eigensolver(self):
         """ Test custom MES """
