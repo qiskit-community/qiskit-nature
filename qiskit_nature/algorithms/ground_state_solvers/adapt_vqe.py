@@ -149,7 +149,7 @@ class AdaptVQE(GroundStateEigensolver):
             criterion, and the final maximum gradient.
         """
         second_q_ops = problem.second_q_ops()
-        qubit_ops = self._qubit_converter.to_qubit_ops(second_q_ops)
+        qubit_ops = self._qubit_converter.convert_match(second_q_ops)
 
         self._main_operator = qubit_ops[0]
         aux_ops = qubit_ops[1:]

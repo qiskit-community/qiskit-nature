@@ -21,8 +21,10 @@ from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.algorithms.optimizers import Optimizer
 from qiskit_nature.circuit.library import VSCF
-from qiskit_nature.components.variational_forms import UVCC
-from qiskit_nature.transformations import BosonicTransformation
+from qiskit_nature.circuit.library.ansatzes import UVCC
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
+    VibrationalProblem
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -125,9 +127,8 @@ class VQEUVCCSDFactory(MinimumEigensolverFactory):
         """Setter of the ``include_custom`` setting for the ``expectation`` setting."""
         self._include_custom = include_custom
 
-    def get_solver(self,   # type: ignore
-                   transformation: BosonicTransformation) \
-            -> MinimumEigensolver:
+    def get_solver(self, problem: VibrationalProblem,
+                   qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``BosonicTransformation``.
 

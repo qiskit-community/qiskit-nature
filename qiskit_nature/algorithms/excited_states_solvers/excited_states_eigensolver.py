@@ -18,7 +18,7 @@ from typing import List, Union, Optional, Any
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature import FermionicOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import (EigenstateResult,
                                    ElectronicStructureResult,
                                    VibronicStructureResult, )
@@ -73,7 +73,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
             structure or bosonic result.
         """
         if aux_operators is not None:
-            if any(not isinstance(op, (PauliSumOp, FermionicOperator))
+            if any(not isinstance(op, (PauliSumOp, SecondQuantizedOp))
                    for op in aux_operators):
                 raise NotImplementedError('Currently only fermionic problems are supported.')
 

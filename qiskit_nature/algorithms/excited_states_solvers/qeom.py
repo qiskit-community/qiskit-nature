@@ -26,7 +26,7 @@ from qiskit.algorithms import AlgorithmResult
 from qiskit.opflow import (Z2Symmetries, anti_commutator, commutator,
                            double_commutator, PauliSumOp, )
 
-from qiskit_nature import FermionicOperator, BosonicOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import (ElectronicStructureResult, VibronicStructureResult,
                                    EigenstateResult, )
 from .excited_states_solver import ExcitedStatesSolver
@@ -70,8 +70,7 @@ class QEOM(ExcitedStatesSolver):
         self._excitations = excitations
 
     def solve(self, problem: BaseProblem,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None
+              aux_operators: Optional[List[SecondQuantizedOp]] = None
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Run the excited-states calculation.
 

@@ -128,16 +128,6 @@ Chemistry Error
 
    QiskitNatureError
 
-Chemistry Classes
-=================
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   BosonicOperator
-   FermionicOperator
-
 Submodules
 ==========
 
@@ -145,11 +135,9 @@ Submodules
    :toctree:
 
    algorithms
-   components
    drivers
    operators
    results
-   transformations
 
 """
 
@@ -157,12 +145,8 @@ Submodules
 
 # TODO: update imports
 
-from .bosonic_operator import BosonicOperator
 from .exceptions import QiskitNatureError
-from .fermionic_operator import FermionicOperator
 
 __all__ = [
     'QiskitNatureError',
-    'BosonicOperator',
-    'FermionicOperator',
 ]

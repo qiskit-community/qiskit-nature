@@ -15,7 +15,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
-from qiskit_nature import FermionicOperator, BosonicOperator
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult, VibronicStructureResult
 
@@ -25,8 +25,7 @@ class ExcitedStatesSolver(ABC):
 
     @abstractmethod
     def solve(self, problem: BaseProblem,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None
+              aux_operators: Optional[List[SecondQuantizedOp]] = None
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 

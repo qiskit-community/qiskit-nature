@@ -24,15 +24,13 @@ from scipy.linalg import expm
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.drivers.qmolecule import QMolecule
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.circuit.library.ansatzes import UCCSD
 from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
-from ...bosonic_operator import BosonicOperator
-from ...components.variational_forms import UCCSD
 from ...drivers.base_driver import BaseDriver
 from ...drivers.fermionic_driver import FermionicDriver
-from ...fermionic_operator import FermionicOperator
 from ...results.electronic_structure_result import ElectronicStructureResult
-from ...transformations.fermionic_transformation import FermionicTransformation
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +55,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
     """
 
     def __init__(self,
-                 transformation: FermionicTransformation,
+                 transformation: "FermionicTransformation",
                  solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
                  initial_point: Optional[np.ndarray] = None,
                  orbital_rotation: Optional['OrbitalRotation'] = None,
@@ -91,10 +89,10 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         """
 
         super().__init__(transformation, solver)
-        if not isinstance(self._transformation, FermionicTransformation):
+        if not isinstance(self._transformation, "FermionicTransformation"):
             raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
-        from typing import cast
-        self._transformation = cast(FermionicTransformation, self._transformation)
+        # from typing import cast
+        # self._transformation = cast(FermionicTransformation, self._transformation)
 
         self.initial_point = initial_point
         self._orbital_rotation = orbital_rotation
@@ -121,7 +119,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
     def _set_operator_and_vqe(self, driver: BaseDriver):
         """ Initializes the operators using provided driver of qmolecule."""
 
-        if not isinstance(self._transformation, FermionicTransformation):
+        if not isinstance(self._transformation, "FermionicTransformation"):
             raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
         if not isinstance(driver, FermionicDriver):
             raise QiskitNatureError('OrbitalOptimizationVQE only works with Fermionic Drivers.')
@@ -184,7 +182,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
     def _initialize_additional_parameters(self, driver: BaseDriver):
         """ Initializes additional parameters of the OOVQE algorithm. """
 
-        if not isinstance(self._transformation, FermionicTransformation):
+        if not isinstance(self._transformation, "FermionicTransformation"):
             raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
 
         self._set_operator_and_vqe(driver)
@@ -228,7 +226,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                        orbital_rotation keyword argument
         """
 
-        if not isinstance(self._transformation, FermionicTransformation):
+        if not isinstance(self._transformation, "FermionicTransformation"):
             raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
 
         # slice parameter lists
@@ -270,13 +268,12 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
     def solve(self,
               driver: BaseDriver,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None) \
+              aux_operators: Optional[List[SecondQuantizedOp]] = None) \
             -> ElectronicStructureResult:
 
         self._initialize_additional_parameters(driver)
 
-        if not isinstance(self._transformation, FermionicTransformation):
+        if not isinstance(self._transformation, "FermionicTransformation"):
             raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
 
         self._vqe._eval_count = 0
@@ -438,7 +435,7 @@ class OrbitalRotation:
 
     def __init__(self,
                  num_qubits: int,
-                 transformation: FermionicTransformation,
+                 transformation: "FermionicTransformation",
                  qmolecule: Optional[QMolecule] = None,
                  orbital_rotations: list = None,
                  orbital_rotations_beta: list = None,
