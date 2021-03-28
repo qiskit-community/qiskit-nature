@@ -28,13 +28,11 @@ Variational Forms
 
    UCCSD
    UVCC
-   CHC
 
 """
 # TODO: to be removed (#66)
 
 from .uccsd import UCCSD
 from .uvcc import UVCC
-from .chc import CHC
 
-__all__ = ['UCCSD', 'UVCC', 'CHC']
+__all__ = ['UCCSD', 'UVCC']

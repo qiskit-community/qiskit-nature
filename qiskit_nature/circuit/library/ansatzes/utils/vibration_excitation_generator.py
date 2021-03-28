@@ -15,20 +15,17 @@ must be called for each type of excitation (singles, doubles, etc.) that is to b
 Ansatz.
 """
 
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Tuple
 
 import itertools
 import logging
 import operator
 
-from qiskit_nature import QiskitNatureError
-
 logger = logging.getLogger(__name__)
 
 
 def generate_vibration_excitations(num_excitations: int,
-                                   num_modes: int,
-                                   num_modals: Union[int, List[int]],
+                                   num_modals: List[int],
                                    ) -> List[Tuple[Tuple[Any, ...], ...]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
@@ -37,25 +34,13 @@ def generate_vibration_excitations(num_excitations: int,
 
     Args:
         num_excitations: number of excitations per operator (1 means single excitations, etc.).
-        num_modes: number of modes.
-        num_modals: the number of modals per mode. If this is a single integer, the same number of
-                    modals will be used for all modes.
-
-    Raises:
-        QiskitNatureError: if `isinstance(num_modals, list) && len(num_modals) != num_modes`.
+        num_modals: the number of modals per mode.
 
     Returns:
         The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
         tuples. The first tuple contains the occupied spin orbital indices whereas the second one
         contains the indices of the unoccupied spin orbitals.
     """
-    if isinstance(num_modals, list) and len(num_modals) != num_modes:
-        raise QiskitNatureError(
-            'The length of `num_modals` must equal `num_modes`: ', str(num_modals), str(num_modes)
-        )
-    if isinstance(num_modals, int):
-        num_modals = [num_modals] * num_modes
-
     partial_sum_modals = list(itertools.accumulate(num_modals, operator.add))
 
     # First, we construct the list of single excitations:

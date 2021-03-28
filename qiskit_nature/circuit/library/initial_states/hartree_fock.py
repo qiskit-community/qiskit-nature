@@ -13,7 +13,7 @@
 """Hartree-Fock initial state."""
 
 from typing import List, Tuple
-import logging
+
 import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
@@ -22,24 +22,6 @@ from qiskit.utils.validation import validate_min
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-
-logger = logging.getLogger(__name__)
-
-# TODO: There are still some open questions on the exact design/implementation of this class, which
-# can only be resolved once we finalize the QubitConverter and implement the Z2 symmetry reduction
-# logic into there.
-# The reason being, that we would like to be able to use the HF bit-string as an indicator of the Z2
-# symmetry sector in which the ground state lies. In the past, this is what hartree_fock_bitstring
-# was used for, but as of now, it does not support that.
-# If we want to support that, we must be able to use the QubitConverter in such a way that it
-# performs the mapping as well as the two_qubit_reduction (if specified) but not the tapering, when
-# trying to find the sector of the ground state.
-# However, when actually constructing the initial state to be used in a circuit, the symmetry
-# reductions need to be applied.
-#
-# We are leaving the exact implementation of this open for now, because the final API of the
-# QubitConverter is not clear yet. As of now, this implementation works as intended for all
-# purposes, because Z2 symmetries are not yet supported by the QubitConverter at all, anyways.
 
 
 class HartreeFock(QuantumCircuit):

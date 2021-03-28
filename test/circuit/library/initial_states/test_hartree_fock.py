@@ -17,6 +17,8 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit.opflow.primitive_ops.tapered_pauli_sum_op import Z2Symmetries
+from qiskit.quantum_info.operators.symplectic import Pauli
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
 from qiskit_nature.mappers.second_quantization import (BravyiKitaevMapper, JordanWignerMapper,
@@ -64,18 +66,28 @@ class TestHartreeFock(QiskitNatureTestCase):
         ref.x([0, 1, 2])
         self.assertEqual(state, ref)
 
-    @unittest.skip('Missing symmetry reduction code in QubitConverter')
     def test_qubits_2_py_h2(self):
         """ qubits 2 py h2 test """
-        state = HartreeFock(4, (1, 1), QubitConverter(ParityMapper()))
+        num_particles = (1, 1)
+        converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
+        converter.force_match(num_particles=num_particles)
+        state = HartreeFock(4, num_particles, converter)
         ref = QuantumCircuit(2)
         ref.x(0)
         self.assertEqual(state, ref)
 
-    @unittest.skip('Missing symmetry reduction code in QubitConverter')
     def test_qubits_6_py_lih(self):
         """ qubits 6 py lih test """
-        state = HartreeFock(10, (1, 1), QubitConverter(ParityMapper()))
+        num_particles = (1, 1)
+        converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
+        z2symmetries = Z2Symmetries(
+            symmetries=[Pauli('ZIZIZIZI'), Pauli('ZZIIZZII')],
+            sq_paulis=[Pauli('IIIIIIXI'), Pauli('IIIIIXII')],
+            sq_list=[2, 3],
+            tapering_values=[1, 1],
+        )
+        converter.force_match(num_particles=num_particles, z2symmetries=z2symmetries)
+        state = HartreeFock(10, num_particles, converter)
         ref = QuantumCircuit(6)
         ref.x([0, 1])
         self.assertEqual(state, ref)

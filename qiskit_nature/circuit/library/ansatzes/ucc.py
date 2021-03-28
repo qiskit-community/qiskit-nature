@@ -132,7 +132,7 @@ class UCC(EvolvedOperatorAnsatz):
                   take the following __keyword__ arguments:
                       - `num_spin_orbitals`: the same as above
                       - `num_particles`: the same as above
-                  and must return a `List[SecondQuantizedOp]`.
+                  and must return a `List[Tuple[Tuple[Any, ...], ...]]`.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
             max_spin_excitation: the largest number of excitations within a spin. E.g. you can set

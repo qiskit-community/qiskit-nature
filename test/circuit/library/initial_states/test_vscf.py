@@ -27,12 +27,12 @@ class TestVSCF(QiskitNatureTestCase):
     def test_bitstring(self):
         """Test the vscf_bitstring method."""
         bitstr = vscf_bitstring([2, 2])
-        self.assertTrue(all(bitstr[::-1] == np.array([True, False, True, False])))  # big endian
+        self.assertTrue(all(bitstr == np.array([True, False, True, False])))  # big endian
 
     def test_qubits_4(self):
         """Test 2 modes 2 modals."""
-        basis = [2, 2]
-        vscf = VSCF(basis)
+        num_modals = [2, 2]
+        vscf = VSCF(num_modals)
         ref = QuantumCircuit(4)
         ref.x([0, 2])
 
@@ -40,8 +40,8 @@ class TestVSCF(QiskitNatureTestCase):
 
     def test_qubits_5(self):
         """Test 2 modes 2 modals for the first mode and 3 modals for the second."""
-        basis = [2, 3]
-        vscf = VSCF(basis)
+        num_modals = [2, 3]
+        vscf = VSCF(num_modals)
         ref = QuantumCircuit(5)
         ref.x([0, 2])
 

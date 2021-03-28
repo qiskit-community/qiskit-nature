@@ -145,6 +145,9 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
             # not start from a random point. Thus, we return an all-zero initial point for the
             # optimizer which is used (unless it gets overwritten by a higher-priority setting at
             # runtime of the VQE).
+            # However, in order to determine the correct length, we must build the QuantumCircuit
+            # first, because otherwise the operators may not be set yet.
+            self._build()
             return np.zeros(self.reps * len(self.operators), dtype=float)
 
     def _build(self):
