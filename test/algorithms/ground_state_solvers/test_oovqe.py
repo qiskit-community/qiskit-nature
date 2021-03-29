@@ -14,19 +14,26 @@
 import unittest
 from test import QiskitNatureTestCase
 
+from typing import cast
+from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
+from qiskit_nature.transformers import FreezeCoreTransformer
 from qiskit.providers.basicaer import BasicAer
 from qiskit.circuit.library import RealAmplitudes
+from qiskit_nature.circuit.library.ansatzes import PUCCD
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers import HDF5Driver, QMolecule
 from qiskit_nature.algorithms.ground_state_solvers import OrbitalOptimizationVQE
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
     VQEUCCFactory
 
 
-@unittest.skip("Skip test until refactored.")
+@unittest.skip("Skip OOVQE test until refactored.")
 class TestOOVQE(QiskitNatureTestCase):
     """ Test OOVQE Ground State Calculation. """
 
@@ -43,6 +50,12 @@ class TestOOVQE(QiskitNatureTestCase):
             hdf5_input=self.get_resource_path('test_oovqe_h4_uhf.hdf5',
                                               'algorithms/ground_state_solvers'))
 
+        self.qubit_converter = QubitConverter(JordanWignerMapper())
+
+        self.molecular_problem1 = MolecularProblem(self.driver1)
+        self.molecular_problem2 = MolecularProblem(self.driver2, [FreezeCoreTransformer()])
+        self.molecular_problem3 = MolecularProblem(self.driver3)
+
         self.energy1_rotation = -3.0104
         self.energy1 = -2.77  # energy of the VQE with pUCCD ansatz and LBFGSB optimizer
         self.energy2 = -7.70
@@ -51,16 +64,7 @@ class TestOOVQE(QiskitNatureTestCase):
                                -0.04134567, 0.04944946, -0.02971617, -0.00374005, 0.77542149]
 
         self.seed = 50
-
         self.optimizer = COBYLA(maxiter=1)
-        self.transformation1 = \
-            FermionicTransformation(qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER,
-                                    two_qubit_reduction=False)
-        self.transformation2 = \
-            FermionicTransformation(qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER,
-                                    two_qubit_reduction=False,
-                                    freeze_core=True)
-
         self.quantum_instance = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
                                                 shots=1,
                                                 seed_simulator=self.seed,
@@ -70,112 +74,126 @@ class TestOOVQE(QiskitNatureTestCase):
         """ Test that orbital rotations are performed correctly. """
 
         optimizer = COBYLA(maxiter=1)
-        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                               optimizer=optimizer,
-                               excitation_type='d',
-                               same_spin_doubles=False,
-                               method_doubles='pucc')
-
-        calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False,
+        solver = VQEUCCFactory(
+                    optimizer=optimizer,
+                    quantum_instance=self.quantum_instance,
+                    var_form=PUCCD(),
+                    )
+        oovqe = OrbitalOptimizationVQE(self.molecular_problem1, self.qubit_converter, solver,
+                                       iterative_oo=False,
                                       initial_point=self.initial_point1)
+        result = oovqe.solve(self.molecular_problem1)
 
-        algo_result = calc.solve(self.driver1)
-        self.assertAlmostEqual(algo_result.computed_electronic_energy, self.energy1_rotation, 4)
+        self.assertAlmostEqual(result.eigenenergies[0], self.energy1_rotation, 4)
 
     def test_oovqe(self):
         """ Test the simultaneous optimization of orbitals and ansatz parameters with OOVQE using
         BasicAer's statevector_simulator. """
 
         optimizer = COBYLA(maxiter=3, rhobeg=0.01)
-        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                               optimizer=optimizer,
-                               excitation_type='d',
-                               same_spin_doubles=False,
-                               method_doubles='pucc')
-
-        calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False,
+        solver = VQEUCCFactory(
+                    optimizer=optimizer,
+                    quantum_instance=self.quantum_instance,
+                    var_form=PUCCD(),
+                    )
+        oovqe = OrbitalOptimizationVQE(self.molecular_problem1, self.qubit_converter, solver,
+                                       iterative_oo=False,
                                       initial_point=self.initial_point1)
+        result = oovqe.solve(self.molecular_problem1)
 
-        algo_result = calc.solve(self.driver1)
-        self.assertLessEqual(algo_result.computed_electronic_energy, self.energy1, 4)
+        self.assertLessEqual(result.eigenenergies[0], self.energy1, 4)
 
     def test_iterative_oovqe(self):
         """ Test the iterative OOVQE using BasicAer's statevector_simulator. """
 
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
-        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                               optimizer=optimizer,
-                               excitation_type='d',
-                               same_spin_doubles=False,
-                               method_doubles='pucc')
+        solver = VQEUCCFactory(
+                    optimizer=optimizer,
+                    quantum_instance=self.quantum_instance,
+                    var_form=PUCCD(),
+                    )
+        oovqe = OrbitalOptimizationVQE(self.molecular_problem1, self.qubit_converter, solver,
+                                       iterative_oo=True,
+                                       iterative_oo_iterations=2,
+                                       initial_point=self.initial_point1)
+        result = oovqe.solve(self.molecular_problem1)
 
-        calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=True,
-                                      initial_point=self.initial_point1, iterative_oo_iterations=2)
-
-        algo_result = calc.solve(self.driver1)
-        self.assertLessEqual(algo_result.computed_electronic_energy, self.energy1)
+        self.assertLessEqual(result.eigenenergies[0], self.energy1)
 
     def test_oovqe_with_frozen_core(self):
         """ Test the OOVQE with frozen core approximation. """
 
         optimizer = COBYLA(maxiter=2, rhobeg=1)
-        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                               optimizer=optimizer,
-                               excitation_type='d',
-                               same_spin_doubles=False,
-                               method_doubles='pucc')
 
-        calc = OrbitalOptimizationVQE(self.transformation2, solver, iterative_oo=False)
+        solver = VQEUCCFactory(
+                    optimizer=optimizer,
+                    quantum_instance=self.quantum_instance,
+                    var_form=PUCCD(),
+                    )
+        oovqe = OrbitalOptimizationVQE(self.molecular_problem2, self.qubit_converter, solver,
+                                       iterative_oo=False,
+                                       initial_point=self.initial_point1)
+        result = oovqe.solve(self.molecular_problem2)
+        q_molecule_transformed = cast(QMolecule, self.molecular_problem2.molecule_data_transformed)
 
-        algo_result = calc.solve(self.driver2)
-        self.assertLessEqual(algo_result.computed_electronic_energy +
-                             self.transformation2._energy_shift +
-                             self.transformation2._nuclear_repulsion_energy, self.energy2)
+        self.assertLessEqual(result.eigenenergies[0] +
+                             q_molecule_transformed.nuclear_repulsion_energy, self.energy2)
 
     def test_oovqe_with_unrestricted_hf(self):
         """ Test the OOVQE with unrestricted HF method. """
 
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
-        solver = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                               optimizer=optimizer,
-                               excitation_type='d',
-                               same_spin_doubles=False,
-                               method_doubles='pucc')
+        solver = VQEUCCFactory(
+                    optimizer=optimizer,
+                    quantum_instance=self.quantum_instance,
+                    var_form=PUCCD(),
+                    )
+        oovqe = OrbitalOptimizationVQE(self.molecular_problem3, self.qubit_converter, solver,
+                                       iterative_oo=False,
+                                       initial_point=self.initial_point1)
+        result = oovqe.solve(self.molecular_problem3)
 
-        calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False)
-
-        algo_result = calc.solve(self.driver3)
-        self.assertLessEqual(algo_result.computed_electronic_energy, self.energy3)
+        self.assertLessEqual(result.eigenenergies, self.energy3)
 
     def test_oovqe_with_unsupported_varform(self):
         """ Test the OOVQE with unsupported varform. """
 
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
-        solver = VQE(var_form=RealAmplitudes(), optimizer=optimizer,
+        var_form = RealAmplitudes(num_qubits=self.num_spin_orbitals)
+        solver = VQE(var_form=var_form, optimizer=optimizer,
                      quantum_instance=self.quantum_instance)
-
-        calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False)
-
+        oovqe = OrbitalOptimizationVQE(self.molecular_problem3, self.qubit_converter, solver,
+                                       iterative_oo=False)
         with self.assertRaises(QiskitNatureError):
-            calc.solve(self.driver3)
+            oovqe.solve(self.driver3)
 
     def test_oovqe_with_vqe_uccsd(self):
         """ Test the OOVQE with VQE + UCCSD instead of factory. """
 
         optimizer = COBYLA(maxiter=3, rhobeg=0.01)
-        solver_factory = VQEUCCFactory(quantum_instance=self.quantum_instance,
-                                       optimizer=optimizer,
-                                       excitation_type='d',
-                                       same_spin_doubles=False,
-                                       method_doubles='pucc')
-        self.transformation1.transform(self.driver1)
-        solver = solver_factory.get_solver(self.transformation1)
+        q_molecule_transformed = cast(QMolecule, self.molecular_problem1.molecule_data_transformed)
+        num_spin_orbitals = 2 * q_molecule_transformed.num_molecular_orbitals
+        num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
+        initial_state = HartreeFock(num_spin_orbitals,
+                                    num_particles,
+                                    self.qubit_converter)
+        var_form = PUCCD(qubit_converter=self.qubit_converter,
+                         num_particles=num_particles,
+                         num_spin_orbitals=num_spin_orbitals,
+                         initial_state=initial_state)
+        solver = VQE(var_form=var_form,
+                     optimizer=optimizer,
+                     quantum_instance=self.quantum_instance,
+                     )
+        oovqe = OrbitalOptimizationVQE(self.molecular_problem1,
+                                       self.qubit_converter,
+                                       solver,
+                                       iterative_oo=False,
+                                       initial_point=self.initial_point1
+                                       )
+        result = oovqe.solve(self.molecular_problem1)
 
-        calc = OrbitalOptimizationVQE(self.transformation1, solver, iterative_oo=False,
-                                      initial_point=self.initial_point1)
-
-        algo_result = calc.solve(self.driver1)
-        self.assertLessEqual(algo_result.computed_electronic_energy, self.energy1, 4)
+        self.assertLessEqual(result.eigenenergies, self.energy1, 4)
 
 
 if __name__ == '__main__':
