@@ -45,8 +45,10 @@ class UVCC(EvolvedOperatorAnsatz):
     def __init__(self,
                  qubit_converter: Optional[QubitConverter] = None,
                  num_modals: Optional[List[int]] = None,
-                 excitations: Optional[Union[str, int, List[int], Callable[
-                     [int, Tuple[int, int]], List[Tuple[Tuple[Any, ...], ...]]]]] = None,
+                 excitations: Optional[Union[str, int, List[int],
+                                             Callable[[int, Tuple[int, int]],
+                                                      List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
+                                             ]] = None,
                  reps: int = 1,
                  initial_state: Optional[QuantumCircuit] = None):
         """
