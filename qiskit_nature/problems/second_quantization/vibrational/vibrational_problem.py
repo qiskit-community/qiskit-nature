@@ -80,6 +80,25 @@ class VibrationalProblem(BaseProblem):
                                        ] = 'sd',
                     ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
                                Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+        """Generates the hopping operators and their commutativity information for the specified set
+        of excitations.
+
+        Args:
+            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
+                             Z2 symmetries stored in this instance are the basis for the
+                             commutativity information returned by this method.
+            excitations: the types of excitations to consider. The simple cases for this input are:
+                - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
+                - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
+                - a list of positive integers.
+                - and finally a callable which can be used to specify a custom list of excitations.
+                  For more details on how to write such a function refer to the default method,
+                  :meth:`generate_vibrational_excitations`.
+
+        Returns:
+            A tuple containing the hopping operators, the types of commutativities and the
+            excitation indices.
+        """
 
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * self._molecule_data_transformed.num_modes

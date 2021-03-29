@@ -96,7 +96,7 @@ class AdaptVQE(GroundStateEigensolver):
             # set the current variational form
             vqe.var_form = self._var_form
             var_form_params = vqe.var_form._parameter_table.keys()
-            # construt the expectation operator of the VQE
+            # construct the expectation operator of the VQE
             vqe._expect_op = vqe.construct_expectation(var_form_params, self._main_operator)
             # evaluate energies
             parameter_sets = theta + [-self._delta] + theta + [self._delta]

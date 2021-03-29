@@ -147,7 +147,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     @property
     def var_form(self) -> Optional[UCC]:
-        """Getter of the varitional form."""
+        """Getter of the variational form."""
         return self._var_form
 
     @var_form.setter
