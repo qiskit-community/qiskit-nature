@@ -14,34 +14,45 @@
 A ground state calculation employing the Orbital-Optimized VQE (OOVQE) algorithm.
 """
 
-import copy
-import logging
 from typing import Optional, List, Union, Tuple, cast
 
+import copy
+import logging
+
 import numpy as np
-from qiskit.algorithms import VQE, MinimumEigensolver
+
 from scipy.linalg import expm
 
-from qiskit_nature.exceptions import QiskitNatureError
+from qiskit.algorithms import VQE, MinimumEigensolver
+
+from qiskit_nature.circuit.library.ansatzes import UCC
+from qiskit_nature.drivers.fermionic_driver import FermionicDriver
 from qiskit_nature.drivers.qmolecule import QMolecule
+from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.molecular.aux_fermionic_ops_builder import \
+    create_all_aux_operators
+from qiskit_nature.problems.second_quantization.molecular.fermionic_op_builder import \
+    build_fermionic_op
+from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
+from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
+from qiskit_nature.transformers.freeze_core_transformer import FreezeCoreTransformer
+
 from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
-from qiskit_nature.operators.second_quantization import VibrationalOp, FermionicOp
-from qiskit_nature.circuit.library.ansatzes import UCC
-
-from ...drivers.base_driver import BaseDriver
-from ...drivers.fermionic_driver import FermionicDriver
-from ...operators.second_quantization.qubit_converter import QubitConverter
-from ...problems.second_quantization.molecular.aux_fermionic_ops_builder import \
-    create_all_aux_operators
-from ...problems.second_quantization.molecular.fermionic_op_builder import build_fermionic_op
-from ...problems.second_quantization.molecular.molecular_problem import MolecularProblem
-from ...results.electronic_structure_result import ElectronicStructureResult
-from ...transformers.freeze_core_transformer import FreezeCoreTransformer
 
 logger = logging.getLogger(__name__)
 
 
+# TODO: ooVQE needs some refactoring before being able to be integrated into Nature.
+# These require (among other things) the following:
+#  - removal of `molecular_problem` from `__init__` (this will only be given to `solver()`
+#  - actual use of `MolecularProblem.second_q_ops()` rather than hard-coded `build_fermionic_op`
+#  - unification with `BaseProblem.solve()`
+#  - general refactorings of flow
+#  - fix freeze-core support
+#  - fix dependence on `num_parameters` handling within Terra's VQE and Optimizer
 class OrbitalOptimizationVQE(GroundStateEigensolver):
     r""" A ground state calculation employing the OOVQE algorithm.
     The Variational Quantum Eigensolver (VQE) algorithm enhanced with the Orbital Optimization (OO).
@@ -107,17 +118,17 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         self._iterative_oo_iterations = iterative_oo_iterations
 
         # internal parameters of the algorithm
-        self._driver = None  # type: Optional[FermionicDriver]
-        self._qmolecule = None  # type: Optional[QMolecule]
-        self._qmolecule_rotated = None  # type: Optional[QMolecule]
+        self._driver: FermionicDriver = None
+        self._qmolecule: QMolecule = None
+        self._qmolecule_rotated: QMolecule = None
 
         self._fixed_wavefunction_params = None
         self._num_parameters_oovqe = None
         self._additional_params_initialized = False
         self.var_form_num_parameters = None
-        self.var_form_bounds = None
-        self._vqe = None  # type: Optional[VQE]
-        self._bound_oo = None  # type: Optional[List]
+        self.var_form_bounds: List[Tuple] = None
+        self._vqe: VQE = None
+        self._bound_oo: List = None
 
     def returns_groundstate(self) -> bool:
         return True
@@ -250,11 +261,11 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
         return mean_energy
 
-    def solve(self,
+    def solve(self,  # type: ignore
               problem: MolecularProblem,
-              aux_operators: Optional[Union[List[FermionicOp],
-                                            List[VibrationalOp]]] = None) \
-            -> ElectronicStructureResult:
+              aux_operators: Optional[List[SecondQuantizedOp]] = None,
+              ) -> ElectronicStructureResult:
+        # pylint: disable=arguments-differ
 
         self._initialize_additional_parameters(problem)
         self._vqe._eval_count = 0
