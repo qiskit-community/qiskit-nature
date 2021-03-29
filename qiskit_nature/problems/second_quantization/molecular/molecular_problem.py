@@ -55,7 +55,7 @@ class MolecularProblem(BaseProblem):
 
         electronic_fermionic_op = build_fermionic_op(self._molecule_data_transformed)
         second_quantized_ops_list = [electronic_fermionic_op] + create_all_aux_operators(
-            self._molecule_data)
+            self._molecule_data_transformed)
 
         return second_quantized_ops_list
 
