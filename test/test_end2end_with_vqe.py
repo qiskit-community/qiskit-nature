@@ -38,15 +38,12 @@ class TestEnd2End(QiskitNatureTestCase):
                                                               'drivers/hdf5d'))
         problem = MolecularProblem(driver)
         second_q_ops = problem.second_q_ops()
-        # TODO: enable two-qubit-reduction after https://github.com/Qiskit/qiskit-terra/issues/6102
-        converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=False)
+        converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
         num_particles = (problem.molecule_data_transformed.num_alpha,
                          problem.molecule_data_transformed.num_beta)
         self.qubit_op = converter.convert(second_q_ops[0], num_particles)
         self.aux_ops = converter.convert_match(second_q_ops[1:])
-        self.reference_energy = -1.8557828477150304
-        # NOTE: the two-qubit-reduction leads to the following reference energy
-        # self.reference_energy = -1.857275027031588
+        self.reference_energy = -1.857275027031588
 
     def test_end2end_h2(self):
         """ end to end h2 """
