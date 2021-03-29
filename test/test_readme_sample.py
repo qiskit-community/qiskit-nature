@@ -22,7 +22,6 @@ from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 
 
-@unittest.skip("Skip test until refactored.")
 class TestReadmeSample(QiskitNatureTestCase):
     """Test sample code from readme"""
 
@@ -55,9 +54,8 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         # --- Exact copy of sample code ----------------------------------------
 
-        from qiskit_nature import FermionicOperator
         from qiskit_nature.drivers import PySCFDriver, UnitsType
-        from qiskit.opflow import TwoQubitReduction
+        from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
 
         # Use PySCF, a classical computational chemistry software
         # package, to compute the one-body and two-body integrals in
@@ -65,18 +63,18 @@ class TestReadmeSample(QiskitNatureTestCase):
         driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
                              unit=UnitsType.ANGSTROM,
                              basis='sto3g')
-        molecule = driver.run()
-        num_particles = molecule.num_alpha + molecule.num_beta
-        num_spin_orbitals = molecule.num_molecular_orbitals * 2
+        problem = MolecularProblem(driver)
 
-        # Build the qubit operator, which is the input to the VQE algorithm
-        ferm_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
-        map_type = 'PARITY'
-        qubit_op = ferm_op.mapping(map_type)
-        qubit_op = TwoQubitReduction(num_particles=num_particles).convert(qubit_op)
-        num_qubits = qubit_op.num_qubits
+        # generate the second-quantized operators
+        second_q_ops = problem.second_q_ops()
+        main_op = second_q_ops[0]
 
-        # setup a classical optimizer for VQE
+        num_particles = (problem.molecule_data_transformed.num_alpha,
+                         problem.molecule_data_transformed.num_beta)
+
+        num_spin_orbitals = 2 * problem.molecule_data.num_molecular_orbitals
+
+        # setup the classical optimizer for VQE
         from qiskit.algorithms.optimizers import L_BFGS_B
         optimizer = L_BFGS_B()
 
@@ -84,7 +82,10 @@ class TestReadmeSample(QiskitNatureTestCase):
         from qiskit_nature.mappers.second_quantization import ParityMapper
         from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
         mapper = ParityMapper()
-        converter = QubitConverter(mapper=mapper)
+        converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
+
+        # map to qubit operators
+        qubit_op = converter.convert(main_op, num_particles=num_particles)
 
         # setup the initial state for the variational form
         from qiskit_nature.circuit.library import HartreeFock
@@ -92,7 +93,7 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         # setup the variational form for VQE
         from qiskit.circuit.library import TwoLocal
-        var_form = TwoLocal(num_qubits, ['ry', 'rz'], 'cz')
+        var_form = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 
         # add the initial state
         var_form.compose(init_state, front=True)
