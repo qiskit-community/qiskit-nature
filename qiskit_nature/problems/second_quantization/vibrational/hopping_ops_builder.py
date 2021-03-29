@@ -12,9 +12,9 @@
 from typing import List, Union, Tuple, Dict
 import itertools
 
-from qiskit.aqua import aqua_globals
-from qiskit.aqua.operators import WeightedPauliOperator
+from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
+from qiskit.utils import algorithm_globals
 
 from qiskit_nature.circuit.library.ansatzes import UVCC
 from qiskit_nature.drivers import WatsonHamiltonian
@@ -52,10 +52,8 @@ def build_hopping_operators(watson_hamiltonian: WatsonHamiltonian,
                             num_modals: Union[int, List[int]],
                             truncation_order,
                             qubit_converter: QubitConverter,
-                            excitations: Union[str, List[List[int]]] = 'sd') -> Tuple[
-    Dict[str, WeightedPauliOperator],
-    Dict,
-    Dict[str, List[List[int]]]]:
+                            excitations: Union[str, List[List[int]]] = 'sd'
+                            ) -> Tuple[Dict[str, PauliSumOp], Dict, Dict[str, List[List[int]]]]:
     """
     Args:
         excitations:
@@ -78,7 +76,7 @@ def build_hopping_operators(watson_hamiltonian: WatsonHamiltonian,
             dag_lst.append([lst[0], lst[2], lst[1]])
         return dag_lst
 
-    hopping_operators: Dict[str, WeightedPauliOperator] = {}
+    hopping_operators: Dict[str, PauliSumOp] = {}
     excitation_indices = {}
     to_be_executed_list = []
     for idx in range(size):
@@ -94,7 +92,7 @@ def build_hopping_operators(watson_hamiltonian: WatsonHamiltonian,
                                      num_modals,
                                      truncation_order,
                                      qubit_converter),
-                          num_processes=aqua_globals.num_processes)
+                          num_processes=algorithm_globals.num_processes)
 
     for key, res in zip(hopping_operators.keys(), result):
         hopping_operators[key] = res
