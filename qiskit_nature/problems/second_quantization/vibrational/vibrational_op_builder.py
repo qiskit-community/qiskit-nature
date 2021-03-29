@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """ Vibrational operator builder. """
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Tuple
 
 import logging
 
@@ -57,6 +57,25 @@ def build_vibrational_op(watson_hamiltonian: WatsonHamiltonian,
     boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
                                             num_modals, truncation_order).convert()
 
-    all_labels = _create_labels(boson_hamilt_harm_basis)
+    return build_vibrational_op_from_ints(boson_hamilt_harm_basis, num_modes, num_modals)
+
+
+def build_vibrational_op_from_ints(h_mat: List[List[Tuple[List[List[int]], complex]]],
+                                   num_modes: int,
+                                   num_modals: List[int],
+                                   ) -> VibrationalOp:
+    """
+    Builds a :class:`VibrationalOp` based on an integral list as produced by
+    :meth:`HarmonicBasis.convert()`.
+
+    Args:
+        h_mat: integral list.
+        num_modes: the number of modes.
+        num_modals: the number of modals.
+
+    Returns:
+        The constructed VibrationalOp.
+    """
+    all_labels = _create_labels(h_mat)
 
     return VibrationalOp(all_labels, num_modes, num_modals)

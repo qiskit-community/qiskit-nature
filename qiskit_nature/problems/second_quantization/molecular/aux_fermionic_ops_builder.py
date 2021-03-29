@@ -32,7 +32,7 @@ def create_all_aux_operators(q_molecule: QMolecule) -> List[FermionicOp]:
 
     Returns:
         A list of auxiliary FermionicOps. The first three entries will always correspond to the
-        particule numer, angular momentum and total magnetization operators. If the QMolecule object
+        particle number, angular momentum and total magnetization operators. If the QMolecule object
         contained dipole integrals, the list will also contain the X, Y and Z dipole operators.
     """
     aux_second_quantized_ops_list = [_create_total_particle_num_op(q_molecule),

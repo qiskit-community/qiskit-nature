@@ -26,6 +26,7 @@ from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_build
     build_vibrational_op
 from qiskit_nature.results import EigenstateResult, VibronicStructureResult
 from qiskit_nature.transformers import BaseTransformer
+from .aux_vibrational_ops_builder import create_all_aux_operators
 
 
 class VibrationalProblem(BaseProblem):
@@ -57,7 +58,13 @@ class VibrationalProblem(BaseProblem):
                                                    self.num_modals,
                                                    self.truncation_order)
 
-        second_quantized_ops_list = [vibrational_spin_op]
+        num_modes = self._molecule_data_transformed.num_modes
+        if isinstance(self.num_modals, int):
+            num_modals = [self.num_modals] * num_modes
+        else:
+            num_modals = self.num_modals
+
+        second_quantized_ops_list = [vibrational_spin_op] + create_all_aux_operators(num_modals)
 
         return second_quantized_ops_list
 
