@@ -79,7 +79,7 @@ class GroundStateEigensolver(GroundStateSolver):
         # user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
         self._untapered_qubit_ops = self._qubit_converter.map(second_q_ops)
-        qubit_ops = self._qubit_converter._symmetry_reduce(self._untapered_qubit_ops, True)
+        qubit_ops = self._qubit_converter.convert_match(second_q_ops, True)
 
         main_operator = qubit_ops[0]
         aux_ops = qubit_ops[1:]
