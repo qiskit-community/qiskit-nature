@@ -88,12 +88,12 @@ class GroundStateEigensolver(GroundStateSolver):
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem, self._qubit_converter)
         else:
-            self.solver = self._solver
+            self._solver = self._solver
         # if the eigensolver does not support auxiliary operators, reset them
-        if not self.solver.supports_aux_operators():
+        if not self._solver.supports_aux_operators():
             aux_ops = None
 
-        raw_mes_result = self.solver.compute_minimum_eigenvalue(main_operator, aux_ops)
+        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)
 
         result = problem.interpret(raw_mes_result)
         return result
