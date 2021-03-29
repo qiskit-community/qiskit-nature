@@ -13,7 +13,7 @@
 The SUCCD variational form.
 """
 
-from typing import Any, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import itertools
 import logging
@@ -93,7 +93,8 @@ class SUCCD(UCC):
         self._include_singles = include_singles
 
     def generate_excitations(self, num_spin_orbitals: int,
-                             num_particles: Tuple[int, int]) -> List[Tuple[Tuple[Any, ...], ...]]:
+                             num_particles: Tuple[int, int]
+                             ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """Generates the excitations for the SUCCD Ansatz.
 
         Args:
@@ -111,7 +112,7 @@ class SUCCD(UCC):
         """
         self._validate_num_particles(num_particles)
 
-        excitations = list()
+        excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = list()
         excitations.extend(generate_fermionic_excitations(1, num_spin_orbitals, num_particles,
                                                           alpha_spin=self.include_singles[0],
                                                           beta_spin=self.include_singles[1]))
@@ -138,7 +139,10 @@ class SUCCD(UCC):
             # shift the second excitation into the beta-spin orbital index range
             beta_exc = (second_exc[0] + beta_index_shift, second_exc[1] + beta_index_shift)
             # add the excitation tuple
-            exc_tuple = tuple(zip(alpha_exc, beta_exc))
+            occ: Tuple[int, ...]
+            unocc: Tuple[int, ...]
+            occ, unocc = zip(alpha_exc, beta_exc)
+            exc_tuple = (occ, unocc)
             excitations.append(exc_tuple)
             logger.debug('Added the excitation: %s', exc_tuple)
 
