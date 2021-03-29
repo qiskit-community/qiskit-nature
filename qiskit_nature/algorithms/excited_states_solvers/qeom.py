@@ -23,7 +23,7 @@ from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
 from qiskit.algorithms import AlgorithmResult
-from qiskit.opflow import (Z2Symmetries, anti_commutator, commutator,
+from qiskit.opflow import (Z2Symmetries, commutator,
                            double_commutator, PauliSumOp, )
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -32,7 +32,6 @@ from qiskit_nature.results import (ElectronicStructureResult, VibronicStructureR
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver
 from ...problems.second_quantization.base_problem import BaseProblem
-from ...problems.second_quantization.molecular.hopping_ops_builder import build_hopping_operators
 
 logger = logging.getLogger(__name__)
 
@@ -147,8 +146,9 @@ class QEOM(ExcitedStatesSolver):
             a dictionary of all matrix elements operators and the number of excitations
             (or the size of the qEOM pseudo-eigenvalue problem)
         """
-        data = build_hopping_operators(problem.molecule_data, self._gsc.qubit_converter,
-                                       self._excitations)  # TODO should work for vibrational too
+        # TODO transformed or not?
+        data = problem.hopping_ops(self._gsc.qubit_converter,
+                                   self._excitations)
         hopping_operators, type_of_commutativities, excitation_indices = data
 
         size = int(len(list(excitation_indices.keys())) / 2)

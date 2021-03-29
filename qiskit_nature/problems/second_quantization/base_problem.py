@@ -18,13 +18,13 @@ from typing import List, Optional, Callable, Union
 import numpy as np
 
 from qiskit_nature.drivers import BaseDriver, QMolecule, WatsonHamiltonian
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.transformers import BaseTransformer
 
 
 class BaseProblem(ABC):
     """Base Problem"""
 
-    # TODO BaseDriver has no run method
     def __init__(self, driver: BaseDriver,
                  transformers: Optional[List[BaseTransformer]] = None):
         """
@@ -65,6 +65,7 @@ class BaseProblem(ABC):
             data = transformer.transform(data)
         return data
 
+    @abstractmethod
     def interpret(self, raw_mes_result):
         """Interprets an EigenstateResult in the context of this transformation.
 
@@ -76,6 +77,7 @@ class BaseProblem(ABC):
         """
         raise NotImplementedError()
 
+    @abstractmethod
     def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
                                                                  Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
@@ -86,4 +88,9 @@ class BaseProblem(ABC):
         preserved.
         """
 
+        raise NotImplementedError()
+
+    @abstractmethod
+    def hopping_ops(self, qubit_converter: QubitConverter,
+                    excitations: Union[str, List[List[int]]] = 'sd'):
         raise NotImplementedError()

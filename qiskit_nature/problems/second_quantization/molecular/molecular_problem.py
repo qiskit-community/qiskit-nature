@@ -19,10 +19,12 @@ import numpy as np
 
 from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult, DipoleTuple
 from qiskit_nature.transformers import BaseTransformer
 from .aux_fermionic_ops_builder import create_all_aux_operators
 from .fermionic_op_builder import build_fermionic_op
+from .hopping_ops_builder import build_hopping_operators
 from ..base_problem import BaseProblem
 
 
@@ -56,6 +58,10 @@ class MolecularProblem(BaseProblem):
             self._molecule_data)
 
         return second_quantized_ops_list
+
+    def hopping_ops(self, qubit_converter: QubitConverter,
+                    excitations: Union[str, List[List[int]]] = 'sd'):
+        return build_hopping_operators(self.molecule_data, qubit_converter, excitations)
 
     # TODO refactor by decomposing and eliminate ifs
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
