@@ -27,7 +27,9 @@ class TestVibrationalLabelBuilder(QiskitNatureTestCase):
 
     def test_create_labels(self):
         """Tests that correct labels are built."""
-        logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
+        logfile = self.get_resource_path(
+            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
+        )
         driver = GaussianForcesDriver(logfile=logfile)
         watson_hamiltonian = driver.run()
         num_modals = 2

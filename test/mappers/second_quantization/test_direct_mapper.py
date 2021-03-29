@@ -28,7 +28,9 @@ class TestDirectMapper(QiskitNatureTestCase):
 
     def test_mapping(self):
         """ Test mapping to qubit operator """
-        driver = GaussianForcesDriver(logfile=self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log'))
+        driver = GaussianForcesDriver(logfile=self.get_resource_path(
+            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
+        ))
         watson_hamiltonian = driver.run()
 
         num_modals = 2

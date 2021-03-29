@@ -28,7 +28,9 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
 
     def test_vibrational_op_builder(self):
         """Tests that a VibrationalOp is created correctly from a driver."""
-        logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
+        logfile = self.get_resource_path(
+            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
+        )
         driver = GaussianForcesDriver(logfile=logfile)
 
         watson_hamiltonian = driver.run()

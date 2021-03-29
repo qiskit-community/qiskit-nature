@@ -25,7 +25,9 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
         expected_num_of_sec_quant_ops = 1
-        logfile = self.get_resource_path('CO2_freq_B3LYP_ccpVDZ.log')
+        logfile = self.get_resource_path(
+            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
+        )
         driver = GaussianForcesDriver(logfile=logfile)
 
         watson_hamiltonian = driver.run()
