@@ -13,19 +13,20 @@
 """The calculation of excited states via an Eigensolver algorithm"""
 
 import logging
-from typing import List, Union, Optional, Any
+from typing import List, Union, Optional
 
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import (EigenstateResult,
                                    ElectronicStructureResult,
                                    VibronicStructureResult, )
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
-from ...operators.second_quantization.qubit_converter import QubitConverter
-from ...problems.second_quantization.base_problem import BaseProblem
 
 logger = logging.getLogger(__name__)
 
@@ -55,14 +56,13 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         self._solver = solver
 
     def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[Any]] = None
+              aux_operators: Optional[List[SecondQuantizedOp]] = None
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Compute Ground and Excited States properties.
 
         Args:
-            aux_operators: Additional auxiliary operators to evaluate. Must be of type
-                ``FermionicOperator`` if the qubit transformation is fermionic and of type
-                ``BosonicOperator`` it is bosonic.
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
             NotImplementedError: If an operator in ``aux_operators`` is not of type

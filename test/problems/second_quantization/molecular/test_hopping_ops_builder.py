@@ -9,10 +9,15 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """Tests Hopping Operators builder."""
+
 from test import QiskitNatureTestCase
+
 from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
+
 import numpy as np
+
 from qiskit_nature.operators import FermionicOp
 from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
 from qiskit_nature.drivers import HDF5Driver

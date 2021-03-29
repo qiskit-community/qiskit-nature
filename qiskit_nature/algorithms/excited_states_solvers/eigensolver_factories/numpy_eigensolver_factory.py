@@ -84,7 +84,7 @@ class NumPyEigensolverFactory(EigensolverFactory):
         """Returns a NumPyEigensolver with the desired filter
 
         Args:
-            transformation: a fermionic/bosonic qubit operator transformation.
+            problem: a class encoding a problem to be solved.
 
         Returns:
             A NumPyEigensolver suitable to compute the ground state of the molecule

@@ -14,16 +14,18 @@
 
 import unittest
 
-from qiskit_nature.mappers.second_quantization import DirectMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
-    VibrationalProblem
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
+
 from qiskit_nature.drivers import BaseDriver, WatsonHamiltonian
+from qiskit_nature.mappers.second_quantization import DirectMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
+    VibrationalProblem
+
 from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory,
     VQEUVCCFactory

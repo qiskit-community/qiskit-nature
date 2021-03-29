@@ -13,7 +13,7 @@
 """The ground state calculation interface."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -22,10 +22,11 @@ from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.opflow import OperatorBase, PauliSumOp
 
-from ...operators.second_quantization.qubit_converter import QubitConverter
-from ...problems.second_quantization.base_problem import BaseProblem
-from ...results.electronic_structure_result import ElectronicStructureResult
-from ...results.vibronic_structure_result import VibronicStructureResult
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
+from qiskit_nature.results.vibronic_structure_result import VibronicStructureResult
 
 
 class GroundStateSolver(ABC):
@@ -41,12 +42,14 @@ class GroundStateSolver(ABC):
         self._untapered_qubit_ops: List[OperatorBase] = None
 
     @abstractmethod
-    def solve(self, problem: BaseProblem) \
-            -> Union[ElectronicStructureResult, VibronicStructureResult]:
+    def solve(self, problem: BaseProblem,
+              aux_operators: Optional[List[SecondQuantizedOp]] = None,
+              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
             problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
             An eigenstate result.
@@ -87,4 +90,5 @@ class GroundStateSolver(ABC):
 
     @property
     def qubit_converter(self):
+        """Returns the qubit converter."""
         return self._qubit_converter

@@ -26,6 +26,7 @@ from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.utils.validation import validate_min
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library.ansatzes import UCC
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
@@ -132,12 +133,14 @@ class AdaptVQE(GroundStateEigensolver):
         # nature of the algorithm.
         return match is not None or (len(indices) > 1 and indices[-2] == indices[-1])
 
-    def solve(self, problem: BaseProblem) \
-            -> Union[ElectronicStructureResult, VibronicStructureResult]:
+    def solve(self, problem: BaseProblem,
+              aux_operators: Optional[List[SecondQuantizedOp]] = None,
+              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Computes the ground state.
 
         Args:
             problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
             QiskitNatureError: if a solver other than VQE or a variational form other than UCCSD
@@ -153,6 +156,9 @@ class AdaptVQE(GroundStateEigensolver):
 
         self._main_operator = qubit_ops[0]
         aux_ops = qubit_ops[1:]
+
+        if aux_operators is not None:
+            aux_ops += self._qubit_converter.convert_match(aux_operators, True)
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             vqe = self._solver.get_solver(problem, self._qubit_converter)

@@ -30,11 +30,8 @@ class ExcitedStatesSolver(ABC):
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
         Args:
-            driver: a chemistry driver object which defines the chemical problem that is to be
-                solved by this calculation.
-            aux_operators: Additional auxiliary operators to evaluate. Must be of type
-                ``FermionicOperator`` if the qubit transformation is fermionic and of type
-                ``BosonicOperator`` it is bosonic.
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
             an eigenstate result

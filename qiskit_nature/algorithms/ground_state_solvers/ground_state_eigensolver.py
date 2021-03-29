@@ -22,10 +22,11 @@ from qiskit.result import Result
 from qiskit.algorithms import MinimumEigensolver
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 
-from ...operators.second_quantization.qubit_converter import QubitConverter
-from ...problems.second_quantization.base_problem import BaseProblem
-from ...results.electronic_structure_result import ElectronicStructureResult
-from ...results.vibronic_structure_result import VibronicStructureResult
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
+from qiskit_nature.results.vibronic_structure_result import VibronicStructureResult
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
@@ -59,12 +60,14 @@ class GroundStateEigensolver(GroundStateSolver):
         """Whether the eigensolver returns the ground state or only ground state energy."""
         return self._solver.supports_aux_operators()
 
-    def solve(self, problem: BaseProblem) \
-            -> Union[ElectronicStructureResult, VibronicStructureResult]:
+    def solve(self, problem: BaseProblem,
+              aux_operators: Optional[List[SecondQuantizedOp]] = None,
+              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Compute Ground State properties.
 
         Args:
             problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
             NotImplementedError: If an operator in ``aux_operators`` is not of type
@@ -83,6 +86,9 @@ class GroundStateEigensolver(GroundStateSolver):
 
         main_operator = qubit_ops[0]
         aux_ops = qubit_ops[1:]
+
+        if aux_operators is not None:
+            aux_ops += self._qubit_converter.convert_match(aux_operators, True)
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform

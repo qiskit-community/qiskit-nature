@@ -27,7 +27,7 @@ class EigensolverFactory(ABC):
         """Returns a eigensolver, based on the qubit operator transformation.
 
         Args:
-            transformation: The qubit operator transformation.
+            problem: a class encoding a problem to be solved.
 
         Returns:
             An eigensolver suitable to compute the excited states of the molecule transformed

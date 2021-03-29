@@ -137,8 +137,9 @@ class PUCCD(UCC):
 
         return excitations
 
+    # TODO: when ooVQE get's refactored, it may turn out that this Ansatz can indeed by used for
+    # unrestricted spin systems.
     def _validate_num_particles(self, num_particles):
-        return
         try:
             assert num_particles[0] == num_particles[1]
         except AssertionError as exc:

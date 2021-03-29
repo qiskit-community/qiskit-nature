@@ -14,17 +14,19 @@
 
 import unittest
 
+from test import QiskitNatureTestCase
+
 import numpy as np
+
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization import MolecularProblem
-from test import QiskitNatureTestCase
-from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.algorithms.ground_state_solvers import (GroundStateEigensolver,
                                                            VQEUCCFactory, )
 from qiskit_nature.algorithms.excited_states_solvers import (
