@@ -22,8 +22,6 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.algorithms.ground_state_solvers import OrbitalOptimizationVQE
-from qiskit_nature.transformations import FermionicTransformation
-from qiskit_nature.transformations.fermionic_transformation import FermionicQubitMappingType
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
     VQEUCCFactory
 

@@ -27,9 +27,6 @@ from qiskit_nature.algorithms.ground_state_solvers import (
 from qiskit_nature.algorithms.excited_states_solvers import (
     QEOM, ExcitedStatesEigensolver, NumPyEigensolverFactory
 )
-from qiskit_nature.transformations import (BosonicTransformation,
-                                           BosonicTransformationType,
-                                           BosonicQubitMappingType)
 
 
 class _DummyBosonicDriver(BaseDriver):
