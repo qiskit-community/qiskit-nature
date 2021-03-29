@@ -147,7 +147,7 @@ class QEOM(ExcitedStatesSolver):
             a dictionary of all matrix elements operators and the number of excitations
             (or the size of the qEOM pseudo-eigenvalue problem)
         """
-        data = build_hopping_operators(problem.q_molecule, self._gsc.qubit_converter,
+        data = build_hopping_operators(problem.molecule_data, self._gsc.qubit_converter,
                                        self._excitations)  # TODO should work for vibrational too
         hopping_operators, type_of_commutativities, excitation_indices = data
 

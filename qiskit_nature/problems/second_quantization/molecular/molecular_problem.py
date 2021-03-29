@@ -38,8 +38,6 @@ class MolecularProblem(BaseProblem):
             q_molecule_transformers: A list of transformations to be applied to the molecule.
         """
         super().__init__(driver, q_molecule_transformers)
-        self._molecule_data = None
-        self._molecule_data_transformed = None
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -50,13 +48,12 @@ class MolecularProblem(BaseProblem):
             total magnetization operator, total angular momentum operator, total particle number
             operator, and (if available) x, y, z dipole operators.
         """
-        q_molecule = self.driver.run()
-        self._molecule_data = q_molecule
-        q_molecule_transformed = self._transform(q_molecule)
-        self._molecule_data_transformed = q_molecule_transformed
+        self._molecule_data = self.driver.run()
+        self._molecule_data_transformed = self._transform(self._molecule_data)
 
-        electronic_fermionic_op = build_fermionic_op(q_molecule_transformed)
-        second_quantized_ops_list = [electronic_fermionic_op] + create_all_aux_operators(q_molecule)
+        electronic_fermionic_op = build_fermionic_op(self._molecule_data_transformed)
+        second_quantized_ops_list = [electronic_fermionic_op] + create_all_aux_operators(
+            self._molecule_data)
 
         return second_quantized_ops_list
 

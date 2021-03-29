@@ -183,7 +183,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """
 
         num_modals = problem.num_modals
-        num_modes = problem.watson_hamiltonian_transformed.num_modes
+        num_modes = problem.molecule_data_transformed.num_modes
 
         if isinstance(num_modals, int):
             num_modals = [num_modals] * num_modes
