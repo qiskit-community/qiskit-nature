@@ -167,21 +167,22 @@ class ActiveSpaceTransformer(BaseTransformer):
                                      )
 
         # reduce dipole moment integrals
-        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
-                                     'x_dip_energy_shift',
-                                     ('x_dip_ints', None),
-                                     ('x_dip_mo_ints', 'x_dip_mo_ints_b')
-                                     )
-        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
-                                     'y_dip_energy_shift',
-                                     ('y_dip_ints', None),
-                                     ('y_dip_mo_ints', 'y_dip_mo_ints_b')
-                                     )
-        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
-                                     'z_dip_energy_shift',
-                                     ('z_dip_ints', None),
-                                     ('z_dip_mo_ints', 'z_dip_mo_ints_b')
-                                     )
+        if molecule_data.has_dipole_integrals():
+            self._reduce_to_active_space(molecule_data, molecule_data_reduced,
+                                         'x_dip_energy_shift',
+                                         ('x_dip_ints', None),
+                                         ('x_dip_mo_ints', 'x_dip_mo_ints_b')
+                                         )
+            self._reduce_to_active_space(molecule_data, molecule_data_reduced,
+                                         'y_dip_energy_shift',
+                                         ('y_dip_ints', None),
+                                         ('y_dip_mo_ints', 'y_dip_mo_ints_b')
+                                         )
+            self._reduce_to_active_space(molecule_data, molecule_data_reduced,
+                                         'z_dip_energy_shift',
+                                         ('z_dip_ints', None),
+                                         ('z_dip_mo_ints', 'z_dip_mo_ints_b')
+                                         )
 
         return molecule_data_reduced
 
