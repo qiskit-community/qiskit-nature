@@ -24,7 +24,7 @@ class TestVibrationalProblem(QiskitNatureTestCase):
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
-        expected_num_of_sec_quant_ops = 1
+        expected_num_of_sec_quant_ops = 5
         logfile = self.get_resource_path(
             'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
         )
