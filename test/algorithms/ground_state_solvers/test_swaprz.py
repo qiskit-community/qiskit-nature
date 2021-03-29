@@ -16,20 +16,20 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
-from qiskit.circuit.library import ExcitationPreserving
-from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import SLSQP
+from qiskit.circuit.library import ExcitationPreserving
+from qiskit.test import slow_test
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.drivers import HDF5Driver
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.transformations import (FermionicTransformation,
-                                           FermionicQubitMappingType)
+from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
 
 
-@unittest.skip("Skip test until refactored.")
+@slow_test
 class TestExcitationPreserving(QiskitNatureTestCase):
     """The ExcitationPresering wavefunction was design to preserve the excitation of the system.
 
@@ -50,23 +50,22 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         driver = HDF5Driver(self.get_resource_path('test_driver_hdf5.hdf5',
                                                    'drivers/hdf5d'))
 
-        mapper = ParityMapper()
-        converter = QubitConverter(mapper=mapper)
+        converter = QubitConverter(ParityMapper())
 
-        fermionic_transformation = \
-            FermionicTransformation(qubit_mapping=FermionicQubitMappingType.PARITY,
-                                    two_qubit_reduction=False)
+        problem = MolecularProblem(driver)
 
-        qubit_op, _ = fermionic_transformation.transform(driver)
+        _ = problem.second_q_ops()
+
+        num_particles = (problem.molecule_data_transformed.num_alpha,
+                         problem.molecule_data_transformed.num_beta)
+
+        num_spin_orbitals = problem.molecule_data_transformed.num_molecular_orbitals * 2
 
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(
-            fermionic_transformation.molecule_info['num_orbitals'],
-            fermionic_transformation.molecule_info['num_particles'],
-            converter)
+        initial_state = HartreeFock(num_spin_orbitals, num_particles, converter)
 
-        wavefunction = ExcitationPreserving(qubit_op.num_qubits)
+        wavefunction = ExcitationPreserving(num_spin_orbitals)
         wavefunction.compose(initial_state, front=True, inplace=True)
 
         solver = VQE(var_form=wavefunction, optimizer=optimizer,
@@ -75,9 +74,9 @@ class TestExcitationPreserving(QiskitNatureTestCase):
                          seed_simulator=algorithm_globals.random_seed,
                          seed_transpiler=algorithm_globals.random_seed))
 
-        gsc = GroundStateEigensolver(fermionic_transformation, solver)
+        gsc = GroundStateEigensolver(converter, solver)
 
-        result = gsc.solve(driver)
+        result = gsc.solve(problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=4)
 
 
