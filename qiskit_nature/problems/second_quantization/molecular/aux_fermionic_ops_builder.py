@@ -9,7 +9,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from typing import Tuple
+
+"""Utility methods for the creation of common auxiliary operators."""
+
+from typing import List, Tuple
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators import FermionicOp
@@ -21,14 +24,24 @@ from qiskit_nature.problems.second_quantization.molecular.integrals_calculators 
 
 # TODO name this file better
 
-def create_all_aux_operators(q_molecule):
-    aux_second_quantized_ops_list = [create_total_particle_number_operator(q_molecule),
-                                     create_total_angular_momentum_operator(q_molecule),
-                                     create_total_magnetization_operator(q_molecule),
+def create_all_aux_operators(q_molecule: QMolecule) -> List[FermionicOp]:
+    """Generates the common auxiliary operators out of the given QMolecule.
+
+    Args:
+        q_molecule: the QMolecule object for which to generate the operators.
+
+    Returns:
+        A list of auxiliary FermionicOps. The first three entries will always correspond to the
+        particule numer, angular momentum and total magnetization operators. If the QMolecule object
+        contained dipole integrals, the list will also contain the X, Y and Z dipole operators.
+    """
+    aux_second_quantized_ops_list = [_create_total_particle_num_op(q_molecule),
+                                     _create_total_ang_momentum_op(q_molecule),
+                                     _create_total_magnetization_op(q_molecule),
                                      ]
 
     if q_molecule.has_dipole_integrals():
-        x_dipole_operator, y_dipole_operator, z_dipole_operator = create_dipole_operators(
+        x_dipole_operator, y_dipole_operator, z_dipole_operator = _create_dipole_ops(
             q_molecule)
         aux_second_quantized_ops_list += [x_dipole_operator,
                                           y_dipole_operator,
@@ -36,8 +49,7 @@ def create_all_aux_operators(q_molecule):
     return aux_second_quantized_ops_list
 
 
-def create_dipole_operators(q_molecule: QMolecule) -> \
-        Tuple[FermionicOp, FermionicOp, FermionicOp]:
+def _create_dipole_ops(q_molecule: QMolecule) -> Tuple[FermionicOp, FermionicOp, FermionicOp]:
     x_dipole_operator = build_ferm_op_from_ints(q_molecule.x_dipole_integrals)
     y_dipole_operator = build_ferm_op_from_ints(q_molecule.y_dipole_integrals)
     z_dipole_operator = build_ferm_op_from_ints(q_molecule.z_dipole_integrals)
@@ -45,16 +57,16 @@ def create_dipole_operators(q_molecule: QMolecule) -> \
     return x_dipole_operator, y_dipole_operator, z_dipole_operator
 
 
-def create_total_magnetization_operator(q_molecule: QMolecule) -> FermionicOp:
+def _create_total_magnetization_op(q_molecule: QMolecule) -> FermionicOp:
     num_modes = q_molecule.one_body_integrals.shape[0]
     return build_ferm_op_from_ints(*calc_total_magnetization_ints(num_modes))
 
 
-def create_total_angular_momentum_operator(q_molecule: QMolecule) -> FermionicOp:
+def _create_total_ang_momentum_op(q_molecule: QMolecule) -> FermionicOp:
     num_modes = q_molecule.one_body_integrals.shape[0]
     return build_ferm_op_from_ints(*calc_total_ang_momentum_ints(num_modes))
 
 
-def create_total_particle_number_operator(q_molecule: QMolecule) -> FermionicOp:
+def _create_total_particle_num_op(q_molecule: QMolecule) -> FermionicOp:
     num_modes = q_molecule.one_body_integrals.shape[0]
     return build_ferm_op_from_ints(*calc_total_particle_num_ints(num_modes))

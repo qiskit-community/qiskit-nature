@@ -12,10 +12,12 @@
 
 """The Molecular Problem class."""
 from functools import partial
-from typing import List, Optional, cast, Union, Callable
+from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+
+import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-import numpy as np
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -50,8 +52,8 @@ class MolecularProblem(BaseProblem):
             total magnetization operator, total angular momentum operator, total particle number
             operator, and (if available) x, y, z dipole operators.
         """
-        self._molecule_data = self.driver.run()
-        self._molecule_data_transformed = self._transform(self._molecule_data)
+        self._molecule_data = cast(QMolecule, self.driver.run())
+        self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
         electronic_fermionic_op = build_fermionic_op(self._molecule_data_transformed)
         second_quantized_ops_list = [electronic_fermionic_op] + create_all_aux_operators(
@@ -60,8 +62,33 @@ class MolecularProblem(BaseProblem):
         return second_quantized_ops_list
 
     def hopping_ops(self, qubit_converter: QubitConverter,
-                    excitations: Union[str, List[List[int]]] = 'sd'):
-        return build_hopping_operators(self.molecule_data, qubit_converter, excitations)
+                    excitations: Union[str, int, List[int],
+                                       Callable[[int, Tuple[int, int]],
+                                                List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
+                                       ] = 'sd',
+                    ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
+                               Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+        """Generates the hopping operators and their commutativity information for the specified set
+        of excitations.
+
+        Args:
+            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
+                             Z2 symmetries stored in this instance are the basis for the
+                             commutativity information returned by this method.
+            excitations: the types of excitations to consider. The simples cases for this input are:
+                - a `str` containing any of the following charactes: `s`, `d`, `t` or `q`.
+                - a single, positive `int` denoting the exitation type (1 == `s`, etc.).
+                - a list of positive integers.
+                - and finally a callable which can be used to specify a custom list of excitations.
+                  For more details on how to write such a function refer to the default method,
+                  :meth:`generate_fermionic_excitations`.
+
+        Returns:
+            A tuple containing the hopping operators, the types of commutativities and the
+            excitation indices.
+        """
+        q_molecule = cast(QMolecule, self.molecule_data)
+        return build_hopping_operators(q_molecule, qubit_converter, excitations)
 
     # TODO refactor by decomposing and eliminate ifs
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,

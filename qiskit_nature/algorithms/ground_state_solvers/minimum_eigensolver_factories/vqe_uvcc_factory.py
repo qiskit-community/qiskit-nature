@@ -12,7 +12,7 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Optional, Union, Callable
+from typing import Optional, Union, Callable, cast
 import numpy as np
 
 from qiskit.algorithms import MinimumEigensolver, VQE
@@ -23,6 +23,7 @@ from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
 from qiskit_nature.circuit.library import VSCF
 from qiskit_nature.circuit.library.ansatzes import UVCC, UVCCSD
+from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
     VibrationalProblem
@@ -167,7 +168,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         the :class:`~.VSCF`."""
         self._initial_state = initial_state
 
-    def get_solver(self, problem: VibrationalProblem,
+    def get_solver(self, problem: VibrationalProblem,  # type: ignore[override]
                    qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``BosonicTransformation``.
@@ -182,8 +183,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             by ``transformation``.
         """
 
+        watson_hamiltonian_transformed = cast(WatsonHamiltonian, problem.molecule_data_transformed)
         num_modals = problem.num_modals
-        num_modes = problem.molecule_data_transformed.num_modes
+        num_modes = watson_hamiltonian_transformed.num_modes
 
         if isinstance(num_modals, int):
             num_modals = [num_modals] * num_modes

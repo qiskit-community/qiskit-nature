@@ -21,7 +21,7 @@ can occur within the same spin. Thus, setting `max_spin_excitation=1` and `num_e
 only those double excitations which do not excite the same spin species twice.
 """
 
-from typing import Any, List, Tuple, Optional
+from typing import Iterator, List, Tuple, Optional
 
 import itertools
 import logging
@@ -35,7 +35,7 @@ def generate_fermionic_excitations(num_excitations: int,
                                    alpha_spin: bool = True,
                                    beta_spin: bool = True,
                                    max_spin_excitation: Optional[int] = None,
-                                   ) -> List[Tuple[Tuple[Any, ...], ...]]:
+                                   ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
 
@@ -53,11 +53,11 @@ def generate_fermionic_excitations(num_excitations: int,
                              excitations (alpha,alpha or beta,beta).
 
     Returns:
-        The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
-        tuples. The first tuple contains the occupied spin orbital indices whereas the second one
-        contains the indices of the unoccupied spin orbitals.
+        The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair. The
+        first tuple contains the occupied spin orbital indices whereas the second one contains the
+        indices of the unoccupied spin orbitals.
     """
-    alpha_excitations = []
+    alpha_excitations: List[Tuple[int, int]] = []
     if alpha_spin:
         # generate alpha-spin orbital indices for occupied and unoccupied ones
         alpha_occ = list(range(num_particles[0]))
@@ -66,7 +66,7 @@ def generate_fermionic_excitations(num_excitations: int,
         alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
         logger.debug('Generated list of single alpha excitations: %s', alpha_excitations)
 
-    beta_excitations = []
+    beta_excitations: List[Tuple[int, int]] = []
     if beta_spin:
         # generate beta-spin orbital indices for occupied and unoccupied ones
         beta_occ = list(range(num_spin_orbitals // 2,
@@ -83,7 +83,9 @@ def generate_fermionic_excitations(num_excitations: int,
     # we can find the actual list of excitations by doing the following:
     #   1. combine the single alpha- and beta-spin excitations
     #   2. find all possible combinations of length `num_excitations`
-    pool = itertools.combinations(alpha_excitations + beta_excitations, num_excitations)
+    pool: Iterator[Tuple[Tuple[int, int], ...]] = itertools.combinations(
+        alpha_excitations + beta_excitations, num_excitations
+    )
 
     # if max_spin_excitation is set, we need to filter the pool of excitations
     if max_spin_excitation is not None:
@@ -105,7 +107,7 @@ def generate_fermionic_excitations(num_excitations: int,
                 pool
             )
 
-    excitations = list()
+    excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = list()
     visited_excitations = set()
 
     for exc in pool:
@@ -116,7 +118,10 @@ def generate_fermionic_excitations(num_excitations: int,
         #   3. and we also don't want to include permuted variants of identical excitations
         if len(exc_set) == num_excitations * 2 and exc_set not in visited_excitations:
             visited_excitations.add(exc_set)
-            exc_tuple = tuple(zip(*exc))
+            occ: Tuple[int, ...]
+            unocc: Tuple[int, ...]
+            occ, unocc = zip(*exc)
+            exc_tuple = (occ, unocc)
             excitations.append(exc_tuple)
             logger.debug('Added the excitation: %s', exc_tuple)
 

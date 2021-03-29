@@ -13,12 +13,15 @@
 """The Base Problem class."""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Callable, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
+from qiskit.opflow import PauliSumOp
+
 from qiskit_nature.drivers import BaseDriver, QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer
 
 
@@ -66,11 +69,11 @@ class BaseProblem(ABC):
         return data
 
     @abstractmethod
-    def interpret(self, raw_mes_result):
+    def interpret(self, raw_mes_result: EigenstateResult):
         """Interprets an EigenstateResult in the context of this transformation.
 
         Args:
-            raw_result: an eigenstate result object.
+            raw_mes_result: an eigenstate result object.
 
         Returns:
             An electronic structure result.
@@ -92,5 +95,30 @@ class BaseProblem(ABC):
 
     @abstractmethod
     def hopping_ops(self, qubit_converter: QubitConverter,
-                    excitations: Union[str, List[List[int]]] = 'sd'):
+                    excitations: Union[str, int, List[int],
+                                       Callable[[int, Tuple[int, int]],
+                                                List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
+                                       ] = 'sd',
+                    ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
+                               Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+        """Generates the hopping operators and their commutativity information for the specified set
+        of excitations.
+
+        Args:
+            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
+                             Z2 symmetries stored in this instance are the basis for the
+                             commutativity information returned by this method.
+            excitations: the types of excitations to consider. The simples cases for this input are:
+                - a `str` containing any of the following charactes: `s`, `d`, `t` or `q`.
+                - a single, positive `int` denoting the exitation type (1 == `s`, etc.).
+                - a list of positive integers.
+                - and finally a callable which can be used to specify a custom list of excitations.
+                  For more details on how to write such a function refer to one of the default
+                  methods, :meth:`generate_fermionic_excitations` or
+                  :meth:`generate_vibrational_excitations`.
+
+        Returns:
+            A tuple containing the hopping operators, the types of commutativities and the
+            excitation indices.
+        """
         raise NotImplementedError()

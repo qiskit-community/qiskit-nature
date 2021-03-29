@@ -167,7 +167,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         the :class:`~.HartreeFock`."""
         self._initial_state = initial_state
 
-    def get_solver(self, problem: MolecularProblem,
+    def get_solver(self, problem: MolecularProblem,  # type: ignore[override]
                    qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a VQE with a UCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``FermionicTransformation``.

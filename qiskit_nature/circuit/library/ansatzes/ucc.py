@@ -14,7 +14,7 @@ The Unitary Coupled-Cluster Ansatz.
 """
 
 from functools import partial
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import logging
 
@@ -105,8 +105,10 @@ class UCC(EvolvedOperatorAnsatz):
     def __init__(self, qubit_converter: Optional[QubitConverter] = None,
                  num_particles: Optional[Tuple[int, int]] = None,
                  num_spin_orbitals: Optional[int] = None,
-                 excitations: Optional[Union[str, int, List[int], Callable[
-                     [int, Tuple[int, int]], List[Tuple[Tuple[Any, ...], ...]]]]] = None,
+                 excitations: Optional[Union[str, int, List[int],
+                                             Callable[[int, Tuple[int, int]],
+                                                      List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
+                                             ]] = None,
                  alpha_spin: bool = True,
                  beta_spin: bool = True,
                  max_spin_excitation: Optional[int] = None,
@@ -132,7 +134,9 @@ class UCC(EvolvedOperatorAnsatz):
                   take the following __keyword__ arguments:
                       - `num_spin_orbitals`: the same as above
                       - `num_particles`: the same as above
-                  and must return a `List[Tuple[Tuple[Any, ...], ...]]`.
+                  and must return a `List[Tuple[Tuple[int, ...], Tuple[int, ...]]]`.
+                  For more information on how to write such a callable refer to the default method
+                  :meth:`generate_fermionic_excitations`.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
             max_spin_excitation: the largest number of excitations within a spin. E.g. you can set
@@ -272,7 +276,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._excitation_ops = excitation_ops
         return excitation_ops
 
-    def _get_excitation_list(self) -> List[Tuple[Tuple[Any, ...], ...]]:
+    def _get_excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         generators = self._get_excitation_generators()
 
         logger.debug('Generating excitation list...')
@@ -320,7 +324,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         return generators
 
-    def _build_fermionic_excitation_ops(self, excitations: List[Tuple]) -> List[FermionicOp]:
+    def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 
