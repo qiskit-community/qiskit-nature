@@ -16,7 +16,7 @@ A ground state calculation employing the Orbital-Optimized VQE (OOVQE) algorithm
 
 import copy
 import logging
-from typing import Optional, List, Union, Tuple
+from typing import Optional, List, Union, Tuple, cast
 
 import numpy as np
 from qiskit.algorithms import VQE, MinimumEigensolver
@@ -24,13 +24,24 @@ from scipy.linalg import expm
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.drivers.qmolecule import QMolecule
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.circuit.library.ansatzes import UCCSD
 from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
+# from qiskit_nature.operators.second_quantization import BosonicOperator
+from qiskit_nature.operators.second_quantization import VibrationalOp, FermionicOp
+# from ...components.variational_forms import UCCSD
+from qiskit_nature.circuit.library.initial_states import HartreeFock
+
 from ...drivers.base_driver import BaseDriver
 from ...drivers.fermionic_driver import FermionicDriver
+# from ...fermionic_operator import FermionicOperator
+from ...operators.second_quantization.qubit_converter import QubitConverter
+from ...problems.second_quantization.molecular.aux_fermionic_ops_builder import \
+    create_all_aux_operators
+from ...problems.second_quantization.molecular.fermionic_op_builder import build_fermionic_op
+from ...problems.second_quantization.molecular.molecular_problem import MolecularProblem
 from ...results.electronic_structure_result import ElectronicStructureResult
+# from ...transformations.fermionic_qubit_converter import FermionicTransformation
+from ...transformers.freeze_core_transformer import FreezeCoreTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +66,8 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
     """
 
     def __init__(self,
-                 transformation: "FermionicTransformation",
+                 molecular_problem: MolecularProblem,
+                 qubit_converter: QubitConverter,
                  solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
                  initial_point: Optional[np.ndarray] = None,
                  orbital_rotation: Optional['OrbitalRotation'] = None,
@@ -65,7 +77,8 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                  ):
         """
         Args:
-            transformation: a fermionic driver to operator transformation strategy.
+            molecular_problem: a molecular problem to be solved.
+            qubit_converter: converter of the fermionic operators to qubit operators.
             solver: a VQE instance or a factory for the VQE solver employing any custom
                 variational form, such as the `VQEUCCSDFactory`. Both need to use the UCCSD
                 variational form.
@@ -88,12 +101,9 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                                is less or equal to zero.
         """
 
-        super().__init__(transformation, solver)
-        if not isinstance(self._transformation, "FermionicTransformation"):
-            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
-        # from typing import cast
-        # self._transformation = cast(FermionicTransformation, self._transformation)
-
+        super().__init__(qubit_converter, solver)
+        self._molecular_problem = molecular_problem
+        self._qubit_converter = qubit_converter
         self.initial_point = initial_point
         self._orbital_rotation = orbital_rotation
         self._bounds = bounds
@@ -115,41 +125,6 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
     def returns_groundstate(self) -> bool:
         return True
-
-    def _set_operator_and_vqe(self, driver: BaseDriver):
-        """ Initializes the operators using provided driver of qmolecule."""
-
-        if not isinstance(self._transformation, "FermionicTransformation"):
-            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
-        if not isinstance(driver, FermionicDriver):
-            raise QiskitNatureError('OrbitalOptimizationVQE only works with Fermionic Drivers.')
-
-        if self._qmolecule is None:
-            # in future, self._transformation.transform should return also qmolecule
-            # to avoid running the driver twice
-            self._qmolecule = driver.run()
-            operator, aux_operators = self._transformation._do_transform(self._qmolecule)
-        else:
-            operator, aux_operators = self._transformation._do_transform(self._qmolecule)
-        if operator is None:  # type: ignore
-            raise QiskitNatureError("The operator was never provided.")
-
-        if isinstance(self.solver, MinimumEigensolverFactory):
-            # this must be called after transformation.transform
-            self._vqe = self.solver.get_solver(self.transformation)
-        else:
-            self._vqe = self.solver
-
-        if not isinstance(self._vqe, VQE):
-            raise QiskitNatureError(
-                "The OrbitalOptimizationVQE algorithm requires the use of the VQE " +
-                "MinimumEigensolver.")
-        if not isinstance(self._vqe.var_form, UCCSD):
-            raise QiskitNatureError(
-                "The OrbitalOptimizationVQE algorithm requires the use of the UCCSD varform.")
-
-        self._vqe.operator = operator
-        self._vqe.aux_operators = aux_operators
 
     def _set_bounds(self,
                     bounds_var_form_val: tuple = (-2 * np.pi, 2 * np.pi),
@@ -179,18 +154,19 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         self.initial_point = np.asarray(
             [initial_pt_scalar for _ in range(self._num_parameters_oovqe)])
 
-    def _initialize_additional_parameters(self, driver: BaseDriver):
+    def _initialize_additional_parameters(self, problem: MolecularProblem):
         """ Initializes additional parameters of the OOVQE algorithm. """
 
-        if not isinstance(self._transformation, "FermionicTransformation"):
-            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
-
-        self._set_operator_and_vqe(driver)
+        self._qmolecule = cast(QMolecule, problem.molecule_data)
+        if isinstance(self._solver, MinimumEigensolverFactory):
+            self._vqe = self._solver.get_solver(problem, self._qubit_converter)
+        else:
+            self._vqe = self._solver
 
         if self._orbital_rotation is None:
             self._orbital_rotation = OrbitalRotation(num_qubits=self._vqe.var_form.num_qubits,
-                                                     transformation=self._transformation,
-                                                     qmolecule=self._qmolecule)
+                                                     qubit_converter=self._qubit_converter,
+                                                     molecular_problem=problem)
         self._num_parameters_oovqe = \
             self._vqe.var_form.num_parameters + self._orbital_rotation.num_parameters
 
@@ -206,12 +182,15 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             self._set_bounds(self._orbital_rotation.parameter_bound_value)
         if self._iterative_oo_iterations < 1:
             raise QiskitNatureError(
-                            'Please set iterative_oo_iterations parameter to a positive number,'
-                            ' got {} instead'.format(self._iterative_oo_iterations))
+                'Please set iterative_oo_iterations parameter to a positive number,'
+                ' got {} instead'.format(self._iterative_oo_iterations))
 
         # copies to overcome incompatibilities with error checks in VariationalAlgorithm class
         self.var_form_num_parameters = self._vqe.var_form.num_parameters
-        self.var_form_bounds = copy.copy(self._vqe.var_form._bounds)
+        if hasattr(self._vqe.var_form, 'parameter_bounds') and self._vqe.var_form.parameter_bounds is not None:
+            self.var_form_bounds = self._vqe.var_form.parameter_bounds
+        else:
+            self.var_form_bounds = [(None, None)] * self.var_form_num_parameters
         self._additional_params_initialized = True
 
     def _energy_evaluation_oo(self, parameters: np.ndarray) -> Union[float, List[float]]:
@@ -225,9 +204,6 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             QiskitNatureError: Instantiate OrbitalRotation class and provide it to the
                        orbital_rotation keyword argument
         """
-
-        if not isinstance(self._transformation, "FermionicTransformation"):
-            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
 
         # slice parameter lists
         if self._iterative_oo:
@@ -253,29 +229,26 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         OrbitalOptimizationVQE._rotate_orbitals_in_qmolecule(
             self._qmolecule_rotated, self._orbital_rotation)
 
-        # construct the qubit operator
-        operator, aux_operators = self._transformation._do_transform(self._qmolecule_rotated)
-        self._vqe.operator = operator
-        self._vqe.aux_operators = aux_operators
+        fer_operator = build_fermionic_op(self._qmolecule_rotated)
+        operator = self._qubit_converter.convert(fer_operator)
         logger.debug('Orbital rotation parameters of matrix U at evaluation %d returned'
                      '\n %s', self._vqe._eval_count, repr(self._orbital_rotation.matrix_a))
         self._vqe.var_form._num_parameters = self.var_form_num_parameters
 
         # compute the energy on given state
+        self._vqe._expect_op = self._vqe.construct_expectation(self._vqe._var_form_params, operator)
         mean_energy = self._vqe._energy_evaluation(parameters=parameters_var_form)
+        print("Energy with orbital rotation: ", mean_energy)
 
         return mean_energy
 
     def solve(self,
-              driver: BaseDriver,
-              aux_operators: Optional[List[SecondQuantizedOp]] = None) \
+              problem: MolecularProblem,
+              aux_operators: Optional[Union[List[FermionicOp],
+                                            List[VibrationalOp]]] = None) \
             -> ElectronicStructureResult:
 
-        self._initialize_additional_parameters(driver)
-
-        if not isinstance(self._transformation, "FermionicTransformation"):
-            raise QiskitNatureError('OrbitalOptimizationVQE requires a FermionicTransformation.')
-
+        self._initialize_additional_parameters(problem)
         self._vqe._eval_count = 0
 
         # initial orbital rotation starting point is provided
@@ -284,9 +257,14 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             self._qmolecule_rotated = copy.copy(self._qmolecule)
             OrbitalOptimizationVQE._rotate_orbitals_in_qmolecule(
                 self._qmolecule_rotated, self._orbital_rotation)
-            operator, aux_operators = self._transformation._do_transform(self._qmolecule_rotated)
-            self._vqe.operator = operator
-            self._vqe.aux_operators = aux_operators
+
+            fer_operator = build_fermionic_op(self._qmolecule_rotated)
+            # fer_aux_operators = create_all_aux_operators(self._qmolecule_rotated)
+            operator = self._qubit_converter.convert(fer_operator)
+            # aux_operators = [self._qubit_converter(aux_op) for aux_op in fer_aux_operators]
+
+            self._vqe._expect_op = self._vqe.construct_expectation(self._vqe._var_form_params,
+                                                                   operator)
 
             logger.info(
                 '\n\nSetting the initial value for OO matrices and rotating Hamiltonian \n')
@@ -301,10 +279,16 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         # iterative method
         if self._iterative_oo:
             for _ in range(self._iterative_oo_iterations):
+
                 # optimize wavefunction ansatz
+
                 logger.info('OrbitalOptimizationVQE: Ansatz optimization, orbitals fixed.')
                 self._vqe.var_form._num_parameters = self.var_form_num_parameters
                 self._vqe.var_form._bounds = self.var_form_bounds
+                fer_operator = build_fermionic_op(self._qmolecule)
+                operator = self._qubit_converter.convert(fer_operator)
+                self._vqe._expect_op = self._vqe.construct_expectation(self._vqe._var_form_params,
+                                                                       operator)
                 vqresult_wavefun = self._vqe.find_minimum(
                     initial_point=self.initial_point[:self.var_form_num_parameters],
                     var_form=self._vqe.var_form,
@@ -313,10 +297,13 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                 self.initial_point[:self.var_form_num_parameters] = vqresult_wavefun.optimal_point
 
                 # optimize orbitals
+
                 logger.info('OrbitalOptimizationVQE: Orbital optimization, ansatz fixed.')
                 self._vqe.var_form._bounds = self._bound_oo
                 self._vqe.var_form._num_parameters = self._orbital_rotation.num_parameters
                 self._fixed_wavefunction_params = vqresult_wavefun.optimal_point
+                self._vqe._cost_fn = self._energy_evaluation_oo
+                self._vqe.initial_point = self.initial_point[self.var_form_num_parameters:]
                 vqresult = self._vqe.find_minimum(
                     initial_point=self.initial_point[self.var_form_num_parameters:],
                     var_form=self._vqe.var_form,
@@ -325,19 +312,20 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                 self.initial_point[self.var_form_num_parameters:] = vqresult.optimal_point
         else:
             # simultaneous method (ansatz and orbitals are optimized at the same time)
-            self._vqe.var_form._bounds = self._bounds
-            self._vqe.var_form._num_parameters = len(self._bounds)
-            vqresult = self._vqe.find_minimum(initial_point=self.initial_point,
-                                              var_form=self._vqe.var_form,
-                                              cost_fn=self._energy_evaluation_oo,
-                                              optimizer=self._vqe.optimizer)
+            vqresult = self._vqe.find_minimum(
+                initial_point=self.initial_point,
+                var_form=self._vqe.var_form,
+                cost_fn=self._energy_evaluation_oo,
+                optimizer=self._vqe.optimizer)
+
+            print(vqresult)
 
         # write original number of parameters to avoid errors due to parameter number mismatch
         self._vqe.var_form._num_parameters = self.var_form_num_parameters
 
         # extend VQE returned information with additional outputs
         result = OOVQEResult()
-        result.computed_electronic_energy = vqresult.optimal_value
+        result.computed_energies = np.asarray([vqresult.optimal_value])
         result.num_optimizer_evals = vqresult.optimizer_evals
         result.optimal_point = vqresult.optimal_point
         if self._iterative_oo:
@@ -348,28 +336,48 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             result.optimal_point_orbitals = vqresult.optimal_point[self.var_form_num_parameters:]
         result.eigenenergies = np.asarray([vqresult.optimal_value + 0j])
 
+        # TODO: implement missing properties
+        result.total_angular_momentum = None
+        result.num_particles = None
+        result.magnetization = None
+
         #  copy parameters bypass the error checks that are not tailored to OOVQE
         _ret_temp_params = copy.copy(vqresult.optimal_point)
-        self._vqe._ret = {}
-        self._vqe._ret['opt_params'] = vqresult.optimal_point[:self.var_form_num_parameters]
+
+        # TODO: buggy result saving to solve
+        self._vqe._ret.optimal_point = vqresult.optimal_point[:self.var_form_num_parameters]
+        self._vqe._ret.optimal_parameters = vqresult.optimal_point[:self.var_form_num_parameters]
+
         if self._iterative_oo:
-            self._vqe._ret['opt_params'] = vqresult_wavefun.optimal_point
+            self._vqe._ret.optimal_point = vqresult_wavefun.optimal_point
+            self._vqe._ret.optimal_parameters = vqresult_wavefun.optimal_point
+
         result.eigenstates = [self._vqe.get_optimal_vector()]
         if not self._iterative_oo:
-            self._vqe._ret['opt_params'] = _ret_temp_params
+            self._vqe._ret.optimal_point = _ret_temp_params
+            self._vqe._ret.optimal_parameters = self._vqe._ret.optimal_point
 
-        if self._vqe.aux_operators is not None:
+        if aux_operators is not None:
+            fer_aux_operators = create_all_aux_operators(self._qmolecule_rotated)
+            aux_ops = [self._qubit_converter.convert(aux_op) for aux_op in fer_aux_operators]
             #  copy parameters bypass the error checks that are not tailored to OOVQE
-            self._vqe._ret['opt_params'] = vqresult.optimal_point[:self.var_form_num_parameters]
+            self._vqe._ret.optimal_value = vqresult.optimal_point[:self.var_form_num_parameters]
+            self._vqe._ret.optimal_parameters = self._vqe._ret.optimal_value
+
             if self._iterative_oo:
-                self._vqe._ret['opt_params'] = vqresult_wavefun.optimal_point
-            self._vqe._eval_aux_ops()
-            result.aux_operator_eigenvalues = self._vqe._ret['aux_ops'][0]
+                self._vqe._ret.optimal_value = vqresult_wavefun.optimal_point
+                self._vqe._ret.optimal_parameters = self._vqe._ret.optimal_value
+
+            self._vqe._eval_aux_ops(aux_operators=aux_ops)
+
+            result.aux_operator_eigenvalues = self._vqe._ret.aux_operator_eigenvalues[0]
             if not self._iterative_oo:
-                self._vqe._ret['opt_params'] = _ret_temp_params
+                self._vqe._ret.optimal_value = _ret_temp_params
+                self._vqe._ret.optimal_parameters = self._vqe._ret.optimal_value
 
         result.cost_function_evals = self._vqe._eval_count
-        self.transformation.interpret(result)
+
+        problem.interpret(result)
 
         return result
 
@@ -435,8 +443,8 @@ class OrbitalRotation:
 
     def __init__(self,
                  num_qubits: int,
-                 transformation: "FermionicTransformation",
-                 qmolecule: Optional[QMolecule] = None,
+                 qubit_converter: QubitConverter,
+                 molecular_problem: MolecularProblem,
                  orbital_rotations: list = None,
                  orbital_rotations_beta: list = None,
                  parameters: list = None,
@@ -464,10 +472,12 @@ class OrbitalRotation:
             parameter_initial_value: initial value for all the parameters.
             parameter_bound_value: value for the bounds on all the parameters
         """
+        # TODO: all done
 
         self._num_qubits = num_qubits
-        self._transformation = transformation
-        self._qmolecule = qmolecule
+        self._qubit_converter = qubit_converter
+        self._molecular_problem = molecular_problem
+        self._qmolecule = cast(QMolecule, self._molecular_problem.molecule_data)
 
         self._orbital_rotations = orbital_rotations
         self._orbital_rotations_beta = orbital_rotations_beta
@@ -482,10 +492,13 @@ class OrbitalRotation:
         if self._parameter_bounds is None:
             self._create_parameter_bounds()
 
-        self._freeze_core = self._transformation._freeze_core
+        self._freeze_core = False
+        for transformer in self._molecular_problem.transformers:
+            if isinstance(transformer, FreezeCoreTransformer):
+                self._freeze_core = True
         self._core_list = self._qmolecule.core_orbitals if self._freeze_core else None
 
-        if self._transformation._two_qubit_reduction is True:
+        if self._qubit_converter.two_qubit_reduction is True:
             self._dim_kappa_matrix = int((self._num_qubits + 2) / 2)
         else:
             self._dim_kappa_matrix = int(self._num_qubits / 2)
@@ -536,13 +549,12 @@ class OrbitalRotation:
         """ Creates a list of indices of matrix kappa that denote the pairs of orbitals that
         will be rotated. For instance, a list of pairs of orbital such as [[0,1], [0,2]]. """
 
-        if self._transformation._two_qubit_reduction:
+        if self._qubit_converter.two_qubit_reduction:
             half_as = int((self._num_qubits + 2) / 2)
         else:
             half_as = int(self._num_qubits / 2)
 
         self._orbital_rotations = []
-
         for i in range(half_as):
             for j in range(half_as):
                 if i < j:
@@ -645,22 +657,11 @@ class OOVQEResult(ElectronicStructureResult):
 
     def __init__(self) -> None:
         super().__init__()
-        self._computed_electronic_energy: float = 0.
         self._num_optimizer_evals: int = 0
         self._cost_function_evals: int = 0
         self._optimal_point: List = []
         self._optimal_point_ansatz: List = []
         self._optimal_point_orbitals: List = []
-
-    @property
-    def computed_electronic_energy(self) -> float:
-        """ Returns the ground state energy. """
-        return self._computed_electronic_energy
-
-    @computed_electronic_energy.setter
-    def computed_electronic_energy(self, value: float) -> None:
-        """ Sets the ground state energy. """
-        self._computed_electronic_energy = value
 
     @property
     def cost_function_evals(self) -> int:
