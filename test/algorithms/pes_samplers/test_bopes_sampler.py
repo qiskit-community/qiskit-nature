@@ -17,16 +17,12 @@ from functools import partial
 
 import numpy as np
 
-from qiskit import BasicAer
-from qiskit.algorithms import VQE, NumPyMinimumEigensolver
-from qiskit.algorithms.optimizers import AQGD
-from qiskit.circuit.library import RealAmplitudes
-from qiskit.opflow import PauliExpectation
-from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.algorithms import NumPyMinimumEigensolver
+from qiskit.utils import algorithm_globals
+
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.algorithms.pes_samplers.bopes_sampler import BOPESSampler
 from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
-from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.drivers import Molecule, PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -48,47 +44,12 @@ class TestBOPES(unittest.TestCase):
                      degrees_of_freedom=[dof])
 
         mapper = ParityMapper()
-        converter = QubitConverter(mapper=mapper)
+        converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 
         driver = PySCFDriver(molecule=m)
         problem = MolecularProblem(driver)
 
-        fer_op = problem.second_q_ops()[0]
-        qubitop = converter.convert(fer_op)
-
-        num_particles = (problem.q_molecule_transformed.num_alpha,
-                         problem.q_molecule_transformed.num_beta)
-
-        # Quantum Instance:
-        shots = 1
-        backend = 'statevector_simulator'
-        quantum_instance = QuantumInstance(BasicAer.get_backend(backend), shots=shots)
-        quantum_instance.run_config.seed_simulator = seed
-        quantum_instance.compile_config['seed_transpiler'] = seed
-
-        # Variational form
-        i_state = HartreeFock(qubitop.num_qubits, num_particles, converter)
-        var_form = RealAmplitudes(qubitop.num_qubits, reps=1, entanglement='full',
-                                  skip_unentangled_qubits=False)
-        var_form.compose(i_state, front=True)
-
-        # Classical optimizer:
-        # Analytic Quantum Gradient Descent (AQGD) (with Epochs)
-        aqgd_max_iter = [10] + [1] * 100
-        aqgd_eta = [1e0] + [1.0 / k for k in range(1, 101)]
-        aqgd_momentum = [0.5] + [0.5] * 100
-        optimizer = AQGD(maxiter=aqgd_max_iter,
-                         eta=aqgd_eta,
-                         momentum=aqgd_momentum,
-                         tol=1e-6,
-                         averaging=4)
-
-        # Min Eigensolver: VQE
-        solver = VQE(var_form=var_form,
-                     optimizer=optimizer,
-                     quantum_instance=quantum_instance,
-                     expectation=PauliExpectation())
-
+        solver = NumPyMinimumEigensolver()
         me_gss = GroundStateEigensolver(converter, solver)
 
         # BOPES sampler

@@ -113,8 +113,8 @@ class BOPESSampler:
         # create results dictionary with (point, energy)
         self._points = list(self._raw_results.keys())
         self._energies = []
-        for key in self._raw_results:
-            energy = self._raw_results[key].total_energies[0]
+        for res in self._raw_results.values():
+            energy = res.total_energies[0]
             self._energies.append(energy)
 
         result = BOPESSamplerResult(self._points, self._energies, self._raw_results)
