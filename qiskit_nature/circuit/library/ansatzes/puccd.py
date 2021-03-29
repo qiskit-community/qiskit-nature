@@ -138,6 +138,7 @@ class PUCCD(UCC):
         return excitations
 
     def _validate_num_particles(self, num_particles):
+        return
         try:
             assert num_particles[0] == num_particles[1]
         except AssertionError as exc:

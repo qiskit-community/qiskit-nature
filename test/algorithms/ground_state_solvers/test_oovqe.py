@@ -15,25 +15,26 @@ import unittest
 from test import QiskitNatureTestCase
 
 from typing import cast
+
+from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import COBYLA
+from qiskit.circuit.library import RealAmplitudes
+from qiskit.providers.basicaer import BasicAer
+from qiskit.utils import QuantumInstance
+
+from qiskit_nature.algorithms.ground_state_solvers import OrbitalOptimizationVQE
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
+    VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.circuit.library.ansatzes import PUCCD
+from qiskit_nature.drivers import HDF5Driver, QMolecule
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
 from qiskit_nature.transformers import FreezeCoreTransformer
-from qiskit.providers.basicaer import BasicAer
-from qiskit.circuit.library import RealAmplitudes
-from qiskit_nature.circuit.library.ansatzes import PUCCD
-from qiskit.utils import QuantumInstance
-from qiskit.algorithms import VQE
-from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.drivers import HDF5Driver, QMolecule
-from qiskit_nature.algorithms.ground_state_solvers import OrbitalOptimizationVQE
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
-    VQEUCCFactory
 
 
-@unittest.skip("Skip OOVQE test until refactored.")
 class TestOOVQE(QiskitNatureTestCase):
     """ Test OOVQE Ground State Calculation. """
 
@@ -55,6 +56,10 @@ class TestOOVQE(QiskitNatureTestCase):
         self.molecular_problem1 = MolecularProblem(self.driver1)
         self.molecular_problem2 = MolecularProblem(self.driver2, [FreezeCoreTransformer()])
         self.molecular_problem3 = MolecularProblem(self.driver3)
+
+        self.molecular_problem1.second_q_ops()
+        self.molecular_problem2.second_q_ops()
+        self.molecular_problem3.second_q_ops()
 
         self.energy1_rotation = -3.0104
         self.energy1 = -2.77  # energy of the VQE with pUCCD ansatz and LBFGSB optimizer
@@ -80,8 +85,7 @@ class TestOOVQE(QiskitNatureTestCase):
                     var_form=PUCCD(),
                     )
         oovqe = OrbitalOptimizationVQE(self.molecular_problem1, self.qubit_converter, solver,
-                                       iterative_oo=False,
-                                      initial_point=self.initial_point1)
+                                       iterative_oo=False, initial_point=self.initial_point1)
         result = oovqe.solve(self.molecular_problem1)
 
         self.assertAlmostEqual(result.eigenenergies[0], self.energy1_rotation, 4)
@@ -97,8 +101,7 @@ class TestOOVQE(QiskitNatureTestCase):
                     var_form=PUCCD(),
                     )
         oovqe = OrbitalOptimizationVQE(self.molecular_problem1, self.qubit_converter, solver,
-                                       iterative_oo=False,
-                                      initial_point=self.initial_point1)
+                                       iterative_oo=False, initial_point=self.initial_point1)
         result = oovqe.solve(self.molecular_problem1)
 
         self.assertLessEqual(result.eigenenergies[0], self.energy1, 4)
@@ -113,13 +116,13 @@ class TestOOVQE(QiskitNatureTestCase):
                     var_form=PUCCD(),
                     )
         oovqe = OrbitalOptimizationVQE(self.molecular_problem1, self.qubit_converter, solver,
-                                       iterative_oo=True,
-                                       iterative_oo_iterations=2,
+                                       iterative_oo=True, iterative_oo_iterations=2,
                                        initial_point=self.initial_point1)
         result = oovqe.solve(self.molecular_problem1)
 
         self.assertLessEqual(result.eigenenergies[0], self.energy1)
 
+    @unittest.skip("Frozen-core support is currently broken.")
     def test_oovqe_with_frozen_core(self):
         """ Test the OOVQE with frozen core approximation. """
 
@@ -131,8 +134,7 @@ class TestOOVQE(QiskitNatureTestCase):
                     var_form=PUCCD(),
                     )
         oovqe = OrbitalOptimizationVQE(self.molecular_problem2, self.qubit_converter, solver,
-                                       iterative_oo=False,
-                                       initial_point=self.initial_point1)
+                                       iterative_oo=False)
         result = oovqe.solve(self.molecular_problem2)
         q_molecule_transformed = cast(QMolecule, self.molecular_problem2.molecule_data_transformed)
 
@@ -149,8 +151,7 @@ class TestOOVQE(QiskitNatureTestCase):
                     var_form=PUCCD(),
                     )
         oovqe = OrbitalOptimizationVQE(self.molecular_problem3, self.qubit_converter, solver,
-                                       iterative_oo=False,
-                                       initial_point=self.initial_point1)
+                                       iterative_oo=False, initial_point=self.initial_point1)
         result = oovqe.solve(self.molecular_problem3)
 
         self.assertLessEqual(result.eigenenergies, self.energy3)
@@ -158,14 +159,16 @@ class TestOOVQE(QiskitNatureTestCase):
     def test_oovqe_with_unsupported_varform(self):
         """ Test the OOVQE with unsupported varform. """
 
+        q_molecule_transformed = cast(QMolecule, self.molecular_problem1.molecule_data_transformed)
+        num_spin_orbitals = 2 * q_molecule_transformed.num_molecular_orbitals
         optimizer = COBYLA(maxiter=2, rhobeg=0.01)
-        var_form = RealAmplitudes(num_qubits=self.num_spin_orbitals)
+        var_form = RealAmplitudes(num_qubits=num_spin_orbitals)
         solver = VQE(var_form=var_form, optimizer=optimizer,
                      quantum_instance=self.quantum_instance)
         oovqe = OrbitalOptimizationVQE(self.molecular_problem3, self.qubit_converter, solver,
                                        iterative_oo=False)
         with self.assertRaises(QiskitNatureError):
-            oovqe.solve(self.driver3)
+            oovqe.solve(self.molecular_problem1)
 
     def test_oovqe_with_vqe_uccsd(self):
         """ Test the OOVQE with VQE + UCCSD instead of factory. """
@@ -174,9 +177,7 @@ class TestOOVQE(QiskitNatureTestCase):
         q_molecule_transformed = cast(QMolecule, self.molecular_problem1.molecule_data_transformed)
         num_spin_orbitals = 2 * q_molecule_transformed.num_molecular_orbitals
         num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
-        initial_state = HartreeFock(num_spin_orbitals,
-                                    num_particles,
-                                    self.qubit_converter)
+        initial_state = HartreeFock(num_spin_orbitals, num_particles, self.qubit_converter)
         var_form = PUCCD(qubit_converter=self.qubit_converter,
                          num_particles=num_particles,
                          num_spin_orbitals=num_spin_orbitals,

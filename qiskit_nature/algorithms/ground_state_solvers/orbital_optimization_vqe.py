@@ -26,21 +26,17 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.drivers.qmolecule import QMolecule
 from .ground_state_eigensolver import GroundStateEigensolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
-# from qiskit_nature.operators.second_quantization import BosonicOperator
 from qiskit_nature.operators.second_quantization import VibrationalOp, FermionicOp
-# from ...components.variational_forms import UCCSD
-from qiskit_nature.circuit.library.initial_states import HartreeFock
+from qiskit_nature.circuit.library.ansatzes import UCC
 
 from ...drivers.base_driver import BaseDriver
 from ...drivers.fermionic_driver import FermionicDriver
-# from ...fermionic_operator import FermionicOperator
 from ...operators.second_quantization.qubit_converter import QubitConverter
 from ...problems.second_quantization.molecular.aux_fermionic_ops_builder import \
     create_all_aux_operators
 from ...problems.second_quantization.molecular.fermionic_op_builder import build_fermionic_op
 from ...problems.second_quantization.molecular.molecular_problem import MolecularProblem
 from ...results.electronic_structure_result import ElectronicStructureResult
-# from ...transformations.fermionic_qubit_converter import FermionicTransformation
 from ...transformers.freeze_core_transformer import FreezeCoreTransformer
 
 logger = logging.getLogger(__name__)
@@ -157,11 +153,22 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
     def _initialize_additional_parameters(self, problem: MolecularProblem):
         """ Initializes additional parameters of the OOVQE algorithm. """
 
-        self._qmolecule = cast(QMolecule, problem.molecule_data)
+        self._qmolecule = cast(QMolecule, problem.molecule_data_transformed)
         if isinstance(self._solver, MinimumEigensolverFactory):
             self._vqe = self._solver.get_solver(problem, self._qubit_converter)
         else:
             self._vqe = self._solver
+
+        if not isinstance(self._vqe, VQE):
+            raise QiskitNatureError(
+                "The OrbitalOptimizationVQE algorithm requires the use of the VQE "
+                "MinimumEigensolver. Not a ", str(type(self._vqe))
+            )
+        if not isinstance(self._vqe.var_form, UCC):
+            raise QiskitNatureError(
+                "The OrbitalOptimizationVQE algorithm requires the use of a UCC varform. Not a ",
+                str(type(self._vqe.var_form))
+            )
 
         if self._orbital_rotation is None:
             self._orbital_rotation = OrbitalRotation(num_qubits=self._vqe.var_form.num_qubits,
@@ -187,7 +194,8 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
         # copies to overcome incompatibilities with error checks in VariationalAlgorithm class
         self.var_form_num_parameters = self._vqe.var_form.num_parameters
-        if hasattr(self._vqe.var_form, 'parameter_bounds') and self._vqe.var_form.parameter_bounds is not None:
+        if hasattr(self._vqe.var_form, 'parameter_bounds') and \
+                self._vqe.var_form.parameter_bounds is not None:
             self.var_form_bounds = self._vqe.var_form.parameter_bounds
         else:
             self.var_form_bounds = [(None, None)] * self.var_form_num_parameters
@@ -238,7 +246,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         # compute the energy on given state
         self._vqe._expect_op = self._vqe.construct_expectation(self._vqe._var_form_params, operator)
         mean_energy = self._vqe._energy_evaluation(parameters=parameters_var_form)
-        print("Energy with orbital rotation: ", mean_energy)
+        logger.info("Energy with orbital rotation: %s", mean_energy)
 
         return mean_energy
 
@@ -317,8 +325,6 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                 var_form=self._vqe.var_form,
                 cost_fn=self._energy_evaluation_oo,
                 optimizer=self._vqe.optimizer)
-
-            print(vqresult)
 
         # write original number of parameters to avoid errors due to parameter number mismatch
         self._vqe.var_form._num_parameters = self.var_form_num_parameters
@@ -477,7 +483,7 @@ class OrbitalRotation:
         self._num_qubits = num_qubits
         self._qubit_converter = qubit_converter
         self._molecular_problem = molecular_problem
-        self._qmolecule = cast(QMolecule, self._molecular_problem.molecule_data)
+        self._qmolecule = cast(QMolecule, self._molecular_problem.molecule_data_transformed)
 
         self._orbital_rotations = orbital_rotations
         self._orbital_rotations_beta = orbital_rotations_beta

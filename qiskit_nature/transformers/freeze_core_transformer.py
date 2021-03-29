@@ -97,9 +97,11 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [o for o in range(molecule_data.num_molecular_orbitals)
                             if o not in inactive_orbs_idxs]
+        self._active_orbitals = active_orbs_idxs
+        self._num_molecular_orbitals = len(active_orbs_idxs)
 
         # compute number of active electrons
-        nelec_inactive = sum([self._mo_occ_total[o] for o in inactive_orbs_idxs])
+        nelec_inactive = int(sum([self._mo_occ_total[o] for o in inactive_orbs_idxs]))
         nelec_active = nelec_total - nelec_inactive
 
         num_alpha = (nelec_active - (molecule_data.multiplicity - 1)) // 2
