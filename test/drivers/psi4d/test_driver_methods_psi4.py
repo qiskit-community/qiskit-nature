@@ -17,6 +17,7 @@ import unittest
 from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import PSI4Driver
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestDriverMethodsPSI4(TestDriverMethods):
@@ -60,19 +61,19 @@ set {{
     def test_lih_rhf(self):
         """ lih rhf test """
         driver = PSI4Driver(config=self.psi4_lih_config.format('rhf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_lih_rohf(self):
         """ lih rohf test """
         driver = PSI4Driver(config=self.psi4_lih_config.format('rohf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_lih_uhf(self):
         """ lih uhf test """
         driver = PSI4Driver(config=self.psi4_lih_config.format('uhf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_oh_rohf(self):
