@@ -63,8 +63,9 @@ class VibrationalProblem(BaseProblem):
 
     def hopping_ops(self, qubit_converter: QubitConverter,
                     excitations: Union[str, List[List[int]]] = 'sd'):
-        return build_hopping_operators(self.molecule_data, self.num_modals, self.truncation_order,
-                                       qubit_converter, excitations)
+        if isinstance(self.num_modals, int):
+            self.num_modals = [self.num_modals]*self.molecule_data.num_modes
+        return build_hopping_operators(self.num_modals, qubit_converter, excitations)
 
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
                                           MinimumEigensolverResult]) -> VibronicStructureResult:
@@ -92,7 +93,7 @@ class VibrationalProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
 
         result = VibronicStructureResult()
-        result.algorithm_result = eigenstate_result.data
+        result.combine(eigenstate_result)
         result.computed_vibronic_energies = eigenstate_result.eigenenergies
         if result.aux_operator_eigenvalues is not None:
             if not isinstance(result.aux_operator_eigenvalues, list):
@@ -124,8 +125,8 @@ class VibrationalProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
-            for mode in range(self._num_modes):
-                if not np.isclose(aux_values[mode][0], 1):
+            for mode in range(self.molecule_data.num_modes):
+                if aux_values is None or not np.isclose(aux_values[mode][0], 1):
                     return False
             return True
 

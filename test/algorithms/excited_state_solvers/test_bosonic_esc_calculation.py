@@ -14,6 +14,10 @@
 
 import unittest
 
+from qiskit_nature.mappers.second_quantization import DirectMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
+    VibrationalProblem
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
@@ -53,19 +57,22 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         self.reference_energies = [1889.95738428, 3294.21806197, 4287.26821341, 5819.76975784]
 
         self.driver = _DummyBosonicDriver()
+        self.qubit_converter = QubitConverter(DirectMapper())
+        self.basis_size = 2
+        self.truncation_order = 2
 
-        self.transformation = BosonicTransformation(
-            qubit_mapping=BosonicQubitMappingType.DIRECT,
-            transformation_type=BosonicTransformationType.HARMONIC,
-            basis_size=2,
-            truncation=2)
+        self.vibrational_problem = VibrationalProblem(self.driver, self.basis_size, self.truncation_order)
+        # self.transformation = BosonicTransformation(
+        #     qubit_mapping=BosonicQubitMappingType.DIRECT,
+        #     transformation_type=BosonicTransformationType.HARMONIC,
+        #     )
 
     def test_numpy_mes(self):
         """ Test with NumPyMinimumEigensolver """
         solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
-        gsc = GroundStateEigensolver(self.transformation, solver)
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
-        results = esc.solve(self.driver)
+        results = esc.solve(self.vibrational_problem)
 
         for idx in range(len(self.reference_energies)):
             self.assertAlmostEqual(results.computed_vibronic_energies[idx],

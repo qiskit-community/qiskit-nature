@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from typing import List, Union, Tuple, Dict
+from typing import List, Union, Tuple, Dict, cast
 import itertools
 
 from qiskit.opflow import PauliSumOp
@@ -18,42 +18,42 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.circuit.library.ansatzes import UVCC
 from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.operators import VibrationalOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
     build_vibrational_op
 
 
-def _build_single_hopping_operator(watson_hamiltonian: WatsonHamiltonian,
-                                   num_modals: Union[int, List[int]],
-                                   truncation_order,
-                                   qubit_converter: QubitConverter,
-                                   basis: List[int] = None):
+def _build_single_hopping_operator(excitation, num_modals,
+                                   qubit_converter: QubitConverter):
     """
     Builds a hopping operator given the list of indices (index) that is a single, a double
     or a higher order excitation.
     Args:
-        index: the indexes defining the excitation
         basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
             with 4 modals per mode basis = [4,4,4]
         qubit_mapping: the qubits mapping type. Only 'direct' is supported at the moment.
     Returns:
         Qubit operator object corresponding to the hopping operator
     """
+    sum_modes = sum(num_modals)
 
-    vibrational_op = build_vibrational_op(watson_hamiltonian, num_modals, truncation_order, basis)
+    label = ['I'] * sum_modes
+    for occ in excitation[0]:
+        label[occ] = '+'
+    for unocc in excitation[1]:
+        label[unocc] = '-'
+    vibrational_op = VibrationalOp(''.join(label), len(num_modals), num_modals)
     qubit_op = qubit_converter.convert_match(vibrational_op)
-    # if len(qubit_op.paulis) == 0: # TODO how to update it?
-    #     qubit_op = None
 
     return qubit_op
 
 
-def build_hopping_operators(watson_hamiltonian: WatsonHamiltonian,
-                            num_modals: Union[int, List[int]],
-                            truncation_order,
+def build_hopping_operators(num_modals: Union[int, List[int]],
                             qubit_converter: QubitConverter,
                             excitations: Union[str, List[List[int]]] = 'sd'
-                            ) -> Tuple[Dict[str, PauliSumOp], Dict, Dict[str, List[List[int]]]]:
+                            ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]], Dict[
+    str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
     """
     Args:
         excitations:
@@ -61,37 +61,36 @@ def build_hopping_operators(watson_hamiltonian: WatsonHamiltonian,
         Dict of hopping operators, dict of commutativity types and dict of excitation indices
     """
 
-    if isinstance(excitations, str):
+    excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
+    if isinstance(excitations, (str, int)) or \
+            (isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)):
+        excitations = cast(Union[str, int, List[int]], excitations)
         ansatz = UVCC(qubit_converter, num_modals, excitations)
-        excitations_list = [list(itertools.chain.from_iterable(zip(*exc)))
-                            for exc in ansatz._get_excitation_list()]
+        excitations_list = ansatz._get_excitation_list()
     else:
-        excitations_list = excitations
+        excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
 
     size = len(excitations_list)
 
-    def _dag_list(extn_lst):
-        dag_lst = []
-        for lst in extn_lst:
-            dag_lst.append([lst[0], lst[2], lst[1]])
-        return dag_lst
+    # def _dag_list(extn_lst):
+    #     dag_lst = []
+    #     for lst in extn_lst:
+    #         dag_lst.append([lst[0], lst[2], lst[1]])
+    #     return dag_lst
 
     hopping_operators: Dict[str, PauliSumOp] = {}
-    excitation_indices = {}
+    excitation_indices: Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]] = {}
     to_be_executed_list = []
     for idx in range(size):
-        to_be_executed_list += [excitations_list[idx], _dag_list(excitations_list[idx])]
+        to_be_executed_list += [excitations_list[idx], excitations_list[idx][::-1]]
         hopping_operators['E_{}'.format(idx)] = None
         hopping_operators['Edag_{}'.format(idx)] = None
         excitation_indices['E_{}'.format(idx)] = excitations_list[idx]
-        excitation_indices['Edag_{}'.format(idx)] = _dag_list(excitations_list[idx])
+        excitation_indices['Edag_{}'.format(idx)] = excitations_list[idx][::-1]
 
     result = parallel_map(_build_single_hopping_operator,
                           to_be_executed_list,
-                          task_args=(watson_hamiltonian,
-                                     num_modals,
-                                     truncation_order,
-                                     qubit_converter),
+                          task_args=(num_modals, qubit_converter),
                           num_processes=algorithm_globals.num_processes)
 
     for key, res in zip(hopping_operators.keys(), result):
