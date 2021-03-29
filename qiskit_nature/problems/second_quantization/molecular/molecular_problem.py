@@ -126,7 +126,8 @@ class MolecularProblem(BaseProblem):
         result.hartree_fock_energy = q_molecule.hf_energy
         result.nuclear_repulsion_energy = q_molecule.nuclear_repulsion_energy
         if q_molecule.nuclear_dipole_moment is not None:
-            result.nuclear_dipole_moment = tuple(x for x in q_molecule.nuclear_dipole_moment)
+            dipole_tuple = tuple(x for x in q_molecule.nuclear_dipole_moment)
+            result.nuclear_dipole_moment = cast(DipoleTuple, dipole_tuple)
         result.ph_extracted_energy = q_molecule_transformed.energy_shift.get(
             "ParticleHoleTransformer", 0)
         result.frozen_extracted_energy = q_molecule_transformed.energy_shift.get(

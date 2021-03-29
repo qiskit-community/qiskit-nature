@@ -9,33 +9,23 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from typing import List, Union, Tuple, Dict, cast
-import itertools
+
+"""Utility methods to build vibrational hopping operators."""
+
+from typing import cast, Callable, Dict, List, Tuple, Union
 
 from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.circuit.library.ansatzes import UVCC
-from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators import VibrationalOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
-    build_vibrational_op
 
 
-def _build_single_hopping_operator(excitation, num_modals,
-                                   qubit_converter: QubitConverter):
-    """
-    Builds a hopping operator given the list of indices (index) that is a single, a double
-    or a higher order excitation.
-    Args:
-        basis: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-            with 4 modals per mode basis = [4,4,4]
-        qubit_mapping: the qubits mapping type. Only 'direct' is supported at the moment.
-    Returns:
-        Qubit operator object corresponding to the hopping operator
-    """
+def _build_single_hopping_operator(excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
+                                   num_modals: List[int],
+                                   qubit_converter: QubitConverter) -> PauliSumOp:
     sum_modes = sum(num_modals)
 
     label = ['I'] * sum_modes
@@ -44,19 +34,33 @@ def _build_single_hopping_operator(excitation, num_modals,
     for unocc in excitation[1]:
         label[unocc] = '-'
     vibrational_op = VibrationalOp(''.join(label), len(num_modals), num_modals)
-    qubit_op = qubit_converter.convert_match(vibrational_op)
+    qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
 
     return qubit_op
 
 
-def build_hopping_operators(num_modals: Union[int, List[int]],
+def build_hopping_operators(num_modals: List[int],
                             qubit_converter: QubitConverter,
-                            excitations: Union[str, List[List[int]]] = 'sd'
-                            ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]], Dict[
-    str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+                            excitations: Union[str, int, List[int],
+                                               Callable[[int, Tuple[int, int]],
+                                                        List[Tuple[Tuple[int, ...],
+                                                             Tuple[int, ...]]]]] = 'sd',
+                            ) -> Tuple[Dict[str, PauliSumOp],
+                                       Dict[str, List[bool]],
+                                       Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
     """
     Args:
-        excitations:
+        num_modals: the number of modals per mode.
+        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
+                         symmetries stored in this instance are the basis for the commutativity
+                         information returned by this method.
+        excitations: the types of excitations to consider. The simples cases for this input are:
+            - a `str` containing any of the following charactes: `s`, `d`, `t` or `q`.
+            - a single, positive `int` denoting the exitation type (1 == `s`, etc.).
+            - a list of positive integers.
+            - and finally a callable which can be used to specify a custom list of excitations.
+              For more details on how to write such a function refer to the default method,
+              :meth:`generate_vibrational_excitations`.
     Returns:
         Dict of hopping operators, dict of commutativity types and dict of excitation indices
     """

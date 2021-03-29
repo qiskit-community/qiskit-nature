@@ -13,7 +13,7 @@
 """ The Unitary Vibrational Coupled-Cluster Single and Double excitations variational form. """
 
 from functools import partial
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import logging
 
@@ -174,7 +174,7 @@ class UVCC(EvolvedOperatorAnsatz):
         self._excitation_ops = excitation_ops
         return excitation_ops
 
-    def _get_excitation_list(self) -> List[Tuple[Tuple[Any, ...], ...]]:
+    def _get_excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         generators = self._get_excitation_generators()
 
         logger.debug('Generating excitation list...')
@@ -214,7 +214,7 @@ class UVCC(EvolvedOperatorAnsatz):
 
         return generators
 
-    def _build_vibration_excitation_ops(self, excitations: List[Tuple]) -> List[VibrationalOp]:
+    def _build_vibration_excitation_ops(self, excitations: Sequence) -> List[VibrationalOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 

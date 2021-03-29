@@ -30,7 +30,7 @@ def calc_occ_modals_per_mode_ints(num_modals: List[int],
         Tuple(numpy.ndarray, None): 1-body integrals and None 2-body integrals for a total
         particle number.
     """
-    h_mat: List[List[Tuple[List[List[int]], float]]] = [[]]
+    h_mat: List[List[Tuple[List[List[int]], complex]]] = [[]]
     for modal in range(num_modals[mode_index]):
         h_mat[0].append(([[mode_index, modal, modal]], 1.))
 

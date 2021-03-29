@@ -69,11 +69,11 @@ class BaseProblem(ABC):
         return data
 
     @abstractmethod
-    def interpret(self, raw_mes_result: EigenstateResult):
+    def interpret(self, raw_result: EigenstateResult):
         """Interprets an EigenstateResult in the context of this transformation.
 
         Args:
-            raw_mes_result: an eigenstate result object.
+            raw_result: an eigenstate result object.
 
         Returns:
             An electronic structure result.

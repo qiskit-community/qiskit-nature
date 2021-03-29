@@ -25,8 +25,10 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
-def _build_single_hopping_operator(excitation, num_spin_orbitals,
-                                   qubit_converter: QubitConverter):
+def _build_single_hopping_operator(excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
+                                   num_spin_orbitals: int,
+                                   qubit_converter: QubitConverter
+                                   ) -> Tuple[PauliSumOp, List[bool]]:
     label = ['I'] * num_spin_orbitals
     for occ in excitation[0]:
         label[occ] = '+'

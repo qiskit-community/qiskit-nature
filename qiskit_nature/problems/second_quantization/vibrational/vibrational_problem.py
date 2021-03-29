@@ -10,13 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """The Vibrational Problem class."""
+
 from functools import partial
-from typing import List, Optional, Union, Callable
+from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature.drivers import BosonicDriver
+from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.opflow import PauliSumOp
+
+from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
@@ -52,8 +55,10 @@ class VibrationalProblem(BaseProblem):
         Returns:
             A list of `SecondQuantizedOp` in the following order: ... .
         """
-        self._molecule_data = self.driver.run()
-        self._molecule_data_transformed = self._transform(self._molecule_data)
+        self._molecule_data: WatsonHamiltonian = cast(WatsonHamiltonian, self.driver.run())
+        self._molecule_data_transformed: WatsonHamiltonian = \
+            cast(WatsonHamiltonian, self._transform(self._molecule_data))
+
         vibrational_spin_op = build_vibrational_op(self._molecule_data_transformed,
                                                    self.num_modals,
                                                    self.truncation_order)
@@ -69,10 +74,19 @@ class VibrationalProblem(BaseProblem):
         return second_quantized_ops_list
 
     def hopping_ops(self, qubit_converter: QubitConverter,
-                    excitations: Union[str, List[List[int]]] = 'sd'):
+                    excitations: Union[str, int, List[int],
+                                       Callable[[int, Tuple[int, int]],
+                                                List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
+                                       ] = 'sd',
+                    ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
+                               Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+
         if isinstance(self.num_modals, int):
-            self.num_modals = [self.num_modals]*self.molecule_data.num_modes
-        return build_hopping_operators(self.num_modals, qubit_converter, excitations)
+            num_modals = [self.num_modals] * self._molecule_data_transformed.num_modes
+        else:
+            num_modals = self.num_modals
+
+        return build_hopping_operators(num_modals, qubit_converter, excitations)
 
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
                                           MinimumEigensolverResult]) -> VibronicStructureResult:
@@ -111,7 +125,7 @@ class VibrationalProblem(BaseProblem):
             result.num_occupied_modals_per_mode = []
             for aux_op_eigenvalues in aux_operator_eigenvalues:
                 occ_modals = []
-                for mode in range(self.molecule_data.num_modes):
+                for mode in range(self._molecule_data.num_modes):
                     if aux_op_eigenvalues[mode] is not None:
                         occ_modals.append(aux_op_eigenvalues[mode][0].real)  # type: ignore
                     else:
