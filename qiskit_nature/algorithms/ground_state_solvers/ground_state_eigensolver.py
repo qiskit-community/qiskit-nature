@@ -25,8 +25,7 @@ from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
-from qiskit_nature.results.vibronic_structure_result import VibronicStructureResult
+from qiskit_nature.results.eigenstate_result import EigenstateResult
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
@@ -62,7 +61,7 @@ class GroundStateEigensolver(GroundStateSolver):
 
     def solve(self, problem: BaseProblem,
               aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
+              ) -> EigenstateResult:
         """Compute Ground State properties.
 
         Args:

@@ -25,8 +25,7 @@ from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
-from qiskit_nature.results.vibronic_structure_result import VibronicStructureResult
+from qiskit_nature.results.eigenstate_result import EigenstateResult
 
 
 class GroundStateSolver(ABC):
@@ -44,7 +43,7 @@ class GroundStateSolver(ABC):
     @abstractmethod
     def solve(self, problem: BaseProblem,
               aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
+              ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:

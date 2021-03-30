@@ -27,11 +27,10 @@ from qiskit.opflow import (Z2Symmetries, commutator,
                            double_commutator, PauliSumOp, )
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.results import (ElectronicStructureResult, VibronicStructureResult,
-                                   EigenstateResult, )
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.eigenstate_result import EigenstateResult
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver
-from ...problems.second_quantization.base_problem import BaseProblem
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +69,7 @@ class QEOM(ExcitedStatesSolver):
 
     def solve(self, problem: BaseProblem,
               aux_operators: Optional[List[SecondQuantizedOp]] = None
-              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
+              ) -> "QEOMResult":
         """Run the excited-states calculation.
 
         Construct and solves the EOM pseudo-eigenvalue problem to obtain the excitation energies
@@ -81,9 +80,7 @@ class QEOM(ExcitedStatesSolver):
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-            The excited states result. In case of a fermionic problem a
-            ``ElectronicStructureResult`` is returned and in the bosonic case a
-            ``VibronicStructureResult``.
+            A ``QEOMResult``.
         """
 
         if aux_operators is not None:

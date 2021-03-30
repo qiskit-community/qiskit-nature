@@ -18,12 +18,10 @@ from typing import List, Union, Optional
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.results import (EigenstateResult,
-                                   ElectronicStructureResult,
-                                   VibronicStructureResult, )
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.eigenstate_result import EigenstateResult
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
@@ -59,7 +57,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
     def solve(self, problem: BaseProblem,
               aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
+              ) -> EigenstateResult:
         """Compute Ground and Excited States properties.
 
         Args:

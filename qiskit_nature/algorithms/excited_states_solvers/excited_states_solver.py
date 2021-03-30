@@ -19,7 +19,7 @@ from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results import ElectronicStructureResult, VibronicStructureResult
+from qiskit_nature.results.eigenstate_result import EigenstateResult
 
 
 class ExcitedStatesSolver(ABC):
@@ -28,7 +28,7 @@ class ExcitedStatesSolver(ABC):
     @abstractmethod
     def solve(self, problem: BaseProblem,
               aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
+              ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
         Args:
