@@ -61,6 +61,7 @@ eigensolution
 eigensolver
 eigensolvers
 eigenstate
+eigenstateresult
 eigenstates
 einact
 el
@@ -249,6 +250,7 @@ statevector
 statevectors
 stdout
 str
+subclass
 subclasses
 submodules
 substrings

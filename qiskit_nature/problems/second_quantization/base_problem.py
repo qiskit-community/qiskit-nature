@@ -69,14 +69,15 @@ class BaseProblem(ABC):
         return data
 
     @abstractmethod
-    def interpret(self, raw_result: EigenstateResult):
+    def interpret(self, raw_result: EigenstateResult) -> EigenstateResult:
         """Interprets an EigenstateResult in the context of this transformation.
 
         Args:
             raw_result: an eigenstate result object.
 
         Returns:
-            An electronic structure result.
+            An interpreted `EigenstateResult` in the form of a subclass of it. The actual type
+            depends on the problem that implements this method.
         """
         raise NotImplementedError()
 
