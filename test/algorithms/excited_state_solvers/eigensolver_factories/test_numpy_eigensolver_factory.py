@@ -41,6 +41,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
 
         self.molecular_problem = MolecularProblem(self.driver)
 
+        # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
             return np.isclose(aux_values[0][0], 2.)
 
@@ -54,6 +55,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
         # filter_criterion
         self.assertIsNotNone(self._numpy_eigensolver_factory.filter_criterion)
 
+        # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
             return np.isclose(aux_values[0][0], 3.)
 
