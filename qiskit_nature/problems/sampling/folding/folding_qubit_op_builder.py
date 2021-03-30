@@ -35,6 +35,7 @@ from qiskit.quantum_info.operators import Pauli
 
 ## Auxiliary functions
 def _simplify(pauli_conf, x):
+    """ To document"""
     if x == 0:
         return 0
     else:
@@ -47,6 +48,18 @@ def _simplify(pauli_conf, x):
     return x
 
 def _create_pauli_for_conf(N):
+    """
+    Create dictionary of Pauli operators that act on the 
+    conformation qubits
+
+    Args:
+        N: Number of amino acids in peptide
+
+    Returns:
+        pauli_conf: Dictionary of Pauli Z-matrices in symbolic 
+                    math notation with 2(N-1) + 1 terms 
+                    for backbone and side chain beads
+    """
     pauli_conf = dict()
     for i in range(1, 2*(N-1) + 1):  # first qubits is number 1
         pauli_conf[i] = dict()
@@ -56,6 +69,18 @@ def _create_pauli_for_conf(N):
 
 
 def _create_qubits_for_conf(pauli_conf):
+    """
+    Create conformation qubits based on the Pauli Z operators,
+    for backbone and side chain beads. Where a qubit, 
+    q_i is defined as (1 - sigma_i^(z))
+
+    Args:
+        pauli_conf: Dictionary of Pauli Z-matrices in 
+                    symbolic math notation
+    
+    Returns:
+        qubits: Dictionary of qubits 
+    """
     qubits = dict()
     for i in range(1, len(pauli_conf) + 1):  # first qubit is number 1
         qubits[i] = dict()
@@ -69,7 +94,7 @@ def _create_indic_turn(N, side_chain, qubits):
     corresponding turn. Here, each turn, i (ranging from 1 to total
     backbone beads, N) is (densely) coded on two qubits:
     q_(2i-1)q_(2i). Each function returned is of the form
-    indic_a(i) which returns 1 if axis, a = 0,1,2,3 is chosen at turn i.
+    indica(i) which returns 1 if axis, a = 0,1,2,3 is chosen at turn i.
 
     Args:
         N:
@@ -77,8 +102,10 @@ def _create_indic_turn(N, side_chain, qubits):
         qubits:
 
     Returns:
-        (indic0, indic1, indic2, indic3, num_qubits):
-    """
+        (indic0, indic1, indic2, indic3, num_qubits): indic_a[i][0] is the indicator for the backbone and
+                                                      indic_a[i][1] for the first bead on SC
+                                                      only one bead on SC here
+    """   
     if len(side_chain)!= N:
         raise Exception('size of side_chain list is not equal to N')
     indic0, indic1, indic2, indic3 = dict(), dict(), dict(), dict()
@@ -88,14 +115,11 @@ def _create_indic_turn(N, side_chain, qubits):
         indic2[i]=dict()
         indic3[i]=dict()
 
-    #  indic_a[i][0] is the indicator for the backbone and
-    #  indic_a[i][1] for the first bead on SC
-    #  only one bead on SC here
     r_conf = 0
     for i in range(1, N):   # There are N-1 turns starting at turn 1
         for m in range(2):
             if m == 1:
-                if side_chain[i-1] == 0 :
+                if side_chain[i-1] == 0:
                     continue
                 else:
                     pass
@@ -108,7 +132,25 @@ def _create_indic_turn(N, side_chain, qubits):
     return indic0, indic1, indic2, indic3, 2*r_conf - 5
 
 def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
+    """
+    Calculates distance between beads based on the number of turns in 
+    the main chain. Note, here we consider distances between beads
+    not on side chains. For a particular axis, a, we calculate the 
+    distance between i and j bead pairs,
+    delta_na = summation (k=i to j-1) of (-1)^k*indica(k)
+
+    Args:
+        N:
+        indic0:
+        indic1:
+        indic2:
+        indic3:
+
+    Returns:
+        delta_n0, delta_n1, delta_n2, delta_n3:
+    """
     delta_n0, delta_n1, delta_n2, delta_n3 = dict(), dict(), dict(), dict()
+    # initialize dictionary
     for i in range(1, N):
         delta_n0[i] = dict()
         delta_n1[i] = dict()
@@ -123,7 +165,7 @@ def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
             delta_n1[i][0][j], delta_n1[i][1][j] = dict(), dict()
             delta_n2[i][0][j], delta_n2[i][1][j] = dict(), dict()
             delta_n3[i][0][j], delta_n3[i][1][j] = dict(), dict()
-
+    # calculate distances
     for i in range(1, N): # j>i
         for j in range(i + 1, N + 1):
             delta_n0[i][0][j][0] = 0
@@ -135,7 +177,6 @@ def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
                 delta_n1[i][0][j][0] += (-1)**k * indic1[k][0]
                 delta_n2[i][0][j][0] += (-1)**k * indic2[k][0]
                 delta_n3[i][0][j][0] += (-1)**k * indic3[k][0]
-
             delta_n0[i][0][j][0] = _simplify(pauli_conf, delta_n0[i][0][j][0])
             delta_n1[i][0][j][0] = _simplify(pauli_conf, delta_n1[i][0][j][0])
             delta_n2[i][0][j][0] = _simplify(pauli_conf, delta_n2[i][0][j][0])
@@ -143,32 +184,70 @@ def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
     return delta_n0, delta_n1, delta_n2, delta_n3
 
 def _add_delta_SC(N, delta_n0, delta_n1, delta_n2, delta_n3, indic0, indic1, indic2, indic3, pauli_conf):
+    """
+    Calculates distances between beads located on side chains and adds the contribution to the 
+    distance calculated between beads (i and j) on the main chain.
+
+    Args:
+        N:
+        delta_n0:
+        delta_n1:
+        delta_n2:
+        delta_n3:
+        indic0:
+        indic1:
+        indic2:
+        indic3:
+        pauli_conf:
+
+    Returns:
+        delta_n0, delta_n1, delta_n2, delta_n3:
+    """  
+
     for i in range(1, N): # j>i
         for j in range(i+1, N+1):
-            try :
-                delta_n0[i][0][j][1]= _simplify(pauli_conf, delta_n0[i][0][j][0] + (-1)**j *indic0[j][1])
-                delta_n1[i][0][j][1]= _simplify(pauli_conf, delta_n1[i][0][j][0] + (-1)**j *indic1[j][1])
-                delta_n2[i][0][j][1]= _simplify(pauli_conf, delta_n2[i][0][j][0] + (-1)**j *indic2[j][1])
-                delta_n3[i][0][j][1]= _simplify(pauli_conf, delta_n3[i][0][j][0] + (-1)**j *indic3[j][1])
+            try:
+                delta_n0[i][0][j][1] = _simplify(pauli_conf, delta_n0[i][0][j][0] + (-1)**j *indic0[j][1])
+                delta_n1[i][0][j][1] = _simplify(pauli_conf, delta_n1[i][0][j][0] + (-1)**j *indic1[j][1])
+                delta_n2[i][0][j][1] = _simplify(pauli_conf, delta_n2[i][0][j][0] + (-1)**j *indic2[j][1])
+                delta_n3[i][0][j][1] = _simplify(pauli_conf, delta_n3[i][0][j][0] + (-1)**j *indic3[j][1])
             except:
                 pass
             try:
-                delta_n0[i][1][j][0]= _simplify(pauli_conf, delta_n0[i][0][j][0] - (-1)**i *indic0[i][1])
-                delta_n1[i][1][j][0]= _simplify(pauli_conf, delta_n1[i][0][j][0] - (-1)**i *indic1[i][1])
-                delta_n2[i][1][j][0]= _simplify(pauli_conf, delta_n2[i][0][j][0] - (-1)**i *indic2[i][1])
-                delta_n3[i][1][j][0]= _simplify(pauli_conf, delta_n3[i][0][j][0] - (-1)**i *indic3[i][1])
+                delta_n0[i][1][j][0] = _simplify(pauli_conf, delta_n0[i][0][j][0] - (-1)**i *indic0[i][1])
+                delta_n1[i][1][j][0] = _simplify(pauli_conf, delta_n1[i][0][j][0] - (-1)**i *indic1[i][1])
+                delta_n2[i][1][j][0] = _simplify(pauli_conf, delta_n2[i][0][j][0] - (-1)**i *indic2[i][1])
+                delta_n3[i][1][j][0] = _simplify(pauli_conf, delta_n3[i][0][j][0] - (-1)**i *indic3[i][1])
             except:
                 pass
             try:
-                delta_n0[i][1][j][1]= _simplify(pauli_conf, delta_n0[i][0][j][0] + (-1)**j *indic0[j][1] - (-1)**i *indic0[i][1])
-                delta_n1[i][1][j][1]= _simplify(pauli_conf, delta_n1[i][0][j][0] + (-1)**j *indic1[j][1] - (-1)**i *indic1[i][1])
-                delta_n2[i][1][j][1]= _simplify(pauli_conf, delta_n2[i][0][j][0] + (-1)**j *indic2[j][1] - (-1)**i *indic2[i][1])
-                delta_n3[i][1][j][1]= _simplify(pauli_conf, delta_n3[i][0][j][0] + (-1)**j *indic3[j][1] - (-1)**i *indic3[i][1])
+                delta_n0[i][1][j][1] = _simplify(pauli_conf, delta_n0[i][0][j][0] + (-1)**j *indic0[j][1] - (-1)**i *indic0[i][1])
+                delta_n1[i][1][j][1] = _simplify(pauli_conf, delta_n1[i][0][j][0] + (-1)**j *indic1[j][1] - (-1)**i *indic1[i][1])
+                delta_n2[i][1][j][1] = _simplify(pauli_conf, delta_n2[i][0][j][0] + (-1)**j *indic2[j][1] - (-1)**i *indic2[i][1])
+                delta_n3[i][1][j][1] = _simplify(pauli_conf, delta_n3[i][0][j][0] + (-1)**j *indic3[j][1] - (-1)**i *indic3[i][1])
             except:
                 pass
     return delta_n0, delta_n1, delta_n2, delta_n3
 
 def _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf):
+    """
+    Creates total distances between all bead pairs by summing the 
+    distances over all turns with axes, a = 0,1,2,3. For bead i with 
+    side chain s and bead j with side chain p, where j>1, the distance
+    can be referenced as x_dist[i][p][j][s]
+
+    Args:
+        N:
+        delta_n0:
+        delta_n1:
+        delta_n2:
+        delta_n3:
+        pauli_conf:
+    
+    Returns:
+        x_dist:
+    """
+    # initializes dictionaries
     x_dist = dict()
     r = 0
     for i in range (1, N):
@@ -179,12 +258,12 @@ def _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf):
 
     for i in range(1, N): # j>i
         for j in range(i+1, N+1):
-            for s in range (2):
-                for p in range(2):
-                    if i == 1 and p == 1 or j == N and s == 1 :
+            for s in range(2): # side chain on bead i
+                for p in range(2): # side chain on bead j
+                    if i == 1 and p == 1 or j == N and s == 1:
                         continue
                     try:
-                        x_dist[i][p][j][s]= _simplify(pauli_conf, delta_n0[i][p][j][s]**2 + delta_n1[i][p][j][s]**2 +
+                        x_dist[i][p][j][s] = _simplify(pauli_conf, delta_n0[i][p][j][s]**2 + delta_n1[i][p][j][s]**2 +
                                                         delta_n2[i][p][j][s]**2 + delta_n3[i][p][j][s]**2)
                         r +=1
                     except:
@@ -210,6 +289,24 @@ def _create_H_chiral(N, side_chain, lambda_chiral, indic0, indic1, indic2, indic
     return H_chiral
 
 def _second_neighbor(i, p, j, s, lambda_1, pair_energies, x_dist, pauli_conf):
+    """
+    Creates energetic interaction that penalizes local overlap between 
+    beads that correspond to a nearest neighbor contact or adds no net
+    interaction (zero) if beads are at a distance of 2 units from each other.
+
+    Args:
+        i:
+        j:
+        p:
+        s:
+        lambda_1:
+        pair_energies:
+        x_dist:
+        pauli_conf:
+    
+    Returns:
+        expr:
+    """
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
     expr = lambda_1*(2 - x) #+ e*0.1
@@ -217,6 +314,27 @@ def _second_neighbor(i, p, j, s, lambda_1, pair_energies, x_dist, pauli_conf):
     return expr
 
 def _first_neighbor(i, p, j, s, lambda_1, pair_energies, x_dist, pauli_conf):
+    """
+    Creates first nearest neighbor interaction if beads are in contact 
+    and at a distance of 1 from each other. Otherwise, a large positive 
+    energetic penalty is added. Here, the penalty (as described in the paper)
+    depends on the neighboring beads of interest (i and j), that is,
+    lambda_0 > 6*(j -i + 1)*lambda_1 + e_ij. Here, for a large enough lambda_1,
+    we chose lambda_0 = 7*(j- 1 + 1).
+
+    Args:
+        i:
+        j:
+        p:
+        s:
+        lambda_1:
+        pair_energies:
+        x_dist:
+        pauli_conf:
+    
+    Returns:
+        expr:
+    """
     lambda_0 = 7*(j - i + 1)*lambda_1
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
