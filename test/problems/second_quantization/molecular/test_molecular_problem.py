@@ -46,7 +46,6 @@ class TestMolecularProblem(QiskitNatureTestCase):
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
                        zip(expected_fermionic_op, electr_sec_quant_op.to_list()))
-        # TODO test QMolecule itself if it is ever a field in MolecularProblem
 
     def test_second_q_ops_with_active_space(self):
         """Tests that the correct second quantized operator is created if an active space
@@ -71,4 +70,3 @@ class TestMolecularProblem(QiskitNatureTestCase):
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
                        zip(expected_fermionic_op, electr_sec_quant_op.to_list()))
-        # TODO test QMolecule itself if it is ever a field in MolecularProblem

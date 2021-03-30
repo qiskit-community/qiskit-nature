@@ -25,42 +25,6 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
-def _build_single_hopping_operator(excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
-                                   num_spin_orbitals: int,
-                                   qubit_converter: QubitConverter
-                                   ) -> Tuple[PauliSumOp, List[bool]]:
-    label = ['I'] * num_spin_orbitals
-    for occ in excitation[0]:
-        label[occ] = '+'
-    for unocc in excitation[1]:
-        label[unocc] = '-'
-    fer_op = FermionicOp((''.join(label), 4.0 ** len(excitation[0])))
-
-    qubit_op: PauliSumOp = qubit_converter.convert_match(fer_op)
-    z2_symmetries = qubit_converter.z2symmetries
-
-    commutativities = []
-    if not z2_symmetries.is_empty():
-        for symmetry in z2_symmetries.symmetries:
-            symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
-            commuting = qubit_op.primitive.table.commutes_with_all(
-                symmetry_op.primitive.table)
-            anticommuting = qubit_op.primitive.table.anticommutes_with_all(
-                symmetry_op.primitive.table)
-
-            if commuting != anticommuting:  # only one of them is True
-                if commuting:
-                    commutativities.append(True)
-                elif anticommuting:
-                    commutativities.append(False)
-            else:
-                raise QiskitNatureError(
-                    "Symmetry {} is nor commute neither anti-commute "
-                    "to exciting operator.".format(symmetry.to_label()))
-
-    return qubit_op, commutativities
-
-
 def build_hopping_operators(q_molecule: QMolecule, qubit_converter: QubitConverter,
                             excitations: Union[str, int, List[int],
                                                Callable[[int, Tuple[int, int]],
@@ -129,3 +93,39 @@ def build_hopping_operators(q_molecule: QMolecule, qubit_converter: QubitConvert
         type_of_commutativities[key] = res[1]
 
     return hopping_operators, type_of_commutativities, excitation_indices
+
+
+def _build_single_hopping_operator(excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
+                                   num_spin_orbitals: int,
+                                   qubit_converter: QubitConverter
+                                   ) -> Tuple[PauliSumOp, List[bool]]:
+    label = ['I'] * num_spin_orbitals
+    for occ in excitation[0]:
+        label[occ] = '+'
+    for unocc in excitation[1]:
+        label[unocc] = '-'
+    fer_op = FermionicOp((''.join(label), 4.0 ** len(excitation[0])))
+
+    qubit_op: PauliSumOp = qubit_converter.convert_match(fer_op)
+    z2_symmetries = qubit_converter.z2symmetries
+
+    commutativities = []
+    if not z2_symmetries.is_empty():
+        for symmetry in z2_symmetries.symmetries:
+            symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
+            commuting = qubit_op.primitive.table.commutes_with_all(
+                symmetry_op.primitive.table)
+            anticommuting = qubit_op.primitive.table.anticommutes_with_all(
+                symmetry_op.primitive.table)
+
+            if commuting != anticommuting:  # only one of them is True
+                if commuting:
+                    commutativities.append(True)
+                elif anticommuting:
+                    commutativities.append(False)
+            else:
+                raise QiskitNatureError(
+                    "Symmetry {} is nor commute neither anti-commute "
+                    "to exciting operator.".format(symmetry.to_label()))
+
+    return qubit_op, commutativities

@@ -23,22 +23,6 @@ from qiskit_nature.operators import VibrationalOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
-def _build_single_hopping_operator(excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
-                                   num_modals: List[int],
-                                   qubit_converter: QubitConverter) -> PauliSumOp:
-    sum_modes = sum(num_modals)
-
-    label = ['I'] * sum_modes
-    for occ in excitation[0]:
-        label[occ] = '+'
-    for unocc in excitation[1]:
-        label[unocc] = '-'
-    vibrational_op = VibrationalOp(''.join(label), len(num_modals), num_modals)
-    qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
-
-    return qubit_op
-
-
 def build_hopping_operators(num_modals: List[int],
                             qubit_converter: QubitConverter,
                             excitations: Union[str, int, List[int],
@@ -99,3 +83,19 @@ def build_hopping_operators(num_modals: List[int],
     type_of_commutativities: Dict[str, List[bool]] = {}
 
     return hopping_operators, type_of_commutativities, excitation_indices  # type: ignore
+
+
+def _build_single_hopping_operator(excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
+                                   num_modals: List[int],
+                                   qubit_converter: QubitConverter) -> PauliSumOp:
+    sum_modes = sum(num_modals)
+
+    label = ['I'] * sum_modes
+    for occ in excitation[0]:
+        label[occ] = '+'
+    for unocc in excitation[1]:
+        label[unocc] = '-'
+    vibrational_op = VibrationalOp(''.join(label), len(num_modals), num_modals)
+    qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
+
+    return qubit_op
