@@ -61,7 +61,7 @@ class GroundStateEigensolver(GroundStateSolver):
         return self._solver.supports_aux_operators()
 
     def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[SecondQuantizedOp]] = None,
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Compute Ground State properties.
 
@@ -88,7 +88,11 @@ class GroundStateEigensolver(GroundStateSolver):
         aux_ops = qubit_ops[1:]
 
         if aux_operators is not None:
-            aux_ops += self._qubit_converter.convert_match(aux_operators, True)
+            for aux_op in aux_operators:
+                if isinstance(aux_op, SecondQuantizedOp):
+                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                else:
+                    aux_ops.append(aux_op)
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform

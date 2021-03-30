@@ -58,7 +58,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         self._solver = solver
 
     def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[SecondQuantizedOp]] = None
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Compute Ground and Excited States properties.
 
@@ -74,11 +74,6 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
             An eigenstate result. Depending on the transformation this can be an electronic
             structure or bosonic result.
         """
-        if aux_operators is not None:
-            if any(not isinstance(op, (PauliSumOp, SecondQuantizedOp))
-                   for op in aux_operators):
-                raise NotImplementedError('Currently only fermionic problems are supported.')
-
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_operators`` contains not only the transformed ``aux_operators`` passed
         # by the user but also additional ones from the transformation
@@ -86,7 +81,14 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         qubit_ops = self._qubit_converter.convert_match(second_q_ops)
 
         main_operator = qubit_ops[0]
-        aux_operators = qubit_ops[1:]
+        aux_ops = qubit_ops[1:]
+
+        if aux_operators is not None:
+            for aux_op in aux_operators:
+                if isinstance(aux_op, SecondQuantizedOp):
+                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                else:
+                    aux_ops.append(aux_op)
 
         if isinstance(self._solver, EigensolverFactory):
             # this must be called after transformation.transform
@@ -96,9 +98,9 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         # if the eigensolver does not support auxiliary operators, reset them
         if not solver.supports_aux_operators():
-            aux_operators = None
+            aux_ops = None
 
-        raw_es_result = solver.compute_eigenvalues(main_operator, aux_operators)
+        raw_es_result = solver.compute_eigenvalues(main_operator, aux_ops)
 
         eigenstate_result = EigenstateResult()
         eigenstate_result.raw_result = raw_es_result

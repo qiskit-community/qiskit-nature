@@ -43,7 +43,7 @@ class GroundStateSolver(ABC):
 
     @abstractmethod
     def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[SecondQuantizedOp]] = None,
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 

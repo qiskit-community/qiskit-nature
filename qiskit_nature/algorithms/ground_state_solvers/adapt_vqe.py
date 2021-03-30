@@ -134,7 +134,7 @@ class AdaptVQE(GroundStateEigensolver):
         return match is not None or (len(indices) > 1 and indices[-2] == indices[-1])
 
     def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[SecondQuantizedOp]] = None,
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
               ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
         """Computes the ground state.
 
@@ -158,7 +158,11 @@ class AdaptVQE(GroundStateEigensolver):
         aux_ops = qubit_ops[1:]
 
         if aux_operators is not None:
-            aux_ops += self._qubit_converter.convert_match(aux_operators, True)
+            for aux_op in aux_operators:
+                if isinstance(aux_op, SecondQuantizedOp):
+                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                else:
+                    aux_ops.append(aux_op)
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             vqe = self._solver.get_solver(problem, self._qubit_converter)
