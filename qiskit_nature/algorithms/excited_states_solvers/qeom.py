@@ -98,8 +98,7 @@ class QEOM(ExcitedStatesSolver):
 
         # 3. Evaluate eom operators
         measurement_results = self._gsc.evaluate_operators(
-            groundstate_result.raw_result.eigenstate,
-            # TODO access depends on the interpret function
+            groundstate_result.eigenstates[0],
             matrix_operators_dict)
         measurement_results = cast(Dict[str, List[float]], measurement_results)
 
