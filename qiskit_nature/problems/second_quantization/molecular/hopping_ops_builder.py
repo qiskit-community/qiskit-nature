@@ -104,9 +104,6 @@ def build_hopping_operators(q_molecule: QMolecule, qubit_converter: QubitConvert
 
     size = len(excitations_list)
 
-    # # get all to-be-processed index
-    # mus, nus = np.triu_indices(size)
-
     # build all hopping operators
     hopping_operators: Dict[str, PauliSumOp] = {}
     type_of_commutativities: Dict[str, List[bool]] = {}

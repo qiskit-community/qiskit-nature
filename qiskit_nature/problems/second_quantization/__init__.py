@@ -16,8 +16,10 @@
 
 from .base_problem import BaseProblem
 from .molecular import MolecularProblem
+from .vibrational.vibrational_problem import VibrationalProblem
 
 __all__ = [
     'BaseProblem',
     'MolecularProblem',
+    'VibrationalProblem',
 ]

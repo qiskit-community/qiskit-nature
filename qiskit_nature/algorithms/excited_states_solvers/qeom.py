@@ -147,7 +147,7 @@ class QEOM(ExcitedStatesSolver):
                                    self._excitations)
         hopping_operators, type_of_commutativities, excitation_indices = data
 
-        size = int(len(list(excitation_indices.keys())) / 2)
+        size = int(len(list(excitation_indices.keys())) // 2)
 
         eom_matrix_operators = self._build_all_commutators(
             hopping_operators, type_of_commutativities, size)
