@@ -18,8 +18,8 @@ from test.problems.second_quantization.vibrational.resources.expected_labels imp
 
 from qiskit_nature.drivers import GaussianForcesDriver
 from qiskit_nature.drivers.bosonic_bases import HarmonicBasis
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
-    _create_labels
+from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_label_builder \
+    import _create_labels
 
 
 class TestVibrationalLabelBuilder(QiskitNatureTestCase):

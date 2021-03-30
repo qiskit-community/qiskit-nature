@@ -31,7 +31,7 @@ from qiskit_nature.drivers import PySCFDriver, UnitsType, QMolecule
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
-from qiskit_nature.problems.second_quantization.molecular.fermionic_op_builder import \
+from qiskit_nature.problems.second_quantization.molecular.builders.fermionic_op_builder import \
         build_ferm_op_from_ints
 
 

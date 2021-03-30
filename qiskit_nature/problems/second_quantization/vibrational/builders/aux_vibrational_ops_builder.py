@@ -15,7 +15,8 @@
 from typing import List
 
 from qiskit_nature.operators.second_quantization import VibrationalOp
-from .integrals_calculators import calc_occ_modals_per_mode_ints
+from qiskit_nature.problems.second_quantization.vibrational.integrals_calculators import \
+    calc_occ_modals_per_mode_ints
 from .vibrational_op_builder import build_vibrational_op_from_ints
 
 

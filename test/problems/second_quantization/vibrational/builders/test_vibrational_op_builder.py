@@ -18,7 +18,7 @@ from test.problems.second_quantization.vibrational.resources.expected_labels imp
     _co2_freq_b3lyp_coeffs as expected_coeffs
 
 from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
+from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import \
     _build_vibrational_op
 from qiskit_nature.drivers import GaussianForcesDriver
 

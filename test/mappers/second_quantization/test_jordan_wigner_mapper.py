@@ -20,7 +20,7 @@ from qiskit.opflow import X, Y, Z, I
 
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.problems.second_quantization.molecular import fermionic_op_builder
+from qiskit_nature.problems.second_quantization.molecular.builders import fermionic_op_builder
 
 
 class TestJordanWignerMapper(QiskitNatureTestCase):

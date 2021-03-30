@@ -23,13 +23,15 @@ from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.problems.second_quantization.vibrational.hopping_ops_builder import \
+from qiskit_nature.problems.second_quantization.vibrational.builders.hopping_ops_builder import \
     build_hopping_operators
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
+from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import \
     _build_vibrational_op
 from qiskit_nature.results import EigenstateResult, VibronicStructureResult
 from qiskit_nature.transformers import BaseTransformer
-from .aux_vibrational_ops_builder import _create_all_aux_operators
+from qiskit_nature.problems.second_quantization.vibrational.builders.aux_vibrational_ops_builder \
+    import _create_all_aux_operators
+from .result_interpreter import _interpret
 
 
 class VibrationalProblem(BaseProblem):
@@ -76,8 +78,8 @@ class VibrationalProblem(BaseProblem):
     def hopping_ops(self, qubit_converter: QubitConverter,
                     excitations: Union[str, int, List[int],
                                        Callable[[int, Tuple[int, int]],
-                                                List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
-                                       ] = 'sd',
+                                                List[Tuple[
+                                                    Tuple[int, ...], Tuple[int, ...]]]]] = 'sd',
                     ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
                                Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
         """Generates the hopping operators and their commutativity information for the specified set
@@ -116,42 +118,7 @@ class VibrationalProblem(BaseProblem):
                    An vibronic structure result.
                """
 
-        eigenstate_result = None
-        if isinstance(raw_result, EigenstateResult):
-            eigenstate_result = raw_result
-        elif isinstance(raw_result, EigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = raw_result.eigenvalues
-            eigenstate_result.eigenstates = raw_result.eigenstates
-            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
-        elif isinstance(raw_result, MinimumEigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
-            eigenstate_result.eigenstates = [raw_result.eigenstate]
-            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
-
-        result = VibronicStructureResult()
-        result.combine(eigenstate_result)
-        result.computed_vibronic_energies = eigenstate_result.eigenenergies
-        if result.aux_operator_eigenvalues is not None:
-            if not isinstance(result.aux_operator_eigenvalues, list):
-                aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
-            else:
-                aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
-
-            result.num_occupied_modals_per_mode = []
-            for aux_op_eigenvalues in aux_operator_eigenvalues:
-                occ_modals = []
-                for mode in range(self._molecule_data.num_modes):
-                    if aux_op_eigenvalues[mode] is not None:
-                        occ_modals.append(aux_op_eigenvalues[mode][0].real)  # type: ignore
-                    else:
-                        occ_modals.append(None)
-                result.num_occupied_modals_per_mode.append(occ_modals)  # type: ignore
-
-        return result
+        return _interpret(self._molecule_data.num_modes, raw_result)
 
     def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
                                                                  Optional[List[float]]], bool]]:

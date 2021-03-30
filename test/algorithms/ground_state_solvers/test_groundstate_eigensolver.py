@@ -35,7 +35,7 @@ from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
-from qiskit_nature.problems.second_quantization.molecular.fermionic_op_builder import \
+from qiskit_nature.problems.second_quantization.molecular.builders.fermionic_op_builder import \
         build_ferm_op_from_ints
 
 

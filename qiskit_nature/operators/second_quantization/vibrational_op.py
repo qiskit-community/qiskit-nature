@@ -99,7 +99,6 @@ class VibrationalOp(SecondQuantizedOp):
                         same number of modals in each mode it is enough to provide an integer
                         that describes the number of them; the total number of modals defines a
                         `register_length`
-            spin: positive half-integer (integer or half-odd-integer) that represents spin.
         Raises:
             TypeError: given data has invalid type.
             ValueError: invalid labels.
