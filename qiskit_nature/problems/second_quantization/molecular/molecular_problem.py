@@ -104,7 +104,9 @@ class MolecularProblem(BaseProblem):
         Returns:
             An electronic structure result.
         """
-        return _interpret(self.molecule_data, self.molecule_data_transformed, raw_result)
+        q_molecule = cast(QMolecule, self.molecule_data)
+        q_molecule_transformed = cast(QMolecule, self.molecule_data_transformed)
+        return _interpret(q_molecule, q_molecule_transformed, raw_result)
 
     def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
                                                                  Optional[List[float]]], bool]]:
