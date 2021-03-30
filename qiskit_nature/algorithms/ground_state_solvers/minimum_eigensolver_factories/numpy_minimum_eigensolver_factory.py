@@ -67,8 +67,6 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
 
     def get_solver(self, problem: BaseProblem,
                    qubit_converter: QubitConverter) -> MinimumEigensolver:
-        # TODO qubit_converter not used here but necessary due to inheritance from
-        #  MinimumEigensolverFactory
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``transformation``.
 
