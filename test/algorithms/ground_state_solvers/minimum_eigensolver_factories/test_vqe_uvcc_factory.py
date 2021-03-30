@@ -48,45 +48,45 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
     def test_setters_getters(self):
         """ Test Getter/Setter """
 
-        # quantum instance
-        self.assertEqual(self._vqe_uvcc_factory.quantum_instance, self.quantum_instance)
-        self._vqe_uvcc_factory.quantum_instance = None
-        self.assertEqual(self._vqe_uvcc_factory.quantum_instance, None)
+        with self.subTest("Quantum Instance"):
+            self.assertEqual(self._vqe_uvcc_factory.quantum_instance, self.quantum_instance)
+            self._vqe_uvcc_factory.quantum_instance = None
+            self.assertEqual(self._vqe_uvcc_factory.quantum_instance, None)
 
-        # optimizer
-        self.assertEqual(self._vqe_uvcc_factory.optimizer, None)
-        optimizer = COBYLA()
-        self._vqe_uvcc_factory.optimizer = optimizer
-        self.assertEqual(self._vqe_uvcc_factory.optimizer, optimizer)
+        with self.subTest("Optimizer"):
+            self.assertEqual(self._vqe_uvcc_factory.optimizer, None)
+            optimizer = COBYLA()
+            self._vqe_uvcc_factory.optimizer = optimizer
+            self.assertEqual(self._vqe_uvcc_factory.optimizer, optimizer)
 
-        # initial point
-        self.assertEqual(self._vqe_uvcc_factory.initial_point, None)
-        initial_point = [1, 2, 3]
-        self._vqe_uvcc_factory.initial_point = initial_point
-        self.assertEqual(self._vqe_uvcc_factory.initial_point, initial_point)
+        with self.subTest("Initial Point"):
+            self.assertEqual(self._vqe_uvcc_factory.initial_point, None)
+            initial_point = [1, 2, 3]
+            self._vqe_uvcc_factory.initial_point = initial_point
+            self.assertEqual(self._vqe_uvcc_factory.initial_point, initial_point)
 
-        # expectation
-        self.assertEqual(self._vqe_uvcc_factory.expectation, None)
-        expectation = AerPauliExpectation()
-        self._vqe_uvcc_factory.expectation = expectation
-        self.assertEqual(self._vqe_uvcc_factory.expectation, expectation)
+        with self.subTest("Expectation"):
+            self.assertEqual(self._vqe_uvcc_factory.expectation, None)
+            expectation = AerPauliExpectation()
+            self._vqe_uvcc_factory.expectation = expectation
+            self.assertEqual(self._vqe_uvcc_factory.expectation, expectation)
 
-        # include_custom
-        self.assertEqual(self._vqe_uvcc_factory.include_custom, False)
-        self._vqe_uvcc_factory.include_custom = True
-        self.assertEqual(self._vqe_uvcc_factory.include_custom, True)
+        with self.subTest("Include Custom"):
+            self.assertEqual(self._vqe_uvcc_factory.include_custom, False)
+            self._vqe_uvcc_factory.include_custom = True
+            self.assertEqual(self._vqe_uvcc_factory.include_custom, True)
 
-        # var_form
-        self.assertEqual(self._vqe_uvcc_factory.var_form, None)
-        var_form = UVCCSD()
-        self._vqe_uvcc_factory.var_form = var_form
-        self.assertTrue(isinstance(self._vqe_uvcc_factory.var_form, UVCCSD))
+        with self.subTest("Variational Form"):
+            self.assertEqual(self._vqe_uvcc_factory.var_form, None)
+            var_form = UVCCSD()
+            self._vqe_uvcc_factory.var_form = var_form
+            self.assertTrue(isinstance(self._vqe_uvcc_factory.var_form, UVCCSD))
 
-        # initial_state
-        self.assertEqual(self._vqe_uvcc_factory.initial_state, None)
-        initial_state = HartreeFock(4, (1, 1), self.converter)
-        self._vqe_uvcc_factory.initial_state = initial_state
-        self.assertEqual(self._vqe_uvcc_factory.initial_state, initial_state)
+        with self.subTest("Initial State"):
+            self.assertEqual(self._vqe_uvcc_factory.initial_state, None)
+            initial_state = HartreeFock(4, (1, 1), self.converter)
+            self._vqe_uvcc_factory.initial_state = initial_state
+            self.assertEqual(self._vqe_uvcc_factory.initial_state, initial_state)
 
 
 if __name__ == '__main__':
