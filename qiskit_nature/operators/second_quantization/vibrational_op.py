@@ -362,7 +362,6 @@ class VibrationalOp(SecondQuantizedOp):
 
             Args:
                 vibrational_labels: list of vibrational labels with coefficients.
-                num_modes: the number of modes.
                 num_modals: the number of modals.
 
             Raises:

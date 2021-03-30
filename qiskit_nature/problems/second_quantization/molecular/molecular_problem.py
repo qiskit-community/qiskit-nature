@@ -24,7 +24,7 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult, DipoleTuple
 from qiskit_nature.transformers import BaseTransformer
-from .aux_fermionic_ops_builder import create_all_aux_operators
+from .aux_fermionic_ops_builder import _create_all_aux_operators
 from .fermionic_op_builder import build_fermionic_op
 from .hopping_ops_builder import build_hopping_operators
 from ..base_problem import BaseProblem
@@ -56,7 +56,7 @@ class MolecularProblem(BaseProblem):
         self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
         electronic_fermionic_op = build_fermionic_op(self._molecule_data_transformed)
-        second_quantized_ops_list = [electronic_fermionic_op] + create_all_aux_operators(
+        second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
             self._molecule_data_transformed)
 
         return second_quantized_ops_list

@@ -39,7 +39,9 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         """
 
         Args:
-            transformation: Qubit Operator Transformation
+            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
+                             Z2 symmetries stored in this instance are the basis for the
+                             commutativity information returned by this method.
             solver: Minimum Eigensolver or MESFactory object.
         """
         self._qubit_converter = qubit_converter

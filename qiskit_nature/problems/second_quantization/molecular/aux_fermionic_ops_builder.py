@@ -22,9 +22,7 @@ from qiskit_nature.problems.second_quantization.molecular.integrals_calculators 
     calc_total_magnetization_ints, calc_total_ang_momentum_ints, calc_total_particle_num_ints
 
 
-# TODO name this file better
-
-def create_all_aux_operators(q_molecule: QMolecule) -> List[FermionicOp]:
+def _create_all_aux_operators(q_molecule: QMolecule) -> List[FermionicOp]:
     """Generates the common auxiliary operators out of the given QMolecule.
 
     Args:

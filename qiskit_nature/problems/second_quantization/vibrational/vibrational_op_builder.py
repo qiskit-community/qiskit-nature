@@ -25,11 +25,11 @@ from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_bu
 logger = logging.getLogger(__name__)
 
 
-def build_vibrational_op(watson_hamiltonian: WatsonHamiltonian,
-                         num_modals: Union[int, List[int]],
-                         truncation_order: int,
-                         basis: Optional[BosonicBasis] = None,
-                         ) -> VibrationalOp:
+def _build_vibrational_op(watson_hamiltonian: WatsonHamiltonian,
+                          num_modals: Union[int, List[int]],
+                          truncation_order: int,
+                          basis: Optional[BosonicBasis] = None,
+                          ) -> VibrationalOp:
     """
     Builds a :class:`VibrationalOp` based on a :class:`WatsonHamiltonian` object.
 

@@ -19,7 +19,7 @@ from .integrals_calculators import calc_occ_modals_per_mode_ints
 from .vibrational_op_builder import build_vibrational_op_from_ints
 
 
-def create_all_aux_operators(num_modals: List[int]) -> List[VibrationalOp]:
+def _create_all_aux_operators(num_modals: List[int]) -> List[VibrationalOp]:
     """Generates the common auxiliary operators out of the given WatsonHamiltonian.
 
     Args:

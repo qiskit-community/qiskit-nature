@@ -19,7 +19,7 @@ from test.problems.second_quantization.vibrational.resources.expected_labels imp
 
 from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
-    build_vibrational_op
+    _build_vibrational_op
 from qiskit_nature.drivers import GaussianForcesDriver
 
 
@@ -37,7 +37,7 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
         num_modals = 2
         truncation_order = 3
 
-        vibrational_op = build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
+        vibrational_op = _build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
 
         assert isinstance(vibrational_op, VibrationalOp)
         labels, coeffs = zip(*vibrational_op.to_list())

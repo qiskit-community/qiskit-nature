@@ -13,11 +13,8 @@
 """ Test NumericalqEOM excited states calculation """
 
 import unittest
-
 from test import QiskitNatureTestCase
-
 import numpy as np
-
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
@@ -53,6 +50,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                                    -1.8427016 + 1.5969296]
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.molecular_problem = MolecularProblem(self.driver)
+
         solver = NumPyEigensolver()
         self.ref = solver
         self.quantum_instance = QuantumInstance(BasicAer.get_backend('statevector_simulator'),

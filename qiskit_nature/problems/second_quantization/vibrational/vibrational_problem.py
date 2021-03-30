@@ -26,10 +26,10 @@ from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 from qiskit_nature.problems.second_quantization.vibrational.hopping_ops_builder import \
     build_hopping_operators
 from qiskit_nature.problems.second_quantization.vibrational.vibrational_op_builder import \
-    build_vibrational_op
+    _build_vibrational_op
 from qiskit_nature.results import EigenstateResult, VibronicStructureResult
 from qiskit_nature.transformers import BaseTransformer
-from .aux_vibrational_ops_builder import create_all_aux_operators
+from .aux_vibrational_ops_builder import _create_all_aux_operators
 
 
 class VibrationalProblem(BaseProblem):
@@ -59,9 +59,9 @@ class VibrationalProblem(BaseProblem):
         self._molecule_data_transformed: WatsonHamiltonian = \
             cast(WatsonHamiltonian, self._transform(self._molecule_data))
 
-        vibrational_spin_op = build_vibrational_op(self._molecule_data_transformed,
-                                                   self.num_modals,
-                                                   self.truncation_order)
+        vibrational_spin_op = _build_vibrational_op(self._molecule_data_transformed,
+                                                    self.num_modals,
+                                                    self.truncation_order)
 
         num_modes = self._molecule_data_transformed.num_modes
         if isinstance(self.num_modals, int):
@@ -69,7 +69,7 @@ class VibrationalProblem(BaseProblem):
         else:
             num_modals = self.num_modals
 
-        second_quantized_ops_list = [vibrational_spin_op] + create_all_aux_operators(num_modals)
+        second_quantized_ops_list = [vibrational_spin_op] + _create_all_aux_operators(num_modals)
 
         return second_quantized_ops_list
 
