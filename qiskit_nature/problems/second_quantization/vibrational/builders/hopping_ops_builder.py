@@ -78,7 +78,7 @@ def _build_qeom_hopping_ops(num_modals: List[int],
     for key, res in zip(hopping_operators.keys(), result):
         hopping_operators[key] = res
 
-    # This variable is required for compatibility with the MolecularProblem
+    # This variable is required for compatibility with the ElectronicStructureProblem
     # at the moment we do not have any type of commutativity in the bosonic case.
     type_of_commutativities: Dict[str, List[bool]] = {}
 

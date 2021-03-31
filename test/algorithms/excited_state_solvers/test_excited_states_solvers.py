@@ -49,7 +49,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self.reference_energies = [-1.8427016, -1.8427016 + 0.5943372, -1.8427016 + 0.95788352,
                                    -1.8427016 + 1.5969296]
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.molecular_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
 
         solver = NumPyEigensolver()
         self.ref = solver
@@ -61,7 +61,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
-        results = esc.solve(self.molecular_problem)
+        results = esc.solve(self.electronic_structure_problem)
 
         for idx in range(len(self.reference_energies)):
             self.assertAlmostEqual(results.computed_energies[idx], self.reference_energies[idx],
@@ -72,7 +72,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         solver = VQEUCCFactory(self.quantum_instance)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
-        results = esc.solve(self.molecular_problem)
+        results = esc.solve(self.electronic_structure_problem)
 
         for idx in range(len(self.reference_energies)):
             self.assertAlmostEqual(results.computed_energies[idx], self.reference_energies[idx],
@@ -87,7 +87,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
-        results = esc.solve(self.molecular_problem)
+        results = esc.solve(self.electronic_structure_problem)
 
         # filter duplicates from list
         computed_energies = [results.computed_energies[0]]

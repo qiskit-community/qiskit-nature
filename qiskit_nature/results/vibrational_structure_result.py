@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The vibronic structure result."""
+"""The vibrational structure result."""
 
 import logging
 from typing import List, Optional
@@ -24,12 +24,12 @@ logger = logging.getLogger(__name__)
 
 
 class VibrationalStructureResult(EigenstateResult):
-    """The vibronic structure result."""
+    """The vibrational structure result."""
 
     def __init__(self) -> None:
         super().__init__()
         self._algorithm_result: Optional[AlgorithmResult] = None
-        self._computed_vibronic_energies: Optional[np.ndarray] = None
+        self._computed_vibrational_energies: Optional[np.ndarray] = None
         self._num_occupied_modals_per_mode: Optional[List[float]] = None
 
     @property
@@ -46,14 +46,14 @@ class VibrationalStructureResult(EigenstateResult):
     # construct the circuit of the GS from here (if the algorithm supports this)
 
     @property
-    def computed_vibronic_energies(self) -> Optional[np.ndarray]:
+    def computed_vibrational_energies(self) -> Optional[np.ndarray]:
         """ Returns computed electronic part of ground state energy """
-        return self._computed_vibronic_energies
+        return self._computed_vibrational_energies
 
-    @computed_vibronic_energies.setter
-    def computed_vibronic_energies(self, value: np.ndarray) -> None:
+    @computed_vibrational_energies.setter
+    def computed_vibrational_energies(self, value: np.ndarray) -> None:
         """ Sets computed electronic part of ground state energy """
-        self._computed_vibronic_energies = value
+        self._computed_vibrational_energies = value
 
     @property
     def num_occupied_modals_per_mode(self) -> Optional[List[float]]:
@@ -74,8 +74,8 @@ class VibrationalStructureResult(EigenstateResult):
         lines = []
         lines.append('=== GROUND STATE ENERGY ===')
         lines.append(' ')
-        lines.append('* Vibronic ground state energy (cm^-1): {}'.
-                     format(np.round(self.computed_vibronic_energies[0], 12)))
+        lines.append('* Vibrational ground state energy (cm^-1): {}'.
+                     format(np.round(self.computed_vibrational_energies[0], 12)))
         if len(self.num_occupied_modals_per_mode) > 0:
             lines.append('The number of occupied modals is')
         for i in range(len(self.num_occupied_modals_per_mode)):

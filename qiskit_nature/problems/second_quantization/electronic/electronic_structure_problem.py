@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Molecular Problem class."""
+"""The Electronic Structure Problem class."""
 from functools import partial
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
@@ -35,7 +35,7 @@ from ..base_problem import BaseProblem
 
 
 class ElectronicStructureProblem(BaseProblem):
-    """Molecular Problem"""
+    """Electronic Structure Problem"""
 
     def __init__(self, driver: FermionicDriver,
                  q_molecule_transformers: Optional[List[BaseTransformer]] = None):

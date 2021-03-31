@@ -39,7 +39,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
         except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
-        self.molecular_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
@@ -72,7 +72,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
         self._numpy_eigensolver_factory.use_default_filter_criterion = True
         self.assertTrue(self._numpy_eigensolver_factory.use_default_filter_criterion)
         # get_solver
-        solver = self._numpy_eigensolver_factory.get_solver(self.molecular_problem)
+        solver = self._numpy_eigensolver_factory.get_solver(self.electronic_structure_problem)
         self.assertIsInstance(solver, NumPyEigensolver)
         self.assertEqual(solver.k, 100)
         self.assertEqual(solver.filter_criterion, filter_criterion)

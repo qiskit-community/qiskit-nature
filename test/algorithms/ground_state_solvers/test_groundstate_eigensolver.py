@@ -52,7 +52,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.reference_energy = -1.1373060356951838
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.molecular_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
 
         self.num_spin_orbitals = 4
         self.num_particles = (1, 1)
@@ -61,14 +61,14 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """ Test NumPyMinimumEigensolver """
         solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res = calc.solve(self.molecular_problem)
+        res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_npme_with_default_filter(self):
         """ Test NumPyMinimumEigensolver with default filter """
         solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res = calc.solve(self.molecular_problem)
+        res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_uccsd(self):
@@ -78,14 +78,14 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
                     var_form=UCC(excitations='d'),
                     )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res = calc.solve(self.molecular_problem)
+        res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_custom(self):
         """ Test custom var_form in Factory use case """
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res = calc.solve(self.molecular_problem)
+        res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_aux_ops_reusability(self):
@@ -100,7 +100,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         aux_ops = [build_ferm_op_from_ints(h_1, h_2)]
         aux_ops_copy = copy.deepcopy(aux_ops)
 
-        _ = calc.solve(self.molecular_problem)
+        _ = calc.solve(self.electronic_structure_problem)
         assert all(frozenset(a.to_list()) == frozenset(b.to_list())
                    for a, b in zip(aux_ops, aux_ops_copy))
 
@@ -108,11 +108,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         # first we run a ground state calculation
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res = calc.solve(self.molecular_problem)
+        res = calc.solve(self.electronic_structure_problem)
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        _, *aux_ops = self.qubit_converter.convert_match(self.molecular_problem.second_q_ops())
+        _, *aux_ops = self.qubit_converter.convert_match(self.electronic_structure_problem.second_q_ops())
         return calc, res, aux_ops
 
     def test_eval_op_single(self):
@@ -227,7 +227,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
 
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
@@ -249,7 +249,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
 
     def test_uccsd_hf_aer_statevector(self):
@@ -270,7 +270,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
     @slow_test
@@ -296,7 +296,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
 
     @slow_test
@@ -319,7 +319,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=3)
 
 

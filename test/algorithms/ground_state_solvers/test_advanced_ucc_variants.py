@@ -43,7 +43,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
-        self.molecular_problem = ElectronicStructureProblem(self.driver, [FreezeCoreTransformer()])
+        self.electronic_structure_problem = ElectronicStructureProblem(self.driver, [FreezeCoreTransformer()])
 
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)
@@ -83,7 +83,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
 
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy_pUCCD, places=6)
 
@@ -107,7 +107,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
 
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0, places=6)
 
@@ -132,7 +132,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
-        result = gsc.solve(self.molecular_problem)
+        result = gsc.solve(self.electronic_structure_problem)
 
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0full, places=6)
 

@@ -26,7 +26,7 @@ def _interpret(num_modes: int, raw_result: Union[EigenstateResult, EigensolverRe
                num_modes: number of modes.
                raw_result: an eigenstate result object.
            Returns:
-               An vibronic structure result.
+               An vibrational structure result.
            """
 
     eigenstate_result = _interpret_raw_result(raw_result)
@@ -58,7 +58,7 @@ def _interpret_raw_result(raw_result):
 def _interpret_vibr_struct_result(eigenstate_result):
     result = VibrationalStructureResult()
     result.combine(eigenstate_result)
-    result.computed_vibronic_energies = eigenstate_result.eigenenergies
+    result.computed_vibrational_energies = eigenstate_result.eigenenergies
     return result
 
 

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tests Molecular Problem."""
+"""Tests Electronic Structure Problem."""
 
 from test import QiskitNatureTestCase
 from test.problems.second_quantization.electronic.resources.resource_reader import read_expected_file
@@ -22,7 +22,7 @@ from qiskit_nature.problems.second_quantization.electronic.electronic_structure_
 
 
 class TestElectronicStructureProblem(QiskitNatureTestCase):
-    """Tests Molecular Problem."""
+    """Tests Electronic Structure Problem."""
 
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
@@ -34,9 +34,9 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
-        molecular_problem = ElectronicStructureProblem(driver)
+        electronic_structure_problem = ElectronicStructureProblem(driver)
 
-        second_quantized_ops = molecular_problem.second_q_ops()
+        second_quantized_ops = electronic_structure_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
@@ -58,8 +58,8 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
-        molecular_problem = ElectronicStructureProblem(driver, [trafo])
-        second_quantized_ops = molecular_problem.second_q_ops()
+        electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
+        second_quantized_ops = electronic_structure_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check expected length of the list of second quantized operators."):

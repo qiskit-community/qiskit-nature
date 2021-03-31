@@ -28,7 +28,7 @@ Results
    EigenstateResult
    BOPESSamplerResult
    ElectronicStructureResult
-   VibronicStructureResult
+   VibrationalStructureResult
 
 """
 

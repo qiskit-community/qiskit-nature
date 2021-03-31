@@ -41,9 +41,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             self.skipTest('PYSCF driver does not appear to be installed')
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.molecular_problem = ElectronicStructureProblem(self.driver)
-        self.molecular_problem.second_q_ops()
-        self.q_molecule = self.molecular_problem.molecule_data
+        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem.second_q_ops()
+        self.q_molecule = self.electronic_structure_problem.molecule_data
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built from QMolecule."""

@@ -116,7 +116,7 @@ class VibrationalStructureProblem(BaseProblem):
                Args:
                    raw_result: an eigenstate result object.
                Returns:
-                   An vibronic structure result.
+                   An vibrational structure result.
                """
 
         return _interpret(self._molecule_data.num_modes, raw_result)
