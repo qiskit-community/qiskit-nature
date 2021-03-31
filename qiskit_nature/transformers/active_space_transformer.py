@@ -157,7 +157,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         molecule_data_reduced.kinetic = None
         molecule_data_reduced.overlap = None
 
-        # reduce molecular energy integrals
+        # reduce electronic energy integrals
         self._reduce_to_active_space(molecule_data, molecule_data_reduced,
                                      'energy_shift',
                                      ('hcore', 'hcore_b'),
