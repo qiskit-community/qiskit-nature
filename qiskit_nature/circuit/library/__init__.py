@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """
-================================================================
 Chemistry Circuit Library (:mod:`qiskit_nature.circuit.library`)
 ================================================================
 

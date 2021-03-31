@@ -23,7 +23,6 @@ Second-Quantization Mappers
 
 .. autosummary::
    :toctree: ../stubs/
-   :nosignatures:
 
    BravyiKitaevMapper
    DirectMapper

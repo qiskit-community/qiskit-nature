@@ -37,8 +37,8 @@ class UVCCSD(UVCC):
         """
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
-            :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-            configured symmetry reductions on it.
+                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
+                configured symmetry reductions on it.
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
             reps: The number of times to repeat the evolved operators.

@@ -118,8 +118,8 @@ class UCC(EvolvedOperatorAnsatz):
 
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
-            :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-            configured symmetry reductions on it.
+                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
+                configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spin_orbitals: the number of spin orbitals.
             excitations: this can be any of the following:
@@ -140,9 +140,9 @@ class UCC(EvolvedOperatorAnsatz):
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
             max_spin_excitation: the largest number of excitations within a spin. E.g. you can set
-                                 this to 1 and `num_excitations` to 2 in order to obtain only
-                                 mixed-spin double excitations (alpha,beta) but no pure-spin double
-                                 excitations (alpha,alpha or beta,beta).
+                this to 1 and `num_excitations` to 2 in order to obtain only mixed-spin double
+                excitations (alpha,beta) but no pure-spin double excitations (alpha,alpha or
+                beta,beta).
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """

@@ -19,7 +19,6 @@ QMolecule Transformers (:mod:`qiskit_nature.transformers`)
 
 .. autosummary::
    :toctree: ../stubs/
-   :nosignatures:
 
    ActiveSpaceTransformer
    FreezeCoreTransformer
