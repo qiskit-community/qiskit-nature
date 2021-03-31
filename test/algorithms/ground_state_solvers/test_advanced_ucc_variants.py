@@ -35,6 +35,7 @@ from qiskit_nature.transformers import FreezeCoreTransformer
 # pylint: disable=invalid-name
 
 
+@unittest.skip("Debug more issues with TaperedPauliSumOp in Terra...")
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
     """Test for these extensions."""
 
@@ -49,6 +50,11 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)
+
+        # because we create the initial state and variational forms early, we need to ensure the
+        # qubit converter already ran such that convert_match works as expected
+        _ = self.qubit_converter.convert(self.electronic_structure_problem.second_q_ops()[0],
+                                         self.num_particles)
 
         self.reference_energy_pUCCD = -1.1434447924298028
         self.reference_energy_UCCD0 = -1.1476045878481704
