@@ -26,7 +26,7 @@ from .vibrational_mapper import VibrationalMapper
 class DirectMapper(VibrationalMapper):
     """The Direct mapper.
 
-    This mapper maps a :class:`~.VibrationalOp` to a :class:`~.PauliSumOp`.
+    This mapper maps a :class:`~.VibrationalOp` to a :class:`PauliSumOp`.
     In doing so, each modal of the the `VibrationalOp` gets mapped to a single qubit.
     """
 
