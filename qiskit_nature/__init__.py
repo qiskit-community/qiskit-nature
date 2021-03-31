@@ -135,9 +135,13 @@ Submodules
    :toctree:
 
    algorithms
+   circuit
    drivers
+   mappers
    operators
+   problems
    results
+   transformers
 
 """
 
