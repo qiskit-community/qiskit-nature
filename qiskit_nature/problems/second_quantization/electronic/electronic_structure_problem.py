@@ -149,8 +149,9 @@ class ElectronicStructureProblem(BaseProblem):
             the sector of the tapered operators with the problem solution
         """
 
-        hf_bitstr = hartree_fock_bitstring(num_spin_orbitals=2*self._molecule_data_transformed.num_molecular_orbitals,
-                                           num_particles=self.num_particles)
+        hf_bitstr = hartree_fock_bitstring(
+            num_spin_orbitals=2*self._molecule_data_transformed.num_molecular_orbitals,
+            num_particles=self.num_particles)
         sector_locator = self._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector_locator
