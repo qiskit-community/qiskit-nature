@@ -206,11 +206,14 @@ class ElectronicStructureResult(EigenstateResult):
     def extracted_transformer_dipole(self) -> List[DipoleTuple]:
         """Returns the sum of all extracted dipole moments."""
         extracted_dips = self.extracted_transformer_dipoles
-        if extracted_dips is None or not all(bool(dip) for dip in extracted_dips):
+        if extracted_dips is None:
             return []
         extracted_dipms = []
         for dipm in self.extracted_transformer_dipoles:
-            extracted_dipms.append(reduce(_dipole_tuple_add, dipm.values()))
+            if not dipm:
+                extracted_dipms.append(cast(DipoleTuple, (0, 0, 0)))
+            else:
+                extracted_dipms.append(reduce(_dipole_tuple_add, dipm.values()))
         return extracted_dipms
 
     # Other measured operators. If these are not evaluated then None will be returned
