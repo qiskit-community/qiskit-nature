@@ -77,10 +77,10 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
             self.assertEqual(self._vqe_ucc_factory.include_custom, True)
 
         with self.subTest("Variational Form"):
-            self.assertEqual(self._vqe_ucc_factory.var_form, None)
-            var_form = UCCSD()
-            self._vqe_ucc_factory.var_form = var_form
-            self.assertTrue(isinstance(self._vqe_ucc_factory.var_form, UCCSD))
+            self.assertEqual(self._vqe_ucc_factory.ansatz, None)
+            ansatz = UCCSD()
+            self._vqe_ucc_factory.ansatz = ansatz
+            self.assertTrue(isinstance(self._vqe_ucc_factory.ansatz, UCCSD))
 
         with self.subTest("Initial State"):
             self.assertEqual(self._vqe_ucc_factory.initial_state, None)

@@ -68,7 +68,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         wavefunction = ExcitationPreserving(num_spin_orbitals)
         wavefunction.compose(initial_state, front=True, inplace=True)
 
-        solver = VQE(var_form=wavefunction, optimizer=optimizer,
+        solver = VQE(ansatz=wavefunction, optimizer=optimizer,
                      quantum_instance=QuantumInstance(
                          BasicAer.get_backend('statevector_simulator'),
                          seed_simulator=algorithm_globals.random_seed,
