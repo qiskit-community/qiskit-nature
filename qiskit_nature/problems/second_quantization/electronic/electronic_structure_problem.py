@@ -140,11 +140,12 @@ class ElectronicStructureProblem(BaseProblem):
         return partial(filter_criterion, self)
 
     def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
-        """
-        Given the detected Z2Symmetries can determine the correct sector of the tapered
+        """Given the detected Z2Symmetries can determine the correct sector of the tapered
         operators so the correct one can be returned
+
         Args:
             z2_symmetries: the z2 symmetries object.
+
         Returns:
             the sector of the tapered operators with the problem solution
         """

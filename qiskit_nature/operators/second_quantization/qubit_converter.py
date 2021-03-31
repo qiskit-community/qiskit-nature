@@ -52,12 +52,16 @@ class QubitConverter:
     def __init__(self,
                  mapper: QubitMapper,
                  two_qubit_reduction: bool = False,
+                 auto_symmetry_reduction: bool = False,
                  z2symmetry_reduction: Optional[List[int]] = None):
         """
 
         Args:
             mapper: A mapper instance used to convert second quantized to qubit operators
             two_qubit_reduction: Whether to carry out two qubit reduction when possible
+            auto_symmetry_reduction: Whether to perform automatic symmetry reduction. This requires
+                the `sector_locator` argument of `convert` to be specified. This option will also be
+                overwritten if `z2symmetry_reduction` is not `None`.
             z2symmetry_reduction: An optional sector definition so the desired operator, from
                the tapered set, containing the problem solution is returned. This is a list of
                -1 and 1's to define the sector, where the list size is the number of symmetries
@@ -66,6 +70,7 @@ class QubitConverter:
 
         self._mapper: QubitMapper = mapper
         self._two_qubit_reduction: bool = two_qubit_reduction
+        self._auto_symmetry_reduction: bool = auto_symmetry_reduction
         self._z2symmetry_reduction: Optional[List[int]] = None
         self.z2symmetry_reduction = z2symmetry_reduction  # Setter does validation
 
@@ -97,6 +102,17 @@ class QubitConverter:
     def two_qubit_reduction(self, value: bool) -> None:
         """Set two_qubit_reduction"""
         self._two_qubit_reduction = value
+        self._z2symmetries = None  # Reset as symmetries my change due to this reduction
+
+    @property
+    def auto_symmetry_reduction(self) -> bool:
+        """Get auto_symmetry_reduction"""
+        return self._auto_symmetry_reduction
+
+    @auto_symmetry_reduction.setter
+    def auto_symmetry_reduction(self, value: bool) -> None:
+        """Set auto_symmetry_reduction"""
+        self._auto_symmetry_reduction = value
         self._z2symmetries = None  # Reset as symmetries my change due to this reduction
 
     @property
@@ -272,7 +288,8 @@ class QubitConverter:
         z2_symmetries = self._no_symmetries
 
         # If we were given a sector, or one might be located, we first need to find any symmetries
-        if self.z2symmetry_reduction is not None or sector_locator is not None:
+        if self.z2symmetry_reduction is not None or \
+                (self._auto_symmetry_reduction and sector_locator is not None):
             z2_symmetries = Z2Symmetries.find_Z2_symmetries(qubit_op)
             if z2_symmetries.is_empty():
                 logger.debug('No Z2 symmetries found')
