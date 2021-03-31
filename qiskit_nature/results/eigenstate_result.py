@@ -11,11 +11,10 @@
 # that they have been altered from the originals.
 
 """Eigenstate results module."""
-
 from typing import Optional, List, Union
 import inspect
-import numpy as np
 
+import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
@@ -63,7 +62,7 @@ class EigenstateResult(AlgorithmResult):
     def groundenergy(self) -> Optional[float]:
         """ returns ground energy """
         energies = self.eigenenergies
-        if energies:
+        if isinstance(energies, np.ndarray) and not energies.size:
             return energies[0].real
         return None
 

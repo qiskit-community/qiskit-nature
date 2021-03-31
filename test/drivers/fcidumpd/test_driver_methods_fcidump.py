@@ -17,6 +17,7 @@ import unittest
 from test import QiskitNatureTestCase
 from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import FCIDumpDriver
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 @unittest.skip("Skip test until refactored.")
@@ -27,14 +28,14 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         """ LiH test """
         driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_lih.fcidump',
                                                       'drivers/fcidumpd'))
-        result = self._run_driver(driver, freeze_core=False)
+        result = self._run_driver(driver)
         self._assert_energy(result, 'lih')
 
     def test_oh(self):
         """ OH test """
         driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_oh.fcidump',
                                                       'drivers/fcidumpd'))
-        result = self._run_driver(driver, freeze_core=False)
+        result = self._run_driver(driver)
         self._assert_energy(result, 'oh')
 
     def test_lih_freeze_core(self):
@@ -42,7 +43,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         with self.assertLogs('qiskit_nature', level='WARNING') as log:
             driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_lih.fcidump',
                                                           'drivers/fcidumpd'))
-            result = self._run_driver(driver, freeze_core=True)
+            result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, 'lih')
         warning = 'WARNING:qiskit_nature.drivers.qmolecule:Missing molecule information! ' \
                   'Returning empty core orbital list.'
@@ -53,7 +54,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         with self.assertLogs('qiskit_nature', level='WARNING') as log:
             driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_oh.fcidump',
                                                           'drivers/fcidumpd'))
-            result = self._run_driver(driver, freeze_core=True)
+            result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, 'oh')
         warning = 'WARNING:qiskit_nature.drivers.qmolecule:Missing molecule information! ' \
                   'Returning empty core orbital list.'
@@ -64,7 +65,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_lih.fcidump',
                                                       'drivers/fcidumpd'),
                                atoms=['Li', 'H'])
-        result = self._run_driver(driver, freeze_core=True)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy(result, 'lih')
 
     def test_oh_with_atoms(self):
@@ -72,7 +73,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_oh.fcidump',
                                                       'drivers/fcidumpd'),
                                atoms=['O', 'H'])
-        result = self._run_driver(driver, freeze_core=True)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy(result, 'oh')
 
 

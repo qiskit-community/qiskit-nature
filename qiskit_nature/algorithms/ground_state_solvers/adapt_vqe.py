@@ -12,22 +12,24 @@
 
 """A ground state calculation employing the AdaptVQE algorithm."""
 
+from typing import Optional, List, Tuple, Union
+
+import copy
 import re
 import logging
-from typing import Optional, List, Tuple, Union
+
 import numpy as np
 
-from qiskit.utils.validation import validate_min
-from qiskit.opflow import PauliSumOp
 from qiskit.algorithms import VQE
+from qiskit.circuit import QuantumCircuit
+from qiskit.opflow import OperatorBase, PauliSumOp
+from qiskit.utils.validation import validate_min
 from qiskit_nature.exceptions import QiskitNatureError
-from ...results.electronic_structure_result import ElectronicStructureResult
-from ...results.vibronic_structure_result import VibronicStructureResult
-from ...transformations.fermionic_transformation import FermionicTransformation
-from ...drivers.base_driver import BaseDriver
-from ...components.variational_forms import UCCSD
-from ...fermionic_operator import FermionicOperator
-from ...bosonic_operator import BosonicOperator
+from qiskit_nature.circuit.library.ansatzes import UCC
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
@@ -38,8 +40,7 @@ logger = logging.getLogger(__name__)
 class AdaptVQE(GroundStateEigensolver):
     """A ground state calculation employing the AdaptVQE algorithm."""
 
-    def __init__(self,
-                 transformation: FermionicTransformation,
+    def __init__(self, qubit_converter: QubitConverter,
                  solver: MinimumEigensolverFactory,
                  threshold: float = 1e-5,
                  delta: float = 1,
@@ -47,7 +48,7 @@ class AdaptVQE(GroundStateEigensolver):
                  ) -> None:
         """
         Args:
-            transformation: a fermionic driver to operator transformation strategy.
+            qubit_converter: a class that converts second quantized operator to qubit operator
             solver: a factory for the VQE solver employing a UCCSD variational form.
             threshold: the energy convergence threshold. It has a minimum value of 1e-15.
             delta: the finite difference step size for the gradient computation. It has a minimum
@@ -57,17 +58,22 @@ class AdaptVQE(GroundStateEigensolver):
         validate_min('threshold', threshold, 1e-15)
         validate_min('delta', delta, 1e-5)
 
-        super().__init__(transformation, solver)
+        super().__init__(qubit_converter, solver)
 
         self._threshold = threshold
         self._delta = delta
         self._max_iterations = max_iterations
 
+        self._excitation_pool: List[OperatorBase] = []
+        self._excitation_list: List[OperatorBase] = []
+
+        self._main_operator: PauliSumOp = None
+        self._var_form: QuantumCircuit = None
+
     def returns_groundstate(self) -> bool:
         return True
 
     def _compute_gradients(self,
-                           excitation_pool: List[PauliSumOp],
                            theta: List[float],
                            vqe: VQE,
                            ) -> List[Tuple[float, PauliSumOp]]:
@@ -75,7 +81,6 @@ class AdaptVQE(GroundStateEigensolver):
         Computes the gradients for all available excitation operators.
 
         Args:
-            excitation_pool: pool of excitation operators
             theta: list of (up to now) optimal parameters
             vqe: the variational quantum eigensolver instance used for solving
 
@@ -84,24 +89,20 @@ class AdaptVQE(GroundStateEigensolver):
         """
         res = []
         # compute gradients for all excitation in operator pool
-        for exc in excitation_pool:
-            # push next excitation to variational form
-            vqe.var_form.push_hopping_operator(exc)
-            # NOTE: because we overwrite the var_form inside of the VQE, we need to update the VQE's
-            # internal _var_form_params, too. We can do this by triggering the var_form setter. Once
-            # the VQE does not store this pure var_form property any longer this can be removed.
-            vqe.var_form = vqe.var_form
-            # We also need to invalidate the internally stored expectation operator because it needs
-            # to be updated for the new var_form.
-            vqe._expect_op = None
+        for exc in self._excitation_pool:
+            # add next excitation to variational form
+            self._var_form.operators = self._excitation_list + [exc]
+            # set the current variational form
+            vqe.var_form = self._var_form
+            var_form_params = vqe.var_form._parameter_table.keys()
+            # construct the expectation operator of the VQE
+            vqe._expect_op = vqe.construct_expectation(var_form_params, self._main_operator)
             # evaluate energies
             parameter_sets = theta + [-self._delta] + theta + [self._delta]
             energy_results = vqe._energy_evaluation(np.asarray(parameter_sets))
             # compute gradient
             gradient = (energy_results[0] - energy_results[1]) / (2 * self._delta)
             res.append((np.abs(gradient), exc))
-            # pop excitation from variational form
-            vqe.var_form.pop_hopping_operator()
 
         return res
 
@@ -131,18 +132,14 @@ class AdaptVQE(GroundStateEigensolver):
         # nature of the algorithm.
         return match is not None or (len(indices) > 1 and indices[-2] == indices[-1])
 
-    def solve(self,
-              driver: BaseDriver,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None) \
-            -> Union[ElectronicStructureResult, VibronicStructureResult]:
-
+    def solve(self, problem: BaseProblem,
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+              ) -> "AdaptVQEResult":
         """Computes the ground state.
 
         Args:
-            driver: a chemistry driver.
-            aux_operators: Additional auxiliary ``FermionicOperator`` instances to evaluate at the
-                ground state.
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
             QiskitNatureError: if a solver other than VQE or a variational form other than UCCSD
@@ -153,18 +150,35 @@ class AdaptVQE(GroundStateEigensolver):
             information about the AdaptVQE algorithm like the number of iterations, finishing
             criterion, and the final maximum gradient.
         """
-        operator, aux_ops = self._transformation.transform(driver, aux_operators)
+        second_q_ops = problem.second_q_ops()
 
-        vqe = self._solver.get_solver(self._transformation)
-        vqe.operator = operator
+        self._main_operator = self._qubit_converter.convert(second_q_ops[0],
+                                                            num_particles=problem.num_particles)
+        aux_ops = self._qubit_converter.convert_match(second_q_ops[1:])
+
+        if aux_operators is not None:
+            for aux_op in aux_operators:
+                if isinstance(aux_op, SecondQuantizedOp):
+                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                else:
+                    aux_ops.append(aux_op)
+
+        if isinstance(self._solver, MinimumEigensolverFactory):
+            vqe = self._solver.get_solver(problem, self._qubit_converter)
+        else:
+            vqe = self._solver
+
         if not isinstance(vqe, VQE):
             raise QiskitNatureError("The AdaptVQE algorithm requires the use of the VQE solver")
-        if not isinstance(vqe.var_form, UCCSD):
+        if not isinstance(vqe.var_form, UCC):
             raise QiskitNatureError(
-                "The AdaptVQE algorithm requires the use of the UCCSD variational form")
+                "The AdaptVQE algorithm requires the use of the UCC variational form")
 
-        vqe.var_form.manage_hopping_operators()
-        excitation_pool = vqe.var_form.excitation_pool
+        # We construct the variational form once to be able to extract the full set of excitation
+        # operators.
+        self._var_form = copy.deepcopy(vqe.var_form)
+        self._var_form._build()
+        self._excitation_pool = copy.deepcopy(self._var_form.operators)
 
         threshold_satisfied = False
         alternating_sequence = False
@@ -178,7 +192,7 @@ class AdaptVQE(GroundStateEigensolver):
             logger.info('--- Iteration #%s ---', str(iteration))
             # compute gradients
 
-            cur_grads = self._compute_gradients(excitation_pool, theta, vqe)
+            cur_grads = self._compute_gradients(theta, vqe)
             # pick maximum gradient
             max_grad_index, max_grad = max(enumerate(cur_grads),
                                            key=lambda item: np.abs(item[1][0]))
@@ -206,11 +220,13 @@ class AdaptVQE(GroundStateEigensolver):
                 alternating_sequence = True
                 break
             # add new excitation to self._var_form
-            vqe.var_form.push_hopping_operator(max_grad[1])
+            self._excitation_list.append(max_grad[1])
             theta.append(0.0)
             # run VQE on current Ansatz
+            self._var_form.operators = self._excitation_list
+            vqe.var_form = self._var_form
             vqe.initial_point = theta
-            raw_vqe_result = vqe.compute_minimum_eigenvalue(operator)
+            raw_vqe_result = vqe.compute_minimum_eigenvalue(self._main_operator)
             theta = raw_vqe_result.optimal_point.tolist()
         else:
             # reached maximum number of iterations
@@ -234,7 +250,7 @@ class AdaptVQE(GroundStateEigensolver):
         else:
             raise QiskitNatureError('The algorithm finished due to an unforeseen reason!')
 
-        electronic_result = self.transformation.interpret(raw_vqe_result)
+        electronic_result = problem.interpret(raw_vqe_result)
 
         result = AdaptVQEResult()
         result.combine(electronic_result)

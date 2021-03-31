@@ -13,7 +13,7 @@
 The paired-UCCD variational form.
 """
 
-from typing import Any, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import itertools
 import logging
@@ -56,7 +56,7 @@ class PUCCD(UCC):
 
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
-            :class:`~.SecondQuantizedOp` to a :class:`~.PauliSumOp` as well as performing all
+            :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
             configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spin_orbitals: the number of spin orbitals.
@@ -90,7 +90,8 @@ class PUCCD(UCC):
         self._include_singles = include_singles
 
     def generate_excitations(self, num_spin_orbitals: int,
-                             num_particles: Tuple[int, int]) -> List[Tuple[Tuple[Any, ...], ...]]:
+                             num_particles: Tuple[int, int]
+                             ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """Generates the excitations for the PUCCD Ansatz.
 
         Args:
@@ -127,12 +128,17 @@ class PUCCD(UCC):
             # create the beta-spin excitation by shifting into the upper block-spin orbital indices
             beta_exc = (alpha_exc[0] + beta_index_shift, alpha_exc[1] + beta_index_shift)
             # add the excitation tuple
-            exc_tuple = tuple(zip(alpha_exc, beta_exc))
+            occ: Tuple[int, ...]
+            unocc: Tuple[int, ...]
+            occ, unocc = zip(alpha_exc, beta_exc)
+            exc_tuple = (occ, unocc)
             excitations.append(exc_tuple)
             logger.debug('Added the excitation: %s', exc_tuple)
 
         return excitations
 
+    # TODO: when ooVQE gets refactored, it may turn out that this Ansatz can indeed by used for
+    # unrestricted spin systems.
     def _validate_num_particles(self, num_particles):
         try:
             assert num_particles[0] == num_particles[1]

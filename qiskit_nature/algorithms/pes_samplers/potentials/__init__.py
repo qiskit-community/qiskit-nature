@@ -15,7 +15,7 @@
 from .energy_surface_spline import EnergySurface1DSpline
 from .harmonic_potential import HarmonicPotential
 from .morse_potential import MorsePotential
-from .potential_base import EnergySurfaceBase, PotentialBase, VibronicStructureBase
+from .potential_base import EnergySurfaceBase, PotentialBase, VibrationalStructureBase
 
 __all__ = [
     'EnergySurface1DSpline',
@@ -23,5 +23,5 @@ __all__ = [
     'MorsePotential',
     'EnergySurfaceBase',
     'PotentialBase',
-    'VibronicStructureBase',
+    'VibrationalStructureBase',
 ]

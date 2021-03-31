@@ -12,7 +12,8 @@
 
 """The electronic structure result."""
 
-from typing import List, Optional, Tuple, cast
+from functools import reduce
+from typing import Dict, List, Optional, Tuple, cast
 import logging
 
 import numpy as np
@@ -38,6 +39,8 @@ class ElectronicStructureResult(EigenstateResult):
         self._nuclear_repulsion_energy: Optional[float] = None
         self._nuclear_dipole_moment: Optional[DipoleTuple] = None
         self._computed_energies: Optional[np.ndarray] = None
+        self._extracted_transformer_energies: Dict[str, float] = {}
+        self._extracted_transformer_dipoles: Optional[List[Dict[str, DipoleTuple]]] = None
 
     @property
     def hartree_fock_energy(self) -> float:
@@ -85,9 +88,7 @@ class ElectronicStructureResult(EigenstateResult):
         # TODO the fact that this property is computed on the fly breaks the `.combine()`
         # functionality
         # Adding float to np.ndarray adds it to each entry
-        return (self.computed_energies
-                + self.ph_extracted_energy
-                + self.frozen_extracted_energy)
+        return self.computed_energies + self.extracted_transformer_energy
 
     @property
     def computed_energies(self) -> Optional[np.ndarray]:
@@ -100,24 +101,19 @@ class ElectronicStructureResult(EigenstateResult):
         self._computed_energies = value
 
     @property
-    def ph_extracted_energy(self) -> float:
-        """ Returns particle hole extracted part of ground state energy """
-        return self._ph_extracted_energy
+    def extracted_transformer_energies(self) -> Dict[str, float]:
+        """Returns the energies extracted by any applied transformers."""
+        return self._extracted_transformer_energies
 
-    @ph_extracted_energy.setter
-    def ph_extracted_energy(self, value: float) -> None:
-        """ Sets particle hole extracted part of ground state energy """
-        self._ph_extracted_energy = value
+    @extracted_transformer_energies.setter
+    def extracted_transformer_energies(self, value: Dict[str, float]) -> None:
+        """Sets the energies extracted by any applied transformers."""
+        self._extracted_transformer_energies = value
 
     @property
-    def frozen_extracted_energy(self) -> float:
-        """ Returns frozen extracted part of ground state energy """
-        return self._frozen_extracted_energy
-
-    @frozen_extracted_energy.setter
-    def frozen_extracted_energy(self, value: float) -> None:
-        """ Sets frozen extracted part of ground state energy """
-        self._frozen_extracted_energy = value
+    def extracted_transformer_energy(self) -> float:
+        """Returns the sum of all extracted energies."""
+        return sum(self.extracted_transformer_energies.values())
 
     # Dipole moment results. Note dipole moments of tuples of X, Y and Z components. Chemistry
     # drivers either support dipole integrals or not. Note that when using Z2 symmetries of
@@ -183,10 +179,8 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def electronic_dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """ Returns electronic dipole moment """
-        return [_dipole_tuple_add(comp_dip, _dipole_tuple_add(ph_dip, frozen_dip)) for
-                comp_dip, ph_dip, frozen_dip in zip(self.computed_dipole_moment,
-                                                    self.ph_extracted_dipole_moment,
-                                                    self.frozen_extracted_dipole_moment)]
+        return [_dipole_tuple_add(comp_dip, extr_dip) for comp_dip, extr_dip in
+                zip(self.computed_dipole_moment, self.extracted_transformer_dipole)]
 
     @property
     def computed_dipole_moment(self) -> Optional[List[DipoleTuple]]:
@@ -199,24 +193,28 @@ class ElectronicStructureResult(EigenstateResult):
         self._computed_dipole_moment = value
 
     @property
-    def ph_extracted_dipole_moment(self) -> Optional[List[DipoleTuple]]:
-        """ Returns particle hole extracted part of dipole moment """
-        return self._ph_extracted_dipole_moment
+    def extracted_transformer_dipoles(self) -> Optional[List[Dict[str, DipoleTuple]]]:
+        """Returns the dipole moments extracted by any applied transformers."""
+        return self._extracted_transformer_dipoles
 
-    @ph_extracted_dipole_moment.setter
-    def ph_extracted_dipole_moment(self, value: List[DipoleTuple]) -> None:
-        """ Sets particle hole extracted part of dipole moment """
-        self._ph_extracted_dipole_moment = value
+    @extracted_transformer_dipoles.setter
+    def extracted_transformer_dipoles(self, value: List[Dict[str, DipoleTuple]]) -> None:
+        """Sets the dipole moments extracted by any applied transformers."""
+        self._extracted_transformer_dipoles = value
 
     @property
-    def frozen_extracted_dipole_moment(self) -> Optional[List[DipoleTuple]]:
-        """ Returns frozen extracted part of dipole moment """
-        return self._frozen_extracted_dipole_moment
-
-    @frozen_extracted_dipole_moment.setter
-    def frozen_extracted_dipole_moment(self, value: List[DipoleTuple]) -> None:
-        """ Sets frozen extracted part of dipole moment """
-        self._frozen_extracted_dipole_moment = value
+    def extracted_transformer_dipole(self) -> List[DipoleTuple]:
+        """Returns the sum of all extracted dipole moments."""
+        extracted_dips = self.extracted_transformer_dipoles
+        if extracted_dips is None:
+            return []
+        extracted_dipms = []
+        for dipm in self.extracted_transformer_dipoles:
+            if not dipm:
+                extracted_dipms.append(cast(DipoleTuple, (0, 0, 0)))
+            else:
+                extracted_dipms.append(reduce(_dipole_tuple_add, dipm.values()))
+        return extracted_dipms
 
     # Other measured operators. If these are not evaluated then None will be returned
     # instead of any measured value.
@@ -280,10 +278,8 @@ class ElectronicStructureResult(EigenstateResult):
                      format(round(self.electronic_energies[0], 12)))
         lines.append('  - computed part:      {}'.
                      format(round(self.computed_energies[0], 12)))
-        lines.append('  - frozen energy part: {}'.
-                     format(round(self.frozen_extracted_energy, 12)))
-        lines.append('  - particle hole part: {}'
-                     .format(round(self.ph_extracted_energy, 12)))
+        for name, value in self.extracted_transformer_energies.items():
+            lines.append('  - {} extracted energy part: {}'.format(name, round(value, 12)))
         if self.nuclear_repulsion_energy is not None:
             lines.append('~ Nuclear repulsion energy (Hartree): {}'.
                          format(round(self.nuclear_repulsion_energy, 12)))
@@ -328,10 +324,10 @@ class ElectronicStructureResult(EigenstateResult):
                 lines.append('~ Nuclear dipole moment (a.u.): {}'
                              .format(_dipole_to_string(self.nuclear_dipole_moment)))
                 lines.append(' ')
-            for idx, (elec_dip, comp_dip, frozen_dip, ph_dip, dip, tot_dip, dip_db, tot_dip_db) in \
+            for idx, (elec_dip, comp_dip, extr_dip, dip, tot_dip, dip_db, tot_dip_db) in \
                     enumerate(zip(
                             self.electronic_dipole_moment, self.computed_dipole_moment,
-                            self.frozen_extracted_dipole_moment, self.ph_extracted_dipole_moment,
+                            self.extracted_transformer_dipoles,
                             self.dipole_moment, self.total_dipole_moment,
                             self.dipole_moment_in_debye, self.total_dipole_moment_in_debye)):
                 lines.append('{: 3d}: '.format(idx))
@@ -339,10 +335,9 @@ class ElectronicStructureResult(EigenstateResult):
                              .format(_dipole_to_string(elec_dip)))
                 lines.append('    - computed part:      {}'
                              .format(_dipole_to_string(comp_dip)))
-                lines.append('    - frozen energy part: {}'
-                             .format(_dipole_to_string(frozen_dip)))
-                lines.append('    - particle hole part: {}'
-                             .format(_dipole_to_string(ph_dip)))
+                for name, ex_dip in extr_dip.items():
+                    lines.append('    - {} extracted energy part: {}'
+                                 .format(name, _dipole_to_string(ex_dip)))
                 if self.nuclear_dipole_moment is not None:
                     lines.append('  > Dipole moment (a.u.): {}  Total: {}'
                                  .format(_dipole_to_string(dip), _float_to_string(tot_dip)))

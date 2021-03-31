@@ -12,14 +12,18 @@
 
 """ Test Driver Methods """
 
+from typing import List, Optional
+
 import unittest
 
 from test import QiskitNatureTestCase
 from qiskit.algorithms import NumPyMinimumEigensolver
-from qiskit_nature.transformations import (FermionicTransformation,
-                                           FermionicTransformationType,
-                                           FermionicQubitMappingType)
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.drivers import FermionicDriver
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.transformers.base_transformer import BaseTransformer
 
 
 class TestDriverMethods(QiskitNatureTestCase):
@@ -39,24 +43,17 @@ class TestDriverMethods(QiskitNatureTestCase):
         }
 
     @staticmethod
-    def _run_driver(driver,
-                    transformation=FermionicTransformationType.FULL,
-                    qubit_mapping=FermionicQubitMappingType.JORDAN_WIGNER,
-                    two_qubit_reduction=False,
-                    freeze_core=True):
+    def _run_driver(driver: FermionicDriver,
+                    converter: QubitConverter = QubitConverter(JordanWignerMapper()),
+                    transformers: Optional[List[BaseTransformer]] = None):
 
-        fermionic_transformation = \
-            FermionicTransformation(transformation=transformation,
-                                    qubit_mapping=qubit_mapping,
-                                    two_qubit_reduction=two_qubit_reduction,
-                                    freeze_core=freeze_core,
-                                    orbital_reduction=[])
+        problem = ElectronicStructureProblem(driver, transformers)
 
         solver = NumPyMinimumEigensolver()
 
-        gsc = GroundStateEigensolver(fermionic_transformation, solver)
+        gsc = GroundStateEigensolver(converter, solver)
 
-        result = gsc.solve(driver)
+        result = gsc.solve(problem)
         return result
 
     def _assert_energy(self, result, mol):

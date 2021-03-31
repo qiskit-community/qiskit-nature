@@ -11,17 +11,23 @@
 # that they have been altered from the originals.
 # This code is part of Qiskit.
 """The Base Problem class."""
-from abc import ABC, abstractmethod
-from typing import List, Optional
 
-from qiskit_nature.drivers import BaseDriver
+from abc import ABC, abstractmethod
+from typing import Callable, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+
+from qiskit.opflow import PauliSumOp
+
+from qiskit_nature.drivers import BaseDriver, QMolecule, WatsonHamiltonian
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer
 
 
 class BaseProblem(ABC):
     """Base Problem"""
 
-    # TODO BaseDriver has no run method
     def __init__(self, driver: BaseDriver,
                  transformers: Optional[List[BaseTransformer]] = None):
         """
@@ -33,6 +39,24 @@ class BaseProblem(ABC):
 
         self.driver = driver
         self.transformers = transformers or []
+
+        self._molecule_data: Union[QMolecule, WatsonHamiltonian] = None
+        self._molecule_data_transformed: Union[QMolecule, WatsonHamiltonian] = None
+
+    @property
+    def molecule_data(self) -> Union[QMolecule, WatsonHamiltonian]:
+        """Returns the raw molecule data object."""
+        return self._molecule_data
+
+    @property
+    def molecule_data_transformed(self) -> Union[QMolecule, WatsonHamiltonian]:
+        """Returns the raw transformed molecule data object."""
+        return self._molecule_data_transformed
+
+    @property
+    def num_particles(self) -> Optional[Tuple[int, int]]:
+        """Returns the number of particles, if available."""
+        return None
 
     @abstractmethod
     def second_q_ops(self):
@@ -48,3 +72,59 @@ class BaseProblem(ABC):
         for transformer in self.transformers:
             data = transformer.transform(data)
         return data
+
+    @abstractmethod
+    def interpret(self, raw_result: EigenstateResult) -> EigenstateResult:
+        """Interprets an EigenstateResult in the context of this transformation.
+
+        Args:
+            raw_result: an eigenstate result object.
+
+        Returns:
+            An interpreted `EigenstateResult` in the form of a subclass of it. The actual type
+            depends on the problem that implements this method.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
+                                                                 Optional[List[float]]], bool]]:
+        """Returns a default filter criterion method to filter the eigenvalues computed by the
+        eigen solver. For more information see also
+        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+
+        In the fermionic case the default filter ensures that the number of particles is being
+        preserved.
+        """
+
+        raise NotImplementedError()
+
+    @abstractmethod
+    def hopping_qeom_ops(self, qubit_converter: QubitConverter,
+                         excitations: Union[str, int, List[int],
+                                            Callable[[int, Tuple[int, int]],
+                                                     List[Tuple[Tuple[int, ...], Tuple[
+                                                         int, ...]]]]] = 'sd',
+                         ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
+                                    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+        """Generates the hopping operators and their commutativity information for the specified set
+        of excitations.
+
+        Args:
+            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
+                             Z2 symmetries stored in this instance are the basis for the
+                             commutativity information returned by this method.
+            excitations: the types of excitations to consider. The simple cases for this input are:
+                - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
+                - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
+                - a list of positive integers.
+                - and finally a callable which can be used to specify a custom list of excitations.
+                  For more details on how to write such a function refer to one of the default
+                  methods, :meth:`generate_fermionic_excitations` or
+                  :meth:`generate_vibrational_excitations`.
+
+        Returns:
+            A tuple containing the hopping operators, the types of commutativities and the
+            excitation indices.
+        """
+        raise NotImplementedError()

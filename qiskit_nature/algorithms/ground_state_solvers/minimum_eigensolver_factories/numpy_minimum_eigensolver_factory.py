@@ -13,10 +13,12 @@
 """The numpy minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, List, Callable
-import numpy as np
 
+import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
-from ....transformations.transformation import Transformation
+
+from ....operators.second_quantization.qubit_converter import QubitConverter
+from ....problems.second_quantization.base_problem import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -63,20 +65,22 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """ sets whether to use the default filter criterion """
         self._use_default_filter_criterion = value
 
-    def get_solver(self, transformation: Transformation) -> MinimumEigensolver:
+    def get_solver(self, problem: BaseProblem,
+                   qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``transformation``.
 
         Args:
-            transformation: a fermionic/bosonic qubit operator transformation.
-
+            problem: a class encoding a problem to be solved.
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
         Returns:
             A NumPyMinimumEigensolver suitable to compute the ground state of the molecule
             transformed by ``transformation``.
         """
         filter_criterion = self._filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:
-            filter_criterion = transformation.get_default_filter_criterion()
+            filter_criterion = problem.get_default_filter_criterion()
 
         npme = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
         return npme

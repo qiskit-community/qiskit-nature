@@ -20,6 +20,7 @@ babbush
 backend
 barkoutsos
 basedriver
+baseproblem
 bitstring
 bksf
 bool
@@ -60,6 +61,7 @@ eigensolution
 eigensolver
 eigensolvers
 eigenstate
+eigenstateresult
 eigenstates
 einact
 el
@@ -84,6 +86,7 @@ fermionic
 fermionicdriver
 fermionicop
 fermionicoperator
+fermionicops
 fermions
 fileio
 fock
@@ -247,6 +250,7 @@ statevector
 statevectors
 stdout
 str
+subclass
 subclasses
 submodules
 substrings
@@ -285,7 +289,7 @@ variational
 veis
 vibrational
 vibrationalop
-vibronic
+vibrational
 vqe
 vqe's
 vscf

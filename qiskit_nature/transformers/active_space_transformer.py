@@ -167,21 +167,22 @@ class ActiveSpaceTransformer(BaseTransformer):
                                      )
 
         # reduce dipole moment integrals
-        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
-                                     'x_dip_energy_shift',
-                                     ('x_dip_ints', None),
-                                     ('x_dip_mo_ints', 'x_dip_mo_ints_b')
-                                     )
-        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
-                                     'y_dip_energy_shift',
-                                     ('y_dip_ints', None),
-                                     ('y_dip_mo_ints', 'y_dip_mo_ints_b')
-                                     )
-        self._reduce_to_active_space(molecule_data, molecule_data_reduced,
-                                     'z_dip_energy_shift',
-                                     ('z_dip_ints', None),
-                                     ('z_dip_mo_ints', 'z_dip_mo_ints_b')
-                                     )
+        if molecule_data.has_dipole_integrals():
+            self._reduce_to_active_space(molecule_data, molecule_data_reduced,
+                                         'x_dip_energy_shift',
+                                         ('x_dip_ints', None),
+                                         ('x_dip_mo_ints', 'x_dip_mo_ints_b')
+                                         )
+            self._reduce_to_active_space(molecule_data, molecule_data_reduced,
+                                         'y_dip_energy_shift',
+                                         ('y_dip_ints', None),
+                                         ('y_dip_mo_ints', 'y_dip_mo_ints_b')
+                                         )
+            self._reduce_to_active_space(molecule_data, molecule_data_reduced,
+                                         'z_dip_energy_shift',
+                                         ('z_dip_ints', None),
+                                         ('z_dip_mo_ints', 'z_dip_mo_ints_b')
+                                         )
 
         return molecule_data_reduced
 
@@ -321,7 +322,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                                 molecule_data: QMolecule,
                                 molecule_data_reduced: QMolecule,
                                 energy_shift_attribute: str,
-                                ao_1e_attribute: Tuple[str, str],
+                                ao_1e_attribute: Tuple[str, Optional[str]],
                                 mo_1e_attribute: Tuple[str, str],
                                 ao_2e_attribute: Optional[str] = None,
                                 mo_2e_attribute: Optional[Tuple[str, str, str]] = None,
@@ -337,8 +338,23 @@ class ActiveSpaceTransformer(BaseTransformer):
             ao_2e_attribute: the name of the AO-basis 2-electron matrix.
             mo_2e_attribute: the names of the MO-basis 2-electron matrices.
         """
-        ao_1e_matrix = (getattr(molecule_data, ao_1e_attribute[0]),
-                        getattr(molecule_data, ao_1e_attribute[1]) if self._beta else None)
+        ao_1e_matrix_a = getattr(molecule_data, ao_1e_attribute[0])
+
+        if self._beta:
+            ao_1e_matrix_b = None
+            if ao_1e_attribute[1] is not None:
+                # It is possible that no beta-spin one-electron AO matrices are available (e.g. for
+                # dipole integrals). Then, this attribute name will be None.
+                ao_1e_matrix_b = getattr(molecule_data, ao_1e_attribute[1])
+            if ao_1e_matrix_b is None:
+                # Furthermore, even if the attribute name was present, the object itself may be
+                # None. In that case we will simply use the alpha-spin pendant.
+                ao_1e_matrix_b = ao_1e_matrix_a
+        else:
+            ao_1e_matrix_b = None
+
+        ao_1e_matrix = (ao_1e_matrix_a, ao_1e_matrix_b)
+
         if ao_2e_attribute:
             ao_2e_matrix = getattr(molecule_data, ao_2e_attribute)
         else:
@@ -350,6 +366,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         else:
             inactive_op = self._compute_inactive_fock_op(ao_1e_matrix, ao_2e_matrix)
 
+        if self._beta and inactive_op[1] is None:
+            # To a similar reasoning as for ao_1e_matrix_b, it is possible that this object is None.
+            # If that is the case, we fallback to using the alpha-spin pendant.
+            inactive_op = (inactive_op[0], inactive_op[0])
+
         energy_shift = self._compute_inactive_energy(ao_1e_matrix, inactive_op)
 
         mo_1e_matrix, mo_2e_matrix = self._compute_active_integrals(inactive_op, ao_2e_matrix)
@@ -359,7 +380,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         setattr(molecule_data_reduced, ao_1e_attribute[0], inactive_op[0])
         setattr(molecule_data_reduced, mo_1e_attribute[0], mo_1e_matrix[0])
         if self._beta:
-            setattr(molecule_data_reduced, ao_1e_attribute[1], inactive_op[1])
+            if ao_1e_attribute[1] is not None:
+                setattr(molecule_data_reduced, ao_1e_attribute[1], inactive_op[1])
             setattr(molecule_data_reduced, mo_1e_attribute[1], mo_1e_matrix[1])
         if mo_2e_matrix is not None:
             setattr(molecule_data_reduced, mo_2e_attribute[0], mo_2e_matrix[0])
@@ -387,12 +409,10 @@ class ActiveSpaceTransformer(BaseTransformer):
         fock_inactive_b = coulomb_inactive_b = exchange_inactive_b = None
 
         if self._beta:
-            # if hcore[1] is None we use the alpha-spin core Hamiltonian
-            hcore_b = hcore[1] or hcore[0]
             coulomb_inactive_b = np.einsum('ijkl,ji->kl', eri, self._density_inactive[1])
             exchange_inactive_b = np.einsum('ijkl,jk->il', eri, self._density_inactive[1])
             fock_inactive = hcore[0] + coulomb_inactive + coulomb_inactive_b - exchange_inactive
-            fock_inactive_b = hcore_b + coulomb_inactive + coulomb_inactive_b - exchange_inactive_b
+            fock_inactive_b = hcore[1] + coulomb_inactive + coulomb_inactive_b - exchange_inactive_b
 
         return (fock_inactive, fock_inactive_b)
 

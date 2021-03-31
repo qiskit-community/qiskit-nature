@@ -13,19 +13,21 @@
 """The eigensolver factory for excited states calculation algorithms."""
 
 from abc import ABC, abstractmethod
+
 from qiskit.algorithms import Eigensolver
-from qiskit_nature.transformations import Transformation
+
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 
 
 class EigensolverFactory(ABC):
     """A factory to construct a eigensolver based on a qubit operator transformation."""
 
     @abstractmethod
-    def get_solver(self, transformation: Transformation) -> Eigensolver:
+    def get_solver(self, problem: BaseProblem) -> Eigensolver:
         """Returns a eigensolver, based on the qubit operator transformation.
 
         Args:
-            transformation: The qubit operator transformation.
+            problem: a class encoding a problem to be solved.
 
         Returns:
             An eigensolver suitable to compute the excited states of the molecule transformed

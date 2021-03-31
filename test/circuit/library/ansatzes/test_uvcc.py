@@ -27,8 +27,8 @@ from qiskit_nature.circuit.library.initial_states import VSCF
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_label_builder import \
-    _create_labels
+from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_label_builder \
+    import _create_labels
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):

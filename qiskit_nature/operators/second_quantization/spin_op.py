@@ -182,6 +182,7 @@ class SpinOp(SecondQuantizedOp):
             data: label string, list of labels and coefficients. See the label section in
                   the documentation of :class:`SpinOp` for more details.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
+            register_length: length of the particle register.
 
         Raises:
             ValueError: invalid data is given.

@@ -155,10 +155,6 @@ class CHC(BlueprintCircuit):
         """
         Construct the variational form, given its parameters.
 
-        Args:
-            parameters: circuit parameters
-            q: Quantum Register for the circuit.
-
         Returns:
             QuantumCircuit: a quantum circuit with given `parameters`
 

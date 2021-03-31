@@ -13,12 +13,12 @@
 """The numpy eigensolver factory for ground+excited states calculation algorithms."""
 
 from typing import Optional, Union, List, Callable
-import numpy as np
 
+import numpy as np
 from qiskit.algorithms import Eigensolver, NumPyEigensolver
 from qiskit.utils.validation import validate_min
-from qiskit_nature.transformations import Transformation
 
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 from .eigensolver_factory import EigensolverFactory
 
 
@@ -80,11 +80,11 @@ class NumPyEigensolverFactory(EigensolverFactory):
         """ sets whether to use the default filter criterion """
         self._use_default_filter_criterion = value
 
-    def get_solver(self, transformation: Transformation) -> Eigensolver:
+    def get_solver(self, problem: BaseProblem) -> Eigensolver:
         """Returns a NumPyEigensolver with the desired filter
 
         Args:
-            transformation: a fermionic/bosonic qubit operator transformation.
+            problem: a class encoding a problem to be solved.
 
         Returns:
             A NumPyEigensolver suitable to compute the ground state of the molecule
@@ -92,7 +92,7 @@ class NumPyEigensolverFactory(EigensolverFactory):
         """
         filter_criterion = self._filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:
-            filter_criterion = transformation.get_default_filter_criterion()
+            filter_criterion = problem.get_default_filter_criterion()
 
         npe = NumPyEigensolver(filter_criterion=filter_criterion, k=self.k)
         return npe

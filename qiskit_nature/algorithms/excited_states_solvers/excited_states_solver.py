@@ -15,29 +15,28 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
-from qiskit_nature.drivers import BaseDriver
-from qiskit_nature import FermionicOperator, BosonicOperator
-from qiskit_nature.results import ElectronicStructureResult, VibronicStructureResult
+from qiskit.opflow import PauliSumOp
+
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.eigenstate_result import EigenstateResult
 
 
 class ExcitedStatesSolver(ABC):
     """The excited states calculation interface"""
 
     @abstractmethod
-    def solve(self, driver: BaseDriver,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None
-              ) -> Union[ElectronicStructureResult, VibronicStructureResult]:
+    def solve(self, problem: BaseProblem,
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+              ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
         Args:
-            driver: a chemistry driver object which defines the chemical problem that is to be
-                solved by this calculation.
-            aux_operators: Additional auxiliary operators to evaluate. Must be of type
-                ``FermionicOperator`` if the qubit transformation is fermionic and of type
-                ``BosonicOperator`` it is bosonic.
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-            an eigenstate result
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
         """
         raise NotImplementedError()

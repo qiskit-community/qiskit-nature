@@ -13,7 +13,7 @@
 """ The Unitary Vibrational Coupled-Cluster Single and Double excitations variational form. """
 
 from functools import partial
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import logging
 
@@ -45,15 +45,17 @@ class UVCC(EvolvedOperatorAnsatz):
     def __init__(self,
                  qubit_converter: Optional[QubitConverter] = None,
                  num_modals: Optional[List[int]] = None,
-                 excitations: Optional[Union[str, int, List[int], Callable[
-                     [int, Tuple[int, int]], List[Tuple[Tuple[Any, ...], ...]]]]] = None,
+                 excitations: Optional[Union[str, int, List[int],
+                                             Callable[[int, Tuple[int, int]],
+                                                      List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
+                                             ]] = None,
                  reps: int = 1,
                  initial_state: Optional[QuantumCircuit] = None):
         """
 
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
-            :class:`~.SecondQuantizedOp` to a :class:`~.PauliSumOp` as well as performing all
+            :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
             configured symmetry reductions on it.
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
@@ -172,7 +174,7 @@ class UVCC(EvolvedOperatorAnsatz):
         self._excitation_ops = excitation_ops
         return excitation_ops
 
-    def _get_excitation_list(self) -> List[Tuple[Tuple[Any, ...], ...]]:
+    def _get_excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         generators = self._get_excitation_generators()
 
         logger.debug('Generating excitation list...')
@@ -212,7 +214,7 @@ class UVCC(EvolvedOperatorAnsatz):
 
         return generators
 
-    def _build_vibration_excitation_ops(self, excitations: List[Tuple]) -> List[VibrationalOp]:
+    def _build_vibration_excitation_ops(self, excitations: Sequence) -> List[VibrationalOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 

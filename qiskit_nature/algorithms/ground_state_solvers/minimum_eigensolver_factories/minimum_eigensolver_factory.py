@@ -13,19 +13,25 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 from abc import ABC, abstractmethod
+
 from qiskit.algorithms import MinimumEigensolver
-from ....transformations.transformation import Transformation
+
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization import BaseProblem
 
 
 class MinimumEigensolverFactory(ABC):
     """A factory to construct a minimum eigensolver based on a qubit operator transformation."""
 
     @abstractmethod
-    def get_solver(self, transformation: Transformation) -> MinimumEigensolver:
+    def get_solver(self, problem: BaseProblem,
+                   qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a minimum eigensolver, based on the qubit operator transformation.
 
         Args:
-            transformation: The qubit operator transformation.
+            problem: a class encoding a problem to be solved.
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
 
         Returns:
             A minimum eigensolver suitable to compute the ground state of the molecule transformed
