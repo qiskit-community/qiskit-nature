@@ -207,6 +207,59 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             self.assertAlmostEqual(add_aux_op_res[name][0].real, expected, places=6)
         self.assertIsNone(add_aux_op_res['None'])
 
+    @slow_test
+    def test_eval_op_qasm(self):
+        """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
+        solver = VQEUCCFactory(optimizer=SLSQP(maxiter=100),
+                               expectation=PauliExpectation(),
+                               quantum_instance=QuantumInstance(
+                                   backend=BasicAer.get_backend('qasm_simulator'),
+                                   seed_simulator=algorithm_globals.random_seed,
+                                   seed_transpiler=algorithm_globals.random_seed)
+                               )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res_qasm = calc.solve(self.molecular_problem)
+
+        hamiltonian = self.molecular_problem.second_q_ops()[0]
+        qubit_op = self.qubit_converter.map(hamiltonian)
+
+        var_form = solver.get_solver(self.molecular_problem, self.qubit_converter).var_form
+        circuit = var_form.assign_parameters(res_qasm.raw_result.optimal_point)
+        mean = calc.evaluate_operators(circuit, qubit_op)
+
+        self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
+
+    def test_eval_op_qasm_aer(self):
+        """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
+        try:
+            # pylint: disable=import-outside-toplevel
+            # pylint: disable=unused-import
+            from qiskit import Aer
+            backend = Aer.get_backend('qasm_simulator')
+        except ImportError as ex:  # pylint: disable=broad-except
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            return
+
+        solver = VQEUCCFactory(optimizer=SLSQP(maxiter=100),
+                               expectation=AerPauliExpectation(),
+                               include_custom=True,
+                               quantum_instance=QuantumInstance(
+                                   backend=backend,
+                                   seed_simulator=algorithm_globals.random_seed,
+                                   seed_transpiler=algorithm_globals.random_seed)
+                               )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res_qasm = calc.solve(self.molecular_problem)
+
+        hamiltonian = self.molecular_problem.second_q_ops()[0]
+        qubit_op = self.qubit_converter.map(hamiltonian)
+
+        var_form = solver.get_solver(self.molecular_problem, self.qubit_converter).var_form
+        circuit = var_form.assign_parameters(res_qasm.raw_result.optimal_point)
+        mean = calc.evaluate_operators(circuit, qubit_op)
+
+        self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
+
     def _prepare_uccsd_hf(self, qubit_converter):
         initial_state = HartreeFock(self.num_spin_orbitals,
                                     self.num_particles,
