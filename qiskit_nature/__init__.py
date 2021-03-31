@@ -141,10 +141,6 @@ Submodules
 
 """
 
-# TODO(sphinx): update documentation
-
-# TODO: update imports
-
 from .exceptions import QiskitNatureError
 
 __all__ = [

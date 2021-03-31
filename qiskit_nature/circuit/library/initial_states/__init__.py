@@ -10,7 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Initial state circuits."""
+"""
+QuantumCircuit Initial States (:mod:`qiskit_nature.circuit.library.initial_states`)
+===================================================================================
+
+.. currentmodule:: qiskit_nature.circuit.library.initial_states
+
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   HartreeFock
+   VSCF
+
+"""
 
 from .hartree_fock import HartreeFock
 from .vscf import VSCF

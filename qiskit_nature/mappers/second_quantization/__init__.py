@@ -10,9 +10,45 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Second Quantized Operator Qubit Mappers."""
+"""
+SecondQuantizedOp Mappers (:mod:`qiskit_nature.mappers.second_quantization`)
+============================================================================
 
-# TODO(sphinx): documentation
+.. currentmodule:: qiskit_nature.mappers.second_quantization
+
+
+FermionicOp Mappers
++++++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   BravyiKitaevMapper
+   JordanWignerMapper
+   ParityMapper
+
+
+VibrationalOp Mappers
++++++++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   DirectMapper
+
+
+SpinOp Mappers
+++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   LinearMapper
+
+"""
 
 from .bravyi_kitaev_mapper import BravyiKitaevMapper
 from .direct_mapper import DirectMapper

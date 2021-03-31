@@ -10,9 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The `QMolecule` Transformers."""
+"""
+QMolecule Transformers (:mod:`qiskit_nature.transformers`)
+==========================================================
 
-# TODO(sphinx): documentation
+.. currentmodule:: qiskit_nature.transformers
+
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   ActiveSpaceTransformer
+   FreezeCoreTransformer
+
+"""
 
 from .active_space_transformer import ActiveSpaceTransformer
 from .base_transformer import BaseTransformer

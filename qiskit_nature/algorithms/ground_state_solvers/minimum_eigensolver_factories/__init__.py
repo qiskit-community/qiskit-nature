@@ -10,7 +10,27 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Factories that create a minimum eigensolver based on a qubit transformation."""
+"""
+====================================================================================
+Minimum Eigensolver Factories
+(:mod:`qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories`)
+====================================================================================
+
+Factories that create a minimum eigensolver based on a qubit transformation.
+
+.. currentmodule:: qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories
+
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MinimumEigensolverFactory
+   NumPyMinimumEigensolverFactory
+   VQEUCCFactory
+   VQEUVCCFactory
+
+"""
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 from .numpy_minimum_eigensolver_factory import NumPyMinimumEigensolverFactory
