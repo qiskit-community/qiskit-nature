@@ -27,14 +27,14 @@ class MorsePotential(PotentialBase):
     """Implements a 1D Morse potential.
 
     Input units are Angstroms (distance between the two atoms), and output units are
-    Hartrees (electronic energy).
+    Hartrees (molecular energy).
     """
     # Works in Angstroms and Hartrees
 
     def __init__(self, molecule: Molecule):
         """
         Initializes the potential to the zero-function.
-        :meth:`fit` should be used afterwards to fit the potential to computed electronic energies.
+        :meth:`fit` should be used afterwards to fit the potential to computed molecular energies.
 
         Args:
             molecule: the underlying molecule.
@@ -114,11 +114,11 @@ class MorsePotential(PotentialBase):
             initial_vals: Optional[List[float]] = None,
             bounds_list: Optional[Tuple[List[float], List[float]]] = None
             ) -> None:
-        """Fits a potential to computed electronic energies.
+        """Fits a potential to computed molecular energies.
 
         Args:
             xdata: interatomic distance points (Angstroms)
-            ydata: electronic energies (Hartrees)
+            ydata: molecular energies (Hartrees)
             initial_vals: Initial values for fit parameters. None for default.
                 Order of parameters is d_e, alpha, r_0 and m_shift
                 (see fit_function implementation)
@@ -160,13 +160,13 @@ class MorsePotential(PotentialBase):
         return self.r_0 * scaling
 
     def get_minimal_energy(self, scaling: float = 1.0) -> float:
-        """Returns the smallest electronic energy for the current fit.
+        """Returns the smallest molecular energy for the current fit.
 
         Args:
             scaling: Scaling to change units. (Default is 1.0 for Hartrees)
 
         Returns:
-            smallest electronic energy for the current fit
+            smallest molecular energy for the current fit
         """
         # Returns the distance for the minimal energy (scaled by 'scaling'')
         # Default units (scaling=1.0) are Hartrees. Scale appropriately for

@@ -49,7 +49,7 @@ class PSI4Driver(FermionicDriver):
                  hf_method: HFMethodType = HFMethodType.RHF) -> None:
         """
         Args:
-            config: A electronic configuration conforming to PSI4 format.
+            config: A molecular configuration conforming to PSI4 format.
             molecule: A driver independent Molecule definition instance may be provided. When
                 a molecule is supplied the `config` parameter is ignored and the Molecule instance,
                 along with `basis` and `hf_method` is used to build a basic config instead.

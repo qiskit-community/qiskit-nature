@@ -105,7 +105,7 @@ class EnergySurfaceBase(ABC):
 
 class VibrationalStructureBase(ABC):
     """
-    Class to hold a electronic vibrational structure providing access to
+    Class to hold a molecular vibrational structure providing access to
     vibrational modes and energy levels.
     """
 

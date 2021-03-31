@@ -40,7 +40,7 @@ class GaussianDriver(FermionicDriver):
     This driver uses the Gaussian open-source Gaussian 16 interfacing code in
     order to access integrals and other electronic structure information as
     computed by G16 for the given molecule. The job control file, as provided
-    here for the electronic configuration, is augmented for our needs here such
+    here for the molecular configuration, is augmented for our needs here such
     as to have it output a MatrixElement file.
     """
 
@@ -53,7 +53,7 @@ class GaussianDriver(FermionicDriver):
                  hf_method: HFMethodType = HFMethodType.RHF) -> None:
         """
         Args:
-            config: A electronic configuration conforming to Gaussian™ 16 format.
+            config: A molecular configuration conforming to Gaussian™ 16 format.
             molecule: A driver independent Molecule definition instance may be provided. When
                 a molecule is supplied the `config` parameter is ignored and the Molecule instance,
                 along with `basis` and `hf_method` is used to build a basic config instead.

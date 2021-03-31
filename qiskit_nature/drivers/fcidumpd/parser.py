@@ -88,7 +88,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
     output['NROOT'] = int(_nroot.groups()[0]) if _nroot else 1
 
     # If the FCIDump file resulted from an unrestricted spin calculation the indices will label spin
-    # rather than electronic orbitals. This means, that a line must exist which encodes the
+    # rather than molecular orbitals. This means, that a line must exist which encodes the
     # coefficient for the spin orbital with index (norb*2, norb*2). By checking for such a line we
     # can distinguish between unrestricted and restricted FCIDump files.
     _uhf = bool(re.search(r'.*(\s+{}\s+{}\s+0\s+0)'.format(norb*2, norb*2),

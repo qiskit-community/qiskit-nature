@@ -56,7 +56,7 @@ class TestDriver(ABC):
         self.assertAlmostEqual(self.qmolecule.nuclear_repulsion_energy, 0.72, places=2)
 
     def test_driver_num_molecular_orbitals(self):
-        """ driver num electronic orbitals test """
+        """ driver num molecular orbitals test """
         self.log.debug('QMolecule Number of orbitals is {}'.format(
             self.qmolecule.num_molecular_orbitals))
         self.assertEqual(self.qmolecule.num_molecular_orbitals, 2)
@@ -72,8 +72,8 @@ class TestDriver(ABC):
         self.assertEqual(self.qmolecule.num_beta, 1)
 
     def test_driver_molecular_charge(self):
-        """ driver electronic charge test """
-        self.log.debug('QMolecule electronic charge is {}'.format(self.qmolecule.molecular_charge))
+        """ driver molecular charge test """
+        self.log.debug('QMolecule molecular charge is {}'.format(self.qmolecule.molecular_charge))
         self.assertEqual(self.qmolecule.molecular_charge, 0)
 
     def test_driver_multiplicity(self):

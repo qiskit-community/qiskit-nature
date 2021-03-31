@@ -54,7 +54,7 @@ class HDF5Driver(FermionicDriver):
         Runs driver to produce a QMolecule output.
 
         Returns:
-            A QMolecule containing the electronic data.
+            A QMolecule containing the molecular data.
 
         Raises:
             LookupError: file not found.

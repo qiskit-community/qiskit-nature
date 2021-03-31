@@ -17,7 +17,7 @@ Chemistry Drivers (:mod:`qiskit_nature.drivers`)
 
 Qiskit's chemistry module requires a computational chemistry program or library, accessed via a
 chemistry *driver*, to be installed on the system for the electronic-structure computation of a
-given molecule. A driver is created with a electronic configuration, passed in the format compatible
+given molecule. A driver is created with a molecular configuration, passed in the format compatible
 with that particular driver. This allows custom configuration specific to each computational
 chemistry program or library to be passed.
 
@@ -86,7 +86,7 @@ to use.
    qiskit_nature.drivers.pyquanted
    qiskit_nature.drivers.pyscfd
 
-The :class:`HDF5Driver` reads electronic data from a pre-existing HDF5 file, as saved from a
+The :class:`HDF5Driver` reads molecular data from a pre-existing HDF5 file, as saved from a
 :class:`~qiskit_nature.drivers.QMolecule`, and is not dependent on any external chemistry
 program/library and needs no special install.
 

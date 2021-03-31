@@ -54,7 +54,7 @@ class QMolecule:
         # added, and new integrals to allow different Beta orbitals needed,
         # these have been added as new similarly named fields but with suffices
         # such as _b, _bb and _ba. So mo_coeff (with no suffix) is the original
-        # and is for alpha electronic coefficients, the added one for beta is
+        # and is for alpha molecular coefficients, the added one for beta is
         # name mo_coeff_b, i.e. same name but with _b suffix. To keep backward
         # compatibility the original fields were not renamed with an _a suffix
         # but rather its implicit in the lack thereof given another field of
@@ -474,13 +474,13 @@ class QMolecule:
     def onee_to_spin(mohij, mohij_b=None, threshold=1E-12):
         """Convert one-body MO integrals to spin orbital basis
 
-        Takes one body integrals in electronic orbital basis and returns
+        Takes one body integrals in molecular orbital basis and returns
         integrals in spin orbitals ready for use as coefficients to
         one body terms 2nd quantized Hamiltonian.
 
         Args:
-            mohij (numpy.ndarray): One body orbitals in electronic basis (Alpha)
-            mohij_b (numpy.ndarray): One body orbitals in electronic basis (Beta)
+            mohij (numpy.ndarray): One body orbitals in molecular basis (Alpha)
+            mohij_b (numpy.ndarray): One body orbitals in molecular basis (Beta)
             threshold (float): Threshold value for assignments
         Returns:
             numpy.ndarray: One body integrals in spin orbitals
@@ -512,14 +512,14 @@ class QMolecule:
     def twoe_to_spin(mohijkl, mohijkl_bb=None, mohijkl_ba=None, threshold=1E-12):
         """Convert two-body MO integrals to spin orbital basis
 
-        Takes two body integrals in electronic orbital basis and returns
+        Takes two body integrals in molecular orbital basis and returns
         integrals in spin orbitals ready for use as coefficients to
         two body terms in 2nd quantized Hamiltonian.
 
         Args:
-            mohijkl (numpy.ndarray): Two body orbitals in electronic basis (AlphaAlpha)
-            mohijkl_bb (numpy.ndarray): Two body orbitals in electronic basis (BetaBeta)
-            mohijkl_ba (numpy.ndarray): Two body orbitals in electronic basis (BetaAlpha)
+            mohijkl (numpy.ndarray): Two body orbitals in molecular basis (AlphaAlpha)
+            mohijkl_bb (numpy.ndarray): Two body orbitals in molecular basis (BetaBeta)
+            mohijkl_ba (numpy.ndarray): Two body orbitals in molecular basis (BetaAlpha)
             threshold (float): Threshold value for assignments
         Returns:
             numpy.ndarray: Two body integrals in spin orbitals
