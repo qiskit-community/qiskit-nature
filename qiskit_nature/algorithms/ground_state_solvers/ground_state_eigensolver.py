@@ -80,11 +80,10 @@ class GroundStateEigensolver(GroundStateSolver):
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
-        self._untapered_qubit_ops = self._qubit_converter.map(second_q_ops)
-        qubit_ops = self._qubit_converter.convert_match(second_q_ops, True)
 
-        main_operator = qubit_ops[0]
-        aux_ops = qubit_ops[1:]
+        main_operator = self._qubit_converter.convert(second_q_ops[0],
+                                                      num_particles=problem.num_particles)
+        aux_ops = self._qubit_converter.convert_match(second_q_ops[1:])
 
         if aux_operators is not None:
             for aux_op in aux_operators:

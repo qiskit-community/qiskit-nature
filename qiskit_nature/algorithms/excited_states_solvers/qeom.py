@@ -51,6 +51,8 @@ class QEOM(ExcitedStatesSolver):
         self._gsc = ground_state_solver
         self.excitations = excitations
 
+        self._untapered_qubit_op_main: PauliSumOp = None
+
     @property
     def excitations(self) -> Union[str, List[List[int]]]:
         """Returns the excitations to be included in the eom pseudo-eigenvalue problem."""
@@ -92,6 +94,7 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem)
 
         # 2. Prepare the excitation operators
+        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(problem.second_q_ops()[0])
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
@@ -208,7 +211,7 @@ class QEOM(ExcitedStatesSolver):
             z2_symmetries = self._gsc.qubit_converter.z2symmetries  # type: ignore
         except AttributeError:
             z2_symmetries = Z2Symmetries([], [], [])
-        untapered_qubit_op_main = self._gsc._untapered_qubit_ops[0]
+
         if not z2_symmetries.is_empty():
             combinations = itertools.product([1, -1], repeat=len(z2_symmetries.symmetries))
             for targeted_tapering_values in combinations:
@@ -223,13 +226,13 @@ class QEOM(ExcitedStatesSolver):
                         available_hopping_ops[key] = hopping_operators[key]
                 # untapered_qubit_op is a PauliSumOp and should not be exposed.
                 _build_one_sector(available_hopping_ops,
-                                  untapered_qubit_op_main,  # type: ignore
+                                  self._untapered_qubit_op_main,
                                   z2_symmetries)
 
         else:
             # untapered_qubit_op is a PauliSumOp and should not be exposed.
             _build_one_sector(hopping_operators,
-                              untapered_qubit_op_main,  # type: ignore
+                              self._untapered_qubit_op_main,
                               z2_symmetries)
 
         return all_matrix_operators

@@ -53,6 +53,11 @@ class BaseProblem(ABC):
         """Returns the raw transformed molecule data object."""
         return self._molecule_data_transformed
 
+    @property
+    def num_particles(self) -> Optional[Tuple[int, int]]:
+        """Returns the number of particles, if available."""
+        return None
+
     @abstractmethod
     def second_q_ops(self):
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
