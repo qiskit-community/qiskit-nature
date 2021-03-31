@@ -69,7 +69,7 @@ def _interpret_electr_struct_result(eigenstate_result, molecule_data,
     _interpret_q_molecule_results(q_molecule, result)
     _interpret_transformed_results(q_molecule_transformed, result)
     if result.aux_operator_eigenvalues is not None:
-        _interpret_aux_ops_results(q_molecule, q_molecule_transformed, result)
+        _interpret_aux_ops_results(q_molecule_transformed, result)
     return result
 
 
@@ -87,21 +87,17 @@ def _interpret_q_molecule_results(q_molecule, result):
 
 
 def _interpret_transformed_results(q_molecule_transformed, result):
-    result.ph_extracted_energy = q_molecule_transformed.energy_shift.get(
-        "ParticleHoleTransformer", 0)
-    result.frozen_extracted_energy = q_molecule_transformed.energy_shift.get(
-        "FreezeCoreTransformer", 0)
+    result.extracted_transformer_energies = q_molecule_transformed.energy_shift
 
 
-def _interpret_aux_ops_results(q_molecule, q_molecule_transformed, result):
+def _interpret_aux_ops_results(q_molecule_transformed, result):
     # the first three values are hardcoded to number of particles, angular momentum
     # and magnetization in this order
     result.num_particles = []
     result.total_angular_momentum = []
     result.magnetization = []
     result.computed_dipole_moment = []
-    result.ph_extracted_dipole_moment = []
-    result.frozen_extracted_dipole_moment = []
+    result.extracted_transformer_dipoles = []
     if not isinstance(result.aux_operator_eigenvalues, list):
         aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
     else:
@@ -119,12 +115,11 @@ def _interpret_aux_ops_results(q_molecule, q_molecule_transformed, result):
         if aux_op_eigenvalues[2] is not None:
             result.magnetization.append(aux_op_eigenvalues[2][0].real)  # type: ignore
 
-        if len(aux_op_eigenvalues) >= 6 and q_molecule.has_dipole_integrals:
-            _interpret_dipole_results(aux_op_eigenvalues, q_molecule, q_molecule_transformed,
-                                      result)
+        if len(aux_op_eigenvalues) >= 6 and q_molecule_transformed.has_dipole_integrals:
+            _interpret_dipole_results(aux_op_eigenvalues, q_molecule_transformed, result)
 
 
-def _interpret_dipole_results(aux_op_eigenvalues, q_molecule, q_molecule_transformed, result):
+def _interpret_dipole_results(aux_op_eigenvalues, q_molecule_transformed, result):
     # the next three are hardcoded to Dipole moments, if they are set check if the names match
     # extract dipole moment in each axis
     dipole_moment = []
@@ -134,21 +129,11 @@ def _interpret_dipole_results(aux_op_eigenvalues, q_molecule, q_molecule_transfo
         else:
             dipole_moment += [None]
 
-    result.reverse_dipole_sign = q_molecule.reverse_dipole_sign
-    result.computed_dipole_moment.append(cast(DipoleTuple,
-                                              tuple(dipole_moment)))
-    result.ph_extracted_dipole_moment.append(
-        (q_molecule_transformed.x_dip_energy_shift.get(
-            "ParticleHoleTransformer", 0),
-         q_molecule_transformed.y_dip_energy_shift.get(
-             "ParticleHoleTransformer", 0),
-         q_molecule_transformed.z_dip_energy_shift.get(
-             "ParticleHoleTransformer", 0)))
-
-    result.frozen_extracted_dipole_moment.append(
-        (q_molecule_transformed.x_dip_energy_shift.get(
-            "FreezeCoreTransformer", 0),
-         q_molecule_transformed.y_dip_energy_shift.get(
-             "FreezeCoreTransformer", 0),
-         q_molecule_transformed.z_dip_energy_shift.get(
-             "FreezeCoreTransformer", 0)))
+    result.reverse_dipole_sign = q_molecule_transformed.reverse_dipole_sign
+    result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
+    result.extracted_transformer_dipoles.append({
+        name: cast(DipoleTuple, (q_molecule_transformed.x_dip_energy_shift[name],
+                                 q_molecule_transformed.y_dip_energy_shift[name],
+                                 q_molecule_transformed.z_dip_energy_shift[name]))
+        for name in q_molecule_transformed.x_dip_energy_shift.keys()
+    })
