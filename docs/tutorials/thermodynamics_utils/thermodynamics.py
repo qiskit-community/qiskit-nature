@@ -18,7 +18,7 @@ the properties and energies of the underlying molecule.
 from functools import partial
 
 import numpy as np
-import qiskit.chemistry.constants as const
+import qiskit_nature.constants as const
 from thermodynamics_utils.partition_function import PartitionFunctionBase
 
 
