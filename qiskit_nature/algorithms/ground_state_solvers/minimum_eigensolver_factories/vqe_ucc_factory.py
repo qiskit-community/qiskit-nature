@@ -26,7 +26,8 @@ from qiskit_nature.circuit.library.ansatzes import UCC, UCCSD
 from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import \
+    ElectronicStructureProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 

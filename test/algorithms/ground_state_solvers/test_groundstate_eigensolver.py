@@ -28,15 +28,16 @@ from qiskit.utils import QuantumInstance, algorithm_globals
 
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
-    (VQEUCCFactory, NumPyMinimumEigensolverFactory)
+    (VQEUCCFactory, NumPyMinimumEigensolverFactory, )
 from qiskit_nature.circuit.library.ansatzes import UCC, UCCSD
 from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import \
+    ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
-        build_ferm_op_from_ints
+    build_ferm_op_from_ints
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -74,9 +75,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_vqe_uccsd(self):
         """ Test VQE UCCSD case """
         solver = VQEUCCFactory(
-                    quantum_instance=QuantumInstance(BasicAer.get_backend('statevector_simulator')),
-                    var_form=UCC(excitations='d'),
-                    )
+            quantum_instance=QuantumInstance(BasicAer.get_backend('statevector_simulator')),
+            var_form=UCC(excitations='d'),
+        )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -112,7 +113,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        _, *aux_ops = self.qubit_converter.convert_match(self.electronic_structure_problem.second_q_ops())
+        _, *aux_ops = self.qubit_converter.convert_match(
+            self.electronic_structure_problem.second_q_ops())
         return calc, res, aux_ops
 
     def test_eval_op_single(self):

@@ -31,6 +31,7 @@ from qiskit_nature.operators.second_quantization.qubit_converter import QubitCon
 from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 from qiskit_nature.transformers import FreezeCoreTransformer
 
+
 # pylint: disable=invalid-name
 
 
@@ -43,7 +44,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver, [FreezeCoreTransformer()])
+        self.electronic_structure_problem = ElectronicStructureProblem(self.driver,
+                                                                       [FreezeCoreTransformer()])
 
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)

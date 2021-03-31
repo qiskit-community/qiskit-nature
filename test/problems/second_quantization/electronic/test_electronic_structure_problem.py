@@ -13,12 +13,14 @@
 """Tests Electronic Structure Problem."""
 
 from test import QiskitNatureTestCase
-from test.problems.second_quantization.electronic.resources.resource_reader import read_expected_file
+from test.problems.second_quantization.electronic.resources.resource_reader import \
+    read_expected_file
 import numpy as np
 from qiskit_nature.transformers import ActiveSpaceTransformer
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import \
+    ElectronicStructureProblem
 
 
 class TestElectronicStructureProblem(QiskitNatureTestCase):
