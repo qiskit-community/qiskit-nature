@@ -30,7 +30,7 @@ class PartitionFunctionBase(ABC):
     function callable object.
     """
 
-    def __init__(self, molecule, energy_surface, vibronic_struct):
+    def __init__(self, molecule, energy_surface, vibrational_struct):
         """
         Constructor.
 
@@ -39,9 +39,9 @@ class PartitionFunctionBase(ABC):
             energy_surface: the potential energy surface used to provide
                         information on the molecule's equilibrium geometry and
                         ground state energy (class EnergySurfaceBase).
-            vibronic_struct: the vibronic structure of the molecule providing
+            vibrational_struct: the vibrational structure of the molecule providing
                         vibrational modes and energy levels
-                        (class VibronicStructureBase).
+                        (class VibrationalStructureBase).
         """
 
     @abstractmethod
@@ -139,22 +139,22 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     """
 
-    def __init__(self, molecule, energy_surface, vibronic_structure):
+    def __init__(self, molecule, energy_surface, vibrational_structure):
         """
         Constructor.
         Initializes the partition function with a molecule (Molecule), a
-        potential energy surface (EnergySurfaceBase) and a electronic vibronic
-        structure (VibronicStructureBase).
+        potential energy surface (EnergySurfaceBase) and a electronic vibrational
+        structure (VibrationalStructureBase).
 
         Args:
             molecule: the underlying molecule.
             energy_surface (EnergySurfaceBase): 1D potential energy surface
-            vibronic_structure (VibronicStructureBase): the electronic
-                    vibronic structure
+            vibrational_structure (VibrationalStructureBase): the electronic
+                    vibrational structure
         """
         self.molecule = molecule
         self.energy_surface = energy_surface
-        self.vibronic_structure = vibronic_structure
+        self.vibrational_structure = vibrational_structure
 
     def get_default_callable(self, pressure=None):
         """
@@ -346,7 +346,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         nv = 0
         q_vib_ah = 0
 
-        nmax = self.vibronic_structure.get_maximum_trusted_level()
+        nmax = self.vibrational_structure.get_maximum_trusted_level()
 
         # if nmax > 100:
         #     print(
@@ -355,7 +355,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         #     nmax = 100
 
         while nv <= nmax:
-            e_n = self.vibronic_structure.vibrational_energy_level(
+            e_n = self.vibrational_structure.vibrational_energy_level(
                 nv) * const.HARTREE_TO_J
             q_vib_ah += (np.exp(-beta * e_n) if not evaluate_gradient
                          else (-dbdt * e_n) * np.exp(-beta * e_n))

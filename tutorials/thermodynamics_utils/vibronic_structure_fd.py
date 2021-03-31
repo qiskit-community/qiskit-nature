@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Utilities for Analytic Vibronic Structure Calculations for diatomic molecules
+Utilities for Analytic Vibrational Structure Calculations for diatomic molecules
 """
 import warnings
 
@@ -19,10 +19,10 @@ import numpy as np
 from scipy.linalg import eigh_tridiagonal, eigvalsh_tridiagonal
 
 import qiskit.chemistry.constants as const
-from qiskit.chemistry.algorithms.pes_samplers.potentials.potential_base import VibronicStructureBase
+from qiskit.chemistry.algorithms.pes_samplers.potentials.potential_base import VibrationalStructureBase
 
 
-class VibronicStructure1DFD(VibronicStructureBase):
+class VibrationalStructure1DFD(VibrationalStructureBase):
     """
     A simple finite difference calculation of vibrational 
     energy levels of an arbitrary 1D potential energy surface.
@@ -130,7 +130,7 @@ class VibronicStructure1DFD(VibronicStructureBase):
 
         return left, right
 
-    # Implementing the VibronicStructureBase interface
+    # Implementing the VibrationalStructureBase interface
 
     def get_num_modes(self):
         """ returns the number of vibrational modes for the molecule """

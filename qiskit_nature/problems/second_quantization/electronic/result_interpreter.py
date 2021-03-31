@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""The Molecular Result Interpreter class."""
+"""The Electronic Structure Result Interpreter class."""
 from typing import cast, Union
 
 import numpy as np
