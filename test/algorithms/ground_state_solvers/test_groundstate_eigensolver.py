@@ -218,12 +218,13 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
                                    seed_transpiler=algorithm_globals.random_seed)
                                )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res_qasm = calc.solve(self.molecular_problem)
+        res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.molecular_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
-        var_form = solver.get_solver(self.molecular_problem, self.qubit_converter).var_form
+        var_form = solver.get_solver(self.electronic_structure_problem,
+                                     self.qubit_converter).var_form
         circuit = var_form.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
@@ -249,12 +250,13 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
                                    seed_transpiler=algorithm_globals.random_seed)
                                )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res_qasm = calc.solve(self.molecular_problem)
+        res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.molecular_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
-        var_form = solver.get_solver(self.molecular_problem, self.qubit_converter).var_form
+        var_form = solver.get_solver(self.electronic_structure_problem,
+                                     self.qubit_converter).var_form
         circuit = var_form.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
