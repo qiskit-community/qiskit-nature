@@ -21,7 +21,7 @@ from qiskit_nature.drivers.qmolecule import QMolecule
 from qiskit_nature.operators import FermionicOp
 
 
-def build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
+def _build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
     """
     Builds a fermionic operator based on a QMolecule object.
 
@@ -64,14 +64,14 @@ def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
         FermionicOp: FermionicOp built from 1- and/or 2-body integrals.
     """
 
-    fermionic_op = _build_fermionic_op(one_body_integrals, two_body_integrals)
+    fermionic_op = _build_ferm_op_helper(one_body_integrals, two_body_integrals)
     fermionic_op = fermionic_op.reduce()
 
     return fermionic_op
 
 
-def _build_fermionic_op(one_body_integrals: np.ndarray,
-                        two_body_integrals: np.ndarray) -> FermionicOp:
+def _build_ferm_op_helper(one_body_integrals: np.ndarray,
+                          two_body_integrals: np.ndarray) -> FermionicOp:
     one_body_base_ops_labels = _create_one_body_base_ops(one_body_integrals)
     two_body_base_ops_labels = _create_two_body_base_ops(
         two_body_integrals) if two_body_integrals is not None else []

@@ -27,9 +27,9 @@ from qiskit_nature.transformers import BaseTransformer
 from qiskit_nature.problems.second_quantization.molecular.builders.aux_fermionic_ops_builder \
     import _create_all_aux_operators
 from qiskit_nature.problems.second_quantization.molecular.builders.fermionic_op_builder import \
-    build_fermionic_op
+    _build_fermionic_op
 from qiskit_nature.problems.second_quantization.molecular.builders.hopping_ops_builder import \
-    build_hopping_operators
+    _build_qeom_hopping_ops
 from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
 
@@ -59,18 +59,18 @@ class MolecularProblem(BaseProblem):
         self._molecule_data = cast(QMolecule, self.driver.run())
         self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
-        electronic_fermionic_op = build_fermionic_op(self._molecule_data_transformed)
+        electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
         second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
             self._molecule_data_transformed)
 
         return second_quantized_ops_list
 
-    def hopping_ops(self, qubit_converter: QubitConverter,
-                    excitations: Union[str, int, List[int],
+    def hopping_qeom_ops(self, qubit_converter: QubitConverter,
+                         excitations: Union[str, int, List[int],
                                        Callable[[int, Tuple[int, int]],
                                                 List[Tuple[
                                                     Tuple[int, ...], Tuple[int, ...]]]]] = 'sd',
-                    ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
+                         ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
                                Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
@@ -92,7 +92,7 @@ class MolecularProblem(BaseProblem):
             excitation indices.
         """
         q_molecule = cast(QMolecule, self.molecule_data)
-        return build_hopping_operators(q_molecule, qubit_converter, excitations)
+        return _build_qeom_hopping_ops(q_molecule, qubit_converter, excitations)
 
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
                                           MinimumEigensolverResult]) -> ElectronicStructureResult:

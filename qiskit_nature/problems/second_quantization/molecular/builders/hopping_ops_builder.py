@@ -25,7 +25,7 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
-def build_hopping_operators(q_molecule: QMolecule, qubit_converter: QubitConverter,
+def _build_qeom_hopping_ops(q_molecule: QMolecule, qubit_converter: QubitConverter,
                             excitations: Union[str, int, List[int],
                                                Callable[[int, Tuple[int, int]],
                                                         List[Tuple[Tuple[int, ...],

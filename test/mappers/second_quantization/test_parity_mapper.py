@@ -48,7 +48,7 @@ class TestParityMapper(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
                                                               'drivers/hdf5d'))
         q_molecule = driver.run()
-        fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
+        fermionic_op = fermionic_op_builder._build_fermionic_op(q_molecule)
         mapper = ParityMapper()
         qubit_op = mapper.map(fermionic_op)
 

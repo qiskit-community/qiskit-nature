@@ -21,7 +21,7 @@ from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization import VibrationalProblem
 from qiskit_nature.problems.second_quantization.vibrational.builders.hopping_ops_builder import \
-    build_hopping_operators
+    _build_qeom_hopping_ops
 
 
 class TestHoppingOpsBuilder(QiskitNatureTestCase):
@@ -128,5 +128,5 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
              'Edag_1': ((3,), (2,)),
              'E_2': ((0, 2), (1, 3)), 'Edag_2': ((1, 3), (0, 2))})
 
-        hopping_operators = build_hopping_operators(self.num_modals, self.qubit_converter)
+        hopping_operators = _build_qeom_hopping_ops(self.num_modals, self.qubit_converter)
         self.assertEqual(hopping_operators, expected_hopping_operators)

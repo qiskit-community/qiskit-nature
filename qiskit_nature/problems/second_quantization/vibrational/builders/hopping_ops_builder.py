@@ -23,7 +23,7 @@ from qiskit_nature.operators import VibrationalOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 
-def build_hopping_operators(num_modals: List[int],
+def _build_qeom_hopping_ops(num_modals: List[int],
                             qubit_converter: QubitConverter,
                             excitations: Union[str, int, List[int],
                                                Callable[[int, Tuple[int, int]],

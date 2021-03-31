@@ -139,8 +139,8 @@ class QEOM(ExcitedStatesSolver):
             a dictionary of all matrix elements operators and the number of excitations
             (or the size of the qEOM pseudo-eigenvalue problem)
         """
-        data = problem.hopping_ops(self._gsc.qubit_converter,
-                                   self._excitations)
+        data = problem.hopping_qeom_ops(self._gsc.qubit_converter,
+                                        self._excitations)
         hopping_operators, type_of_commutativities, excitation_indices = data
 
         size = int(len(list(excitation_indices.keys())) // 2)

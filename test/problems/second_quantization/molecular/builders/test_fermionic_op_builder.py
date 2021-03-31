@@ -31,7 +31,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
-        fermionic_op = fermionic_op_builder.build_fermionic_op(q_molecule)
+        fermionic_op = fermionic_op_builder._build_fermionic_op(q_molecule)
         with self.subTest("Check type of fermionic operator"):
             assert isinstance(fermionic_op, FermionicOp)
         with self.subTest("Check expected number of terms in a fermionic operator."):

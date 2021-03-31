@@ -85,7 +85,7 @@ class TestQubitConverter(QiskitNatureTestCase):
                                                               'drivers/hdf5d'))
         self.molecule = driver.run()
         self.num_particles = (self.molecule.num_alpha, self.molecule.num_beta)
-        self.h2_op = fermionic_op_builder.build_fermionic_op(self.molecule)
+        self.h2_op = fermionic_op_builder._build_fermionic_op(self.molecule)
 
     def test_mapping_basic(self):
         """ Test mapping to qubit operator """

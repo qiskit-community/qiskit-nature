@@ -24,7 +24,7 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
 from qiskit_nature.problems.second_quantization.vibrational.builders.hopping_ops_builder import \
-    build_hopping_operators
+    _build_qeom_hopping_ops
 from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import \
     _build_vibrational_op
 from qiskit_nature.results import EigenstateResult, VibronicStructureResult
@@ -75,12 +75,12 @@ class VibrationalProblem(BaseProblem):
 
         return second_quantized_ops_list
 
-    def hopping_ops(self, qubit_converter: QubitConverter,
-                    excitations: Union[str, int, List[int],
+    def hopping_qeom_ops(self, qubit_converter: QubitConverter,
+                         excitations: Union[str, int, List[int],
                                        Callable[[int, Tuple[int, int]],
                                                 List[Tuple[
                                                     Tuple[int, ...], Tuple[int, ...]]]]] = 'sd',
-                    ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
+                         ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
                                Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
@@ -107,7 +107,7 @@ class VibrationalProblem(BaseProblem):
         else:
             num_modals = self.num_modals
 
-        return build_hopping_operators(num_modals, qubit_converter, excitations)
+        return _build_qeom_hopping_ops(num_modals, qubit_converter, excitations)
 
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
                                           MinimumEigensolverResult]) -> VibronicStructureResult:
