@@ -26,7 +26,7 @@ from qiskit_nature.circuit.library.ansatzes import UCC, UCCSD
 from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
+from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import ElectronicStructureProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -167,7 +167,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         the :class:`~.HartreeFock`."""
         self._initial_state = initial_state
 
-    def get_solver(self, problem: MolecularProblem,  # type: ignore[override]
+    def get_solver(self, problem: ElectronicStructureProblem,  # type: ignore[override]
                    qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a VQE with a UCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``FermionicTransformation``.

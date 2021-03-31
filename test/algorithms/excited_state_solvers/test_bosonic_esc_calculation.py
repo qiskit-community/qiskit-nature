@@ -23,8 +23,8 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature.drivers import BaseDriver, WatsonHamiltonian
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
-    VibrationalProblem
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_structure_problem import \
+    VibrationalStructureProblem
 
 from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory,
@@ -63,7 +63,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         self.basis_size = 2
         self.truncation_order = 2
 
-        self.vibrational_problem = VibrationalProblem(
+        self.vibrational_problem = VibrationalStructureProblem(
             self.driver, self.basis_size, self.truncation_order
         )
 

@@ -86,7 +86,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                            implies that the number of alpha and beta electrons equals half of this
                            value, respectively.
             num_molecular_orbitals: The number of active orbitals.
-            active_orbitals: A list of indices specifying the molecular orbitals of the active
+            active_orbitals: A list of indices specifying the electronic orbitals of the active
                              space. This argument must match with the remaining arguments and should
                              only be used to enforce an active space that is not chosen purely
                              around the Fermi level.
@@ -123,16 +123,16 @@ class ActiveSpaceTransformer(BaseTransformer):
         except QiskitNatureError as exc:
             raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
-        # get molecular orbital coefficients
+        # get electronic orbital coefficients
         mo_coeff_full = (molecule_data.mo_coeff, molecule_data.mo_coeff_b)
         self._beta = mo_coeff_full[1] is not None
-        # get molecular orbital occupation numbers
+        # get electronic orbital occupation numbers
         mo_occ_full = self._extract_mo_occupation_vector(molecule_data)
         self._mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if self._beta else mo_occ_full[0]
 
         active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(molecule_data)
 
-        # split molecular orbitals coefficients into active and inactive parts
+        # split electronic orbitals coefficients into active and inactive parts
         self._mo_coeff_inactive = (mo_coeff_full[0][:, inactive_orbs_idxs],
                                    mo_coeff_full[1][:, inactive_orbs_idxs] if self._beta else None)
         self._mo_coeff_active = (mo_coeff_full[0][:, active_orbs_idxs],

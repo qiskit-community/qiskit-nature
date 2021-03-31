@@ -23,7 +23,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization import MolecularProblem
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.algorithms.ground_state_solvers import (GroundStateEigensolver,
                                                            VQEUCCFactory, )
 from qiskit_nature.algorithms.excited_states_solvers import (
@@ -49,7 +49,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self.reference_energies = [-1.8427016, -1.8427016 + 0.5943372, -1.8427016 + 0.95788352,
                                    -1.8427016 + 1.5969296]
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.molecular_problem = MolecularProblem(self.driver)
+        self.molecular_problem = ElectronicStructureProblem(self.driver)
 
         solver = NumPyEigensolver()
         self.ref = solver

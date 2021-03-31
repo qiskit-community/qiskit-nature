@@ -105,7 +105,7 @@ class EnergySurfaceBase(ABC):
 
 class VibronicStructureBase(ABC):
     """
-    Class to hold a molecular vibronic structure providing access to
+    Class to hold a electronic vibronic structure providing access to
     vibrational modes and energy levels.
     """
 

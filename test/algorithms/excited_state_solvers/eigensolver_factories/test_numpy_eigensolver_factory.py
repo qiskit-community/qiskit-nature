@@ -18,7 +18,7 @@ from qiskit.algorithms import NumPyEigensolver
 from qiskit_nature.algorithms import NumPyEigensolverFactory
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType, PySCFDriver
-from qiskit_nature.problems.second_quantization import MolecularProblem
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 
 class TestNumPyEigensolverFactory(QiskitNatureTestCase):
@@ -39,7 +39,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
         except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed')
 
-        self.molecular_problem = MolecularProblem(self.driver)
+        self.molecular_problem = ElectronicStructureProblem(self.driver)
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):

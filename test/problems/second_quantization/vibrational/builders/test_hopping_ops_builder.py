@@ -19,7 +19,7 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization import VibrationalProblem
+from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
 from qiskit_nature.problems.second_quantization.vibrational.builders.hopping_ops_builder import \
     _build_qeom_hopping_ops
 
@@ -35,8 +35,8 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.basis_size = 2
         self.truncation_order = 2
 
-        self.vibrational_problem = VibrationalProblem(self.driver, self.basis_size,
-                                                      self.truncation_order)
+        self.vibrational_problem = VibrationalStructureProblem(self.driver, self.basis_size,
+                                                               self.truncation_order)
 
         self.qubit_converter = QubitConverter(DirectMapper())
         self.vibrational_problem.second_q_ops()

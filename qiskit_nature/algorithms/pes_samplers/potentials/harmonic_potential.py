@@ -25,7 +25,7 @@ class HarmonicPotential(PotentialBase):
     """Implements a 1D Harmonic potential.
 
     Input units are Angstroms (distance between the two atoms), and output units are
-    Hartrees (molecular energy).
+    Hartrees (electronic energy).
     """
     # Works in Angstroms (input) and Hartrees (output)
 
@@ -97,11 +97,11 @@ class HarmonicPotential(PotentialBase):
     def fit(self, xdata: List[float], ydata: List[float],
             initial_vals: Optional[List[float]] = None,
             bounds_list: Optional[Tuple[List[float], List[float]]] = None) -> None:
-        """Fits a potential to computed molecular energies.
+        """Fits a potential to computed electronic energies.
 
         Args:
             xdata: interatomic distance points (Angstroms)
-            ydata: molecular energies (Hartrees)
+            ydata: electronic energies (Hartrees)
             initial_vals: Initial values for fit parameters. None for default.
                 Order of parameters is k, r_0 and m_shift
                 (see fit_function implementation)
@@ -152,13 +152,13 @@ class HarmonicPotential(PotentialBase):
         return self.r_0 * scaling
 
     def get_minimal_energy(self, scaling: float = 1.0) -> float:
-        """Returns the smallest molecular energy for the current fit.
+        """Returns the smallest electronic energy for the current fit.
 
         Args:
             scaling: Scaling to change units. (Default is 1.0 for Hartrees)
 
         Returns:
-            smallest molecular energy for the current fit
+            smallest electronic energy for the current fit
         """
         # Returns the distance for the minimal energy (scaled by 'scaling')
         # Default units (scaling=1.0) are Hartrees. Scale appropriately for

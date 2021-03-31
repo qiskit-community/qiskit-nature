@@ -26,7 +26,7 @@ from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import Mor
 from qiskit_nature.drivers import Molecule, PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
 
 class TestBOPES(unittest.TestCase):
@@ -47,7 +47,7 @@ class TestBOPES(unittest.TestCase):
         converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 
         driver = PySCFDriver(molecule=m)
-        problem = MolecularProblem(driver)
+        problem = ElectronicStructureProblem(driver)
 
         solver = NumPyMinimumEigensolver()
         me_gss = GroundStateEigensolver(converter, solver)
@@ -83,7 +83,7 @@ class TestBOPES(unittest.TestCase):
         converter = QubitConverter(mapper=mapper)
 
         driver = PySCFDriver(molecule=m)
-        problem = MolecularProblem(driver)
+        problem = ElectronicStructureProblem(driver)
 
         solver = NumPyMinimumEigensolver()
 

@@ -35,7 +35,7 @@ class QubitConverter:
     This converter can be configured with a mapper instance which will later be used
     when 2nd quantized operators are requested to be converted (mapped) to qubit operators.
 
-    For a Fermionic system, when its a molecular problem, there are certain mappers, such as
+    For a Fermionic system, when its a electronic problem, there are certain mappers, such as
     the :class:`~qiskit_nature.mappers.second_quantization.ParityMapper` that introduces known
     symmetries, by virtue of the mapping, that can be exploited to reduce the size of the
     problem, i.e the qubit operator, by two qubits. The two qubit reduction setting indicates

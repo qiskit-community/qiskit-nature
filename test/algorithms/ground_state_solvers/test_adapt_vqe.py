@@ -30,8 +30,8 @@ from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import PySCFDriver, UnitsType, QMolecule
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
-from qiskit_nature.problems.second_quantization.molecular.builders.fermionic_op_builder import \
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
         build_ferm_op_from_ints
 
 
@@ -49,7 +49,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
             self.skipTest('PYSCF driver does not appear to be installed')
             return
 
-        self.problem = MolecularProblem(self.driver)
+        self.problem = ElectronicStructureProblem(self.driver)
 
         self.expected = -1.85727503
 

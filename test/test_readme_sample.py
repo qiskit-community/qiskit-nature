@@ -55,15 +55,15 @@ class TestReadmeSample(QiskitNatureTestCase):
         # --- Exact copy of sample code ----------------------------------------
 
         from qiskit_nature.drivers import PySCFDriver, UnitsType
-        from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
+        from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
         # Use PySCF, a classical computational chemistry software
         # package, to compute the one-body and two-body integrals in
-        # molecular-orbital basis, necessary to form the Fermionic operator
+        # electronic-orbital basis, necessary to form the Fermionic operator
         driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
                              unit=UnitsType.ANGSTROM,
                              basis='sto3g')
-        problem = MolecularProblem(driver)
+        problem = ElectronicStructureProblem(driver)
 
         # generate the second-quantized operators
         second_q_ops = problem.second_q_ops()

@@ -25,8 +25,8 @@ from qiskit_nature.circuit.library import VSCF
 from qiskit_nature.circuit.library.ansatzes import UVCC, UVCCSD
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
-    VibrationalProblem
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_structure_problem import \
+    VibrationalStructureProblem
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -168,7 +168,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         the :class:`~.VSCF`."""
         self._initial_state = initial_state
 
-    def get_solver(self, problem: VibrationalProblem,  # type: ignore[override]
+    def get_solver(self, problem: VibrationalStructureProblem,  # type: ignore[override]
                    qubit_converter: QubitConverter) -> MinimumEigensolver:
         """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``BosonicTransformation``.

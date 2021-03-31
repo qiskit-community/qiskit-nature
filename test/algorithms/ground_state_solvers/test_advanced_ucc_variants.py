@@ -28,7 +28,7 @@ from qiskit_nature.circuit.library.ansatzes import SUCCD, PUCCD
 from qiskit_nature.drivers import PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 from qiskit_nature.transformers import FreezeCoreTransformer
 
 # pylint: disable=invalid-name
@@ -43,7 +43,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
-        self.molecular_problem = MolecularProblem(self.driver, [FreezeCoreTransformer()])
+        self.molecular_problem = ElectronicStructureProblem(self.driver, [FreezeCoreTransformer()])
 
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)

@@ -16,7 +16,7 @@ from ddt import ddt, data
 
 import numpy as np
 
-from qiskit_nature.problems.second_quantization.molecular.integrals_calculators import \
+from qiskit_nature.problems.second_quantization.electronic.integrals_calculators import \
     calc_total_particle_num_ints
 
 

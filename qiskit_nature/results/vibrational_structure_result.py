@@ -23,7 +23,7 @@ from .eigenstate_result import EigenstateResult
 logger = logging.getLogger(__name__)
 
 
-class VibronicStructureResult(EigenstateResult):
+class VibrationalStructureResult(EigenstateResult):
     """The vibronic structure result."""
 
     def __init__(self) -> None:

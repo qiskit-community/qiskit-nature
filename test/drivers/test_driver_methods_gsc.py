@@ -22,7 +22,7 @@ from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.drivers import FermionicDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 from qiskit_nature.transformers.base_transformer import BaseTransformer
 
 
@@ -47,7 +47,7 @@ class TestDriverMethods(QiskitNatureTestCase):
                     converter: QubitConverter = QubitConverter(JordanWignerMapper()),
                     transformers: Optional[List[BaseTransformer]] = None):
 
-        problem = MolecularProblem(driver, transformers)
+        problem = ElectronicStructureProblem(driver, transformers)
 
         solver = NumPyMinimumEigensolver()
 

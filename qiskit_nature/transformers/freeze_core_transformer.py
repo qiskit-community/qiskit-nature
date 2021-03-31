@@ -27,14 +27,14 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
     def __init__(self, freeze_core: bool = True,
                  remove_orbitals: Optional[List[int]] = None,
                  ):
-        """Initializes a transformer which reduces a `QMolecule` by removing some molecular
+        """Initializes a transformer which reduces a `QMolecule` by removing some electronic
         orbitals.
 
         The orbitals to be removed are specified in two ways:
             1. When `freeeze_core` is enabled (the default), the `core_orbitals` listed in the
                `QMolecule` are made inactive and removed in the same fashion as in the
                :class:`ActiveSpaceTransformer`.
-            2. Additionally, unoccupied molecular orbitals can be removed via a list of indices
+            2. Additionally, unoccupied electronic orbitals can be removed via a list of indices
                passed to `remove_orbitals`. It is the user's responsibility to ensure that these are
                indeed unoccupied orbitals, as no checks are performed.
 
@@ -42,9 +42,9 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         :class:`ActiveSpaceTransformer` instead.
 
         Args:
-            freeze_core: A boolean indicating whether to remove the molecular orbitals specified by
+            freeze_core: A boolean indicating whether to remove the electronic orbitals specified by
                         `QMolecule.core_orbitals.
-            remove_orbitals: A list of indices specifying molecular orbitals which are removed.
+            remove_orbitals: A list of indices specifying electronic orbitals which are removed.
                              No checks are performed on the nature of these orbitals, so the user
                              must make sure that these are _unoccupied_ orbitals, which can be
                              removed without taking any energy shifts into account.
@@ -56,7 +56,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
     def transform(self, molecule_data: QMolecule) -> QMolecule:
         """Reduces the given `QMolecule` by removing the core and optionally defined unoccupied
-        molecular orbitals.
+        electronic orbitals.
 
         Args:
             molecule_data: the `QMolecule` to be transformed.

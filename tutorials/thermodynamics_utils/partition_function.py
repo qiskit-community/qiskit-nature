@@ -60,7 +60,7 @@ class PartitionFunctionBase(ABC):
                            (case insensitive and only compared to
                             the first three characters)
             pressure (float): Pressure (Pa).
-            geometry (float, tuple): molecular geometry (specified
+            geometry (float, tuple): electronic geometry (specified
                             via the degrees of freedom for the molecule).
         """
 
@@ -143,13 +143,13 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         """
         Constructor.
         Initializes the partition function with a molecule (Molecule), a
-        potential energy surface (EnergySurfaceBase) and a molecular vibronic
+        potential energy surface (EnergySurfaceBase) and a electronic vibronic
         structure (VibronicStructureBase).
 
         Args:
             molecule: the underlying molecule.
             energy_surface (EnergySurfaceBase): 1D potential energy surface
-            vibronic_structure (VibronicStructureBase): the molecular
+            vibronic_structure (VibronicStructureBase): the electronic
                     vibronic structure
         """
         self.molecule = molecule
@@ -196,9 +196,9 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
                 Specified pressure for the system (used in the
                 translational part). Default is 1 atmosphere (in Pa)
             geometry: optional, float,
-                Internuclear distance for the molecular geometry.
+                Internuclear distance for the electronic geometry.
                 Default is the equilibrium distance (corresponding to minimal
-                molecular energy).
+                electronic energy).
 
         Raises:
             ValueError: if part is not recognized.
@@ -281,7 +281,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def eval_translational(self, p, t):
         """
-        Translational component of the molecular partition function.
+        Translational component of the electronic partition function.
 
         Arguments:
             p: pressure in Pa
@@ -328,7 +328,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def _eval_vibrational(self, t, evaluate_gradient=False):
         """
-        Vibrational component of the molecular partition function.
+        Vibrational component of the electronic partition function.
 
         If evaluate_gradient=True, calculates the t-derivative instead.
 
@@ -365,7 +365,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def eval_vibrational(self, t):
         """
-        Vibrational component of the molecular partition function.
+        Vibrational component of the electronic partition function.
 
         Arguments:
             t: temperature in K
@@ -378,7 +378,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def eval_d_dt_vibrational(self, t):
         """
-        Derivative of the vibrational component of the molecular
+        Derivative of the vibrational component of the electronic
         partition function.
 
         Arguments:
@@ -400,7 +400,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def _eval_rotational_high_temp(self, r0, t, evaluate_gradient=False):
         """
-        Rotational molecular partition function in the
+        Rotational electronic partition function in the
         high temperature limit.
         Valid only when theta_r << t
         See McQuarrie 6-47
@@ -453,7 +453,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def eval_rotational_high_temp(self, r0, t):
         """
-        Rotational molecular partition function in the high temperature limit.
+        Rotational electronic partition function in the high temperature limit.
         Valid only when theta_r << t; See McQuarrie 6-47
 
         Arguments:
@@ -467,7 +467,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def eval_d_dt_rotational_high_temperature(self, r0, t):
         """
-        Derivative (w.r.t. temperature) of the rotational molecular
+        Derivative (w.r.t. temperature) of the rotational electronic
         partition function in the high temperature limit.
         Valid only when theta_r << t; See McQuarrie 6-47
 
@@ -494,7 +494,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
     def _eval_rotational(self, r, t, split_para_ortho=False,
                          evaluate_gradient=False):
         """
-        Rotational molecular partition function
+        Rotational electronic partition function
         See McQuarrie 6-40,41... p. 102 - 107
         Here, the equilibrium concentration of o-H2 and p-H2 is computed
         at temperature, this is used to compute q_rot.
@@ -590,7 +590,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def eval_rotational(self, r, t, split_para_ortho=False):
         """
-        Rotational molecular partition function
+        Rotational electronic partition function
         See McQuarrie 6-40,41... p. 102 - 107
         Here, the equilibrium concentration of o-H2 and p-H2 is computed
         at temperature, this is used to compute the rotational partition
@@ -612,7 +612,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
     def eval_d_dt_rotational(self, r, t, split_para_ortho=False):
         """
-        Derivative (w.r.t. temperature) of the rotational molecular
+        Derivative (w.r.t. temperature) of the rotational electronic
         partition function.
         See McQuarrie 6-40,41... p. 102 - 107
         Here, the equilibrium concentration of o-H2 and p-H2 is computed

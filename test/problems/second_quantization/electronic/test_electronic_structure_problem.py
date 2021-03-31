@@ -13,15 +13,15 @@
 """Tests Molecular Problem."""
 
 from test import QiskitNatureTestCase
-from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
+from test.problems.second_quantization.electronic.resources.resource_reader import read_expected_file
 import numpy as np
 from qiskit_nature.transformers import ActiveSpaceTransformer
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
+from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import ElectronicStructureProblem
 
 
-class TestMolecularProblem(QiskitNatureTestCase):
+class TestElectronicStructureProblem(QiskitNatureTestCase):
     """Tests Molecular Problem."""
 
     def test_second_q_ops_without_transformers(self):
@@ -30,11 +30,11 @@ class TestMolecularProblem(QiskitNatureTestCase):
         expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_two_ints',
                                                             'problems/second_quantization/'
-                                                            'molecular/resources')
+                                                            'electronic/resources')
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
-        molecular_problem = MolecularProblem(driver)
+        molecular_problem = ElectronicStructureProblem(driver)
 
         second_quantized_ops = molecular_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
@@ -53,12 +53,12 @@ class TestMolecularProblem(QiskitNatureTestCase):
         expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_active_space',
                                                             'problems/second_quantization/'
-                                                            'molecular/resources')
+                                                            'electronic/resources')
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
-        molecular_problem = MolecularProblem(driver, [trafo])
+        molecular_problem = ElectronicStructureProblem(driver, [trafo])
         second_quantized_ops = molecular_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
 

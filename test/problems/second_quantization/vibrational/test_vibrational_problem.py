@@ -13,8 +13,8 @@
 """Tests Vibrational Problem."""
 from test import QiskitNatureTestCase
 from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_problem import \
-    VibrationalProblem
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_structure_problem import \
+    VibrationalStructureProblem
 from qiskit_nature.drivers import GaussianForcesDriver
 
 
@@ -35,7 +35,7 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         truncation_order = 3
         num_modes = watson_hamiltonian.num_modes
         num_modals = [num_modals] * num_modes
-        vibrational_problem = VibrationalProblem(driver, num_modals, truncation_order)
+        vibrational_problem = VibrationalStructureProblem(driver, num_modals, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
         vibrational_op = second_quantized_ops[0]
         with self.subTest("Check expected length of the list of second quantized operators."):

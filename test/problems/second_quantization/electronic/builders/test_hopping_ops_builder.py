@@ -20,8 +20,8 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization import MolecularProblem
-from qiskit_nature.problems.second_quantization.molecular.builders.hopping_ops_builder import \
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic.builders.hopping_ops_builder import \
     _build_qeom_hopping_ops
 
 
@@ -41,7 +41,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             self.skipTest('PYSCF driver does not appear to be installed')
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.molecular_problem = MolecularProblem(self.driver)
+        self.molecular_problem = ElectronicStructureProblem(self.driver)
         self.molecular_problem.second_q_ops()
         self.q_molecule = self.molecular_problem.molecule_data
 

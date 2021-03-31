@@ -35,12 +35,12 @@ Results
 from .bopes_sampler_result import BOPESSamplerResult
 from .eigenstate_result import EigenstateResult
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
-from .vibronic_structure_result import VibronicStructureResult
+from .vibrational_structure_result import VibrationalStructureResult
 
 __all__ = [
     'BOPESSamplerResult',
     'DipoleTuple',
     'EigenstateResult',
     'ElectronicStructureResult',
-    'VibronicStructureResult',
+    'VibrationalStructureResult',
 ]

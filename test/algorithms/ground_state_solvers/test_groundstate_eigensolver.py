@@ -34,8 +34,8 @@ from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular.molecular_problem import MolecularProblem
-from qiskit_nature.problems.second_quantization.molecular.builders.fermionic_op_builder import \
+from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
         build_ferm_op_from_ints
 
 
@@ -52,7 +52,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.reference_energy = -1.1373060356951838
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.molecular_problem = MolecularProblem(self.driver)
+        self.molecular_problem = ElectronicStructureProblem(self.driver)
 
         self.num_spin_orbitals = 4
         self.num_particles = (1, 1)

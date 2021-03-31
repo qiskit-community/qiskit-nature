@@ -39,6 +39,6 @@ class FermionicDriver(BaseDriver):
         Runs driver to produce a QMolecule output.
 
         Returns:
-            A QMolecule containing the molecular data.
+            A QMolecule containing the electronic data.
         """
         pass

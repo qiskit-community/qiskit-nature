@@ -64,7 +64,7 @@ def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, max
     """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation in
         the given basis.
     Args:
-        molecule (pyQuante2.molecule): A pyquante2 molecular object.
+        molecule (pyQuante2.molecule): A pyquante2 electronic object.
         basis (str) : The basis set for the electronic structure computation
         hf_method (str): rhf, uhf, rohf
         tol (float): tolerance
@@ -79,7 +79,7 @@ def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, max
     hij = integrals.T + integrals.V
     hijkl = twoe_integrals(bfs)
 
-    # convert overlap integrals to molecular basis
+    # convert overlap integrals to electronic basis
     # calculate the Hartree-Fock solution of the molecule
 
     if hf_method == 'rhf':
@@ -106,7 +106,7 @@ def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, max
         orbs_energy = solver.orbea
         orbs_energy_b = solver.orbeb
     enuke = molecule.nuclear_repulsion()
-    # Get ints in molecular orbital basis
+    # Get ints in electronic orbital basis
     mohij = simx(hij, orbs)
     mohij_b = None
     if orbs_b is not None:

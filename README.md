@@ -72,7 +72,7 @@ from qiskit.opflow import TwoQubitReduction
 
 # Use PySCF, a classical computational chemistry software
 # package, to compute the one-body and two-body integrals in
-# molecular-orbital basis, necessary to form the Fermionic operator
+# electronic-orbital basis, necessary to form the Fermionic operator
 driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
                      unit=UnitsType.ANGSTROM,
                      basis='sto3g')

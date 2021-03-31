@@ -36,7 +36,7 @@ def _build_qeom_hopping_ops(q_molecule: QMolecule, qubit_converter: QubitConvert
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
-        q_molecule: the `QMolecule` specifying the molecular space in which the excitations lie.
+        q_molecule: the `QMolecule` specifying the electronic space in which the excitations lie.
         qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.

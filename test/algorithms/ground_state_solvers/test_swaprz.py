@@ -26,7 +26,7 @@ from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular import MolecularProblem
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
 
 @slow_test
@@ -52,7 +52,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         converter = QubitConverter(ParityMapper())
 
-        problem = MolecularProblem(driver)
+        problem = ElectronicStructureProblem(driver)
 
         _ = problem.second_q_ops()
 

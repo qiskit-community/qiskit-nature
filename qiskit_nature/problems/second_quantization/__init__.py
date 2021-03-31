@@ -15,11 +15,11 @@
 # TODO(sphinx): documentation
 
 from .base_problem import BaseProblem
-from .molecular import MolecularProblem
-from .vibrational.vibrational_problem import VibrationalProblem
+from .electronic import ElectronicStructureProblem
+from .vibrational.vibrational_structure_problem import VibrationalStructureProblem
 
 __all__ = [
     'BaseProblem',
-    'MolecularProblem',
-    'VibrationalProblem',
+    'ElectronicStructureProblem',
+    'VibrationalStructureProblem',
 ]

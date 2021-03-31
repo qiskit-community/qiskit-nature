@@ -9,8 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""The Vibrational Problem class."""
 
+"""The Molecular Problem class."""
 from functools import partial
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
@@ -19,59 +19,49 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
+from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.problems.second_quantization.vibrational.builders.hopping_ops_builder import \
-    _build_qeom_hopping_ops
-from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import \
-    _build_vibrational_op
-from qiskit_nature.results import EigenstateResult, VibronicStructureResult
+from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 from qiskit_nature.transformers import BaseTransformer
-from qiskit_nature.problems.second_quantization.vibrational.builders.aux_vibrational_ops_builder \
+from qiskit_nature.problems.second_quantization.electronic.builders.aux_fermionic_ops_builder \
     import _create_all_aux_operators
+from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
+    _build_fermionic_op
+from qiskit_nature.problems.second_quantization.electronic.builders.hopping_ops_builder import \
+    _build_qeom_hopping_ops
 from .result_interpreter import _interpret
+from ..base_problem import BaseProblem
 
 
-class VibrationalProblem(BaseProblem):
-    """Vibrational Problem"""
+class ElectronicStructureProblem(BaseProblem):
+    """Molecular Problem"""
 
-    def __init__(self, bosonic_driver: BosonicDriver, num_modals: Union[int, List[int]],
-                 truncation_order: int, transformers: Optional[List[BaseTransformer]] = None):
+    def __init__(self, driver: FermionicDriver,
+                 q_molecule_transformers: Optional[List[BaseTransformer]] = None):
         """
+
         Args:
-            bosonic_driver: A bosonic driver encoding the molecule information.
-            transformers: A list of transformations to be applied to the molecule.
-            num_modals: the number of modals per mode.
-            truncation_order: order at which an n-body expansion is truncated
+            driver: A fermionic driver encoding the molecule information.
+            q_molecule_transformers: A list of transformations to be applied to the molecule.
         """
-        super().__init__(bosonic_driver, transformers)
-        self.num_modals = num_modals
-        self.truncation_order = truncation_order
+        super().__init__(driver, q_molecule_transformers)
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: ... .
+            A list of `SecondQuantizedOp` in the following order: electronic operator,
+            total magnetization operator, total angular momentum operator, total particle number
+            operator, and (if available) x, y, z dipole operators.
         """
-        self._molecule_data: WatsonHamiltonian = cast(WatsonHamiltonian, self.driver.run())
-        self._molecule_data_transformed: WatsonHamiltonian = \
-            cast(WatsonHamiltonian, self._transform(self._molecule_data))
+        self._molecule_data = cast(QMolecule, self.driver.run())
+        self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
-        vibrational_spin_op = _build_vibrational_op(self._molecule_data_transformed,
-                                                    self.num_modals,
-                                                    self.truncation_order)
-
-        num_modes = self._molecule_data_transformed.num_modes
-        if isinstance(self.num_modals, int):
-            num_modals = [self.num_modals] * num_modes
-        else:
-            num_modals = self.num_modals
-
-        second_quantized_ops_list = [vibrational_spin_op] + _create_all_aux_operators(num_modals)
+        electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
+        second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
+            self._molecule_data_transformed)
 
         return second_quantized_ops_list
 
@@ -96,46 +86,48 @@ class VibrationalProblem(BaseProblem):
                 - a list of positive integers.
                 - and finally a callable which can be used to specify a custom list of excitations.
                   For more details on how to write such a function refer to the default method,
-                  :meth:`generate_vibrational_excitations`.
+                  :meth:`generate_fermionic_excitations`.
 
         Returns:
             A tuple containing the hopping operators, the types of commutativities and the
             excitation indices.
         """
-
-        if isinstance(self.num_modals, int):
-            num_modals = [self.num_modals] * self._molecule_data_transformed.num_modes
-        else:
-            num_modals = self.num_modals
-
-        return _build_qeom_hopping_ops(num_modals, qubit_converter, excitations)
+        q_molecule = cast(QMolecule, self.molecule_data)
+        return _build_qeom_hopping_ops(q_molecule, qubit_converter, excitations)
 
     def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
-                                          MinimumEigensolverResult]) -> VibronicStructureResult:
+                                          MinimumEigensolverResult]) -> ElectronicStructureResult:
         """Interprets an EigenstateResult in the context of this transformation.
-               Args:
-                   raw_result: an eigenstate result object.
-               Returns:
-                   An vibronic structure result.
-               """
 
-        return _interpret(self._molecule_data.num_modes, raw_result)
+        Args:
+            raw_result: an eigenstate result object.
+
+        Returns:
+            An electronic structure result.
+        """
+        q_molecule = cast(QMolecule, self.molecule_data)
+        q_molecule_transformed = cast(QMolecule, self.molecule_data_transformed)
+        return _interpret(q_molecule, q_molecule_transformed, raw_result)
 
     def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
                                                                  Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
-        aqua.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
         """
 
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-            # the first num_modes aux_value is the evaluated number of particles for the given mode
-            for mode in range(self.molecule_data.num_modes):
-                if aux_values is None or not np.isclose(aux_values[mode][0], 1):
-                    return False
-            return True
+            # the first aux_value is the evaluated number of particles
+            num_particles_aux = aux_values[0][0]
+            # the second aux_value is the total angular momentum which (for singlets) should be zero
+            total_angular_momentum_aux = aux_values[1][0]
+            q_molecule_transformed = cast(QMolecule, self._molecule_data_transformed)
+            return np.isclose(
+                q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
+                num_particles_aux) and np.isclose(0., total_angular_momentum_aux)
 
         return partial(filter_criterion, self)

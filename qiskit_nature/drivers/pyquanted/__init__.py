@@ -29,7 +29,7 @@ install off the setup.py that is there.
 .. note::
     Like all the other drivers currently interfaced by the chemistry module,
     PyQuante2 provides enough intermediate data for Qiskit to compute a molecule's ground
-    state molecular energy.  However, unlike the other drivers, the data computed by PyQuante is
+    state electronic energy.  However, unlike the other drivers, the data computed by PyQuante is
     not sufficient for Qiskit to compute a molecule's dipole moment.  Therefore, PyQuante
     is currently the only driver interfaced by Qiskit's chemistry module that does not allow for the
     computation of a molecule's dipole moment.

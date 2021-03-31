@@ -26,7 +26,7 @@ class Molecule:
 
     This module implements an interface for a driver-independent, i.e. generic molecule
     definition. It defines the composing atoms (with properties like masses),
-    and allows for changing the molecular geometry through given degrees of freedom
+    and allows for changing the electronic geometry through given degrees of freedom
     (e.g. bond-stretching, angle-bending, etc.). The geometry as provided in the
     constructor can be affected, through setting perturbations, and it is this perturbed
     geometry that is supplied by the geometry getter. Setting perturbations to None will

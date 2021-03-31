@@ -16,9 +16,9 @@ from typing import List, Tuple
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators import FermionicOp
-from qiskit_nature.problems.second_quantization.molecular.builders.fermionic_op_builder import \
+from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
     build_ferm_op_from_ints
-from qiskit_nature.problems.second_quantization.molecular.integrals_calculators import \
+from qiskit_nature.problems.second_quantization.electronic.integrals_calculators import \
     calc_total_magnetization_ints, calc_total_ang_momentum_ints, calc_total_particle_num_ints
 
 

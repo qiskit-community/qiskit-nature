@@ -12,10 +12,10 @@
 
 """Tests Fermionic Operator builder."""
 from test import QiskitNatureTestCase
-from test.problems.second_quantization.molecular.resources.resource_reader import read_expected_file
+from test.problems.second_quantization.electronic.resources.resource_reader import read_expected_file
 import numpy as np
 from qiskit_nature.operators import FermionicOp
-from qiskit_nature.problems.second_quantization.molecular.builders import fermionic_op_builder
+from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
 from qiskit_nature.drivers import HDF5Driver
 
 
@@ -27,7 +27,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         expected_num_of_terms_ferm_op = 184
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_two_ints',
                                                             'problems/second_quantization/'
-                                                            'molecular/resources')
+                                                            'electronic/resources')
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
@@ -45,7 +45,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         expected_num_of_terms_ferm_op = 184
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_two_ints',
                                                             'problems/second_quantization/'
-                                                            'molecular/resources')
+                                                            'electronic/resources')
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
         q_molecule = driver.run()
@@ -65,7 +65,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         expected_num_of_terms_ferm_op = 16
         expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_one_int',
                                                             'problems/second_quantization/'
-                                                            'molecular/resources')
+                                                            'electronic/resources')
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
         driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))

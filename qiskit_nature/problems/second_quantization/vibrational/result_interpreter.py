@@ -15,12 +15,12 @@ from typing import Union
 import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature.results import EigenstateResult, VibronicStructureResult
+from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
 
 
 def _interpret(num_modes: int, raw_result: Union[EigenstateResult, EigensolverResult,
                                                  MinimumEigensolverResult]) -> \
-        VibronicStructureResult:
+        VibrationalStructureResult:
     """Interprets an EigenstateResult in the context of this transformation.
            Args:
                num_modes: number of modes.
@@ -56,7 +56,7 @@ def _interpret_raw_result(raw_result):
 
 
 def _interpret_vibr_struct_result(eigenstate_result):
-    result = VibronicStructureResult()
+    result = VibrationalStructureResult()
     result.combine(eigenstate_result)
     result.computed_vibronic_energies = eigenstate_result.eigenenergies
     return result

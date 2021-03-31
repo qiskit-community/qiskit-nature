@@ -14,8 +14,8 @@
 
 # TODO(sphinx): documentation
 
-from .molecular_problem import MolecularProblem
+from .electronic_structure_problem import ElectronicStructureProblem
 
 __all__ = [
-    'MolecularProblem',
+    'ElectronicStructureProblem',
 ]

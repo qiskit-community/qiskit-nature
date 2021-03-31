@@ -23,7 +23,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.molecular.builders import fermionic_op_builder
+from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
 
 
 class TestQubitConverter(QiskitNatureTestCase):
