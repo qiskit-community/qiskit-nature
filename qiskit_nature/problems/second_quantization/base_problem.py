@@ -97,11 +97,11 @@ class BaseProblem(ABC):
     @abstractmethod
     def hopping_qeom_ops(self, qubit_converter: QubitConverter,
                          excitations: Union[str, int, List[int],
-                                       Callable[[int, Tuple[int, int]],
-                                                List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
-                                       ] = 'sd',
+                                            Callable[[int, Tuple[int, int]],
+                                                     List[Tuple[Tuple[int, ...], Tuple[
+                                                         int, ...]]]]] = 'sd',
                          ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
-                               Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+                                    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 
