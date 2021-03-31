@@ -25,7 +25,7 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper, Parity
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
-
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 class TestQubitConverter(QiskitNatureTestCase):
     """ Test Qubit Converter """

@@ -18,6 +18,7 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
+from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -30,6 +31,7 @@ from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op
     _build_fermionic_op
 from qiskit_nature.problems.second_quantization.electronic.builders.hopping_ops_builder import \
     _build_qeom_hopping_ops
+from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
 from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
 
@@ -136,3 +138,29 @@ class ElectronicStructureProblem(BaseProblem):
                 num_particles_aux) and np.isclose(0., total_angular_momentum_aux)
 
         return partial(filter_criterion, self)
+
+    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
+        """
+        Given the detected Z2Symmetries can determine the correct sector of the tapered
+        operators so the correct one can be returned
+        Args:
+            z2_symmetries: the z2 symmetries object.
+        Returns:
+            the sector of the tapered operators with the problem solution
+        """
+
+        hf_bitstr = hartree_fock_bitstring(num_spin_orbitals=2*self._molecule_data_transformed.num_molecular_orbitals,
+                                           num_particles=self.num_particles)
+        sector_locator = self._pick_sector(z2_symmetries, hf_bitstr)
+
+        return sector_locator
+
+    def _pick_sector(self, z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> Z2Symmetries:
+        # Finding all the symmetries using the find_Z2_symmetries:
+        taper_coef = []
+        for sym in z2_symmetries.symmetries:
+            # pylint: disable=no-member
+            coef = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
+            taper_coef.append(coef)
+
+        return taper_coef
