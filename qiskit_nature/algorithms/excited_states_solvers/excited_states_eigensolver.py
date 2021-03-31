@@ -69,8 +69,8 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                 ``FermionicOperator``.
 
         Returns:
-            An eigenstate result. Depending on the transformation this can be an electronic
-            structure or bosonic result.
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
         """
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_operators`` contains not only the transformed ``aux_operators`` passed

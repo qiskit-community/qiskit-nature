@@ -36,6 +36,7 @@ class ExcitedStatesSolver(ABC):
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-            an eigenstate result
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
         """
         raise NotImplementedError()

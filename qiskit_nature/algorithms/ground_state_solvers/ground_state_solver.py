@@ -51,7 +51,8 @@ class GroundStateSolver(ABC):
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-            An eigenstate result.
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
         """
         raise NotImplementedError
 

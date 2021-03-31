@@ -69,7 +69,7 @@ class QEOM(ExcitedStatesSolver):
 
     def solve(self, problem: BaseProblem,
               aux_operators: Optional[List[SecondQuantizedOp]] = None
-              ) -> "QEOMResult":
+              ) -> EigenstateResult:
         """Run the excited-states calculation.
 
         Construct and solves the EOM pseudo-eigenvalue problem to obtain the excitation energies
@@ -80,7 +80,8 @@ class QEOM(ExcitedStatesSolver):
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-            A ``QEOMResult``.
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
         """
 
         if aux_operators is not None:
