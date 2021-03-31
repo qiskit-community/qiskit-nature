@@ -245,5 +245,6 @@ class TestQubitConverter(QiskitNatureTestCase):
                                       sector_locator=problem.symmetry_sector_locator)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
+
 if __name__ == '__main__':
     unittest.main()
