@@ -12,7 +12,7 @@
 
 """
 Operators for Qiskit Nature (:mod:`qiskit_nature.operators`)
-=======================================================================
+============================================================
 
 .. currentmodule:: qiskit_nature.operators
 
@@ -20,7 +20,7 @@ Operators
 ==========
 
 Second-Quantization Operators
-++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
@@ -29,8 +29,6 @@ Second-Quantization Operators
    SpinOp
    VibrationalOp
 """
-
-# TODO(sphinx): improve documentation
 
 from .second_quantization import FermionicOp
 from .second_quantization import SpinOp

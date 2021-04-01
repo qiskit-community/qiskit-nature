@@ -12,7 +12,7 @@
 
 """
 Potential energy surface samplers (:mod:`qiskit_nature.algorithms.pes_samplers`)
-===================================================================================
+================================================================================
 Potential energy surface samplers.
 
 .. currentmodule:: qiskit_nature.algorithms.pes_samplers

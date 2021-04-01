@@ -10,7 +10,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Ground state calculation algorithms."""
+"""
+Ground State Solving Algorithms (:mod:`qiskit_nature.algorithms.ground_state_solvers`)
+======================================================================================
+
+.. currentmodule:: qiskit_nature.algorithms.ground_state_solvers
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   minimum_eigensolver_factories
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   GroundStateEigensolver
+   AdaptVQE
+"""
 
 from .ground_state_solver import GroundStateSolver
 from .adapt_vqe import AdaptVQE

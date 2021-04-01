@@ -12,14 +12,14 @@
 
 """
 Nature Sciences specific algorithms (:mod:`qiskit_nature.algorithms`)
-=======================================================================
+=====================================================================
 These are nature sciences specific algorithms. As they rely on nature
 sciences specific knowledge and/or function that are here.
 
 .. currentmodule:: qiskit_nature.algorithms
 
 Nature Algorithms
-====================
+=================
 These are algorithms configured and/or functioning using chemistry specific knowledge. See also
 :mod:`~qiskit.algorithms` for other algorithms in these categories which may also
 be used for chemistry problems such as :class:`~qiskit.algorithms.VQE`.

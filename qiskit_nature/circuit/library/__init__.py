@@ -11,9 +11,8 @@
 # that they have been altered from the originals.
 
 """
-===================================================================
 Chemistry Circuit Library (:mod:`qiskit_nature.circuit.library`)
-===================================================================
+================================================================
 
 A collection of circuits used as building blocks or inputs of algorithms in chemistry.
 
@@ -29,14 +28,32 @@ Initial states
    HartreeFock
    VSCF
 
-"""
+Ansatzes
+========
 
-# TODO(sphinx): documentation for Ansatzes module
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   UCC
+   UCCSD
+   PUCCD
+   SUCCD
+   CHC
+   UVCC
+   UVCCSD
+
+"""
 
 from .ansatzes import (
     EvolvedOperatorAnsatz,
     UCC,
     UCCSD,
+    PUCCD,
+    SUCCD,
+    CHC,
+    UVCC,
+    UVCCSD,
 )
 
 from .initial_states import (
@@ -48,6 +65,11 @@ __all__ = [
     'EvolvedOperatorAnsatz',
     'UCC',
     'UCCSD',
+    'PUCCD',
+    'SUCCD',
     'HartreeFock',
+    'CHC',
+    'UVCC',
+    'UVCCSD',
     'VSCF',
 ]

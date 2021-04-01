@@ -10,7 +10,25 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Factories that create an eigensolver based on a qubit transformation."""
+"""
+====================================================================================
+Eigensolver Factories
+(:mod:`qiskit_nature.algorithms.excited_states_solvers.eigensolver_factories`)
+====================================================================================
+
+Factories that create an eigensolver based on a qubit transformation.
+
+.. currentmodule:: qiskit_nature.algorithms.excited_states_solvers.eigensolver_factories
+
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   EigensolverFactory
+   NumPyEigensolverFactory
+
+"""
 
 from .eigensolver_factory import EigensolverFactory
 from .numpy_eigensolver_factory import NumPyEigensolverFactory

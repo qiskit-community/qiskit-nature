@@ -10,7 +10,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Excited states calculation algorithms."""
+"""
+Excited State Solving Algorithms (:mod:`qiskit_nature.algorithms.excited_states_solvers`)
+=========================================================================================
+
+.. currentmodule:: qiskit_nature.algorithms.excited_states_solvers
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   eigensolver_factories
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   ExcitedStatesEigensolver
+   QEOM
+"""
 
 from .excited_states_solver import ExcitedStatesSolver
 from .qeom import QEOM

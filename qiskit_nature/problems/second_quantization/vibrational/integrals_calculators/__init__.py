@@ -12,8 +12,6 @@
 
 """Integrals Calculators."""
 
-# TODO(sphinx): documentation
-
 from .occupied_modal_per_mode_integrals_calculator import calc_occ_modals_per_mode_ints
 
 __all__ = [

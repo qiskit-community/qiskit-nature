@@ -9,3 +9,12 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
+"""
+Vibrational Structure Problems (:mod:`qiskit_nature.problems.second_quantization.vibrational`)
+==============================================================================================
+
+.. currentmodule:: qiskit_nature.problems.second_quantization.vibrational
+"""
+
+from .vibrational_structure_problem import VibrationalStructureProblem
