@@ -58,20 +58,20 @@ class QubitConverter:
         Args:
             mapper: A mapper instance used to convert second quantized to qubit operators
             two_qubit_reduction: Whether to carry out two qubit reduction when possible
-            z2symmetry_reduction: Indicates whether a z2 symmetry reduction should be applied to resulting
-                qubit operators that are computed. For each symmetry detected the operator will be
-                split into two where each requires one qubit less for computation. So for example
-                3 symmetries will split the original operator into 8 new operators each
+            z2symmetry_reduction: Indicates whether a z2 symmetry reduction should be applied to
+                resulting qubit operators that are computed. For each symmetry detected the operator
+                will be split into two where each requires one qubit less for computation. So for
+                example 3 symmetries will split the original operator into 8 new operators each
                 requiring 3 less qubits. Now only one of these operators will have the ground state
                 and be the correct symmetry sector needed for the ground state. Setting 'auto' will
                 use an automatic computation of the correct sector. If the sector is known
-              from other experiments with the z2symmetry logic, then the tapering values of that sector
-                can be provided (a list of int of values -1, and 1). The default is None
-                meaning no symmetry reduction is done. Note that dipole and other operators
-                such as spin, num particles etc. are also symmetry reduced according to the
-                symmetries found in the main operator if this operator commutes with the main
-                operator symmetry. If it does not then the operator will be discarded since no
-                meaningful measurement can take place.
+              from other experiments with the z2symmetry logic, then the tapering values of that
+                sector can be provided (a list of int of values -1, and 1). The default is None
+                meaning no symmetry reduction is done. Note that dipole and other operators such as
+                spin, num particles etc. are also symmetry reduced according to the symmetries found
+                in the main operator if this operator commutes with the main operator symmetry. If
+                it does not then the operator will be discarded since no meaningful measurement can
+                take place.
         """
 
         self._mapper: QubitMapper = mapper
