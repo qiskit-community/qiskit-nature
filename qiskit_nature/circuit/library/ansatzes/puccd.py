@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-The paired-UCCD variational form.
+The paired-UCCD Ansatz.
 """
 
 from typing import List, Optional, Tuple

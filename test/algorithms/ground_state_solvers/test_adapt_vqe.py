@@ -90,12 +90,12 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 num_spin_orbitals = 2 * num_molecular_orbitals
 
                 initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
-                var_form = UCC(qubit_converter=qubit_converter,
-                               num_particles=num_particles,
-                               num_spin_orbitals=num_spin_orbitals,
-                               excitations='d',
-                               initial_state=initial_state)
-                vqe = VQE(var_form=var_form, quantum_instance=self._quantum_instance,
+                ansatz = UCC(qubit_converter=qubit_converter,
+                             num_particles=num_particles,
+                             num_spin_orbitals=num_spin_orbitals,
+                             excitations='d',
+                             initial_state=initial_state)
+                vqe = VQE(ansatz=ansatz, quantum_instance=self._quantum_instance,
                           optimizer=L_BFGS_B())
                 return vqe
 
@@ -115,10 +115,10 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 solver = super().get_solver(problem, qubit_converter)
                 # Here, we can create essentially any custom excitation pool.
                 # For testing purposes only, we simply select some hopping operator already
-                # available in the variational form object.
+                # available in the ansatz object.
                 # pylint: disable=no-member
-                custom_excitation_pool = [solver.var_form.operators[2]]
-                solver.var_form.operators = custom_excitation_pool
+                custom_excitation_pool = [solver.ansatz.operators[2]]
+                solver.ansatz.operators = custom_excitation_pool
                 return solver
 
         solver = CustomFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))

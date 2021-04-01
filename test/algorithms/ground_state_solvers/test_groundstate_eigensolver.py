@@ -76,14 +76,14 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """ Test VQE UCCSD case """
         solver = VQEUCCFactory(
             quantum_instance=QuantumInstance(BasicAer.get_backend('statevector_simulator')),
-            var_form=UCC(excitations='d'),
+            ansatz=UCC(excitations='d'),
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_custom(self):
-        """ Test custom var_form in Factory use case """
+        """ Test custom ansatz in Factory use case """
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
@@ -266,20 +266,20 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         initial_state = HartreeFock(self.num_spin_orbitals,
                                     self.num_particles,
                                     qubit_converter)
-        var_form = UCCSD(qubit_converter,
-                         self.num_particles,
-                         self.num_spin_orbitals,
-                         initial_state=initial_state)
+        ansatz = UCCSD(qubit_converter,
+                       self.num_particles,
+                       self.num_spin_orbitals,
+                       initial_state=initial_state)
 
-        return var_form
+        return ansatz
 
     def test_uccsd_hf(self):
         """ uccsd hf test """
-        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+        ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
         optimizer = SLSQP(maxiter=100)
         backend = BasicAer.get_backend('statevector_simulator')
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      quantum_instance=QuantumInstance(backend=backend))
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -292,12 +292,12 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_qasm(self):
         """ uccsd hf test with qasm_simulator. """
         qubit_converter = QubitConverter(ParityMapper())
-        var_form = self._prepare_uccsd_hf(qubit_converter)
+        ansatz = self._prepare_uccsd_hf(qubit_converter)
 
         backend = BasicAer.get_backend('qasm_simulator')
 
         optimizer = SPSA(maxiter=200, last_avg=5)
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      expectation=PauliExpectation(),
                      quantum_instance=QuantumInstance(
                          backend=backend,
@@ -319,10 +319,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
-        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+        ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
         optimizer = SLSQP(maxiter=100)
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      quantum_instance=QuantumInstance(backend=backend))
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -341,10 +341,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
-        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+        ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
         optimizer = SPSA(maxiter=200, last_avg=5)
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      expectation=PauliExpectation(),
                      quantum_instance=QuantumInstance(
                          backend=backend,
@@ -367,10 +367,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
-        var_form = self._prepare_uccsd_hf(self.qubit_converter)
+        ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
         optimizer = SPSA(maxiter=200, last_avg=5)
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      expectation=AerPauliExpectation(),
                      quantum_instance=QuantumInstance(backend=backend))
 
