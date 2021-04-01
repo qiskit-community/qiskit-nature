@@ -79,7 +79,7 @@ class TestCHCVSCF(QiskitNatureTestCase):
         excitations += generate_vibration_excitations(num_excitations=1, num_modals=num_modals)
         excitations += generate_vibration_excitations(num_excitations=2, num_modals=num_modals)
         chc_ansatz = CHC(num_qubits, ladder=False, excitations=excitations,
-                          initial_state=init_state)
+                         initial_state=init_state)
 
         backend = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
                                   seed_transpiler=2, seed_simulator=2)
