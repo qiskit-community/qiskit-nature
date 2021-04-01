@@ -23,6 +23,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
 
 
@@ -172,7 +173,7 @@ class TestQubitConverter(QiskitNatureTestCase):
             return None
 
         mapper = JordanWignerMapper()
-        qubit_conv = QubitConverter(mapper)
+        qubit_conv = QubitConverter(mapper, z2symmetry_reduction='auto')
 
         with self.subTest('Locator returns None, should be untapered operator'):
             qubit_op = qubit_conv.convert(self.h2_op, sector_locator=find_none)
@@ -195,7 +196,7 @@ class TestQubitConverter(QiskitNatureTestCase):
             return z2_sector if not z2_symmetries.is_empty() else None
 
         mapper = ParityMapper()
-        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
+        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction='auto')
         qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, sector_locator=finder)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
         self.assertEqual(qubit_conv.num_particles, self.num_particles)
@@ -230,6 +231,19 @@ class TestQubitConverter(QiskitNatureTestCase):
                                         z2symmetry_reduction=[-1, 1])
             with self.assertRaises(QiskitNatureError):
                 _ = qubit_conv.convert(self.h2_op, self.num_particles)
+
+    def test_molecular_problem_sector_locator_z2_symmetry(self):
+        """ Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction """
+
+        driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
+                                                              'drivers/hdf5d'))
+        problem = ElectronicStructureProblem(driver)
+
+        mapper = JordanWignerMapper()
+        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction='auto')
+        qubit_op = qubit_conv.convert(problem.second_q_ops()[0], self.num_particles,
+                                      sector_locator=problem.symmetry_sector_locator)
+        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
 
 if __name__ == '__main__':
