@@ -7,6 +7,7 @@ Qiskit Nature documentation
 
   API References <apidocs/qiskit_nature>
   Release Notes <release_notes>
+  Tutorials <tutorials/index>
 
 .. Hiding - Indices and tables
    :ref:`genindex`

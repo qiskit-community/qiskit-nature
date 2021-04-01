@@ -74,29 +74,12 @@ html_static_path = ['_static']
 templates_path = ['theme/']
 html_css_files = ['style.css', 'custom.css']
 
-nbsphinx_timeout = 180
+nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv('QISKIT_DOCS_BUILD_TUTORIALS', 'never')
 nbsphinx_widgets_path = ''
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
 nbsphinx_thumbnails = {
 }
-
-nbsphinx_prolog = """
-{% set docname = env.doc2path(env.docname, base=None) %}
-
-.. only:: html
-
-    .. role:: raw-html(raw)
-        :format: html
-
-    .. note::
-        This page was generated from `{{ docname }}`__.
-
-        Run interactively in the `IBM Quantum lab <https://quantum-computing.ibm.com/jupyter/tutorial/{{ env.doc2path(env.docname, base=None)|replace("tutorials/", "") }}>`_.
-
-    __ https://github.com/Qiskit/qiskit-optimization/blob/master/docs/{{ docname }}
-
-"""
 
 # -----------------------------------------------------------------------------
 # Autosummary

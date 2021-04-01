@@ -18,8 +18,8 @@ import warnings
 import numpy as np
 from scipy.linalg import eigh_tridiagonal, eigvalsh_tridiagonal
 
-import qiskit.chemistry.constants as const
-from qiskit.chemistry.algorithms.pes_samplers.potentials.potential_base import VibrationalStructureBase
+import qiskit_nature.constants as const
+from qiskit_nature.algorithms.pes_samplers.potentials.potential_base import VibrationalStructureBase
 
 
 class VibrationalStructure1DFD(VibrationalStructureBase):

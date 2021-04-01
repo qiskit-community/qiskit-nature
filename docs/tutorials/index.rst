@@ -1,6 +1,6 @@
-################
-Nature Tutorials
-################
+#######################
+Qiskit Nature Tutorials
+#######################
 
 
 .. nbgallery::
@@ -13,3 +13,4 @@ Nature Tutorials
    :ref:`genindex`
    :ref:`modindex`
    :ref:`search`
+

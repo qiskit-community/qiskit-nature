@@ -15,7 +15,7 @@
 import logging
 import tempfile
 import os
-
+import warnings
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -29,6 +29,7 @@ try:
     from pyscf.lib import param
     from pyscf.lib import logger as pylogger
     from pyscf.tools import dump_mat
+    warnings.filterwarnings('ignore', category=DeprecationWarning, module='pyscf')
 except ImportError:
     logger.info("PySCF is not installed. See https://sunqm.github.io/pyscf/install.html")
 

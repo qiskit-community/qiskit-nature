@@ -19,7 +19,7 @@ from inspect import signature
 from abc import ABC, abstractmethod
 
 import numpy as np
-import qiskit.chemistry.constants as const
+import qiskit_nature.constants as const
 
 
 class PartitionFunctionBase(ABC):
