@@ -12,11 +12,6 @@ module that contains logic which is able to translate this into a form that is s
 for quantum algorithms. The conversion first creates a FermionicOperator which must then be mapped,
 e.g. by a Jordan Wigner mapping, to a qubit operator in readiness for the quantum computation.
 
-TODO: Update the above:
-- do not mention FermionicOperator but rather general second-quantized ops (at least until we have first-quantized ones)
-- introduce problem classes
-- we don't have any physics yet but the above could be written such that this is not all about chemistry
-
 ## Installation
 
 We encourage installing Qiskit Nature via the pip tool (a python package manager).
@@ -57,12 +52,8 @@ as stored in the file. As such, if you have some pre-created HDF5 files created 
 Chemistry, you can use these with the HDF5 driver even if you do not install one of the classical
 computation packages listed above.
 
-TODO: the above paragraph could use some clarification. The sentences are unnecessarily complicated.
-
-TODO(below): for different what?
 A few sample HDF5 files for different are provided in the
 [chemistry folder](https://github.com/Qiskit/qiskit-community-tutorials/tree/master/chemistry)
-TODO: what will happen to these?
 of the [Qiskit Community Tutorials](https://github.com/Qiskit/qiskit-community-tutorials)
 repository. This
 [HDF5 Driver tutorial](https://github.com/Qiskit/qiskit-community-tutorials/blob/master/chemistry/hdf5_files_and_driver.ipynb)
@@ -160,8 +151,6 @@ your problem instance.
 
 ### Further examples
 
-TODO: these links may need updating.
-
 Learning path notebooks may be found in the
 [chemistry tutorials](https://qiskit.org/documentation/tutorials/chemistry/index.html) section
 of the documentation and are a great place to start
@@ -189,8 +178,6 @@ for discussion and simple questions.
 For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
 
 ## Next Steps
-
-TODO: these links may need updating.
 
 Now you're set up and ready to check out some of the other examples from the
 [Qiskit Tutorials](https://github.com/Qiskit/qiskit-tutorials)
