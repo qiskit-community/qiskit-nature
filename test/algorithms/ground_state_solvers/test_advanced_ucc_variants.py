@@ -51,8 +51,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)
 
-        # because we create the initial state and variational forms early, we need to ensure the
-        # qubit converter already ran such that convert_match works as expected
+        # because we create the initial state and ansatzes early, we need to ensure the qubit
+        # converter already ran such that convert_match works as expected
         _ = self.qubit_converter.convert(self.electronic_structure_problem.second_q_ops()[0],
                                          self.num_particles)
 
@@ -80,12 +80,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
                                     self.num_particles,
                                     self.qubit_converter)
 
-        var_form = PUCCD(self.qubit_converter,
-                         self.num_particles,
-                         self.num_spin_orbitals,
-                         initial_state=initial_state)
+        ansatz = PUCCD(self.qubit_converter,
+                       self.num_particles,
+                       self.num_spin_orbitals,
+                       initial_state=initial_state)
 
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      quantum_instance=QuantumInstance(
                          backend=BasicAer.get_backend('statevector_simulator')))
 
@@ -104,12 +104,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
                                     self.num_particles,
                                     self.qubit_converter)
 
-        var_form = SUCCD(self.qubit_converter,
-                         self.num_particles,
-                         self.num_spin_orbitals,
-                         initial_state=initial_state)
+        ansatz = SUCCD(self.qubit_converter,
+                       self.num_particles,
+                       self.num_spin_orbitals,
+                       initial_state=initial_state)
 
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      quantum_instance=QuantumInstance(
                          backend=BasicAer.get_backend('statevector_simulator')))
 
@@ -129,12 +129,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
                                     self.qubit_converter)
 
         # TODO: add `full` option
-        var_form = SUCCD(self.qubit_converter,
-                         self.num_particles,
-                         self.num_spin_orbitals,
-                         initial_state=initial_state)
+        ansatz = SUCCD(self.qubit_converter,
+                       self.num_particles,
+                       self.num_spin_orbitals,
+                       initial_state=initial_state)
 
-        solver = VQE(var_form=var_form, optimizer=optimizer,
+        solver = VQE(ansatz=ansatz, optimizer=optimizer,
                      quantum_instance=QuantumInstance(
                          backend=BasicAer.get_backend('statevector_simulator')))
 
