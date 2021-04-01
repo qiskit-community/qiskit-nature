@@ -17,7 +17,7 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
+from qiskit.opflow import PauliSumOp, Z2Symmetries
 
 from qiskit_nature.drivers import BaseDriver, QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
@@ -72,6 +72,19 @@ class BaseProblem(ABC):
         for transformer in self.transformers:
             data = transformer.transform(data)
         return data
+
+    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
+        # pylint: disable=unused-argument
+        """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
+        operators so the correct one can be returned
+
+        Args:
+            z2_symmetries: the z2 symmetries object.
+
+        Returns:
+            the sector of the tapered operators with the problem solution
+        """
+        return None
 
     @abstractmethod
     def interpret(self, raw_result: EigenstateResult) -> EigenstateResult:
