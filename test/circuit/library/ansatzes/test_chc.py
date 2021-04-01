@@ -78,14 +78,14 @@ class TestCHCVSCF(QiskitNatureTestCase):
         excitations = []
         excitations += generate_vibration_excitations(num_excitations=1, num_modals=num_modals)
         excitations += generate_vibration_excitations(num_excitations=2, num_modals=num_modals)
-        chc_varform = CHC(num_qubits, ladder=False, excitations=excitations,
+        chc_ansatz = CHC(num_qubits, ladder=False, excitations=excitations,
                           initial_state=init_state)
 
         backend = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
                                   seed_transpiler=2, seed_simulator=2)
         optimizer = COBYLA(maxiter=1000)
 
-        algo = VQE(chc_varform, optimizer=optimizer, quantum_instance=backend)
+        algo = VQE(chc_ansatz, optimizer=optimizer, quantum_instance=backend)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
         energy = vqe_result.optimal_value
 
