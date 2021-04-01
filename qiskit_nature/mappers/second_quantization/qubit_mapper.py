@@ -33,7 +33,7 @@ class QubitMapper(ABC):
         """
         Args:
             allows_two_qubit_reduction: Set if mapper will create known symmetry such that the
-                number of qubits in the mapped operator can be reduced accordingly.
+            number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
 
