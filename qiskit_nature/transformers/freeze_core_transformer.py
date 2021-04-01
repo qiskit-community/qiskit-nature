@@ -43,7 +43,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         Args:
             freeze_core: A boolean indicating whether to remove the molecular orbitals specified by
-                        `QMolecule.core_orbitals.
+                        `QMolecule.core_orbitals`.
             remove_orbitals: A list of indices specifying molecular orbitals which are removed.
                              No checks are performed on the nature of these orbitals, so the user
                              must make sure that these are _unoccupied_ orbitals, which can be

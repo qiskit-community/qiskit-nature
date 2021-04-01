@@ -12,7 +12,8 @@
 
 """
 Bosonic basis (:mod:`qiskit_nature.drivers.bosonic_bases`)
-================================================================
+==========================================================
+
 Basis for bosonic operations.
 
 .. currentmodule:: qiskit_nature.drivers.bosonic_bases

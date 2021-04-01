@@ -10,9 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Second-Quantized problems."""
+"""
+Second-Quantization Problems (:mod:`qiskit_nature.problems.second_quantization`)
+================================================================================
 
-# TODO(sphinx): documentation
+.. currentmodule:: qiskit_nature.problems.second_quantization
+
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   BaseProblem
+   ElectronicStructureProblem
+   VibrationalStructureProblem
+"""
 
 from .base_problem import BaseProblem
 from .electronic import ElectronicStructureProblem
