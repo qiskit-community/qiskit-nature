@@ -23,6 +23,7 @@ Second-Quantization Operators
    :toctree: ../stubs/
 
    FermionicOp
+   QubitConverter
    SpinOp
    SecondQuantizedOp
    VibrationalOp
@@ -31,12 +32,14 @@ Second-Quantization Operators
 # TODO(sphinx): improve documentation
 
 from .fermionic_op import FermionicOp
+from .qubit_converter import QubitConverter
 from .second_quantized_op import SecondQuantizedOp
 from .spin_op import SpinOp
 from .vibrational_op import VibrationalOp
 
 __all__ = [
     'FermionicOp',
+    'QubitConverter',
     'SecondQuantizedOp',
     'SpinOp',
     'VibrationalOp',
