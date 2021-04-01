@@ -147,7 +147,7 @@ class ElectronicStructureProblem(BaseProblem):
             z2_symmetries: the z2 symmetries object.
 
         Returns:
-            the sector of the tapered operators with the problem solution
+            The sector of the tapered operators with the problem solution.
         """
         q_molecule = cast(QMolecule, self._molecule_data_transformed)
 

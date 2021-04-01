@@ -75,7 +75,7 @@ class BaseProblem(ABC):
 
     def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
         # pylint: disable=unused-argument
-        """Given the detected Z2Symmetries can determine the correct sector of the tapered
+        """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
         operators so the correct one can be returned
 
         Args:
