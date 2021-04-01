@@ -44,9 +44,12 @@ class ActiveSpaceTransformer(BaseTransformer):
           indicate the number of active electrons and orbitals, respectively. The active space will
           then be chosen around the Fermi level resulting in a unique choice for any pair of
           numbers.  Nonetheless, the following criteria must be met:
-              1. the remaining number of inactive electrons must be a positive, even number
-              2. the number of active orbitals must not exceed the total number of orbitals minus
-              the number of orbitals occupied by the inactive electrons
+
+            #. the remaining number of inactive electrons must be a positive, even number
+
+            #. the number of active orbitals must not exceed the total number of orbitals minus the
+               number of orbitals occupied by the inactive electrons
+
         - when, in addition to the above, `num_alpha` is specified, this can be used to disambiguate
           the active space in systems with non-zero spin. Thus, `num_alpha` determines the number of
           active alpha electrons. The number of active beta electrons can then be determined based
@@ -56,8 +59,10 @@ class ActiveSpaceTransformer(BaseTransformer):
           `active_orbitals`. This allows selecting an active space which is not placed around the
           Fermi level as described in the first case, above. When using this keyword argument, the
           following criteria must be met *in addition* to the ones listed above:
-              1. the length of `active_orbitals` must be equal to `num_molecular_orbitals`.
-              2. the sum of electrons present in `active_orbitals` must be equal to `num_electrons`.
+
+            #. the length of `active_orbitals` must be equal to `num_molecular_orbitals`.
+
+            #. the sum of electrons present in `active_orbitals` must be equal to `num_electrons`.
 
     References:
         - *M. Rossmannek, P. Barkoutsos, P. Ollitrault, and I. Tavernelli, arXiv:2009.01872

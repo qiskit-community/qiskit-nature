@@ -12,7 +12,8 @@
 
 """
 Chemistry Results (:mod:`qiskit_nature.results`)
-===================================================
+================================================
+
 .. currentmodule:: qiskit_nature.results
 
 Qiskit's chemistry results for ground and excited states, both Fermionic and Bosonic. Algorithms

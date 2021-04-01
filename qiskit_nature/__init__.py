@@ -135,15 +135,15 @@ Submodules
    :toctree:
 
    algorithms
+   circuit
    drivers
+   mappers
    operators
+   problems
    results
+   transformers
 
 """
-
-# TODO(sphinx): update documentation
-
-# TODO: update imports
 
 from .exceptions import QiskitNatureError
 
