@@ -87,16 +87,16 @@ class TestReadmeSample(QiskitNatureTestCase):
         # map to qubit operators
         qubit_op = converter.convert(main_op, num_particles=num_particles)
 
-        # setup the initial state for the variational form
+        # setup the initial state for the ansatz
         from qiskit_nature.circuit.library import HartreeFock
         init_state = HartreeFock(num_spin_orbitals, num_particles, converter)
 
-        # setup the variational form for VQE
+        # setup the ansatz for VQE
         from qiskit.circuit.library import TwoLocal
-        var_form = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
+        ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 
         # add the initial state
-        var_form.compose(init_state, front=True)
+        ansatz.compose(init_state, front=True)
 
         # set the backend for the quantum computation
         from qiskit import Aer
@@ -104,7 +104,7 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         # setup and run VQE
         from qiskit.algorithms import VQE
-        algorithm = VQE(var_form,
+        algorithm = VQE(ansatz,
                         optimizer=optimizer,
                         quantum_instance=backend)
 

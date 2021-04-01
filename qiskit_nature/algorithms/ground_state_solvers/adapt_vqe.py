@@ -49,7 +49,7 @@ class AdaptVQE(GroundStateEigensolver):
         """
         Args:
             qubit_converter: a class that converts second quantized operator to qubit operator
-            solver: a factory for the VQE solver employing a UCCSD variational form.
+            solver: a factory for the VQE solver employing a UCCSD ansatz.
             threshold: the energy convergence threshold. It has a minimum value of 1e-15.
             delta: the finite difference step size for the gradient computation. It has a minimum
                 value of 1e-5.
@@ -68,7 +68,7 @@ class AdaptVQE(GroundStateEigensolver):
         self._excitation_list: List[OperatorBase] = []
 
         self._main_operator: PauliSumOp = None
-        self._var_form: QuantumCircuit = None
+        self._ansatz: QuantumCircuit = None
 
     def returns_groundstate(self) -> bool:
         return True
@@ -90,13 +90,13 @@ class AdaptVQE(GroundStateEigensolver):
         res = []
         # compute gradients for all excitation in operator pool
         for exc in self._excitation_pool:
-            # add next excitation to variational form
-            self._var_form.operators = self._excitation_list + [exc]
-            # set the current variational form
-            vqe.var_form = self._var_form
-            var_form_params = vqe.var_form._parameter_table.keys()
+            # add next excitation to ansatz
+            self._ansatz.operators = self._excitation_list + [exc]
+            # set the current ansatz
+            vqe.ansatz = self._ansatz
+            ansatz_params = vqe.ansatz._parameter_table.keys()
             # construct the expectation operator of the VQE
-            vqe._expect_op = vqe.construct_expectation(var_form_params, self._main_operator)
+            vqe._expect_op = vqe.construct_expectation(ansatz_params, self._main_operator)
             # evaluate energies
             parameter_sets = theta + [-self._delta] + theta + [self._delta]
             energy_results = vqe._energy_evaluation(np.asarray(parameter_sets))
@@ -142,8 +142,8 @@ class AdaptVQE(GroundStateEigensolver):
             aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
-            QiskitNatureError: if a solver other than VQE or a variational form other than UCCSD
-                is provided or if the algorithm finishes due to an unforeseen reason.
+            QiskitNatureError: if a solver other than VQE or a ansatz other than UCCSD is provided
+                or if the algorithm finishes due to an unforeseen reason.
 
         Returns:
             An AdaptVQEResult which is an ElectronicStructureResult but also includes runtime
@@ -173,15 +173,14 @@ class AdaptVQE(GroundStateEigensolver):
 
         if not isinstance(vqe, VQE):
             raise QiskitNatureError("The AdaptVQE algorithm requires the use of the VQE solver")
-        if not isinstance(vqe.var_form, UCC):
+        if not isinstance(vqe.ansatz, UCC):
             raise QiskitNatureError(
-                "The AdaptVQE algorithm requires the use of the UCC variational form")
+                "The AdaptVQE algorithm requires the use of the UCC ansatz")
 
-        # We construct the variational form once to be able to extract the full set of excitation
-        # operators.
-        self._var_form = copy.deepcopy(vqe.var_form)
-        self._var_form._build()
-        self._excitation_pool = copy.deepcopy(self._var_form.operators)
+        # We construct the ansatz once to be able to extract the full set of excitation operators.
+        self._ansatz = copy.deepcopy(vqe.ansatz)
+        self._ansatz._build()
+        self._excitation_pool = copy.deepcopy(self._ansatz.operators)
 
         threshold_satisfied = False
         alternating_sequence = False
@@ -222,12 +221,12 @@ class AdaptVQE(GroundStateEigensolver):
                 logger.info("Final maximum gradient: %s", str(np.abs(max_grad[0])))
                 alternating_sequence = True
                 break
-            # add new excitation to self._var_form
+            # add new excitation to self._ansatz
             self._excitation_list.append(max_grad[1])
             theta.append(0.0)
             # run VQE on current Ansatz
-            self._var_form.operators = self._excitation_list
-            vqe.var_form = self._var_form
+            self._ansatz.operators = self._excitation_list
+            vqe.ansatz = self._ansatz
             vqe.initial_point = theta
             raw_vqe_result = vqe.compute_minimum_eigenvalue(self._main_operator)
             theta = raw_vqe_result.optimal_point.tolist()

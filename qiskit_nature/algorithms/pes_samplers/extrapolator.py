@@ -24,7 +24,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 class Extrapolator(ABC):
     """
     This class is based on performing extrapolation of parameters of a wavefunction for a
-    variational algorithm defined in the variational forms as part of the Qiskit module.
+    variational algorithm defined in the ansatzes as part of the Qiskit module.
     This concept is based on fitting a set of (point,parameter) data to some specified
     function and predicting the optimal variational parameters for the next point. This
     technique is aimed towards providing a better starting point for the variational algorithm,
