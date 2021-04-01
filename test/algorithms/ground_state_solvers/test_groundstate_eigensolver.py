@@ -223,9 +223,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
-        var_form = solver.get_solver(self.electronic_structure_problem,
-                                     self.qubit_converter).var_form
-        circuit = var_form.assign_parameters(res_qasm.raw_result.optimal_point)
+        ansatz = solver.get_solver(self.electronic_structure_problem,
+                                     self.qubit_converter).ansatz
+        circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
         self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
@@ -255,9 +255,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
-        var_form = solver.get_solver(self.electronic_structure_problem,
-                                     self.qubit_converter).var_form
-        circuit = var_form.assign_parameters(res_qasm.raw_result.optimal_point)
+        ansatz = solver.get_solver(self.electronic_structure_problem,
+                                     self.qubit_converter).ansatz
+        circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
         self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
