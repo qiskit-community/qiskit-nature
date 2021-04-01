@@ -224,7 +224,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem,
-                                     self.qubit_converter).ansatz
+                                   self.qubit_converter).ansatz
         circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
@@ -256,7 +256,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem,
-                                     self.qubit_converter).ansatz
+                                   self.qubit_converter).ansatz
         circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
