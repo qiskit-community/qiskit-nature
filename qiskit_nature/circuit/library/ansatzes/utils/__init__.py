@@ -10,7 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Excitation generator utilities."""
+"""Excitation generator utilities.
+
+.. currentmodule:: qiskit_nature.circuit.library.ansatzes.utils
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   generate_fermionic_excitations
+   generate_vibration_excitations
+"""
 
 from .fermionic_excitation_generator import generate_fermionic_excitations
 from .vibration_excitation_generator import generate_vibration_excitations

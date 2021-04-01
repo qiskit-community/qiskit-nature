@@ -59,18 +59,22 @@ class UVCC(EvolvedOperatorAnsatz):
                 configured symmetry reductions on it.
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
-            excitations: this can be any of the following:
-                - a `str` which contains the types of excitations. Allowed characters are:
-                    - `s` for singles
-                    - `d` for doubles
-                    - `t` for triples
-                    - `q` for quadruples
-                - a single, positive `int` which denotes the number of excitations (1 == `s`, etc.)
-                - a list of positive integers
-                - a `callable` object which is used to generate the excitations. The `callable` must
-                  take the following __keyword__ arguments:
-                      - `num_modals`: the same as above
-                  and must return a `List[Tuple[Tuple[Any, ...], ...]]`.
+            excitations: this can be any of the following types:
+
+                :`str`: which contains the types of excitations. Allowed characters are
+                    + `s` for singles
+                    + `d` for doubles
+                    + `t` for triples
+                    + `q` for quadruples
+                :`int`: a single, positive integer which denotes the number of excitations
+                    (1 == `s`, etc.)
+                :`List[int]`: a list of positive integers generalizing the above
+                :`Callable`: a function which is used to generate the excitations.
+                    The callable must take the __keyword__ argument `num_modals` `num_particles`
+                    (with identical types to those explained above) and must return a
+                    `List[Tuple[Tuple[int, ...], Tuple[int, ...]]]`. For more information on how to
+                    write such a callable refer to the default method
+                    :meth:`generate_vibration_excitations`.
             reps: number of repetitions of basic module
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """

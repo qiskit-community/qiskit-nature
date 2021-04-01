@@ -32,8 +32,8 @@ class QubitMapper(ABC):
     def __init__(self, allows_two_qubit_reduction: bool = False):
         """
         Args:
-            allows_two_qubit_reduction: Set if mapper will create known symmetry such that
-               the number of qubits in the mapped operator can be reduced accordingly.
+            allows_two_qubit_reduction: Set if mapper will create known symmetry such that the
+                number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
 
