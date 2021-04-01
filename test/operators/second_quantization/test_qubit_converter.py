@@ -173,7 +173,7 @@ class TestQubitConverter(QiskitNatureTestCase):
             return None
 
         mapper = JordanWignerMapper()
-        qubit_conv = QubitConverter(mapper, auto_symmetry_reduction=True)
+        qubit_conv = QubitConverter(mapper, z2symmetry_reduction='auto')
 
         with self.subTest('Locator returns None, should be untapered operator'):
             qubit_op = qubit_conv.convert(self.h2_op, sector_locator=find_none)
@@ -196,7 +196,7 @@ class TestQubitConverter(QiskitNatureTestCase):
             return z2_sector if not z2_symmetries.is_empty() else None
 
         mapper = ParityMapper()
-        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, auto_symmetry_reduction=True)
+        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction='auto')
         qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, sector_locator=finder)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
         self.assertEqual(qubit_conv.num_particles, self.num_particles)
@@ -240,7 +240,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         problem = ElectronicStructureProblem(driver)
 
         mapper = JordanWignerMapper()
-        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, auto_symmetry_reduction=True)
+        qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction='auto')
         qubit_op = qubit_conv.convert(problem.second_q_ops()[0], self.num_particles,
                                       sector_locator=problem.symmetry_sector_locator)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
