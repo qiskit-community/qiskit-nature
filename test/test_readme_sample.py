@@ -111,6 +111,9 @@ class TestReadmeSample(QiskitNatureTestCase):
         result = algorithm.compute_minimum_eigenvalue(qubit_op)
         print(result.eigenvalue.real)
 
+        electronic_structure_result = problem.interpret(result)
+        print(electronic_structure_result)
+
         # ----------------------------------------------------------------------
 
         self.assertAlmostEqual(result.eigenvalue.real, -1.8572750301938803, places=6)

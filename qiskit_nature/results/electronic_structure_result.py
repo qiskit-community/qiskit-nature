@@ -41,6 +41,7 @@ class ElectronicStructureResult(EigenstateResult):
         self._computed_energies: Optional[np.ndarray] = None
         self._extracted_transformer_energies: Dict[str, float] = {}
         self._extracted_transformer_dipoles: Optional[List[Dict[str, DipoleTuple]]] = None
+        self._reverse_dipole_sign: bool = False
 
     @property
     def hartree_fock_energy(self) -> float:
