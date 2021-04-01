@@ -41,7 +41,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                  gradient: Optional[Union[GradientBase, Callable]] = None,
                  expectation: Optional[ExpectationBase] = None,
                  include_custom: bool = False,
-                 var_form: Optional[UCC] = None,
+                 ansatz: Optional[UCC] = None,
                  initial_state: Optional[QuantumCircuit] = None,
                  ) -> None:
         """
@@ -49,11 +49,11 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             quantum_instance: The quantum instance used in the minimum eigensolver.
             optimizer: A classical optimizer.
             initial_point: An optional initial point (i.e. initial parameter values)
-                for the optimizer. If ``None`` then VQE will look to the variational form for a
-                preferred point and if not will simply compute a random one.
+                for the optimizer. If ``None`` then VQE will look to the ansatz for a preferred
+                point and if not will simply compute a random one.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
-                Observable over the var_form state function. When ``None`` (the default) an
+                Observable over the ansatz state function. When ``None`` (the default) an
                 :class:`~qiskit.opflow.expectations.ExpectationFactory` is used to select
                 an appropriate expectation based on the operator and backend. When using Aer
                 qasm_simulator backend, with paulis, it is however much faster to leverage custom
@@ -64,7 +64,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 parameter here to ``True`` (defaults to ``False``).
             include_custom: When `expectation` parameter here is None setting this to ``True`` will
                 allow the factory to include the custom Aer pauli expectation.
-            var_form: Allows specification of a custom :class:`~.UCC` instance. If this is never set
+            ansatz: Allows specification of a custom :class:`~.UCC` instance. If this is never set
                 by the user, the factory will default to the :class:`~.UCCSD` Ansatz.
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
@@ -76,9 +76,9 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.gradient = gradient
         self.expectation = expectation
         self.include_custom = include_custom
-        self.var_form = var_form
+        self.ansatz = ansatz
         self.initial_state = initial_state
-        self._vqe = VQE(var_form=None,
+        self._vqe = VQE(ansatz=None,
                         quantum_instance=self._quantum_instance,
                         optimizer=self._optimizer,
                         initial_point=self._initial_point,
@@ -147,15 +147,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._include_custom = include_custom
 
     @property
-    def var_form(self) -> Optional[UCC]:
-        """Getter of the variational form."""
-        return self._var_form
+    def ansatz(self) -> Optional[UCC]:
+        """Getter of the ansatz."""
+        return self._ansatz
 
-    @var_form.setter
-    def var_form(self, var_form: Optional[UCC]) -> None:
-        """Setter of the variational form. If ``None`` is passed, this factory will default to using
-        the :class:`~.UCCSD` Ansatz."""
-        self._var_form = var_form
+    @ansatz.setter
+    def ansatz(self, ansatz: Optional[UCC]) -> None:
+        """Setter of the ansatz. If ``None`` is passed, this factory will default to using the
+        :class:`~.UCCSD` Ansatz."""
+        self._ansatz = ansatz
 
     @property
     def initial_state(self) -> Optional[QuantumCircuit]:
@@ -191,15 +191,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
 
-        var_form = self.var_form
-        if var_form is None:
-            var_form = UCCSD()
-        var_form.qubit_converter = qubit_converter
-        var_form.num_particles = num_particles
-        var_form.num_spin_orbitals = num_spin_orbitals
-        var_form.initial_state = initial_state
+        ansatz = self.ansatz
+        if ansatz is None:
+            ansatz = UCCSD()
+        ansatz.qubit_converter = qubit_converter
+        ansatz.num_particles = num_particles
+        ansatz.num_spin_orbitals = num_spin_orbitals
+        ansatz.initial_state = initial_state
 
-        self._vqe.var_form = var_form
+        self._vqe.ansatz = ansatz
 
         return self._vqe
 

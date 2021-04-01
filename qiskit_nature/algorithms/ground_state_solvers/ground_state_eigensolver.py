@@ -128,6 +128,8 @@ class GroundStateEigensolver(GroundStateSolver):
         """
         # try to get a QuantumInstance from the solver
         quantum_instance = getattr(self._solver, 'quantum_instance', None)
+        # and try to get an Expectation from the solver
+        expectation = getattr(self._solver, 'expectation', None)
 
         if not isinstance(state, StateFn):
             state = StateFn(state)
@@ -140,23 +142,23 @@ class GroundStateEigensolver(GroundStateSolver):
                 if op is None:
                     results.append(None)
                 else:
-                    results.append(self._eval_op(state, op, quantum_instance))
+                    results.append(self._eval_op(state, op, quantum_instance, expectation))
         elif isinstance(operators, dict):
             results = {}  # type: ignore
             for name, op in operators.items():
                 if op is None:
                     results[name] = None
                 else:
-                    results[name] = self._eval_op(state, op, quantum_instance)
+                    results[name] = self._eval_op(state, op, quantum_instance, expectation)
         else:
             if operators is None:
                 results = None
             else:
-                results = self._eval_op(state, operators, quantum_instance)
+                results = self._eval_op(state, operators, quantum_instance, expectation)
 
         return results
 
-    def _eval_op(self, state, op, quantum_instance):
+    def _eval_op(self, state, op, quantum_instance, expectation):
         # if the operator is empty we simply return 0
         if op == 0:
             # Note, that for some reason the individual results need to be wrapped in lists.
@@ -168,6 +170,8 @@ class GroundStateEigensolver(GroundStateSolver):
         if quantum_instance is not None:
             try:
                 sampler = CircuitSampler(quantum_instance)
+                if expectation is not None:
+                    exp = expectation.convert(exp)
                 result = sampler.convert(exp).eval()
             except ValueError:
                 # TODO make this cleaner. The reason for it being here is that some quantum

@@ -108,13 +108,13 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         init_state = VSCF(num_modals)
 
-        uvcc_varform = UVCC(converter, num_modals, 'sd', initial_state=init_state)
+        uvcc_ansatz = UVCC(converter, num_modals, 'sd', initial_state=init_state)
 
         q_instance = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
                                      seed_transpiler=90, seed_simulator=12)
         optimizer = COBYLA(maxiter=1000)
 
-        algo = VQE(uvcc_varform, optimizer=optimizer, quantum_instance=q_instance)
+        algo = VQE(uvcc_ansatz, optimizer=optimizer, quantum_instance=q_instance)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
 
         energy = vqe_result.optimal_value

@@ -50,7 +50,7 @@ class CHC(BlueprintCircuit):
                          orbitals.
             reps: number of repetitions of basic module
             ladder: use ladder of CNOTs between to indices in the entangling block
-            initial_state: an initial state to prepend to the variational form
+            initial_state: an initial state to prepend to the ansatz
         """
 
         super().__init__()
@@ -74,7 +74,7 @@ class CHC(BlueprintCircuit):
 
     @property
     def num_qubits(self) -> Optional[int]:
-        """Number of qubits of the variational form.
+        """Number of qubits of the ansatz.
 
         Returns:
            int:  An integer indicating the number of qubits.
@@ -83,7 +83,7 @@ class CHC(BlueprintCircuit):
 
     @num_qubits.setter
     def num_qubits(self, num_qubits: int) -> None:
-        """Set the number of qubits of the variational form.
+        """Set the number of qubits of the ansatz.
 
         Args:
            num_qubits: An integer indicating the number of qubits.
@@ -153,7 +153,7 @@ class CHC(BlueprintCircuit):
 
     def _build(self) -> None:
         """
-        Construct the variational form, given its parameters.
+        Construct the ansatz, given its parameters.
 
         Returns:
             QuantumCircuit: a quantum circuit with given `parameters`

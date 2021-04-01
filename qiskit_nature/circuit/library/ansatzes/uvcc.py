@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" The Unitary Vibrational Coupled-Cluster Single and Double excitations variational form. """
+""" The Unitary Vibrational Coupled-Cluster Single and Double excitations Ansatz. """
 
 from functools import partial
 from typing import Callable, List, Optional, Sequence, Tuple, Union
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class UVCC(EvolvedOperatorAnsatz):
     """
     This trial wavefunction is a Unitary Vibrational Coupled-Cluster Single and Double excitations
-    variational form.
+    ansatz.
     For more information, see Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
