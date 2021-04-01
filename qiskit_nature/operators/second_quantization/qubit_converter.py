@@ -209,11 +209,6 @@ class QubitConverter:
         """ Convert further operators to match that done in :meth:`convert`, or as set by
             :meth:`force_match`.
 
-        Note, that this will also apply symmetry reductions according to the symmetries found during
-        :meth:`convert`. If an operator given to this method does not commute with these symmetries,
-        it will be set to `None` or discarded if `suppress_none` is enabled. It is important to
-        note, that this can cause auxiliary operators such as dipole operators to not be converter.
-
         Args:
             second_q_ops: A second quantized operator or list thereof to be converted
             suppress_none: If None should be placed in the output list where an operator
