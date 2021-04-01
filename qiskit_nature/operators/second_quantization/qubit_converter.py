@@ -65,13 +65,9 @@ class QubitConverter:
                 requiring 3 less qubits. Now only one of these operators will have the ground state
                 and be the correct symmetry sector needed for the ground state. Setting 'auto' will
                 use an automatic computation of the correct sector. If the sector is known
-              from other experiments with the z2symmetry logic, then the tapering values of that
+                from other experiments with the z2symmetry logic, then the tapering values of that
                 sector can be provided (a list of int of values -1, and 1). The default is None
-                meaning no symmetry reduction is done. Note that dipole and other operators such as
-                spin, num particles etc. are also symmetry reduced according to the symmetries found
-                in the main operator if this operator commutes with the main operator symmetry. If
-                it does not then the operator will be discarded since no meaningful measurement can
-                take place.
+                meaning no symmetry reduction is done.
         """
 
         self._mapper: QubitMapper = mapper
@@ -212,6 +208,11 @@ class QubitConverter:
                       ) -> Union[PauliSumOp, List[Optional[PauliSumOp]]]:
         """ Convert further operators to match that done in :meth:`convert`, or as set by
             :meth:`force_match`.
+
+        Note, that this will also apply symmetry reductions according to the symmetries found during
+        :meth:`convert`. If an operator given to this method does not commute with these symmetries,
+        it will be set to `None` or discarded if `suppress_none` is enabled. It is important to
+        note, that this can cause auxiliary operators such as dipole operators to not be converter.
 
         Args:
             second_q_ops: A second quantized operator or list thereof to be converted
