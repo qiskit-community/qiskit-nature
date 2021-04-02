@@ -6,8 +6,8 @@ Qiskit Nature documentation
   :maxdepth: 2
 
   API References <apidocs/qiskit_nature>
-  Release Notes <release_notes>
   Tutorials <tutorials/index>
+  Release Notes <release_notes>
 
 .. Hiding - Indices and tables
    :ref:`genindex`
