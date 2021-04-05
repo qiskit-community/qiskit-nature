@@ -15,7 +15,7 @@ from test import QiskitNatureTestCase
 from test.problems.second_quantization.electronic.resources.resource_reader import \
     read_expected_file
 import numpy as np
-from qiskit_nature.operators import FermionicOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
 from qiskit_nature.drivers import HDF5Driver
 

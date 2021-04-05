@@ -111,7 +111,7 @@ class FermionicOp(SecondQuantizedOp):
 
     .. jupyter-execute::
 
-      from qiskit_nature.operators import FermionicOp
+      from qiskit_nature.operators.second_quantization import FermionicOp
       0.5 * FermionicOp("I+") + FermionicOp("+I")
 
     Sum

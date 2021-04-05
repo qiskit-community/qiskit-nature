@@ -17,18 +17,9 @@ Nature Science Problems (:mod:`qiskit_nature.problems`)
 .. currentmodule:: qiskit_nature.problems
 
 
-Second-Quantization Problems
-++++++++++++++++++++++++++++
-
 .. autosummary::
-   :toctree: ../stubs/
+   :toctree:
+
+   second_quantization
 
 """
-
-from .second_quantization import ElectronicStructureProblem
-from .second_quantization import VibrationalStructureProblem
-
-__all__ = [
-    "ElectronicStructureProblem",
-    "VibrationalStructureProblem",
-]

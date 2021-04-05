@@ -19,7 +19,7 @@ from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.circuit.library.ansatzes import UVCC
-from qiskit_nature.operators import VibrationalOp
+from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
 
 

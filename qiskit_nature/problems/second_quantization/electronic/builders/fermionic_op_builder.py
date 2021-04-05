@@ -18,7 +18,7 @@ from typing import List, Tuple
 import numpy as np
 
 from qiskit_nature.drivers.qmolecule import QMolecule
-from qiskit_nature.operators import FermionicOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 
 
 def _build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:

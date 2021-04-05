@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
-from qiskit_nature.operators import FermionicOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 
 from .utils import str2list, str2str, str2tuple
 
