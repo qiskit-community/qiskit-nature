@@ -155,16 +155,16 @@ class ElectronicStructureProblem(BaseProblem):
         hf_bitstr = hartree_fock_bitstring(
             num_spin_orbitals=2 * q_molecule.num_molecular_orbitals,
             num_particles=self.num_particles)
-        sector_locator = self._pick_sector(z2_symmetries, hf_bitstr)
+        sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector_locator
 
-    def _pick_sector(self, z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> Z2Symmetries:
+    @staticmethod
+    def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:
         # Finding all the symmetries using the find_Z2_symmetries:
-        taper_coef = []
+        taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
-            # pylint: disable=no-member
-            coef = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
-            taper_coef.append(coef)
+            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
+            taper_coeff.append(coeff)
 
-        return taper_coef
+        return taper_coeff
