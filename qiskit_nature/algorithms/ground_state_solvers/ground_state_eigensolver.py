@@ -98,8 +98,7 @@ class GroundStateEigensolver(GroundStateSolver):
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem, self._qubit_converter)
-        else:
-            self._solver = self._solver
+
         # if the eigensolver does not support auxiliary operators, reset them
         if not self._solver.supports_aux_operators():
             aux_ops = None
