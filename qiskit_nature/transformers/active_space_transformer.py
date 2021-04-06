@@ -26,6 +26,10 @@ ACTIVE_INTS_SUBSCRIPT = 'pqrs,pi,qj,rk,sl->ijkl'
 
 INACTIVE_ENERGY_SUBSCRIPT = 'ij,ji'
 
+ACTIVE_INTS_SUBSCRIPT = 'pqrs,pi,qj,rk,sl->ijkl'
+
+INACTIVE_ENERGY_SUBSCRIPT = 'ij,ji'
+
 logger = logging.getLogger(__name__)
 
 
