@@ -37,9 +37,14 @@ from qiskit.quantum_info.operators import Pauli
 def _simplify(pauli_conf, x):
     """
     Simplifies a Symbolic Hamiltonian term by reducing the number
-    of Pauli-Z operators. In specific, all even powers of Pauli
-    terms in the Symbolich Hamiltonian term are substituted 
-    for a value of 1 since, (sigma^z)**2 = I (identity). 
+    of Pauli-Z operators and subsituting pre-defined 
+    values for the first two turns. In specific, all even 
+    powers of Pauli terms in the Symbolic Hamiltonian term 
+    are substituted for a value of 1 since, (sigma^z)**2 = I (identity). 
+    Additionally, the first two turns are fixed to be (in binary)
+    01 and 00, which translate to 1,-1 and 1,1, respectively in 
+    spin variables. With no side chain on the 2nd bead, we further
+    fix q_6 = 1. 
 
     Args:
         pauli_conf: Dictionary of Pauli operators 
@@ -100,7 +105,7 @@ def _create_qubits_for_conf(pauli_conf):
     Returns:
         qubits: Dictionary of qubits in symbolic notation.
                 Note that each turn consists of two qubit
-                regsiters, qubits[i][0] and qubits[i][1]
+                registers, qubits[i][0] and qubits[i][1]
                 corresponding to the backbone and side chain
                 beads respectively.
     """
@@ -319,7 +324,7 @@ def _create_H_chiral(N, side_chain, lambda_chiral, indic0, indic1, indic2, indic
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
     
     Returns:
-        H_chiral:
+        H_chiral: Hamiltonian term in symbolic notation that imposes the right chirality
     """
     H_chiral = 0
     for i in range(1, N+1):   # There are N-1 turns starting at turn 1
@@ -356,7 +361,7 @@ def _second_neighbor(i, p, j, s, lambda_1, pair_energies, x_dist, pauli_conf):
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
     
     Returns:
-        expr:
+        expr: Contribution to energetic Hamiltonian in symbolic notation
     """
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
@@ -385,7 +390,7 @@ def _first_neighbor(i, p, j, s, lambda_1, pair_energies, x_dist, pauli_conf):
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
        
     Returns:
-        expr:
+        expr: Contribution to energetic Hamiltonian in symbolic notation
     """
     lambda_0 = 7*(j - i + 1)*lambda_1
     e = pair_energies[i, p, j, s]
@@ -413,7 +418,7 @@ def _check_turns(i, p, j, s, indic0, indic1, indic2, indic3, pauli_conf):
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
     
     Returns:
-        t_ij:
+        t_ij: Production of turn indicators in symbolic notation
     """
 
     t_ij = _simplify(pauli_conf, indic0[i][p]*indic0[j][s] + indic1[i][p]*indic1[j][s] +
@@ -436,7 +441,8 @@ def _create_H_back(N, lambda_back, indic0, indic1, indic2, indic3, pauli_conf):
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
 
     Returns:
-        H_back:
+        H_back: Contribution to Hamiltonian in symbolic notation that penalizes 
+                consecutive turns along the same axis
     """
     H_back = 0
     for i in range(1, N - 1):
@@ -447,7 +453,7 @@ def _create_H_back(N, lambda_back, indic0, indic1, indic2, indic3, pauli_conf):
 
 def _create_H_short(N, side_chain, pair_energies, x_dist, pauli_conf, indic0, indic1, indic2, indic3):
     """
-    Creates Hamiltonian consituting interactions between beads that are no more than
+    Creates Hamiltonian constituting interactions between beads that are no more than
     4 beads apart. If no side chains are present, this function returns 0.
 
     Args:
@@ -463,7 +469,7 @@ def _create_H_short(N, side_chain, pair_energies, x_dist, pauli_conf, indic0, in
         indic3: Turn indicator for axis 3
     
     Returns:
-        H_short:
+        H_short: Contribution to energetic Hamiltonian in symbolic notation t
     """
     H_short = 0
     for i in range(1, N - 2):
