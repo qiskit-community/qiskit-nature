@@ -58,7 +58,7 @@ def _simplify(pauli_conf, x):
     else:
         first_binaries = [1, -1, 1, 1, 0, -1]
         x = x.expand()
-        for m in range(4, 1, -1): # 4,3,2
+        for m in range(4, 1, -1): 
             x = x.subs({pauli_conf[k][0]**m: (pauli_conf[k][0])**(m%2) for k in pauli_conf})
             x = x.subs({pauli_conf[k][1]**m: (pauli_conf[k][1])**(m%2) for k in pauli_conf})
             x = x.subs({pauli_conf[k][0]: first_binaries[k-1] for k in [1, 2, 3, 4, 6]})
@@ -120,7 +120,7 @@ def _create_indic_turn(N, side_chain, qubits):
     """
     Creates indicator functions that specify the axis chosen for a
     corresponding turn. Here, each turn, i (from 1 to N-1) is (densely) 
-    coded on two qubits registers, located at 2i-1 and 2i. 
+    coded on two qubits registers, located at 2i - 1 and 2i. 
     Each function returned is of the form, indica(i), 
     which returns 1 if axis, a = 0,1,2,3 is chosen at turn i.
 
@@ -149,7 +149,7 @@ def _create_indic_turn(N, side_chain, qubits):
     for i in range(1, N):   # There are N-1 turns starting at turn 1
         for m in range(2):
             if m == 1:
-                if side_chain[i-1] == 0:
+                if side_chain[i - 1] == 0:
                     continue
                 else:
                     pass
@@ -167,7 +167,7 @@ def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
     the main chain. Note, here we consider distances between beads
     not on side chains. For a particular axis, a, we calculate the 
     distance between i and j bead pairs,
-    delta_na = summation (k = i to j-1) of (-1)^k*indica(k)
+    delta_na = summation (k = i to j - 1) of (-1)^k*indica(k)
 
     Args:
         N: Number of total beads in peptide
@@ -310,7 +310,7 @@ def _create_H_chiral(N, side_chain, lambda_chiral, indic0, indic1, indic2, indic
     """ 
     Creates a penalty/constrain term to the total Hamiltonian that imposes that all the position
     of all side chain beads impose the right chirality. Note that the position of the side chain 
-    bead at a location (i) is determined by the turn indicators at i-1 and i. In the absence 
+    bead at a location (i) is determined by the turn indicators at i - 1 and i. In the absence 
     of side chains, this function returns a value of 0.
 
     Args:
@@ -328,17 +328,17 @@ def _create_H_chiral(N, side_chain, lambda_chiral, indic0, indic1, indic2, indic
     """
     H_chiral = 0
     for i in range(1, N+1):   # There are N-1 turns starting at turn 1
-        if side_chain[i-1] == 0:
+        if side_chain[i - 1] == 0:
             continue
         si = int ((1-(-1)**i)/2)
-        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic0[i][1])*((1-si)*(indic1[i-1][0]*indic2[i][0] + indic2[i-1][0]*indic3[i][0] +
-                            indic3[i-1][0]*indic1[i][0]) + si*(indic2[i-1][0]*indic1[i][0] + indic3[i-1][0]*indic2[i][0]+indic1[i-1][0]*indic3[i][0])))
-        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic1[i][1])*((1-si)*(indic0[i-1][0]*indic3[i][0] + indic2[i-1][0]*indic0[i][0] +
-                            indic3[i-1][0]*indic2[i][0]) + si*(indic3[i-1][0]*indic0[i][0] + indic0[i-1][0]*indic2[i][0]+indic2[i-1][0]*indic3[i][0])))
-        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic2[i][1])*((1-si)*(indic0[i-1][0]*indic1[i][0] + indic1[i-1][0]*indic3[i][0] +
-                            indic3[i-1][0]*indic0[i][0]) + si*(indic1[i-1][0]*indic0[i][0] + indic3[i-1][0]*indic1[i][0]+indic0[i-1][0]*indic3[i][0])))
-        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic3[i][1])*((1-si)*(indic0[i-1][0]*indic2[i][0] + indic1[i-1][0]*indic0[i][0] +
-                            indic2[i-1][0]*indic1[i][0]) + si*(indic2[i-1][0]*indic0[i][0] + indic0[i-1][0]*indic1[i][0]+indic1[i-1][0]*indic2[i][0])))
+        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic0[i][1])*((1-si)*(indic1[i - 1][0]*indic2[i][0] + indic2[i - 1][0]*indic3[i][0] +
+                            indic3[i - 1][0]*indic1[i][0]) + si*(indic2[i - 1][0]*indic1[i][0] + indic3[i - 1][0]*indic2[i][0]+indic1[i - 1][0]*indic3[i][0])))
+        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic1[i][1])*((1-si)*(indic0[i - 1][0]*indic3[i][0] + indic2[i - 1][0]*indic0[i][0] +
+                            indic3[i - 1][0]*indic2[i][0]) + si*(indic3[i - 1][0]*indic0[i][0] + indic0[i - 1][0]*indic2[i][0]+indic2[i - 1][0]*indic3[i][0])))
+        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic2[i][1])*((1-si)*(indic0[i - 1][0]*indic1[i][0] + indic1[i - 1][0]*indic3[i][0] +
+                            indic3[i - 1][0]*indic0[i][0]) + si*(indic1[i - 1][0]*indic0[i][0] + indic3[i - 1][0]*indic1[i][0]+indic0[i - 1][0]*indic3[i][0])))
+        H_chiral += _simplify(pauli_conf, lambda_chiral *(1-indic3[i][1])*((1-si)*(indic0[i - 1][0]*indic2[i][0] + indic1[i - 1][0]*indic0[i][0] +
+                            indic2[i - 1][0]*indic1[i][0]) + si*(indic2[i - 1][0]*indic0[i][0] + indic0[i - 1][0]*indic1[i][0]+indic1[i - 1][0]*indic2[i][0])))
     H_chiral = _simplify(pauli_conf, H_chiral)
     return H_chiral
 
@@ -480,7 +480,7 @@ def _create_H_short(N, side_chain, pair_energies, x_dist, pauli_conf, indic0, in
                         (pair_energies[i, 1, i+3, 1] + 0.1*(pair_energies[i, 1, i+3, 0] + pair_energies[i, 0, i+3, 1]))
     return H_short
 
-def _create_pauli_for_contacts(N,side_chain):
+def _create_pauli_for_contacts(N, side_chain):
     """
     Creates Pauli operators for 1st nearest neighbor interactions
      
@@ -489,35 +489,38 @@ def _create_pauli_for_contacts(N,side_chain):
         side_chain: List of side chains in peptide
     
     Returns:
-        pauli_contacts, r_contacts:
+        pauli_contacts, r_contacts: Tuple consisting of dictionary
+                                    of Pauli operators for contacts/
+                                    interactions and number of qubits/
+                                    contacts
     """
     pauli_contacts = dict()
     for i in range(1, N - 3):
         pauli_contacts[i] = dict()
         pauli_contacts[i][0] = dict()
         pauli_contacts[i][1] = dict()
-        for j in range(i + 3,N + 1):
+        for j in range(i + 3, N + 1):
             pauli_contacts[i][0][j] = dict()
             pauli_contacts[i][1][j] = dict()
 
     r_contact = 0
-    for i in range(1,N - 3):  # first qubits is number 1
-        for j in range(i + 3,N + 1):
-            if (j - i)%2 == 1:
+    for i in range(1, N - 3):  # first qubits is number 1
+        for j in range(i + 3, N + 1):
+            if (j - i) % 2 == 1:
                 if (j - i) >= 5:
-                    pauli_contacts[i][0][j][0] = symbols( '\sigma^z_'+ '{' + '{}'.format(i) +"\,"+ '{}'.format(j) + '}' )
-                    print('possible contact between',i,'0 and',j,'0')
+                    pauli_contacts[i][0][j][0] = symbols('\sigma^z_'+ '{' + '{}'.format(i) +"\,"+ '{}'.format(j) + '}')
+                    print('possible contact between', i ,'0 and', j ,'0')
                     r_contact += 1
-                if side_chain[i-1] == 1 and side_chain[j-1] == 1:
+                if side_chain[i - 1] == 1 and side_chain[j - 1] == 1:
                     try:
                         pauli_contacts[i][1][j][1] = symbols('\sigma^z_'+ '{'+ '{}'.format(i)+ '^{(1)}' + '\,'+ '{}'.format(j) + '^{(1)}' + '}')
-                        print('possible contact between',i,'1 and',j,'1')
+                        print('possible contact between', i ,'1 and', j ,'1')
                         r_contact += 1
                     except:
                         pass
             else:
                 if (j - i) >= 4:
-                    if side_chain[j-1] == 1:
+                    if side_chain[j - 1] == 1:
                         try:
                             pauli_contacts[i][0][j][1] = symbols('\sigma^z_'+ '{'+ '{}'.format(i)+ '\,'+ '{}'.format(j)+ '^{(1)}' + '}')
                             print('possible contact between',i,'0 and',j,'1')
@@ -525,7 +528,7 @@ def _create_pauli_for_contacts(N,side_chain):
                         except:
                             pass
 
-                    if side_chain[i-1] == 1:
+                    if side_chain[i - 1] == 1:
                         try:
                             pauli_contacts[i][1][j][0] = symbols('\sigma^z_'+ '{'+ '{}'.format(i)+ '^{(1)}' + '\,'+ '{}'.format(j) + '}')
                             print('possible contact between',i,'1 and',j,'0')
@@ -541,18 +544,19 @@ def _create_contact_qubits(N, pauli_contacts):
     neighbor interactions
 
     Args:
-        N:
-        pauli_contacts:
+        N: Number of beads in peptide
+        pauli_contacts: Dictionary of Pauli operators to track
+                        contacts/interactions between beads
     
     Returns:
-        contacts:
+        contacts: Dictionary of contact qubits in symbolic notation
     """
     contacts = dict()
     for i in range(1, N - 3):
         contacts[i] = dict()
         contacts[i][0] = dict()
         contacts[i][1] = dict()
-        for j in range(i + 3, N + 1):
+        for j in range(i + 3, N + 1): # j > i
             contacts[i][0][j] = dict()
             contacts[i][1][j] = dict()
 
@@ -572,15 +576,17 @@ def _create_H_BBBB(N, lambda_1, pair_energies, x_dist, pauli_conf, contacts):
     main/backbone (BB) beads
 
     Args:
-        N:
-        lambda_1:
-        pair_energies:
-        x_dist:
-        pauli_conf:
-        contacts:
-    
+        N: Number of beads in peptide   
+        lambda_1: Constraint to penalize local overlap between
+                 beads within a nearest neighbor contact
+        pair_energies: Numpy array of pair energies for amino acids
+        x_dist: Numpy array that tracks all distances between backbone and side chain
+                beads for all axes: 0,1,2,3
+        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
+        contacts: Dictionary of contact qubits in symbolic notation
+
     Returns:
-        H_BBBB:
+        H_BBBB: Hamiltonian term in symbolic notation
     """
     H_BBBB = 0
     for i in range (1, N - 3):
@@ -598,7 +604,7 @@ def _create_H_BBBB(N, lambda_1, pair_energies, x_dist, pauli_conf, contacts):
                 except:
                     pass
                 try:
-                    H_BBBB += contacts[i][0][j][0]*_second_neighbor(i, 0, j-1, 0, lambda_1, pair_energies, x_dist, pauli_conf)
+                    H_BBBB += contacts[i][0][j][0]*_second_neighbor(i, 0, j - 1, 0, lambda_1, pair_energies, x_dist, pauli_conf)
                 except:
                     pass
                 try:
@@ -615,15 +621,18 @@ def _create_H_BBSC_and_H_SCBB(N, side_chain, lambda_1, pair_energies, x_dist, pa
     of side chains, this function returns a value of 0.
 
     Args:
-        N:
-        lambda_1:
-        pair_energies:
-        x_dist:
-        pauli_conf:
-        contacts:
+        N: Number of beads in peptide
+        side: List of side chains in peptide
+        lambda_1: Constraint to penalize local overlap between
+                 beads within a nearest neighbor contact
+        pair_energies: Numpy array of pair energies for amino acids
+        x_dist: Numpy array that tracks all distances between backbone and side chain
+                beads for all axes: 0,1,2,3
+        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
+        contacts: Dictionary of contact qubits in symbolic notation
     
     Returns:
-        H_BBSC, H_SCBB:
+        H_BBSC, H_SCBB: Tuple of Hamiltonian terms consisting of backbone and side chain interactions
     """
     H_BBSC = 0
     H_SCBB = 0
@@ -632,7 +641,7 @@ def _create_H_BBSC_and_H_SCBB(N, side_chain, lambda_1, pair_energies, x_dist, pa
             if (j - i)%2 == 1:
                 continue
             else:
-                if side_chain[j-1] == 1:
+                if side_chain[j - 1] == 1:
                     H_BBSC += contacts[i][0][j][1]*(_first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist, pauli_conf) + \
                                 _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist, pauli_conf))
                     try:
@@ -648,7 +657,7 @@ def _create_H_BBSC_and_H_SCBB(N, side_chain, lambda_1, pair_energies, x_dist, pa
                     except:
                         pass
                     H_BBSC = _simplify(pauli_conf, H_BBSC)
-                if side_chain[i-1] == 1:
+                if side_chain[i - 1] == 1:
                     H_SCBB += contacts[i][1][j][0]*(_first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist, pauli_conf) + \
                                 _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist, pauli_conf))
                     try:
@@ -673,15 +682,17 @@ def _create_H_SCSC(N, side_chain, lambda_1, pair_energies, x_dist, pauli_conf, c
     returns a value of 0.
 
     Args:
-        N:
-        lambda_1:
-        pair_energies:
-        x_dist:
-        pauli_conf:
-        contacts:
+        N: Number of beads in peptides    
+        lambda_1: Constraint to penalize local overlap between
+                 beads within a nearest neighbor contact
+        pair_energies: Numpy array of pair energies for amino acids
+        x_dist: Numpy array that tracks all distances between backbone and side chain
+                beads for all axes: 0,1,2,3
+        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
+        contacts: Dictionary of contact qubits in symbolic notation
     
     Returns:
-        H_SCSC:
+        H_SCSC: Hamiltonian term consisting of side chain pairwise interactions
     """
     H_SCSC = 0
     for i in range (1, N - 3):
@@ -703,13 +714,13 @@ def _create_new_qubit_list(N, side_chain, pauli_conf, pauli_contacts):
     for each i,j pair.
 
     Args:
-        N:
-        side_chain:
-        pauli_conf:
-        pauli_contacts:
+        N: Number of beads in peptide
+        side_chain: List of side chains in peptide
+        pauli_conf: Dictionary of Pauli operators to track conformation
+        pauli_contacts: Dictionary of Pauli operators to track contacts between beads
     
     Returns:
-        new_qubits:
+        new_qubits: Dictionary of qubits in symbolic notation
     """
     old_qubits_conf = []
     old_qubits_contact = []
@@ -735,49 +746,11 @@ def _create_new_qubit_list(N, side_chain, pauli_conf, pauli_contacts):
     return new_qubits
 
 def _create_H_contacts(pauli_conf, new_qubits, n_contact, lambda_contacts, N_contacts):
+    """To document"""
     H_contacts = lambda_contacts*(0.5*(np.sum(1 - np.array(new_qubits[-n_contact:]))) - N_contacts)**2
     H_contacts = H_contacts.expand()
     H_contacts = H_contacts.subs({new_qubits[k]**2: 1 for k in range(1, len(new_qubits))}) # convert to identity
     return H_contacts
-
-def _get_symbolic_delta(N, side_chain):
-    '''the first binaries are in the article'''
-    if len(side_chain) != N:
-        raise Exception('size the side_chain is not equal to N')
-    if side_chain[0] == 1 or side_chain[-1] == 1:
-        raise Exception('please add extra bead instead of side chain on terminal bead')
-    pauli_conf = _create_pauli_for_conf(N)
-    qubits = _create_qubits_for_conf(pauli_conf)
-    indic0, indic1, indic2, indic3, n_conf = _create_indic_turn(N, side_chain, qubits)
-    delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf)
-    delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2, delta_n3, indic0, indic1, indic2, indic3, pauli_conf)
-    return delta_n0, delta_n1, delta_n2, delta_n3
-
-def _get_both_paulis(N, side_chain):
-    '''the first binaries are in the article'''
-    if len(side_chain) != N:
-        raise Exception('size the side_chain is not equal to N')
-    if side_chain[0] == 1 or side_chain[-1] == 1:
-        raise Exception('please add extra bead instead of side chain on terminal bead')
-    pauli_conf = _create_pauli_for_conf(N)
-    pauli_contacts, n_contact = _create_pauli_for_contacts(N, side_chain)
-    return pauli_conf, pauli_contacts
-
-
-def _set_contact_qubits(H_symbolic, n_contact, n_conf, new_qubits_before_simpl, contacts_list, print_simpl = 'yes'):
-    if len(contacts_list) != n_contact:
-        raise Exception('contacts_list size must be equal to the number of contacts ')
-    x = new_qubits_before_simpl[-n_contact:]
-    contacts_list = list (1 - 2*np.array(contacts_list))
-    for c in range(n_contact):
-        H_symbolic = H_symbolic.subs(x[c], contacts_list[c])
-        if print_simpl == 'yes':
-            print(latex(x[c]), contacts_list[c])
-    H_symbolic = simplify(H_symbolic)
-    if print_simpl == 'yes':
-        print('new number of terms :',  len(H_symbolic.args))
-        print('new number of qubits required :', n_conf)
-    return H_symbolic, n_conf, {}
 
 def _get_symbolic_hamiltonian(N,side_chain,pair_energies,lambda_chiral,lambda_back,lambda_1,lambda_contacts,N_contacts):
 
@@ -823,7 +796,6 @@ def _create_mask_for_tensor(H, new_qubits):
     mask[0, 0] = H.args[0]
     return mask
 
-
 def _make_pauli_list(N, side_chain, H_symbolic, n_qubits, new_qubits):
     mask = _create_mask_for_tensor(H_symbolic, new_qubits)
     terms = len(H_symbolic.args)
@@ -853,3 +825,41 @@ def _build_qubit_op(N,side_chain,pair_energies,lambda_chiral,lambda_back,lambda_
     operators = SummedOp(oplist=operators)
     return operators
 
+# def _get_symbolic_delta(N, side_chain):
+#     '''the first binaries are in the article'''
+#     if len(side_chain) != N:
+#         raise Exception('size the side_chain is not equal to N')
+#     if side_chain[0] == 1 or side_chain[-1] == 1:
+#         raise Exception('please add extra bead instead of side chain on terminal bead')
+#     pauli_conf = _create_pauli_for_conf(N)
+#     qubits = _create_qubits_for_conf(pauli_conf)
+#     indic0, indic1, indic2, indic3, n_conf = _create_indic_turn(N, side_chain, qubits)
+#     delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf)
+#     delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2, delta_n3, indic0, indic1, indic2, indic3, pauli_conf)
+#     return delta_n0, delta_n1, delta_n2, delta_n3
+
+# def _get_both_paulis(N, side_chain):
+#     '''the first binaries are in the article'''
+#     if len(side_chain) != N:
+#         raise Exception('size the side_chain is not equal to N')
+#     if side_chain[0] == 1 or side_chain[-1] == 1:
+#         raise Exception('please add extra bead instead of side chain on terminal bead')
+#     pauli_conf = _create_pauli_for_conf(N)
+#     pauli_contacts, n_contact = _create_pauli_for_contacts(N, side_chain)
+#     return pauli_conf, pauli_contacts
+
+
+# def _set_contact_qubits(H_symbolic, n_contact, n_conf, new_qubits_before_simpl, contacts_list, print_simpl = 'yes'):
+#     if len(contacts_list) != n_contact:
+#         raise Exception('contacts_list size must be equal to the number of contacts ')
+#     x = new_qubits_before_simpl[-n_contact:]
+#     contacts_list = list (1 - 2*np.array(contacts_list))
+#     for c in range(n_contact):
+#         H_symbolic = H_symbolic.subs(x[c], contacts_list[c])
+#         if print_simpl == 'yes':
+#             print(latex(x[c]), contacts_list[c])
+#     H_symbolic = simplify(H_symbolic)
+#     if print_simpl == 'yes':
+#         print('new number of terms :',  len(H_symbolic.args))
+#         print('new number of qubits required :', n_conf)
+#     return H_symbolic, n_conf, {}
