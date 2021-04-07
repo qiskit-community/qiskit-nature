@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Molecular Problem class."""
+"""The Lattice Folding Problem class."""
 from typing import List, Tuple, Optional
 import numpy as np
 
@@ -39,7 +39,8 @@ class LatticeFoldingProblem:
                            stereochemistry if side chains are present
             lambda_back: Constraint/penalty that prevents the chain from folding
                          back onto itself
-            lambda_1: 
+            lambda_1: Constraint/penality for 1st neighbor interactions to 
+                      prevent two beads from overlapping
             lambda_contacts:
 
         Raises:
@@ -112,7 +113,7 @@ class LatticeFoldingProblem:
 
     def pauli_op(self):
         """Get the qubit operator from the builder"""
-	self._construct_specific_pair_energy_matrix()
+        self._construct_specific_pair_energy_matrix()
         operator = _build_qubit_op(self._num_beads, self._side_chains, self._pair_energies, 
                                    self._lambda_chiral, self._lambda_back, self._lambda_1,
                                    self._lambda_contacts, self._N_contacts)
