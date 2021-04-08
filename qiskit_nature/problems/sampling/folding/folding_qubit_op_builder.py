@@ -44,7 +44,7 @@ def _simplify(pauli_conf, x):
     Additionally, the first two turns are fixed to be (in binary)
     01 and 00, which translate to 1,-1 and 1,1, respectively in 
     spin variables. With no side chain on the 2nd bead, we further
-    fix the value of the 6th qubit, q_6 = 0 (1 for the corresponding
+    fix the value of the 6th qubit, q_6 = 1 (-1 for the corresponding
     Pauli). 
 
     Args:
@@ -356,6 +356,7 @@ def _second_neighbor(i, p, j, s,
     Creates energetic interaction that penalizes local overlap between 
     beads that correspond to a nearest neighbor contact or adds no net
     interaction (zero) if beads are at a distance of 2 units from each other.
+    Ensure second NN does not overlap with reference point
 
     Args:
         i: Backbone bead at turn i
@@ -443,7 +444,7 @@ def _create_H_back(N, lambda_back, indic0,
                    pauli_conf):
     """
     Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns
-    (N-1) along the same axis are penalized by a factor, lambda_back. Note,
+    (N - 1) along the same axis are penalized by a factor, lambda_back. Note,
     that the first two turns are omitted.
 
     Args:
@@ -510,6 +511,7 @@ def _create_pauli_for_contacts(N, side_chain):
                                     of Pauli operators for contacts/
                                     interactions and number of qubits/
                                     contacts
+       pauli_contacts[i][p][j][s]
     """
     pauli_contacts = dict()
     for i in range(1, N - 3):
@@ -759,7 +761,7 @@ def _create_new_qubit_list(N, side_chain,
 
     for i in range(1, N - 3):
         for j in range(i + 4, N + 1):
-            for p in range (2):
+            for p in range(2):
                 for s in range(2):
                     try:
                         old_qubits_contact.append(pauli_contacts[i][p][j][s])
@@ -771,7 +773,14 @@ def _create_new_qubit_list(N, side_chain,
 def _create_H_contacts(pauli_conf, new_qubits, 
                        n_contact, lambda_contacts, 
                        N_contacts):
-    """To document"""
+    """
+    To document
+    
+    Approximating nearest neighbor interactions (2 and greater?) #+ e*0.1
+
+    energy of contacts that are present in system (energy shift)
+    
+    """
     H_contacts = lambda_contacts*(0.5*(np.sum(1 - np.array(new_qubits[-n_contact:]))) - N_contacts)**2
     H_contacts = H_contacts.expand()
     H_contacts = H_contacts.subs({new_qubits[k]**2: 1 for k in range(1, len(new_qubits))}) # convert to identity
@@ -784,7 +793,7 @@ def _get_symbolic_hamiltonian(N, side_chain, pair_energies,
     '''the first binaries are in the article'''
     if len(side_chain)!=N:
         raise Exception('size the side_chain is not equal to N')
-    if side_chain[0]==1 or side_chain[-1]==1 or side_chain[1]==1:
+    if side_chain[0]==1 or side_chain[-1] == 1 or side_chain[1] == 1:
         raise Exception('please add extra bead instead of side chain on terminal bead')
 
     pauli_conf = _create_pauli_for_conf(N)
