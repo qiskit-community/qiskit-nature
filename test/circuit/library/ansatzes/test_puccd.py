@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test the PUCC Ansatz."""
+"""Test the PUCCD Ansatz."""
 
 from test import QiskitNatureTestCase
 from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
@@ -18,10 +18,10 @@ from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 from ddt import ddt, data, unpack
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.circuit.library.ansatzes import PUCCD
+from qiskit_nature.circuit.library import PUCCD
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 @ddt

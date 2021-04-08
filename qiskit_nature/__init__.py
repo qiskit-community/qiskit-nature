@@ -136,6 +136,7 @@ Submodules
 
    algorithms
    circuit
+   converters
    drivers
    mappers
    operators

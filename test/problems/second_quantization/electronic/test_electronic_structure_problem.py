@@ -19,8 +19,7 @@ import numpy as np
 from qiskit_nature.transformers import ActiveSpaceTransformer
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import \
-    ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 
 class TestElectronicStructureProblem(QiskitNatureTestCase):

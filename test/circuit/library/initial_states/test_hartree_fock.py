@@ -21,9 +21,9 @@ from qiskit.opflow.primitive_ops.tapered_pauli_sum_op import Z2Symmetries
 from qiskit.quantum_info.operators.symplectic import Pauli
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
-from qiskit_nature.mappers.second_quantization import (BravyiKitaevMapper, JordanWignerMapper,
-                                                       ParityMapper)
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.mappers.second_quantization import (
+    BravyiKitaevMapper, JordanWignerMapper, ParityMapper)
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 class TestHartreeFock(QiskitNatureTestCase):

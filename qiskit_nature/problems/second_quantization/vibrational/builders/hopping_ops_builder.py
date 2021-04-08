@@ -18,9 +18,9 @@ from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.circuit.library.ansatzes import UVCC
+from qiskit_nature.circuit.library import UVCC
 from qiskit_nature.operators.second_quantization import VibrationalOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 def _build_qeom_hopping_ops(num_modals: List[int],

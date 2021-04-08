@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-""" Test VQE UVCC MinimumEigensovler Factory """
+""" Test VQE UVCC MinimumEigensolver Factory """
 
 import unittest
 
@@ -18,16 +18,14 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature.circuit.library.ansatzes import UVCCSD
-from qiskit_nature.circuit.library import HartreeFock
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.circuit.library import HartreeFock, UVCCSD
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
-    VQEUVCCFactory
+from qiskit_nature.algorithms import VQEUVCCFactory
 
 
 class TestVQEUVCCFactory(QiskitNatureTestCase):
-    """ Test VQE UVCC MinimumEigensovler Factory """
+    """ Test VQE UVCC MinimumEigensolver Factory """
 
     # NOTE: The actual usage of this class is mostly tested in combination with the ground-state
     # eigensolvers (one module above).

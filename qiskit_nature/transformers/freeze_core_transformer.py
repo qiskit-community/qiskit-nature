@@ -15,8 +15,9 @@
 from typing import List, Optional
 import logging
 
+from qiskit_nature.drivers import QMolecule
+
 from .active_space_transformer import ActiveSpaceTransformer
-from ..drivers import QMolecule
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         orbitals.
 
         The orbitals to be removed are specified in two ways:
-            1. When `freeeze_core` is enabled (the default), the `core_orbitals` listed in the
+            1. When `freeze_core` is enabled (the default), the `core_orbitals` listed in the
                `QMolecule` are made inactive and removed in the same fashion as in the
                :class:`ActiveSpaceTransformer`.
             2. Additionally, unoccupied molecular orbitals can be removed via a list of indices

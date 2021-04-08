@@ -17,7 +17,6 @@ from fractions import Fraction
 from functools import lru_cache
 from itertools import product
 from test import QiskitNatureTestCase
-from typing import Callable, Optional
 
 import numpy as np
 from ddt import data, ddt, unpack

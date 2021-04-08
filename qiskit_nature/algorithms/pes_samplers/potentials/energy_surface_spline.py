@@ -18,7 +18,7 @@ bopes sampler results or potential energy surfaces.
 from typing import Tuple, List, Optional, Callable, Any
 import scipy.interpolate as interp
 from scipy.optimize import minimize_scalar
-from qiskit_nature.algorithms.pes_samplers.potentials.potential_base import EnergySurfaceBase
+from .potential_base import EnergySurfaceBase
 
 
 class EnergySurface1DSpline(EnergySurfaceBase):

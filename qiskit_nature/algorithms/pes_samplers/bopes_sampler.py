@@ -17,13 +17,12 @@ from typing import Optional, List, Dict
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateSolver
-from qiskit_nature.algorithms.pes_samplers.extrapolator import Extrapolator, WindowExtrapolator
 from qiskit_nature.drivers import BaseDriver
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.problems.second_quantization import BaseProblem
-from qiskit_nature.results import EigenstateResult
-from qiskit_nature.results.bopes_sampler_result import BOPESSamplerResult
+from qiskit_nature.results import BOPESSamplerResult, EigenstateResult
+from ..ground_state_solvers import GroundStateSolver
+from .extrapolator import Extrapolator, WindowExtrapolator
 
 logger = logging.getLogger(__name__)
 

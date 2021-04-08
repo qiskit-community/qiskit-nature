@@ -17,7 +17,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from qiskit_nature.drivers.qmolecule import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
