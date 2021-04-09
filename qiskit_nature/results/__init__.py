@@ -16,7 +16,7 @@ Results (:mod:`qiskit_nature.results`)
 
 .. currentmodule:: qiskit_nature.results
 
-Qiskit Nature results such as for electronic and vibronic structure. Algorithms
+Qiskit Nature results such as for electronic and vibrational structure. Algorithms
 may extend these to provide algorithm specific aspects in their result.
 
 Results
