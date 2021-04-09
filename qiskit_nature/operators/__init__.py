@@ -16,7 +16,7 @@ Operators (:mod:`qiskit_nature.operators`)
 
 .. currentmodule:: qiskit_nature.operators
 
-Operators for different particle systems such as fermionic, vibronic and spin.
+Operators for different systems such as fermionic, vibrational and spin.
 
 .. autosummary::
    :toctree:
