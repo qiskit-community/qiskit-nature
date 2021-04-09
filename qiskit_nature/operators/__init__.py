@@ -11,11 +11,12 @@
 # that they have been altered from the originals.
 
 """
-Operators for Qiskit Nature (:mod:`qiskit_nature.operators`)
-============================================================
+Operators (:mod:`qiskit_nature.operators`)
+==========================================
 
 .. currentmodule:: qiskit_nature.operators
 
+Operators for different particle systems such as fermionic, vibronic and spin.
 
 .. autosummary::
    :toctree:

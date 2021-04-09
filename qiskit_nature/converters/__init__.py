@@ -11,11 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Operator to Qubit Converters (:mod:`qiskit_nature.converters`)
-==============================================================
+Operator to Qubit Operator Converters (:mod:`qiskit_nature.converters`)
+=======================================================================
 
 .. currentmodule:: qiskit_nature.converters
-
 
 .. autosummary::
    :toctree:

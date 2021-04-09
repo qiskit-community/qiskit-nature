@@ -11,22 +11,17 @@
 # that they have been altered from the originals.
 
 """
-Nature Sciences specific algorithms (:mod:`qiskit_nature.algorithms`)
-=====================================================================
-These are nature sciences specific algorithms. As they rely on nature
-sciences specific knowledge and/or function that are here.
+Algorithms (:mod:`qiskit_nature.algorithms`)
+============================================
 
 .. currentmodule:: qiskit_nature.algorithms
 
-Nature Algorithms
-=================
-These are algorithms configured and/or functioning using chemistry specific knowledge. See also
-:mod:`~qiskit.algorithms` for other algorithms in these categories which may also
-be used for chemistry problems such as :class:`~qiskit.algorithms.VQE`.
+These are nature science algorithms to solve specific problems such as find the ground state
+energy, excited state energies or potential energy surfaces.
 
 Excited State Solvers
 +++++++++++++++++++++
-Algorithms that can find the eigenvalues of an operator, i.e. excited states for chemistry.
+Algorithms that can find the eigenvalues of an operator, e.g. excited states for chemistry.
 
 The interface for such solvers,
 
@@ -57,7 +52,7 @@ depend
 
 Ground State Solvers
 ++++++++++++++++++++
-Algorithms that can find the minimum eigenvalue of an operator, i.e. ground state for chemistry.
+Algorithms that can find the minimum eigenvalue of an operator, e.g. ground state for chemistry.
 
 The interface for such solvers,
 

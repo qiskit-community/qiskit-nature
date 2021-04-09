@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Operators for Qiskit Nature (:mod:`qiskit_nature.operators.second_quantization`)
-====================================================================================================
+Second-Quantization Operators (:mod:`qiskit_nature.operators.second_quantization`)
+==================================================================================
 
 .. currentmodule:: qiskit_nature.operators.second_quantization
 

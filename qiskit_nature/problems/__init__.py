@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 
 """
-Nature Science Problems (:mod:`qiskit_nature.problems`)
-=======================================================
+Problems (:mod:`qiskit_nature.problems`)
+========================================
 
 .. currentmodule:: qiskit_nature.problems
 
