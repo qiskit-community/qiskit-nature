@@ -65,7 +65,9 @@ class PySCFDriver(FermionicDriver):
             unit: Angstrom or Bohr
             charge: Charge on the molecule
             spin: Spin (2S), in accordance with how PySCF defines a molecule in pyscf.gto.mole.Mole
-            basis: Basis set
+            basis: Basis set name as recognized by PySCF, e.g. `sto3g`, `321g` etc.
+                See https://sunqm.github.io/pyscf/_modules/pyscf/gto/basis.html for a listing.
+                Defaults to the minimal basis 'sto3g'.
             hf_method: Hartree-Fock Method type
             conv_tol: Convergence tolerance see PySCF docs and pyscf/scf/hf.py
             max_cycle: Max convergence cycles see PySCF docs and pyscf/scf/hf.py,
@@ -73,7 +75,7 @@ class PySCFDriver(FermionicDriver):
             init_guess: See PySCF pyscf/scf/hf.py init_guess_by_minao/1e/atom methods
             max_memory: Maximum memory that PySCF should use
             molecule: A driver independent Molecule definition instance may be provided. When
-                a molecule is supplied the `atom`, `unit`, `charge` and `spin` parameters
+                a molecule is supplied the ``atom``, ``unit``, ``charge`` and ``spin`` parameters
                 are all ignored as the Molecule instance now defines these instead. The Molecule
                 object is read when the driver is run and converted to the driver dependent
                 configuration for the computation. This allows, for example, the Molecule geometry
