@@ -16,7 +16,7 @@ Algorithms (:mod:`qiskit_nature.algorithms`)
 
 .. currentmodule:: qiskit_nature.algorithms
 
-These are nature science algorithms to solve specific problems such as find the ground state
+These are natural science algorithms to solve specific problems such as finding the ground state
 energy, excited state energies or potential energy surfaces.
 
 Excited State Solvers
