@@ -37,20 +37,20 @@ from qiskit.quantum_info.operators import Pauli
 def _simplify(pauli_conf, x):
     """
     Simplifies a Symbolic Hamiltonian term by reducing the number
-    of Pauli-Z operators and subsituting pre-defined 
-    values for the first two turns. In specific, all even 
-    powers of Pauli terms in the Symbolic Hamiltonian term 
-    are substituted for a value of 1 since, (sigma^z_{i})**2 = I (identity). 
+    of Pauli-Z operators and subsituting pre-defined
+    values for the first two turns. In specific, all even
+    powers of Pauli terms in the Symbolic Hamiltonian term
+    are substituted for a value of 1 since, (sigma^z_{i})**2 = I (identity).
     Additionally, the first two turns are fixed to be (in binary)
-    01 and 00, which translate to 1,-1 and 1,1, respectively in 
+    01 and 00, which translate to 1,-1 and 1,1, respectively in
     spin variables. With no side chain on the 2nd bead, we further
     fix the value of the 6th qubit, q_6 = 1 (-1 for the corresponding
-    Pauli). 
+    Pauli).
 
     Args:
-        pauli_conf: Dictionary of Pauli operators 
+        pauli_conf: Dictionary of Pauli operators
         x: Symbolic Hamiltonian term to be simplifed
-    
+
     Returns:
         x: Simplified Symbolic Hamiltonian
     """
@@ -59,7 +59,7 @@ def _simplify(pauli_conf, x):
     else:
         first_binaries = [1, -1, 1, 1, 0, -1]
         x = x.expand()
-        for m in range(4, 1, -1): 
+        for m in range(4, 1, -1):
             x = x.subs({pauli_conf[k][0]**m: (pauli_conf[k][0])**(m%2) for k in pauli_conf})
             x = x.subs({pauli_conf[k][1]**m: (pauli_conf[k][1])**(m%2) for k in pauli_conf})
             x = x.subs({pauli_conf[k][0]: first_binaries[k-1] for k in [1, 2, 3, 4, 6]})
@@ -67,16 +67,16 @@ def _simplify(pauli_conf, x):
 
 def _create_pauli_for_conf(N):
     """
-    Create dictionary of Pauli operators that define the conformation 
-    of a peptide fold in an Ising spin glass model. The Pauli operator, 
-    sigma^z_{i} is related to the qubit register, q_i as follows: 
-    sigma^z_{i} = 1 - 2*q_i. 
+    Create dictionary of Pauli operators that define the conformation
+    of a peptide fold in an Ising spin glass model. The Pauli operator,
+    sigma^z_{i} is related to the qubit register, q_i as follows:
+    sigma^z_{i} = 1 - 2*q_i.
 
     Args:
         N: Number of total beads in peptide
 
     Returns:
-        pauli_conf: Dictionary of Pauli Z-matrices in symbolic 
+        pauli_conf: Dictionary of Pauli Z-matrices in symbolic
                     math notation for all 2*(N-1) turns.
                     Note that each turn consists of two Pauli
                     terms, pauli_conf[i][0] and pauli_conf[i][1]
@@ -87,7 +87,7 @@ def _create_pauli_for_conf(N):
     for i in range(1, 2*(N-1) + 1):
         pauli_conf[i] = dict()
         pauli_conf[i][0] = symbols("\sigma^z_{}".format({i}))
-        pauli_conf[i][1] = symbols("\sigma^z_"+"{" + "{}".format({i}) + "^{(1)}"+"}") 
+        pauli_conf[i][1] = symbols("\sigma^z_"+"{" + "{}".format({i}) + "^{(1)}"+"}")
     return pauli_conf
 
 
@@ -95,14 +95,14 @@ def _create_qubits_for_conf(pauli_conf):
     """
     Create conformation qubits based on the Pauli Z operators,
     for backbone and side chain beads. Conversely as above,
-    this transformation moves from the spin (-1,1) Hamiltonian 
+    this transformation moves from the spin (-1,1) Hamiltonian
     to the qubit (0,1) Hamiltonian. That is, qubit, q_i is
     transformed as (1 - sigma^z_{i})/2
 
     Args:
-        pauli_conf: Dictionary of Pauli Z-matrices in 
+        pauli_conf: Dictionary of Pauli Z-matrices in
                     symbolic math notation
-    
+
     Returns:
         qubits: Dictionary of qubits in symbolic notation.
                 Note that each turn consists of two qubit
@@ -111,7 +111,7 @@ def _create_qubits_for_conf(pauli_conf):
                 beads respectively.
     """
     qubits = dict()
-    for i in range(1, len(pauli_conf) + 1):  
+    for i in range(1, len(pauli_conf) + 1):
         qubits[i] = dict()
         qubits[i][0] = (1 - pauli_conf[i][0])/2
         qubits[i][1] = (1 - pauli_conf[i][1])/2
@@ -120,9 +120,9 @@ def _create_qubits_for_conf(pauli_conf):
 def _create_indic_turn(N, side_chain, qubits):
     """
     Creates indicator functions that specify the axis chosen for a
-    corresponding turn. Here, each turn, i (from 1 to N-1) is (densely) 
-    coded on two qubits registers, located at 2i - 1 and 2i. 
-    Each function returned is of the form, indica(i), 
+    corresponding turn. Here, each turn, i (from 1 to N-1) is (densely)
+    coded on two qubits registers, located at 2i - 1 and 2i.
+    Each function returned is of the form, indica(i),
     which returns 1 if axis, a = 0,1,2,3 is chosen at turn i.
 
     Args:
@@ -133,10 +133,10 @@ def _create_indic_turn(N, side_chain, qubits):
     Returns:
         (indic0, indic1, indic2, indic3, num_qubits): Turn indicators for the four axes,
                                                       0,1,2,3. Note, as in the pauli and qubit
-                                                      conformation notations, 
-                                                      indic_a[i][0] and indic_a[i][1] refer to 
+                                                      conformation notations,
+                                                      indic_a[i][0] and indic_a[i][1] refer to
                                                       backbone and side chain respectively.
-    """   
+    """
     if len(side_chain)!= N:
         raise Exception('size of side_chain list is not equal to N')
     indic0, indic1, indic2, indic3 = dict(), dict(), dict(), dict()
@@ -165,9 +165,9 @@ def _create_indic_turn(N, side_chain, qubits):
 
 def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
     """
-    Calculates distance between beads based on the number of turns in 
+    Calculates distance between beads based on the number of turns in
     the main chain. Note, here we consider distances between beads
-    not on side chains. For a particular axis, a, we calculate the 
+    not on side chains. For a particular axis, a, we calculate the
     distance between i and j bead pairs,
     delta_na = summation (k = i to j - 1) of (-1)^k*indica(k)
 
@@ -179,7 +179,7 @@ def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
         indic3: Turn indicator for axis 3
 
     Returns:
-        delta_n0, delta_n1, delta_n2, delta_n3: Tuple corresponding to 
+        delta_n0, delta_n1, delta_n2, delta_n3: Tuple corresponding to
                                                 the number of occurrences
                                                 of turns at axes 0,1,2,3
     """
@@ -217,12 +217,12 @@ def _create_delta_BB(N, indic0, indic1, indic2, indic3, pauli_conf):
             delta_n3[i][0][j][0] = _simplify(pauli_conf, delta_n3[i][0][j][0])
     return delta_n0, delta_n1, delta_n2, delta_n3
 
-def _add_delta_SC(N, delta_n0, delta_n1, delta_n2, 
-                  delta_n3, indic0, indic1, 
+def _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
+                  delta_n3, indic0, indic1,
                   indic2, indic3, pauli_conf):
     """
-    Calculates distances between beads located on side chains and adds the contribution to the 
-    distance calculated between beads (i and j) on the main chain. In the absence 
+    Calculates distances between beads located on side chains and adds the contribution to the
+    distance calculated between beads (i and j) on the main chain. In the absence
     of side chains, this function returns a value of 0.
 
     Args:
@@ -238,10 +238,10 @@ def _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
 
     Returns:
-        delta_n0, delta_n1, delta_n2, delta_n3: Updated tuple (with added side chain 
-                                                contributions) that track the number 
-                                                of occurrences of turns at axes 0,1,2,3.  
-    """  
+        delta_n0, delta_n1, delta_n2, delta_n3: Updated tuple (with added side chain
+                                                contributions) that track the number
+                                                of occurrences of turns at axes 0,1,2,3.
+    """
 
     for i in range(1, N): # j>i
         for j in range(i+1, N+1):
@@ -268,11 +268,11 @@ def _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
                 pass
     return delta_n0, delta_n1, delta_n2, delta_n3
 
-def _create_x_dist(N, delta_n0, delta_n1, 
+def _create_x_dist(N, delta_n0, delta_n1,
                    delta_n2, delta_n3, pauli_conf):
     """
-    Creates total distances between all bead pairs by summing the 
-    distances over all turns with axes, a = 0,1,2,3. For bead i with 
+    Creates total distances between all bead pairs by summing the
+    distances over all turns with axes, a = 0,1,2,3. For bead i with
     side chain s and bead j with side chain p, where j > i, the distance
     can be referenced as x_dist[i][p][j][s]
 
@@ -282,7 +282,7 @@ def _create_x_dist(N, delta_n0, delta_n1,
         delta_n2: Number of occurrences of axis 2 between beads
         delta_n3: Number of occurrences of axis 3 between beads
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-    
+
     Returns:
         x_dist: Numpy array that tracks all distances between backbone and side chain
                 beads for all axes: 0,1,2,3
@@ -311,13 +311,13 @@ def _create_x_dist(N, delta_n0, delta_n1,
     print(r, ' distances created')
     return x_dist
 
-def _create_H_chiral(N, side_chain, lambda_chiral, 
-                     indic0, indic1, indic2, 
+def _create_H_chiral(N, side_chain, lambda_chiral,
+                     indic0, indic1, indic2,
                      indic3, pauli_conf):
-    """ 
+    """
     Creates a penalty/constrain term to the total Hamiltonian that imposes that all the position
-    of all side chain beads impose the right chirality. Note that the position of the side chain 
-    bead at a location (i) is determined by the turn indicators at i - 1 and i. In the absence 
+    of all side chain beads impose the right chirality. Note that the position of the side chain
+    bead at a location (i) is determined by the turn indicators at i - 1 and i. In the absence
     of side chains, this function returns a value of 0.
 
     Args:
@@ -329,7 +329,7 @@ def _create_H_chiral(N, side_chain, lambda_chiral,
         indic2: Turn indicator for axis 2
         indic3: Turn indicator for axis 3
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-    
+
     Returns:
         H_chiral: Hamiltonian term in symbolic notation that imposes the right chirality
     """
@@ -349,11 +349,11 @@ def _create_H_chiral(N, side_chain, lambda_chiral,
     H_chiral = _simplify(pauli_conf, H_chiral)
     return H_chiral
 
-def _second_neighbor(i, p, j, s, 
-                     lambda_1, pair_energies, 
+def _second_neighbor(i, p, j, s,
+                     lambda_1, pair_energies,
                      x_dist, pauli_conf):
     """
-    Creates energetic interaction that penalizes local overlap between 
+    Creates energetic interaction that penalizes local overlap between
     beads that correspond to a nearest neighbor contact or adds no net
     interaction (zero) if beads are at a distance of 2 units from each other.
     Ensure second NN does not overlap with reference point
@@ -369,7 +369,7 @@ def _second_neighbor(i, p, j, s,
         x_dist: Numpy array that tracks all distances between backbone and side chain
                 beads for all axes: 0,1,2,3
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-    
+
     Returns:
         expr: Contribution to energetic Hamiltonian in symbolic notation
     """
@@ -379,14 +379,14 @@ def _second_neighbor(i, p, j, s,
     expr = _simplify(pauli_conf, expr)
     return expr
 
-def _first_neighbor(i, p, j, s, 
-                    lambda_1, pair_energies, 
+def _first_neighbor(i, p, j, s,
+                    lambda_1, pair_energies,
                     x_dist, pauli_conf):
     """
-    Creates first nearest neighbor interaction if beads are in contact 
-    and at a distance of 1 unit from each other. Otherwise, a large positive 
-    energetic penalty is added. Here, the penalty depends on the neighboring 
-    beads of interest (i and j), that is, lambda_0 > 6*(j -i + 1)*lambda_1 + e_ij. 
+    Creates first nearest neighbor interaction if beads are in contact
+    and at a distance of 1 unit from each other. Otherwise, a large positive
+    energetic penalty is added. Here, the penalty depends on the neighboring
+    beads of interest (i and j), that is, lambda_0 > 6*(j -i + 1)*lambda_1 + e_ij.
     Here, we chose, lambda_0 = 7*(j- 1 + 1).
 
     Args:
@@ -400,7 +400,7 @@ def _first_neighbor(i, p, j, s,
         x_dist: Numpy array that tracks all distances between backbone and side chain
                 beads for all axes: 0,1,2,3
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-       
+
     Returns:
         expr: Contribution to energetic Hamiltonian in symbolic notation
     """
@@ -411,12 +411,12 @@ def _first_neighbor(i, p, j, s,
     expr = _simplify(pauli_conf, expr)
     return expr
 
-def _check_turns(i, p, j, s, 
-                 indic0, indic1, indic2, 
+def _check_turns(i, p, j, s,
+                 indic0, indic1, indic2,
                  indic3, pauli_conf):
     """
-    Checks if consecutive turns are along the same axis. Specifically, 
-    the function is the summation over all axes, a = 0,1,2,3, of the 
+    Checks if consecutive turns are along the same axis. Specifically,
+    the function is the summation over all axes, a = 0,1,2,3, of the
     product of turn indicators, indica(i)*indica(j) for turns i and j.
 
 
@@ -430,7 +430,7 @@ def _check_turns(i, p, j, s,
         indic2: Turn indicator for axis 2
         indic3: Turn indicator for axis 3
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-    
+
     Returns:
         t_ij: Production of turn indicators in symbolic notation
     """
@@ -439,8 +439,8 @@ def _check_turns(i, p, j, s,
                      indic2[i][p]*indic2[j][s] +indic3[i][p]*indic3[j][s])
     return t_ij
 
-def _create_H_back(N, lambda_back, indic0, 
-                   indic1, indic2, indic3, 
+def _create_H_back(N, lambda_back, indic0,
+                   indic1, indic2, indic3,
                    pauli_conf):
     """
     Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns
@@ -457,18 +457,18 @@ def _create_H_back(N, lambda_back, indic0,
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
 
     Returns:
-        H_back: Contribution to Hamiltonian in symbolic notation that penalizes 
+        H_back: Contribution to Hamiltonian in symbolic notation that penalizes
                 consecutive turns along the same axis
     """
     H_back = 0
     for i in range(1, N - 1):
-        H_back += lambda_back*_check_turns(i, 0, i + 1, 0, 
+        H_back += lambda_back*_check_turns(i, 0, i + 1, 0,
                                            indic0, indic1, indic2, indic3, pauli_conf)
     H_back = _simplify(pauli_conf, H_back)
     return H_back
 
-def _create_H_short(N, side_chain, pair_energies, 
-                    x_dist, pauli_conf, indic0, 
+def _create_H_short(N, side_chain, pair_energies,
+                    x_dist, pauli_conf, indic0,
                     indic1, indic2, indic3):
     """
     Creates Hamiltonian constituting interactions between beads that are no more than
@@ -485,7 +485,7 @@ def _create_H_short(N, side_chain, pair_energies,
         indic1: Turn indicator for axis 1
         indic2: Turn indicator for axis 2
         indic3: Turn indicator for axis 3
-    
+
     Returns:
         H_short: Contribution to energetic Hamiltonian in symbolic notation t
     """
@@ -501,11 +501,11 @@ def _create_H_short(N, side_chain, pair_energies,
 def _create_pauli_for_contacts(N, side_chain):
     """
     Creates Pauli operators for 1st nearest neighbor interactions
-     
+
     Args:
         N: Number of total beads in peptide
         side_chain: List of side chains in peptide
-    
+
     Returns:
         pauli_contacts, r_contacts: Tuple consisting of dictionary
                                     of Pauli operators for contacts/
@@ -558,15 +558,15 @@ def _create_pauli_for_contacts(N, side_chain):
     return pauli_contacts,r_contact
 
 def _create_contact_qubits(N, pauli_contacts):
-    """ 
-    Creates contact qubits to track 1st nearest 
+    """
+    Creates contact qubits to track 1st nearest
     neighbor interactions
 
     Args:
         N: Number of total beads in peptide
         pauli_contacts: Dictionary of Pauli operators to track
                         contacts/interactions between beads
-    
+
     Returns:
         contacts: Dictionary of contact qubits in symbolic notation
     """
@@ -589,14 +589,14 @@ def _create_contact_qubits(N, pauli_contacts):
                         pass
     return contacts
 
-def _create_H_BBBB(N, lambda_1, pair_energies, 
+def _create_H_BBBB(N, lambda_1, pair_energies,
                    x_dist, pauli_conf, contacts):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
     main/backbone (BB) beads
 
     Args:
-        N: Number of total beads in peptide   
+        N: Number of total beads in peptide
         lambda_1: Constraint to penalize local overlap between
                  beads within a nearest neighbor contact
         pair_energies: Numpy array of pair energies for amino acids
@@ -634,12 +634,12 @@ def _create_H_BBBB(N, lambda_1, pair_energies,
             H_BBBB = _simplify(pauli_conf, H_BBBB)
     return H_BBBB
 
-def _create_H_BBSC_and_H_SCBB(N, side_chain, lambda_1, 
-                              pair_energies, x_dist, 
+def _create_H_BBSC_and_H_SCBB(N, side_chain, lambda_1,
+                              pair_energies, x_dist,
                               pauli_conf, contacts):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
-    main/backbone (BB) and side chain (SC) beads. In the absence 
+    main/backbone (BB) and side chain (SC) beads. In the absence
     of side chains, this function returns a value of 0.
 
     Args:
@@ -652,7 +652,7 @@ def _create_H_BBSC_and_H_SCBB(N, side_chain, lambda_1,
                 beads for all axes: 0,1,2,3
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
         contacts: Dictionary of contact qubits in symbolic notation
-    
+
     Returns:
         H_BBSC, H_SCBB: Tuple of Hamiltonian terms consisting of backbone and side chain interactions
     """
@@ -697,16 +697,16 @@ def _create_H_BBSC_and_H_SCBB(N, side_chain, lambda_1,
                     H_SCBB = _simplify(pauli_conf, H_SCBB)
     return H_BBSC, H_SCBB
 
-def _create_H_SCSC(N, side_chain, lambda_1, 
-                   pair_energies, x_dist, 
+def _create_H_SCSC(N, side_chain, lambda_1,
+                   pair_energies, x_dist,
                    pauli_conf, contacts):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
-    side chain (SC) beads. In the absence of side chains, this function 
+    side chain (SC) beads. In the absence of side chains, this function
     returns a value of 0.
 
     Args:
-        N: Number of total beads in peptides    
+        N: Number of total beads in peptides
         lambda_1: Constraint to penalize local overlap between
                  beads within a nearest neighbor contact
         pair_energies: Numpy array of pair energies for amino acids
@@ -714,7 +714,7 @@ def _create_H_SCSC(N, side_chain, lambda_1,
                 beads for all axes: 0,1,2,3
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
         contacts: Dictionary of contact qubits in symbolic notation
-    
+
     Returns:
         H_SCSC: Hamiltonian term consisting of side chain pairwise interactions
     """
@@ -731,11 +731,11 @@ def _create_H_SCSC(N, side_chain, lambda_1,
             H_SCSC = _simplify(pauli_conf, H_SCSC)
     return H_SCSC
 
-def _create_new_qubit_list(N, side_chain, 
+def _create_new_qubit_list(N, side_chain,
                            pauli_conf, pauli_contacts):
-    """ 
-    Creates new set of contact qubits for second nearest neigbor 
-    interactions. Note, the need of multiple interaction qubits 
+    """
+    Creates new set of contact qubits for second nearest neigbor
+    interactions. Note, the need of multiple interaction qubits
     for each i,j pair.
 
     Args:
@@ -743,7 +743,7 @@ def _create_new_qubit_list(N, side_chain,
         side_chain: List of side chains in peptide
         pauli_conf: Dictionary of Pauli operators to track conformation
         pauli_contacts: Dictionary of Pauli operators to track contacts between beads
-    
+
     Returns:
         new_qubits: Dictionary of qubits in symbolic notation
     """
@@ -770,23 +770,23 @@ def _create_new_qubit_list(N, side_chain,
     new_qubits = [0] + old_qubits_conf + old_qubits_contact
     return new_qubits
 
-def _create_H_contacts(pauli_conf, new_qubits, 
-                       n_contact, lambda_contacts, 
+def _create_H_contacts(pauli_conf, new_qubits,
+                       n_contact, lambda_contacts,
                        N_contacts):
     """
     To document
-    
+
     Approximating nearest neighbor interactions (2 and greater?) #+ e*0.1
 
     energy of contacts that are present in system (energy shift)
-    
+
     """
     H_contacts = lambda_contacts*(0.5*(np.sum(1 - np.array(new_qubits[-n_contact:]))) - N_contacts)**2
     H_contacts = H_contacts.expand()
     H_contacts = H_contacts.subs({new_qubits[k]**2: 1 for k in range(1, len(new_qubits))}) # convert to identity
     return H_contacts
 
-def _get_symbolic_hamiltonian(N, side_chain, pair_energies, 
+def _get_symbolic_hamiltonian(N, side_chain, pair_energies,
                               lambda_chiral, lambda_back, lambda_1,
                               lambda_contacts,N_contacts):
 
@@ -828,11 +828,11 @@ def _create_mask_for_tensor(H, new_qubits):
             for k in range(1, len(new_qubits)):
                 if b == new_qubits[k]:
                     mask[t, 0]= H.args[t].args[0] # coeff
-                    mask[t, k]= 1 
+                    mask[t, k]= 1
     mask[0, 0] = H.args[0]
     return mask
 
-def _make_pauli_list(N, side_chain, 
+def _make_pauli_list(N, side_chain,
                      H_symbolic, n_qubits, new_qubits):
     mask = _create_mask_for_tensor(H_symbolic, new_qubits)
     terms = len(H_symbolic.args)
@@ -843,7 +843,7 @@ def _make_pauli_list(N, side_chain,
     return pauli_list
 
 
-def _build_qubit_op(N, side_chain, pair_energies, 
+def _build_qubit_op(N, side_chain, pair_energies,
                     lambda_chiral, lambda_back, lambda_1,
                     lambda_contacts, N_contacts):
 

@@ -14,7 +14,7 @@
 from typing import List, Tuple, Optional
 import numpy as np
 
-from .folding_qubit_op_builder import *
+from .folding_qubit_op_builder import _build_qubit_op
 
 class LatticeFoldingProblem:
     """Lattice Folding problem for a N-letter peptide"""
@@ -62,14 +62,14 @@ class LatticeFoldingProblem:
             self.sequence = list(residue_sequence)
             side_chains = [0]*self._num_beads
             for s in list_side_chains:
-                side_chains[s-1]=1
+                side_chains[s-1] = 1
             self._side_chains = side_chains
         elif interaction_type == 'random':
             if 1 in list_side_chains or 2 in list_side_chains or self._num_beads in list_side_chains:
                 raise Exception('No side chain on residues 1, 2 or N allowed')
             side_chains = [0]*self._num_beads
             for s in list_side_chains:
-                side_chains[s-1]=1
+                side_chains[s-1] = 1
             self._side_chains = side_chains
             self.sequence = 0
 
