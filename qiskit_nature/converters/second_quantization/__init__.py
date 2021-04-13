@@ -12,7 +12,7 @@
 
 """
 SecondQuantizedOp Converters (:mod:`qiskit_nature.converters.second_quantization`)
-===============================================================================
+==================================================================================
 
 .. currentmodule:: qiskit_nature.converters.second_quantization
 

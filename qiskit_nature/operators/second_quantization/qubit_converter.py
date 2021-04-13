@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 class QubitConverter:
     """ **DEPRECATED** A converter from Second-Quantized to Qubit Operators.
 
-    The QubitConventer was moved to `converters.second_quantization`
+    The QubitConverter was moved to `converters.second_quantization` package.
 
     This converter can be configured with a mapper instance which will later be used
     when 2nd quantized operators are requested to be converted (mapped) to qubit operators.
