@@ -40,18 +40,18 @@ class BravyiKitaevMapper(FermionicMapper):
                 n (int) : the total number of modes
 
             Returns:
-                numpy.ndarray: Array of mode indexes
+                numpy.ndarray: Array of mode indices
             """
-            indexes = np.array([])
+            indices = np.array([])
             if n % 2 != 0:
-                return indexes
+                return indices
 
             if j < n / 2:
-                indexes = np.append(indexes, parity_set(j, n / 2))
+                indices = np.append(indices, parity_set(j, n / 2))
             else:
-                indexes = np.append(indexes, np.append(
+                indices = np.append(indices, np.append(
                     parity_set(j - n / 2, n / 2) + n / 2, n / 2 - 1))
-            return indexes
+            return indices
 
         def update_set(j, n):
             """
@@ -62,17 +62,17 @@ class BravyiKitaevMapper(FermionicMapper):
                 n (int) : the total number of modes
 
             Returns:
-                numpy.ndarray: Array of mode indexes
+                numpy.ndarray: Array of mode indices
             """
-            indexes = np.array([])
+            indices = np.array([])
             if n % 2 != 0:
-                return indexes
+                return indices
             if j < n / 2:
-                indexes = np.append(indexes, np.append(
+                indices = np.append(indices, np.append(
                     n - 1, update_set(j, n / 2)))
             else:
-                indexes = np.append(indexes, update_set(j - n / 2, n / 2) + n / 2)
-            return indexes
+                indices = np.append(indices, update_set(j - n / 2, n / 2) + n / 2)
+            return indices
 
         def flip_set(j, n):
             """
@@ -83,19 +83,19 @@ class BravyiKitaevMapper(FermionicMapper):
                 n (int) : the total number of modes
 
             Returns:
-                numpy.ndarray: Array of mode indexes
+                numpy.ndarray: Array of mode indices
             """
-            indexes = np.array([])
+            indices = np.array([])
             if n % 2 != 0:
-                return indexes
+                return indices
             if j < n / 2:
-                indexes = np.append(indexes, flip_set(j, n / 2))
+                indices = np.append(indices, flip_set(j, n / 2))
             elif n / 2 <= j < n - 1:
-                indexes = np.append(indexes, flip_set(j - n / 2, n / 2) + n / 2)
+                indices = np.append(indices, flip_set(j - n / 2, n / 2) + n / 2)
             else:
-                indexes = np.append(np.append(indexes, flip_set(
+                indices = np.append(np.append(indices, flip_set(
                     j - n / 2, n / 2) + n / 2), n / 2 - 1)
-            return indexes
+            return indices
 
         pauli_table = []
         # FIND BINARY SUPERSET SIZE
@@ -146,7 +146,7 @@ class BravyiKitaevMapper(FermionicMapper):
             y_j = Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
             y_j.z[j] = True
             y_j.x[j] = True
-            pauli_table.append((update_pauli[j] * x_j * parity_pauli[j],
-                                update_pauli[j] * y_j * remainder_pauli[j]))
+            pauli_table.append((parity_pauli[j] & x_j & update_pauli[j],
+                                remainder_pauli[j] & y_j & update_pauli[j]))
 
         return QubitMapper.mode_based_mapping(second_q_op, pauli_table)

@@ -103,9 +103,9 @@ class EnergySurfaceBase(ABC):
         raise NotImplementedError
 
 
-class VibronicStructureBase(ABC):
+class VibrationalStructureBase(ABC):
     """
-    Class to hold a molecular vibronic structure providing access to
+    Class to hold a molecular vibrational structure providing access to
     vibrational modes and energy levels.
     """
 
@@ -154,7 +154,7 @@ class VibronicStructureBase(ABC):
         Default value of 100. Redefined where needed (see e.g. Morse).
 
         Args:
-            n: vibronic mode
+            n: vibrational mode
 
         Returns:
             maximum_trusted_level setted
@@ -162,7 +162,7 @@ class VibronicStructureBase(ABC):
         return 100
 
 
-class PotentialBase(EnergySurfaceBase, VibronicStructureBase):
+class PotentialBase(EnergySurfaceBase, VibrationalStructureBase):
     """Class to hold prescribed 1D potentials (e.g. Morse/Harmonic) over a degree of freedom."""
 
     def get_num_modes(self) -> int:

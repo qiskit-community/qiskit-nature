@@ -6,6 +6,7 @@ Qiskit Nature documentation
   :maxdepth: 2
 
   API References <apidocs/qiskit_nature>
+  Tutorials <tutorials/index>
   Release Notes <release_notes>
 
 .. Hiding - Indices and tables

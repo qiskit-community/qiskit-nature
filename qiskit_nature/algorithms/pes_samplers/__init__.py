@@ -12,7 +12,7 @@
 
 """
 Potential energy surface samplers (:mod:`qiskit_nature.algorithms.pes_samplers`)
-===================================================================================
+================================================================================
 Potential energy surface samplers.
 
 .. currentmodule:: qiskit_nature.algorithms.pes_samplers
@@ -51,14 +51,14 @@ There is also a set of support function for potentials:
     MorsePotential
     EnergySurfaceBase
     PotentialBase
-    VibronicStructureBase
+    VibrationalStructureBase
 """
 
 from .bopes_sampler import BOPESSampler
 from .extrapolator import (Extrapolator, DifferentialExtrapolator, PCAExtrapolator,
                            PolynomialExtrapolator, SieveExtrapolator, WindowExtrapolator)
 from .potentials import (EnergySurface1DSpline, HarmonicPotential, MorsePotential,
-                         EnergySurfaceBase, PotentialBase, VibronicStructureBase)
+                         EnergySurfaceBase, PotentialBase, VibrationalStructureBase)
 
 __all__ = [
     'BOPESSampler',
@@ -73,5 +73,5 @@ __all__ = [
     'MorsePotential',
     'EnergySurfaceBase',
     'PotentialBase',
-    'VibronicStructureBase',
+    'VibrationalStructureBase',
 ]

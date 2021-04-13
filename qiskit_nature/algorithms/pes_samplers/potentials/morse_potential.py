@@ -239,7 +239,7 @@ class MorsePotential(PotentialBase):
         implementation still provides a good approximation of reality.
 
         Args:
-            n: vibronic mode
+            n: vibrational mode
 
         Returns:
             maximum_trusted_level estimated

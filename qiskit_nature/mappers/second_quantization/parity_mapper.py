@@ -45,6 +45,6 @@ class ParityMapper(FermionicMapper):
             a_x = np.asarray(a_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
             b_z = np.asarray(b_z + [1] + [0] * (nmodes - i - 1), dtype=bool)
             b_x = np.asarray(b_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
-            pauli_table.append((Pauli(a_z, a_x), Pauli(b_z, b_x)))
+            pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
 
         return QubitMapper.mode_based_mapping(second_q_op, pauli_table)

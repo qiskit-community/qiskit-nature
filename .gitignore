@@ -78,6 +78,7 @@ test/**/*.npz
 
 # Django stuff:
 *.log
+!docs/tutorials/aux_files/*.log
 .static_storage/
 .media/
 local_settings.py

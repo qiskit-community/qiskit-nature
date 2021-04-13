@@ -16,58 +16,42 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Union
 
 import numpy as np
-
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.opflow import OperatorBase, PauliSumOp
-from ...fermionic_operator import FermionicOperator
-from ...bosonic_operator import BosonicOperator
-from ...drivers.base_driver import BaseDriver
-from ...results.electronic_structure_result import ElectronicStructureResult
-from ...results.vibronic_structure_result import VibronicStructureResult
-from ...transformations.transformation import Transformation
+
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.eigenstate_result import EigenstateResult
 
 
 class GroundStateSolver(ABC):
     """The ground state calculation interface"""
 
-    def __init__(self, transformation: Transformation) -> None:
+    def __init__(self, qubit_converter: QubitConverter) -> None:
         """
         Args:
-            transformation: transformation from driver to qubit operator (and aux. operators)
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
         """
-        self._transformation = transformation
-
-    @property
-    def transformation(self) -> Transformation:
-        """Returns the transformation used to obtain a qubit operator from the molecule."""
-        return self._transformation
-
-    @transformation.setter
-    def transformation(self, transformation: Transformation) -> None:
-        """Sets the transformation used to obtain a qubit operator from the molecule."""
-        self._transformation = transformation
+        self._qubit_converter = qubit_converter
 
     @abstractmethod
-    def solve(self,
-              driver: BaseDriver,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None) \
-            -> Union[ElectronicStructureResult, VibronicStructureResult]:
-
+    def solve(self, problem: BaseProblem,
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+              ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
-            driver: a chemistry driver object which defines the chemical problem that is to be
-                    solved by this calculation.
-            aux_operators: Additional auxiliary operators to evaluate. Must be of type
-                ``FermionicOperator`` if the qubit transformation is fermionic and of type
-                ``BosonicOperator`` it is bosonic.
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-            An eigenstate result.
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
         """
         raise NotImplementedError
 
@@ -102,3 +86,8 @@ class GroundStateSolver(ABC):
             format of the provided operators.
         """
         raise NotImplementedError
+
+    @property
+    def qubit_converter(self):
+        """Returns the qubit converter."""
+        return self._qubit_converter

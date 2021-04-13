@@ -12,14 +12,14 @@
 
 """
 Nature Sciences specific algorithms (:mod:`qiskit_nature.algorithms`)
-=======================================================================
+=====================================================================
 These are nature sciences specific algorithms. As they rely on nature
 sciences specific knowledge and/or function that are here.
 
 .. currentmodule:: qiskit_nature.algorithms
 
 Nature Algorithms
-====================
+=================
 These are algorithms configured and/or functioning using chemistry specific knowledge. See also
 :mod:`~qiskit.algorithms` for other algorithms in these categories which may also
 be used for chemistry problems such as :class:`~qiskit.algorithms.VQE`.
@@ -75,7 +75,6 @@ the solvers themselves
 
    AdaptVQE
    GroundStateEigensolver
-   OrbitalOptimizationVQE
 
 and factories to provision Quantum and/or Classical algorithms upon which the above solvers may
 depend
@@ -86,8 +85,8 @@ depend
 
    MinimumEigensolverFactory
    NumPyMinimumEigensolverFactory
-   VQEUCCSDFactory
-   VQEUVCCSDFactory
+   VQEUCCFactory
+   VQEUVCCFactory
 
 Potential Energy Surface Samplers
 +++++++++++++++++++++++++++++++++
@@ -112,9 +111,8 @@ of various potentials. More detail may be found in the sub-module linked below
 from .excited_states_solvers import (ExcitedStatesEigensolver, ExcitedStatesSolver, QEOM,
                                      EigensolverFactory, NumPyEigensolverFactory)
 from .ground_state_solvers import (AdaptVQE, GroundStateEigensolver, GroundStateSolver,
-                                   OrbitalOptimizationVQE, MinimumEigensolverFactory,
-                                   NumPyMinimumEigensolverFactory, VQEUCCSDFactory,
-                                   VQEUVCCSDFactory)
+                                   MinimumEigensolverFactory, NumPyMinimumEigensolverFactory,
+                                   VQEUCCFactory, VQEUVCCFactory)
 from .pes_samplers import BOPESSampler
 
 __all__ = [
@@ -126,10 +124,9 @@ __all__ = [
     'AdaptVQE',
     'GroundStateEigensolver',
     'GroundStateSolver',
-    'OrbitalOptimizationVQE',
     'MinimumEigensolverFactory',
     'NumPyMinimumEigensolverFactory',
-    'VQEUCCSDFactory',
-    'VQEUVCCSDFactory',
+    'VQEUCCFactory',
+    'VQEUVCCFactory',
     'BOPESSampler',
 ]

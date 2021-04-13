@@ -15,36 +15,34 @@
 from typing import Union, List, Optional, Dict
 
 import numpy as np
-
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.algorithms import MinimumEigensolver
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
-from ...fermionic_operator import FermionicOperator
-from ...bosonic_operator import BosonicOperator
-from ...drivers.base_driver import BaseDriver
-from ...transformations.transformation import Transformation
-from ...results.electronic_structure_result import ElectronicStructureResult
-from ...results.vibronic_structure_result import VibronicStructureResult
-from .ground_state_solver import GroundStateSolver
 
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.results.eigenstate_result import EigenstateResult
+from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
 
 class GroundStateEigensolver(GroundStateSolver):
     """Ground state computation using a minimum eigensolver."""
 
-    def __init__(self, transformation: Transformation,
+    def __init__(self, qubit_converter: QubitConverter,
                  solver: Union[MinimumEigensolver, MinimumEigensolverFactory]) -> None:
         """
 
         Args:
-            transformation: Qubit Operator Transformation
+            qubit_converter: a class that converts second quantized operator to qubit operator
+                             according to a mapper it is initialized with.
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
-        super().__init__(transformation)
+        super().__init__(qubit_converter)
         self._solver = solver
 
     @property
@@ -61,47 +59,54 @@ class GroundStateEigensolver(GroundStateSolver):
         """Whether the eigensolver returns the ground state or only ground state energy."""
         return self._solver.supports_aux_operators()
 
-    def solve(self,
-              driver: BaseDriver,
-              aux_operators: Optional[Union[List[FermionicOperator],
-                                            List[BosonicOperator]]] = None) \
-            -> Union[ElectronicStructureResult, VibronicStructureResult]:
-
+    def solve(self, problem: BaseProblem,
+              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+              ) -> EigenstateResult:
         """Compute Ground State properties.
 
         Args:
-            driver: a chemistry driver object which defines the chemical problem that is to be
-                    solved by this calculation.
-            aux_operators: Additional auxiliary operators to evaluate at the ground state.
-                Depending on whether a fermionic or bosonic system is solved, the type of the
-                operators must be ``FermionicOperator`` or ``BosonicOperator``, respectively.
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
             NotImplementedError: If an operator in ``aux_operators`` is not of type
                 ``FermionicOperator``.
 
         Returns:
-            An eigenstate result. Depending on the transformation this can be an electronic
-            structure or bosonic result.
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
         """
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        operator, aux_ops = self.transformation.transform(driver, aux_operators)
+        second_q_ops = problem.second_q_ops()
+
+        main_operator = self._qubit_converter.convert(
+            second_q_ops[0],
+            num_particles=problem.num_particles,
+            sector_locator=problem.symmetry_sector_locator
+        )
+        aux_ops = self._qubit_converter.convert_match(second_q_ops[1:])
+
+        if aux_operators is not None:
+            for aux_op in aux_operators:
+                if isinstance(aux_op, SecondQuantizedOp):
+                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                else:
+                    aux_ops.append(aux_op)
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
-            solver = self._solver.get_solver(self.transformation)
+            self._solver = self._solver.get_solver(problem, self._qubit_converter)
         else:
-            solver = self._solver
-
+            self._solver = self._solver
         # if the eigensolver does not support auxiliary operators, reset them
-        if not solver.supports_aux_operators():
+        if not self._solver.supports_aux_operators():
             aux_ops = None
 
-        raw_mes_result = solver.compute_minimum_eigenvalue(operator, aux_ops)
+        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)
 
-        result = self.transformation.interpret(raw_mes_result)
+        result = problem.interpret(raw_mes_result)
         return result
 
     def evaluate_operators(self,
@@ -126,6 +131,8 @@ class GroundStateEigensolver(GroundStateSolver):
         """
         # try to get a QuantumInstance from the solver
         quantum_instance = getattr(self._solver, 'quantum_instance', None)
+        # and try to get an Expectation from the solver
+        expectation = getattr(self._solver, 'expectation', None)
 
         if not isinstance(state, StateFn):
             state = StateFn(state)
@@ -138,23 +145,23 @@ class GroundStateEigensolver(GroundStateSolver):
                 if op is None:
                     results.append(None)
                 else:
-                    results.append(self._eval_op(state, op, quantum_instance))
+                    results.append(self._eval_op(state, op, quantum_instance, expectation))
         elif isinstance(operators, dict):
             results = {}  # type: ignore
             for name, op in operators.items():
                 if op is None:
                     results[name] = None
                 else:
-                    results[name] = self._eval_op(state, op, quantum_instance)
+                    results[name] = self._eval_op(state, op, quantum_instance, expectation)
         else:
             if operators is None:
                 results = None
             else:
-                results = self._eval_op(state, operators, quantum_instance)
+                results = self._eval_op(state, operators, quantum_instance, expectation)
 
         return results
 
-    def _eval_op(self, state, op, quantum_instance):
+    def _eval_op(self, state, op, quantum_instance, expectation):
         # if the operator is empty we simply return 0
         if op == 0:
             # Note, that for some reason the individual results need to be wrapped in lists.
@@ -166,6 +173,8 @@ class GroundStateEigensolver(GroundStateSolver):
         if quantum_instance is not None:
             try:
                 sampler = CircuitSampler(quantum_instance)
+                if expectation is not None:
+                    exp = expectation.convert(exp)
                 result = sampler.convert(exp).eval()
             except ValueError:
                 # TODO make this cleaner. The reason for it being here is that some quantum

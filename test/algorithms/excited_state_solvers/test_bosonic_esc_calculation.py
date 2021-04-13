@@ -13,23 +13,26 @@
 """ Test NumericalqEOM excited states calculation """
 
 import unittest
+
 from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature import WatsonHamiltonian
-from qiskit_nature.drivers import BaseDriver
+
+from qiskit_nature.drivers import BaseDriver, WatsonHamiltonian
+from qiskit_nature.mappers.second_quantization import DirectMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.problems.second_quantization.vibrational.vibrational_structure_problem import \
+    VibrationalStructureProblem
+
 from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory,
-    VQEUVCCSDFactory
+    VQEUVCCFactory
 )
 from qiskit_nature.algorithms.excited_states_solvers import (
     QEOM, ExcitedStatesEigensolver, NumPyEigensolverFactory
 )
-from qiskit_nature.transformations import (BosonicTransformation,
-                                           BosonicTransformationType,
-                                           BosonicQubitMappingType)
 
 
 class _DummyBosonicDriver(BaseDriver):
@@ -47,7 +50,6 @@ class _DummyBosonicDriver(BaseDriver):
         return self._watson
 
 
-@unittest.skip("Skip test until refactored.")
 class TestBosonicESCCalculation(QiskitNatureTestCase):
     """ Test Numerical QEOM excited states calculation """
 
@@ -57,46 +59,47 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         self.reference_energies = [1889.95738428, 3294.21806197, 4287.26821341, 5819.76975784]
 
         self.driver = _DummyBosonicDriver()
+        self.qubit_converter = QubitConverter(DirectMapper())
+        self.basis_size = 2
+        self.truncation_order = 2
 
-        self.transformation = BosonicTransformation(
-            qubit_mapping=BosonicQubitMappingType.DIRECT,
-            transformation_type=BosonicTransformationType.HARMONIC,
-            basis_size=2,
-            truncation=2)
+        self.vibrational_problem = VibrationalStructureProblem(
+            self.driver, self.basis_size, self.truncation_order
+        )
 
     def test_numpy_mes(self):
         """ Test with NumPyMinimumEigensolver """
         solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
-        gsc = GroundStateEigensolver(self.transformation, solver)
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
-        results = esc.solve(self.driver)
+        results = esc.solve(self.vibrational_problem)
 
         for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(results.computed_vibronic_energies[idx],
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx],
                                    self.reference_energies[idx],
                                    places=4)
 
     def test_numpy_factory(self):
         """ Test with NumPyEigensolver """
         solver = NumPyEigensolverFactory(use_default_filter_criterion=True)
-        esc = ExcitedStatesEigensolver(self.transformation, solver)
-        results = esc.solve(self.driver)
+        esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
+        results = esc.solve(self.vibrational_problem)
 
         for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(results.computed_vibronic_energies[idx],
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx],
                                    self.reference_energies[idx],
                                    places=4)
 
     def test_vqe_uvccsd_factory(self):
         """ Test with VQE plus UVCCSD """
         optimizer = COBYLA(maxiter=5000)
-        solver = VQEUVCCSDFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')),
-                                  optimizer=optimizer)
-        gsc = GroundStateEigensolver(self.transformation, solver)
+        solver = VQEUVCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')),
+                                optimizer=optimizer)
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, 'sd')
-        results = esc.solve(self.driver)
+        results = esc.solve(self.vibrational_problem)
         for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(results.computed_vibronic_energies[idx],
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx],
                                    self.reference_energies[idx],
                                    places=1)
 

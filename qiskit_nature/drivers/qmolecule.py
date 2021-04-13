@@ -68,7 +68,7 @@ class QMolecule:
         # Energies and orbits
         self.hf_energy = None
         self.nuclear_repulsion_energy = None
-        self.num_orbitals = None
+        self.num_molecular_orbitals = None
         self.num_alpha = None
         self.num_beta = None
         self.mo_coeff = None
@@ -79,6 +79,9 @@ class QMolecule:
         self.mo_occ_b = None  # v3
 
         self.energy_shift = {}  # v3
+        self.x_dip_energy_shift = {}  # v3
+        self.y_dip_energy_shift = {}  # v3
+        self.z_dip_energy_shift = {}  # v3
 
         # Molecule geometry. xyz coords are in Bohr
         self.molecular_charge = None
@@ -201,6 +204,13 @@ class QMolecule:
                         _data = None
                     return _data
 
+                # non-recursive dictionary reading
+                def read_dict(name):
+                    _data = {}
+                    for k, v in file[name].items():
+                        _data[k] = float(v[...]) if v[...].dtype.num != 0 else None
+                    return _data
+
                 # A version field was added to save format from version 2 so if
                 # there is no version then we have original (version 1) format
                 version = 1
@@ -223,10 +233,25 @@ class QMolecule:
                 self.hf_energy = float(data) if data.dtype.num != 0 else None
                 data = file["energy/nuclear_repulsion_energy"][...]
                 self.nuclear_repulsion_energy = float(data) if data.dtype.num != 0 else None
+                if version > 2:
+                    self.energy_shift = read_dict("energy/energy_shift")
+                    self.x_dip_energy_shift = read_dict("energy/x_dip_energy_shift")
+                    self.y_dip_energy_shift = read_dict("energy/y_dip_energy_shift")
+                    self.z_dip_energy_shift = read_dict("energy/z_dip_energy_shift")
+                else:
+                    self.energy_shift = {}
+                    self.x_dip_energy_shift = {}
+                    self.y_dip_energy_shift = {}
+                    self.z_dip_energy_shift = {}
 
                 # Orbitals
-                data = file["orbitals/num_orbitals"][...]
-                self.num_orbitals = int(data) if data.dtype.num != 0 else None
+                try:
+                    data = file["orbitals/num_molecular_orbitals"][...]
+                    self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
+                except KeyError:
+                    # try the legacy attribute name
+                    data = file["orbitals/num_orbitals"][...]
+                    self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
                 data = file["orbitals/num_alpha"][...]
                 self.num_alpha = int(data) if data.dtype.num != 0 else None
                 data = file["orbitals/num_beta"][...]
@@ -338,10 +363,13 @@ class QMolecule:
             create_dataset(g_energy, "hf_energy", self.hf_energy)
             create_dataset(g_energy, "nuclear_repulsion_energy", self.nuclear_repulsion_energy)
             create_dataset(g_energy, "energy_shift", self.energy_shift)
+            create_dataset(g_energy, "x_dip_energy_shift", self.x_dip_energy_shift)
+            create_dataset(g_energy, "y_dip_energy_shift", self.y_dip_energy_shift)
+            create_dataset(g_energy, "z_dip_energy_shift", self.z_dip_energy_shift)
 
             # Orbitals
             g_orbitals = file.create_group("orbitals")
-            create_dataset(g_orbitals, "num_orbitals", self.num_orbitals)
+            create_dataset(g_orbitals, "num_molecular_orbitals", self.num_molecular_orbitals)
             create_dataset(g_orbitals, "num_alpha", self.num_alpha)
             create_dataset(g_orbitals, "num_beta", self.num_beta)
             create_dataset(g_orbitals, "mo_coeff", self.mo_coeff)
@@ -588,7 +616,7 @@ class QMolecule:
             if None not in (self.hf_energy, self.nuclear_repulsion_energy):
                 logger.info("One and two electron Hartree-Fock energy: %s",
                             self.hf_energy - self.nuclear_repulsion_energy)
-            logger.info("Number of orbitals is %s", self.num_orbitals)
+            logger.info("Number of orbitals is %s", self.num_molecular_orbitals)
             logger.info("%s alpha and %s beta electrons", self.num_alpha, self.num_beta)
             logger.info("Molecule comprises %s atoms and in xyz format is ::", self.num_atoms)
             logger.info("  %s, %s", self.molecular_charge, self.multiplicity)

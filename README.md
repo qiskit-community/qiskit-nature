@@ -24,7 +24,7 @@ pip install qiskit-nature
 (and well-tested) version.
 
 If you want to work on the very latest work-in-progress versions, either to try features ahead of
-their official release or if you want to contribute to Optimization, then you can install from source.
+their official release or if you want to contribute to Qiskit Nature, then you can install from source.
 To do this follow the instructions in the
  [documentation](https://qiskit.org/documentation/contributing_to_qiskit.html#installing-from-source).
 
@@ -43,12 +43,12 @@ to be installed separately.
 
 ### HDF5 Driver
 
-A useful functionality integrated into Qiskit's chemistry module is its ability to serialize a file
+A useful functionality integrated into Qiskit Nature is its ability to serialize a file
 in hierarchical Data Format 5 (HDF5) format representing all the output data from a chemistry driver.
 
 The [HDF5 driver](https://qiskit.org/documentation/stubs/qiskit.chemistry.drivers.HDF5Driver.html#qiskit.chemistry.drivers.HDF5Driver)
 accepts such HDF5 files as input so molecular experiments can be run, albeit on the fixed data
-as stored in the file. As such, if you have some pre-created HDF5 files from created from Qiskit
+as stored in the file. As such, if you have some pre-created HDF5 files created from Qiskit
 Chemistry, you can use these with the HDF5 driver even if you do not install one of the classical
 computation packages listed above.
 
@@ -62,68 +62,81 @@ contains further information about creating and using such HDF5 files.
 ### Creating Your First Chemistry Programming Experiment in Qiskit
 
 Now that Qiskit is installed, it's time to begin working with the chemistry module.
-Let's try a chemistry application experiment using VQE (Variational Quantum Eigensolver) algorithm
+Let's try a chemistry application experiment using the VQE (Variational Quantum Eigensolver) algorithm
 to compute the ground-state (minimum) energy of a molecule.
 
 ```python
-from qiskit_nature import FermionicOperator
 from qiskit_nature.drivers import PySCFDriver, UnitsType
-from qiskit.opflow import TwoQubitReduction
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
 # Use PySCF, a classical computational chemistry software
 # package, to compute the one-body and two-body integrals in
-# molecular-orbital basis, necessary to form the Fermionic operator
+# electronic-orbital basis, necessary to form the Fermionic operator
 driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
                      unit=UnitsType.ANGSTROM,
                      basis='sto3g')
-molecule = driver.run()
-num_particles = molecule.num_alpha + molecule.num_beta
-num_spin_orbitals = molecule.num_orbitals * 2
+problem = ElectronicStructureProblem(driver)
 
-# Build the qubit operator, which is the input to the VQE algorithm
-ferm_op = FermionicOperator(h1=molecule.one_body_integrals, h2=molecule.two_body_integrals)
-map_type = 'PARITY'
-qubit_op = ferm_op.mapping(map_type)
-qubit_op = TwoQubitReduction(num_particles=num_particles).convert(qubit_op)
-num_qubits = qubit_op.num_qubits
+# generate the second-quantized operators
+second_q_ops = problem.second_q_ops()
+main_op = second_q_ops[0]
 
-# setup a classical optimizer for VQE
+num_particles = (problem.molecule_data_transformed.num_alpha,
+                 problem.molecule_data_transformed.num_beta)
+
+num_spin_orbitals = 2 * problem.molecule_data.num_molecular_orbitals
+
+# setup the classical optimizer for VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
 optimizer = L_BFGS_B()
 
-# setup the initial state for the variational form
-from qiskit_nature.circuit.library import HartreeFock
-init_state = HartreeFock(num_spin_orbitals, num_particles)
+# setup the mapper and qubit converter
+from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+mapper = ParityMapper()
+converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 
-# setup the variational form for VQE
+# map to qubit operators
+qubit_op = converter.convert(main_op, num_particles=num_particles)
+
+# setup the initial state for the ansatz
+from qiskit_nature.circuit.library import HartreeFock
+init_state = HartreeFock(num_spin_orbitals, num_particles, converter)
+
+# setup the ansatz for VQE
 from qiskit.circuit.library import TwoLocal
-var_form = TwoLocal(num_qubits, ['ry', 'rz'], 'cz')
+ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 
 # add the initial state
-var_form.compose(init_state, front=True)
-
-# setup and run VQE
-from qiskit.algorithms import VQE
-algorithm = VQE(qubit_op, var_form, optimizer)
+ansatz.compose(init_state, front=True)
 
 # set the backend for the quantum computation
 from qiskit import Aer
 backend = Aer.get_backend('statevector_simulator')
 
-result = algorithm.run(backend)
+# setup and run VQE
+from qiskit.algorithms import VQE
+algorithm = VQE(ansatz,
+                optimizer=optimizer,
+                quantum_instance=backend)
+
+result = algorithm.compute_minimum_eigenvalue(qubit_op)
 print(result.eigenvalue.real)
+
+electronic_structure_result = problem.interpret(result)
+print(electronic_structure_result)
 ```
 The program above uses a quantum computer to calculate the ground state energy of molecular Hydrogen,
 H<sub>2</sub>, where the two atoms are configured to be at a distance of 0.735 angstroms. The molecular
-input specification is processed by PySCF driver and data is output that includes one- and
-two-body molecular-orbital integrals. From the output a fermionic-operator is created which is then
-parity mapped to generate a qubit operator. Parity mappings allow a precision-preserving optimization
-that two qubits can be tapered off; a reduction in complexity that is particularly advantageous for NISQ
-computers.
+input specification is processed by the PySCF driver. This driver is wrapped by the `ElectronicStructureProblem`.
+This problem instance generates a list of second-quantized operators which we can map to qubit operators
+with a `QubitConverter`. Here, we chose the parity mapping in combination with a 2-qubit reduction, which
+is a precision-preserving optimization removing two qubits; a reduction in complexity that is particularly
+advantageous for NISQ computers.
 
 The qubit operator is then passed as an input to the Variational Quantum Eigensolver (VQE) algorithm,
-instantiated with a classical optimizer and a RyRz variational form (ansatz). A Hartree-Fock
-initial state is used as a starting point for the variational form.
+instantiated with a classical optimizer and a RyRz ansatz (`TwoLocal`). A Hartree-Fock initial state
+is used as a starting point for the ansatz.
 
 The VQE algorithm is then run, in this case on the Qiskit Aer statevector simulator backend.
 Here we pass a backend but it can be wrapped into a `QuantumInstance`, and that passed to the
@@ -132,6 +145,9 @@ such as the number of shots, the maximum number of credits to use, settings for 
 initial layout of qubits in the mapping and the Terra `PassManager` that will handle the compilation
 of the circuits. By passing in a backend as is done above it is internally wrapped into a
 `QuantumInstance` and is a convenience when default setting suffice.
+
+In the end, you are given a result object by the VQE which you can analyze further by interpreting it with
+your problem instance.
 
 ### Further examples
 

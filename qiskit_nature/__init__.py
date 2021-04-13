@@ -128,18 +128,6 @@ Chemistry Error
 
    QiskitNatureError
 
-Chemistry Classes
-=================
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   BosonicOperator
-   FermionicOperator
-   WatsonHamiltonian
-   MP2Info
-
 Submodules
 ==========
 
@@ -147,22 +135,20 @@ Submodules
    :toctree:
 
    algorithms
-   components
+   circuit
    drivers
+   mappers
    operators
+   problems
    results
-   transformations
+   transformers
 
 """
 
-from .bosonic_operator import BosonicOperator
+from .version import __version__
 from .exceptions import QiskitNatureError
-from .fermionic_operator import FermionicOperator
-from .mp2info import MP2Info
-from .watson_hamiltonian import WatsonHamiltonian
 
-__all__ = ['QiskitNatureError',
-           'WatsonHamiltonian',
-           'BosonicOperator',
-           'FermionicOperator',
-           'MP2Info']
+__all__ = [
+    '__version__',
+    'QiskitNatureError',
+]
