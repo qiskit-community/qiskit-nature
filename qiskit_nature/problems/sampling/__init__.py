@@ -9,3 +9,23 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
+"""
+Sampling Problems (:mod:`qiskit_nature.problems.sampling`)
+================================================================================
+
+.. currentmodule:: qiskit_nature.problems.sampling
+
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   LatticeFoldingProblem
+"""
+
+from .folding import LatticeFoldingProblem
+
+__all__ = [
+    'LatticeFoldingProblem'
+]

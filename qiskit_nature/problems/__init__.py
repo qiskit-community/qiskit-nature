@@ -22,13 +22,17 @@ Second-Quantization Problems
 
 .. autosummary::
    :toctree: ../stubs/
+   
+# TODO write docstring for folding problem
 
 """
 
 from .second_quantization import ElectronicStructureProblem
 from .second_quantization import VibrationalStructureProblem
+from .sampling.folding import LatticeFoldingProblem
 
 __all__ = [
     "ElectronicStructureProblem",
     "VibrationalStructureProblem",
+    "LatticeFoldingProblem"
 ]
