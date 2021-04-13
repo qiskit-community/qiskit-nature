@@ -205,8 +205,8 @@ class FermionicOp(SecondQuantizedOp):
             if invalid_labels:
                 raise ValueError(f"Invalid labels for sparse labels are given: {invalid_labels}")
             list_label = [["I"] * self._register_length for _ in labels]
-            prev_index: Optional[int] = None
             for term, label in enumerate(labels):
+                prev_index: Optional[int] = None
                 for split_label in label.split():
                     op_label, index_str = split_label.split("_", 1)
                     index = int(index_str)

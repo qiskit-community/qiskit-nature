@@ -95,8 +95,14 @@ class TestFermionicOp(QiskitNatureTestCase):
 
     def test_init_multiterm(self):
         """Test __init__ with multi terms"""
-        labels = [("N", 2), ("-", 3.14)]
-        self.assertListEqual(FermionicOp(labels).to_list(), labels)
+        with self.subTest("Test 1"):
+            labels = [("N", 2), ("-", 3.14)]
+            self.assertListEqual(FermionicOp(labels).to_list(), labels)
+
+        with self.subTest("Test 2"):
+            labels = [("+-", 1), ("-+", -1)]
+            op = FermionicOp([("+_0 -_1", 1.0), ("-_0 +_1", -1.0)], register_length=2)
+            self.assertListEqual(op.to_list(), labels)
 
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
