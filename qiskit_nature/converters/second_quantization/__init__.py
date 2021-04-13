@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-SecondQuantizedOp Mappers (:mod:`qiskit_nature.converters.second_quantization`)
+SecondQuantizedOp Converters (:mod:`qiskit_nature.converters.second_quantization`)
 ===============================================================================
 
 .. currentmodule:: qiskit_nature.converters.second_quantization
