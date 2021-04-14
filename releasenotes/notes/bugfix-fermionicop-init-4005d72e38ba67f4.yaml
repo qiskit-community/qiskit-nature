@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed an issue where :class:`~qiskit_nature.operators.FermionicOp` raises
+    unwanted `ValueError` when initialized with some list of sparse label.
