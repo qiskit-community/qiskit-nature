@@ -46,17 +46,17 @@ class LinearMapper(SpinMapper):
 
                 if n_x > 0:
                     operator_on_spin_i.append(
-                        reduce(operator.matmul, [spinx for _ in range(int(n_x))])
+                        reduce(operator.matmul, [spinx] * int(n_x))
                     )
 
                 if n_y > 0:
                     operator_on_spin_i.append(
-                        reduce(operator.matmul, [spiny for _ in range(int(n_y))])
+                        reduce(operator.matmul, [spiny] * int(n_y))
                     )
 
                 if n_z > 0:
                     operator_on_spin_i.append(
-                        reduce(operator.matmul, [spinz for _ in range(int(n_z))])
+                        reduce(operator.matmul, [spinz] * int(n_z))
                     )
 
                 if np.any([n_x, n_y, n_z]) > 0:
