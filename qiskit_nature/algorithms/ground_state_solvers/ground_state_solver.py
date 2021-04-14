@@ -23,9 +23,9 @@ from qiskit.result import Result
 from qiskit.opflow import OperatorBase, PauliSumOp
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results.eigenstate_result import EigenstateResult
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.results import EigenstateResult
 
 
 class GroundStateSolver(ABC):

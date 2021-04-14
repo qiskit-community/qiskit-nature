@@ -11,13 +11,11 @@
 # that they have been altered from the originals.
 
 """
-Chemistry Circuits (:mod:`qiskit_nature.circuit`)
-=================================================
+Circuit library (:mod:`qiskit_nature.circuit`)
+==============================================
 
 .. currentmodule:: qiskit_nature.circuit
 
-Submodules
-==========
 
 .. autosummary::
    :toctree:

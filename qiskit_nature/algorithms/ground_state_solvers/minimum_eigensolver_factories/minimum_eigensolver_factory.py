@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 
 from qiskit.algorithms import MinimumEigensolver
 
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
 
 

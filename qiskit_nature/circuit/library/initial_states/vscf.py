@@ -20,9 +20,9 @@ import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.opflow import PauliSumOp
-from qiskit_nature.mappers.second_quantization.direct_mapper import DirectMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
+from qiskit_nature.mappers.second_quantization import DirectMapper
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.operators.second_quantization import VibrationalOp
 
 logger = logging.getLogger(__name__)
 

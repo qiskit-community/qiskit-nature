@@ -27,8 +27,8 @@ from qiskit.opflow import (Z2Symmetries, commutator,
                            double_commutator, PauliSumOp, )
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results.eigenstate_result import EigenstateResult
+from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.results import EigenstateResult
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver
 

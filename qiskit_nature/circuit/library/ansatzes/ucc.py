@@ -22,7 +22,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import PauliTrotterEvolution
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 

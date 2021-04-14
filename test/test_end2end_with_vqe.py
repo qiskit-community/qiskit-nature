@@ -23,7 +23,7 @@ from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
 

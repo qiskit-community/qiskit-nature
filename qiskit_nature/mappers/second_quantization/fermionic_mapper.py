@@ -15,7 +15,7 @@
 from abc import abstractmethod
 
 from qiskit.opflow import PauliSumOp
-from qiskit_nature.operators import FermionicOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 
 from .qubit_mapper import QubitMapper
 

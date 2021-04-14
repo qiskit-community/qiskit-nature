@@ -18,10 +18,10 @@ from typing import List, Union, Optional
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results.eigenstate_result import EigenstateResult
+from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.results import EigenstateResult
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory

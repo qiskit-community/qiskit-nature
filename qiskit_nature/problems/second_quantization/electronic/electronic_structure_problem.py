@@ -20,18 +20,16 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
+from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
 from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 from qiskit_nature.transformers import BaseTransformer
-from qiskit_nature.problems.second_quantization.electronic.builders.aux_fermionic_ops_builder \
-    import _create_all_aux_operators
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
-    _build_fermionic_op
-from qiskit_nature.problems.second_quantization.electronic.builders.hopping_ops_builder import \
-    _build_qeom_hopping_ops
-from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+
+from .builders.aux_fermionic_ops_builder import _create_all_aux_operators
+from .builders.fermionic_op_builder import _build_fermionic_op
+from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
 
@@ -52,7 +50,7 @@ class ElectronicStructureProblem(BaseProblem):
     @property
     def num_particles(self) -> Tuple[int, int]:
         molecule_data_transformed = cast(QMolecule, self._molecule_data_transformed)
-        return (molecule_data_transformed.num_alpha, molecule_data_transformed.num_beta)
+        return molecule_data_transformed.num_alpha, molecule_data_transformed.num_beta
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -88,12 +86,13 @@ class ElectronicStructureProblem(BaseProblem):
                              Z2 symmetries stored in this instance are the basis for the
                              commutativity information returned by this method.
             excitations: the types of excitations to consider. The simple cases for this input are:
-                - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
-                - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
-                - a list of positive integers.
-                - and finally a callable which can be used to specify a custom list of excitations.
-                  For more details on how to write such a function refer to the default method,
-                  :meth:`generate_fermionic_excitations`.
+
+                :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
+                :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
+                :`List[int]`: a list of positive integers.
+                :`Callable`: a function which is used to generate the excitations.
+                    For more details on how to write such a function refer to the default method,
+                    :meth:`generate_fermionic_excitations`.
 
         Returns:
             A tuple containing the hopping operators, the types of commutativities and the
@@ -154,16 +153,16 @@ class ElectronicStructureProblem(BaseProblem):
         hf_bitstr = hartree_fock_bitstring(
             num_spin_orbitals=2 * q_molecule.num_molecular_orbitals,
             num_particles=self.num_particles)
-        sector_locator = self._pick_sector(z2_symmetries, hf_bitstr)
+        sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector_locator
 
-    def _pick_sector(self, z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> Z2Symmetries:
+    @staticmethod
+    def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:
         # Finding all the symmetries using the find_Z2_symmetries:
-        taper_coef = []
+        taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
-            # pylint: disable=no-member
-            coef = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
-            taper_coef.append(coef)
+            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
+            taper_coeff.append(coeff)
 
-        return taper_coef
+        return taper_coeff

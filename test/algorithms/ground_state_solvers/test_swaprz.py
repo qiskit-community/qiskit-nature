@@ -21,12 +21,12 @@ from qiskit.algorithms.optimizers import SLSQP
 from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.algorithms import GroundStateEigensolver
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 
 @slow_test

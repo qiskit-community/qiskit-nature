@@ -18,7 +18,7 @@ from typing import Optional, Tuple
 import logging
 
 from qiskit.circuit import QuantumCircuit
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 from .ucc import UCC
 
 logger = logging.getLogger(__name__)

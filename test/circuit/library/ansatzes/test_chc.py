@@ -20,19 +20,18 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature.circuit.library.ansatzes import CHC
-from qiskit_nature.circuit.library.initial_states import VSCF
+from qiskit_nature.circuit.library import CHC, VSCF
 from qiskit_nature.circuit.library.ansatzes.utils.vibration_excitation_generator import \
     generate_vibration_excitations
-from qiskit_nature.mappers.second_quantization.direct_mapper import DirectMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
+from qiskit_nature.mappers.second_quantization import DirectMapper
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_label_builder \
     import _create_labels
 
 
 class TestCHCVSCF(QiskitNatureTestCase):
-    """Test for these extensions."""
+    """Test for CHC and VSCF library circuits. """
 
     def setUp(self):
         super().setUp()

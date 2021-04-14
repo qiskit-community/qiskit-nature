@@ -20,7 +20,7 @@ import numpy as np
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
 from qiskit_nature.drivers import BaseDriver, QMolecule, WatsonHamiltonian
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer
 
@@ -128,13 +128,14 @@ class BaseProblem(ABC):
                              Z2 symmetries stored in this instance are the basis for the
                              commutativity information returned by this method.
             excitations: the types of excitations to consider. The simple cases for this input are:
-                - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
-                - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
-                - a list of positive integers.
-                - and finally a callable which can be used to specify a custom list of excitations.
-                  For more details on how to write such a function refer to one of the default
-                  methods, :meth:`generate_fermionic_excitations` or
-                  :meth:`generate_vibrational_excitations`.
+
+                :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
+                :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
+                :`List[int]`: a list of positive integers.
+                :`Callable`: a function which is used to generate the excitations.
+                    For more details on how to write such a function refer to one of the default
+                    methods, :meth:`generate_fermionic_excitations` or
+                    :meth:`generate_vibrational_excitations`.
 
         Returns:
             A tuple containing the hopping operators, the types of commutativities and the
