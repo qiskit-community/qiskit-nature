@@ -21,6 +21,10 @@ from .base_transformer import BaseTransformer
 from .. import QiskitNatureError
 from ..drivers import QMolecule
 
+ACTIVE_INTS_SUBSCRIPT = 'pqrs,pi,qj,rk,sl->ijkl'
+
+INACTIVE_ENERGY_SUBSCRIPT = 'ij,ji'
+
 logger = logging.getLogger(__name__)
 
 
@@ -437,13 +441,13 @@ class ActiveSpaceTransformer(BaseTransformer):
         # compute inactive energy
         e_inactive = 0.0
         if not self._beta and self._mo_coeff_inactive[0].size > 0:
-            e_inactive += 0.5 * np.einsum('ij,ji', self._density_inactive[0],
-                                          hcore[0]+fock_inactive[0])
+            e_inactive += 0.5 * np.einsum(INACTIVE_ENERGY_SUBSCRIPT, self._density_inactive[0],
+                                          hcore[0] + fock_inactive[0])
         elif self._beta and self._mo_coeff_inactive[1].size > 0:
-            e_inactive += 0.5 * np.einsum('ij,ji', self._density_inactive[0],
-                                          hcore[0]+fock_inactive[0])
-            e_inactive += 0.5 * np.einsum('ij,ji', self._density_inactive[1],
-                                          hcore[1]+fock_inactive[1])
+            e_inactive += 0.5 * np.einsum(INACTIVE_ENERGY_SUBSCRIPT, self._density_inactive[0],
+                                          hcore[0] + fock_inactive[0])
+            e_inactive += 0.5 * np.einsum(INACTIVE_ENERGY_SUBSCRIPT, self._density_inactive[1],
+                                          hcore[1] + fock_inactive[1])
 
         return e_inactive
 
@@ -478,7 +482,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         if eri is None:
             return ((hij, hij_b), None)
 
-        hijkl = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri,
+        hijkl = np.einsum(ACTIVE_INTS_SUBSCRIPT, eri,
                           self._mo_coeff_active[0], self._mo_coeff_active[0],
                           self._mo_coeff_active[0], self._mo_coeff_active[0],
                           optimize=True)
@@ -486,11 +490,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         hijkl_bb = hijkl_ba = None
 
         if self._beta:
-            hijkl_bb = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri,
+            hijkl_bb = np.einsum(ACTIVE_INTS_SUBSCRIPT, eri,
                                  self._mo_coeff_active[1], self._mo_coeff_active[1],
                                  self._mo_coeff_active[1], self._mo_coeff_active[1],
                                  optimize=True)
-            hijkl_ba = np.einsum('pqrs,pi,qj,rk,sl->ijkl', eri,
+            hijkl_ba = np.einsum(ACTIVE_INTS_SUBSCRIPT, eri,
                                  self._mo_coeff_active[1], self._mo_coeff_active[1],
                                  self._mo_coeff_active[0], self._mo_coeff_active[0],
                                  optimize=True)

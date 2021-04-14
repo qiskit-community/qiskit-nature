@@ -20,6 +20,8 @@ from typing import List
 
 import numpy
 
+TWOE_TO_SPIN_SUBSCRIPT = 'ijkl->ljik'
+
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     import h5py
@@ -524,14 +526,14 @@ class QMolecule:
         Returns:
             numpy.ndarray: Two body integrals in spin orbitals
         """
-        ints_aa = numpy.einsum('ijkl->ljik', mohijkl)
+        ints_aa = numpy.einsum(TWOE_TO_SPIN_SUBSCRIPT, mohijkl)
 
         if mohijkl_bb is None or mohijkl_ba is None:
             ints_bb = ints_ba = ints_ab = ints_aa
         else:
-            ints_bb = numpy.einsum('ijkl->ljik', mohijkl_bb)
-            ints_ba = numpy.einsum('ijkl->ljik', mohijkl_ba)
-            ints_ab = numpy.einsum('ijkl->ljik', mohijkl_ba.transpose())
+            ints_bb = numpy.einsum(TWOE_TO_SPIN_SUBSCRIPT, mohijkl_bb)
+            ints_ba = numpy.einsum(TWOE_TO_SPIN_SUBSCRIPT, mohijkl_ba)
+            ints_ab = numpy.einsum(TWOE_TO_SPIN_SUBSCRIPT, mohijkl_ba.transpose())
 
         # The number of spin orbitals is twice the number of orbitals
         norbs = mohijkl.shape[0]

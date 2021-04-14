@@ -266,10 +266,10 @@ class QubitConverter:
                           num_particles: Optional[Tuple[int, int]]) -> PauliSumOp:
         reduced_op = qubit_op
 
-        if num_particles is not None:
-            if self._two_qubit_reduction and self._mapper.allows_two_qubit_reduction:
-                two_q_reducer = TwoQubitReduction(num_particles)
-                reduced_op = cast(PauliSumOp, two_q_reducer.convert(qubit_op))
+        if num_particles is not None and self._two_qubit_reduction and \
+                self._mapper.allows_two_qubit_reduction:
+            two_q_reducer = TwoQubitReduction(num_particles)
+            reduced_op = cast(PauliSumOp, two_q_reducer.convert(qubit_op))
 
         return reduced_op
 
