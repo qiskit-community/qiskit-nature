@@ -13,13 +13,14 @@
 """The Lattice Folding Problem class."""
 from typing import List, Tuple, Optional
 import numpy as np
+from pathlib import Path
 
 from .folding_qubit_op_builder import _build_qubit_op
 
 class LatticeFoldingProblem:
     """Lattice Folding problem for a N-letter peptide"""
     def __init__(self,
-                 residue_sequence = 'APRLRFY',
+                 residue_sequence = 'APRLR',
                  interaction_type = 'MJ',
                  additional_energies = [],
                  list_side_chains = [],
@@ -55,7 +56,7 @@ class LatticeFoldingProblem:
         self._lambda_1 = lambda_1
         self._lambda_contacts = lambda_contacts
         self._pair_energies = np.zeros((self._num_beads, 2, self._num_beads, 2))
-        self._path = "./mj_matrix"
+        self._path = Path(__file__).parent.absolute()
         self._N_contacts = 0        
 
         if interaction_type == 'MJ' or interaction_type == 'mix':
@@ -75,7 +76,8 @@ class LatticeFoldingProblem:
 
     def _load_energy_matrix_file(self):
         """Returns the energy matrix from the MJ potential file"""
-        matrix = np.loadtxt(fname=self._path, dtype=str)
+        mj_file = str(self._path) + '/mj_matrix'
+        matrix = np.loadtxt(fname=mj_file , dtype=str)
         MJ = np.zeros((np.shape(matrix)[0], np.shape(matrix)[1]))
         for i in range(1, np.shape(matrix)[0]):
             for j in range(i-1, np.shape(matrix)[1]):
