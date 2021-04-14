@@ -11,12 +11,12 @@
 # that they have been altered from the originals.
 
 """
-Chemistry Results (:mod:`qiskit_nature.results`)
-================================================
+Results (:mod:`qiskit_nature.results`)
+======================================
 
 .. currentmodule:: qiskit_nature.results
 
-Qiskit's chemistry results for ground and excited states, both Fermionic and Bosonic. Algorithms
+Qiskit Nature results such as for electronic and vibrational structure. Algorithms
 may extend these to provide algorithm specific aspects in their result.
 
 Results

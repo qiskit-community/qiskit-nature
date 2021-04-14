@@ -21,12 +21,10 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
-from qiskit_nature.circuit.library import VSCF
-from qiskit_nature.circuit.library.ansatzes import UVCC, UVCCSD
+from qiskit_nature.circuit.library import UVCC, UVCCSD, VSCF
 from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_structure_problem import \
-    VibrationalStructureProblem
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization.vibrational import VibrationalStructureProblem
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 

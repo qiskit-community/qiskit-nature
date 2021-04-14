@@ -11,31 +11,16 @@
 # that they have been altered from the originals.
 
 """
-Operators for Qiskit Nature (:mod:`qiskit_nature.operators`)
-============================================================
+Operators (:mod:`qiskit_nature.operators`)
+==========================================
 
 .. currentmodule:: qiskit_nature.operators
 
-Operators
-==========
-
-Second-Quantization Operators
-+++++++++++++++++++++++++++++
+Operators for different systems such as fermionic, vibrational and spin.
 
 .. autosummary::
-   :toctree: ../stubs/
+   :toctree:
 
-   FermionicOp
-   SpinOp
-   VibrationalOp
+   second_quantization
+
 """
-
-from .second_quantization import FermionicOp
-from .second_quantization import SpinOp
-from .second_quantization import VibrationalOp
-
-__all__ = [
-    'FermionicOp',
-    'SpinOp',
-    'VibrationalOp',
-]

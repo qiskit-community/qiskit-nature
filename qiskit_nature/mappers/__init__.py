@@ -17,31 +17,8 @@ Operator to Qubit Mappers (:mod:`qiskit_nature.mappers`)
 .. currentmodule:: qiskit_nature.mappers
 
 
-
-Second-Quantization Mappers
-+++++++++++++++++++++++++++
-
 .. autosummary::
-   :toctree: ../stubs/
+   :toctree:
 
-   BravyiKitaevMapper
-   DirectMapper
-   JordanWignerMapper
-   LinearMapper
-   ParityMapper
-
+   second_quantization
 """
-
-from .second_quantization import BravyiKitaevMapper
-from .second_quantization import DirectMapper
-from .second_quantization import JordanWignerMapper
-from .second_quantization import LinearMapper
-from .second_quantization import ParityMapper
-
-__all__ = [
-    "BravyiKitaevMapper",
-    "DirectMapper",
-    "JordanWignerMapper",
-    "LinearMapper",
-    "ParityMapper",
-]

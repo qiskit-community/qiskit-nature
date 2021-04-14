@@ -11,31 +11,25 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Operators (:mod:`qiskit_nature.operators.second_quantization`)
+SecondQuantizedOp Converters (:mod:`qiskit_nature.converters.second_quantization`)
 ==================================================================================
 
-.. currentmodule:: qiskit_nature.operators.second_quantization
+.. currentmodule:: qiskit_nature.converters.second_quantization
 
-Second-Quantization Operators
-==============================
+The classes here are used to convert fermionic, vibrational and spin operators to qubit operators,
+using mappers and other techniques that can also reduce the problem such as leveraging
+Z2 Symmetries.
 
 .. autosummary::
    :toctree: ../stubs/
+   :nosignatures:
 
-   FermionicOp
-   SpinOp
-   SecondQuantizedOp
-   VibrationalOp
+   QubitConverter
+
 """
 
-from .fermionic_op import FermionicOp
-from .second_quantized_op import SecondQuantizedOp
-from .spin_op import SpinOp
-from .vibrational_op import VibrationalOp
+from .qubit_converter import QubitConverter
 
 __all__ = [
-    'FermionicOp',
-    'SecondQuantizedOp',
-    'SpinOp',
-    'VibrationalOp',
+    'QubitConverter',
 ]

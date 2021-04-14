@@ -10,20 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utility functions for tests in operators."""
+"""
+Operator to Qubit Operator Converters (:mod:`qiskit_nature.converters`)
+=======================================================================
 
+.. currentmodule:: qiskit_nature.converters
 
-def str2str(string: str):
-    """Construct the string data for SecondQuantizedOp.
-    This function does not change the argument."""
-    return string
+.. autosummary::
+   :toctree:
 
-
-def str2tuple(string: str):
-    """Construct the tuple data from string for SecondQuantizedOp."""
-    return string, 1
-
-
-def str2list(string: str):
-    """Construct the list data from string for SecondQuantizedOp."""
-    return [(string, 1)]
+   second_quantization
+"""

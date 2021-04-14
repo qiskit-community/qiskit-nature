@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
 
 from qiskit.opflow import X, Y, Z, I
-from qiskit_nature.operators import SpinOp
+from qiskit_nature.operators.second_quantization import SpinOp
 from qiskit_nature.mappers.second_quantization import LinearMapper
 
 

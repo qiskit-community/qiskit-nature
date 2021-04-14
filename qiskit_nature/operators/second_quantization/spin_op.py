@@ -116,7 +116,7 @@ class SpinOp(SecondQuantizedOp):
 
     .. jupyter-execute::
 
-        from qiskit_nature.operators import SpinOp
+        from qiskit_nature.operators.second_quantization import SpinOp
 
         x = SpinOp("X", spin=3/2)
         y = SpinOp("Y", spin=3/2)

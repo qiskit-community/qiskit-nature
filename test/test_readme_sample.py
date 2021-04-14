@@ -80,7 +80,7 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         # setup the mapper and qubit converter
         from qiskit_nature.mappers.second_quantization import ParityMapper
-        from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+        from qiskit_nature.converters.second_quantization import QubitConverter
         mapper = ParityMapper()
         converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 
