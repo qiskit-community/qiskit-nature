@@ -40,7 +40,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-master-dependencies
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
@@ -91,7 +91,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-master-dependencies
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - run: make lint
         if: ${{ !cancelled() }}
@@ -121,7 +121,7 @@ jobs:
         if: ${{ matrix.python-version < 3.8 }}
       - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-master-dependencies
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
@@ -171,7 +171,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-master-dependencies
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
