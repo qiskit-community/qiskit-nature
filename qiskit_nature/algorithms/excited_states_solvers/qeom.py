@@ -63,10 +63,9 @@ class QEOM(ExcitedStatesSolver):
         """The excitations to be included in the eom pseudo-eigenvalue problem. If a string then
         all excitations of given type will be used. Otherwise a list of custom excitations can
         directly be provided."""
-        if isinstance(excitations, str):
-            if excitations not in ['s', 'd', 'sd']:
-                raise ValueError('Excitation type must be s (singles), d (doubles) or sd '
-                                 '(singles and doubles)')
+        if isinstance(excitations, str) and excitations not in ['s', 'd', 'sd']:
+            raise ValueError('Excitation type must be s (singles), d (doubles) or sd '
+                             '(singles and doubles)')
         self._excitations = excitations
 
     def solve(self, problem: BaseProblem,
@@ -255,54 +254,49 @@ class QEOM(ExcitedStatesSolver):
             operator for each of the EOM matrices
         """
         m_u, n_u, left_op, right_op_1, right_op_2 = params
-        if left_op is None:
+        if left_op is None or right_op_1 is None and right_op_2 is None:
             q_mat_op = None
             w_mat_op = None
             m_mat_op = None
             v_mat_op = None
         else:
-            if right_op_1 is None and right_op_2 is None:
+
+            if right_op_1 is not None:
+                # The sign which we use in the case of the double commutator is arbitrary. In
+                # theory, one would choose this according to the nature of the problem (i.e.
+                # whether it is fermionic or bosonic), but in practice, always choosing the
+                # anti-commutator has proven to be more robust.
+                q_mat_op = double_commutator(left_op, operator, right_op_1, sign=False)
+                # In the case of the single commutator, we are always interested in the energy
+                # difference of two states. Thus, regardless of the problem's nature, we will
+                # always use the commutator.
+                w_mat_op = commutator(left_op, right_op_1)
+                q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
+                w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
+            else:
                 q_mat_op = None
                 w_mat_op = None
+
+            if right_op_2 is not None:
+                # For explanations on the choice of commutation relation, please refer to the
+                # comments above.
+                m_mat_op = double_commutator(left_op, operator, right_op_2, sign=False)
+                v_mat_op = commutator(left_op, right_op_2)
+                m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
+                v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
+            else:
                 m_mat_op = None
                 v_mat_op = None
-            else:
-                if right_op_1 is not None:
-                    # The sign which we use in the case of the double commutator is arbitrary. In
-                    # theory, one would choose this according to the nature of the problem (i.e.
-                    # whether it is fermionic or bosonic), but in practice, always choosing the
-                    # anti-commutator has proven to be more robust.
-                    q_mat_op = double_commutator(left_op, operator, right_op_1, sign=False)
-                    # In the case of the single commutator, we are always interested in the energy
-                    # difference of two states. Thus, regardless of the problem's nature, we will
-                    # always use the commutator.
-                    w_mat_op = commutator(left_op, right_op_1)
-                    q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
-                    w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
-                else:
-                    q_mat_op = None
-                    w_mat_op = None
 
-                if right_op_2 is not None:
-                    # For explanations on the choice of commutation relation, please refer to the
-                    # comments above.
-                    m_mat_op = double_commutator(left_op, operator, right_op_2, sign=False)
-                    v_mat_op = commutator(left_op, right_op_2)
-                    m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
-                    v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
-                else:
-                    m_mat_op = None
-                    v_mat_op = None
-
-                if not z2_symmetries.is_empty():
-                    if q_mat_op is not None and len(q_mat_op) > 0:
-                        q_mat_op = z2_symmetries.taper(q_mat_op)
-                    if w_mat_op is not None and len(w_mat_op) > 0:
-                        w_mat_op = z2_symmetries.taper(w_mat_op)
-                    if m_mat_op is not None and len(m_mat_op) > 0:
-                        m_mat_op = z2_symmetries.taper(m_mat_op)
-                    if v_mat_op is not None and len(v_mat_op) > 0:
-                        v_mat_op = z2_symmetries.taper(v_mat_op)
+            if not z2_symmetries.is_empty():
+                if q_mat_op is not None and len(q_mat_op) > 0:
+                    q_mat_op = z2_symmetries.taper(q_mat_op)
+                if w_mat_op is not None and len(w_mat_op) > 0:
+                    w_mat_op = z2_symmetries.taper(w_mat_op)
+                if m_mat_op is not None and len(m_mat_op) > 0:
+                    m_mat_op = z2_symmetries.taper(m_mat_op)
+                if v_mat_op is not None and len(v_mat_op) > 0:
+                    v_mat_op = z2_symmetries.taper(v_mat_op)
 
         return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
 
