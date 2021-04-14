@@ -26,16 +26,13 @@ from qiskit.opflow import AerPauliExpectation, PauliExpectation
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
 
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import \
-    (VQEUCCFactory, NumPyMinimumEigensolverFactory, )
-from qiskit_nature.circuit.library.ansatzes import UCC, UCCSD
-from qiskit_nature.circuit.library.initial_states import HartreeFock
+from qiskit_nature.algorithms import (
+    GroundStateEigensolver, VQEUCCFactory, NumPyMinimumEigensolverFactory)
+from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import \
-    ElectronicStructureProblem
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
     build_ferm_op_from_ints
 

@@ -19,10 +19,10 @@ from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.circuit.library.ansatzes import UCC
+from qiskit_nature.circuit.library import UCC
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 def _build_qeom_hopping_ops(q_molecule: QMolecule, qubit_converter: QubitConverter,

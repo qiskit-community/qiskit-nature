@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test NumericalqEOM excited states calculation """
+""" Test Numerical qEOM excited states calculation """
 
 import unittest
 from test import QiskitNatureTestCase
@@ -22,17 +22,16 @@ from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.algorithms.ground_state_solvers import (GroundStateEigensolver,
-                                                           VQEUCCFactory, )
-from qiskit_nature.algorithms.excited_states_solvers import (
-    NumPyEigensolverFactory, ExcitedStatesEigensolver, QEOM,
+from qiskit_nature.algorithms import (
+    GroundStateEigensolver, VQEUCCFactory,
+    NumPyEigensolverFactory, ExcitedStatesEigensolver, QEOM
 )
 
 
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
-    """ Test NumericalqEOM excited states calculation """
+    """ Test Numerical qEOM excited states calculation """
 
     def setUp(self):
         super().setUp()

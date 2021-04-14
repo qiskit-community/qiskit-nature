@@ -16,6 +16,13 @@ SecondQuantizedOp Mappers (:mod:`qiskit_nature.mappers.second_quantization`)
 
 .. currentmodule:: qiskit_nature.mappers.second_quantization
 
+The classes here are used to convert fermionic, vibrational and spin operators to qubit operators.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   QubitMapper
 
 FermionicOp Mappers
 +++++++++++++++++++
@@ -24,6 +31,7 @@ FermionicOp Mappers
    :toctree: ../stubs/
    :nosignatures:
 
+   FermionicMapper
    BravyiKitaevMapper
    JordanWignerMapper
    ParityMapper
@@ -36,6 +44,7 @@ VibrationalOp Mappers
    :toctree: ../stubs/
    :nosignatures:
 
+   VibrationalMapper
    DirectMapper
 
 
@@ -46,6 +55,7 @@ SpinOp Mappers
    :toctree: ../stubs/
    :nosignatures:
 
+   SpinMapper
    LinearMapper
 
 """

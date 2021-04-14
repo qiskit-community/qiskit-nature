@@ -18,8 +18,8 @@ from typing import List, Optional, Union
 from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results.eigenstate_result import EigenstateResult
+from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.results import EigenstateResult
 
 
 class ExcitedStatesSolver(ABC):

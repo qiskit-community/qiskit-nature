@@ -17,13 +17,12 @@ from fractions import Fraction
 from functools import lru_cache
 from itertools import product
 from test import QiskitNatureTestCase
-from typing import Callable, Optional
 
 import numpy as np
 from ddt import data, ddt, unpack
 from qiskit.quantum_info import Pauli
 
-from qiskit_nature.operators import SpinOp
+from qiskit_nature.operators.second_quantization import SpinOp
 
 from .utils import str2list, str2str, str2tuple
 

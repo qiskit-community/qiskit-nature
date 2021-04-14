@@ -17,8 +17,8 @@ from typing import Optional, Union, List, Callable
 import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
 
-from ....operators.second_quantization.qubit_converter import QubitConverter
-from ....problems.second_quantization.base_problem import BaseProblem
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 

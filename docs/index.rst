@@ -1,11 +1,11 @@
 ###########################
-Qiskit Nature documentation
+Qiskit Nature Documentation
 ###########################
 
 .. toctree::
   :maxdepth: 2
 
-  API References <apidocs/qiskit_nature>
+  API Reference <apidocs/qiskit_nature>
   Tutorials <tutorials/index>
   Release Notes <release_notes>
 

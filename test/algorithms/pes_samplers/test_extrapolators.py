@@ -18,9 +18,9 @@ parameter pairs.
 import unittest
 from sklearn import linear_model
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.algorithms.pes_samplers.extrapolator import Extrapolator, \
-    WindowExtrapolator, PolynomialExtrapolator, DifferentialExtrapolator, \
-    PCAExtrapolator, SieveExtrapolator
+from qiskit_nature.algorithms.pes_samplers import (
+    Extrapolator, WindowExtrapolator, PolynomialExtrapolator, DifferentialExtrapolator,
+    PCAExtrapolator, SieveExtrapolator)
 
 
 PARAM_DICT = {

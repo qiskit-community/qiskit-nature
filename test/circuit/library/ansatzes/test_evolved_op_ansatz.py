@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import X, Y, Z, I, MatrixEvolution
 
-from qiskit_nature.circuit.library.ansatzes import EvolvedOperatorAnsatz
+from qiskit_nature.circuit.library import EvolvedOperatorAnsatz
 
 
 class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):

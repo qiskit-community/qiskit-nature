@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 class HartreeFock(QuantumCircuit):

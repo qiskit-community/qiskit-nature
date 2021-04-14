@@ -25,11 +25,11 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.utils.validation import validate_min
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.circuit.library.ansatzes import UCC
+from qiskit_nature.circuit.library import UCC
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.base_problem import BaseProblem
-from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.results import ElectronicStructureResult
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver

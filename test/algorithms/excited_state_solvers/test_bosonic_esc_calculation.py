@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test NumericalqEOM excited states calculation """
+""" Test Numerical qEOM excited states calculation """
 
 import unittest
 
@@ -20,22 +20,18 @@ from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
 
-from qiskit_nature.drivers import BaseDriver, WatsonHamiltonian
+from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.mappers.second_quantization import DirectMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_structure_problem import \
-    VibrationalStructureProblem
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization.vibrational import VibrationalStructureProblem
 
-from qiskit_nature.algorithms.ground_state_solvers import (
+from qiskit_nature.algorithms import (
     GroundStateEigensolver, NumPyMinimumEigensolverFactory,
-    VQEUVCCFactory
-)
-from qiskit_nature.algorithms.excited_states_solvers import (
-    QEOM, ExcitedStatesEigensolver, NumPyEigensolverFactory
+    VQEUVCCFactory, QEOM, ExcitedStatesEigensolver, NumPyEigensolverFactory
 )
 
 
-class _DummyBosonicDriver(BaseDriver):
+class _DummyBosonicDriver(BosonicDriver):
 
     def __init__(self):
         super().__init__()

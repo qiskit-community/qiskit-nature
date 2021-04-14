@@ -11,10 +11,8 @@
 # that they have been altered from the originals.
 
 """A converter from Second-Quantized to Qubit Operators."""
-
 import copy
 import logging
-import warnings
 from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
@@ -32,9 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class QubitConverter:
-    """ **DEPRECATED** A converter from Second-Quantized to Qubit Operators.
-
-    The QubitConverter was moved to `converters.second_quantization` package.
+    """A converter from Second-Quantized to Qubit Operators.
 
     This converter can be configured with a mapper instance which will later be used
     when 2nd quantized operators are requested to be converted (mapped) to qubit operators.
@@ -73,11 +69,6 @@ class QubitConverter:
                 sector can be provided (a list of int of values -1, and 1). The default is None
                 meaning no symmetry reduction is done.
         """
-        warnings.warn('This QubitConverter is deprecated as of 0.1.0, '
-                      'and will be removed no earlier than 3 months after the release. '
-                      'You should use the qiskit_nature.converters.second_quantization '
-                      'QubitConverter as a direct replacement instead.',
-                      DeprecationWarning, stacklevel=2)
 
         self._mapper: QubitMapper = mapper
         self._two_qubit_reduction: bool = two_qubit_reduction

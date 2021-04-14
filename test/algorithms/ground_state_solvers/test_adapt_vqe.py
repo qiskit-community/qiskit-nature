@@ -25,12 +25,12 @@ from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.algorithms.ground_state_solvers import AdaptVQE, VQEUCCFactory
+from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import PySCFDriver, UnitsType, QMolecule
 from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
         build_ferm_op_from_ints
 

@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Chemistry Circuit Library (:mod:`qiskit_nature.circuit.library`)
-================================================================
+Circuit Library (:mod:`qiskit_nature.circuit.library`)
+======================================================
 
-A collection of circuits used as building blocks or inputs of algorithms in chemistry.
+A collection of circuits used as building blocks or inputs for algorithms.
 
 .. currentmodule:: qiskit_nature.circuit.library
 

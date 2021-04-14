@@ -16,10 +16,10 @@ from test import QiskitNatureTestCase
 
 from ddt import ddt, data, unpack
 
-from qiskit_nature.circuit.library.ansatzes import UCC
+from qiskit_nature.circuit.library import UCC
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):

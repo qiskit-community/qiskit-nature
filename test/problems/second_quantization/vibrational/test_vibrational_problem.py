@@ -12,9 +12,8 @@
 
 """Tests Vibrational Problem."""
 from test import QiskitNatureTestCase
-from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
-from qiskit_nature.problems.second_quantization.vibrational.vibrational_structure_problem import \
-    VibrationalStructureProblem
+from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
 from qiskit_nature.drivers import GaussianForcesDriver
 
 

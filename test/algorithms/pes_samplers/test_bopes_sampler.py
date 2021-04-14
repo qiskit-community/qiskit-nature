@@ -20,13 +20,12 @@ import numpy as np
 from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.algorithms.pes_samplers.bopes_sampler import BOPESSampler
-from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import MorsePotential
+from qiskit_nature.algorithms import GroundStateEigensolver, BOPESSampler
+from qiskit_nature.algorithms.pes_samplers import MorsePotential
 from qiskit_nature.drivers import Molecule, PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.operators.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 
 class TestBOPES(unittest.TestCase):
