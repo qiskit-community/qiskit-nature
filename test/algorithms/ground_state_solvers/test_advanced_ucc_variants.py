@@ -52,8 +52,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         # because we create the initial state and ansatzes early, we need to ensure the qubit
         # converter already ran such that convert_match works as expected
-        _ = self.qubit_converter.convert(self.electronic_structure_problem.second_q_ops().main_operator,
-                                         self.num_particles)
+        _ = self.qubit_converter.convert(
+            self.electronic_structure_problem.second_q_ops().main_operator, self.num_particles)
 
         self.reference_energy_pUCCD = -1.1434447924298028
         self.reference_energy_UCCD0 = -1.1476045878481704
