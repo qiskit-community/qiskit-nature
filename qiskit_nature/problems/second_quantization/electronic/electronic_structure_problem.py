@@ -31,7 +31,7 @@ from .builders.fermionic_op_builder import _build_fermionic_op
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
-from ..problem_second_quant_ops import ProblemSecondQuantOps
+from ..problem_second_quantized_ops import ProblemSecondQuantizedOps
 
 
 class ElectronicStructureProblem(BaseProblem):
@@ -52,7 +52,7 @@ class ElectronicStructureProblem(BaseProblem):
         molecule_data_transformed = cast(QMolecule, self._molecule_data_transformed)
         return molecule_data_transformed.num_alpha, molecule_data_transformed.num_beta
 
-    def second_q_ops(self) -> ProblemSecondQuantOps:
+    def second_q_ops(self) -> ProblemSecondQuantizedOps:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
 
@@ -67,8 +67,8 @@ class ElectronicStructureProblem(BaseProblem):
         electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
         aux_second_quantized_ops_list = _create_all_aux_operators(self._molecule_data_transformed)
 
-        problem_second_quantized_ops = ProblemSecondQuantOps(electronic_fermionic_op,
-                                                             aux_second_quantized_ops_list)
+        problem_second_quantized_ops = ProblemSecondQuantizedOps(electronic_fermionic_op,
+                                                                 aux_second_quantized_ops_list)
 
         return problem_second_quantized_ops
 

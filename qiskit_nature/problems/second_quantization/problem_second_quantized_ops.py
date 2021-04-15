@@ -10,16 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Problem Second Quantized Operators"""
-from typing import List
+from typing import List, Optional
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
 
-class ProblemSecondQuantOps():
+class ProblemSecondQuantizedOps:
     """Problem Second Quantized Operators"""
 
     def __init__(self, main_operator: SecondQuantizedOp,
-                 aux_operators_list: List[SecondQuantizedOp] = None):
+                 aux_operators_list: Optional[List[SecondQuantizedOp]] = None):
         """
 
         Args:

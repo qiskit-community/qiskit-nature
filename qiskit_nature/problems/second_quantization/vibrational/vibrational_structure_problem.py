@@ -29,7 +29,7 @@ from .builders.vibrational_op_builder import _build_vibrational_op
 from .builders.aux_vibrational_ops_builder import _create_all_aux_operators
 from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
-from ..problem_second_quant_ops import ProblemSecondQuantOps
+from ..problem_second_quantized_ops import ProblemSecondQuantizedOps
 
 
 class VibrationalStructureProblem(BaseProblem):
@@ -48,7 +48,7 @@ class VibrationalStructureProblem(BaseProblem):
         self.num_modals = num_modals
         self.truncation_order = truncation_order
 
-    def second_q_ops(self) -> ProblemSecondQuantOps:
+    def second_q_ops(self) -> ProblemSecondQuantizedOps:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
 
@@ -71,8 +71,8 @@ class VibrationalStructureProblem(BaseProblem):
 
         aux_second_quantized_ops_list = _create_all_aux_operators(num_modals)
 
-        problem_second_quantized_ops = ProblemSecondQuantOps(vibrational_spin_op,
-                                                             aux_second_quantized_ops_list)
+        problem_second_quantized_ops = ProblemSecondQuantizedOps(vibrational_spin_op,
+                                                                 aux_second_quantized_ops_list)
 
         return problem_second_quantized_ops
 
