@@ -79,7 +79,7 @@ problem = ElectronicStructureProblem(driver)
 
 # generate the second-quantized operators
 second_q_ops = problem.second_q_ops()
-main_op = second_q_ops[0]
+main_op = second_q_ops.main_operator
 
 num_particles = (problem.molecule_data_transformed.num_alpha,
                  problem.molecule_data_transformed.num_beta)

@@ -93,7 +93,8 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem)
 
         # 2. Prepare the excitation operators
-        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(problem.second_q_ops()[0])
+        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(
+            problem.second_q_ops().main_operator)
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators

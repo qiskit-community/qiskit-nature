@@ -217,7 +217,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops().main_operator
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem,
@@ -249,7 +249,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops().main_operator
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem,

@@ -29,6 +29,7 @@ from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .builders.vibrational_op_builder import _build_vibrational_op
 from .builders.aux_vibrational_ops_builder import _create_all_aux_operators
 from .result_interpreter import _interpret
+from ..problem_second_quant_ops import ProblemSecondQuantOps
 from ..base_problem import BaseProblem
 
 
@@ -48,7 +49,7 @@ class VibrationalStructureProblem(BaseProblem):
         self.num_modals = num_modals
         self.truncation_order = truncation_order
 
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
+    def second_q_ops(self) -> ProblemSecondQuantOps:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
 
@@ -69,9 +70,12 @@ class VibrationalStructureProblem(BaseProblem):
         else:
             num_modals = self.num_modals
 
-        second_quantized_ops_list = [vibrational_spin_op] + _create_all_aux_operators(num_modals)
+        aux_second_quantized_ops_list = _create_all_aux_operators(num_modals)
 
-        return second_quantized_ops_list
+        problem_second_quantized_ops = ProblemSecondQuantOps(vibrational_spin_op,
+                                                             aux_second_quantized_ops_list)
+
+        return problem_second_quantized_ops
 
     def hopping_qeom_ops(self, qubit_converter: QubitConverter,
                          excitations: Union[str, int, List[int],
