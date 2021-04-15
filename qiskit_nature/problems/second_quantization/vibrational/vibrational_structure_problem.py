@@ -29,8 +29,8 @@ from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .builders.vibrational_op_builder import _build_vibrational_op
 from .builders.aux_vibrational_ops_builder import _create_all_aux_operators
 from .result_interpreter import _interpret
-from ..problem_second_quant_ops import ProblemSecondQuantOps
 from ..base_problem import BaseProblem
+from ..problem_second_quant_ops import ProblemSecondQuantOps
 
 
 class VibrationalStructureProblem(BaseProblem):
