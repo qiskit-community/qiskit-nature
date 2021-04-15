@@ -26,14 +26,6 @@ ACTIVE_INTS_SUBSCRIPT = 'pqrs,pi,qj,rk,sl->ijkl'
 
 INACTIVE_ENERGY_SUBSCRIPT = 'ij,ji'
 
-ACTIVE_INTS_SUBSCRIPT = 'pqrs,pi,qj,rk,sl->ijkl'
-
-INACTIVE_ENERGY_SUBSCRIPT = 'ij,ji'
-
-ACTIVE_INTS_SUBSCRIPT = 'pqrs,pi,qj,rk,sl->ijkl'
-
-INACTIVE_ENERGY_SUBSCRIPT = 'ij,ji'
-
 logger = logging.getLogger(__name__)
 
 
@@ -284,7 +276,8 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         return (active_orbs_idxs, inactive_orbs_idxs)
 
-    def _validate_num_electrons(self, nelec_inactive: int):
+    @staticmethod
+    def _validate_num_electrons(nelec_inactive: int):
         """Validates the number of electrons.
 
         Args:
