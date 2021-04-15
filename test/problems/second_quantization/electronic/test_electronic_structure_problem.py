@@ -39,7 +39,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[0]
+        electr_sec_quant_op = second_quantized_ops.main_operator
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
@@ -62,7 +62,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
 
         electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[0]
+        electr_sec_quant_op = second_quantized_ops.main_operator
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops

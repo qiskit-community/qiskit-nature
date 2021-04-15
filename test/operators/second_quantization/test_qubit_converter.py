@@ -241,7 +241,7 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction='auto')
-        qubit_op = qubit_conv.convert(problem.second_q_ops()[0], self.num_particles,
+        qubit_op = qubit_conv.convert(problem.second_q_ops().main_operator, self.num_particles,
                                       sector_locator=problem.symmetry_sector_locator)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
