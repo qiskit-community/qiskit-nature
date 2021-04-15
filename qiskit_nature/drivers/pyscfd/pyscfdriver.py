@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 try:
     from pyscf import __version__ as pyscf_version
     from pyscf import ao2mo, dft, gto, scf
+    from pyscf.lib import chkfile as lib_chkfile
     from pyscf.lib import logger as pylogger
     from pyscf.lib import param
     from pyscf.tools import dump_mat
@@ -71,6 +72,7 @@ class PySCFDriver(FermionicDriver):
                  max_cycle: int = 50,
                  init_guess: InitialGuess = InitialGuess.MINAO,
                  max_memory: Optional[int] = None,
+                 chkfile: Optional[str] = None,
                  molecule: Optional[Molecule] = None) -> None:
         """
         Args:
@@ -95,6 +97,7 @@ class PySCFDriver(FermionicDriver):
                 has a min. value of 1.
             init_guess: See PySCF pyscf/scf/hf.py init_guess_by_minao/1e/atom methods
             max_memory: Maximum memory that PySCF should use
+            chkfile: Path to a PySCF chkfile from which to load a previously run calculation.
             molecule: A driver independent Molecule definition instance may be provided. When
                 a molecule is supplied the ``atom``, ``unit``, ``charge`` and ``spin`` parameters
                 are all ignored as the Molecule instance now defines these instead. The Molecule
@@ -133,6 +136,7 @@ class PySCFDriver(FermionicDriver):
         self._max_cycle = max_cycle
         self._init_guess = init_guess.value
         self._max_memory = max_memory
+        self._chkfile = chkfile
 
     @staticmethod
     def _check_valid():
@@ -174,7 +178,8 @@ class PySCFDriver(FermionicDriver):
                                        conv_tol=self._conv_tol,
                                        max_cycle=self._max_cycle,
                                        init_guess=self._init_guess,
-                                       max_memory=self._max_memory)
+                                       max_memory=self._max_memory,
+                                       chkfile=self._chkfile)
 
         q_mol.origin_driver_name = 'PYSCF'
         cfg = ['atom={}'.format(atom),
@@ -206,7 +211,8 @@ class PySCFDriver(FermionicDriver):
                           conv_tol=1e-9,
                           max_cycle=50,
                           init_guess='minao',
-                          max_memory=None):
+                          max_memory=None,
+                          chkfile=None):
         """ compute integrals """
         # Get config from input parameters
         # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
@@ -233,7 +239,7 @@ class PySCFDriver(FermionicDriver):
             mol.spin = spin
             mol.build(parse_arg=False)
             q_mol = self._calculate_integrals(mol, hf_method, xc_functional, xcf_library, conv_tol,
-                                              max_cycle, init_guess)
+                                              max_cycle, init_guess, chkfile)
             if output is not None:
                 self._process_pyscf_log(output)
                 try:
@@ -268,7 +274,7 @@ class PySCFDriver(FermionicDriver):
         return val
 
     def _calculate_integrals(self, mol, hf_method, xc_functional, xcf_library, conv_tol=1e-9,
-                             max_cycle=50, init_guess='minao'):
+                             max_cycle=50, init_guess='minao', chkfile=None):
         """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation
         in the given basis.
 
@@ -280,6 +286,7 @@ class PySCFDriver(FermionicDriver):
             conv_tol (float): Convergence tolerance
             max_cycle (int): Max convergence cycles
             init_guess (str): Initial guess for SCF
+            chkfile (str): Path to a PySCF chkfile from which to load a previously run calculation.
         Returns:
             QMolecule: QMolecule populated with driver integrals etc
         Raises:
@@ -304,11 +311,19 @@ class PySCFDriver(FermionicDriver):
         else:
             raise QiskitNatureError('Invalid hf_method type: {}'.format(hf_method))
 
-        m_f.conv_tol = conv_tol
-        m_f.max_cycle = max_cycle
-        m_f.init_guess = init_guess
-        ehf = m_f.kernel()
+        if chkfile is not None and os.path.exists(chkfile):
+            m_f.__dict__.update(lib_chkfile.load(chkfile, 'scf'))
+            # We overwrite the convergence information because the chkfile likely does not contain
+            # it. It is better to report no information rather than faulty one.
+            m_f.converged = None
+        else:
+            m_f.conv_tol = conv_tol
+            m_f.max_cycle = max_cycle
+            m_f.init_guess = init_guess
+            m_f.kernel()
+        ehf = m_f.e_tot
         logger.info('PySCF kernel() converged: %s, e(hf): %s', m_f.converged, m_f.e_tot)
+
         if isinstance(m_f.mo_coeff, tuple):
             mo_coeff = m_f.mo_coeff[0]
             mo_coeff_b = m_f.mo_coeff[1]
