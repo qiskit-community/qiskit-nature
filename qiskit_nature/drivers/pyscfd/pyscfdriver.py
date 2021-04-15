@@ -52,6 +52,8 @@ class PySCFDriver(FermionicDriver):
                  spin: int = 0,
                  basis: str = 'sto3g',
                  hf_method: HFMethodType = HFMethodType.RHF,
+                 xc_functional: str = 'lda,vwn',
+                 xcf_library: str = 'libxc',
                  conv_tol: float = 1e-9,
                  max_cycle: int = 50,
                  init_guess: InitialGuess = InitialGuess.MINAO,
@@ -69,6 +71,12 @@ class PySCFDriver(FermionicDriver):
                 See https://sunqm.github.io/pyscf/_modules/pyscf/gto/basis.html for a listing.
                 Defaults to the minimal basis 'sto3g'.
             hf_method: Hartree-Fock Method type
+            xc_functional: Exchange-Correlation functional name as recognized by PySCF. See
+                http://pyscf.org/pyscf/modules/dft.html#pyscf.dft.DFT for more details.
+                Defaults to PySCF's default: 'lda,vwn'.
+            xcf_library: the Exchange-Correlation functional library to be used. This can be either
+                'libxc' (the default) or 'xcfun'. Depending on this value, a different set of values
+                for `xc_functional` will be available. Refer to its documentation for more details.
             conv_tol: Convergence tolerance see PySCF docs and pyscf/scf/hf.py
             max_cycle: Max convergence cycles see PySCF docs and pyscf/scf/hf.py,
                 has a min. value of 1.
@@ -93,6 +101,10 @@ class PySCFDriver(FermionicDriver):
         elif isinstance(atom, str):
             atom = atom.replace('\n', ';')
 
+        if xcf_library not in ('libxc', 'xcfun'):
+            raise QiskitNatureError("Invalid XCF library. It can be either 'libxc' or 'xcfun', not "
+                                    "'{}'".format(xcf_library))
+
         validate_min('max_cycle', max_cycle, 1)
         super().__init__(molecule=molecule,
                          basis=basis,
@@ -102,6 +114,8 @@ class PySCFDriver(FermionicDriver):
         self._units = unit.value
         self._charge = charge
         self._spin = spin
+        self._xc_functional = xc_functional
+        self._xcf_library = xcf_library
         self._conv_tol = conv_tol
         self._max_cycle = max_cycle
         self._init_guess = init_guess.value
@@ -142,6 +156,8 @@ class PySCFDriver(FermionicDriver):
                                   spin=spin,
                                   basis=basis,
                                   hf_method=hf_method,
+                                  xc_functional=self._xc_functional,
+                                  xcf_library=self._xcf_library,
                                   conv_tol=self._conv_tol,
                                   max_cycle=self._max_cycle,
                                   init_guess=self._init_guess,
@@ -154,6 +170,8 @@ class PySCFDriver(FermionicDriver):
                'spin={}'.format(spin),
                'basis={}'.format(basis),
                'hf_method={}'.format(hf_method),
+               'xc_functional={}'.format(self._xc_functional),
+               'xcf_library={}'.format(self._xcf_library),
                'conv_tol={}'.format(self._conv_tol),
                'max_cycle={}'.format(self._max_cycle),
                'init_guess={}'.format(self._init_guess),

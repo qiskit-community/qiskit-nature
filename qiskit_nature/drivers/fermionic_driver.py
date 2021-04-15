@@ -26,6 +26,8 @@ class HFMethodType(Enum):
     RHF = 'rhf'
     ROHF = 'rohf'
     UHF = 'uhf'
+    RKS = 'rks'
+    UKS = 'uks'
 
 
 class FermionicDriver(BaseDriver):

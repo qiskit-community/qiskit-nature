@@ -24,7 +24,7 @@ from ..qmolecule import QMolecule
 logger = logging.getLogger(__name__)
 
 try:
-    from pyscf import gto, scf, ao2mo
+    from pyscf import dft, gto, scf, ao2mo
     from pyscf import __version__ as pyscf_version
     from pyscf.lib import param
     from pyscf.lib import logger as pylogger
@@ -39,7 +39,9 @@ def compute_integrals(atom,
                       charge,
                       spin,
                       basis,
-                      hf_method='rhf',
+                      hf_method,
+                      xc_functional,
+                      xcf_library,
                       conv_tol=1e-9,
                       max_cycle=50,
                       init_guess='minao',
@@ -69,7 +71,8 @@ def compute_integrals(atom,
         mol.charge = charge
         mol.spin = spin
         mol.build(parse_arg=False)
-        q_mol = _calculate_integrals(mol, hf_method, conv_tol, max_cycle, init_guess)
+        q_mol = _calculate_integrals(mol, hf_method, xc_functional, xcf_library, conv_tol,
+                                     max_cycle, init_guess)
         if output is not None:
             _process_pyscf_log(output)
             try:
@@ -105,12 +108,15 @@ def _check_molecule_format(val):
     return val
 
 
-def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init_guess='minao'):
+def _calculate_integrals(mol, hf_method, xc_functional, xcf_library, conv_tol=1e-9, max_cycle=50,
+                         init_guess='minao'):
     """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation in
         the given basis.
     Args:
         mol (gto.Mole) : A PySCF gto.Mole object.
-        hf_method (str): rhf, uhf, rohf
+        hf_method (str): rhf, uhf, rohf, rks, uks
+        xc_functional (str): A PySCF Exchange-Correlation functional.
+        xcf_library (str): libxc, xcfun
         conv_tol (float): Convergence tolerance
         max_cycle (int): Max convergence cycles
         init_guess (str): Initial guess for SCF
@@ -127,6 +133,14 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
         m_f = scf.ROHF(mol)
     elif hf_method == 'uhf':
         m_f = scf.UHF(mol)
+    elif hf_method == 'rks':
+        m_f = dft.RKS(mol)
+        m_f._numint.libxc = getattr(dft, xcf_library)
+        m_f.xc = xc_functional
+    elif hf_method == 'uks':
+        m_f = dft.UKS(mol)
+        m_f._numint.libxc = getattr(dft, xcf_library)
+        m_f.xc = xc_functional
     else:
         raise QiskitNatureError('Invalid hf_method type: {}'.format(hf_method))
 
