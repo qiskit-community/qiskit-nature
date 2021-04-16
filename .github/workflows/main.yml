@@ -15,11 +15,11 @@ name: Nature Unit Tests
 on:
   push:
     branches:
-      - master
+      - main
       - 'stable/**'
   pull_request:
     branches:
-      - master
+      - main
       - 'stable/**'
   schedule:
     # run every day at 1AM
@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-libraries
-      - uses: ./.github/actions/install-master-dependencies
+      - uses: ./.github/actions/install-main-dependencies
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -90,7 +90,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-libraries
-      - uses: ./.github/actions/install-master-dependencies
+      - uses: ./.github/actions/install-main-dependencies
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - run: make lint
@@ -120,7 +120,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
         if: ${{ matrix.python-version < 3.8 }}
       - uses: ./.github/actions/install-libraries
-      - uses: ./.github/actions/install-master-dependencies
+      - uses: ./.github/actions/install-main-dependencies
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -130,7 +130,7 @@ jobs:
             conda activate
           fi
           pip install -U Cython
-          pip install https://github.com/rpmuller/pyquante2/archive/master.zip
+          pip install git+https://github.com/rpmuller/pyquante2
         if: ${{ matrix.python-version < 3.9 }}
         shell: bash
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
@@ -171,7 +171,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-libraries
-      - uses: ./.github/actions/install-master-dependencies
+      - uses: ./.github/actions/install-main-dependencies
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
