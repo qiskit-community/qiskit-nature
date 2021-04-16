@@ -153,41 +153,21 @@ class PySCFDriver(FermionicDriver):
 
     def run(self) -> QMolecule:
         if self.molecule is not None:
-            atom = ';'.join([name + ' ' + ' '.join(map(str, coord))
-                             for (name, coord) in self.molecule.geometry])
-            charge = self.molecule.charge
-            spin = self.molecule.multiplicity - 1
-            units = self.molecule.units.value
-        else:
-            atom = self._atom
-            charge = self._charge
-            spin = self._spin
-            units = self._units
+            self._atom = ';'.join([name + ' ' + ' '.join(map(str, coord))
+                                  for (name, coord) in self.molecule.geometry])
+            self._charge = self.molecule.charge
+            self._spin = self.molecule.multiplicity - 1
+            self._units = self.molecule.units.value
 
-        basis = self.basis
-        hf_method = self.hf_method
-
-        q_mol = self.compute_integrals(atom=atom,
-                                       unit=units,
-                                       charge=charge,
-                                       spin=spin,
-                                       basis=basis,
-                                       hf_method=hf_method,
-                                       xc_functional=self._xc_functional,
-                                       xcf_library=self._xcf_library,
-                                       conv_tol=self._conv_tol,
-                                       max_cycle=self._max_cycle,
-                                       init_guess=self._init_guess,
-                                       max_memory=self._max_memory,
-                                       chkfile=self._chkfile)
+        q_mol = self.compute_integrals()
 
         q_mol.origin_driver_name = 'PYSCF'
-        cfg = ['atom={}'.format(atom),
-               'unit={}'.format(units),
-               'charge={}'.format(charge),
-               'spin={}'.format(spin),
-               'basis={}'.format(basis),
-               'hf_method={}'.format(hf_method),
+        cfg = ['atom={}'.format(self._atom),
+               'unit={}'.format(self._units),
+               'charge={}'.format(self._charge),
+               'spin={}'.format(self._spin),
+               'basis={}'.format(self._basis),
+               'hf_method={}'.format(self._hf_method),
                'xc_functional={}'.format(self._xc_functional),
                'xcf_library={}'.format(self._xcf_library),
                'conv_tol={}'.format(self._conv_tol),
@@ -199,30 +179,17 @@ class PySCFDriver(FermionicDriver):
 
         return q_mol
 
-    def compute_integrals(self,
-                          atom,
-                          unit,
-                          charge,
-                          spin,
-                          basis,
-                          hf_method,
-                          xc_functional,
-                          xcf_library,
-                          conv_tol=1e-9,
-                          max_cycle=50,
-                          init_guess='minao',
-                          max_memory=None,
-                          chkfile=None):
+    def compute_integrals(self):
         """ compute integrals """
         # Get config from input parameters
         # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
         #          or in Z-Matrix format e.g. "H; O 1 1.08; H 2 1.08 1 107.5"
         # other parameters are as per PySCF got.Mole format
 
-        atom = self._check_molecule_format(atom)
-        hf_method = hf_method.lower()
-        if max_memory is None:
-            max_memory = param.MAX_MEMORY
+        self._atom = self._check_molecule_format(self._atom)
+        self._hf_method = self._hf_method.lower()
+        if self._max_memory is None:
+            self._max_memory = param.MAX_MEMORY
 
         try:
             verbose = pylogger.QUIET
@@ -232,14 +199,13 @@ class PySCFDriver(FermionicDriver):
                 file, output = tempfile.mkstemp(suffix='.log')
                 os.close(file)
 
-            mol = gto.Mole(atom=atom, unit=unit, basis=basis,
-                           max_memory=max_memory, verbose=verbose, output=output)
+            mol = gto.Mole(atom=self._atom, unit=self._units, basis=self._basis,
+                           max_memory=self._max_memory, verbose=verbose, output=output)
             mol.symmetry = False
-            mol.charge = charge
-            mol.spin = spin
+            mol.charge = self._charge
+            mol.spin = self._spin
             mol.build(parse_arg=False)
-            q_mol = self._calculate_integrals(mol, hf_method, xc_functional, xcf_library, conv_tol,
-                                              max_cycle, init_guess, chkfile)
+            q_mol = self._calculate_integrals(mol)
             if output is not None:
                 self._process_pyscf_log(output)
                 try:
@@ -252,7 +218,8 @@ class PySCFDriver(FermionicDriver):
 
         return q_mol
 
-    def _check_molecule_format(self, val):
+    @staticmethod
+    def _check_molecule_format(val):
         """If it seems to be zmatrix rather than xyz format we convert before returning"""
         atoms = [x.strip() for x in val.split(';')]
         if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
@@ -273,8 +240,7 @@ class PySCFDriver(FermionicDriver):
 
         return val
 
-    def _calculate_integrals(self, mol, hf_method, xc_functional, xcf_library, conv_tol=1e-9,
-                             max_cycle=50, init_guess='minao', chkfile=None):
+    def _calculate_integrals(self, mol):
         """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation
         in the given basis.
 
@@ -294,6 +260,8 @@ class PySCFDriver(FermionicDriver):
         """
         enuke = gto.mole.energy_nuc(mol)
 
+        hf_method = self._hf_method
+
         if hf_method == 'rhf':
             m_f = scf.RHF(mol)
         elif hf_method == 'rohf':
@@ -302,24 +270,24 @@ class PySCFDriver(FermionicDriver):
             m_f = scf.UHF(mol)
         elif hf_method == 'rks':
             m_f = dft.RKS(mol)
-            m_f._numint.libxc = getattr(dft, xcf_library)
-            m_f.xc = xc_functional
+            m_f._numint.libxc = getattr(dft, self._xcf_library)
+            m_f.xc = self._xc_functional
         elif hf_method == 'uks':
             m_f = dft.UKS(mol)
-            m_f._numint.libxc = getattr(dft, xcf_library)
-            m_f.xc = xc_functional
+            m_f._numint.libxc = getattr(dft, self._xcf_library)
+            m_f.xc = self._xc_functional
         else:
             raise QiskitNatureError('Invalid hf_method type: {}'.format(hf_method))
 
-        if chkfile is not None and os.path.exists(chkfile):
-            m_f.__dict__.update(lib_chkfile.load(chkfile, 'scf'))
+        if self._chkfile is not None and os.path.exists(self._chkfile):
+            m_f.__dict__.update(lib_chkfile.load(self._chkfile, 'scf'))
             # We overwrite the convergence information because the chkfile likely does not contain
             # it. It is better to report no information rather than faulty one.
             m_f.converged = None
         else:
-            m_f.conv_tol = conv_tol
-            m_f.max_cycle = max_cycle
-            m_f.init_guess = init_guess
+            m_f.conv_tol = self._conv_tol
+            m_f.max_cycle = self._max_cycle
+            m_f.init_guess = self._init_guess
             m_f.kernel()
         ehf = m_f.e_tot
         logger.info('PySCF kernel() converged: %s, e(hf): %s', m_f.converged, m_f.e_tot)
