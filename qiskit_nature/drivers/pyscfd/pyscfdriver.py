@@ -240,26 +240,8 @@ class PySCFDriver(FermionicDriver):
 
         return val
 
-    def _calculate_integrals(self, mol):
-        """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation
-        in the given basis.
-
-        Args:
-            mol (gto.Mole) : A PySCF gto.Mole object.
-            hf_method (str): rhf, uhf, rohf, rks, uks
-            xc_functional (str): A PySCF Exchange-Correlation functional.
-            xcf_library (str): libxc, xcfun
-            conv_tol (float): Convergence tolerance
-            max_cycle (int): Max convergence cycles
-            init_guess (str): Initial guess for SCF
-            chkfile (str): Path to a PySCF chkfile from which to load a previously run calculation.
-        Returns:
-            QMolecule: QMolecule populated with driver integrals etc
-        Raises:
-            QiskitNatureError: Invalid hf method type
-        """
-        enuke = gto.mole.energy_nuc(mol)
-
+    def perform_calculation(self, mol):
+        """TODO."""
         hf_method = self._hf_method
 
         if hf_method == 'rhf':
@@ -289,6 +271,31 @@ class PySCFDriver(FermionicDriver):
             m_f.max_cycle = self._max_cycle
             m_f.init_guess = self._init_guess
             m_f.kernel()
+
+        return m_f
+
+    def _calculate_integrals(self, mol):
+        """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation
+        in the given basis.
+
+        Args:
+            mol (gto.Mole) : A PySCF gto.Mole object.
+            hf_method (str): rhf, uhf, rohf, rks, uks
+            xc_functional (str): A PySCF Exchange-Correlation functional.
+            xcf_library (str): libxc, xcfun
+            conv_tol (float): Convergence tolerance
+            max_cycle (int): Max convergence cycles
+            init_guess (str): Initial guess for SCF
+            chkfile (str): Path to a PySCF chkfile from which to load a previously run calculation.
+        Returns:
+            QMolecule: QMolecule populated with driver integrals etc
+        Raises:
+            QiskitNatureError: Invalid hf method type
+        """
+        enuke = gto.mole.energy_nuc(mol)
+
+        m_f = self.perform_calculation(mol)
+
         ehf = m_f.e_tot
         logger.info('PySCF kernel() converged: %s, e(hf): %s', m_f.converged, m_f.e_tot)
 
