@@ -126,6 +126,8 @@ class PySCFDriver(FermionicDriver):
                          basis=basis,
                          hf_method=hf_method.value,
                          supports_molecule=True)
+        self._mol = None
+        self._m_f = None
         self._atom = atom
         self._units = unit.value
         self._charge = charge
@@ -199,13 +201,13 @@ class PySCFDriver(FermionicDriver):
                 file, output = tempfile.mkstemp(suffix='.log')
                 os.close(file)
 
-            mol = gto.Mole(atom=self._atom, unit=self._units, basis=self._basis,
-                           max_memory=self._max_memory, verbose=verbose, output=output)
-            mol.symmetry = False
-            mol.charge = self._charge
-            mol.spin = self._spin
-            mol.build(parse_arg=False)
-            q_mol = self._calculate_integrals(mol)
+            self._mol = gto.Mole(atom=self._atom, unit=self._units, basis=self._basis,
+                                 max_memory=self._max_memory, verbose=verbose, output=output)
+            self._mol.symmetry = False
+            self._mol.charge = self._charge
+            self._mol.spin = self._spin
+            self._mol.build(parse_arg=False)
+            q_mol = self._calculate_integrals()
             if output is not None:
                 self._process_pyscf_log(output)
                 try:
@@ -240,142 +242,131 @@ class PySCFDriver(FermionicDriver):
 
         return val
 
-    def perform_calculation(self, mol):
+    def perform_calculation(self):
         """TODO."""
         hf_method = self._hf_method
 
         if hf_method == 'rhf':
-            m_f = scf.RHF(mol)
+            self._m_f = scf.RHF(self._mol)
         elif hf_method == 'rohf':
-            m_f = scf.ROHF(mol)
+            self._m_f = scf.ROHF(self._mol)
         elif hf_method == 'uhf':
-            m_f = scf.UHF(mol)
+            self._m_f = scf.UHF(self._mol)
         elif hf_method == 'rks':
-            m_f = dft.RKS(mol)
-            m_f._numint.libxc = getattr(dft, self._xcf_library)
-            m_f.xc = self._xc_functional
+            self._m_f = dft.RKS(self._mol)
+            self._m_f._numint.libxc = getattr(dft, self._xcf_library)
+            self._m_f.xc = self._xc_functional
         elif hf_method == 'uks':
-            m_f = dft.UKS(mol)
-            m_f._numint.libxc = getattr(dft, self._xcf_library)
-            m_f.xc = self._xc_functional
+            self._m_f = dft.UKS(self._mol)
+            self._m_f._numint.libxc = getattr(dft, self._xcf_library)
+            self._m_f.xc = self._xc_functional
         else:
             raise QiskitNatureError('Invalid hf_method type: {}'.format(hf_method))
 
         if self._chkfile is not None and os.path.exists(self._chkfile):
-            m_f.__dict__.update(lib_chkfile.load(self._chkfile, 'scf'))
+            self._m_f.__dict__.update(lib_chkfile.load(self._chkfile, 'scf'))
             # We overwrite the convergence information because the chkfile likely does not contain
             # it. It is better to report no information rather than faulty one.
-            m_f.converged = None
+            self._m_f.converged = None
         else:
-            m_f.conv_tol = self._conv_tol
-            m_f.max_cycle = self._max_cycle
-            m_f.init_guess = self._init_guess
-            m_f.kernel()
+            self._m_f.conv_tol = self._conv_tol
+            self._m_f.max_cycle = self._max_cycle
+            self._m_f.init_guess = self._init_guess
+            self._m_f.kernel()
 
-        return m_f
-
-    def _calculate_integrals(self, mol):
+    def _calculate_integrals(self):
         """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation
         in the given basis.
 
-        Args:
-            mol (gto.Mole) : A PySCF gto.Mole object.
-            hf_method (str): rhf, uhf, rohf, rks, uks
-            xc_functional (str): A PySCF Exchange-Correlation functional.
-            xcf_library (str): libxc, xcfun
-            conv_tol (float): Convergence tolerance
-            max_cycle (int): Max convergence cycles
-            init_guess (str): Initial guess for SCF
-            chkfile (str): Path to a PySCF chkfile from which to load a previously run calculation.
         Returns:
             QMolecule: QMolecule populated with driver integrals etc
         Raises:
             QiskitNatureError: Invalid hf method type
         """
-        enuke = gto.mole.energy_nuc(mol)
+        enuke = gto.mole.energy_nuc(self._mol)
 
-        m_f = self.perform_calculation(mol)
+        self.perform_calculation()
 
-        ehf = m_f.e_tot
-        logger.info('PySCF kernel() converged: %s, e(hf): %s', m_f.converged, m_f.e_tot)
+        ehf = self._m_f.e_tot
+        logger.info('PySCF kernel() converged: %s, e(hf): %s', self._m_f.converged, self._m_f.e_tot)
 
-        if isinstance(m_f.mo_coeff, tuple):
-            mo_coeff = m_f.mo_coeff[0]
-            mo_coeff_b = m_f.mo_coeff[1]
-            mo_occ = m_f.mo_occ[0]
-            mo_occ_b = m_f.mo_occ[1]
+        if isinstance(self._m_f.mo_coeff, tuple):
+            mo_coeff = self._m_f.mo_coeff[0]
+            mo_coeff_b = self._m_f.mo_coeff[1]
+            mo_occ = self._m_f.mo_occ[0]
+            mo_occ_b = self._m_f.mo_occ[1]
         else:
             # With PySCF 1.6.2, instead of a tuple of 2 dimensional arrays, its a 3 dimensional
             # array with the first dimension indexing to the coeff arrays for alpha and beta
-            if len(m_f.mo_coeff.shape) > 2:
-                mo_coeff = m_f.mo_coeff[0]
-                mo_coeff_b = m_f.mo_coeff[1]
-                mo_occ = m_f.mo_occ[0]
-                mo_occ_b = m_f.mo_occ[1]
+            if len(self._m_f.mo_coeff.shape) > 2:
+                mo_coeff = self._m_f.mo_coeff[0]
+                mo_coeff_b = self._m_f.mo_coeff[1]
+                mo_occ = self._m_f.mo_occ[0]
+                mo_occ_b = self._m_f.mo_occ[1]
             else:
-                mo_coeff = m_f.mo_coeff
+                mo_coeff = self._m_f.mo_coeff
                 mo_coeff_b = None
-                mo_occ = m_f.mo_occ
+                mo_occ = self._m_f.mo_occ
                 mo_occ_b = None
         norbs = mo_coeff.shape[0]
 
-        if isinstance(m_f.mo_energy, tuple):
-            orbs_energy = m_f.mo_energy[0]
-            orbs_energy_b = m_f.mo_energy[1]
+        if isinstance(self._m_f.mo_energy, tuple):
+            orbs_energy = self._m_f.mo_energy[0]
+            orbs_energy_b = self._m_f.mo_energy[1]
         else:
             # See PYSCF 1.6.2 comment above - this was similarly changed
-            if len(m_f.mo_energy.shape) > 1:
-                orbs_energy = m_f.mo_energy[0]
-                orbs_energy_b = m_f.mo_energy[1]
+            if len(self._m_f.mo_energy.shape) > 1:
+                orbs_energy = self._m_f.mo_energy[0]
+                orbs_energy_b = self._m_f.mo_energy[1]
             else:
-                orbs_energy = m_f.mo_energy
+                orbs_energy = self._m_f.mo_energy
                 orbs_energy_b = None
 
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
             # First analyze() which prints extra information about MO energy and occupation
-            mol.stdout.write('\n')
-            m_f.analyze()
+            self._mol.stdout.write('\n')
+            self._m_f.analyze()
             # Now labelled orbitals for contributions to the MOs for s,p,d etc of each atom
-            mol.stdout.write('\n\n--- Alpha Molecular Orbitals ---\n\n')
-            dump_mat.dump_mo(mol, mo_coeff, digits=7, start=1)
+            self._mol.stdout.write('\n\n--- Alpha Molecular Orbitals ---\n\n')
+            dump_mat.dump_mo(self._mol, mo_coeff, digits=7, start=1)
             if mo_coeff_b is not None:
-                mol.stdout.write('\n--- Beta Molecular Orbitals ---\n\n')
-                dump_mat.dump_mo(mol, mo_coeff_b, digits=7, start=1)
-            mol.stdout.flush()
+                self._mol.stdout.write('\n--- Beta Molecular Orbitals ---\n\n')
+                dump_mat.dump_mo(self._mol, mo_coeff_b, digits=7, start=1)
+            self._mol.stdout.flush()
 
-        hij = m_f.get_hcore()
+        hij = self._m_f.get_hcore()
         mohij = np.dot(np.dot(mo_coeff.T, hij), mo_coeff)
         mohij_b = None
         if mo_coeff_b is not None:
             mohij_b = np.dot(np.dot(mo_coeff_b.T, hij), mo_coeff_b)
 
-        eri = mol.intor('int2e', aosym=1)
-        mo_eri = ao2mo.incore.full(m_f._eri, mo_coeff, compact=False)
+        eri = self._mol.intor('int2e', aosym=1)
+        mo_eri = ao2mo.incore.full(self._m_f._eri, mo_coeff, compact=False)
         mohijkl = mo_eri.reshape(norbs, norbs, norbs, norbs)
         mohijkl_bb = None
         mohijkl_ba = None
         if mo_coeff_b is not None:
-            mo_eri_b = ao2mo.incore.full(m_f._eri, mo_coeff_b, compact=False)
+            mo_eri_b = ao2mo.incore.full(self._m_f._eri, mo_coeff_b, compact=False)
             mohijkl_bb = mo_eri_b.reshape(norbs, norbs, norbs, norbs)
-            mo_eri_ba = ao2mo.incore.general(m_f._eri,
+            mo_eri_ba = ao2mo.incore.general(self._m_f._eri,
                                              (mo_coeff_b, mo_coeff_b, mo_coeff, mo_coeff),
                                              compact=False)
             mohijkl_ba = mo_eri_ba.reshape(norbs, norbs, norbs, norbs)
 
         # dipole integrals
-        mol.set_common_orig((0, 0, 0))
-        ao_dip = mol.intor_symmetric('int1e_r', comp=3)
+        self._mol.set_common_orig((0, 0, 0))
+        ao_dip = self._mol.intor_symmetric('int1e_r', comp=3)
         x_dip_ints = ao_dip[0]
         y_dip_ints = ao_dip[1]
         z_dip_ints = ao_dip[2]
 
-        d_m = m_f.make_rdm1(m_f.mo_coeff, m_f.mo_occ)
+        d_m = self._m_f.make_rdm1(self._m_f.mo_coeff, self._m_f.mo_occ)
         if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
             d_m = d_m[0] + d_m[1]
         elec_dip = np.negative(np.einsum('xij,ji->x', ao_dip, d_m).real)
         elec_dip = np.round(elec_dip, decimals=8)
-        nucl_dip = np.einsum('i,ix->x', mol.atom_charges(), mol.atom_coords())
+        nucl_dip = np.einsum('i,ix->x', self._mol.atom_charges(), self._mol.atom_coords())
         nucl_dip = np.round(nucl_dip, decimals=8)
         logger.info("HF Electronic dipole moment: %s", elec_dip)
         logger.info("Nuclear dipole moment: %s", nucl_dip)
@@ -388,8 +379,8 @@ class PySCFDriver(FermionicDriver):
         _q_.hf_energy = ehf
         _q_.nuclear_repulsion_energy = enuke
         _q_.num_molecular_orbitals = norbs
-        _q_.num_alpha = mol.nelec[0]
-        _q_.num_beta = mol.nelec[1]
+        _q_.num_alpha = self._mol.nelec[0]
+        _q_.num_beta = self._mol.nelec[1]
         _q_.mo_coeff = mo_coeff
         _q_.mo_coeff_b = mo_coeff_b
         _q_.orbital_energies = orbs_energy
@@ -397,23 +388,23 @@ class PySCFDriver(FermionicDriver):
         _q_.mo_occ = mo_occ
         _q_.mo_occ_b = mo_occ_b
         # Molecule geometry
-        _q_.molecular_charge = mol.charge
-        _q_.multiplicity = mol.spin + 1
-        _q_.num_atoms = mol.natm
+        _q_.molecular_charge = self._mol.charge
+        _q_.multiplicity = self._mol.spin + 1
+        _q_.num_atoms = self._mol.natm
         _q_.atom_symbol = []
-        _q_.atom_xyz = np.empty([mol.natm, 3])
-        _ = mol.atom_coords()
+        _q_.atom_xyz = np.empty([self._mol.natm, 3])
+        _ = self._mol.atom_coords()
         for n_i in range(0, _q_.num_atoms):
-            xyz = mol.atom_coord(n_i)
-            _q_.atom_symbol.append(mol.atom_pure_symbol(n_i))
+            xyz = self._mol.atom_coord(n_i)
+            _q_.atom_symbol.append(self._mol.atom_pure_symbol(n_i))
             _q_.atom_xyz[n_i][0] = xyz[0]
             _q_.atom_xyz[n_i][1] = xyz[1]
             _q_.atom_xyz[n_i][2] = xyz[2]
         # 1 and 2 electron integrals AO and MO
         _q_.hcore = hij
         _q_.hcore_b = None
-        _q_.kinetic = mol.intor_symmetric('int1e_kin')
-        _q_.overlap = m_f.get_ovlp()
+        _q_.kinetic = self._mol.intor_symmetric('int1e_kin')
+        _q_.overlap = self._m_f.get_ovlp()
         _q_.eri = eri
         _q_.mo_onee_ints = mohij
         _q_.mo_onee_ints_b = mohij_b
