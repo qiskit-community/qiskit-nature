@@ -12,8 +12,8 @@
 
 """The Lattice Folding Problem class."""
 from typing import List, Tuple, Optional
-import numpy as np
 from pathlib import Path
+import numpy as np
 
 from .folding_qubit_op_builder import _build_qubit_op
 
@@ -90,7 +90,7 @@ class LatticeFoldingProblem:
 
     def _construct_specific_pair_energy_matrix(self):
         """
-        Constructs the energy matrix that describe pairwise (1-NN) 
+        Constructs the energy matrix that describe pairwise 
         interaction energies between amino acids
         
         Raises:
