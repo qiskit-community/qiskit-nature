@@ -55,7 +55,7 @@ def _simplify(pauli_conf, x):
         x: Simplified Symbolic Hamiltonian
     """
     first_binaries = [1, -1, 1, 1, 0, -1] # hardcoded, fix this
-    num_terms = pauli_conf.shape[0]
+    # num_terms = pauli_conf.shape[0]
     if x == 0:
         return 0
     else:
@@ -63,10 +63,10 @@ def _simplify(pauli_conf, x):
         x = x.subs({pauli_conf[k][0]: first_binaries[k-1] for k in [1, 2, 3, 4, 6]})
 #         for m in range(4, 1, -1):
         for m in [4, 3, 2]:
-#             x = x.subs({pauli_conf[k][0]**m: (pauli_conf[k][0])**(m%2) for k in pauli_conf})
-#             x = x.subs({pauli_conf[k][1]**m: (pauli_conf[k][1])**(m%2) for k in pauli_conf})
-            x = x.subs({pauli_conf[k][0]**m: (pauli_conf[k][0])**(m%2) for k in range(num_terms)})
-            x = x.subs({pauli_conf[k][1]**m: (pauli_conf[k][1])**(m%2) for k in range(num_terms)})
+            x = x.subs({pauli_conf[k][0]**m: (pauli_conf[k][0])**(m%2) for k in pauli_conf})
+            x = x.subs({pauli_conf[k][1]**m: (pauli_conf[k][1])**(m%2) for k in pauli_conf})
+            # x = x.subs({pauli_conf[k][0]**m: (pauli_conf[k][0])**(m%2) for k in range(num_terms)})
+            # x = x.subs({pauli_conf[k][1]**m: (pauli_conf[k][1])**(m%2) for k in range(num_terms)})
 #             x = x.subs({pauli_conf[k][0]: first_binaries[k-1] for k in [1, 2, 3, 4, 6]})
     return x
 
@@ -88,12 +88,12 @@ def _create_pauli_for_conf(N):
                     corresponding to the backbone and side chain
                     beads respectively.
     """
-    # pauli_conf = dict()
-    num_turns = 2*(N - 1)
-    pauli_conf = np.zeros((num_turns, 2), dtype=object)
-    for i in range(num_turns):
-    # for i in range(1, 2*(N-1) + 1):
-        # pauli_conf[i] = dict()
+    pauli_conf = dict()
+    # num_turns = 2*(N - 1)
+    # pauli_conf = np.zeros((num_turns, 2), dtype=object)
+    # for i in range(num_turns):
+    for i in range(1, 2*(N-1) + 1):
+        pauli_conf[i] = dict()
         pauli_conf[i][0] = symbols("\sigma^z_{}".format({i}))
         pauli_conf[i][1] = symbols("\sigma^z_"+"{" + "{}".format({i}) + "^{(1)}"+"}")
     return pauli_conf
@@ -118,12 +118,12 @@ def _create_qubits_for_conf(pauli_conf):
                 corresponding to the backbone and side chain
                 beads respectively.
     """
-    # qubits = dict()
-    qubits = np.zeros(pauli_conf.shape, dtype=object)
-    num_turns = qubits.shape[0]
-    for i in range(num_turns):
-    # for i in range(1, len(pauli_conf) + 1):
-    #     qubits[i] = dict()
+    qubits = dict()
+    # qubits = np.zeros(pauli_conf.shape, dtype=object)
+    # num_turns = qubits.shape[0]
+    # for i in range(num_turns):
+    for i in range(1, len(pauli_conf) + 1):
+        qubits[i] = dict()
         qubits[i][0] = (1 - pauli_conf[i][0])/2
         qubits[i][1] = (1 - pauli_conf[i][1])/2
     return qubits
@@ -150,20 +150,20 @@ def _create_indic_turn(N, side_chain, qubits):
     """
     if len(side_chain)!= N:
         raise Exception('size of side_chain list is not equal to N')
-    # indic_0, indic_1, indic_2, indic_3 = dict(), dict(), dict(), dict()
-    # for i in range(1, N):
-    #     indic_0[i] = dict()
-    #     indic_1[i] = dict()
-    #     indic_2[i] = dict()
-    #     indic_3[i] = dict()
-    num_turns = N - 1 
-    indic_0 = np.zeros((num_turns, 2), dtype=object)
-    indic_1 = np.zeros((num_turns, 2), dtype=object)
-    indic_2 = np.zeros((num_turns, 2), dtype=object)
-    indic_3 = np.zeros((num_turns, 2), dtype=object)
-    r_conf = 0
-    # for i in range(1, N):   # There are N-1 turns starting at turn 1
-    for i in range(num_turns):
+    indic_0, indic_1, indic_2, indic_3 = dict(), dict(), dict(), dict()
+    for i in range(1, N):
+        indic_0[i] = dict()
+        indic_1[i] = dict()
+        indic_2[i] = dict()
+        indic_3[i] = dict()
+    # num_turns = N - 1 
+    # indic_0 = np.zeros((num_turns, 2), dtype=object)
+    # indic_1 = np.zeros((num_turns, 2), dtype=object)
+    # indic_2 = np.zeros((num_turns, 2), dtype=object)
+    # indic_3 = np.zeros((num_turns, 2), dtype=object)
+    # r_conf = 0
+    for i in range(1, N):   # There are N-1 turns starting at turn 1
+    # for i in range(num_turns):
         for m in range(2):
             if m == 1:
                 if side_chain[i - 1] == 0:
@@ -186,14 +186,12 @@ def _create_delta_BB(N, indic_0, indic_1, indic_2, indic_3, pauli_conf):
     not on side chains. For a particular axis, a, we calculate the
     distance between i and j bead pairs,
     delta_na = summation (k = i to j - 1) of (-1)^k*indica(k)
-
     Args:
         N: Number of total beads in peptide
         indic_0: Turn indicator for axis 0
         indic_1: Turn indicator for axis 1
         indic_2: Turn indicator for axis 2
         indic_3: Turn indicator for axis 3
-
     Returns:
         delta_n0, delta_n1, delta_n2, delta_n3: Tuple corresponding to
                                                 the number of occurrences
@@ -859,7 +857,7 @@ def _make_pauli_list(N, side_chain,
     pauli_list = []
     for t in range(terms):
         pauli_list.append((mask[t, 0], Pauli(mask[t, 1:], np.zeros(n_qubits))))
-        print('mask at term {} is {}'.format(t, mask[t,1:]))
+        # print('mask at term {} is {}'.format(t, mask[t,1:]))
     pauli_list = list(np.flip(np.array(pauli_list), axis=0))
     return pauli_list
 
