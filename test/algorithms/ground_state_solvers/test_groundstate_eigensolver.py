@@ -44,7 +44,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         super().setUp()
         self.driver = HDF5Driver(self.get_resource_path('test_driver_hdf5.hdf5',
                                                         'drivers/hdf5d'))
-        self.seed = 700
+        self.seed = 56
         algorithm_globals.random_seed = self.seed
 
         self.reference_energy = -1.1373060356951838
