@@ -134,14 +134,11 @@ class PySCFDriver(FermionicDriver):
         return self._atom
 
     @atom.setter
-    def atom(self, atom: str) -> None:
+    def atom(self, atom: Union[str, List[str]]) -> None:
         """Sets the atom."""
+        if isinstance(atom, list):
+            atom = ";".join(atom)
         self._atom = atom.replace("\n", ";")
-
-    @atom.setter
-    def atom(self, atom: List[str]) -> None:
-        """Sets the atom from a list."""
-        self._atom = ";".join(atom).replace("\n", ";")
 
     @property
     def unit(self) -> str:
@@ -238,43 +235,27 @@ class PySCFDriver(FermionicDriver):
 
     def run(self) -> QMolecule:
         if self.molecule is not None:
-            self._atom = ";".join(
-                [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
-            )
+            self.atom = [  # type: ignore
+                " ".join(map(str, (name, *coord))) for (name, coord) in self.molecule.geometry
+            ]
             self._charge = self.molecule.charge
             self._spin = self.molecule.multiplicity - 1
             self._unit = self.molecule.units.value
 
-        q_mol = self.compute_integrals()
+        self._build_molecule()
+        self.run_pyscf()
 
-        q_mol.origin_driver_name = "PYSCF"
-        q_mol.origin_driver_version = pyscf_version
-        cfg = [
-            "atom={}".format(self._atom),
-            "unit={}".format(self._unit),
-            "charge={}".format(self._charge),
-            "spin={}".format(self._spin),
-            "basis={}".format(self._basis),
-            "hf_method={}".format(self._hf_method),
-            "conv_tol={}".format(self._conv_tol),
-            "max_cycle={}".format(self._max_cycle),
-            "init_guess={}".format(self._init_guess),
-            "max_memory={}".format(self._max_memory),
-            "",
-        ]
-        q_mol.origin_driver_config = "\n".join(cfg)
-
+        q_mol = self._construct_qmolecule()
         return q_mol
 
-    def compute_integrals(self):
-        """ compute integrals """
+    def _build_molecule(self):
+        """Builds the PySCF molecule object."""
         # Get config from input parameters
         # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
         #          or in Z-Matrix format e.g. "H; O 1 1.08; H 2 1.08 1 107.5"
         # other parameters are as per PySCF got.Mole format
 
-        self._atom = self._check_molecule_format(self._atom)
-        self._hf_method = self._hf_method.lower()
+        atom = self._check_molecule_format(self._atom)
         if self._max_memory is None:
             self._max_memory = param.MAX_MEMORY
 
@@ -287,7 +268,7 @@ class PySCFDriver(FermionicDriver):
                 os.close(file)
 
             self._mol = gto.Mole(
-                atom=self._atom,
+                atom=atom,
                 unit=self._unit,
                 basis=self._basis,
                 max_memory=self._max_memory,
@@ -298,7 +279,7 @@ class PySCFDriver(FermionicDriver):
             self._mol.charge = self._charge
             self._mol.spin = self._spin
             self._mol.build(parse_arg=False)
-            q_mol = self._calculate_integrals()
+
             if output is not None:
                 self._process_pyscf_log(output)
                 try:
@@ -307,9 +288,7 @@ class PySCFDriver(FermionicDriver):
                     pass
 
         except Exception as exc:
-            raise QiskitNatureError("Failed electronic structure computation") from exc
-
-        return q_mol
+            raise QiskitNatureError("Failed to build the PySCF Molecule object.") from exc
 
     @staticmethod
     def _check_molecule_format(val):
@@ -333,81 +312,93 @@ class PySCFDriver(FermionicDriver):
 
         return val
 
-    def perform_calculation(self):
-        """TODO."""
-        hf_method = self._hf_method
+    def run_pyscf(self):
+        """Runs the PySCF calculation.
 
-        if hf_method == "rhf":
-            self._calc = scf.RHF(self._mol)
-        elif hf_method == "rohf":
-            self._calc = scf.ROHF(self._mol)
-        elif hf_method == "uhf":
-            self._calc = scf.UHF(self._mol)
-        else:
-            raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
+        Raises:
+            QiskitNatureError: Invalid hf method type
+        """
+        try:
+            hf_method_name = self._hf_method.upper()
+            hf_method_cls = getattr(scf, hf_method_name)
+        except AttributeError as exc:
+            raise QiskitNatureError("Failed to load {} HF object.".format(hf_method_name)) from exc
+
+        self._calc = hf_method_cls(self._mol)
 
         if self._chkfile is not None and os.path.exists(self._chkfile):
             self._calc.__dict__.update(lib_chkfile.load(self._chkfile, "scf"))
-            # We overwrite the convergence information because the chkfile likely does not contain
-            # it. It is better to report no information rather than faulty one.
-            self._calc.converged = None
+
+            logger.info("PySCF loaded from chkfile e(hf): %s", self._calc.e_tot)
         else:
             self._calc.conv_tol = self._conv_tol
             self._calc.max_cycle = self._max_cycle
             self._calc.init_guess = self._init_guess
             self._calc.kernel()
 
-    def _calculate_integrals(self):
-        """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation
-        in the given basis.
+            logger.info(
+                "PySCF kernel() converged: %s, e(hf): %s",
+                self._calc.converged,
+                self._calc.e_tot,
+            )
+
+    def _construct_qmolecule(self):
+        """Constructs a QMolecule out of the PySCF calculation objet.
 
         Returns:
             QMolecule: QMolecule populated with driver integrals etc
-        Raises:
-            QiskitNatureError: Invalid hf method type
         """
-        enuke = gto.mole.energy_nuc(self._mol)
+        # Create driver level molecule object and populate
+        q_mol = QMolecule()
 
-        self.perform_calculation()
+        self._populate_q_molecule_driver_info(q_mol)
+        self._populate_q_molecule_mol_data(q_mol)
+        self._populate_q_molecule_orbitals(q_mol)
+        self._populate_q_molecule_ao_integrals(q_mol)
+        self._populate_q_molecule_mo_integrals(q_mol)
+        self._populate_q_molecule_dipole_integrals(q_mol)
 
-        ehf = self._calc.e_tot
-        logger.info(
-            "PySCF kernel() converged: %s, e(hf): %s",
-            self._calc.converged,
-            self._calc.e_tot,
-        )
+        return q_mol
 
-        if isinstance(self._calc.mo_coeff, tuple):
-            mo_coeff = self._calc.mo_coeff[0]
-            mo_coeff_b = self._calc.mo_coeff[1]
-            mo_occ = self._calc.mo_occ[0]
-            mo_occ_b = self._calc.mo_occ[1]
-        else:
-            # With PySCF 1.6.2, instead of a tuple of 2 dimensional arrays, its a 3 dimensional
-            # array with the first dimension indexing to the coeff arrays for alpha and beta
-            if len(self._calc.mo_coeff.shape) > 2:
-                mo_coeff = self._calc.mo_coeff[0]
-                mo_coeff_b = self._calc.mo_coeff[1]
-                mo_occ = self._calc.mo_occ[0]
-                mo_occ_b = self._calc.mo_occ[1]
-            else:
-                mo_coeff = self._calc.mo_coeff
-                mo_coeff_b = None
-                mo_occ = self._calc.mo_occ
-                mo_occ_b = None
-        norbs = mo_coeff.shape[0]
+    def _populate_q_molecule_driver_info(self, q_mol):
+        q_mol.origin_driver_name = "PYSCF"
+        q_mol.origin_driver_version = pyscf_version
+        cfg = [
+            "atom={}".format(self._atom),
+            "unit={}".format(self._unit),
+            "charge={}".format(self._charge),
+            "spin={}".format(self._spin),
+            "basis={}".format(self._basis),
+            "hf_method={}".format(self._hf_method),
+            "conv_tol={}".format(self._conv_tol),
+            "max_cycle={}".format(self._max_cycle),
+            "init_guess={}".format(self._init_guess),
+            "max_memory={}".format(self._max_memory),
+            "",
+        ]
+        q_mol.origin_driver_config = "\n".join(cfg)
 
-        if isinstance(self._calc.mo_energy, tuple):
-            orbs_energy = self._calc.mo_energy[0]
-            orbs_energy_b = self._calc.mo_energy[1]
-        else:
-            # See PYSCF 1.6.2 comment above - this was similarly changed
-            if len(self._calc.mo_energy.shape) > 1:
-                orbs_energy = self._calc.mo_energy[0]
-                orbs_energy_b = self._calc.mo_energy[1]
-            else:
-                orbs_energy = self._calc.mo_energy
-                orbs_energy_b = None
+    def _populate_q_molecule_mol_data(self, q_mol):
+        # Molecule geometry
+        q_mol.molecular_charge = self._mol.charge
+        q_mol.multiplicity = self._mol.spin + 1
+        q_mol.num_atoms = self._mol.natm
+        q_mol.atom_symbol = []
+        q_mol.atom_xyz = np.empty([self._mol.natm, 3])
+        _ = self._mol.atom_coords()
+        for n_i in range(0, q_mol.num_atoms):
+            xyz = self._mol.atom_coord(n_i)
+            q_mol.atom_symbol.append(self._mol.atom_pure_symbol(n_i))
+            q_mol.atom_xyz[n_i][0] = xyz[0]
+            q_mol.atom_xyz[n_i][1] = xyz[1]
+            q_mol.atom_xyz[n_i][2] = xyz[2]
+
+        q_mol.nuclear_repulsion_energy = gto.mole.energy_nuc(self._mol)
+
+    def _populate_q_molecule_orbitals(self, q_mol):
+        mo_coeff, mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
+        mo_occ, mo_occ_b = self._extract_mo_data("mo_occ")
+        orbs_energy, orbs_energy_b = self._extract_mo_data("mo_energy")
 
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
@@ -422,13 +413,35 @@ class PySCFDriver(FermionicDriver):
                 dump_mat.dump_mo(self._mol, mo_coeff_b, digits=7, start=1)
             self._mol.stdout.flush()
 
-        hij = self._calc.get_hcore()
-        mohij = np.dot(np.dot(mo_coeff.T, hij), mo_coeff)
+        # Energies and orbital data
+        q_mol.hf_energy = self._calc.e_tot
+        q_mol.num_molecular_orbitals = mo_coeff.shape[0]
+        q_mol.num_alpha = self._mol.nelec[0]
+        q_mol.num_beta = self._mol.nelec[1]
+        q_mol.mo_coeff = mo_coeff
+        q_mol.mo_coeff_b = mo_coeff_b
+        q_mol.orbital_energies = orbs_energy
+        q_mol.orbital_energies_b = orbs_energy_b
+        q_mol.mo_occ = mo_occ
+        q_mol.mo_occ_b = mo_occ_b
+
+    def _populate_q_molecule_ao_integrals(self, q_mol):
+        # 1 and 2 electron AO integrals
+        q_mol.hcore = self._calc.get_hcore()
+        q_mol.hcore_b = None
+        q_mol.kinetic = self._mol.intor_symmetric("int1e_kin")
+        q_mol.overlap = self._calc.get_ovlp()
+        q_mol.eri = self._mol.intor("int2e", aosym=1)
+
+    def _populate_q_molecule_mo_integrals(self, q_mol):
+        mo_coeff, mo_coeff_b = q_mol.mo_coeff, q_mol.mo_coeff_b
+        norbs = mo_coeff.shape[0]
+
+        mohij = np.dot(np.dot(mo_coeff.T, q_mol.hcore), mo_coeff)
         mohij_b = None
         if mo_coeff_b is not None:
-            mohij_b = np.dot(np.dot(mo_coeff_b.T, hij), mo_coeff_b)
+            mohij_b = np.dot(np.dot(mo_coeff_b.T, q_mol.hcore), mo_coeff_b)
 
-        eri = self._mol.intor("int2e", aosym=1)
         mo_eri = ao2mo.incore.full(self._calc._eri, mo_coeff, compact=False)
         mohijkl = mo_eri.reshape(norbs, norbs, norbs, norbs)
         mohijkl_bb = None
@@ -443,6 +456,14 @@ class PySCFDriver(FermionicDriver):
             )
             mohijkl_ba = mo_eri_ba.reshape(norbs, norbs, norbs, norbs)
 
+        # 1 and 2 electron MO integrals
+        q_mol.mo_onee_ints = mohij
+        q_mol.mo_onee_ints_b = mohij_b
+        q_mol.mo_eri_ints = mohijkl
+        q_mol.mo_eri_ints_bb = mohijkl_bb
+        q_mol.mo_eri_ints_ba = mohijkl_ba
+
+    def _populate_q_molecule_dipole_integrals(self, q_mol):
         # dipole integrals
         self._mol.set_common_orig((0, 0, 0))
         ao_dip = self._mol.intor_symmetric("int1e_r", comp=3)
@@ -451,73 +472,52 @@ class PySCFDriver(FermionicDriver):
         z_dip_ints = ao_dip[2]
 
         d_m = self._calc.make_rdm1(self._calc.mo_coeff, self._calc.mo_occ)
+
         if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
             d_m = d_m[0] + d_m[1]
+
         elec_dip = np.negative(np.einsum("xij,ji->x", ao_dip, d_m).real)
         elec_dip = np.round(elec_dip, decimals=8)
         nucl_dip = np.einsum("i,ix->x", self._mol.atom_charges(), self._mol.atom_coords())
         nucl_dip = np.round(nucl_dip, decimals=8)
+
         logger.info("HF Electronic dipole moment: %s", elec_dip)
         logger.info("Nuclear dipole moment: %s", nucl_dip)
         logger.info("Total dipole moment: %s", nucl_dip + elec_dip)
 
-        # Create driver level molecule object and populate
-        _q_ = QMolecule()
-        # Energies and orbits
-        _q_.hf_energy = ehf
-        _q_.nuclear_repulsion_energy = enuke
-        _q_.num_molecular_orbitals = norbs
-        _q_.num_alpha = self._mol.nelec[0]
-        _q_.num_beta = self._mol.nelec[1]
-        _q_.mo_coeff = mo_coeff
-        _q_.mo_coeff_b = mo_coeff_b
-        _q_.orbital_energies = orbs_energy
-        _q_.orbital_energies_b = orbs_energy_b
-        _q_.mo_occ = mo_occ
-        _q_.mo_occ_b = mo_occ_b
-        # Molecule geometry
-        _q_.molecular_charge = self._mol.charge
-        _q_.multiplicity = self._mol.spin + 1
-        _q_.num_atoms = self._mol.natm
-        _q_.atom_symbol = []
-        _q_.atom_xyz = np.empty([self._mol.natm, 3])
-        _ = self._mol.atom_coords()
-        for n_i in range(0, _q_.num_atoms):
-            xyz = self._mol.atom_coord(n_i)
-            _q_.atom_symbol.append(self._mol.atom_pure_symbol(n_i))
-            _q_.atom_xyz[n_i][0] = xyz[0]
-            _q_.atom_xyz[n_i][1] = xyz[1]
-            _q_.atom_xyz[n_i][2] = xyz[2]
-        # 1 and 2 electron integrals AO and MO
-        _q_.hcore = hij
-        _q_.hcore_b = None
-        _q_.kinetic = self._mol.intor_symmetric("int1e_kin")
-        _q_.overlap = self._calc.get_ovlp()
-        _q_.eri = eri
-        _q_.mo_onee_ints = mohij
-        _q_.mo_onee_ints_b = mohij_b
-        _q_.mo_eri_ints = mohijkl
-        _q_.mo_eri_ints_bb = mohijkl_bb
-        _q_.mo_eri_ints_ba = mohijkl_ba
         # dipole integrals AO and MO
-        _q_.x_dip_ints = x_dip_ints
-        _q_.y_dip_ints = y_dip_ints
-        _q_.z_dip_ints = z_dip_ints
-        _q_.x_dip_mo_ints = QMolecule.oneeints2mo(x_dip_ints, mo_coeff)
-        _q_.x_dip_mo_ints_b = None
-        _q_.y_dip_mo_ints = QMolecule.oneeints2mo(y_dip_ints, mo_coeff)
-        _q_.y_dip_mo_ints_b = None
-        _q_.z_dip_mo_ints = QMolecule.oneeints2mo(z_dip_ints, mo_coeff)
-        _q_.z_dip_mo_ints_b = None
-        if mo_coeff_b is not None:
-            _q_.x_dip_mo_ints_b = QMolecule.oneeints2mo(x_dip_ints, mo_coeff_b)
-            _q_.y_dip_mo_ints_b = QMolecule.oneeints2mo(y_dip_ints, mo_coeff_b)
-            _q_.z_dip_mo_ints_b = QMolecule.oneeints2mo(z_dip_ints, mo_coeff_b)
+        q_mol.x_dip_ints = x_dip_ints
+        q_mol.y_dip_ints = y_dip_ints
+        q_mol.z_dip_ints = z_dip_ints
+        q_mol.x_dip_mo_ints = QMolecule.oneeints2mo(x_dip_ints, q_mol.mo_coeff)
+        q_mol.x_dip_mo_ints_b = None
+        q_mol.y_dip_mo_ints = QMolecule.oneeints2mo(y_dip_ints, q_mol.mo_coeff)
+        q_mol.y_dip_mo_ints_b = None
+        q_mol.z_dip_mo_ints = QMolecule.oneeints2mo(z_dip_ints, q_mol.mo_coeff)
+        q_mol.z_dip_mo_ints_b = None
+        if q_mol.mo_coeff_b is not None:
+            q_mol.x_dip_mo_ints_b = QMolecule.oneeints2mo(x_dip_ints, q_mol.mo_coeff_b)
+            q_mol.y_dip_mo_ints_b = QMolecule.oneeints2mo(y_dip_ints, q_mol.mo_coeff_b)
+            q_mol.z_dip_mo_ints_b = QMolecule.oneeints2mo(z_dip_ints, q_mol.mo_coeff_b)
         # dipole moment
-        _q_.nuclear_dipole_moment = nucl_dip
-        _q_.reverse_dipole_sign = True
+        q_mol.nuclear_dipole_moment = nucl_dip
+        q_mol.reverse_dipole_sign = True
 
-        return _q_
+    def _extract_mo_data(self, name, array_dimension=2):
+        attr = getattr(self._calc, name)
+        if isinstance(attr, tuple):
+            attr_alpha = attr[0]
+            attr_beta = attr[1]
+        else:
+            # With PySCF 1.6.2, instead of a tuple it could be a multi-dimensional array with the
+            # first dimension indexing the arrays for alpha and beta
+            if len(attr.shape) == array_dimension:
+                attr_alpha = attr[0]
+                attr_beta = attr[1]
+            else:
+                attr_alpha = attr
+                attr_beta = None
+        return attr_alpha, attr_beta
 
     def _process_pyscf_log(self, logfile):
         with open(logfile) as file:
