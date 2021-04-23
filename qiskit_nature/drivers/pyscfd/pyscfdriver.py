@@ -103,14 +103,8 @@ class PySCFDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        self._check_valid()
-        if not isinstance(atom, str) and not isinstance(atom, list):
-            raise QiskitNatureError("Invalid atom input for PYSCF Driver '{}'".format(atom))
-
-        if isinstance(atom, list):
-            atom = ";".join(atom)
-        elif isinstance(atom, str):
-            atom = atom.replace("\n", ";")
+        # First, ensure that PySCF is actually installed
+        self._check_installed()
 
         validate_min("max_cycle", max_cycle, 1)
         super().__init__(
@@ -119,10 +113,10 @@ class PySCFDriver(FermionicDriver):
             hf_method=hf_method.value,
             supports_molecule=True,
         )
-        self._mol = None
-        self._m_f = None
-        self._atom = atom
-        self._units = unit.value
+
+        # we use the property-setter to deal with conversion
+        self.atom = atom  # type: ignore
+        self._unit = unit.value
         self._charge = charge
         self._spin = spin
         self._conv_tol = conv_tol
@@ -131,8 +125,106 @@ class PySCFDriver(FermionicDriver):
         self._max_memory = max_memory
         self._chkfile = chkfile
 
+        self._mol = None
+        self._calc = None
+
+    @property
+    def atom(self) -> str:
+        """Returns the atom."""
+        return self._atom
+
+    @atom.setter
+    def atom(self, atom: str) -> None:
+        """Sets the atom."""
+        self._atom = atom.replace("\n", ";")
+
+    @atom.setter
+    def atom(self, atom: List[str]) -> None:
+        """Sets the atom from a list."""
+        self._atom = ";".join(atom).replace("\n", ";")
+
+    @property
+    def unit(self) -> str:
+        """Returns the unit."""
+        return self._unit
+
+    @unit.setter
+    def unit(self, unit: str) -> None:
+        """Sets the unit."""
+        self._unit = unit
+
+    @property
+    def charge(self) -> int:
+        """Returns the charge."""
+        return self._charge
+
+    @charge.setter
+    def charge(self, charge: int) -> None:
+        """Sets the charge."""
+        self._charge = charge
+
+    @property
+    def spin(self) -> int:
+        """Returns the spin."""
+        return self._spin
+
+    @spin.setter
+    def spin(self, spin: int) -> None:
+        """Sets the spin."""
+        self._spin = spin
+
+    @property
+    def conv_tol(self) -> float:
+        """Returns the conv_tol."""
+        return self._conv_tol
+
+    @conv_tol.setter
+    def conv_tol(self, conv_tol: float) -> None:
+        """Sets the conv_tol."""
+        self._conv_tol = conv_tol
+
+    @property
+    def max_cycle(self) -> int:
+        """Returns the max_cycle."""
+        return self._max_cycle
+
+    @max_cycle.setter
+    def max_cycle(self, max_cycle: int) -> None:
+        """Sets the max_cycle."""
+        self._max_cycle = max_cycle
+
+    @property
+    def init_guess(self) -> str:
+        """Returns the init_guess."""
+        return self._init_guess
+
+    @init_guess.setter
+    def init_guess(self, init_guess: str) -> None:
+        """Sets the init_guess."""
+        self._init_guess = init_guess
+
+    @property
+    def max_memory(self) -> int:
+        """Returns the max_memory."""
+        return self._max_memory
+
+    @max_memory.setter
+    def max_memory(self, max_memory: int) -> None:
+        """Sets the max_memory."""
+        self._max_memory = max_memory
+
+    @property
+    def chkfile(self) -> str:
+        """Returns the chkfile."""
+        return self._chkfile
+
+    @chkfile.setter
+    def chkfile(self, chkfile: str) -> None:
+        """Sets the chkfile."""
+        self._chkfile = chkfile
+
     @staticmethod
-    def _check_valid():
+    def _check_installed():
         err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
         try:
             spec = importlib.util.find_spec("pyscf")
@@ -151,14 +243,15 @@ class PySCFDriver(FermionicDriver):
             )
             self._charge = self.molecule.charge
             self._spin = self.molecule.multiplicity - 1
-            self._units = self.molecule.units.value
+            self._unit = self.molecule.units.value
 
         q_mol = self.compute_integrals()
 
         q_mol.origin_driver_name = "PYSCF"
+        q_mol.origin_driver_version = pyscf_version
         cfg = [
             "atom={}".format(self._atom),
-            "unit={}".format(self._units),
+            "unit={}".format(self._unit),
             "charge={}".format(self._charge),
             "spin={}".format(self._spin),
             "basis={}".format(self._basis),
@@ -195,7 +288,7 @@ class PySCFDriver(FermionicDriver):
 
             self._mol = gto.Mole(
                 atom=self._atom,
-                unit=self._units,
+                unit=self._unit,
                 basis=self._basis,
                 max_memory=self._max_memory,
                 verbose=verbose,
@@ -245,24 +338,24 @@ class PySCFDriver(FermionicDriver):
         hf_method = self._hf_method
 
         if hf_method == "rhf":
-            self._m_f = scf.RHF(self._mol)
+            self._calc = scf.RHF(self._mol)
         elif hf_method == "rohf":
-            self._m_f = scf.ROHF(self._mol)
+            self._calc = scf.ROHF(self._mol)
         elif hf_method == "uhf":
-            self._m_f = scf.UHF(self._mol)
+            self._calc = scf.UHF(self._mol)
         else:
             raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
 
         if self._chkfile is not None and os.path.exists(self._chkfile):
-            self._m_f.__dict__.update(lib_chkfile.load(self._chkfile, "scf"))
+            self._calc.__dict__.update(lib_chkfile.load(self._chkfile, "scf"))
             # We overwrite the convergence information because the chkfile likely does not contain
             # it. It is better to report no information rather than faulty one.
-            self._m_f.converged = None
+            self._calc.converged = None
         else:
-            self._m_f.conv_tol = self._conv_tol
-            self._m_f.max_cycle = self._max_cycle
-            self._m_f.init_guess = self._init_guess
-            self._m_f.kernel()
+            self._calc.conv_tol = self._conv_tol
+            self._calc.max_cycle = self._max_cycle
+            self._calc.init_guess = self._init_guess
+            self._calc.kernel()
 
     def _calculate_integrals(self):
         """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation
@@ -277,50 +370,50 @@ class PySCFDriver(FermionicDriver):
 
         self.perform_calculation()
 
-        ehf = self._m_f.e_tot
+        ehf = self._calc.e_tot
         logger.info(
             "PySCF kernel() converged: %s, e(hf): %s",
-            self._m_f.converged,
-            self._m_f.e_tot,
+            self._calc.converged,
+            self._calc.e_tot,
         )
 
-        if isinstance(self._m_f.mo_coeff, tuple):
-            mo_coeff = self._m_f.mo_coeff[0]
-            mo_coeff_b = self._m_f.mo_coeff[1]
-            mo_occ = self._m_f.mo_occ[0]
-            mo_occ_b = self._m_f.mo_occ[1]
+        if isinstance(self._calc.mo_coeff, tuple):
+            mo_coeff = self._calc.mo_coeff[0]
+            mo_coeff_b = self._calc.mo_coeff[1]
+            mo_occ = self._calc.mo_occ[0]
+            mo_occ_b = self._calc.mo_occ[1]
         else:
             # With PySCF 1.6.2, instead of a tuple of 2 dimensional arrays, its a 3 dimensional
             # array with the first dimension indexing to the coeff arrays for alpha and beta
-            if len(self._m_f.mo_coeff.shape) > 2:
-                mo_coeff = self._m_f.mo_coeff[0]
-                mo_coeff_b = self._m_f.mo_coeff[1]
-                mo_occ = self._m_f.mo_occ[0]
-                mo_occ_b = self._m_f.mo_occ[1]
+            if len(self._calc.mo_coeff.shape) > 2:
+                mo_coeff = self._calc.mo_coeff[0]
+                mo_coeff_b = self._calc.mo_coeff[1]
+                mo_occ = self._calc.mo_occ[0]
+                mo_occ_b = self._calc.mo_occ[1]
             else:
-                mo_coeff = self._m_f.mo_coeff
+                mo_coeff = self._calc.mo_coeff
                 mo_coeff_b = None
-                mo_occ = self._m_f.mo_occ
+                mo_occ = self._calc.mo_occ
                 mo_occ_b = None
         norbs = mo_coeff.shape[0]
 
-        if isinstance(self._m_f.mo_energy, tuple):
-            orbs_energy = self._m_f.mo_energy[0]
-            orbs_energy_b = self._m_f.mo_energy[1]
+        if isinstance(self._calc.mo_energy, tuple):
+            orbs_energy = self._calc.mo_energy[0]
+            orbs_energy_b = self._calc.mo_energy[1]
         else:
             # See PYSCF 1.6.2 comment above - this was similarly changed
-            if len(self._m_f.mo_energy.shape) > 1:
-                orbs_energy = self._m_f.mo_energy[0]
-                orbs_energy_b = self._m_f.mo_energy[1]
+            if len(self._calc.mo_energy.shape) > 1:
+                orbs_energy = self._calc.mo_energy[0]
+                orbs_energy_b = self._calc.mo_energy[1]
             else:
-                orbs_energy = self._m_f.mo_energy
+                orbs_energy = self._calc.mo_energy
                 orbs_energy_b = None
 
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
             # First analyze() which prints extra information about MO energy and occupation
             self._mol.stdout.write("\n")
-            self._m_f.analyze()
+            self._calc.analyze()
             # Now labelled orbitals for contributions to the MOs for s,p,d etc of each atom
             self._mol.stdout.write("\n\n--- Alpha Molecular Orbitals ---\n\n")
             dump_mat.dump_mo(self._mol, mo_coeff, digits=7, start=1)
@@ -329,22 +422,22 @@ class PySCFDriver(FermionicDriver):
                 dump_mat.dump_mo(self._mol, mo_coeff_b, digits=7, start=1)
             self._mol.stdout.flush()
 
-        hij = self._m_f.get_hcore()
+        hij = self._calc.get_hcore()
         mohij = np.dot(np.dot(mo_coeff.T, hij), mo_coeff)
         mohij_b = None
         if mo_coeff_b is not None:
             mohij_b = np.dot(np.dot(mo_coeff_b.T, hij), mo_coeff_b)
 
         eri = self._mol.intor("int2e", aosym=1)
-        mo_eri = ao2mo.incore.full(self._m_f._eri, mo_coeff, compact=False)
+        mo_eri = ao2mo.incore.full(self._calc._eri, mo_coeff, compact=False)
         mohijkl = mo_eri.reshape(norbs, norbs, norbs, norbs)
         mohijkl_bb = None
         mohijkl_ba = None
         if mo_coeff_b is not None:
-            mo_eri_b = ao2mo.incore.full(self._m_f._eri, mo_coeff_b, compact=False)
+            mo_eri_b = ao2mo.incore.full(self._calc._eri, mo_coeff_b, compact=False)
             mohijkl_bb = mo_eri_b.reshape(norbs, norbs, norbs, norbs)
             mo_eri_ba = ao2mo.incore.general(
-                self._m_f._eri,
+                self._calc._eri,
                 (mo_coeff_b, mo_coeff_b, mo_coeff, mo_coeff),
                 compact=False,
             )
@@ -357,7 +450,7 @@ class PySCFDriver(FermionicDriver):
         y_dip_ints = ao_dip[1]
         z_dip_ints = ao_dip[2]
 
-        d_m = self._m_f.make_rdm1(self._m_f.mo_coeff, self._m_f.mo_occ)
+        d_m = self._calc.make_rdm1(self._calc.mo_coeff, self._calc.mo_occ)
         if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
             d_m = d_m[0] + d_m[1]
         elec_dip = np.negative(np.einsum("xij,ji->x", ao_dip, d_m).real)
@@ -370,7 +463,6 @@ class PySCFDriver(FermionicDriver):
 
         # Create driver level molecule object and populate
         _q_ = QMolecule()
-        _q_.origin_driver_version = pyscf_version
         # Energies and orbits
         _q_.hf_energy = ehf
         _q_.nuclear_repulsion_energy = enuke
@@ -400,7 +492,7 @@ class PySCFDriver(FermionicDriver):
         _q_.hcore = hij
         _q_.hcore_b = None
         _q_.kinetic = self._mol.intor_symmetric("int1e_kin")
-        _q_.overlap = self._m_f.get_ovlp()
+        _q_.overlap = self._calc.get_ovlp()
         _q_.eri = eri
         _q_.mo_onee_ints = mohij
         _q_.mo_onee_ints_b = mohij_b
