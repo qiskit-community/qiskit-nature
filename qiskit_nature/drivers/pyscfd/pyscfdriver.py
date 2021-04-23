@@ -38,17 +38,19 @@ try:
     from pyscf.lib import logger as pylogger
     from pyscf.lib import param
     from pyscf.tools import dump_mat
-    warnings.filterwarnings('ignore', category=DeprecationWarning, module='pyscf')
+
+    warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
 except ImportError:
     logger.info("PySCF is not installed. See https://sunqm.github.io/pyscf/install.html")
 
 
 class InitialGuess(Enum):
     """ Initial Guess Enum """
-    MINAO = 'minao'
-    HCORE = '1e'
-    ONE_E = '1e'
-    ATOM = 'atom'
+
+    MINAO = "minao"
+    HCORE = "1e"
+    ONE_E = "1e"
+    ATOM = "atom"
 
 
 class PySCFDriver(FermionicDriver):
@@ -58,20 +60,21 @@ class PySCFDriver(FermionicDriver):
     See https://sunqm.github.io/pyscf/
     """
 
-    def __init__(self,
-                 atom: Union[str, List[str]] =
-                 'H 0.0 0.0 0.0; H 0.0 0.0 0.735',
-                 unit: UnitsType = UnitsType.ANGSTROM,
-                 charge: int = 0,
-                 spin: int = 0,
-                 basis: str = 'sto3g',
-                 hf_method: HFMethodType = HFMethodType.RHF,
-                 conv_tol: float = 1e-9,
-                 max_cycle: int = 50,
-                 init_guess: InitialGuess = InitialGuess.MINAO,
-                 max_memory: Optional[int] = None,
-                 chkfile: Optional[str] = None,
-                 molecule: Optional[Molecule] = None) -> None:
+    def __init__(
+        self,
+        atom: Union[str, List[str]] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
+        unit: UnitsType = UnitsType.ANGSTROM,
+        charge: int = 0,
+        spin: int = 0,
+        basis: str = "sto3g",
+        hf_method: HFMethodType = HFMethodType.RHF,
+        conv_tol: float = 1e-9,
+        max_cycle: int = 50,
+        init_guess: InitialGuess = InitialGuess.MINAO,
+        max_memory: Optional[int] = None,
+        chkfile: Optional[str] = None,
+        molecule: Optional[Molecule] = None,
+    ) -> None:
         """
         Args:
             atom: Atom list or string separated by semicolons or line breaks. Each element in the
@@ -105,15 +108,17 @@ class PySCFDriver(FermionicDriver):
             raise QiskitNatureError("Invalid atom input for PYSCF Driver '{}'".format(atom))
 
         if isinstance(atom, list):
-            atom = ';'.join(atom)
+            atom = ";".join(atom)
         elif isinstance(atom, str):
-            atom = atom.replace('\n', ';')
+            atom = atom.replace("\n", ";")
 
-        validate_min('max_cycle', max_cycle, 1)
-        super().__init__(molecule=molecule,
-                         basis=basis,
-                         hf_method=hf_method.value,
-                         supports_molecule=True)
+        validate_min("max_cycle", max_cycle, 1)
+        super().__init__(
+            molecule=molecule,
+            basis=basis,
+            hf_method=hf_method.value,
+            supports_molecule=True,
+        )
         self._mol = None
         self._m_f = None
         self._atom = atom
@@ -130,38 +135,41 @@ class PySCFDriver(FermionicDriver):
     def _check_valid():
         err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
         try:
-            spec = importlib.util.find_spec('pyscf')
+            spec = importlib.util.find_spec("pyscf")
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
-            logger.debug('PySCF check error %s', str(ex))
+            logger.debug("PySCF check error %s", str(ex))
             raise QiskitNatureError(err_msg) from ex
 
         raise QiskitNatureError(err_msg)
 
     def run(self) -> QMolecule:
         if self.molecule is not None:
-            self._atom = ';'.join([name + ' ' + ' '.join(map(str, coord))
-                                  for (name, coord) in self.molecule.geometry])
+            self._atom = ";".join(
+                [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
+            )
             self._charge = self.molecule.charge
             self._spin = self.molecule.multiplicity - 1
             self._units = self.molecule.units.value
 
         q_mol = self.compute_integrals()
 
-        q_mol.origin_driver_name = 'PYSCF'
-        cfg = ['atom={}'.format(self._atom),
-               'unit={}'.format(self._units),
-               'charge={}'.format(self._charge),
-               'spin={}'.format(self._spin),
-               'basis={}'.format(self._basis),
-               'hf_method={}'.format(self._hf_method),
-               'conv_tol={}'.format(self._conv_tol),
-               'max_cycle={}'.format(self._max_cycle),
-               'init_guess={}'.format(self._init_guess),
-               'max_memory={}'.format(self._max_memory),
-               '']
-        q_mol.origin_driver_config = '\n'.join(cfg)
+        q_mol.origin_driver_name = "PYSCF"
+        cfg = [
+            "atom={}".format(self._atom),
+            "unit={}".format(self._units),
+            "charge={}".format(self._charge),
+            "spin={}".format(self._spin),
+            "basis={}".format(self._basis),
+            "hf_method={}".format(self._hf_method),
+            "conv_tol={}".format(self._conv_tol),
+            "max_cycle={}".format(self._max_cycle),
+            "init_guess={}".format(self._init_guess),
+            "max_memory={}".format(self._max_memory),
+            "",
+        ]
+        q_mol.origin_driver_config = "\n".join(cfg)
 
         return q_mol
 
@@ -182,11 +190,17 @@ class PySCFDriver(FermionicDriver):
             output = None
             if logger.isEnabledFor(logging.DEBUG):
                 verbose = pylogger.INFO
-                file, output = tempfile.mkstemp(suffix='.log')
+                file, output = tempfile.mkstemp(suffix=".log")
                 os.close(file)
 
-            self._mol = gto.Mole(atom=self._atom, unit=self._units, basis=self._basis,
-                                 max_memory=self._max_memory, verbose=verbose, output=output)
+            self._mol = gto.Mole(
+                atom=self._atom,
+                unit=self._units,
+                basis=self._basis,
+                max_memory=self._max_memory,
+                verbose=verbose,
+                output=output,
+            )
             self._mol.symmetry = False
             self._mol.charge = self._charge
             self._mol.spin = self._spin
@@ -200,29 +214,29 @@ class PySCFDriver(FermionicDriver):
                     pass
 
         except Exception as exc:
-            raise QiskitNatureError('Failed electronic structure computation') from exc
+            raise QiskitNatureError("Failed electronic structure computation") from exc
 
         return q_mol
 
     @staticmethod
     def _check_molecule_format(val):
         """If it seems to be zmatrix rather than xyz format we convert before returning"""
-        atoms = [x.strip() for x in val.split(';')]
+        atoms = [x.strip() for x in val.split(";")]
         if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
-            raise QiskitNatureError('Molecule format error: ' + val)
+            raise QiskitNatureError("Molecule format error: " + val)
 
         # An xyz format has 4 parts in each atom, if not then do zmatrix convert
         # Allows dummy atoms, using symbol 'X' in zmatrix format for coord computation to xyz
-        parts = [x.strip() for x in atoms[0].split(' ')]
+        parts = [x.strip() for x in atoms[0].split(" ")]
         if len(parts) != 4:
             try:
                 newval = []
                 for entry in gto.mole.from_zmatrix(val):
-                    if entry[0].upper() != 'X':
+                    if entry[0].upper() != "X":
                         newval.append(entry)
                 return newval
             except Exception as exc:
-                raise QiskitNatureError('Failed to convert atom string: ' + val) from exc
+                raise QiskitNatureError("Failed to convert atom string: " + val) from exc
 
         return val
 
@@ -230,17 +244,17 @@ class PySCFDriver(FermionicDriver):
         """TODO."""
         hf_method = self._hf_method
 
-        if hf_method == 'rhf':
+        if hf_method == "rhf":
             self._m_f = scf.RHF(self._mol)
-        elif hf_method == 'rohf':
+        elif hf_method == "rohf":
             self._m_f = scf.ROHF(self._mol)
-        elif hf_method == 'uhf':
+        elif hf_method == "uhf":
             self._m_f = scf.UHF(self._mol)
         else:
-            raise QiskitNatureError('Invalid hf_method type: {}'.format(hf_method))
+            raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
 
         if self._chkfile is not None and os.path.exists(self._chkfile):
-            self._m_f.__dict__.update(lib_chkfile.load(self._chkfile, 'scf'))
+            self._m_f.__dict__.update(lib_chkfile.load(self._chkfile, "scf"))
             # We overwrite the convergence information because the chkfile likely does not contain
             # it. It is better to report no information rather than faulty one.
             self._m_f.converged = None
@@ -264,7 +278,11 @@ class PySCFDriver(FermionicDriver):
         self.perform_calculation()
 
         ehf = self._m_f.e_tot
-        logger.info('PySCF kernel() converged: %s, e(hf): %s', self._m_f.converged, self._m_f.e_tot)
+        logger.info(
+            "PySCF kernel() converged: %s, e(hf): %s",
+            self._m_f.converged,
+            self._m_f.e_tot,
+        )
 
         if isinstance(self._m_f.mo_coeff, tuple):
             mo_coeff = self._m_f.mo_coeff[0]
@@ -301,13 +319,13 @@ class PySCFDriver(FermionicDriver):
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
             # First analyze() which prints extra information about MO energy and occupation
-            self._mol.stdout.write('\n')
+            self._mol.stdout.write("\n")
             self._m_f.analyze()
             # Now labelled orbitals for contributions to the MOs for s,p,d etc of each atom
-            self._mol.stdout.write('\n\n--- Alpha Molecular Orbitals ---\n\n')
+            self._mol.stdout.write("\n\n--- Alpha Molecular Orbitals ---\n\n")
             dump_mat.dump_mo(self._mol, mo_coeff, digits=7, start=1)
             if mo_coeff_b is not None:
-                self._mol.stdout.write('\n--- Beta Molecular Orbitals ---\n\n')
+                self._mol.stdout.write("\n--- Beta Molecular Orbitals ---\n\n")
                 dump_mat.dump_mo(self._mol, mo_coeff_b, digits=7, start=1)
             self._mol.stdout.flush()
 
@@ -317,7 +335,7 @@ class PySCFDriver(FermionicDriver):
         if mo_coeff_b is not None:
             mohij_b = np.dot(np.dot(mo_coeff_b.T, hij), mo_coeff_b)
 
-        eri = self._mol.intor('int2e', aosym=1)
+        eri = self._mol.intor("int2e", aosym=1)
         mo_eri = ao2mo.incore.full(self._m_f._eri, mo_coeff, compact=False)
         mohijkl = mo_eri.reshape(norbs, norbs, norbs, norbs)
         mohijkl_bb = None
@@ -325,14 +343,16 @@ class PySCFDriver(FermionicDriver):
         if mo_coeff_b is not None:
             mo_eri_b = ao2mo.incore.full(self._m_f._eri, mo_coeff_b, compact=False)
             mohijkl_bb = mo_eri_b.reshape(norbs, norbs, norbs, norbs)
-            mo_eri_ba = ao2mo.incore.general(self._m_f._eri,
-                                             (mo_coeff_b, mo_coeff_b, mo_coeff, mo_coeff),
-                                             compact=False)
+            mo_eri_ba = ao2mo.incore.general(
+                self._m_f._eri,
+                (mo_coeff_b, mo_coeff_b, mo_coeff, mo_coeff),
+                compact=False,
+            )
             mohijkl_ba = mo_eri_ba.reshape(norbs, norbs, norbs, norbs)
 
         # dipole integrals
         self._mol.set_common_orig((0, 0, 0))
-        ao_dip = self._mol.intor_symmetric('int1e_r', comp=3)
+        ao_dip = self._mol.intor_symmetric("int1e_r", comp=3)
         x_dip_ints = ao_dip[0]
         y_dip_ints = ao_dip[1]
         z_dip_ints = ao_dip[2]
@@ -340,9 +360,9 @@ class PySCFDriver(FermionicDriver):
         d_m = self._m_f.make_rdm1(self._m_f.mo_coeff, self._m_f.mo_occ)
         if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
             d_m = d_m[0] + d_m[1]
-        elec_dip = np.negative(np.einsum('xij,ji->x', ao_dip, d_m).real)
+        elec_dip = np.negative(np.einsum("xij,ji->x", ao_dip, d_m).real)
         elec_dip = np.round(elec_dip, decimals=8)
-        nucl_dip = np.einsum('i,ix->x', self._mol.atom_charges(), self._mol.atom_coords())
+        nucl_dip = np.einsum("i,ix->x", self._mol.atom_charges(), self._mol.atom_coords())
         nucl_dip = np.round(nucl_dip, decimals=8)
         logger.info("HF Electronic dipole moment: %s", elec_dip)
         logger.info("Nuclear dipole moment: %s", nucl_dip)
@@ -379,7 +399,7 @@ class PySCFDriver(FermionicDriver):
         # 1 and 2 electron integrals AO and MO
         _q_.hcore = hij
         _q_.hcore_b = None
-        _q_.kinetic = self._mol.intor_symmetric('int1e_kin')
+        _q_.kinetic = self._mol.intor_symmetric("int1e_kin")
         _q_.overlap = self._m_f.get_ovlp()
         _q_.eri = eri
         _q_.mo_onee_ints = mohij
@@ -412,8 +432,8 @@ class PySCFDriver(FermionicDriver):
             content = file.readlines()
 
         for i, _ in enumerate(content):
-            if content[i].startswith('System:'):
+            if content[i].startswith("System:"):
                 content = content[i:]
                 break
 
-        logger.debug('PySCF processing messages log:\n%s', ''.join(content))
+        logger.debug("PySCF processing messages log:\n%s", "".join(content))
