@@ -96,7 +96,7 @@ class QubitMapper(ABC):
             return real_part + imag_part
 
         # 1. Initialize an operator list with the identity scaled by the `self.coeff`
-        all_false = np.asarray([False] * nmodes, dtype=bool)
+        all_false = np.full(nmodes, False)
 
         ret_op_list = []
 
