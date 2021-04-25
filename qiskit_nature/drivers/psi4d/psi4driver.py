@@ -168,10 +168,10 @@ class PSI4Driver(FermionicDriver):
         # Run psi4.
         process = None
         try:
-            process = subprocess.Popen([PSI4, input_file, output_file],
-                                       stdout=subprocess.PIPE, universal_newlines=True)
-            stdout, _ = process.communicate()
-            process.wait()
+            with subprocess.Popen([PSI4, input_file, output_file],
+                                  stdout=subprocess.PIPE, universal_newlines=True) as process:
+                stdout, _ = process.communicate()
+                process.wait()
         except Exception as ex:
             if process is not None:
                 process.kill()
