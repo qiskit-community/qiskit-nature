@@ -115,14 +115,11 @@ class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper)
                                  basis='sto3g')
             qmolecule = driver.run()
 
-            dump = tempfile.NamedTemporaryFile()
-            FCIDumpDriver.dump(qmolecule, dump.name)
-
-            # pylint: disable=import-outside-toplevel
-            from pyscf.tools import fcidump as pyscf_fcidump
-            self.dumped = pyscf_fcidump.read(dump.name)
-
-            dump.close()
+            with tempfile.NamedTemporaryFile() as dump:
+                FCIDumpDriver.dump(qmolecule, dump.name)
+                # pylint: disable=import-outside-toplevel
+                from pyscf.tools import fcidump as pyscf_fcidump
+                self.dumped = pyscf_fcidump.read(dump.name)
         except QiskitNatureError:
             self.skipTest('PYSCF driver does not appear to be installed.')
         except ImportError:
