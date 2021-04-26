@@ -260,7 +260,7 @@ class PySCFDriver(FermionicDriver):
         """Checks the PySCF is actually installed.
 
         Raises:
-            A QiskitNatureError if PySCF is not installed.
+            QiskitNatureError: If PySCF is not installed.
         """
         err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
         try:
@@ -297,7 +297,7 @@ class PySCFDriver(FermionicDriver):
         """Builds the PySCF molecule object.
 
         Raises:
-             A QiskitNatureError if building the PySCF molecule object failed.
+             QiskitNatureError: If building the PySCF molecule object failed.
         """
         # Get config from input parameters
         # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
@@ -349,7 +349,7 @@ class PySCFDriver(FermionicDriver):
             val: the atomic coordinates.
 
         Raises:
-            A QiskitNatureError if the provided coordinate are mis-formatted.
+            QiskitNatureError: If the provided coordinate are mis-formatted.
 
         Returns:
             The coordinates in xyz format.
