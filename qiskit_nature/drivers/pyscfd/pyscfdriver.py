@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" PYSCF Driver """
+"""The PySCF Driver."""
 
 import importlib
 import logging
@@ -18,7 +18,7 @@ import os
 import tempfile
 import warnings
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from qiskit.utils.validation import validate_min
@@ -125,8 +125,8 @@ class PySCFDriver(FermionicDriver):
         self._max_memory = max_memory
         self._chkfile = chkfile
 
-        self._mol = None
-        self._calc = None
+        self._mol: gto.Mole = None
+        self._calc: scf.HF = None
 
     @property
     def atom(self) -> str:
@@ -221,10 +221,15 @@ class PySCFDriver(FermionicDriver):
         self._chkfile = chkfile
 
     @staticmethod
-    def _check_installed():
+    def _check_installed() -> None:
+        """Checks the PySCF is actually installed.
+
+        Raises:
+            A QiskitNatureError if PySCF is not installed.
+        """
         err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
         try:
-            spec = importlib.util.find_spec("pyscf")
+            spec = importlib.util.find_spec("pyscf")  # type: ignore
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
@@ -234,6 +239,11 @@ class PySCFDriver(FermionicDriver):
         raise QiskitNatureError(err_msg)
 
     def run(self) -> QMolecule:
+        """Runs the PySCF driver.
+
+        Returns:
+            A QMolecule object containing the raw driver results.
+        """
         if self.molecule is not None:
             self.atom = [  # type: ignore
                 " ".join(map(str, (name, *coord))) for (name, coord) in self.molecule.geometry
@@ -248,14 +258,18 @@ class PySCFDriver(FermionicDriver):
         q_mol = self._construct_qmolecule()
         return q_mol
 
-    def _build_molecule(self):
-        """Builds the PySCF molecule object."""
+    def _build_molecule(self) -> None:
+        """Builds the PySCF molecule object.
+
+        Raises:
+             A QiskitNatureError if building the PySCF molecule object failed.
+        """
         # Get config from input parameters
         # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
         #          or in Z-Matrix format e.g. "H; O 1 1.08; H 2 1.08 1 107.5"
         # other parameters are as per PySCF got.Mole format
 
-        atom = self._check_molecule_format(self._atom)
+        atom = self._check_molecule_format(self.atom)
         if self._max_memory is None:
             self._max_memory = param.MAX_MEMORY
 
@@ -291,8 +305,20 @@ class PySCFDriver(FermionicDriver):
             raise QiskitNatureError("Failed to build the PySCF Molecule object.") from exc
 
     @staticmethod
-    def _check_molecule_format(val):
-        """If it seems to be zmatrix rather than xyz format we convert before returning"""
+    def _check_molecule_format(val: str) -> Union[str, List[str]]:
+        """Ensures the molecule coordinates are in xyz format.
+
+        This utility automatically converts a z-matrix coordinate format into xyz coordinates.
+
+        Args:
+            val: the atomic coordinates.
+
+        Raises:
+            A QiskitNatureError if the provided coordinate are mis-formatted.
+
+        Returns:
+            The coordinates in xyz format.
+        """
         atoms = [x.strip() for x in val.split(";")]
         if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
             raise QiskitNatureError("Molecule format error: " + val)
@@ -312,8 +338,11 @@ class PySCFDriver(FermionicDriver):
 
         return val
 
-    def run_pyscf(self):
+    def run_pyscf(self) -> None:
         """Runs the PySCF calculation.
+
+        This method is part of the public interface to allow the user to easily overwrite it in a
+        subclass to further tailor the behavior to some specific use case.
 
         Raises:
             QiskitNatureError: Invalid hf method type
@@ -342,8 +371,8 @@ class PySCFDriver(FermionicDriver):
                 self._calc.e_tot,
             )
 
-    def _construct_qmolecule(self):
-        """Constructs a QMolecule out of the PySCF calculation objet.
+    def _construct_qmolecule(self) -> QMolecule:
+        """Constructs a QMolecule out of the PySCF calculation object.
 
         Returns:
             QMolecule: QMolecule populated with driver integrals etc
@@ -360,7 +389,12 @@ class PySCFDriver(FermionicDriver):
 
         return q_mol
 
-    def _populate_q_molecule_driver_info(self, q_mol):
+    def _populate_q_molecule_driver_info(self, q_mol: QMolecule) -> None:
+        """Populates the driver information fields.
+
+        Args:
+            q_mol: the QMolecule to populate.
+        """
         q_mol.origin_driver_name = "PYSCF"
         q_mol.origin_driver_version = pyscf_version
         cfg = [
@@ -378,7 +412,12 @@ class PySCFDriver(FermionicDriver):
         ]
         q_mol.origin_driver_config = "\n".join(cfg)
 
-    def _populate_q_molecule_mol_data(self, q_mol):
+    def _populate_q_molecule_mol_data(self, q_mol: QMolecule) -> None:
+        """Populates the molecule information fields.
+
+        Args:
+            q_mol: the QMolecule to populate.
+        """
         # Molecule geometry
         q_mol.molecular_charge = self._mol.charge
         q_mol.multiplicity = self._mol.spin + 1
@@ -395,7 +434,12 @@ class PySCFDriver(FermionicDriver):
 
         q_mol.nuclear_repulsion_energy = gto.mole.energy_nuc(self._mol)
 
-    def _populate_q_molecule_orbitals(self, q_mol):
+    def _populate_q_molecule_orbitals(self, q_mol: QMolecule) -> None:
+        """Populates the orbital information fields.
+
+        Args:
+            q_mol: the QMolecule to populate.
+        """
         mo_coeff, mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
         mo_occ, mo_occ_b = self._extract_mo_data("mo_occ")
         orbs_energy, orbs_energy_b = self._extract_mo_data("mo_energy")
@@ -425,7 +469,12 @@ class PySCFDriver(FermionicDriver):
         q_mol.mo_occ = mo_occ
         q_mol.mo_occ_b = mo_occ_b
 
-    def _populate_q_molecule_ao_integrals(self, q_mol):
+    def _populate_q_molecule_ao_integrals(self, q_mol: QMolecule) -> None:
+        """Populates the atomic orbital integral fields.
+
+        Args:
+            q_mol: the QMolecule to populate.
+        """
         # 1 and 2 electron AO integrals
         q_mol.hcore = self._calc.get_hcore()
         q_mol.hcore_b = None
@@ -433,7 +482,12 @@ class PySCFDriver(FermionicDriver):
         q_mol.overlap = self._calc.get_ovlp()
         q_mol.eri = self._mol.intor("int2e", aosym=1)
 
-    def _populate_q_molecule_mo_integrals(self, q_mol):
+    def _populate_q_molecule_mo_integrals(self, q_mol: QMolecule) -> None:
+        """Populates the molecular orbital integral fields.
+
+        Args:
+            q_mol: the QMolecule to populate.
+        """
         mo_coeff, mo_coeff_b = q_mol.mo_coeff, q_mol.mo_coeff_b
         norbs = mo_coeff.shape[0]
 
@@ -463,7 +517,12 @@ class PySCFDriver(FermionicDriver):
         q_mol.mo_eri_ints_bb = mohijkl_bb
         q_mol.mo_eri_ints_ba = mohijkl_ba
 
-    def _populate_q_molecule_dipole_integrals(self, q_mol):
+    def _populate_q_molecule_dipole_integrals(self, q_mol: QMolecule) -> None:
+        """Populates the dipole integral fields.
+
+        Args:
+            q_mol: the QMolecule to populate.
+        """
         # dipole integrals
         self._mol.set_common_orig((0, 0, 0))
         ao_dip = self._mol.intor_symmetric("int1e_r", comp=3)
@@ -503,13 +562,28 @@ class PySCFDriver(FermionicDriver):
         q_mol.nuclear_dipole_moment = nucl_dip
         q_mol.reverse_dipole_sign = True
 
-    def _extract_mo_data(self, name, array_dimension=2):
+    def _extract_mo_data(
+        self, name: str, array_dimension: int = 2
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Extract molecular orbital data from a PySCF calculation object.
+
+        Args:
+            name: the name of the molecular orbital data field to extract.
+            array_dimension: since PySCF 1.6.2, the alpha and beta components are no longer stored
+                as a tuple but as a multi-dimensional numpy array. This argument specifies the
+                dimension of that array in such a case. Making this configurable permits this
+                function to be used to extract both, MO coefficients (3D array) or MO energies (2D
+                array).
+
+        Returns:
+            The (alpha, beta) tuple of MO data.
+        """
         attr = getattr(self._calc, name)
         if isinstance(attr, tuple):
             attr_alpha = attr[0]
             attr_beta = attr[1]
         else:
-            # With PySCF 1.6.2, instead of a tuple it could be a multi-dimensional array with the
+            # Since PySCF 1.6.2, instead of a tuple it could be a multi-dimensional array with the
             # first dimension indexing the arrays for alpha and beta
             if len(attr.shape) == array_dimension:
                 attr_alpha = attr[0]
@@ -519,7 +593,12 @@ class PySCFDriver(FermionicDriver):
                 attr_beta = None
         return attr_alpha, attr_beta
 
-    def _process_pyscf_log(self, logfile):
+    def _process_pyscf_log(self, logfile: str) -> None:
+        """Processes a PySCF logfile.
+
+        Args:
+            logfile: the path of the PySCF logfile.
+        """
         with open(logfile) as file:
             content = file.readlines()
 
