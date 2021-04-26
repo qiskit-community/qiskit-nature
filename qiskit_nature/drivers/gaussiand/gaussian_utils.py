@@ -50,9 +50,9 @@ def run_g16(cfg: str) -> str:
     """
     process = None
     try:
-        process = Popen(_GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True)
-        stdout, _ = process.communicate(cfg)
-        process.wait()
+        with Popen(_GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True) as process:
+            stdout, _ = process.communicate(cfg)
+            process.wait()
     except Exception as ex:
         if process is not None:
             process.kill()
