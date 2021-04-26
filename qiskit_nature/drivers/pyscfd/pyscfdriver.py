@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from pyscf import __version__ as pyscf_version
-    from pyscf import ao2mo, gto, scf
+    from pyscf import ao2mo, dft, gto, scf
     from pyscf.lib import chkfile as lib_chkfile
     from pyscf.lib import logger as pylogger
     from pyscf.lib import param
@@ -68,6 +68,8 @@ class PySCFDriver(FermionicDriver):
         spin: int = 0,
         basis: str = "sto3g",
         hf_method: HFMethodType = HFMethodType.RHF,
+        xc_functional: str = "lda,vwn",
+        xcf_library: str = "libxc",
         conv_tol: float = 1e-9,
         max_cycle: int = 50,
         init_guess: InitialGuess = InitialGuess.MINAO,
@@ -87,6 +89,12 @@ class PySCFDriver(FermionicDriver):
                 See https://sunqm.github.io/pyscf/_modules/pyscf/gto/basis.html for a listing.
                 Defaults to the minimal basis 'sto3g'.
             hf_method: Hartree-Fock Method type
+            xc_functional: Exchange-Correlation functional name as recognized by PySCF. See
+                https://pyscf.org/user/dft.html#predefined-xc-functionals-and-functional-aliases for
+                more details. Defaults to PySCF's default: 'lda,vwn'.
+            xcf_library: the Exchange-Correlation functional library to be used. This can be either
+                'libxc' (the default) or 'xcfun'. Depending on this value, a different set of values
+                for `xc_functional` will be available. Refer to its documentation for mote details.
             conv_tol: Convergence tolerance see PySCF docs and pyscf/scf/hf.py
             max_cycle: Max convergence cycles see PySCF docs and pyscf/scf/hf.py,
                 has a min. value of 1.
@@ -119,6 +127,8 @@ class PySCFDriver(FermionicDriver):
         self._unit = unit.value
         self._charge = charge
         self._spin = spin
+        self._xc_functional = xc_functional
+        self.xcf_library = xcf_library  # validate choice in property setter
         self._conv_tol = conv_tol
         self._max_cycle = max_cycle
         self._init_guess = init_guess.value
@@ -169,6 +179,31 @@ class PySCFDriver(FermionicDriver):
     def spin(self, spin: int) -> None:
         """Sets the spin."""
         self._spin = spin
+
+    @property
+    def xc_functional(self) -> str:
+        """Returns the Exchange-Correlation functional."""
+        return self._xc_functional
+
+    @xc_functional.setter
+    def xc_functional(self, xc_functional: str) -> None:
+        """Sets the Exchange-Correlation functional."""
+        self._xc_functional = xc_functional
+
+    @property
+    def xcf_library(self) -> str:
+        """Returns the Exchange-Correlation functional library."""
+        return self._xcf_library
+
+    @xcf_library.setter
+    def xcf_library(self, xcf_library: str) -> None:
+        """Sets the Exchange-Correlation functional library."""
+        if xcf_library not in ("libxc", "xcfun"):
+            raise QiskitNatureError(
+                "Invalid XCF library. It can be either 'libxc' or 'xcfun', not "
+                "'{}'".format(xcf_library)
+            )
+        self._xcf_library = xcf_library
 
     @property
     def conv_tol(self) -> float:
@@ -355,6 +390,10 @@ class PySCFDriver(FermionicDriver):
 
         self._calc = hf_method_cls(self._mol)
 
+        if "KS" in hf_method_name:
+            self._calc._numint.libxc = getattr(dft, self.xcf_library)
+            self._calc.xc = self.xc_functional
+
         if self._chkfile is not None and os.path.exists(self._chkfile):
             self._calc.__dict__.update(lib_chkfile.load(self._chkfile, "scf"))
 
@@ -408,9 +447,15 @@ class PySCFDriver(FermionicDriver):
             "max_cycle={}".format(self._max_cycle),
             "init_guess={}".format(self._init_guess),
             "max_memory={}".format(self._max_memory),
-            "",
         ]
-        q_mol.origin_driver_config = "\n".join(cfg)
+        if "ks" in self._hf_method.lower():
+            cfg.extend(
+                [
+                    "xc_functional={}".format(self._xc_functional),
+                    "xcf_library={}".format(self._xcf_library),
+                ]
+            )
+        q_mol.origin_driver_config = "\n".join(cfg + [""])
 
     def _populate_q_molecule_mol_data(self, q_mol: QMolecule) -> None:
         """Populates the molecule information fields.
