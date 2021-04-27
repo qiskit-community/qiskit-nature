@@ -1,6 +1,6 @@
 # Qiskit Nature
 
-[![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=master)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amaster+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=master)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=master)
+[![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)
 
 **Qiskit Nature** is an open-source framework that supports problems including ground state energy computations,
 excited states and dipole moments of molecule, both open and closed-shell.
@@ -51,13 +51,6 @@ accepts such HDF5 files as input so molecular experiments can be run, albeit on 
 as stored in the file. As such, if you have some pre-created HDF5 files created from Qiskit
 Chemistry, you can use these with the HDF5 driver even if you do not install one of the classical
 computation packages listed above.
-
-A few sample HDF5 files for different are provided in the
-[chemistry folder](https://github.com/Qiskit/qiskit-community-tutorials/tree/master/chemistry)
-of the [Qiskit Community Tutorials](https://github.com/Qiskit/qiskit-community-tutorials)
-repository. This
-[HDF5 Driver tutorial](https://github.com/Qiskit/qiskit-community-tutorials/blob/master/chemistry/hdf5_files_and_driver.ipynb)
-contains further information about creating and using such HDF5 files.
 
 ### Creating Your First Chemistry Programming Experiment in Qiskit
 
@@ -158,14 +151,12 @@ your problem instance.
 ### Further examples
 
 Learning path notebooks may be found in the
-[chemistry tutorials](https://qiskit.org/documentation/tutorials/chemistry/index.html) section
+[Nature Tutorials](https://qiskit.org/documentation/nature/tutorials/index.html) section
 of the documentation and are a great place to start
 
-Jupyter notebooks containing further chemistry examples may be found in the
+Jupyter notebooks containing further Nature examples may be found in the
 following Qiskit GitHub repositories at
-[qiskit-tutorials/tutorials/chemistry](https://github.com/Qiskit/qiskit-tutorials/tree/master/tutorials/chemistry)
-and
-[qiskit-community-tutorials/chemistry](https://github.com/Qiskit/qiskit-community-tutorials/tree/master/chemistry).
+[qiskit-nature/docs/tutorials](https://github.com/Qiskit/qiskit-nature/tree/main/docs/tutorials).
 
 
 ----------------------------------------------------------------------------------------------------
@@ -183,14 +174,6 @@ We use [GitHub issues](https://github.com/Qiskit/qiskit-nature/issues) for track
 for discussion and simple questions.
 For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
 
-## Next Steps
-
-Now you're set up and ready to check out some of the other examples from the
-[Qiskit Tutorials](https://github.com/Qiskit/qiskit-tutorials)
-repository, that are used for the IBM Quantum Experience, and from the
-[Qiskit Community Tutorials](https://github.com/Qiskit/qiskit-community-tutorials).
-
-
 ## Authors and Citation
 
 Qiskit Nature was inspired, authored and brought about by the collective work of a team of researchers.
@@ -198,10 +181,10 @@ Qiskit Nature continues to grow with the help and work of
 [many people](https://github.com/Qiskit/qiskit-nature/graphs/contributors), who contribute
 to the project at different levels.
 If you use Qiskit, please cite as per the provided
-[BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
+[BibTeX file](https://github.com/Qiskit/qiskit/blob/main/Qiskit.bib).
 
 Please note that if you do not like the way your name is cited in the BibTex file then consult
-the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/master/.mailmap)
+the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/main/.mailmap)
 file.
 
 ## License
