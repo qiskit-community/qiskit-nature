@@ -341,7 +341,7 @@ class TestSpinOp(QiskitNatureTestCase):
             test_op = SpinOp("+ZXY") + SpinOp("-ZXY")
             self.assertTrue(test_op.is_hermitian())
 
-        with self.subTest("operator hermitian"):
+        with self.subTest("operator not hermitian"):
             test_op = SpinOp("+ZXY") - SpinOp("-ZXY")
             self.assertFalse(test_op.is_hermitian())
 

@@ -265,7 +265,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = FermionicOp("+N-EII") - FermionicOp("-N+EII")
             self.assertTrue(fer_op.is_hermitian())
 
-        with self.subTest("operator hermitian"):
+        with self.subTest("operator not hermitian"):
             fer_op = FermionicOp("+N+EII")
             self.assertFalse(fer_op.is_hermitian())
 
