@@ -13,7 +13,7 @@
 """The Sum Operator base interface."""
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
 
@@ -54,3 +54,12 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
             The reduced operator`
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def to_list(self) -> List[Tuple[str, complex]]:
+        """Returns the operators internal contents in list-format."""
+        raise NotImplementedError
+
+    def is_hermitian(self) -> bool:
+        """Checks whether the operator is hermitian"""
+        return frozenset(self.to_list()) == frozenset(self.adjoint().to_list())

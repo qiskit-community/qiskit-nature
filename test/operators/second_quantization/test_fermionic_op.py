@@ -259,6 +259,16 @@ class TestFermionicOp(QiskitNatureTestCase):
             targ = FermionicOp([("+", 1 + 1j), ("-", 1j)])
             self.assertFermionEqual(reduced_op, targ)
 
+    def test_hermiticity(self):
+        """test is_hermitian"""
+        with self.subTest("operator hermitian"):
+            fer_op = FermionicOp("+N-EII") - FermionicOp("-N+EII")
+            self.assertTrue(fer_op.is_hermitian())
+
+        with self.subTest("operator hermitian"):
+            fer_op = FermionicOp("+N+EII")
+            self.assertFalse(fer_op.is_hermitian())
+
 
 if __name__ == "__main__":
     unittest.main()
