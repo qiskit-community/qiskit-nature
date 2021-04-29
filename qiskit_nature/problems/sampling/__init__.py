@@ -11,29 +11,21 @@
 # that they have been altered from the originals.
 
 """
-Problems (:mod:`qiskit_nature.problems`)
-========================================
+Sampling Problems (:mod:`qiskit_nature.problems.sampling`)
+================================================================================
 
-.. currentmodule:: qiskit_nature.problems
+.. currentmodule:: qiskit_nature.problems.sampling
 
-
-Second-Quantization Problems
-++++++++++++++++++++++++++++
 
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
+   :nosignatures:
 
-   second_quantization
-
+   LatticeFoldingProblem
 """
 
-from .second_quantization import ElectronicStructureProblem
-from .second_quantization import VibrationalStructureProblem
-from .sampling.folding import LatticeFoldingProblem
+from .folding import LatticeFoldingProblem
 
 __all__ = [
-    "ElectronicStructureProblem",
-    "VibrationalStructureProblem",
-    "LatticeFoldingProblem"
+    'LatticeFoldingProblem'
 ]
-
