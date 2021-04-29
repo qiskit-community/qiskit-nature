@@ -12,18 +12,21 @@
 
 """The Bravyi-Kitaev Super Fast Mapper."""
 
+import copy
+import itertools
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info.operators import Pauli
+from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit.chemistry import FermionicOperator
 
 from .fermionic_mapper import FermionicMapper
 
 
 def _pauli_id(n_qubits):
-    return Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool)))
+    return SparsePauliOp.from_operator(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
     """
@@ -54,7 +57,7 @@ def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
         final_coeff = 0.5
 
     qubit_op = (final_coeff * h1_pq) * qubit_op
-    qubit_op.reduce()
+    qubit_op.simplify()
     return qubit_op
 
 def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
@@ -238,7 +241,7 @@ def edge_operator_aij(edge_list, i, j):
             v[j_j] = 1
 
     qubit_op = Pauli((v, w))
-    return qubit_op
+    return SparsePauliOp.from_operator(qubit_op)
 
 def edge_operator_bi(edge_list, i):
     """Calculate the edge operator B_i.
@@ -259,11 +262,54 @@ def edge_operator_bi(edge_list, i):
     w = np.zeros(edge_list.shape[1])
     v[qubit_position] = 1
     qubit_op = Pauli((v, w))
-    return qubit_op
+    return SparsePauliOp.from_operator(qubit_op)
 
 
 class BravyiKitaevSFMapper(FermionicMapper):
     """The Bravyi-Kitaev super fast fermion-to-qubit mapping. """
 
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
-        pass
+    def map(self, second_q_op: FermionicOperator) -> PauliSumOp:
+        second_q_op = copy.deepcopy(second_q_op)
+        # bksf mapping works with the 'physicist' notation.
+        second_q_op.h2 = np.einsum('ijkm->ikmj', second_q_op.h2)
+        modes = second_q_op.modes
+        # Initialize qubit operator as constant.
+        qubit_op = None # SparsePauliOp.from_operator(Pauli(([False], [False])))
+        edge_list = bravyi_kitaev_fast_edge_list(second_q_op)
+        # Loop through all indices.
+        for p in range(modes):  # pylint: disable=invalid-name
+            for q in range(modes):
+                # Handle one-body terms.
+                h1_pq = second_q_op.h1[p, q]
+
+                if h1_pq != 0.0 and p >= q:
+                    if qubit_op is None:
+                        qubit_op = _one_body(edge_list, p, q, h1_pq)
+                    else:
+                        qubit_op += _one_body(edge_list, p, q, h1_pq)
+
+                # Keep looping for the two-body terms.
+                for r in range(modes):
+                    for s in range(modes):  # pylint: disable=invalid-name
+                        h2_pqrs = second_q_op.h2[p, q, r, s]
+
+                        # Skip zero terms.
+                        if (h2_pqrs == 0.0) or (p == q) or (r == s):
+                            continue
+
+                        # Identify and skip one of the complex conjugates.
+                        if [p, q, r, s] != [s, r, q, p]:
+                            if len(set([p, q, r, s])) == 4:
+                                if min(r, s) < min(p, q):
+                                    continue
+                            # Handle case of 3 unique indices
+                            elif len(set([p, q, r, s])) == 3:
+                                qubit_op += _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
+                                continue
+                            elif p != r and q < p:
+                                continue
+
+                        qubit_op += _two_body(edge_list, p, q, r, s, h2_pqrs)
+
+        qubit_op.simplify()
+        return PauliSumOp(qubit_op)
