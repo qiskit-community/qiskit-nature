@@ -349,7 +349,7 @@ class PySCFDriver(FermionicDriver):
             val: the atomic coordinates.
 
         Raises:
-            QiskitNatureError: If the provided coordinate are mis-formatted.
+            QiskitNatureError: If the provided coordinate are badly formatted.
 
         Returns:
             The coordinates in xyz format.

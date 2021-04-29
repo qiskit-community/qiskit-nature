@@ -33,6 +33,7 @@ bpa
 bravyi
 cfg
 chc
+chkfile
 clifford
 cliffords
 coeff
@@ -142,8 +143,10 @@ ket
 kitaev
 kwargs
 labelled
+lda
 len
 libor
+libxc
 lih
 lijh
 ljik
@@ -293,12 +296,14 @@ vibrational
 vqe
 vqe's
 vscf
+vwn
 watson
 wavefunction
 wavefunctions
 whitespace
 whitespaces
 wigner
+xcfun
 xdata
 xy
 xyz
