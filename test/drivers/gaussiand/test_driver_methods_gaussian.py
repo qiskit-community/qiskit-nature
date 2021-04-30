@@ -17,6 +17,7 @@ import unittest
 from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import GaussianDriver
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestDriverMethodsGaussian(TestDriverMethods):
@@ -54,31 +55,31 @@ H   0.0  0.0    0.9697
     def test_lih_rhf(self):
         """ lih rhf test """
         driver = GaussianDriver(config=self.g16_lih_config.format('rhf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_lih_rohf(self):
         """ lih rohf test """
         driver = GaussianDriver(config=self.g16_lih_config.format('rohf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_lih_uhf(self):
         """ lih uhf test """
         driver = GaussianDriver(config=self.g16_lih_config.format('uhf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'lih')
 
     def test_oh_rohf(self):
         """ oh rohf test """
         driver = GaussianDriver(config=self.g16_oh_config.format('rohf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'oh')
 
     def test_oh_uhf(self):
         """ oh uhf test """
         driver = GaussianDriver(config=self.g16_oh_config.format('uhf'))
-        result = self._run_driver(driver)
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, 'oh')
 
 
