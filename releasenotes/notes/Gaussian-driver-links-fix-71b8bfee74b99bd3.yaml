@@ -1,0 +1,4 @@
+---
+other:
+  - |
+    Fixed relative links for Gaussian driver in README. Moved them to point from Qiskit Chemistry to Qiskit Nature.
