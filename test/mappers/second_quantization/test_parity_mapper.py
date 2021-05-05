@@ -20,33 +20,37 @@ from qiskit.opflow import X, Z, I
 
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
+from qiskit_nature.problems.second_quantization.electronic.builders import (
+    fermionic_op_builder,
+)
 
 
 class TestParityMapper(QiskitNatureTestCase):
-    """ Test Parity Mapper """
+    """Test Parity Mapper"""
 
-    REF_H2 = \
-        - 0.81054798160031430 * (I ^ I ^ I ^ I) \
-        - 0.22575349071287365 * (Z ^ Z ^ I ^ I) \
-        + 0.12091263243164174 * (I ^ I ^ Z ^ I) \
-        + 0.12091263243164174 * (Z ^ I ^ Z ^ I) \
-        + 0.17218393211855787 * (I ^ Z ^ Z ^ I) \
-        + 0.17218393211855818 * (I ^ I ^ I ^ Z) \
-        + 0.16614543242281926 * (I ^ Z ^ I ^ Z) \
-        + 0.16614543242281926 * (Z ^ Z ^ I ^ Z) \
-        - 0.22575349071287362 * (I ^ I ^ Z ^ Z) \
-        + 0.16892753854646372 * (I ^ Z ^ Z ^ Z) \
-        + 0.17464343053355980 * (Z ^ Z ^ Z ^ Z) \
-        + 0.04523279999117751 * (I ^ X ^ I ^ X) \
-        + 0.04523279999117751 * (Z ^ X ^ I ^ X) \
-        - 0.04523279999117751 * (I ^ X ^ Z ^ X) \
+    REF_H2 = (
+        -0.81054798160031430 * (I ^ I ^ I ^ I)
+        - 0.22575349071287365 * (Z ^ Z ^ I ^ I)
+        + 0.12091263243164174 * (I ^ I ^ Z ^ I)
+        + 0.12091263243164174 * (Z ^ I ^ Z ^ I)
+        + 0.17218393211855787 * (I ^ Z ^ Z ^ I)
+        + 0.17218393211855818 * (I ^ I ^ I ^ Z)
+        + 0.16614543242281926 * (I ^ Z ^ I ^ Z)
+        + 0.16614543242281926 * (Z ^ Z ^ I ^ Z)
+        - 0.22575349071287362 * (I ^ I ^ Z ^ Z)
+        + 0.16892753854646372 * (I ^ Z ^ Z ^ Z)
+        + 0.17464343053355980 * (Z ^ Z ^ Z ^ Z)
+        + 0.04523279999117751 * (I ^ X ^ I ^ X)
+        + 0.04523279999117751 * (Z ^ X ^ I ^ X)
+        - 0.04523279999117751 * (I ^ X ^ Z ^ X)
         - 0.04523279999117751 * (Z ^ X ^ Z ^ X)
+    )
 
     def test_mapping(self):
-        """ Test mapping to qubit operator """
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
-                                                              'drivers/hdf5d'))
+        """Test mapping to qubit operator"""
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
+        )
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder._build_fermionic_op(q_molecule)
         mapper = ParityMapper()
@@ -60,10 +64,10 @@ class TestParityMapper(QiskitNatureTestCase):
         self.assertEqual(qubit_op, TestParityMapper.REF_H2)
 
     def test_allows_two_qubit_reduction(self):
-        """ Test this returns True for this mapper """
+        """Test this returns True for this mapper"""
         mapper = ParityMapper()
         self.assertTrue(mapper.allows_two_qubit_reduction)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

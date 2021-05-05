@@ -13,8 +13,9 @@
 """Tests Electronic Structure Problem."""
 
 from test import QiskitNatureTestCase
-from test.problems.second_quantization.electronic.resources.resource_reader import \
-    read_expected_file
+from test.problems.second_quantization.electronic.resources.resource_reader import (
+    read_expected_file,
+)
 import numpy as np
 from qiskit_nature.transformers import ActiveSpaceTransformer
 from qiskit_nature.drivers import HDF5Driver
@@ -29,45 +30,59 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
         expected_num_of_sec_quant_ops = 7
-        expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_two_ints',
-                                                            'problems/second_quantization/'
-                                                            'electronic/resources')
+        expected_fermionic_op_path = self.get_resource_path(
+            "H2_631g_ferm_op_two_ints",
+            "problems/second_quantization/" "electronic/resources",
+        )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers")
+        )
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
         second_quantized_ops = electronic_structure_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
-        with self.subTest("Check expected length of the list of second quantized operators."):
+        with self.subTest(
+            "Check expected length of the list of second quantized operators."
+        ):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
             for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
-            assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
-                       zip(expected_fermionic_op, electr_sec_quant_op.to_list()))
+            assert all(
+                s[0] == t[0] and np.isclose(s[1], t[1])
+                for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
+            )
 
     def test_second_q_ops_with_active_space(self):
         """Tests that the correct second quantized operator is created if an active space
         transformer is provided."""
         expected_num_of_sec_quant_ops = 7
-        expected_fermionic_op_path = self.get_resource_path('H2_631g_ferm_op_active_space',
-                                                            'problems/second_quantization/'
-                                                            'electronic/resources')
+        expected_fermionic_op_path = self.get_resource_path(
+            "H2_631g_ferm_op_active_space",
+            "problems/second_quantization/" "electronic/resources",
+        )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('H2_631g.hdf5', 'transformers'))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers")
+        )
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
         electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
         second_quantized_ops = electronic_structure_problem.second_q_ops()
         electr_sec_quant_op = second_quantized_ops[0]
 
-        with self.subTest("Check expected length of the list of second quantized operators."):
+        with self.subTest(
+            "Check expected length of the list of second quantized operators."
+        ):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
             for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
-            assert all(s[0] == t[0] and np.isclose(s[1], t[1]) for s, t in
-                       zip(expected_fermionic_op, electr_sec_quant_op.to_list()))
+            assert all(
+                s[0] == t[0] and np.isclose(s[1], t[1])
+                for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
+            )

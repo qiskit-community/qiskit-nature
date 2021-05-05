@@ -199,7 +199,9 @@ class SpinOp(SecondQuantizedOp):
             )
         self._dim = int(2 * spin + 1)
 
-        if isinstance(data, tuple) and all(isinstance(datum, np.ndarray) for datum in data):
+        if isinstance(data, tuple) and all(
+            isinstance(datum, np.ndarray) for datum in data
+        ):
             self._spin_array = np.array(data[0], dtype=np.uint8)
             self._register_length = self._spin_array.shape[2]
             self._coeffs = np.array(data[1], dtype=dtype)
@@ -220,13 +222,19 @@ class SpinOp(SecondQuantizedOp):
                 sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+?)"
                 # space (\s) separated sparse label or empty string
                 label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$|^$")
-                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
+                invalid_labels = [
+                    label for label, _ in data if not label_pattern.match(label)
+                ]
                 if invalid_labels:
-                    raise ValueError(f"Invalid labels for sparse labels: {invalid_labels}.")
+                    raise ValueError(
+                        f"Invalid labels for sparse labels: {invalid_labels}."
+                    )
             else:  # dense_label
                 # dense label (repeat of [IXYZ+-])
                 label_pattern = re.compile(r"^[IXYZ\+\-]+$")
-                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
+                invalid_labels = [
+                    label for label, _ in data if not label_pattern.match(label)
+                ]
                 if invalid_labels:
                     raise ValueError(
                         f"Invalid labels for dense labels: {invalid_labels} (if you want to use "
@@ -246,9 +254,13 @@ class SpinOp(SecondQuantizedOp):
             if register_length is None:  # Dense label
                 self._register_length = len(labels[0])
                 label_pattern = re.compile(r"^[IXYZ]+$")
-                invalid_labels = [label for label in labels if not label_pattern.match(label)]
+                invalid_labels = [
+                    label for label in labels if not label_pattern.match(label)
+                ]
                 if invalid_labels:
-                    raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
+                    raise ValueError(
+                        f"Invalid labels for dense labels are given: {invalid_labels}"
+                    )
                 self._spin_array = np.array(
                     [
                         [[char == "X", char == "Y", char == "Z"] for char in label]
@@ -262,7 +274,7 @@ class SpinOp(SecondQuantizedOp):
                 invalid_labels = [
                     label
                     for label in labels
-                    if not all(label_pattern.match(l) for l in label.split())
+                    if not all(label_pattern.match(lb) for lb in label.split())
                 ]
                 if invalid_labels:
                     raise ValueError(
@@ -291,7 +303,9 @@ class SpinOp(SecondQuantizedOp):
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
+        return "  " + "\n+ ".join(
+            [f"{label} * {coeff}" for label, coeff in self.to_list()]
+        )
 
     def __len__(self) -> int:
         return len(self._coeffs)
@@ -336,14 +350,17 @@ class SpinOp(SecondQuantizedOp):
     def add(self, other: "SpinOp") -> "SpinOp":
         if not isinstance(other, SpinOp):
             raise TypeError(
-                "Unsupported operand type(s) for +: 'SpinOp' and " f"'{type(other).__name__}'"
+                "Unsupported operand type(s) for +: 'SpinOp' and "
+                f"'{type(other).__name__}'"
             )
 
         if self.register_length != other.register_length:
             raise TypeError("Incompatible register lengths for '+'.")
 
         if self.spin != other.spin:
-            raise TypeError(f"Addition between spin {self.spin} and spin {other.spin} is invalid.")
+            raise TypeError(
+                f"Addition between spin {self.spin} and spin {other.spin} is invalid."
+            )
 
         return SpinOp(
             (
@@ -375,7 +392,9 @@ class SpinOp(SecondQuantizedOp):
         # to simply complex conjugating the coefficient.
         return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
+    def reduce(
+        self, atol: Optional[float] = None, rtol: Optional[float] = None
+    ) -> "SpinOp":
         if atol is None:
             atol = self.atol
         if rtol is None:
@@ -388,7 +407,9 @@ class SpinOp(SecondQuantizedOp):
         for i, val in zip(indices, self._coeffs):
             coeff_list[i] += val
         non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
+            i
+            for i, v in enumerate(coeff_list)
+            if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
             return SpinOp(
@@ -449,7 +470,10 @@ class SpinOp(SecondQuantizedOp):
         y_mat = np.fromfunction(
             lambda i, j: np.where(
                 np.abs(i - j) == 1,
-                1j * (i - j) * np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
+                1j
+                * (i - j)
+                * np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1))
+                / 2,
                 0,
             ),
             (self._dim, self._dim),
@@ -481,7 +505,9 @@ class SpinOp(SecondQuantizedOp):
         xyz_dict = {"X": 0, "Y": 1, "Z": 2}
 
         # 3-dimensional ndarray (XYZ, terms, register)
-        self._spin_array = np.zeros((3, len(labels), self.register_length), dtype=np.uint8)
+        self._spin_array = np.zeros(
+            (3, len(labels), self.register_length), dtype=np.uint8
+        )
         for term, label in enumerate(labels):
             for split_label in label.split():
                 xyz, nums = split_label.split("_", 1)
@@ -490,7 +516,9 @@ class SpinOp(SecondQuantizedOp):
                     continue
 
                 xyz_num = xyz_dict[xyz]
-                index, power = map(int, nums.split("^", 1)) if "^" in nums else (int(nums), 1)
+                index, power = (
+                    map(int, nums.split("^", 1)) if "^" in nums else (int(nums), 1)
+                )
                 if index >= self.register_length:
                     raise ValueError(
                         f"Index {index} must be smaller than register_length {self.register_length}"

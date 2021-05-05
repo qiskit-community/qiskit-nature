@@ -29,47 +29,100 @@ class EigenstateResult(AlgorithmResult):
     def __init__(self) -> None:
         super().__init__()
         self._eigenenergies: Optional[np.ndarray] = None
-        self._eigenstates: Optional[List[Union[str,
-                                               dict, Result, list, np.ndarray, Statevector,
-                                               QuantumCircuit,
-                                               Instruction, OperatorBase]]] = None
+        self._eigenstates: Optional[
+            List[
+                Union[
+                    str,
+                    dict,
+                    Result,
+                    list,
+                    np.ndarray,
+                    Statevector,
+                    QuantumCircuit,
+                    Instruction,
+                    OperatorBase,
+                ]
+            ]
+        ] = None
         self._aux_operator_eigenvalues: Optional[List[float]] = None
         self._raw_result: Optional[AlgorithmResult] = None
 
     @property
     def eigenenergies(self) -> Optional[np.ndarray]:
-        """ returns eigen energies """
+        """returns eigen energies"""
         return self._eigenenergies
 
     @eigenenergies.setter
     def eigenenergies(self, value: np.ndarray) -> None:
-        """ set eigen energies """
+        """set eigen energies"""
         self._eigenenergies = value
 
     @property
-    def eigenstates(self) -> Optional[List[Union[str, dict, Result, list, np.ndarray, Statevector,
-                                                 QuantumCircuit, Instruction, OperatorBase]]]:
-        """ returns eigen states """
+    def eigenstates(
+        self,
+    ) -> Optional[
+        List[
+            Union[
+                str,
+                dict,
+                Result,
+                list,
+                np.ndarray,
+                Statevector,
+                QuantumCircuit,
+                Instruction,
+                OperatorBase,
+            ]
+        ]
+    ]:
+        """returns eigen states"""
         return self._eigenstates
 
     @eigenstates.setter
-    def eigenstates(self, value: List[Union[str, dict, Result, list, np.ndarray, Statevector,
-                                            QuantumCircuit, Instruction, OperatorBase]]) -> None:
-        """ set eigen states """
+    def eigenstates(
+        self,
+        value: List[
+            Union[
+                str,
+                dict,
+                Result,
+                list,
+                np.ndarray,
+                Statevector,
+                QuantumCircuit,
+                Instruction,
+                OperatorBase,
+            ]
+        ],
+    ) -> None:
+        """set eigen states"""
         self._eigenstates = value
 
     @property
     def groundenergy(self) -> Optional[float]:
-        """ returns ground energy """
+        """returns ground energy"""
         energies = self.eigenenergies
         if isinstance(energies, np.ndarray) and not energies.size:
             return energies[0].real
         return None
 
     @property
-    def groundstate(self) -> Optional[Union[str, dict, Result, list, np.ndarray, Statevector,
-                                            QuantumCircuit, Instruction, OperatorBase]]:
-        """ returns ground state """
+    def groundstate(
+        self,
+    ) -> Optional[
+        Union[
+            str,
+            dict,
+            Result,
+            list,
+            np.ndarray,
+            Statevector,
+            QuantumCircuit,
+            Instruction,
+            OperatorBase,
+        ]
+    ]:
+        """returns ground state"""
         states = self.eigenstates
         if states:
             return states[0]
@@ -77,12 +130,12 @@ class EigenstateResult(AlgorithmResult):
 
     @property
     def aux_operator_eigenvalues(self) -> Optional[List[float]]:
-        """ return aux operator eigen values """
+        """return aux operator eigen values"""
         return self._aux_operator_eigenvalues
 
     @aux_operator_eigenvalues.setter
     def aux_operator_eigenvalues(self, value: List[float]) -> None:
-        """ set aux operator eigen values """
+        """set aux operator eigen values"""
         self._aux_operator_eigenvalues = value
 
     @property
@@ -104,15 +157,18 @@ class EigenstateResult(AlgorithmResult):
             TypeError: Argument is None
         """
         if result is None:
-            raise TypeError('Argument result expected.')
+            raise TypeError("Argument result expected.")
         if result == self:
             return
 
         # find any result public property that exists in the receiver
         for name, value in inspect.getmembers(result):
-            if not name.startswith('_') and \
-                    not inspect.ismethod(value) and not inspect.isfunction(value) and \
-                    hasattr(self, name):
+            if (
+                not name.startswith("_")
+                and not inspect.ismethod(value)
+                and not inspect.isfunction(value)
+                and hasattr(self, name)
+            ):
                 try:
                     setattr(self, name, value)
                 except AttributeError:

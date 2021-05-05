@@ -27,7 +27,7 @@ from .spin_mapper import SpinMapper
 
 
 class LinearMapper(SpinMapper):
-    """The Linear spin-to-qubit mapping. """
+    """The Linear spin-to-qubit mapping."""
 
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
 
@@ -40,7 +40,9 @@ class LinearMapper(SpinMapper):
 
             operatorlist: List[PauliSumOp] = []
 
-            for n_x, n_y, n_z in zip(second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]):
+            for n_x, n_y, n_z in zip(
+                second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]
+            ):
 
                 operator_on_spin_i: List[PauliSumOp] = []
 
@@ -60,7 +62,9 @@ class LinearMapper(SpinMapper):
                     )
 
                 if np.any([n_x, n_y, n_z]) > 0:
-                    single_operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
+                    single_operator_on_spin_i = reduce(
+                        operator.matmul, operator_on_spin_i
+                    )
                     operatorlist.append(single_operator_on_spin_i.reduce())
 
                 else:
@@ -94,47 +98,55 @@ class LinearMapper(SpinMapper):
         nqubits = dspin
 
         # quick functions to generate a pauli with X / Y / Z at location `i`
-        pauli_id = Pauli('I' * nqubits)
+        pauli_id = Pauli("I" * nqubits)
 
         def pauli_x(i):
-            return Pauli('I' * i + 'X' + 'I' * (nqubits - i - 1))
+            return Pauli("I" * i + "X" + "I" * (nqubits - i - 1))
 
         def pauli_y(i):
-            return Pauli('I' * i + 'Y' + 'I' * (nqubits - i - 1))
+            return Pauli("I" * i + "Y" + "I" * (nqubits - i - 1))
 
         def pauli_z(i):
-            return Pauli('I' * i + 'Z' + 'I' * (nqubits - i - 1))
+            return Pauli("I" * i + "Z" + "I" * (nqubits - i - 1))
 
         # 1. build the non-diagonal X operator
         x_summands = []
         for i, coeff in enumerate(np.diag(SpinOp("X", spin=spin).to_matrix(), 1)):
-            x_summands.append(PauliSumOp(
-                coeff / 2. * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1))) +
-                coeff / 2. * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
-            ))
+            x_summands.append(
+                PauliSumOp(
+                    coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1)))
+                    + coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
+                )
+            )
         spin_op_encoding.append(reduce(operator.add, x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
         for i, coeff in enumerate(np.diag(SpinOp("Y", spin=spin).to_matrix(), 1)):
-            y_summands.append(PauliSumOp(
-                -1j * coeff / 2. * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1))) +
-                1j * coeff / 2. * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
-            ))
+            y_summands.append(
+                PauliSumOp(
+                    -1j * coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1)))
+                    + 1j * coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
+                )
+            )
         spin_op_encoding.append(reduce(operator.add, y_summands))
 
         # 3. build the diagonal Z
         z_summands = []
         for i, coeff in enumerate(np.diag(SpinOp("Z", spin=spin).to_matrix())):
             # get the first upper diagonal of coeff.
-            z_summands.append(PauliSumOp(coeff / 2. * SparsePauliOp(pauli_z(i)) +
-                                         coeff / 2. * SparsePauliOp(pauli_id)))
+            z_summands.append(
+                PauliSumOp(
+                    coeff / 2.0 * SparsePauliOp(pauli_z(i))
+                    + coeff / 2.0 * SparsePauliOp(pauli_id)
+                )
+            )
 
         z_operator = reduce(operator.add, z_summands)
         spin_op_encoding.append(z_operator)
 
         # 4. add the identity operator
-        spin_op_encoding.append(PauliSumOp(1. * SparsePauliOp(pauli_id)))
+        spin_op_encoding.append(PauliSumOp(1.0 * SparsePauliOp(pauli_id)))
 
         # return the lookup table for the transformed XYZI operators
         return spin_op_encoding

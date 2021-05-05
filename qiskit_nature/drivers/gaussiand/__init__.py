@@ -176,7 +176,9 @@ from .gaussian_forces_driver import GaussianForcesDriver
 from .gaussian_log_driver import GaussianLogDriver
 from .gaussian_log_result import GaussianLogResult
 
-__all__ = ['GaussianDriver',
-           'GaussianForcesDriver',
-           'GaussianLogDriver',
-           'GaussianLogResult']
+__all__ = [
+    "GaussianDriver",
+    "GaussianForcesDriver",
+    "GaussianLogDriver",
+    "GaussianLogResult",
+]

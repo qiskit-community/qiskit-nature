@@ -19,18 +19,20 @@ from qiskit_nature import QiskitNatureError
 
 logger = logging.getLogger(__name__)
 
-_GAUSSIAN_16 = 'g16'
-_GAUSSIAN_16_DESC = 'Gaussian 16'
+_GAUSSIAN_16 = "g16"
+_GAUSSIAN_16_DESC = "Gaussian 16"
 
 _G16PROG = which(_GAUSSIAN_16)
 
 
 def check_valid() -> None:
-    """ Checks if Gaussian is installed and available"""
+    """Checks if Gaussian is installed and available"""
     if _G16PROG is None:
         raise QiskitNatureError(
-            "Could not locate {} executable '{}'. Please check that it is installed correctly."
-            .format(_GAUSSIAN_16_DESC, _GAUSSIAN_16))
+            "Could not locate {} executable '{}'. Please check that it is installed correctly.".format(
+                _GAUSSIAN_16_DESC, _GAUSSIAN_16
+            )
+        )
 
 
 def run_g16(cfg: str) -> str:
@@ -50,14 +52,16 @@ def run_g16(cfg: str) -> str:
     """
     process = None
     try:
-        with Popen(_GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True) as process:
+        with Popen(
+            _GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True
+        ) as process:
             stdout, _ = process.communicate(cfg)
             process.wait()
     except Exception as ex:
         if process is not None:
             process.kill()
 
-        raise QiskitNatureError('{} run has failed'.format(_GAUSSIAN_16_DESC)) from ex
+        raise QiskitNatureError("{} run has failed".format(_GAUSSIAN_16_DESC)) from ex
 
     if process.returncode != 0:
         errmsg = ""
@@ -70,8 +74,10 @@ def run_g16(cfg: str) -> str:
                 logger.error(lines[i])
                 errmsg += lines[i] + "\n"
         raise QiskitNatureError(
-            '{} process return code {}\n{}'.format(
-                _GAUSSIAN_16_DESC, process.returncode, errmsg))
+            "{} process return code {}\n{}".format(
+                _GAUSSIAN_16_DESC, process.returncode, errmsg
+            )
+        )
 
     all_text = ""
     if stdout is not None:

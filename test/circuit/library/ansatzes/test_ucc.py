@@ -44,27 +44,43 @@ class TestUCC(QiskitNatureTestCase):
 
     @unpack
     @data(
-        ('t', 8, (2, 2), [FermionicOp([('++--+I-I', 1j), ('--++-I+I', 1j)]),
-                          FermionicOp([('++--+II-', 1j), ('--++-II+', 1j)]),
-                          FermionicOp([('++--I+-I', 1j), ('--++I-+I', 1j)]),
-                          FermionicOp([('++--I+I-', 1j), ('--++I-I+', 1j)]),
-                          FermionicOp([('+I-I++--', 1j), ('-I+I--++', 1j)]),
-                          FermionicOp([('+II-++--', 1j), ('-II+--++', 1j)]),
-                          FermionicOp([('I+-I++--', 1j), ('I-+I--++', 1j)]),
-                          FermionicOp([('I+I-++--', 1j), ('I-I+--++', 1j)])]),
-        ('t', 8, (2, 1), [FermionicOp([('++--+-II', 1j), ('--++-+II', 1j)]),
-                          FermionicOp([('++--+I-I', 1j), ('--++-I+I', 1j)]),
-                          FermionicOp([('++--+II-', 1j), ('--++-II+', 1j)])]),
-        ('q', 8, (2, 2), [FermionicOp([('++--++--', 1j), ('--++--++', -1j)])]),
+        (
+            "t",
+            8,
+            (2, 2),
+            [
+                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)]),
+                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)]),
+                FermionicOp([("++--I+-I", 1j), ("--++I-+I", 1j)]),
+                FermionicOp([("++--I+I-", 1j), ("--++I-I+", 1j)]),
+                FermionicOp([("+I-I++--", 1j), ("-I+I--++", 1j)]),
+                FermionicOp([("+II-++--", 1j), ("-II+--++", 1j)]),
+                FermionicOp([("I+-I++--", 1j), ("I-+I--++", 1j)]),
+                FermionicOp([("I+I-++--", 1j), ("I-I+--++", 1j)]),
+            ],
+        ),
+        (
+            "t",
+            8,
+            (2, 1),
+            [
+                FermionicOp([("++--+-II", 1j), ("--++-+II", 1j)]),
+                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)]),
+                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)]),
+            ],
+        ),
+        ("q", 8, (2, 2), [FermionicOp([("++--++--", 1j), ("--++--++", -1j)])]),
         # TODO: add more edge cases?
     )
     def test_ucc_ansatz(self, excitations, num_spin_orbitals, num_particles, expect):
         """Tests the UCC Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = UCC(qubit_converter=converter,
-                     num_particles=num_particles,
-                     num_spin_orbitals=num_spin_orbitals,
-                     excitations=excitations)
+        ansatz = UCC(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            excitations=excitations,
+        )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)

@@ -28,7 +28,7 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
         num_qubits = 3
 
         ops = [Z ^ num_qubits, Y ^ num_qubits, X ^ num_qubits]
-        strings = ['z' * num_qubits, 'y' * num_qubits, 'x' * num_qubits] * 2
+        strings = ["z" * num_qubits, "y" * num_qubits, "x" * num_qubits] * 2
 
         evo = EvolvedOperatorAnsatz(ops, 2)
         evo._build()  # fixed by speedup parameter binds PR
@@ -95,9 +95,9 @@ def evolve(pauli_string, time):
     num_qubits = len(pauli_string)
     forward = QuantumCircuit(num_qubits)
     for i, pauli in enumerate(pauli_string):
-        if pauli == 'x':
+        if pauli == "x":
             forward.h(i)
-        elif pauli == 'y':
+        elif pauli == "y":
             forward.sdg(i)
             forward.h(i)
 

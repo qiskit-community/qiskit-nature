@@ -18,10 +18,10 @@ from .morse_potential import MorsePotential
 from .potential_base import EnergySurfaceBase, PotentialBase, VibrationalStructureBase
 
 __all__ = [
-    'EnergySurface1DSpline',
-    'HarmonicPotential',
-    'MorsePotential',
-    'EnergySurfaceBase',
-    'PotentialBase',
-    'VibrationalStructureBase',
+    "EnergySurface1DSpline",
+    "HarmonicPotential",
+    "MorsePotential",
+    "EnergySurfaceBase",
+    "PotentialBase",
+    "VibrationalStructureBase",
 ]

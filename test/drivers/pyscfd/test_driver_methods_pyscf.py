@@ -23,142 +23,217 @@ from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestDriverMethodsPySCF(TestDriverMethods):
-    """ Driver Methods PySCF tests """
+    """Driver Methods PySCF tests"""
 
     def setUp(self):
         super().setUp()
         try:
             PySCFDriver(atom=self.lih)
         except QiskitNatureError:
-            self.skipTest('PySCF driver does not appear to be installed')
+            self.skipTest("PySCF driver does not appear to be installed")
 
     def test_lih_rhf(self):
-        """ lih rhf test """
-        driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=0, basis='sto-3g',
-                             hf_method=HFMethodType.RHF)
+        """lih rhf test"""
+        driver = PySCFDriver(
+            atom=self.lih,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto-3g",
+            hf_method=HFMethodType.RHF,
+        )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_rohf(self):
-        """ lih rohf test """
-        driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=0, basis='sto-3g',
-                             hf_method=HFMethodType.ROHF)
+        """lih rohf test"""
+        driver = PySCFDriver(
+            atom=self.lih,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto-3g",
+            hf_method=HFMethodType.ROHF,
+        )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_uhf(self):
-        """ lih uhf test """
-        driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=0, basis='sto-3g',
-                             hf_method=HFMethodType.UHF)
+        """lih uhf test"""
+        driver = PySCFDriver(
+            atom=self.lih,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto-3g",
+            hf_method=HFMethodType.UHF,
+        )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_rhf_parity(self):
-        """ lih rhf parity test """
-        driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=0, basis='sto-3g',
-                             hf_method=HFMethodType.RHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(ParityMapper()),
-                                  transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        """lih rhf parity test"""
+        driver = PySCFDriver(
+            atom=self.lih,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto-3g",
+            hf_method=HFMethodType.RHF,
+        )
+        result = self._run_driver(
+            driver,
+            converter=QubitConverter(ParityMapper()),
+            transformers=[FreezeCoreTransformer()],
+        )
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_rhf_parity_2q(self):
-        """ lih rhf parity 2q test """
-        driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=0, basis='sto-3g',
-                             hf_method=HFMethodType.RHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(ParityMapper(),
-                                                           two_qubit_reduction=True),
-                                  transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        """lih rhf parity 2q test"""
+        driver = PySCFDriver(
+            atom=self.lih,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto-3g",
+            hf_method=HFMethodType.RHF,
+        )
+        result = self._run_driver(
+            driver,
+            converter=QubitConverter(ParityMapper(), two_qubit_reduction=True),
+            transformers=[FreezeCoreTransformer()],
+        )
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_rhf_bk(self):
-        """ lih rhf bk test """
-        driver = PySCFDriver(atom=self.lih, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=0, basis='sto-3g',
-                             hf_method=HFMethodType.RHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(BravyiKitaevMapper()),
-                                  transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        """lih rhf bk test"""
+        driver = PySCFDriver(
+            atom=self.lih,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto-3g",
+            hf_method=HFMethodType.RHF,
+        )
+        result = self._run_driver(
+            driver,
+            converter=QubitConverter(BravyiKitaevMapper()),
+            transformers=[FreezeCoreTransformer()],
+        )
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_oh_rohf(self):
-        """ oh rohf test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.ROHF)
+        """oh rohf test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.ROHF,
+        )
         result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'oh')
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf(self):
-        """ oh uhf test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.UHF)
+        """oh uhf test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.UHF,
+        )
         result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'oh')
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_rohf_parity(self):
-        """ oh rohf parity test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.ROHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(ParityMapper()))
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh rohf parity test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.ROHF,
+        )
+        result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_rohf_parity_2q(self):
-        """ oh rohf parity 2q test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.ROHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(ParityMapper(),
-                                                           two_qubit_reduction=True))
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh rohf parity 2q test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.ROHF,
+        )
+        result = self._run_driver(
+            driver, converter=QubitConverter(ParityMapper(), two_qubit_reduction=True)
+        )
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf_parity(self):
-        """ oh uhf parity test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.UHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(ParityMapper()))
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh uhf parity test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.UHF,
+        )
+        result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf_parity_2q(self):
-        """ oh uhf parity 2q test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.UHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(ParityMapper(),
-                                                           two_qubit_reduction=True))
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh uhf parity 2q test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.UHF,
+        )
+        result = self._run_driver(
+            driver, converter=QubitConverter(ParityMapper(), two_qubit_reduction=True)
+        )
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_rohf_bk(self):
-        """ oh rohf bk test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.ROHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(BravyiKitaevMapper()))
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh rohf bk test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.ROHF,
+        )
+        result = self._run_driver(
+            driver, converter=QubitConverter(BravyiKitaevMapper())
+        )
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf_bk(self):
-        """ oh uhf bk test """
-        driver = PySCFDriver(atom=self.o_h, unit=UnitsType.ANGSTROM,
-                             charge=0, spin=1, basis='sto-3g',
-                             hf_method=HFMethodType.UHF)
-        result = self._run_driver(driver,
-                                  converter=QubitConverter(BravyiKitaevMapper()))
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh uhf bk test"""
+        driver = PySCFDriver(
+            atom=self.o_h,
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto-3g",
+            hf_method=HFMethodType.UHF,
+        )
+        result = self._run_driver(
+            driver, converter=QubitConverter(BravyiKitaevMapper())
+        )
+        self._assert_energy_and_dipole(result, "oh")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

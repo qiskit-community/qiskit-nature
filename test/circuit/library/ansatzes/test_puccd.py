@@ -30,41 +30,73 @@ class TestPUCC(QiskitNatureTestCase):
 
     @unpack
     @data(
-        (4, (1, 1), [FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
-        (8, (2, 2), [FermionicOp([('+I-I+I-I', 1j), ('-I+I-I+I', -1j)]),
-                     FermionicOp([('+II-+II-', 1j), ('-II+-II+', -1j)]),
-                     FermionicOp([('I+-II+-I', 1j), ('I-+II-+I', -1j)]),
-                     FermionicOp([('I+I-I+I-', 1j), ('I-I+I-I+', -1j)])]),
+        (4, (1, 1), [FermionicOp([("+-+-", 1j), ("-+-+", -1j)])]),
+        (
+            8,
+            (2, 2),
+            [
+                FermionicOp([("+I-I+I-I", 1j), ("-I+I-I+I", -1j)]),
+                FermionicOp([("+II-+II-", 1j), ("-II+-II+", -1j)]),
+                FermionicOp([("I+-II+-I", 1j), ("I-+II-+I", -1j)]),
+                FermionicOp([("I+I-I+I-", 1j), ("I-I+I-I+", -1j)]),
+            ],
+        ),
     )
     def test_puccd_ansatz(self, num_spin_orbitals, num_particles, expect):
         """Tests the PUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = PUCCD(qubit_converter=converter,
-                       num_particles=num_particles,
-                       num_spin_orbitals=num_spin_orbitals)
+        ansatz = PUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+        )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
 
     @unpack
     @data(
-        (4, (1, 1), (True, True), [FermionicOp([('+-II', 1j), ('-+II', 1j)]),
-                                   FermionicOp([('II+-', 1j), ('II-+', 1j)]),
-                                   FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
-        (4, (1, 1), (True, False), [FermionicOp([('+-II', 1j), ('-+II', 1j)]),
-                                    FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
-        (4, (1, 1), (False, True), [FermionicOp([('II+-', 1j), ('II-+', 1j)]),
-                                    FermionicOp([('+-+-', 1j), ('-+-+', -1j)])]),
+        (
+            4,
+            (1, 1),
+            (True, True),
+            [
+                FermionicOp([("+-II", 1j), ("-+II", 1j)]),
+                FermionicOp([("II+-", 1j), ("II-+", 1j)]),
+                FermionicOp([("+-+-", 1j), ("-+-+", -1j)]),
+            ],
+        ),
+        (
+            4,
+            (1, 1),
+            (True, False),
+            [
+                FermionicOp([("+-II", 1j), ("-+II", 1j)]),
+                FermionicOp([("+-+-", 1j), ("-+-+", -1j)]),
+            ],
+        ),
+        (
+            4,
+            (1, 1),
+            (False, True),
+            [
+                FermionicOp([("II+-", 1j), ("II-+", 1j)]),
+                FermionicOp([("+-+-", 1j), ("-+-+", -1j)]),
+            ],
+        ),
     )
-    def test_puccd_ansatz_with_singles(self, num_spin_orbitals, num_particles, include_singles,
-                                       expect):
+    def test_puccd_ansatz_with_singles(
+        self, num_spin_orbitals, num_particles, include_singles, expect
+    ):
         """Tests the PUCCD Ansatz with included single excitations."""
         converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = PUCCD(qubit_converter=converter,
-                       num_particles=num_particles,
-                       num_spin_orbitals=num_spin_orbitals,
-                       include_singles=include_singles)
+        ansatz = PUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            include_singles=include_singles,
+        )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
 
