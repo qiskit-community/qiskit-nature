@@ -21,9 +21,9 @@ from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestDriverMethodsPSI4(TestDriverMethods):
-    """ Driver Methods PSI4 tests """
+    """Driver Methods PSI4 tests"""
 
-    psi4_lih_config = '''
+    psi4_lih_config = """
 molecule mol {{
    0 1
    Li  0.0 0.0 0.0
@@ -35,9 +35,9 @@ set {{
       scf_type pk
       reference {}
 }}
-'''
+"""
 
-    psi4_oh_config = '''
+    psi4_oh_config = """
 molecule mol {{
    0 2
    O  0.0 0.0 0.0
@@ -49,45 +49,45 @@ set {{
       scf_type pk
       reference {}
 }}
-'''
+"""
 
     def setUp(self):
         super().setUp()
         try:
-            PSI4Driver(config=self.psi4_lih_config.format('rhf'))
+            PSI4Driver(config=self.psi4_lih_config.format("rhf"))
         except QiskitNatureError:
-            self.skipTest('PSI4 driver does not appear to be installed')
+            self.skipTest("PSI4 driver does not appear to be installed")
 
     def test_lih_rhf(self):
-        """ lih rhf test """
-        driver = PSI4Driver(config=self.psi4_lih_config.format('rhf'))
+        """lih rhf test"""
+        driver = PSI4Driver(config=self.psi4_lih_config.format("rhf"))
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_rohf(self):
-        """ lih rohf test """
-        driver = PSI4Driver(config=self.psi4_lih_config.format('rohf'))
+        """lih rohf test"""
+        driver = PSI4Driver(config=self.psi4_lih_config.format("rohf"))
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_uhf(self):
-        """ lih uhf test """
-        driver = PSI4Driver(config=self.psi4_lih_config.format('uhf'))
+        """lih uhf test"""
+        driver = PSI4Driver(config=self.psi4_lih_config.format("uhf"))
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
-        self._assert_energy_and_dipole(result, 'lih')
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_oh_rohf(self):
-        """ oh rohf test """
-        driver = PSI4Driver(config=self.psi4_oh_config.format('rohf'))
+        """oh rohf test"""
+        driver = PSI4Driver(config=self.psi4_oh_config.format("rohf"))
         result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'oh')
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf(self):
-        """ oh uhf test """
-        driver = PSI4Driver(config=self.psi4_oh_config.format('uhf'))
+        """oh uhf test"""
+        driver = PSI4Driver(config=self.psi4_oh_config.format("uhf"))
         result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'oh')
+        self._assert_energy_and_dipole(result, "oh")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

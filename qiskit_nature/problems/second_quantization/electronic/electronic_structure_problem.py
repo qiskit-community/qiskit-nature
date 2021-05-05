@@ -20,7 +20,9 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature.circuit.library.initial_states.hartree_fock import (
+    hartree_fock_bitstring,
+)
 from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -37,8 +39,11 @@ from ..base_problem import BaseProblem
 class ElectronicStructureProblem(BaseProblem):
     """Electronic Structure Problem"""
 
-    def __init__(self, driver: FermionicDriver,
-                 q_molecule_transformers: Optional[List[BaseTransformer]] = None):
+    def __init__(
+        self,
+        driver: FermionicDriver,
+        q_molecule_transformers: Optional[List[BaseTransformer]] = None,
+    ):
         """
 
         Args:
@@ -62,22 +67,33 @@ class ElectronicStructureProblem(BaseProblem):
             operator, and (if available) x, y, z dipole operators.
         """
         self._molecule_data = cast(QMolecule, self.driver.run())
-        self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
+        self._molecule_data_transformed = cast(
+            QMolecule, self._transform(self._molecule_data)
+        )
 
         electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
-        second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
-            self._molecule_data_transformed)
+        second_quantized_ops_list = [
+            electronic_fermionic_op
+        ] + _create_all_aux_operators(self._molecule_data_transformed)
 
         return second_quantized_ops_list
 
-    def hopping_qeom_ops(self, qubit_converter: QubitConverter,
-                         excitations: Union[str, int, List[int],
-                                            Callable[[int, Tuple[int, int]],
-                                                     List[Tuple[
-                                                         Tuple[int, ...], Tuple[
-                                                             int, ...]]]]] = 'sd',
-                         ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
-                                    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+    def hopping_qeom_ops(
+        self,
+        qubit_converter: QubitConverter,
+        excitations: Union[
+            str,
+            int,
+            List[int],
+            Callable[
+                [int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
+            ],
+        ] = "sd",
+    ) -> Tuple[
+        Dict[str, PauliSumOp],
+        Dict[str, List[bool]],
+        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+    ]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 
@@ -101,8 +117,12 @@ class ElectronicStructureProblem(BaseProblem):
         q_molecule = cast(QMolecule, self.molecule_data)
         return _build_qeom_hopping_ops(q_molecule, qubit_converter, excitations)
 
-    def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
-                                          MinimumEigensolverResult]) -> ElectronicStructureResult:
+    def interpret(
+        self,
+        raw_result: Union[
+            EigenstateResult, EigensolverResult, MinimumEigensolverResult
+        ],
+    ) -> ElectronicStructureResult:
         """Interprets an EigenstateResult in the context of this transformation.
 
         Args:
@@ -115,8 +135,11 @@ class ElectronicStructureProblem(BaseProblem):
         q_molecule_transformed = cast(QMolecule, self.molecule_data_transformed)
         return _interpret(q_molecule, q_molecule_transformed, raw_result)
 
-    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
-                                                                 Optional[List[float]]], bool]]:
+    def get_default_filter_criterion(
+        self,
+    ) -> Optional[
+        Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]
+    ]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
@@ -132,13 +155,19 @@ class ElectronicStructureProblem(BaseProblem):
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
             q_molecule_transformed = cast(QMolecule, self._molecule_data_transformed)
-            return np.isclose(
-                q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
-                num_particles_aux) and np.isclose(0., total_angular_momentum_aux)
+            return (
+                np.isclose(
+                    q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
+                    num_particles_aux,
+                )
+                and np.isclose(0.0, total_angular_momentum_aux)
+            )
 
         return partial(filter_criterion, self)
 
-    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
+    def symmetry_sector_locator(
+        self, z2_symmetries: Z2Symmetries
+    ) -> Optional[List[int]]:
         """Given the detected Z2Symmetries can determine the correct sector of the tapered
         operators so the correct one can be returned
 
@@ -152,8 +181,11 @@ class ElectronicStructureProblem(BaseProblem):
 
         hf_bitstr = hartree_fock_bitstring(
             num_spin_orbitals=2 * q_molecule.num_molecular_orbitals,
-            num_particles=self.num_particles)
-        sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
+            num_particles=self.num_particles,
+        )
+        sector_locator = ElectronicStructureProblem._pick_sector(
+            z2_symmetries, hf_bitstr
+        )
 
         return sector_locator
 
@@ -162,7 +194,9 @@ class ElectronicStructureProblem(BaseProblem):
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
-            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
+            coeff = (
+                -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
+            )
             taper_coeff.append(coeff)
 
         return taper_coeff

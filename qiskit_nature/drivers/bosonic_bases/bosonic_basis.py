@@ -16,10 +16,11 @@ from typing import List, Tuple
 
 
 class BosonicBasis:
-    """ Basis to express a second quantization Bosonic Hamiltonian. """
+    """Basis to express a second quantization Bosonic Hamiltonian."""
 
-    def convert(self, threshold: float = 1e-6) \
-            -> List[List[Tuple[List[List[int]], complex]]]:
+    def convert(
+        self, threshold: float = 1e-6
+    ) -> List[List[Tuple[List[List[int]], complex]]]:
         """
         This prepares an array object representing a bosonic hamiltonian expressed
         in the harmonic basis. This object can directly be given to the BosonicOperator

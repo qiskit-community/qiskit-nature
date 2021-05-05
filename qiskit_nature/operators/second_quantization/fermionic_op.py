@@ -165,10 +165,14 @@ class FermionicOp(SecondQuantizedOp):
         self._labels: List[str]
 
         if not isinstance(data, (tuple, list, str)):
-            raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
+            raise TypeError(
+                f"Type of data must be str, tuple, or list, not {type(data)}."
+            )
 
         if isinstance(data, tuple):
-            if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
+            if not isinstance(data[0], str) or not isinstance(
+                data[1], (int, float, complex)
+            ):
                 raise TypeError(
                     f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
                 )
@@ -191,34 +195,46 @@ class FermionicOp(SecondQuantizedOp):
             if not all(len(label) == self._register_length for label in labels):
                 raise ValueError("Lengths of strings of label are different.")
             label_pattern = re.compile(r"^[I\+\-NE]+$")
-            invalid_labels = [label for label in labels if not label_pattern.match(label)]
+            invalid_labels = [
+                label for label in labels if not label_pattern.match(label)
+            ]
             if invalid_labels:
-                raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
+                raise ValueError(
+                    f"Invalid labels for dense labels are given: {invalid_labels}"
+                )
             self._labels = list(labels)
         else:  # Sparse label
             validate_min("register_length", register_length, 1)
             self._register_length = register_length
             label_pattern = re.compile(r"^[I\+\-NE]_\d+$")
             invalid_labels = [
-                label for label in labels if not all(label_pattern.match(l) for l in label.split())
+                label
+                for label in labels
+                if not all(label_pattern.match(lb) for lb in label.split())
             ]
             if invalid_labels:
-                raise ValueError(f"Invalid labels for sparse labels are given: {invalid_labels}")
+                raise ValueError(
+                    f"Invalid labels for sparse labels are given: {invalid_labels}"
+                )
             list_label = [["I"] * self._register_length for _ in labels]
             for term, label in enumerate(labels):
                 prev_index: Optional[int] = None
                 for split_label in label.split():
                     op_label, index_str = split_label.split("_", 1)
                     index = int(index_str)
-                    validate_range_exclusive_max("index", index, 0, self._register_length)
+                    validate_range_exclusive_max(
+                        "index", index, 0, self._register_length
+                    )
                     if prev_index is not None and prev_index > index:
-                        raise ValueError("Indices of labels must be in ascending order.")
+                        raise ValueError(
+                            "Indices of labels must be in ascending order."
+                        )
                     if list_label[term][index] != "I":
                         raise ValueError(f"Duplicate index {index} is given.")
                     list_label[term][index] = op_label
                     prev_index = index
 
-            self._labels = ["".join(l) for l in list_label]
+            self._labels = ["".join(lb) for lb in list_label]
 
     def __repr__(self) -> str:
         if len(self) == 1:
@@ -232,7 +248,9 @@ class FermionicOp(SecondQuantizedOp):
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
+        return "  " + "\n+ ".join(
+            [f"{label} * {coeff}" for label, coeff in self.to_list()]
+        )
 
     def __len__(self):
         return len(self._labels)
@@ -307,7 +325,9 @@ class FermionicOp(SecondQuantizedOp):
     @classmethod
     def _single_mul(cls, label1: str, label2: str) -> Tuple[str, complex]:
         if len(label1) != len(label2):
-            raise QiskitNatureError("Operators act on Fermion Registers of different length")
+            raise QiskitNatureError(
+                "Operators act on Fermion Registers of different length"
+            )
 
         new_label = []
         sign = 1
@@ -349,7 +369,10 @@ class FermionicOp(SecondQuantizedOp):
 
         return FermionicOp(
             list(
-                zip(self._labels + other._labels, np.hstack((self._coeffs, other._coeffs)).tolist())
+                zip(
+                    self._labels + other._labels,
+                    np.hstack((self._coeffs, other._coeffs)).tolist(),
+                )
             )
         )
 
@@ -380,9 +403,13 @@ class FermionicOp(SecondQuantizedOp):
             label_list.append("".join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
-        return FermionicOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))))
+        return FermionicOp(
+            list(zip(label_list, np.array(coeff_list, dtype=np.complex128)))
+        )
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "FermionicOp":
+    def reduce(
+        self, atol: Optional[float] = None, rtol: Optional[float] = None
+    ) -> "FermionicOp":
         if atol is None:
             atol = self.atol
         if rtol is None:
@@ -393,8 +420,12 @@ class FermionicOp(SecondQuantizedOp):
         for i, val in zip(indices, self._coeffs):
             coeff_list[i] += val
         non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
+            i
+            for i, v in enumerate(coeff_list)
+            if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
             return FermionicOp(("I" * self.register_length, 0))
-        return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
+        return FermionicOp(
+            list(zip(label_list[non_zero].tolist(), coeff_list[non_zero]))
+        )

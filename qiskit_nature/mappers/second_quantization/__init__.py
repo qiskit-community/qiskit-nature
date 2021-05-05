@@ -71,13 +71,13 @@ from .spin_mapper import SpinMapper
 from .vibrational_mapper import VibrationalMapper
 
 __all__ = [
-    'BravyiKitaevMapper',
-    'DirectMapper',
-    'FermionicMapper',
-    'JordanWignerMapper',
-    'LinearMapper',
-    'ParityMapper',
-    'QubitMapper',
-    'SpinMapper',
-    'VibrationalMapper',
+    "BravyiKitaevMapper",
+    "DirectMapper",
+    "FermionicMapper",
+    "JordanWignerMapper",
+    "LinearMapper",
+    "ParityMapper",
+    "QubitMapper",
+    "SpinMapper",
+    "VibrationalMapper",
 ]

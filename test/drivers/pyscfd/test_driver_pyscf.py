@@ -25,13 +25,15 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
     def setUp(self):
         super().setUp()
         try:
-            driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                                 unit=UnitsType.ANGSTROM,
-                                 charge=0,
-                                 spin=0,
-                                 basis='sto3g')
+            driver = PySCFDriver(
+                atom="H .0 .0 .0; H .0 .0 0.735",
+                unit=UnitsType.ANGSTROM,
+                charge=0,
+                spin=0,
+                basis="sto3g",
+            )
         except QiskitNatureError:
-            self.skipTest('PYSCF driver does not appear to be installed')
+            self.skipTest("PYSCF driver does not appear to be installed")
         self.qmolecule = driver.run()
 
 
@@ -43,9 +45,9 @@ class TestDriverPySCFMolecule(QiskitNatureTestCase, TestDriver):
         try:
             driver = PySCFDriver(molecule=TestDriver.MOLECULE)
         except QiskitNatureError:
-            self.skipTest('PYSCF driver does not appear to be installed')
+            self.skipTest("PYSCF driver does not appear to be installed")
         self.qmolecule = driver.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -24,9 +24,10 @@ import operator
 logger = logging.getLogger(__name__)
 
 
-def generate_vibration_excitations(num_excitations: int,
-                                   num_modals: List[int],
-                                   ) -> List[Tuple[Tuple[Any, ...], ...]]:
+def generate_vibration_excitations(
+    num_excitations: int,
+    num_modals: List[int],
+) -> List[Tuple[Tuple[Any, ...], ...]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
 
@@ -49,14 +50,14 @@ def generate_vibration_excitations(num_excitations: int,
 
     for accumulated_sum in partial_sum_modals:
         # the unoccupied modals in each mode are all modals but the lowest one:
-        unoccupied = list(range(idx_sum+1, accumulated_sum))
+        unoccupied = list(range(idx_sum + 1, accumulated_sum))
         # the single excitations for this mode are therefore simply each entry in this list, when
         # excited into it from the lowest modal of this list:
         single_excitations.extend([(idx_sum, m) for m in unoccupied])
         # and now we update the running index of the lowest modal for the next mode
         idx_sum = accumulated_sum
 
-    logger.debug('Generated list of single excitations: %s', single_excitations)
+    logger.debug("Generated list of single excitations: %s", single_excitations)
 
     # we can find the actual list of excitations by doing the following:
     #   1. combine the single alpha- and beta-spin excitations
@@ -76,6 +77,6 @@ def generate_vibration_excitations(num_excitations: int,
             visited_excitations.add(exc_set)
             exc_tuple = tuple(zip(*exc))
             excitations.append(exc_tuple)
-            logger.debug('Added the excitation: %s', exc_tuple)
+            logger.debug("Added the excitation: %s", exc_tuple)
 
     return excitations

@@ -20,14 +20,19 @@ from qiskit import QuantumCircuit
 from qiskit.opflow.primitive_ops.tapered_pauli_sum_op import Z2Symmetries
 from qiskit.quantum_info.operators.symplectic import Pauli
 from qiskit_nature.circuit.library import HartreeFock
-from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature.circuit.library.initial_states.hartree_fock import (
+    hartree_fock_bitstring,
+)
 from qiskit_nature.mappers.second_quantization import (
-    BravyiKitaevMapper, JordanWignerMapper, ParityMapper)
+    BravyiKitaevMapper,
+    JordanWignerMapper,
+    ParityMapper,
+)
 from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 class TestHartreeFock(QiskitNatureTestCase):
-    """ Initial State HartreeFock tests """
+    """Initial State HartreeFock tests"""
 
     def test_bitstring(self):
         """Simple test for the bitstring function."""
@@ -37,37 +42,37 @@ class TestHartreeFock(QiskitNatureTestCase):
     def test_bitstring_invalid_input(self):
         """Test passing invalid input raises."""
 
-        with self.subTest('too many particles'):
+        with self.subTest("too many particles"):
             with self.assertRaises(ValueError):
                 _ = hartree_fock_bitstring(4, (3, 3))
 
-        with self.subTest('too few orbitals'):
+        with self.subTest("too few orbitals"):
             with self.assertRaises(ValueError):
                 _ = hartree_fock_bitstring(-1, (2, 2))
 
     def test_qubits_4_jw_h2(self):
-        """ qubits 4 jw h2 test """
+        """qubits 4 jw h2 test"""
         state = HartreeFock(4, (1, 1), QubitConverter(JordanWignerMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 2])
         self.assertEqual(state, ref)
 
     def test_qubits_4_py_h2(self):
-        """ qubits 4 py h2 test """
+        """qubits 4 py h2 test"""
         state = HartreeFock(4, (1, 1), QubitConverter(ParityMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1])
         self.assertEqual(state, ref)
 
     def test_qubits_4_bk_h2(self):
-        """ qubits 4 bk h2 test """
+        """qubits 4 bk h2 test"""
         state = HartreeFock(4, (1, 1), QubitConverter(BravyiKitaevMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1, 2])
         self.assertEqual(state, ref)
 
     def test_qubits_2_py_h2(self):
-        """ qubits 2 py h2 test """
+        """qubits 2 py h2 test"""
         num_particles = (1, 1)
         converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
         converter.force_match(num_particles=num_particles)
@@ -77,12 +82,12 @@ class TestHartreeFock(QiskitNatureTestCase):
         self.assertEqual(state, ref)
 
     def test_qubits_6_py_lih(self):
-        """ qubits 6 py lih test """
+        """qubits 6 py lih test"""
         num_particles = (1, 1)
         converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
         z2symmetries = Z2Symmetries(
-            symmetries=[Pauli('ZIZIZIZI'), Pauli('ZZIIZZII')],
-            sq_paulis=[Pauli('IIIIIIXI'), Pauli('IIIIIXII')],
+            symmetries=[Pauli("ZIZIZIZI"), Pauli("ZZIIZZII")],
+            sq_paulis=[Pauli("IIIIIIXI"), Pauli("IIIIIXII")],
             sq_list=[2, 3],
             tapering_values=[1, 1],
         )
@@ -93,5 +98,5 @@ class TestHartreeFock(QiskitNatureTestCase):
         self.assertEqual(state, ref)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

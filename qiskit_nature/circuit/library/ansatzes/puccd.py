@@ -45,13 +45,15 @@ class PUCCD(UCC):
         [1] https://arxiv.org/abs/1911.10864
     """
 
-    def __init__(self, qubit_converter: Optional[QubitConverter] = None,
-                 num_particles: Optional[Tuple[int, int]] = None,
-                 num_spin_orbitals: Optional[int] = None,
-                 reps: int = 1,
-                 initial_state: Optional[QuantumCircuit] = None,
-                 include_singles: Tuple[bool, bool] = (False, False),
-                 ):
+    def __init__(
+        self,
+        qubit_converter: Optional[QubitConverter] = None,
+        num_particles: Optional[Tuple[int, int]] = None,
+        num_spin_orbitals: Optional[int] = None,
+        reps: int = 1,
+        initial_state: Optional[QuantumCircuit] = None,
+        include_singles: Tuple[bool, bool] = (False, False),
+    ):
         """
 
         Args:
@@ -69,15 +71,17 @@ class PUCCD(UCC):
         """
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
-        super().__init__(qubit_converter=qubit_converter,
-                         num_particles=num_particles,
-                         num_spin_orbitals=num_spin_orbitals,
-                         excitations=self.generate_excitations,
-                         alpha_spin=True,
-                         beta_spin=True,
-                         max_spin_excitation=None,
-                         reps=reps,
-                         initial_state=initial_state)
+        super().__init__(
+            qubit_converter=qubit_converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            excitations=self.generate_excitations,
+            alpha_spin=True,
+            beta_spin=True,
+            max_spin_excitation=None,
+            reps=reps,
+            initial_state=initial_state,
+        )
 
     @property
     def include_singles(self) -> Tuple[bool, bool]:
@@ -89,9 +93,9 @@ class PUCCD(UCC):
         """Sets whether to include single excitations."""
         self._include_singles = include_singles
 
-    def generate_excitations(self, num_spin_orbitals: int,
-                             num_particles: Tuple[int, int]
-                             ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+    def generate_excitations(
+        self, num_spin_orbitals: int, num_particles: Tuple[int, int]
+    ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """Generates the excitations for the PUCCD Ansatz.
 
         Args:
@@ -110,9 +114,15 @@ class PUCCD(UCC):
         self._validate_num_particles(num_particles)
 
         excitations = list()
-        excitations.extend(generate_fermionic_excitations(1, num_spin_orbitals, num_particles,
-                                                          alpha_spin=self.include_singles[0],
-                                                          beta_spin=self.include_singles[1]))
+        excitations.extend(
+            generate_fermionic_excitations(
+                1,
+                num_spin_orbitals,
+                num_particles,
+                alpha_spin=self.include_singles[0],
+                beta_spin=self.include_singles[1],
+            )
+        )
 
         num_electrons = num_particles[0]
         beta_index_shift = num_spin_orbitals // 2
@@ -122,18 +132,23 @@ class PUCCD(UCC):
         alpha_unocc = list(range(num_electrons, beta_index_shift))
         # the Cartesian product of these lists gives all possible single alpha-spin excitations
         alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
-        logger.debug('Generated list of single alpha excitations: %s', alpha_excitations)
+        logger.debug(
+            "Generated list of single alpha excitations: %s", alpha_excitations
+        )
 
         for alpha_exc in alpha_excitations:
             # create the beta-spin excitation by shifting into the upper block-spin orbital indices
-            beta_exc = (alpha_exc[0] + beta_index_shift, alpha_exc[1] + beta_index_shift)
+            beta_exc = (
+                alpha_exc[0] + beta_index_shift,
+                alpha_exc[1] + beta_index_shift,
+            )
             # add the excitation tuple
             occ: Tuple[int, ...]
             unocc: Tuple[int, ...]
             occ, unocc = zip(alpha_exc, beta_exc)
             exc_tuple = (occ, unocc)
             excitations.append(exc_tuple)
-            logger.debug('Added the excitation: %s', exc_tuple)
+            logger.debug("Added the excitation: %s", exc_tuple)
 
         return excitations
 
@@ -144,6 +159,7 @@ class PUCCD(UCC):
             assert num_particles[0] == num_particles[1]
         except AssertionError as exc:
             raise QiskitNatureError(
-                'The PUCCD Ansatz only works for singlet-spin systems. However, you specified '
-                'differing numbers of alpha and beta electrons:', str(num_particles)
+                "The PUCCD Ansatz only works for singlet-spin systems. However, you specified "
+                "differing numbers of alpha and beta electrons:",
+                str(num_particles),
             ) from exc

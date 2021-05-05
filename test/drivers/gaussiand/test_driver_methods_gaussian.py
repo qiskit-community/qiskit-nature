@@ -17,12 +17,13 @@ import unittest
 from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import GaussianDriver
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestDriverMethodsGaussian(TestDriverMethods):
-    """ Driver Methods Gaussian tests """
+    """Driver Methods Gaussian tests"""
 
-    g16_lih_config = '''
+    g16_lih_config = """
 # {}/sto-3g scf(conventional)
 
 Lih molecule
@@ -31,9 +32,9 @@ Lih molecule
 Li  0.0  0.0    0.0
 H   0.0  0.0    1.6
 
-'''
+"""
 
-    g16_oh_config = '''
+    g16_oh_config = """
 # {}/sto-3g scf(conventional)
 
 Lih molecule
@@ -42,45 +43,45 @@ Lih molecule
 O   0.0  0.0    0.0
 H   0.0  0.0    0.9697
 
-'''
+"""
 
     def setUp(self):
         super().setUp()
         try:
-            GaussianDriver(config=self.g16_lih_config.format('rhf'))
+            GaussianDriver(config=self.g16_lih_config.format("rhf"))
         except QiskitNatureError:
-            self.skipTest('GAUSSIAN driver does not appear to be installed')
+            self.skipTest("GAUSSIAN driver does not appear to be installed")
 
     def test_lih_rhf(self):
-        """ lih rhf test """
-        driver = GaussianDriver(config=self.g16_lih_config.format('rhf'))
-        result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'lih')
+        """lih rhf test"""
+        driver = GaussianDriver(config=self.g16_lih_config.format("rhf"))
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_rohf(self):
-        """ lih rohf test """
-        driver = GaussianDriver(config=self.g16_lih_config.format('rohf'))
-        result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'lih')
+        """lih rohf test"""
+        driver = GaussianDriver(config=self.g16_lih_config.format("rohf"))
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_uhf(self):
-        """ lih uhf test """
-        driver = GaussianDriver(config=self.g16_lih_config.format('uhf'))
-        result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'lih')
+        """lih uhf test"""
+        driver = GaussianDriver(config=self.g16_lih_config.format("uhf"))
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
+        self._assert_energy_and_dipole(result, "lih")
 
     def test_oh_rohf(self):
-        """ oh rohf test """
-        driver = GaussianDriver(config=self.g16_oh_config.format('rohf'))
-        result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh rohf test"""
+        driver = GaussianDriver(config=self.g16_oh_config.format("rohf"))
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
+        self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf(self):
-        """ oh uhf test """
-        driver = GaussianDriver(config=self.g16_oh_config.format('uhf'))
-        result = self._run_driver(driver)
-        self._assert_energy_and_dipole(result, 'oh')
+        """oh uhf test"""
+        driver = GaussianDriver(config=self.g16_oh_config.format("uhf"))
+        result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
+        self._assert_energy_and_dipole(result, "oh")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
