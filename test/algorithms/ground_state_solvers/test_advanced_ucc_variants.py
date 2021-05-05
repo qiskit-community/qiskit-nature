@@ -34,7 +34,6 @@ from qiskit_nature.transformers import FreezeCoreTransformer
 # pylint: disable=invalid-name
 
 
-@unittest.skip("Debug more issues with TaperedPauliSumOp in Terra...")
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
     """Test for these extensions."""
 
