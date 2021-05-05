@@ -15,9 +15,9 @@
 from typing import List, Tuple
 
 
-def calc_occ_modals_per_mode_ints(num_modals: List[int],
-                                  mode_index: int
-                                  ) -> List[List[Tuple[List[List[int]], complex]]]:
+def calc_occ_modals_per_mode_ints(
+    num_modals: List[int], mode_index: int
+) -> List[List[Tuple[List[List[int]], complex]]]:
     """
     Calculates WatsonHamiltonian-like integrals to evaluate the number of occupied modals in a given
     mode.
@@ -32,6 +32,6 @@ def calc_occ_modals_per_mode_ints(num_modals: List[int],
     """
     h_mat: List[List[Tuple[List[List[int]], complex]]] = [[]]
     for modal in range(num_modals[mode_index]):
-        h_mat[0].append(([[mode_index, modal, modal]], 1.))
+        h_mat[0].append(([[mode_index, modal, modal]], 1.0))
 
     return h_mat

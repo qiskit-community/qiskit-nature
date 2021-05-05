@@ -22,10 +22,11 @@ from .base_driver import BaseDriver
 
 
 class HFMethodType(Enum):
-    """ HFMethodType Enum """
-    RHF = 'rhf'
-    ROHF = 'rohf'
-    UHF = 'uhf'
+    """HFMethodType Enum"""
+
+    RHF = "rhf"
+    ROHF = "rohf"
+    UHF = "uhf"
 
 
 class FermionicDriver(BaseDriver):

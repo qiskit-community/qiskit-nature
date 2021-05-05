@@ -26,6 +26,6 @@ from .fermionic_excitation_generator import generate_fermionic_excitations
 from .vibration_excitation_generator import generate_vibration_excitations
 
 __all__ = [
-    'generate_fermionic_excitations',
-    'generate_vibration_excitations',
+    "generate_fermionic_excitations",
+    "generate_vibration_excitations",
 ]

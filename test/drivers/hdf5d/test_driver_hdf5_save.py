@@ -22,14 +22,15 @@ from qiskit_nature.drivers import HDF5Driver
 
 
 class TestDriverHDF5Save(QiskitNatureTestCase, TestDriver):
-    """ Use HDF5 Driver to test saved HDF5 from QMolecule """
+    """Use HDF5 Driver to test saved HDF5 from QMolecule"""
 
     def setUp(self):
         super().setUp()
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
-                                                              'drivers/hdf5d'))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
+        )
         temp_qmolecule = driver.run()
-        file, self.save_file = tempfile.mkstemp(suffix='.hdf5')
+        file, self.save_file = tempfile.mkstemp(suffix=".hdf5")
         os.close(file)
         temp_qmolecule.save(self.save_file)
         # Tests are run on self.qmolecule which is from new saved HDF5 file
@@ -44,5 +45,5 @@ class TestDriverHDF5Save(QiskitNatureTestCase, TestDriver):
             pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

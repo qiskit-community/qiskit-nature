@@ -24,7 +24,9 @@ from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.drivers import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic import (
+    ElectronicStructureProblem,
+)
 
 
 class TestEnd2End(QiskitNatureTestCase):
@@ -34,28 +36,33 @@ class TestEnd2End(QiskitNatureTestCase):
         super().setUp()
         algorithm_globals.random_seed = 42
 
-        driver = HDF5Driver(hdf5_input=self.get_resource_path('test_driver_hdf5.hdf5',
-                                                              'drivers/hdf5d'))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
+        )
         problem = ElectronicStructureProblem(driver)
         second_q_ops = problem.second_q_ops()
         converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
-        num_particles = (problem.molecule_data_transformed.num_alpha,
-                         problem.molecule_data_transformed.num_beta)
+        num_particles = (
+            problem.molecule_data_transformed.num_alpha,
+            problem.molecule_data_transformed.num_beta,
+        )
         self.qubit_op = converter.convert(second_q_ops[0], num_particles)
         self.aux_ops = converter.convert_match(second_q_ops[1:])
         self.reference_energy = -1.857275027031588
 
     def test_end2end_h2(self):
-        """ end to end h2 """
-        backend = BasicAer.get_backend('statevector_simulator')
+        """end to end h2"""
+        backend = BasicAer.get_backend("statevector_simulator")
         shots = 1
         optimizer = COBYLA(maxiter=1000)
-        ryrz = TwoLocal(rotation_blocks=['ry', 'rz'], entanglement_blocks='cz')
+        ryrz = TwoLocal(rotation_blocks=["ry", "rz"], entanglement_blocks="cz")
         quantum_instance = QuantumInstance(backend, shots=shots)
         vqe = VQE(ryrz, optimizer=optimizer, quantum_instance=quantum_instance)
-        result = vqe.compute_minimum_eigenvalue(self.qubit_op, aux_operators=self.aux_ops)
+        result = vqe.compute_minimum_eigenvalue(
+            self.qubit_op, aux_operators=self.aux_ops
+        )
         self.assertAlmostEqual(result.eigenvalue.real, self.reference_energy, places=4)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

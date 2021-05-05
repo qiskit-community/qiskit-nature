@@ -18,7 +18,8 @@ from typing import List, Tuple, Union
 def read_expected_file(path: str) -> List[Tuple[Union[str, float], ...]]:
     """Reads and parses resource file."""
     types = str, float
-    with open(path, 'r') as file:
-        expected_fermionic_op = [tuple(t(e) for t, e in zip(types, line.split()))
-                                 for line in file]
+    with open(path, "r") as file:
+        expected_fermionic_op = [
+            tuple(t(e) for t, e in zip(types, line.split())) for line in file
+        ]
     return expected_fermionic_op

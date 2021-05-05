@@ -39,17 +39,18 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
         # and create a qmolecule from the saved output matrix file. This will test the
         # parsing of it into the qmolecule is correct.
         g16 = GaussianDriver()
-        matfile = self.get_resource_path('test_driver_gaussian_from_mat.mat',
-                                         'drivers/gaussiand')
+        matfile = self.get_resource_path(
+            "test_driver_gaussian_from_mat.mat", "drivers/gaussiand"
+        )
         try:
             self.qmolecule = g16._parse_matrix_file(matfile)
         except QiskitNatureError:
             self.tearDown()
-            self.skipTest('GAUSSIAN qcmatrixio not found')
+            self.skipTest("GAUSSIAN qcmatrixio not found")
 
     def tearDown(self):
         GaussianDriver._check_valid = self.good_check
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

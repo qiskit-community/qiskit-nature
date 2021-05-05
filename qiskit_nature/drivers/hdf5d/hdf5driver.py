@@ -29,8 +29,7 @@ class HDF5Driver(FermionicDriver):
     a :class:`~qiskit_nature.drivers.QMolecule` instance.
     """
 
-    def __init__(self,
-                 hdf5_input: str = 'molecule.hdf5') -> None:
+    def __init__(self, hdf5_input: str = "molecule.hdf5") -> None:
         """
         Args:
             hdf5_input: Path to HDF5 file
@@ -41,12 +40,12 @@ class HDF5Driver(FermionicDriver):
 
     @property
     def work_path(self):
-        """ Returns work path. """
+        """Returns work path."""
         return self._work_path
 
     @work_path.setter
     def work_path(self, new_work_path):
-        """ Sets work path. """
+        """Sets work path."""
         self._work_path = new_work_path
 
     def run(self) -> QMolecule:
@@ -64,7 +63,7 @@ class HDF5Driver(FermionicDriver):
             hdf5_file = os.path.abspath(os.path.join(self.work_path, hdf5_file))
 
         if not os.path.isfile(hdf5_file):
-            raise LookupError('HDF5 file not found: {}'.format(hdf5_file))
+            raise LookupError("HDF5 file not found: {}".format(hdf5_file))
 
         molecule = QMolecule(hdf5_file)
         molecule.load()

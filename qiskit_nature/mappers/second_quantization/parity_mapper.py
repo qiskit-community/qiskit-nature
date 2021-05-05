@@ -25,7 +25,7 @@ from .qubit_mapper import QubitMapper
 
 
 class ParityMapper(FermionicMapper):
-    """The Parity fermion-to-qubit mapping. """
+    """The Parity fermion-to-qubit mapping."""
 
     def __init__(self):
         super().__init__(allows_two_qubit_reduction=True)

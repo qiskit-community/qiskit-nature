@@ -25,11 +25,14 @@ from .eigensolver_factory import EigensolverFactory
 class NumPyEigensolverFactory(EigensolverFactory):
     """A factory to construct a NumPyEigensolver."""
 
-    def __init__(self,
-                 filter_criterion: Callable[[Union[List, np.ndarray], float, Optional[List[float]]],
-                                            bool] = None,
-                 k: int = 100,
-                 use_default_filter_criterion: bool = False) -> None:
+    def __init__(
+        self,
+        filter_criterion: Callable[
+            [Union[List, np.ndarray], float, Optional[List[float]]], bool
+        ] = None,
+        k: int = 100,
+        use_default_filter_criterion: bool = False,
+    ) -> None:
         """
         Args:
             filter_criterion: callable that allows to filter eigenvalues/eigenstates. The minimum
@@ -48,36 +51,39 @@ class NumPyEigensolverFactory(EigensolverFactory):
         self._use_default_filter_criterion = use_default_filter_criterion
 
     @property
-    def filter_criterion(self) -> Callable[[Union[List, np.ndarray], float,
-                                            Optional[List[float]]], bool]:
-        """ returns filter criterion """
+    def filter_criterion(
+        self,
+    ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
+        """returns filter criterion"""
         return self._filter_criterion
 
     @filter_criterion.setter
-    def filter_criterion(self, value: Callable[[Union[List, np.ndarray], float,
-                                                Optional[List[float]]], bool]) -> None:
-        """ sets filter criterion """
+    def filter_criterion(
+        self,
+        value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
+    ) -> None:
+        """sets filter criterion"""
         self._filter_criterion = value
 
     @property
     def k(self) -> int:
-        """ returns k (number of eigenvalues requested) """
+        """returns k (number of eigenvalues requested)"""
         return self._k
 
     @k.setter
     def k(self, k: int) -> None:
-        """ set k (number of eigenvalues requested) """
-        validate_min('k', k, 1)
+        """set k (number of eigenvalues requested)"""
+        validate_min("k", k, 1)
         self._k = k
 
     @property
     def use_default_filter_criterion(self) -> bool:
-        """ returns whether to use the default filter criterion """
+        """returns whether to use the default filter criterion"""
         return self._use_default_filter_criterion
 
     @use_default_filter_criterion.setter
     def use_default_filter_criterion(self, value: bool) -> None:
-        """ sets whether to use the default filter criterion """
+        """sets whether to use the default filter criterion"""
         self._use_default_filter_criterion = value
 
     def get_solver(self, problem: BaseProblem) -> Eigensolver:

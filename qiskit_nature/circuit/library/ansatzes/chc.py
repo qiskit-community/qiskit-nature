@@ -23,7 +23,7 @@ from qiskit.circuit import ParameterVector
 
 
 class CHC(BlueprintCircuit):
-    """ This trial wavefunction is the Compact Heuristic for vibrational Chemistry.
+    """This trial wavefunction is the Compact Heuristic for vibrational Chemistry.
 
     The trial wavefunction is as defined in
     Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855. It aims at approximating
@@ -34,12 +34,14 @@ class CHC(BlueprintCircuit):
         with the number of excitations.
     """
 
-    def __init__(self,
-                 num_qubits: Optional[int] = None,
-                 excitations: Optional[List[Tuple[Tuple[Any, ...], ...]]] = None,
-                 reps: int = 1,
-                 ladder: bool = False,
-                 initial_state: Optional[QuantumCircuit] = None) -> None:
+    def __init__(
+        self,
+        num_qubits: Optional[int] = None,
+        excitations: Optional[List[Tuple[Tuple[Any, ...], ...]]] = None,
+        reps: int = 1,
+        ladder: bool = False,
+        initial_state: Optional[QuantumCircuit] = None,
+    ) -> None:
         """
 
         Args:
@@ -92,7 +94,7 @@ class CHC(BlueprintCircuit):
             # invalidate the circuit
             self._invalidate()
             self._num_qubits = num_qubits
-            self.qregs = [QuantumRegister(num_qubits, name='q')]
+            self.qregs = [QuantumRegister(num_qubits, name="q")]
 
     @property
     def excitations(self) -> Optional[List[Tuple[Tuple[Any, ...], ...]]]:
@@ -133,20 +135,20 @@ class CHC(BlueprintCircuit):
             ValueError: If the number of parameters is not specified.
             ValueError: If the excitation list is not specified.
         """
-        error_msg = 'The %s is None but must be set before the circuit can be built.'
+        error_msg = "The %s is None but must be set before the circuit can be built."
         if self._num_qubits is None:
             if raise_on_failure:
-                raise ValueError(error_msg, 'number of qubits')
+                raise ValueError(error_msg, "number of qubits")
             return False
 
         if self._num_parameters is None:
             if raise_on_failure:
-                raise ValueError(error_msg, 'number of parameters')
+                raise ValueError(error_msg, "number of parameters")
             return False
 
         if self._excitations is None:
             if raise_on_failure:
-                raise ValueError(error_msg, 'excitation list')
+                raise ValueError(error_msg, "excitation list")
             return False
 
         return True
@@ -167,11 +169,13 @@ class CHC(BlueprintCircuit):
         self._check_configuration()
         self._data = []  # type: ignore
 
-        parameters = ParameterVector('θ', self._num_parameters)
+        parameters = ParameterVector("θ", self._num_parameters)
         q = self.qubits
 
         if isinstance(self._initial_state, QuantumCircuit):
-            self.append(self._initial_state.to_gate(), range(self._initial_state.num_qubits))
+            self.append(
+                self._initial_state.to_gate(), range(self._initial_state.num_qubits)
+            )
 
         count = 0
         for _ in range(self._reps):
@@ -224,14 +228,14 @@ class CHC(BlueprintCircuit):
 
                     if self._ladder:
                         for qubit in range(i, r):
-                            self.cx(q[qubit], q[qubit+1])
-                            self.barrier(q[qubit], q[qubit+1])
+                            self.cx(q[qubit], q[qubit + 1])
+                            self.barrier(q[qubit], q[qubit + 1])
                     else:
                         self.cx(q[i], q[r])
                     self.cx(q[r], q[j])
                     if self._ladder:
                         for qubit in range(j, s):
-                            self.cx(q[qubit], q[qubit+1])
+                            self.cx(q[qubit], q[qubit + 1])
                             self.barrier(q[qubit], q[qubit + 1])
                     else:
                         self.cx(q[j], q[s])
@@ -240,14 +244,14 @@ class CHC(BlueprintCircuit):
 
                     if self._ladder:
                         for qubit in range(s, j, -1):
-                            self.cx(q[qubit-1], q[qubit])
-                            self.barrier(q[qubit-1], q[qubit])
+                            self.cx(q[qubit - 1], q[qubit])
+                            self.barrier(q[qubit - 1], q[qubit])
                     else:
                         self.cx(q[j], q[s])
                     self.cx(q[r], q[j])
                     if self._ladder:
                         for qubit in range(r, i, -1):
-                            self.cx(q[qubit-1], q[qubit])
+                            self.cx(q[qubit - 1], q[qubit])
                             self.barrier(q[qubit - 1], q[qubit])
                     else:
                         self.cx(q[i], q[r])
@@ -261,7 +265,9 @@ class CHC(BlueprintCircuit):
                     self.p(-parameters[count] / 2 + np.pi, q[r])
 
                 else:
-                    raise ValueError('Limited to single and double excitations, '
-                                     'higher order is not implemented')
+                    raise ValueError(
+                        "Limited to single and double excitations, "
+                        "higher order is not implemented"
+                    )
 
                 count += 1
