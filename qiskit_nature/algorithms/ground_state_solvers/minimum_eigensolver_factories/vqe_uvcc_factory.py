@@ -24,7 +24,9 @@ from qiskit.utils import QuantumInstance
 from qiskit_nature.circuit.library import UVCC, UVCCSD, VSCF
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.problems.second_quantization.vibrational import VibrationalStructureProblem
+from qiskit_nature.problems.second_quantization.vibrational import (
+    VibrationalStructureProblem,
+)
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -32,16 +34,17 @@ from .minimum_eigensolver_factory import MinimumEigensolverFactory
 class VQEUVCCFactory(MinimumEigensolverFactory):
     """A factory to construct a VQE minimum eigensolver with UVCCSD ansatz wavefunction."""
 
-    def __init__(self,
-                 quantum_instance: QuantumInstance,
-                 optimizer: Optional[Optimizer] = None,
-                 initial_point: Optional[np.ndarray] = None,
-                 gradient: Optional[Union[GradientBase, Callable]] = None,
-                 expectation: Optional[ExpectationBase] = None,
-                 include_custom: bool = False,
-                 ansatz: Optional[UVCC] = None,
-                 initial_state: Optional[QuantumCircuit] = None,
-                 ) -> None:
+    def __init__(
+        self,
+        quantum_instance: QuantumInstance,
+        optimizer: Optional[Optimizer] = None,
+        initial_point: Optional[np.ndarray] = None,
+        gradient: Optional[Union[GradientBase, Callable]] = None,
+        expectation: Optional[ExpectationBase] = None,
+        include_custom: bool = False,
+        ansatz: Optional[UVCC] = None,
+        initial_state: Optional[QuantumCircuit] = None,
+    ) -> None:
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
@@ -76,13 +79,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self._include_custom = include_custom
         self.ansatz = ansatz
         self.initial_state = initial_state
-        self._vqe = VQE(ansatz=None,
-                        quantum_instance=self._quantum_instance,
-                        optimizer=self._optimizer,
-                        initial_point=self._initial_point,
-                        gradient=self._gradient,
-                        expectation=self._expectation,
-                        include_custom=self._include_custom)
+        self._vqe = VQE(
+            ansatz=None,
+            quantum_instance=self._quantum_instance,
+            optimizer=self._optimizer,
+            initial_point=self._initial_point,
+            gradient=self._gradient,
+            expectation=self._expectation,
+            include_custom=self._include_custom,
+        )
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -166,8 +171,11 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         the :class:`~.VSCF`."""
         self._initial_state = initial_state
 
-    def get_solver(self, problem: VibrationalStructureProblem,  # type: ignore[override]
-                   qubit_converter: QubitConverter) -> MinimumEigensolver:
+    def get_solver(  # type: ignore[override]
+        self,
+        problem: VibrationalStructureProblem,
+        qubit_converter: QubitConverter,
+    ) -> MinimumEigensolver:
         """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``BosonicTransformation``.
 
@@ -181,7 +189,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             by ``transformation``.
         """
 
-        watson_hamiltonian_transformed = cast(WatsonHamiltonian, problem.molecule_data_transformed)
+        watson_hamiltonian_transformed = cast(
+            WatsonHamiltonian, problem.molecule_data_transformed
+        )
         num_modals = problem.num_modals
         num_modes = watson_hamiltonian_transformed.num_modes
 

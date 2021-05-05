@@ -53,12 +53,12 @@ from .uvcc import UVCC
 from .uvccsd import UVCCSD
 
 __all__ = [
-    'CHC',
-    'EvolvedOperatorAnsatz',
-    'PUCCD',
-    'SUCCD',
-    'UCC',
-    'UCCSD',
-    'UVCC',
-    'UVCCSD',
+    "CHC",
+    "EvolvedOperatorAnsatz",
+    "PUCCD",
+    "SUCCD",
+    "UCC",
+    "UCCSD",
+    "UVCC",
+    "UVCCSD",
 ]

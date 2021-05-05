@@ -21,7 +21,7 @@ from .qubit_mapper import QubitMapper
 
 
 class FermionicMapper(QubitMapper):
-    """ Mapper of Fermionic Operator to Qubit Operator """
+    """Mapper of Fermionic Operator to Qubit Operator"""
 
     @abstractmethod
     def map(self, second_q_op: FermionicOp) -> PauliSumOp:

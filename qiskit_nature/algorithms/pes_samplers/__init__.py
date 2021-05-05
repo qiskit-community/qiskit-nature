@@ -54,24 +54,36 @@ There is also a set of support function for potentials:
     VibrationalStructureBase
 """
 
-from .extrapolator import (Extrapolator, DifferentialExtrapolator, PCAExtrapolator,
-                           PolynomialExtrapolator, SieveExtrapolator, WindowExtrapolator)
-from .potentials import (EnergySurface1DSpline, HarmonicPotential, MorsePotential,
-                         EnergySurfaceBase, PotentialBase, VibrationalStructureBase)
+from .extrapolator import (
+    Extrapolator,
+    DifferentialExtrapolator,
+    PCAExtrapolator,
+    PolynomialExtrapolator,
+    SieveExtrapolator,
+    WindowExtrapolator,
+)
+from .potentials import (
+    EnergySurface1DSpline,
+    HarmonicPotential,
+    MorsePotential,
+    EnergySurfaceBase,
+    PotentialBase,
+    VibrationalStructureBase,
+)
 from .bopes_sampler import BOPESSampler
 
 __all__ = [
-    'BOPESSampler',
-    'Extrapolator',
-    'DifferentialExtrapolator',
-    'PCAExtrapolator',
-    'PolynomialExtrapolator',
-    'SieveExtrapolator',
-    'WindowExtrapolator',
-    'EnergySurface1DSpline',
-    'HarmonicPotential',
-    'MorsePotential',
-    'EnergySurfaceBase',
-    'PotentialBase',
-    'VibrationalStructureBase',
+    "BOPESSampler",
+    "Extrapolator",
+    "DifferentialExtrapolator",
+    "PCAExtrapolator",
+    "PolynomialExtrapolator",
+    "SieveExtrapolator",
+    "WindowExtrapolator",
+    "EnergySurface1DSpline",
+    "HarmonicPotential",
+    "MorsePotential",
+    "EnergySurfaceBase",
+    "PotentialBase",
+    "VibrationalStructureBase",
 ]

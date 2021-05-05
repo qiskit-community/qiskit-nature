@@ -30,11 +30,12 @@ logger = logging.getLogger(__name__)
 
 
 class InitialGuess(Enum):
-    """ Initial Guess Enum """
-    MINAO = 'minao'
-    HCORE = '1e'
-    ONE_E = '1e'
-    ATOM = 'atom'
+    """Initial Guess Enum"""
+
+    MINAO = "minao"
+    HCORE = "1e"
+    ONE_E = "1e"
+    ATOM = "atom"
 
 
 class PySCFDriver(FermionicDriver):
@@ -44,19 +45,20 @@ class PySCFDriver(FermionicDriver):
     See https://sunqm.github.io/pyscf/
     """
 
-    def __init__(self,
-                 atom: Union[str, List[str]] =
-                 'H 0.0 0.0 0.0; H 0.0 0.0 0.735',
-                 unit: UnitsType = UnitsType.ANGSTROM,
-                 charge: int = 0,
-                 spin: int = 0,
-                 basis: str = 'sto3g',
-                 hf_method: HFMethodType = HFMethodType.RHF,
-                 conv_tol: float = 1e-9,
-                 max_cycle: int = 50,
-                 init_guess: InitialGuess = InitialGuess.MINAO,
-                 max_memory: Optional[int] = None,
-                 molecule: Optional[Molecule] = None) -> None:
+    def __init__(
+        self,
+        atom: Union[str, List[str]] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
+        unit: UnitsType = UnitsType.ANGSTROM,
+        charge: int = 0,
+        spin: int = 0,
+        basis: str = "sto3g",
+        hf_method: HFMethodType = HFMethodType.RHF,
+        conv_tol: float = 1e-9,
+        max_cycle: int = 50,
+        init_guess: InitialGuess = InitialGuess.MINAO,
+        max_memory: Optional[int] = None,
+        molecule: Optional[Molecule] = None,
+    ) -> None:
         """
         Args:
             atom: Atom list or string separated by semicolons or line breaks. Each element in the
@@ -86,18 +88,22 @@ class PySCFDriver(FermionicDriver):
         """
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):
-            raise QiskitNatureError("Invalid atom input for PYSCF Driver '{}'".format(atom))
+            raise QiskitNatureError(
+                "Invalid atom input for PYSCF Driver '{}'".format(atom)
+            )
 
         if isinstance(atom, list):
-            atom = ';'.join(atom)
+            atom = ";".join(atom)
         elif isinstance(atom, str):
-            atom = atom.replace('\n', ';')
+            atom = atom.replace("\n", ";")
 
-        validate_min('max_cycle', max_cycle, 1)
-        super().__init__(molecule=molecule,
-                         basis=basis,
-                         hf_method=hf_method.value,
-                         supports_molecule=True)
+        validate_min("max_cycle", max_cycle, 1)
+        super().__init__(
+            molecule=molecule,
+            basis=basis,
+            hf_method=hf_method.value,
+            supports_molecule=True,
+        )
         self._atom = atom
         self._units = unit.value
         self._charge = charge
@@ -109,21 +115,27 @@ class PySCFDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
+        err_msg = (
+            "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
+        )
         try:
-            spec = importlib.util.find_spec('pyscf')
+            spec = importlib.util.find_spec("pyscf")
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
-            logger.debug('PySCF check error %s', str(ex))
+            logger.debug("PySCF check error %s", str(ex))
             raise QiskitNatureError(err_msg) from ex
 
         raise QiskitNatureError(err_msg)
 
     def run(self) -> QMolecule:
         if self.molecule is not None:
-            atom = ';'.join([name + ' ' + ' '.join(map(str, coord))
-                             for (name, coord) in self.molecule.geometry])
+            atom = ";".join(
+                [
+                    name + " " + " ".join(map(str, coord))
+                    for (name, coord) in self.molecule.geometry
+                ]
+            )
             charge = self.molecule.charge
             spin = self.molecule.multiplicity - 1
             units = self.molecule.units.value
@@ -136,29 +148,33 @@ class PySCFDriver(FermionicDriver):
         basis = self.basis
         hf_method = self.hf_method
 
-        q_mol = compute_integrals(atom=atom,
-                                  unit=units,
-                                  charge=charge,
-                                  spin=spin,
-                                  basis=basis,
-                                  hf_method=hf_method,
-                                  conv_tol=self._conv_tol,
-                                  max_cycle=self._max_cycle,
-                                  init_guess=self._init_guess,
-                                  max_memory=self._max_memory)
+        q_mol = compute_integrals(
+            atom=atom,
+            unit=units,
+            charge=charge,
+            spin=spin,
+            basis=basis,
+            hf_method=hf_method,
+            conv_tol=self._conv_tol,
+            max_cycle=self._max_cycle,
+            init_guess=self._init_guess,
+            max_memory=self._max_memory,
+        )
 
-        q_mol.origin_driver_name = 'PYSCF'
-        cfg = ['atom={}'.format(atom),
-               'unit={}'.format(units),
-               'charge={}'.format(charge),
-               'spin={}'.format(spin),
-               'basis={}'.format(basis),
-               'hf_method={}'.format(hf_method),
-               'conv_tol={}'.format(self._conv_tol),
-               'max_cycle={}'.format(self._max_cycle),
-               'init_guess={}'.format(self._init_guess),
-               'max_memory={}'.format(self._max_memory),
-               '']
-        q_mol.origin_driver_config = '\n'.join(cfg)
+        q_mol.origin_driver_name = "PYSCF"
+        cfg = [
+            "atom={}".format(atom),
+            "unit={}".format(units),
+            "charge={}".format(charge),
+            "spin={}".format(spin),
+            "basis={}".format(basis),
+            "hf_method={}".format(hf_method),
+            "conv_tol={}".format(self._conv_tol),
+            "max_cycle={}".format(self._max_cycle),
+            "init_guess={}".format(self._init_guess),
+            "max_memory={}".format(self._max_memory),
+            "",
+        ]
+        q_mol.origin_driver_config = "\n".join(cfg)
 
         return q_mol

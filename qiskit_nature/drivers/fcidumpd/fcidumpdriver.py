@@ -50,13 +50,20 @@ class FCIDumpDriver(FermionicDriver):
 
         if not isinstance(fcidump_input, str):
             raise QiskitNatureError(
-                "The fcidump_input must be str, not '{}'".format(fcidump_input))
+                "The fcidump_input must be str, not '{}'".format(fcidump_input)
+            )
         self._fcidump_input = fcidump_input
 
-        if atoms and not isinstance(atoms, list) \
-                and not all(sym in QMolecule.symbols for sym in atoms):
+        if (
+            atoms
+            and not isinstance(atoms, list)
+            and not all(sym in QMolecule.symbols for sym in atoms)
+        ):
             raise QiskitNatureError(
-                "The atoms must be a list of valid atomic symbols, not '{}'".format(atoms))
+                "The atoms must be a list of valid atomic symbols, not '{}'".format(
+                    atoms
+                )
+            )
         self.atoms = atoms
 
     def run(self) -> QMolecule:
@@ -69,28 +76,34 @@ class FCIDumpDriver(FermionicDriver):
 
         q_mol = QMolecule()
 
-        q_mol.nuclear_repulsion_energy = fcidump_data.get('ecore', None)
-        q_mol.num_molecular_orbitals = fcidump_data.get('NORB')
-        q_mol.multiplicity = fcidump_data.get('MS2', 0) + 1
+        q_mol.nuclear_repulsion_energy = fcidump_data.get("ecore", None)
+        q_mol.num_molecular_orbitals = fcidump_data.get("NORB")
+        q_mol.multiplicity = fcidump_data.get("MS2", 0) + 1
         q_mol.molecular_charge = 0  # ensures QMolecule.log() works
-        q_mol.num_beta = (fcidump_data.get('NELEC') - (q_mol.multiplicity - 1)) // 2
-        q_mol.num_alpha = fcidump_data.get('NELEC') - q_mol.num_beta
+        q_mol.num_beta = (fcidump_data.get("NELEC") - (q_mol.multiplicity - 1)) // 2
+        q_mol.num_alpha = fcidump_data.get("NELEC") - q_mol.num_beta
         if self.atoms is not None:
             q_mol.num_atoms = len(self.atoms)
             q_mol.atom_symbol = self.atoms
-            q_mol.atom_xyz = [[float('NaN')] * 3] * len(self.atoms)  # ensures QMolecule.log() works
+            q_mol.atom_xyz = [[float("NaN")] * 3] * len(
+                self.atoms
+            )  # ensures QMolecule.log() works
 
-        q_mol.mo_onee_ints = fcidump_data.get('hij', None)
-        q_mol.mo_onee_ints_b = fcidump_data.get('hij_b', None)
-        q_mol.mo_eri_ints = fcidump_data.get('hijkl', None)
-        q_mol.mo_eri_ints_bb = fcidump_data.get('hijkl_bb', None)
-        q_mol.mo_eri_ints_ba = fcidump_data.get('hijkl_ba', None)
+        q_mol.mo_onee_ints = fcidump_data.get("hij", None)
+        q_mol.mo_onee_ints_b = fcidump_data.get("hij_b", None)
+        q_mol.mo_eri_ints = fcidump_data.get("hijkl", None)
+        q_mol.mo_eri_ints_bb = fcidump_data.get("hijkl_bb", None)
+        q_mol.mo_eri_ints_ba = fcidump_data.get("hijkl_ba", None)
 
         return q_mol
 
     @staticmethod
-    def dump(q_mol: QMolecule, outpath: str, orbsym: Optional[List[str]] = None,
-             isym: int = 1) -> None:
+    def dump(
+        q_mol: QMolecule,
+        outpath: str,
+        orbsym: Optional[List[str]] = None,
+        isym: int = 1,
+    ) -> None:
         """Convenience method to produce an FCIDump output file.
 
         Args:
@@ -100,8 +113,14 @@ class FCIDumpDriver(FermionicDriver):
             orbsym: A list of spatial symmetries of the orbitals.
             isym: The spatial symmetry of the wave function.
         """
-        dump(outpath,
-             q_mol.num_molecular_orbitals, q_mol.num_alpha + q_mol.num_beta,
-             (q_mol.mo_onee_ints, q_mol.mo_onee_ints_b),  # type: ignore
-             (q_mol.mo_eri_ints, q_mol.mo_eri_ints_ba, q_mol.mo_eri_ints_bb),  # type: ignore
-             q_mol.nuclear_repulsion_energy, ms2=q_mol.multiplicity - 1, orbsym=orbsym, isym=isym)
+        dump(
+            outpath,
+            q_mol.num_molecular_orbitals,
+            q_mol.num_alpha + q_mol.num_beta,
+            (q_mol.mo_onee_ints, q_mol.mo_onee_ints_b),  # type: ignore
+            (q_mol.mo_eri_ints, q_mol.mo_eri_ints_ba, q_mol.mo_eri_ints_bb),  # type: ignore
+            q_mol.nuclear_repulsion_energy,
+            ms2=q_mol.multiplicity - 1,
+            orbsym=orbsym,
+            isym=isym,
+        )

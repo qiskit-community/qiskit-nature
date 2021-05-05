@@ -32,8 +32,11 @@ logger = logging.getLogger(__name__)
 class ExcitedStatesEigensolver(ExcitedStatesSolver):
     """The calculation of excited states via an Eigensolver algorithm"""
 
-    def __init__(self, qubit_converter: QubitConverter,
-                 solver: Union[Eigensolver, EigensolverFactory]) -> None:
+    def __init__(
+        self,
+        qubit_converter: QubitConverter,
+        solver: Union[Eigensolver, EigensolverFactory],
+    ) -> None:
         """
 
         Args:
@@ -55,9 +58,11 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         """Sets the minimum eigensolver or factory."""
         self._solver = solver
 
-    def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> EigenstateResult:
+    def solve(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> EigenstateResult:
         """Compute Ground and Excited States properties.
 
         Args:
@@ -80,7 +85,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         main_operator = self._qubit_converter.convert(
             second_q_ops[0],
             num_particles=problem.num_particles,
-            sector_locator=problem.symmetry_sector_locator
+            sector_locator=problem.symmetry_sector_locator,
         )
         aux_ops = self._qubit_converter.convert_match(second_q_ops[1:])
 
@@ -107,6 +112,8 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         eigenstate_result.raw_result = raw_es_result
         eigenstate_result.eigenenergies = raw_es_result.eigenvalues
         eigenstate_result.eigenstates = raw_es_result.eigenstates
-        eigenstate_result.aux_operator_eigenvalues = raw_es_result.aux_operator_eigenvalues
+        eigenstate_result.aux_operator_eigenvalues = (
+            raw_es_result.aux_operator_eigenvalues
+        )
         result = problem.interpret(eigenstate_result)
         return result

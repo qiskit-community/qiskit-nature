@@ -16,8 +16,9 @@ from ddt import ddt, data
 
 import numpy as np
 
-from qiskit_nature.problems.second_quantization.electronic.integrals_calculators import \
-    calc_total_magnetization_ints
+from qiskit_nature.problems.second_quantization.electronic.integrals_calculators import (
+    calc_total_magnetization_ints,
+)
 
 
 @ddt
@@ -25,12 +26,15 @@ class TestMagnetizationIntegralsCalculator(QiskitNatureTestCase):
     """Tests total magnetization integrals calculator."""
 
     num_modes_list = [1, 2, 3]
-    expected_h_1_list = [[[-0.5 + 0.j]],
-                         [[0.5 + 0.j, 0. + 0.j],
-                          [0. + 0.j, -0.5 + 0.j]],
-                         [[0.5 + 0.j, 0. + 0.j, 0. + 0.j],
-                          [0. + 0.j, -0.5 + 0.j, -0. + 0.j],
-                          [0. + 0.j, -0. + 0.j, -0.5 + 0.j]]]
+    expected_h_1_list = [
+        [[-0.5 + 0.0j]],
+        [[0.5 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, -0.5 + 0.0j]],
+        [
+            [0.5 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, -0.5 + 0.0j, -0.0 + 0.0j],
+            [0.0 + 0.0j, -0.0 + 0.0j, -0.5 + 0.0j],
+        ],
+    ]
     expected_h_2_list = [None, None, None]
 
     @data(*num_modes_list)

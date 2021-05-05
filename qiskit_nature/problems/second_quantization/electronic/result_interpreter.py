@@ -16,13 +16,18 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
 from qiskit_nature.drivers import QMolecule
-from qiskit_nature.results import EigenstateResult, ElectronicStructureResult, DipoleTuple
+from qiskit_nature.results import (
+    EigenstateResult,
+    ElectronicStructureResult,
+    DipoleTuple,
+)
 
 
-def _interpret(molecule_data: QMolecule, molecule_data_transformed: QMolecule,
-               raw_result: Union[EigenstateResult, EigensolverResult,
-                                 MinimumEigensolverResult]) -> \
-        ElectronicStructureResult:
+def _interpret(
+    molecule_data: QMolecule,
+    molecule_data_transformed: QMolecule,
+    raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+) -> ElectronicStructureResult:
     """Interprets an EigenstateResult in the context of this transformation.
 
     Args:
@@ -35,8 +40,9 @@ def _interpret(molecule_data: QMolecule, molecule_data_transformed: QMolecule,
     """
     eigenstate_result = _interpret_raw_result(raw_result)
 
-    result = _interpret_electr_struct_result(eigenstate_result, molecule_data,
-                                             molecule_data_transformed)
+    result = _interpret_electr_struct_result(
+        eigenstate_result, molecule_data, molecule_data_transformed
+    )
 
     return result
 
@@ -56,12 +62,15 @@ def _interpret_raw_result(raw_result):
         eigenstate_result.raw_result = raw_result
         eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
         eigenstate_result.eigenstates = [raw_result.eigenstate]
-        eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        eigenstate_result.aux_operator_eigenvalues = [
+            raw_result.aux_operator_eigenvalues
+        ]
     return eigenstate_result
 
 
-def _interpret_electr_struct_result(eigenstate_result, molecule_data,
-                                    molecule_data_transformed):
+def _interpret_electr_struct_result(
+    eigenstate_result, molecule_data, molecule_data_transformed
+):
     q_molecule = cast(QMolecule, molecule_data)
     q_molecule_transformed = cast(QMolecule, molecule_data_transformed)
     result = ElectronicStructureResult()
@@ -75,7 +84,9 @@ def _interpret_electr_struct_result(eigenstate_result, molecule_data,
 
 def _interpret_eigenstate_results(eigenstate_result, result):
     result.combine(eigenstate_result)
-    result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
+    result.computed_energies = np.asarray(
+        [e.real for e in eigenstate_result.eigenenergies]
+    )
 
 
 def _interpret_q_molecule_results(q_molecule, result):
@@ -116,7 +127,9 @@ def _interpret_aux_ops_results(q_molecule_transformed, result):
             result.magnetization.append(aux_op_eigenvalues[2][0].real)  # type: ignore
 
         if len(aux_op_eigenvalues) >= 6 and q_molecule_transformed.has_dipole_integrals:
-            _interpret_dipole_results(aux_op_eigenvalues, q_molecule_transformed, result)
+            _interpret_dipole_results(
+                aux_op_eigenvalues, q_molecule_transformed, result
+            )
 
 
 def _interpret_dipole_results(aux_op_eigenvalues, q_molecule_transformed, result):
@@ -131,9 +144,16 @@ def _interpret_dipole_results(aux_op_eigenvalues, q_molecule_transformed, result
 
     result.reverse_dipole_sign = q_molecule_transformed.reverse_dipole_sign
     result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
-    result.extracted_transformer_dipoles.append({
-        name: cast(DipoleTuple, (q_molecule_transformed.x_dip_energy_shift[name],
-                                 q_molecule_transformed.y_dip_energy_shift[name],
-                                 q_molecule_transformed.z_dip_energy_shift[name]))
-        for name in q_molecule_transformed.x_dip_energy_shift.keys()
-    })
+    result.extracted_transformer_dipoles.append(
+        {
+            name: cast(
+                DipoleTuple,
+                (
+                    q_molecule_transformed.x_dip_energy_shift[name],
+                    q_molecule_transformed.y_dip_energy_shift[name],
+                    q_molecule_transformed.z_dip_energy_shift[name],
+                ),
+            )
+            for name in q_molecule_transformed.x_dip_energy_shift.keys()
+        }
+    )

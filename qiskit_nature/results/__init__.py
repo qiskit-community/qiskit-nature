@@ -39,9 +39,9 @@ from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
 from .vibrational_structure_result import VibrationalStructureResult
 
 __all__ = [
-    'BOPESSamplerResult',
-    'DipoleTuple',
-    'EigenstateResult',
-    'ElectronicStructureResult',
-    'VibrationalStructureResult',
+    "BOPESSamplerResult",
+    "DipoleTuple",
+    "EigenstateResult",
+    "ElectronicStructureResult",
+    "VibrationalStructureResult",
 ]

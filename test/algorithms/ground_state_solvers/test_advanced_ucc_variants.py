@@ -34,26 +34,27 @@ from qiskit_nature.transformers import FreezeCoreTransformer
 # pylint: disable=invalid-name
 
 
-@unittest.skip("Debug more issues with TaperedPauliSumOp in Terra...")
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
     """Test for these extensions."""
 
     def setUp(self):
         super().setUp()
-        self.driver = PySCFDriver(atom='H 0 0 0.735; H 0 0 0', basis='631g')
+        self.driver = PySCFDriver(atom="H 0 0 0.735; H 0 0 0", basis="631g")
 
         self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver,
-                                                                       [FreezeCoreTransformer()])
+        self.electronic_structure_problem = ElectronicStructureProblem(
+            self.driver, [FreezeCoreTransformer()]
+        )
 
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)
 
         # because we create the initial state and ansatzes early, we need to ensure the qubit
         # converter already ran such that convert_match works as expected
-        _ = self.qubit_converter.convert(self.electronic_structure_problem.second_q_ops()[0],
-                                         self.num_particles)
+        _ = self.qubit_converter.convert(
+            self.electronic_structure_problem.second_q_ops()[0], self.num_particles
+        )
 
         self.reference_energy_pUCCD = -1.1434447924298028
         self.reference_energy_UCCD0 = -1.1476045878481704
@@ -63,86 +64,123 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         # reference energy of UCCSD/VQE when no tapering on excitations is used
         self.reference_energy_UCCSD_no_tap_exc = -1.1516142309717594
         # excitations for succ
-        self.reference_singlet_double_excitations = [[0, 1, 4, 5], [0, 1, 4, 6], [0, 1, 4, 7],
-                                                     [0, 2, 4, 6], [0, 2, 4, 7], [0, 3, 4, 7]]
+        self.reference_singlet_double_excitations = [
+            [0, 1, 4, 5],
+            [0, 1, 4, 6],
+            [0, 1, 4, 7],
+            [0, 2, 4, 6],
+            [0, 2, 4, 7],
+            [0, 3, 4, 7],
+        ]
         # groups for succ_full
-        self.reference_singlet_groups = [[[0, 1, 4, 5]], [[0, 1, 4, 6], [0, 2, 4, 5]],
-                                         [[0, 1, 4, 7], [0, 3, 4, 5]], [[0, 2, 4, 6]],
-                                         [[0, 2, 4, 7], [0, 3, 4, 6]], [[0, 3, 4, 7]]]
+        self.reference_singlet_groups = [
+            [[0, 1, 4, 5]],
+            [[0, 1, 4, 6], [0, 2, 4, 5]],
+            [[0, 1, 4, 7], [0, 3, 4, 5]],
+            [[0, 2, 4, 6]],
+            [[0, 2, 4, 7], [0, 3, 4, 6]],
+            [[0, 3, 4, 7]],
+        ]
 
     @slow_test
     def test_uccsd_hf_qpUCCD(self):
-        """ paired uccd test """
+        """paired uccd test"""
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(self.num_spin_orbitals,
-                                    self.num_particles,
-                                    self.qubit_converter)
+        initial_state = HartreeFock(
+            self.num_spin_orbitals, self.num_particles, self.qubit_converter
+        )
 
-        ansatz = PUCCD(self.qubit_converter,
-                       self.num_particles,
-                       self.num_spin_orbitals,
-                       initial_state=initial_state)
+        ansatz = PUCCD(
+            self.qubit_converter,
+            self.num_particles,
+            self.num_spin_orbitals,
+            initial_state=initial_state,
+        )
 
-        solver = VQE(ansatz=ansatz, optimizer=optimizer,
-                     quantum_instance=QuantumInstance(
-                         backend=BasicAer.get_backend('statevector_simulator')))
+        solver = VQE(
+            ansatz=ansatz,
+            optimizer=optimizer,
+            quantum_instance=QuantumInstance(
+                backend=BasicAer.get_backend("statevector_simulator")
+            ),
+        )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
-        self.assertAlmostEqual(result.total_energies[0], self.reference_energy_pUCCD, places=6)
+        self.assertAlmostEqual(
+            result.total_energies[0], self.reference_energy_pUCCD, places=6
+        )
 
     @slow_test
     def test_uccsd_hf_qUCCD0(self):
-        """ singlet uccd test """
+        """singlet uccd test"""
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(self.num_spin_orbitals,
-                                    self.num_particles,
-                                    self.qubit_converter)
+        initial_state = HartreeFock(
+            self.num_spin_orbitals, self.num_particles, self.qubit_converter
+        )
 
-        ansatz = SUCCD(self.qubit_converter,
-                       self.num_particles,
-                       self.num_spin_orbitals,
-                       initial_state=initial_state)
+        ansatz = SUCCD(
+            self.qubit_converter,
+            self.num_particles,
+            self.num_spin_orbitals,
+            initial_state=initial_state,
+        )
 
-        solver = VQE(ansatz=ansatz, optimizer=optimizer,
-                     quantum_instance=QuantumInstance(
-                         backend=BasicAer.get_backend('statevector_simulator')))
+        solver = VQE(
+            ansatz=ansatz,
+            optimizer=optimizer,
+            quantum_instance=QuantumInstance(
+                backend=BasicAer.get_backend("statevector_simulator")
+            ),
+        )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
-        self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0, places=6)
+        self.assertAlmostEqual(
+            result.total_energies[0], self.reference_energy_UCCD0, places=6
+        )
 
-    @unittest.skip("Skip until https://github.com/Qiskit/qiskit-nature/issues/91 is closed.")
+    @unittest.skip(
+        "Skip until https://github.com/Qiskit/qiskit-nature/issues/91 is closed."
+    )
     def test_uccsd_hf_qUCCD0full(self):
-        """ singlet full uccd test """
+        """singlet full uccd test"""
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(self.num_spin_orbitals,
-                                    self.num_particles,
-                                    self.qubit_converter)
+        initial_state = HartreeFock(
+            self.num_spin_orbitals, self.num_particles, self.qubit_converter
+        )
 
         # TODO: add `full` option
-        ansatz = SUCCD(self.qubit_converter,
-                       self.num_particles,
-                       self.num_spin_orbitals,
-                       initial_state=initial_state)
+        ansatz = SUCCD(
+            self.qubit_converter,
+            self.num_particles,
+            self.num_spin_orbitals,
+            initial_state=initial_state,
+        )
 
-        solver = VQE(ansatz=ansatz, optimizer=optimizer,
-                     quantum_instance=QuantumInstance(
-                         backend=BasicAer.get_backend('statevector_simulator')))
+        solver = VQE(
+            ansatz=ansatz,
+            optimizer=optimizer,
+            quantum_instance=QuantumInstance(
+                backend=BasicAer.get_backend("statevector_simulator")
+            ),
+        )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
-        self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0full, places=6)
+        self.assertAlmostEqual(
+            result.total_energies[0], self.reference_energy_UCCD0full, places=6
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
