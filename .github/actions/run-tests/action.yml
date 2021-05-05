@@ -24,8 +24,11 @@ inputs:
     required: true
 runs:
   using: "composite"
-  steps: 
-    - run: |
+  steps:
+    - name: Run Unit Tests
+      env:
+        PYTHONWARNINGS: default
+      run: |
         if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
           source "$HOME/miniconda/etc/profile.d/conda.sh"
           conda activate
