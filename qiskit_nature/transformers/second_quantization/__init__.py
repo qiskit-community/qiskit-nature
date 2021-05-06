@@ -12,7 +12,7 @@
 
 """
 QMolecule Transformers (:mod:`qiskit_nature.transformers.second_quantization`)
-==========================================================
+==============================================================================
 
 .. currentmodule:: qiskit_nature.transformers.second_quantization
 
