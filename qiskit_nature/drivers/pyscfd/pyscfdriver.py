@@ -120,7 +120,7 @@ class PySCFDriver(FermionicDriver):
             atom = atom.replace("\n", ";")
         else:
             raise QiskitNatureError(
-                "`atom` must be either a `str` or `List[str]`, but you passed %s", str(atom)
+                "`atom` must be either a `str` or `List[str]`, but you passed {}".format(str(atom))
             )
 
         validate_min("max_cycle", max_cycle, 1)
