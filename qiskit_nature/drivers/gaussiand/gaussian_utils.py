@@ -52,9 +52,7 @@ def run_g16(cfg: str) -> str:
     """
     process = None
     try:
-        with Popen(
-            _GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True
-        ) as process:
+        with Popen(_GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True) as process:
             stdout, _ = process.communicate(cfg)
             process.wait()
     except Exception as ex:
@@ -74,9 +72,7 @@ def run_g16(cfg: str) -> str:
                 logger.error(lines[i])
                 errmsg += lines[i] + "\n"
         raise QiskitNatureError(
-            "{} process return code {}\n{}".format(
-                _GAUSSIAN_16_DESC, process.returncode, errmsg
-            )
+            "{} process return code {}\n{}".format(_GAUSSIAN_16_DESC, process.returncode, errmsg)
         )
 
     all_text = ""

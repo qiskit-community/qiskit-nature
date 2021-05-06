@@ -72,8 +72,7 @@ class QEOM(ExcitedStatesSolver):
         directly be provided."""
         if isinstance(excitations, str) and excitations not in ["s", "d", "sd"]:
             raise ValueError(
-                "Excitation type must be s (singles), d (doubles) or sd "
-                "(singles and doubles)"
+                "Excitation type must be s (singles), d (doubles) or sd " "(singles and doubles)"
             )
         self._excitations = excitations
 
@@ -106,9 +105,7 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem)
 
         # 2. Prepare the excitation operators
-        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(
-            problem.second_q_ops()[0]
-        )
+        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(problem.second_q_ops()[0])
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
@@ -130,9 +127,7 @@ class QEOM(ExcitedStatesSolver):
         ) = self._build_eom_matrices(measurement_results, size)
 
         # 5. solve pseudo-eigenvalue problem
-        energy_gaps, expansion_coefs = self._compute_excitation_energies(
-            m_mat, v_mat, q_mat, w_mat
-        )
+        energy_gaps, expansion_coefs = self._compute_excitation_energies(m_mat, v_mat, q_mat, w_mat)
 
         qeom_result = QEOMResult()
         qeom_result.ground_state_raw_result = groundstate_result.raw_result
@@ -149,16 +144,12 @@ class QEOM(ExcitedStatesSolver):
 
         eigenstate_result = EigenstateResult()
         eigenstate_result.eigenstates = groundstate_result.eigenstates
-        eigenstate_result.aux_operator_eigenvalues = (
-            groundstate_result.aux_operator_eigenvalues
-        )
+        eigenstate_result.aux_operator_eigenvalues = groundstate_result.aux_operator_eigenvalues
         eigenstate_result.raw_result = qeom_result
 
         eigenstate_result.eigenenergies = np.append(
             groundstate_result.eigenenergies,
-            np.asarray(
-                [groundstate_result.eigenenergies[0] + gap for gap in energy_gaps]
-            ),
+            np.asarray([groundstate_result.eigenenergies[0] + gap for gap in energy_gaps]),
         )
 
         result = problem.interpret(eigenstate_result)
@@ -245,9 +236,7 @@ class QEOM(ExcitedStatesSolver):
             z2_symmetries = Z2Symmetries([], [], [])
 
         if not z2_symmetries.is_empty():
-            combinations = itertools.product(
-                [1, -1], repeat=len(z2_symmetries.symmetries)
-            )
+            combinations = itertools.product([1, -1], repeat=len(z2_symmetries.symmetries))
             for targeted_tapering_values in combinations:
                 logger.info(
                     "In sector: (%s)",
@@ -268,9 +257,7 @@ class QEOM(ExcitedStatesSolver):
 
         else:
             # untapered_qubit_op is a PauliSumOp and should not be exposed.
-            _build_one_sector(
-                hopping_operators, self._untapered_qubit_op_main, z2_symmetries
-            )
+            _build_one_sector(hopping_operators, self._untapered_qubit_op_main, z2_symmetries)
 
         return all_matrix_operators
 
@@ -339,9 +326,7 @@ class QEOM(ExcitedStatesSolver):
 
     def _build_eom_matrices(
         self, gs_results: Dict[str, List[float]], size: int
-    ) -> Tuple[
-        np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, float, float
-    ]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, float, float]:
         """Constructs the M, V, Q and W matrices from the results on the ground state
 
         Args:

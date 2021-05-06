@@ -53,9 +53,7 @@ def dump(
     mos = range(norb)
     with open(outpath, "w") as outfile:
         # print header
-        outfile.write(
-            "&FCI NORB={:4d},NELEC={:4d},MS2={:4d}\n".format(norb, nelec, ms2)
-        )
+        outfile.write("&FCI NORB={:4d},NELEC={:4d},MS2={:4d}\n".format(norb, nelec, ms2))
         if orbsym is None:
             outfile.write(" ORBSYM=" + "1," * norb + "\n")
         else:
@@ -87,9 +85,7 @@ def _dump_1e_ints(
     hij_elements = set()
     for i, j in itertools.product(mos, repeat=2):
         if i == j:
-            _write_to_outfile(
-                outfile, hij[i][j], (i + idx_offset, j + idx_offset, 0, 0)
-            )
+            _write_to_outfile(outfile, hij[i][j], (i + idx_offset, j + idx_offset, 0, 0))
             continue
         if (j, i) in hij_elements and np.isclose(hij[i][j], hij[j][i]):
             continue

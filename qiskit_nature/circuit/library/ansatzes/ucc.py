@@ -165,9 +165,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
 
-        super().__init__(
-            reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state
-        )
+        super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
@@ -225,9 +223,7 @@ class UCC(EvolvedOperatorAnsatz):
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
         if self.num_spin_orbitals < 0:
             if raise_on_failure:
-                raise ValueError(
-                    "The number of spin orbitals cannot be smaller than 0."
-                )
+                raise ValueError("The number of spin orbitals cannot be smaller than 0.")
             return False
 
         if any(n < 0 for n in self.num_particles):
@@ -266,9 +262,7 @@ class UCC(EvolvedOperatorAnsatz):
             # the converter inserting None as the result if an operator did not commute. Here
             # we are not interested in that just getting the valid set of operators so that
             # behavior is suppressed.
-            self.operators = self.qubit_converter.convert_match(
-                excitation_ops, suppress_none=True
-            )
+            self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
 
         logger.debug("Building QuantumCircuit...")
         super()._build()
@@ -324,38 +318,28 @@ class UCC(EvolvedOperatorAnsatz):
                     partial(
                         generate_fermionic_excitations,
                         num_excitations=self.EXCITATION_TYPE[exc],
-                        **extra_kwargs
+                        **extra_kwargs,
                     )
                 )
         elif isinstance(self.excitations, int):
             generators.append(
                 partial(
-                    generate_fermionic_excitations,
-                    num_excitations=self.excitations,
-                    **extra_kwargs
+                    generate_fermionic_excitations, num_excitations=self.excitations, **extra_kwargs
                 )
             )
         elif isinstance(self.excitations, list):
             for exc in self.excitations:  # type: ignore
                 generators.append(
-                    partial(
-                        generate_fermionic_excitations,
-                        num_excitations=exc,
-                        **extra_kwargs
-                    )
+                    partial(generate_fermionic_excitations, num_excitations=exc, **extra_kwargs)
                 )
         elif callable(self.excitations):
             generators = [self.excitations]
         else:
-            raise QiskitNatureError(
-                "Invalid excitation configuration: {}".format(self.excitations)
-            )
+            raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
 
         return generators
 
-    def _build_fermionic_excitation_ops(
-        self, excitations: Sequence
-    ) -> List[FermionicOp]:
+    def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 

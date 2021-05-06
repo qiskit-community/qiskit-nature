@@ -173,9 +173,7 @@ class CHC(BlueprintCircuit):
         q = self.qubits
 
         if isinstance(self._initial_state, QuantumCircuit):
-            self.append(
-                self._initial_state.to_gate(), range(self._initial_state.num_qubits)
-            )
+            self.append(self._initial_state.to_gate(), range(self._initial_state.num_qubits))
 
         count = 0
         for _ in range(self._reps):

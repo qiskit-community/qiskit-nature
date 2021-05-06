@@ -172,9 +172,7 @@ class TestPotential(unittest.TestCase):
         wave_number = morse.wave_number()
 
         result = np.array([minimal_energy_distance, minimal_energy, wave_number])
-        benchmark = np.array(
-            [0.8106703001726382, -1.062422610690636, 3800.7855102410026]
-        )
+        benchmark = np.array([0.8106703001726382, -1.062422610690636, 3800.7855102410026])
         np.testing.assert_array_almost_equal(result, benchmark, decimal=4)
 
         radia = np.array([0.5, 1, 1.5, 2])
@@ -330,9 +328,7 @@ class TestPotential(unittest.TestCase):
         wave_number = harmonic.wave_number()
 
         result = np.array([minimal_energy_distance, minimal_energy, wave_number])
-        benchmark = np.array(
-            [0.8792058944654566, -1.0678714520398802, 4670.969897517367]
-        )
+        benchmark = np.array([0.8792058944654566, -1.0678714520398802, 4670.969897517367])
         np.testing.assert_array_almost_equal(result, benchmark)
 
         radia = np.array([0.5, 1, 1.5, 2])

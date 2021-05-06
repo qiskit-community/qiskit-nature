@@ -49,9 +49,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
         """Test Getter/Setter"""
 
         with self.subTest("Quantum Instance"):
-            self.assertEqual(
-                self._vqe_uvcc_factory.quantum_instance, self.quantum_instance
-            )
+            self.assertEqual(self._vqe_uvcc_factory.quantum_instance, self.quantum_instance)
             self._vqe_uvcc_factory.quantum_instance = None
             self.assertEqual(self._vqe_uvcc_factory.quantum_instance, None)
 

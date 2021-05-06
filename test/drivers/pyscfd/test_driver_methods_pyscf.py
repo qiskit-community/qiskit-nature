@@ -214,9 +214,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             hf_method=HFMethodType.ROHF,
         )
-        result = self._run_driver(
-            driver, converter=QubitConverter(BravyiKitaevMapper())
-        )
+        result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
         self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf_bk(self):
@@ -229,9 +227,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             hf_method=HFMethodType.UHF,
         )
-        result = self._run_driver(
-            driver, converter=QubitConverter(BravyiKitaevMapper())
-        )
+        result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
         self._assert_energy_and_dipole(result, "oh")
 
 

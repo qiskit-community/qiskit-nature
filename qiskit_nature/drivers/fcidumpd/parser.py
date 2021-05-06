@@ -37,9 +37,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
         with open(fcidump, "r") as file:
             fcidump_str = file.read()
     except OSError as ex:
-        raise QiskitNatureError(
-            "Input file '{}' cannot be read!".format(fcidump)
-        ) from ex
+        raise QiskitNatureError("Input file '{}' cannot be read!".format(fcidump)) from ex
 
     output = {}  # type: Dict[str, Any]
 
@@ -57,16 +55,12 @@ def parse(fcidump: str) -> Dict[str, Any]:
     # we parse the values in the order in which they are listed in Knowles1989
     _norb = re.search("NORB" + pattern, metadata)
     if _norb is None:
-        raise QiskitNatureError(
-            "The required NORB entry of the FCIDump format is missing!"
-        )
+        raise QiskitNatureError("The required NORB entry of the FCIDump format is missing!")
     norb = int(_norb.groups()[0])
     output["NORB"] = norb
     _nelec = re.search("NELEC" + pattern, metadata)
     if _nelec is None:
-        raise QiskitNatureError(
-            "The required NELEC entry of the FCIDump format is missing!"
-        )
+        raise QiskitNatureError("The required NELEC entry of the FCIDump format is missing!")
     output["NELEC"] = int(_nelec.groups()[0])
     # the rest of these values may occur and are set to their defaults otherwise
     _ms2 = re.search("MS2" + pattern, metadata)
@@ -123,12 +117,8 @@ def parse(fcidump: str) -> Dict[str, Any]:
         hijkl_ab = np.zeros((norb, norb, norb, norb))
         hijkl_ba = np.zeros((norb, norb, norb, norb))
         hijkl_bb = np.zeros((norb, norb, norb, norb))
-        hijkl_ab_elements = set(
-            itertools.product(range(norb), range(norb), beta_range, beta_range)
-        )
-        hijkl_ba_elements = set(
-            itertools.product(beta_range, beta_range, range(norb), range(norb))
-        )
+        hijkl_ab_elements = set(itertools.product(range(norb), range(norb), beta_range, beta_range))
+        hijkl_ba_elements = set(itertools.product(beta_range, beta_range, range(norb), range(norb)))
         hijkl_bb_elements = set(itertools.product(beta_range, repeat=4))
     orbital_data = fcidump_str[namelist_end.end(0) :].split("\n")
     for orbital in orbital_data:
@@ -137,9 +127,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
         x = float(orbital.split()[0])
         # Note: differing naming than ijkl due to E741 and this iajb is inline with this:
         # https://hande.readthedocs.io/en/latest/manual/integrals.html#fcidump-format
-        i, a, j, b = [
-            int(i) for i in orbital.split()[1:]
-        ]  # pylint: disable=invalid-name
+        i, a, j, b = [int(i) for i in orbital.split()[1:]]  # pylint: disable=invalid-name
         if i == a == j == b == 0:
             output["ecore"] = x
         elif a == j == b == 0:
@@ -175,9 +163,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
                             hijkl_ba[i - 1 - norb][a - 1 - norb][j - 1][b - 1] = x
                         except KeyError:
                             hijkl_bb_elements.remove((i - 1, a - 1, j - 1, b - 1))
-                            hijkl_bb[i - 1 - norb][a - 1 - norb][j - 1 - norb][
-                                b - 1 - norb
-                            ] = x
+                            hijkl_bb[i - 1 - norb][a - 1 - norb][j - 1 - norb][b - 1 - norb] = x
                 else:
                     raise QiskitNatureError(
                         "Unkown 2-electron integral indices encountered in \

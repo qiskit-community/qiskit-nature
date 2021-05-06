@@ -27,9 +27,7 @@ from .utils import str2list, str2str, str2tuple
 @lru_cache(3)
 def dense_labels(length):
     """Generate list of fermion labels with given length."""
-    return [
-        "".join(label) for label in product(["I", "+", "-", "N", "E"], repeat=length)
-    ]
+    return ["".join(label) for label in product(["I", "+", "-", "N", "E"], repeat=length)]
 
 
 @lru_cache(3)
@@ -78,9 +76,7 @@ class TestFermionicOp(QiskitNatureTestCase):
     def test_init_sparse_label(self, labels, pre_processing):
         """Test __init__ with sparse label"""
         dense_label, sparse_label = labels
-        fer_op = FermionicOp(
-            pre_processing(sparse_label), register_length=len(dense_label)
-        )
+        fer_op = FermionicOp(pre_processing(sparse_label), register_length=len(dense_label))
         targ = FermionicOp(dense_label)
         self.assertFermionEqual(fer_op, targ)
 

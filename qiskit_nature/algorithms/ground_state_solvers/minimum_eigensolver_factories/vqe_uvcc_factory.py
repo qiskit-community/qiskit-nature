@@ -189,9 +189,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             by ``transformation``.
         """
 
-        watson_hamiltonian_transformed = cast(
-            WatsonHamiltonian, problem.molecule_data_transformed
-        )
+        watson_hamiltonian_transformed = cast(WatsonHamiltonian, problem.molecule_data_transformed)
         num_modals = problem.num_modals
         num_modes = watson_hamiltonian_transformed.num_modes
 

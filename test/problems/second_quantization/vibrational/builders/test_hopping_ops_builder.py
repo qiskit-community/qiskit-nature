@@ -194,7 +194,5 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             },
         )
 
-        hopping_operators = _build_qeom_hopping_ops(
-            self.num_modals, self.qubit_converter
-        )
+        hopping_operators = _build_qeom_hopping_ops(self.num_modals, self.qubit_converter)
         self.assertEqual(hopping_operators, expected_hopping_operators)

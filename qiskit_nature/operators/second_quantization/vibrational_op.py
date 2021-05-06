@@ -85,9 +85,7 @@ class VibrationalOp(SecondQuantizedOp):
 
     # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
     # followed by "*" and a modal index, possibly appearing multiple times and separated by a space
-    _VALID_VIBR_LABEL_PATTERN = re.compile(
-        r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$"
-    )
+    _VALID_VIBR_LABEL_PATTERN = re.compile(r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
 
     def __init__(
         self,
@@ -109,14 +107,10 @@ class VibrationalOp(SecondQuantizedOp):
             ValueError: invalid labels.
         """
         if not isinstance(data, (tuple, list, str)):
-            raise TypeError(
-                f"Type of data must be str, tuple, or list, not {type(data)}."
-            )
+            raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
 
         if isinstance(data, tuple):
-            if not isinstance(data[0], str) or not isinstance(
-                data[1], (int, float, complex)
-            ):
+            if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
                 raise TypeError(
                     f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
                 )
@@ -149,13 +143,9 @@ class VibrationalOp(SecondQuantizedOp):
             if not all(len(label) == self._register_length for label in labels):
                 raise ValueError("Lengths of strings of label are different.")
             label_pattern = re.compile(r"^[I\+\-NE]+$")
-            invalid_labels = [
-                label for label in labels if not label_pattern.match(label)
-            ]
+            invalid_labels = [label for label in labels if not label_pattern.match(label)]
             if invalid_labels:
-                raise ValueError(
-                    f"Invalid labels for dense labels are given: {invalid_labels}"
-                )
+                raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
             self._labels = list(labels)
         else:
             # Sparse label
@@ -165,10 +155,7 @@ class VibrationalOp(SecondQuantizedOp):
             for dense_label, coeff in dense_labels:
                 new_op = reduce(
                     lambda a, b: a @ b,
-                    (
-                        VibrationalOp((label, 1), num_modes, num_modals)
-                        for label in dense_label
-                    ),
+                    (VibrationalOp((label, 1), num_modes, num_modals) for label in dense_label),
                 )
                 # We ignore the type here because mypy only sees the complex coefficient
                 ops.append(coeff * new_op)  # type: ignore
@@ -189,9 +176,7 @@ class VibrationalOp(SecondQuantizedOp):
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{label} * {coeff}"
-        return "  " + "\n+ ".join(
-            [f"{label} * {coeff}" for label, coeff in self.to_list()]
-        )
+        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
 
     def __len__(self):
         return len(self._labels)
@@ -279,9 +264,7 @@ class VibrationalOp(SecondQuantizedOp):
             self._num_modals,
         )
 
-    def reduce(
-        self, atol: Optional[float] = None, rtol: Optional[float] = None
-    ) -> "VibrationalOp":
+    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationalOp":
         if atol is None:
             atol = self.atol
         if rtol is None:
@@ -292,9 +275,7 @@ class VibrationalOp(SecondQuantizedOp):
         for i, val in zip(indices, self._coeffs):
             coeff_list[i] += val
         non_zero = [
-            i
-            for i, v in enumerate(coeff_list)
-            if not np.isclose(v, 0, atol=atol, rtol=rtol)
+            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
             return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
@@ -362,9 +343,7 @@ class VibrationalOp(SecondQuantizedOp):
     @classmethod
     def _single_mul(cls, label1: str, label2: str) -> Tuple[str, bool]:
         if len(label1) != len(label2):
-            raise QiskitNatureError(
-                "Operators act on Fermion Registers of different length"
-            )
+            raise QiskitNatureError("Operators act on Fermion Registers of different length")
 
         new_label = []
 
@@ -428,12 +407,8 @@ class VibrationalOp(SecondQuantizedOp):
                 op, mode_index_str, modal_index_str = re.split("[*_]", label)
                 mode_index = int(mode_index_str)
                 modal_index = int(modal_index_str)
-                if self._is_index_out_of_range(
-                    mode_index, num_modes, modal_index, num_modals
-                ):
-                    raise ValueError(
-                        f"Indices out of the declared range for label {label}."
-                    )
+                if self._is_index_out_of_range(mode_index, num_modes, modal_index, num_modals):
+                    raise ValueError(f"Indices out of the declared range for label {label}.")
                 if self._is_label_duplicated(
                     mode_index,
                     prev_mode_index,
@@ -442,9 +417,7 @@ class VibrationalOp(SecondQuantizedOp):
                     op,
                     prev_op,
                 ):
-                    raise ValueError(
-                        f"Operators in a label duplicated for label {label}."
-                    )
+                    raise ValueError(f"Operators in a label duplicated for label {label}.")
                 if self._is_order_incorrect(
                     mode_index,
                     prev_mode_index,
@@ -484,11 +457,7 @@ class VibrationalOp(SecondQuantizedOp):
         op: str,
         prev_op: str,
     ) -> bool:
-        return (
-            modal_index == prev_modal_index
-            and mode_index == prev_mode_index
-            and op == prev_op
-        )
+        return modal_index == prev_modal_index and mode_index == prev_mode_index and op == prev_op
 
     def _is_order_incorrect(
         self,
@@ -559,15 +528,11 @@ class VibrationalOp(SecondQuantizedOp):
 
         dense_labels = []
         for labels, coeff in vibrational_labels:
-            coeff_new_labels = self._build_coeff_dense_labels(
-                labels, partial_sum_modals
-            )
+            coeff_new_labels = self._build_coeff_dense_labels(labels, partial_sum_modals)
             dense_labels.append((coeff_new_labels, coeff))
         return dense_labels
 
-    def _build_coeff_dense_labels(
-        self, labels: str, partial_sum_modals: List[int]
-    ) -> List[str]:
+    def _build_coeff_dense_labels(self, labels: str, partial_sum_modals: List[int]) -> List[str]:
         coeff_labels_split = labels.split()
         coeff_new_labels = []
         for label in coeff_labels_split:
@@ -577,9 +542,7 @@ class VibrationalOp(SecondQuantizedOp):
             coeff_new_labels.append("".join(new_label))
         return coeff_new_labels
 
-    def _build_dense_label(
-        self, label: str, partial_sum_modals: List[int]
-    ) -> Tuple[str, int]:
+    def _build_dense_label(self, label: str, partial_sum_modals: List[int]) -> Tuple[str, int]:
         op, mode_index, modal_index = re.split("[*_]", label)
         index = partial_sum_modals[int(mode_index)] + int(modal_index)
         return (op, index)
