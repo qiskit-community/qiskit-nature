@@ -31,7 +31,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         expected_num_of_terms_ferm_op = 184
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_two_ints",
-            "problems/second_quantization/" "electronic/resources",
+            "problems/second_quantization/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers"))
@@ -52,7 +52,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         expected_num_of_terms_ferm_op = 184
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_two_ints",
-            "problems/second_quantization/" "electronic/resources",
+            "problems/second_quantization/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers"))
@@ -76,7 +76,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         expected_num_of_terms_ferm_op = 16
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_one_int",
-            "problems/second_quantization/" "electronic/resources",
+            "problems/second_quantization/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 

@@ -72,7 +72,7 @@ class QEOM(ExcitedStatesSolver):
         directly be provided."""
         if isinstance(excitations, str) and excitations not in ["s", "d", "sd"]:
             raise ValueError(
-                "Excitation type must be s (singles), d (doubles) or sd " "(singles and doubles)"
+                "Excitation type must be s (singles), d (doubles) or sd (singles and doubles)"
             )
         self._excitations = excitations
 

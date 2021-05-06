@@ -216,7 +216,7 @@ class AdaptVQE(GroundStateEigensolver):
                 logger.info(gradlog)
             if np.abs(max_grad[0]) < self._threshold:
                 logger.info(
-                    "Adaptive VQE terminated successfully " "with a final maximum gradient: %s",
+                    "Adaptive VQE terminated successfully with a final maximum gradient: %s",
                     str(np.abs(max_grad[0])),
                 )
                 threshold_satisfied = True

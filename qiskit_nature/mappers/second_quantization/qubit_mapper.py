@@ -131,7 +131,7 @@ class QubitMapper(ABC):
                 # catch any disallowed labels
                 else:
                     raise QiskitNatureError(
-                        f"FermionicOp label included '{char}'. " "Allowed characters: I, N, E, +, -"
+                        f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
                     )
             ret_op_list.append(ret_op)
 
