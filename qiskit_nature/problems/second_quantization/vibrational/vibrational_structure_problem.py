@@ -23,7 +23,7 @@ from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
-from qiskit_nature.transformers import BaseTransformer
+from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .builders.vibrational_op_builder import _build_vibrational_op

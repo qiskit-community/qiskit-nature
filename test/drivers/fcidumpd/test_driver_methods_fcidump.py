@@ -17,7 +17,7 @@ import unittest
 from test import QiskitNatureTestCase
 from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import FCIDumpDriver
-from qiskit_nature.transformers import FreezeCoreTransformer
+from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
 @unittest.skip("Skip test until refactored.")
