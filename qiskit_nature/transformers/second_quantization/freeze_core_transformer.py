@@ -15,7 +15,7 @@
 from typing import List, Optional
 import logging
 
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import QMolecule
 
 from .active_space_transformer import ActiveSpaceTransformer
 

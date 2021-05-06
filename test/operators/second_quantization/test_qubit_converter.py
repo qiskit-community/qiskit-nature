@@ -20,7 +20,7 @@ from test import QiskitNatureTestCase
 from qiskit.opflow import X, Y, Z, I, PauliSumOp, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem

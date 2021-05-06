@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult

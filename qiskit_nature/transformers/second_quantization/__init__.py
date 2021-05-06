@@ -16,11 +16,11 @@ QMolecule Transformers (:mod:`qiskit_nature.transformers.second_quantization`)
 
 .. currentmodule:: qiskit_nature.transformers.second_quantization
 
-Transformers act on a :class:`~qiskit_nature.drivers.QMolecule` to produce an altered copy of it
-as per the specific transformer. So for instance the :class:`FreezeCoreTransformer` will alter the
-integrals and number of particles in a way that freezes the core orbitals, storing an extracted
-energy in the QMolecule to compensate for this that would need to be included back into any ground
-state energy computation to get complete result.
+Transformers act on a :class:`~qiskit_nature.drivers.second_quantization.QMolecule` to produce an
+altered copy of it as per the specific transformer. So for instance the
+:class:`FreezeCoreTransformer` will alter the integrals and number of particles in a way that
+freezes the core orbitals, storing an extracted energy in the QMolecule to compensate for this that
+would need to be included back into any ground state energy computation to get complete result.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -36,7 +36,7 @@ from .base_transformer import BaseTransformer
 from .freeze_core_transformer import FreezeCoreTransformer
 
 __all__ = [
-    'ActiveSpaceTransformer',
-    'BaseTransformer',
-    'FreezeCoreTransformer',
+    "ActiveSpaceTransformer",
+    "BaseTransformer",
+    "FreezeCoreTransformer",
 ]

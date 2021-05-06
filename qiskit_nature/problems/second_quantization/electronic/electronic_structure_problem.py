@@ -20,10 +20,8 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature.circuit.library.initial_states.hartree_fock import (
-    hartree_fock_bitstring,
-)
-from qiskit_nature.drivers import FermionicDriver, QMolecule
+from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature.drivers.second_quantization import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult

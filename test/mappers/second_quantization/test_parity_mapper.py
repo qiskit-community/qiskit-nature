@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 
 from qiskit.opflow import X, Z, I
 
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.problems.second_quantization.electronic.builders import (
     fermionic_op_builder,

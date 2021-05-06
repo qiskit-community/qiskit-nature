@@ -32,7 +32,7 @@ from qiskit_nature.algorithms import (
     NumPyMinimumEigensolverFactory,
 )
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem

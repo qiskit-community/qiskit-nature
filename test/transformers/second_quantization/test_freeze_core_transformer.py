@@ -20,7 +20,7 @@ from test.transformers.second_quantization.test_active_space_transformer import 
 
 from ddt import ddt, idata
 
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 

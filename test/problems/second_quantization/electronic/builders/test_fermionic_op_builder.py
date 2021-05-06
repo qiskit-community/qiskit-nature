@@ -17,10 +17,8 @@ from test.problems.second_quantization.electronic.resources.resource_reader impo
 )
 import numpy as np
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.problems.second_quantization.electronic.builders import (
-    fermionic_op_builder,
-)
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 
 
 class TestFermionicOpBuilder(QiskitNatureTestCase):

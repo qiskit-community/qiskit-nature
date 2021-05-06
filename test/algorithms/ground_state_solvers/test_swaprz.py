@@ -23,7 +23,7 @@ from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit_nature.algorithms import GroundStateEigensolver
 from qiskit_nature.circuit.library import HartreeFock
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem

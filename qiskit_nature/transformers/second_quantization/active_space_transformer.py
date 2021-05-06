@@ -18,7 +18,7 @@ import logging
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import QMolecule
 
 from .base_transformer import BaseTransformer
 
