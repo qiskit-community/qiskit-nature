@@ -45,7 +45,7 @@ except ImportError:
 
 
 class InitialGuess(Enum):
-    """ Initial Guess Enum """
+    """Initial Guess Enum"""
 
     MINAO = "minao"
     HCORE = "1e"
@@ -113,6 +113,11 @@ class PySCFDriver(FermionicDriver):
         """
         # First, ensure that PySCF is actually installed
         self._check_installed()
+
+        if isinstance(atom, list):
+            atom = ";".join(atom)
+        elif isinstance(atom, str):
+            atom = atom.replace("\n", ";")
 
         validate_min("max_cycle", max_cycle, 1)
         super().__init__(

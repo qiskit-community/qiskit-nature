@@ -29,13 +29,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def generate_fermionic_excitations(num_excitations: int,
-                                   num_spin_orbitals: int,
-                                   num_particles: Tuple[int, int],
-                                   alpha_spin: bool = True,
-                                   beta_spin: bool = True,
-                                   max_spin_excitation: Optional[int] = None,
-                                   ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+def generate_fermionic_excitations(
+    num_excitations: int,
+    num_spin_orbitals: int,
+    num_particles: Tuple[int, int],
+    alpha_spin: bool = True,
+    beta_spin: bool = True,
+    max_spin_excitation: Optional[int] = None,
+) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
 
@@ -64,17 +65,16 @@ def generate_fermionic_excitations(num_excitations: int,
         alpha_unocc = list(range(num_particles[0], num_spin_orbitals // 2))
         # the Cartesian product of these lists gives all possible single alpha-spin excitations
         alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
-        logger.debug('Generated list of single alpha excitations: %s', alpha_excitations)
+        logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
     beta_excitations: List[Tuple[int, int]] = []
     if beta_spin:
         # generate beta-spin orbital indices for occupied and unoccupied ones
-        beta_occ = list(range(num_spin_orbitals // 2,
-                              num_spin_orbitals // 2 + num_particles[1]))
+        beta_occ = list(range(num_spin_orbitals // 2, num_spin_orbitals // 2 + num_particles[1]))
         beta_unocc = list(range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals))
         # the Cartesian product of these lists gives all possible single beta-spin excitations
         beta_excitations = list(itertools.product(beta_occ, beta_unocc))
-        logger.debug('Generated list of single beta excitations: %s', beta_excitations)
+        logger.debug("Generated list of single beta excitations: %s", beta_excitations)
 
     if not alpha_excitations and not beta_excitations:
         # nothing to do, let's return early
@@ -89,22 +89,22 @@ def generate_fermionic_excitations(num_excitations: int,
 
     # if max_spin_excitation is set, we need to filter the pool of excitations
     if max_spin_excitation is not None:
-        logger.info('The maximum number of excitations within each spin species was set to %s',
-                    max_spin_excitation)
+        logger.info(
+            "The maximum number of excitations within each spin species was set to %s",
+            max_spin_excitation,
+        )
         # first, remove all those excitations, in which more than max_spin_excitation alpha
         # excitations are performed at ones
         if alpha_excitations:  # False if empty list
             alpha_exc_set = set(alpha_excitations)
             pool = itertools.filterfalse(
-                lambda exc: len(set(exc) & alpha_exc_set) > max_spin_excitation,
-                pool
+                lambda exc: len(set(exc) & alpha_exc_set) > max_spin_excitation, pool
             )
         # then, do the same for beta
         if beta_excitations:  # False if empty list
             beta_exc_set = set(beta_excitations)
             pool = itertools.filterfalse(
-                lambda exc: len(set(exc) & beta_exc_set) > max_spin_excitation,
-                pool
+                lambda exc: len(set(exc) & beta_exc_set) > max_spin_excitation, pool
             )
 
     excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = list()
@@ -123,6 +123,6 @@ def generate_fermionic_excitations(num_excitations: int,
             occ, unocc = zip(*exc)
             exc_tuple = (occ, unocc)
             excitations.append(exc_tuple)
-            logger.debug('Added the excitation: %s', exc_tuple)
+            logger.debug("Added the excitation: %s", exc_tuple)
 
     return excitations

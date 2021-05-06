@@ -53,8 +53,9 @@ class Extrapolator(ABC):
     """
 
     @abstractmethod
-    def extrapolate(self, points: List[float],
-                    param_dict: Dict[float, List[float]]) -> Dict[float, List[float]]:
+    def extrapolate(
+        self, points: List[float], param_dict: Dict[float, List[float]]
+    ) -> Dict[float, List[float]]:
         """
         Abstract method to extrapolate point(s) of interest.
 
@@ -70,7 +71,7 @@ class Extrapolator(ABC):
         raise NotImplementedError()
 
     @staticmethod
-    def factory(mode: str, **kwargs) -> 'Extrapolator':
+    def factory(mode: str, **kwargs) -> "Extrapolator":
         """
         Factory method for constructing extrapolators.
 
@@ -89,18 +90,18 @@ class Extrapolator(ABC):
         Raises:
             QiskitNatureError: if specified mode is unknown.
         """
-        if mode == 'window':
+        if mode == "window":
             return WindowExtrapolator(**kwargs)
-        elif mode == 'poly':
+        elif mode == "poly":
             return PolynomialExtrapolator(**kwargs)
-        elif mode == 'diff_model':
+        elif mode == "diff_model":
             return DifferentialExtrapolator(**kwargs)
-        elif mode == 'pca':
+        elif mode == "pca":
             return PCAExtrapolator(**kwargs)
-        elif mode == 'l1':
+        elif mode == "l1":
             return SieveExtrapolator(**kwargs)
         else:
-            raise QiskitNatureError('No extrapolator called {}'.format(mode))
+            raise QiskitNatureError("No extrapolator called {}".format(mode))
 
 
 class PolynomialExtrapolator(Extrapolator):
@@ -122,8 +123,9 @@ class PolynomialExtrapolator(Extrapolator):
 
         self._degree = degree
 
-    def extrapolate(self, points: List[float], param_dict: Optional[Dict[float, List[float]]]) \
-            -> Dict[float, List[float]]:
+    def extrapolate(
+        self, points: List[float], param_dict: Optional[Dict[float, List[float]]]
+    ) -> Dict[float, List[float]]:
         """
         Extrapolate at specified point of interest given a set of variational parameters.
         Extrapolation is based on a polynomial function/spline fitting with a user-specified
@@ -161,11 +163,18 @@ class DifferentialExtrapolator(Extrapolator):
     point being extrapolated in the data window.
     """
 
-    def __init__(self,
-                 degree: int = 1,
-                 model: Optional[Union[linear_model.LinearRegression, linear_model.Ridge,
-                                       linear_model.RidgeCV, linear_model.SGDRegressor]] = None) \
-            -> None:
+    def __init__(
+        self,
+        degree: int = 1,
+        model: Optional[
+            Union[
+                linear_model.LinearRegression,
+                linear_model.Ridge,
+                linear_model.RidgeCV,
+                linear_model.SGDRegressor,
+            ]
+        ] = None,
+    ) -> None:
         """
         Constructor.
 
@@ -181,8 +190,9 @@ class DifferentialExtrapolator(Extrapolator):
         self._degree = degree
         self._model = model or linear_model.LinearRegression()
 
-    def extrapolate(self, points: List[float], param_dict: Optional[Dict[float, List[float]]]) \
-            -> Dict[float, List[float]]:
+    def extrapolate(
+        self, points: List[float], param_dict: Optional[Dict[float, List[float]]]
+    ) -> Dict[float, List[float]]:
         """
         Extrapolate at specified point of interest given a set of variational parameters.
         Each parameter list and list of numerical gradients is treated as a single point
@@ -220,10 +230,11 @@ class WindowExtrapolator(Extrapolator):
     ground truth parameter set to a fixed window size.
     """
 
-    def __init__(self,
-                 extrapolator: Union[PolynomialExtrapolator,
-                                     DifferentialExtrapolator] = None,
-                 window: int = 2) -> None:
+    def __init__(
+        self,
+        extrapolator: Union[PolynomialExtrapolator, DifferentialExtrapolator] = None,
+        window: int = 2,
+    ) -> None:
         """
         Constructor.
 
@@ -237,8 +248,9 @@ class WindowExtrapolator(Extrapolator):
         self._extrapolator = extrapolator
         self._window = window
 
-    def extrapolate(self, points: List[float], param_dict: Optional[Dict[float, List[float]]]) \
-            -> Dict[float, List[float]]:
+    def extrapolate(
+        self, points: List[float], param_dict: Optional[Dict[float, List[float]]]
+    ) -> Dict[float, List[float]]:
         """
         Extrapolate at specified point of interest given a set of variational parameters.
         Based on the specified window, a subset of the data points will be used for
@@ -263,15 +275,18 @@ class WindowExtrapolator(Extrapolator):
             if bottom_index < len(reference_points) - 1:
                 top = reference_points[bottom_index + 1]
             else:
-                top = float('inf')
+                top = float("inf")
             extrapolation_group = [pt for pt in sorted_points if bottom < pt <= top]
             window_points = [pt for pt in reference_points if pt <= bottom]
             if len(window_points) > self._window:
-                window_points = window_points[-self._window:]
+                window_points = window_points[-self._window :]
             window_param_dict = {pt: param_dict[pt] for pt in window_points}
             if extrapolation_group:
-                ret_params.update(self._extrapolator.extrapolate(extrapolation_group,
-                                                                 param_dict=window_param_dict))
+                ret_params.update(
+                    self._extrapolator.extrapolate(
+                        extrapolation_group, param_dict=window_param_dict
+                    )
+                )
         return ret_params
 
     @property
@@ -284,8 +299,9 @@ class WindowExtrapolator(Extrapolator):
         return self._extrapolator
 
     @extrapolator.setter
-    def extrapolator(self, extrapolator: Union[PolynomialExtrapolator,
-                                               DifferentialExtrapolator]) -> None:
+    def extrapolator(
+        self, extrapolator: Union[PolynomialExtrapolator, DifferentialExtrapolator]
+    ) -> None:
         """Sets the internal extrapolator.
 
         Args:
@@ -320,11 +336,12 @@ class PCAExtrapolator(Extrapolator):
     A user specifies the kernel within how the PCA transformation should be done.
     """
 
-    def __init__(self,
-                 extrapolator: Optional[Union[PolynomialExtrapolator,
-                                              DifferentialExtrapolator]] = None,
-                 kernel: Optional[str] = None,
-                 window: int = 2) -> None:
+    def __init__(
+        self,
+        extrapolator: Optional[Union[PolynomialExtrapolator, DifferentialExtrapolator]] = None,
+        kernel: Optional[str] = None,
+        window: int = 2,
+    ) -> None:
         """
         Constructor.
 
@@ -343,13 +360,14 @@ class PCAExtrapolator(Extrapolator):
         self._kernel = kernel
         if self._kernel is None:
             self._pca_model = PCA()
-        elif self._kernel in ['linear', 'poly', 'rbf', 'sigmoid', 'cosine']:
+        elif self._kernel in ["linear", "poly", "rbf", "sigmoid", "cosine"]:
             self._pca_model = KernelPCA(kernel=self._kernel, fit_inverse_transform=True)
         else:
-            raise QiskitNatureError('PCA kernel type {} not found'.format(self._kernel))
+            raise QiskitNatureError("PCA kernel type {} not found".format(self._kernel))
 
-    def extrapolate(self, points: List[float], param_dict: Optional[Dict[float, List[float]]]) \
-            -> Dict[float, List[float]]:
+    def extrapolate(
+        self, points: List[float], param_dict: Optional[Dict[float, List[float]]]
+    ) -> Dict[float, List[float]]:
         """
         Extrapolate at specified point of interest given a set of variational parameters.
         This method transforms the parameters in PCA space before performing the internal
@@ -366,12 +384,15 @@ class PCAExtrapolator(Extrapolator):
         """
         # run pca fitting and extrapolate in pca space
         self._pca_model.fit(list(param_dict.values()))
-        updated_params = {pt: self._pca_model.transform([param_dict[pt]])[0]
-                          for pt in list(param_dict.keys())}
+        updated_params = {
+            pt: self._pca_model.transform([param_dict[pt]])[0] for pt in list(param_dict.keys())
+        }
         output_params = self._extrapolator.extrapolate(points, param_dict=updated_params)
 
-        ret_params = {point: self._pca_model.inverse_transform(param) if not param else []
-                      for (point, param) in output_params.items()}
+        ret_params = {
+            point: self._pca_model.inverse_transform(param) if not param else []
+            for (point, param) in output_params.items()
+        }
         return ret_params
 
 
@@ -382,12 +403,13 @@ class SieveExtrapolator(Extrapolator):
     small clusters' parameters to zero.
     """
 
-    def __init__(self,
-                 extrapolator: Optional[Union[PolynomialExtrapolator,
-                                              DifferentialExtrapolator]] = None,
-                 window: int = 2,
-                 filter_before: bool = True,
-                 filter_after: bool = True) -> None:
+    def __init__(
+        self,
+        extrapolator: Optional[Union[PolynomialExtrapolator, DifferentialExtrapolator]] = None,
+        window: int = 2,
+        filter_before: bool = True,
+        filter_after: bool = True,
+    ) -> None:
         """
         Constructor.
 
@@ -403,8 +425,9 @@ class SieveExtrapolator(Extrapolator):
         self._filter_before = filter_before
         self._filter_after = filter_after
 
-    def extrapolate(self, points: List[float], param_dict: Optional[Dict[float, List[float]]]) \
-            -> Dict[float, List[float]]:
+    def extrapolate(
+        self, points: List[float], param_dict: Optional[Dict[float, List[float]]]
+    ) -> Dict[float, List[float]]:
         """
         Extrapolate at specified point of interest given a set of variational parameters.
         Based on the specified window, a subset of the data points will be used for
@@ -431,18 +454,24 @@ class SieveExtrapolator(Extrapolator):
         sieve_cutoff = 10 ** np.average([param_averages[max_gap], param_averages[max_gap + 1]])
 
         if self._filter_before:
-            filtered_dict = {point: list(map(lambda x: x if np.abs(x) > sieve_cutoff else 0, param))
-                             for (point, param) in param_dict.items()}
+            filtered_dict = {
+                point: list(map(lambda x: x if np.abs(x) > sieve_cutoff else 0, param))
+                for (point, param) in param_dict.items()
+            }
             output_params = self._extrapolator.extrapolate(points, param_dict=filtered_dict)
         else:
             output_params = self._extrapolator.extrapolate(points, param_dict=param_dict)
 
         if self._filter_after:
-            ret_params = \
-                cast(Dict[float, List[float]],
-                     {point: np.asarray(list(map(lambda x: x
-                                                 if np.abs(x) > sieve_cutoff else 0, param)))
-                      for (point, param) in output_params.items()})
+            ret_params = cast(
+                Dict[float, List[float]],
+                {
+                    point: np.asarray(
+                        list(map(lambda x: x if np.abs(x) > sieve_cutoff else 0, param))
+                    )
+                    for (point, param) in output_params.items()
+                },
+            )
         else:
             ret_params = cast(Dict[float, List[float]], np.asarray(output_params))
         return ret_params

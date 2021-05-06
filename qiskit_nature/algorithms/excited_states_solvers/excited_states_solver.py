@@ -26,9 +26,11 @@ class ExcitedStatesSolver(ABC):
     """The excited states calculation interface"""
 
     @abstractmethod
-    def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> EigenstateResult:
+    def solve(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
         Args:

@@ -29,4 +29,4 @@ QuantumCircuit Initial States (:mod:`qiskit_nature.circuit.library.initial_state
 from .hartree_fock import HartreeFock
 from .vscf import VSCF
 
-__all__ = ['HartreeFock', 'VSCF']
+__all__ = ["HartreeFock", "VSCF"]

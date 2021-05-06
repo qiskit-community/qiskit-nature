@@ -26,21 +26,24 @@ class TestDriverPSI4(QiskitNatureTestCase, TestDriver):
     def setUp(self):
         super().setUp()
         try:
-            driver = PSI4Driver([
-                'molecule h2 {',
-                '  0 1',
-                '  H  0.0 0.0 0.0',
-                '  H  0.0 0.0 0.735',
-                '  no_com',
-                '  no_reorient',
-                '}',
-                '',
-                'set {',
-                '  basis sto-3g',
-                '  scf_type pk',
-                '}'])
+            driver = PSI4Driver(
+                [
+                    "molecule h2 {",
+                    "  0 1",
+                    "  H  0.0 0.0 0.0",
+                    "  H  0.0 0.0 0.735",
+                    "  no_com",
+                    "  no_reorient",
+                    "}",
+                    "",
+                    "set {",
+                    "  basis sto-3g",
+                    "  scf_type pk",
+                    "}",
+                ]
+            )
         except QiskitNatureError:
-            self.skipTest('PSI4 driver does not appear to be installed')
+            self.skipTest("PSI4 driver does not appear to be installed")
         self.qmolecule = driver.run()
 
 
@@ -53,9 +56,9 @@ class TestDriverPSI4Molecule(QiskitNatureTestCase, TestDriver):
             driver = PSI4Driver(molecule=TestDriver.MOLECULE)
         except QiskitNatureError as ex:
             print(ex)
-            self.skipTest('PSI4 driver does not appear to be installed')
+            self.skipTest("PSI4 driver does not appear to be installed")
         self.qmolecule = driver.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

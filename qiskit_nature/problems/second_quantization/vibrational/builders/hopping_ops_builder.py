@@ -23,15 +23,20 @@ from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 
 
-def _build_qeom_hopping_ops(num_modals: List[int],
-                            qubit_converter: QubitConverter,
-                            excitations: Union[str, int, List[int],
-                                               Callable[[int, Tuple[int, int]],
-                                                        List[Tuple[Tuple[int, ...],
-                                                                   Tuple[int, ...]]]]] = 'sd',
-                            ) -> Tuple[Dict[str, PauliSumOp],
-                                       Dict[str, List[bool]],
-                                       Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+def _build_qeom_hopping_ops(
+    num_modals: List[int],
+    qubit_converter: QubitConverter,
+    excitations: Union[
+        str,
+        int,
+        List[int],
+        Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+    ] = "sd",
+) -> Tuple[
+    Dict[str, PauliSumOp],
+    Dict[str, List[bool]],
+    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+]:
     """
     Args:
         num_modals: the number of modals per mode.
@@ -50,8 +55,9 @@ def _build_qeom_hopping_ops(num_modals: List[int],
     """
 
     excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-    if isinstance(excitations, (str, int)) or \
-            (isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)):
+    if isinstance(excitations, (str, int)) or (
+        isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
+    ):
         excitations = cast(Union[str, int, List[int]], excitations)
         ansatz = UVCC(qubit_converter, num_modals, excitations)
         excitations_list = ansatz._get_excitation_list()
@@ -65,15 +71,17 @@ def _build_qeom_hopping_ops(num_modals: List[int],
     to_be_executed_list = []
     for idx in range(size):
         to_be_executed_list += [excitations_list[idx], excitations_list[idx][::-1]]
-        hopping_operators['E_{}'.format(idx)] = None
-        hopping_operators['Edag_{}'.format(idx)] = None
-        excitation_indices['E_{}'.format(idx)] = excitations_list[idx]
-        excitation_indices['Edag_{}'.format(idx)] = excitations_list[idx][::-1]
+        hopping_operators["E_{}".format(idx)] = None
+        hopping_operators["Edag_{}".format(idx)] = None
+        excitation_indices["E_{}".format(idx)] = excitations_list[idx]
+        excitation_indices["Edag_{}".format(idx)] = excitations_list[idx][::-1]
 
-    result = parallel_map(_build_single_hopping_operator,
-                          to_be_executed_list,
-                          task_args=(num_modals, qubit_converter),
-                          num_processes=algorithm_globals.num_processes)
+    result = parallel_map(
+        _build_single_hopping_operator,
+        to_be_executed_list,
+        task_args=(num_modals, qubit_converter),
+        num_processes=algorithm_globals.num_processes,
+    )
 
     for key, res in zip(hopping_operators.keys(), result):
         hopping_operators[key] = res
@@ -85,17 +93,19 @@ def _build_qeom_hopping_ops(num_modals: List[int],
     return hopping_operators, type_of_commutativities, excitation_indices  # type: ignore
 
 
-def _build_single_hopping_operator(excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
-                                   num_modals: List[int],
-                                   qubit_converter: QubitConverter) -> PauliSumOp:
+def _build_single_hopping_operator(
+    excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
+    num_modals: List[int],
+    qubit_converter: QubitConverter,
+) -> PauliSumOp:
     sum_modes = sum(num_modals)
 
-    label = ['I'] * sum_modes
+    label = ["I"] * sum_modes
     for occ in excitation[0]:
-        label[occ] = '+'
+        label[occ] = "+"
     for unocc in excitation[1]:
-        label[unocc] = '-'
-    vibrational_op = VibrationalOp(''.join(label), len(num_modals), num_modals)
+        label[unocc] = "-"
+    vibrational_op = VibrationalOp("".join(label), len(num_modals), num_modals)
     qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
 
     return qubit_op

@@ -200,7 +200,9 @@ class FermionicOp(SecondQuantizedOp):
             self._register_length = register_length
             label_pattern = re.compile(r"^[I\+\-NE]_\d+$")
             invalid_labels = [
-                label for label in labels if not all(label_pattern.match(l) for l in label.split())
+                label
+                for label in labels
+                if not all(label_pattern.match(lb) for lb in label.split())
             ]
             if invalid_labels:
                 raise ValueError(f"Invalid labels for sparse labels are given: {invalid_labels}")
@@ -218,7 +220,7 @@ class FermionicOp(SecondQuantizedOp):
                     list_label[term][index] = op_label
                     prev_index = index
 
-            self._labels = ["".join(l) for l in list_label]
+            self._labels = ["".join(lb) for lb in list_label]
 
     def __repr__(self) -> str:
         if len(self) == 1:
@@ -349,7 +351,10 @@ class FermionicOp(SecondQuantizedOp):
 
         return FermionicOp(
             list(
-                zip(self._labels + other._labels, np.hstack((self._coeffs, other._coeffs)).tolist())
+                zip(
+                    self._labels + other._labels,
+                    np.hstack((self._coeffs, other._coeffs)).tolist(),
+                )
             )
         )
 

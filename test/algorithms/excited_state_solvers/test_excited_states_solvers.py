@@ -25,64 +25,78 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.algorithms import (
-    GroundStateEigensolver, VQEUCCFactory,
-    NumPyEigensolverFactory, ExcitedStatesEigensolver, QEOM
+    GroundStateEigensolver,
+    VQEUCCFactory,
+    NumPyEigensolverFactory,
+    ExcitedStatesEigensolver,
+    QEOM,
 )
 
 
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
-    """ Test Numerical qEOM excited states calculation """
+    """Test Numerical qEOM excited states calculation"""
 
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8
         try:
-            self.driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.75',
-                                      unit=UnitsType.ANGSTROM,
-                                      charge=0,
-                                      spin=0,
-                                      basis='sto3g')
+            self.driver = PySCFDriver(
+                atom="H .0 .0 .0; H .0 .0 0.75",
+                unit=UnitsType.ANGSTROM,
+                charge=0,
+                spin=0,
+                basis="sto3g",
+            )
         except QiskitNatureError:
-            self.skipTest('PYSCF driver does not appear to be installed')
+            self.skipTest("PYSCF driver does not appear to be installed")
 
-        self.reference_energies = [-1.8427016, -1.8427016 + 0.5943372, -1.8427016 + 0.95788352,
-                                   -1.8427016 + 1.5969296]
+        self.reference_energies = [
+            -1.8427016,
+            -1.8427016 + 0.5943372,
+            -1.8427016 + 0.95788352,
+            -1.8427016 + 1.5969296,
+        ]
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
 
         solver = NumPyEigensolver()
         self.ref = solver
-        self.quantum_instance = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
-                                                seed_transpiler=90, seed_simulator=12)
+        self.quantum_instance = QuantumInstance(
+            BasicAer.get_backend("statevector_simulator"),
+            seed_transpiler=90,
+            seed_simulator=12,
+        )
 
     def test_numpy_mes(self):
-        """ Test NumPyMinimumEigenSolver with QEOM """
+        """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
-        esc = QEOM(gsc, 'sd')
+        esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
         for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(results.computed_energies[idx], self.reference_energies[idx],
-                                   places=4)
+            self.assertAlmostEqual(
+                results.computed_energies[idx], self.reference_energies[idx], places=4
+            )
 
     def test_vqe_mes(self):
-        """ Test VQEUCCSDFactory with QEOM """
+        """Test VQEUCCSDFactory with QEOM"""
         solver = VQEUCCFactory(self.quantum_instance)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
-        esc = QEOM(gsc, 'sd')
+        esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
         for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(results.computed_energies[idx], self.reference_energies[idx],
-                                   places=4)
+            self.assertAlmostEqual(
+                results.computed_energies[idx], self.reference_energies[idx], places=4
+            )
 
     def test_numpy_factory(self):
-        """ Test NumPyEigenSolverFactory with ExcitedStatesEigensolver """
+        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
-            return np.isclose(aux_values[0][0], 2.)
+            return np.isclose(aux_values[0][0], 2.0)
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
@@ -95,9 +109,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 computed_energies.append(comp_energy)
 
         for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(computed_energies[idx], self.reference_energies[idx],
-                                   places=4)
+            self.assertAlmostEqual(computed_energies[idx], self.reference_energies[idx], places=4)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

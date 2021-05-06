@@ -25,23 +25,26 @@ from qiskit.utils import QuantumInstance
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization.electronic import (
+    ElectronicStructureProblem,
+)
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
     """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction."""
 
-    def __init__(self,
-                 quantum_instance: QuantumInstance,
-                 optimizer: Optional[Optimizer] = None,
-                 initial_point: Optional[np.ndarray] = None,
-                 gradient: Optional[Union[GradientBase, Callable]] = None,
-                 expectation: Optional[ExpectationBase] = None,
-                 include_custom: bool = False,
-                 ansatz: Optional[UCC] = None,
-                 initial_state: Optional[QuantumCircuit] = None,
-                 ) -> None:
+    def __init__(
+        self,
+        quantum_instance: QuantumInstance,
+        optimizer: Optional[Optimizer] = None,
+        initial_point: Optional[np.ndarray] = None,
+        gradient: Optional[Union[GradientBase, Callable]] = None,
+        expectation: Optional[ExpectationBase] = None,
+        include_custom: bool = False,
+        ansatz: Optional[UCC] = None,
+        initial_state: Optional[QuantumCircuit] = None,
+    ) -> None:
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
@@ -76,13 +79,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.include_custom = include_custom
         self.ansatz = ansatz
         self.initial_state = initial_state
-        self._vqe = VQE(ansatz=None,
-                        quantum_instance=self._quantum_instance,
-                        optimizer=self._optimizer,
-                        initial_point=self._initial_point,
-                        gradient=self._gradient,
-                        expectation=self._expectation,
-                        include_custom=self._include_custom)
+        self._vqe = VQE(
+            ansatz=None,
+            quantum_instance=self._quantum_instance,
+            optimizer=self._optimizer,
+            initial_point=self._initial_point,
+            gradient=self._gradient,
+            expectation=self._expectation,
+            include_custom=self._include_custom,
+        )
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -166,8 +171,11 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         the :class:`~.HartreeFock`."""
         self._initial_state = initial_state
 
-    def get_solver(self, problem: ElectronicStructureProblem,  # type: ignore[override]
-                   qubit_converter: QubitConverter) -> MinimumEigensolver:
+    def get_solver(  # type: ignore[override]
+        self,
+        problem: ElectronicStructureProblem,
+        qubit_converter: QubitConverter,
+    ) -> MinimumEigensolver:
         """Returns a VQE with a UCCSD wavefunction ansatz, based on ``transformation``.
         This works only with a ``FermionicTransformation``.
 
@@ -182,7 +190,10 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """
         q_molecule_transformed = cast(QMolecule, problem.molecule_data_transformed)
         num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
-        num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
+        num_particles = (
+            q_molecule_transformed.num_alpha,
+            q_molecule_transformed.num_beta,
+        )
         num_spin_orbitals = 2 * num_molecular_orbitals
 
         initial_state = self.initial_state

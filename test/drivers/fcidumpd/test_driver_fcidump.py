@@ -41,87 +41,116 @@ class BaseTestDriverFCIDump(ABC):
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
-        """ assert Almost Equal """
-        raise Exception('Abstract method')
+        """assert Almost Equal"""
+        raise Exception("Abstract method")
 
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
-        """ assert equal """
-        raise Exception('Abstract method')
+        """assert equal"""
+        raise Exception("Abstract method")
 
     @abstractmethod
     def assertSequenceEqual(self, seq1, seq2, msg=None, seq_type=None):
-        """ assert Sequence Equal """
-        raise Exception('Abstract method')
+        """assert Sequence Equal"""
+        raise Exception("Abstract method")
 
     def test_driver_inactive_energy(self):
-        """ driver inactive energy test """
-        self.log.debug('QMolecule inactive energy is {}'.format(
-            self.qmolecule.nuclear_repulsion_energy))
-        self.assertAlmostEqual(self.qmolecule.nuclear_repulsion_energy,
-                               self.nuclear_repulsion_energy, places=3)
+        """driver inactive energy test"""
+        self.log.debug(
+            "QMolecule inactive energy is {}".format(self.qmolecule.nuclear_repulsion_energy)
+        )
+        self.assertAlmostEqual(
+            self.qmolecule.nuclear_repulsion_energy,
+            self.nuclear_repulsion_energy,
+            places=3,
+        )
 
     def test_driver_num_molecular_orbitals(self):
-        """ driver num orbitals test """
-        self.log.debug('QMolecule Number of orbitals is {}'.format(
-            self.qmolecule.num_molecular_orbitals))
+        """driver num orbitals test"""
+        self.log.debug(
+            "QMolecule Number of orbitals is {}".format(self.qmolecule.num_molecular_orbitals)
+        )
         self.assertEqual(self.qmolecule.num_molecular_orbitals, self.num_molecular_orbitals)
 
     def test_driver_num_alpha(self):
-        """ driver num alpha test """
-        self.log.debug('QMolecule Number of alpha electrons is {}'.format(self.qmolecule.num_alpha))
+        """driver num alpha test"""
+        self.log.debug("QMolecule Number of alpha electrons is {}".format(self.qmolecule.num_alpha))
         self.assertEqual(self.qmolecule.num_alpha, self.num_alpha)
 
     def test_driver_num_beta(self):
-        """ driver num beta test """
-        self.log.debug('QMolecule Number of beta electrons is {}'.format(self.qmolecule.num_beta))
+        """driver num beta test"""
+        self.log.debug("QMolecule Number of beta electrons is {}".format(self.qmolecule.num_beta))
         self.assertEqual(self.qmolecule.num_beta, self.num_beta)
 
     def test_driver_mo_onee_ints(self):
-        """ driver alpha mo onee ints test """
-        self.log.debug('QMolecule MO alpha one electron integrals are {}'.format(
-            self.qmolecule.mo_onee_ints))
+        """driver alpha mo onee ints test"""
+        self.log.debug(
+            "QMolecule MO alpha one electron integrals are {}".format(self.qmolecule.mo_onee_ints)
+        )
         self.assertEqual(self.qmolecule.mo_onee_ints.shape, self.mo_onee.shape)
-        np.testing.assert_array_almost_equal(np.absolute(self.qmolecule.mo_onee_ints),
-                                             np.absolute(self.mo_onee), decimal=4)
+        np.testing.assert_array_almost_equal(
+            np.absolute(self.qmolecule.mo_onee_ints),
+            np.absolute(self.mo_onee),
+            decimal=4,
+        )
 
     def test_driver_mo_onee_b_ints(self):
-        """ driver beta mo onee ints test """
+        """driver beta mo onee ints test"""
         if self.mo_onee_b is None:
             return
-        self.log.debug('QMolecule MO beta one electron integrals are {}'.format(
-            self.qmolecule.mo_onee_ints_b))
+        self.log.debug(
+            "QMolecule MO beta one electron integrals are {}".format(self.qmolecule.mo_onee_ints_b)
+        )
         self.assertEqual(self.qmolecule.mo_onee_ints_b.shape, self.mo_onee_b.shape)
-        np.testing.assert_array_almost_equal(np.absolute(self.qmolecule.mo_onee_ints_b),
-                                             np.absolute(self.mo_onee_b), decimal=4)
+        np.testing.assert_array_almost_equal(
+            np.absolute(self.qmolecule.mo_onee_ints_b),
+            np.absolute(self.mo_onee_b),
+            decimal=4,
+        )
 
     def test_driver_mo_eri_ints(self):
-        """ driver alpha-alpha mo eri ints test """
-        self.log.debug('QMolecule MO alpha-alpha two electron integrals are {}'.format(
-            self.qmolecule.mo_eri_ints))
+        """driver alpha-alpha mo eri ints test"""
+        self.log.debug(
+            "QMolecule MO alpha-alpha two electron integrals are {}".format(
+                self.qmolecule.mo_eri_ints
+            )
+        )
         self.assertEqual(self.qmolecule.mo_eri_ints.shape, self.mo_eri.shape)
-        np.testing.assert_array_almost_equal(np.absolute(self.qmolecule.mo_eri_ints),
-                                             np.absolute(self.mo_eri), decimal=4)
+        np.testing.assert_array_almost_equal(
+            np.absolute(self.qmolecule.mo_eri_ints), np.absolute(self.mo_eri), decimal=4
+        )
 
     def test_driver_mo_eri_ints_ba(self):
-        """ driver beta-alpha mo eri ints test """
+        """driver beta-alpha mo eri ints test"""
         if self.mo_eri_ba is None:
             return
-        self.log.debug('QMolecule MO beta-alpha two electron integrals are {}'.format(
-            self.qmolecule.mo_eri_ints_ba))
+        self.log.debug(
+            "QMolecule MO beta-alpha two electron integrals are {}".format(
+                self.qmolecule.mo_eri_ints_ba
+            )
+        )
         self.assertEqual(self.qmolecule.mo_eri_ints_ba.shape, self.mo_eri_ba.shape)
-        np.testing.assert_array_almost_equal(np.absolute(self.qmolecule.mo_eri_ints_ba),
-                                             np.absolute(self.mo_eri_ba), decimal=4)
+        np.testing.assert_array_almost_equal(
+            np.absolute(self.qmolecule.mo_eri_ints_ba),
+            np.absolute(self.mo_eri_ba),
+            decimal=4,
+        )
 
     def test_driver_mo_eri_ints_bb(self):
-        """ driver beta-beta mo eri ints test """
+        """driver beta-beta mo eri ints test"""
         if self.mo_eri_bb is None:
             return
-        self.log.debug('QMolecule MO beta-beta two electron integrals are {}'.format(
-            self.qmolecule.mo_eri_ints_bb))
+        self.log.debug(
+            "QMolecule MO beta-beta two electron integrals are {}".format(
+                self.qmolecule.mo_eri_ints_bb
+            )
+        )
         self.assertEqual(self.qmolecule.mo_eri_ints_bb.shape, self.mo_eri_bb.shape)
-        np.testing.assert_array_almost_equal(np.absolute(self.qmolecule.mo_eri_ints_bb),
-                                             np.absolute(self.mo_eri_bb), decimal=4)
+        np.testing.assert_array_almost_equal(
+            np.absolute(self.qmolecule.mo_eri_ints_bb),
+            np.absolute(self.mo_eri_bb),
+            decimal=4,
+        )
 
 
 class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
@@ -135,14 +164,17 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_beta = 1
         self.mo_onee = np.array([[1.2563, 0.0], [0.0, 0.4719]])
         self.mo_onee_b = None
-        self.mo_eri = np.array([[[[0.6757, 0.0], [0.0, 0.6646]],
-                                 [[0.0, 0.1809], [0.1809, 0.0]]],
-                                [[[0.0, 0.1809], [0.1809, 0.0]],
-                                 [[0.6646, 0.0], [0.0, 0.6986]]]])
+        self.mo_eri = np.array(
+            [
+                [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
+                [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
+            ]
+        )
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_h2.fcidump',
-                                                      'drivers/fcidumpd'))
+        driver = FCIDumpDriver(
+            self.get_resource_path("test_driver_fcidump_h2.fcidump", "drivers/fcidumpd")
+        )
         self.qmolecule = driver.run()
 
 
@@ -155,15 +187,15 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_molecular_orbitals = 6
         self.num_alpha = 2
         self.num_beta = 2
-        loaded = np.load(self.get_resource_path('test_driver_fcidump_lih.npz',
-                                                'drivers/fcidumpd'))
-        self.mo_onee = loaded['mo_onee']
+        loaded = np.load(self.get_resource_path("test_driver_fcidump_lih.npz", "drivers/fcidumpd"))
+        self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = None
-        self.mo_eri = loaded['mo_eri']
+        self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_lih.fcidump',
-                                                      'drivers/fcidumpd'))
+        driver = FCIDumpDriver(
+            self.get_resource_path("test_driver_fcidump_lih.fcidump", "drivers/fcidumpd")
+        )
         self.qmolecule = driver.run()
 
 
@@ -176,17 +208,17 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_molecular_orbitals = 6
         self.num_alpha = 5
         self.num_beta = 4
-        loaded = np.load(self.get_resource_path('test_driver_fcidump_oh.npz',
-                                                'drivers/fcidumpd'))
-        self.mo_onee = loaded['mo_onee']
-        self.mo_onee_b = loaded['mo_onee_b']
-        self.mo_eri = loaded['mo_eri']
-        self.mo_eri_ba = loaded['mo_eri_ba']
-        self.mo_eri_bb = loaded['mo_eri_bb']
-        driver = FCIDumpDriver(self.get_resource_path('test_driver_fcidump_oh.fcidump',
-                                                      'drivers/fcidumpd'))
+        loaded = np.load(self.get_resource_path("test_driver_fcidump_oh.npz", "drivers/fcidumpd"))
+        self.mo_onee = loaded["mo_onee"]
+        self.mo_onee_b = loaded["mo_onee_b"]
+        self.mo_eri = loaded["mo_eri"]
+        self.mo_eri_ba = loaded["mo_eri_ba"]
+        self.mo_eri_bb = loaded["mo_eri_bb"]
+        driver = FCIDumpDriver(
+            self.get_resource_path("test_driver_fcidump_oh.fcidump", "drivers/fcidumpd")
+        )
         self.qmolecule = driver.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

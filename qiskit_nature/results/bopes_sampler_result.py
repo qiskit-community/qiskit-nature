@@ -23,9 +23,12 @@ logger = logging.getLogger(__name__)
 class BOPESSamplerResult:
     """The BOPES Sampler result"""
 
-    def __init__(self, points: List[float],
-                 energies: List[float],
-                 raw_results: Dict[float, EigenstateResult]) -> None:
+    def __init__(
+        self,
+        points: List[float],
+        energies: List[float],
+        raw_results: Dict[float, EigenstateResult],
+    ) -> None:
         """
         Creates an new instance of the result.
         Args:
@@ -40,19 +43,19 @@ class BOPESSamplerResult:
 
     @property
     def points(self) -> List[float]:
-        """ returns list of points."""
+        """returns list of points."""
         return self._points
 
     @property
     def energies(self) -> List[float]:
-        """ returns list of energies."""
+        """returns list of energies."""
         return self._energies
 
     @property
     def raw_results(self) -> Dict[float, EigenstateResult]:
-        """ returns all results for all points."""
+        """returns all results for all points."""
         return self._raw_results
 
     def point_results(self, point: float) -> EigenstateResult:
-        """ returns all results for a specific point."""
+        """returns all results for a specific point."""
         return self.raw_results[point]

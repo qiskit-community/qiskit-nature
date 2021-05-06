@@ -33,8 +33,11 @@ from .minimum_eigensolver_factories import MinimumEigensolverFactory
 class GroundStateEigensolver(GroundStateSolver):
     """Ground state computation using a minimum eigensolver."""
 
-    def __init__(self, qubit_converter: QubitConverter,
-                 solver: Union[MinimumEigensolver, MinimumEigensolverFactory]) -> None:
+    def __init__(
+        self,
+        qubit_converter: QubitConverter,
+        solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
+    ) -> None:
         """
 
         Args:
@@ -59,9 +62,11 @@ class GroundStateEigensolver(GroundStateSolver):
         """Whether the eigensolver returns the ground state or only ground state energy."""
         return self._solver.supports_aux_operators()
 
-    def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> EigenstateResult:
+    def solve(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> EigenstateResult:
         """Compute Ground State properties.
 
         Args:
@@ -84,7 +89,7 @@ class GroundStateEigensolver(GroundStateSolver):
         main_operator = self._qubit_converter.convert(
             second_q_ops[0],
             num_particles=problem.num_particles,
-            sector_locator=problem.symmetry_sector_locator
+            sector_locator=problem.symmetry_sector_locator,
         )
         aux_ops = self._qubit_converter.convert_match(second_q_ops[1:])
 
@@ -108,14 +113,21 @@ class GroundStateEigensolver(GroundStateSolver):
         result = problem.interpret(raw_mes_result)
         return result
 
-    def evaluate_operators(self,
-                           state: Union[str, dict, Result,
-                                        list, np.ndarray, Statevector,
-                                        QuantumCircuit, Instruction,
-                                        OperatorBase],
-                           operators: Union[PauliSumOp, OperatorBase, list, dict]
-                           ) -> Union[Optional[float], List[Optional[float]],
-                                      Dict[str, List[Optional[float]]]]:
+    def evaluate_operators(
+        self,
+        state: Union[
+            str,
+            dict,
+            Result,
+            list,
+            np.ndarray,
+            Statevector,
+            QuantumCircuit,
+            Instruction,
+            OperatorBase,
+        ],
+        operators: Union[PauliSumOp, OperatorBase, list, dict],
+    ) -> Union[Optional[float], List[Optional[float]], Dict[str, List[Optional[float]]]]:
         """Evaluates additional operators at the given state.
 
         Args:
@@ -129,9 +141,9 @@ class GroundStateEigensolver(GroundStateSolver):
             format of the provided operators.
         """
         # try to get a QuantumInstance from the solver
-        quantum_instance = getattr(self._solver, 'quantum_instance', None)
+        quantum_instance = getattr(self._solver, "quantum_instance", None)
         # and try to get an Expectation from the solver
-        expectation = getattr(self._solver, 'expectation', None)
+        expectation = getattr(self._solver, "expectation", None)
 
         if not isinstance(state, StateFn):
             state = StateFn(state)
@@ -165,7 +177,7 @@ class GroundStateEigensolver(GroundStateSolver):
         if op == 0:
             # Note, that for some reason the individual results need to be wrapped in lists.
             # See also: VQE._eval_aux_ops()
-            return [0.j]
+            return [0.0j]
 
         exp = ~StateFn(op) @ state  # <state|op|state>
 
