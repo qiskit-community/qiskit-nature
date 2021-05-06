@@ -118,6 +118,10 @@ class PySCFDriver(FermionicDriver):
             atom = ";".join(atom)
         elif isinstance(atom, str):
             atom = atom.replace("\n", ";")
+        else:
+            raise QiskitNatureError(
+                "`atom` must be either a `str` or `List[str]`, but you passed %s", str(atom)
+            )
 
         validate_min("max_cycle", max_cycle, 1)
         super().__init__(
