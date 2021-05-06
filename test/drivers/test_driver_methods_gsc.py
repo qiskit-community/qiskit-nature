@@ -53,15 +53,11 @@ class TestDriverMethods(QiskitNatureTestCase):
         return result
 
     def _assert_energy(self, result, mol):
-        self.assertAlmostEqual(
-            self.ref_energies[mol], result.total_energies[0], places=3
-        )
+        self.assertAlmostEqual(self.ref_energies[mol], result.total_energies[0], places=3)
 
     def _assert_energy_and_dipole(self, result, mol):
         self._assert_energy(result, mol)
-        self.assertAlmostEqual(
-            self.ref_dipoles[mol], result.total_dipole_moment[0], places=3
-        )
+        self.assertAlmostEqual(self.ref_dipoles[mol], result.total_dipole_moment[0], places=3)
 
 
 if __name__ == "__main__":

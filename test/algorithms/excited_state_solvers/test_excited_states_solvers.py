@@ -109,9 +109,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 computed_energies.append(comp_energy)
 
         for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(
-                computed_energies[idx], self.reference_energies[idx], places=4
-            )
+            self.assertAlmostEqual(computed_energies[idx], self.reference_energies[idx], places=4)
 
 
 if __name__ == "__main__":

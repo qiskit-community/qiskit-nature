@@ -67,14 +67,12 @@ class ElectronicStructureProblem(BaseProblem):
             operator, and (if available) x, y, z dipole operators.
         """
         self._molecule_data = cast(QMolecule, self.driver.run())
-        self._molecule_data_transformed = cast(
-            QMolecule, self._transform(self._molecule_data)
-        )
+        self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
         electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
-        second_quantized_ops_list = [
-            electronic_fermionic_op
-        ] + _create_all_aux_operators(self._molecule_data_transformed)
+        second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
+            self._molecule_data_transformed
+        )
 
         return second_quantized_ops_list
 
@@ -85,9 +83,7 @@ class ElectronicStructureProblem(BaseProblem):
             str,
             int,
             List[int],
-            Callable[
-                [int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-            ],
+            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
         ] = "sd",
     ) -> Tuple[
         Dict[str, PauliSumOp],
@@ -119,9 +115,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     def interpret(
         self,
-        raw_result: Union[
-            EigenstateResult, EigensolverResult, MinimumEigensolverResult
-        ],
+        raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
     ) -> ElectronicStructureResult:
         """Interprets an EigenstateResult in the context of this transformation.
 
@@ -137,9 +131,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     def get_default_filter_criterion(
         self,
-    ) -> Optional[
-        Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]
-    ]:
+    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
@@ -165,9 +157,7 @@ class ElectronicStructureProblem(BaseProblem):
 
         return partial(filter_criterion, self)
 
-    def symmetry_sector_locator(
-        self, z2_symmetries: Z2Symmetries
-    ) -> Optional[List[int]]:
+    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
         """Given the detected Z2Symmetries can determine the correct sector of the tapered
         operators so the correct one can be returned
 
@@ -183,9 +173,7 @@ class ElectronicStructureProblem(BaseProblem):
             num_spin_orbitals=2 * q_molecule.num_molecular_orbitals,
             num_particles=self.num_particles,
         )
-        sector_locator = ElectronicStructureProblem._pick_sector(
-            z2_symmetries, hf_bitstr
-        )
+        sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector_locator
 
@@ -194,9 +182,7 @@ class ElectronicStructureProblem(BaseProblem):
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
-            coeff = (
-                -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
-            )
+            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
             taper_coeff.append(coeff)
 
         return taper_coeff

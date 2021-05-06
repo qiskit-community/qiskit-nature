@@ -31,9 +31,9 @@ class TestLinearMapper(QiskitNatureTestCase):
     ref_qubit_op1 = (-0.054 + 0.165j) * (I ^ I) + (0.054 - 0.165j) * (Z ^ Z)
 
     spin_op2 = SpinOp([("X_0 Z_0 I_1", -1.139 + 0.083j)], 0.5, 2)
-    ref_qubit_op2 = (0.010375 + 0.142375j) * (I ^ I ^ Y ^ X) + (
-        -0.010375 - 0.142375j
-    ) * (I ^ I ^ X ^ Y)
+    ref_qubit_op2 = (0.010375 + 0.142375j) * (I ^ I ^ Y ^ X) + (-0.010375 - 0.142375j) * (
+        I ^ I ^ X ^ Y
+    )
 
     spin_op3 = SpinOp([("X_0 Y_0^2 Z_0 X_1 Y_1 Y_2 Z_2", -0.18 + 1.204j)], 0.5, 3)
     ref_qubit_op3 = (

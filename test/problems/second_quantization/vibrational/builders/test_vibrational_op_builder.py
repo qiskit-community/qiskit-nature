@@ -41,9 +41,7 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
         num_modals = 2
         truncation_order = 3
 
-        vibrational_op = _build_vibrational_op(
-            watson_hamiltonian, num_modals, truncation_order
-        )
+        vibrational_op = _build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
 
         assert isinstance(vibrational_op, VibrationalOp)
         labels, coeffs = zip(*vibrational_op.to_list())

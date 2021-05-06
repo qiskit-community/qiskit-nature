@@ -62,9 +62,7 @@ class HartreeFock(QuantumCircuit):
                 self.x(i)
 
 
-def hartree_fock_bitstring(
-    num_spin_orbitals: int, num_particles: Tuple[int, int]
-) -> List[bool]:
+def hartree_fock_bitstring(num_spin_orbitals: int, num_particles: Tuple[int, int]) -> List[bool]:
     """Compute the bitstring representing the Hartree-Fock state for the specified system.
 
     Args:

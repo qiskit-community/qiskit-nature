@@ -63,9 +63,7 @@ class BaseTestDriverFCIDumpDumper(ABC):
 
     def test_dumped_num_electrons(self):
         """dumped number of electrons test"""
-        self.log.debug(
-            "Dumped number of electrons is {:d}".format(self.dumped["NELEC"])
-        )
+        self.log.debug("Dumped number of electrons is {:d}".format(self.dumped["NELEC"]))
         self.assertEqual(self.dumped["NELEC"], self.num_electrons)
 
     def test_dumped_spin_number(self):
@@ -75,9 +73,7 @@ class BaseTestDriverFCIDumpDumper(ABC):
 
     def test_dumped_wave_function_sym(self):
         """dumped wave function symmetry test"""
-        self.log.debug(
-            "Dumped wave function symmetry is {:d}".format(self.dumped["ISYM"])
-        )
+        self.log.debug("Dumped wave function symmetry is {:d}".format(self.dumped["ISYM"]))
         self.assertEqual(self.dumped["ISYM"], self.wf_symmetry)
 
     def test_dumped_orbital_syms(self):

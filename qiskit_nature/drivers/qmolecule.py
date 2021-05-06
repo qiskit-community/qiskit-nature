@@ -129,9 +129,7 @@ class QMolecule:
     @property
     def two_body_integrals(self):
         """Returns two body electron integrals."""
-        return QMolecule.twoe_to_spin(
-            self.mo_eri_ints, self.mo_eri_ints_bb, self.mo_eri_ints_ba
-        )
+        return QMolecule.twoe_to_spin(self.mo_eri_ints, self.mo_eri_ints_bb, self.mo_eri_ints_ba)
 
     def has_dipole_integrals(self):
         """Check if dipole integrals are present."""
@@ -169,9 +167,7 @@ class QMolecule:
             A list of core orbital indices.
         """
         if self.num_atoms is None:
-            logger.warning(
-                "Missing molecule information! Returning empty core orbital list."
-            )
+            logger.warning("Missing molecule information! Returning empty core orbital list.")
             return []
         count = 0
         for i in range(self.num_atoms):
@@ -241,9 +237,7 @@ class QMolecule:
                 data = file["energy/hf_energy"][...]
                 self.hf_energy = float(data) if data.dtype.num != 0 else None
                 data = file["energy/nuclear_repulsion_energy"][...]
-                self.nuclear_repulsion_energy = (
-                    float(data) if data.dtype.num != 0 else None
-                )
+                self.nuclear_repulsion_energy = float(data) if data.dtype.num != 0 else None
                 if version > 2:
                     self.energy_shift = read_dict("energy/energy_shift")
                     self.x_dip_energy_shift = read_dict("energy/x_dip_energy_shift")
@@ -258,23 +252,17 @@ class QMolecule:
                 # Orbitals
                 try:
                     data = file["orbitals/num_molecular_orbitals"][...]
-                    self.num_molecular_orbitals = (
-                        int(data) if data.dtype.num != 0 else None
-                    )
+                    self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
                 except KeyError:
                     # try the legacy attribute name
                     data = file["orbitals/num_orbitals"][...]
-                    self.num_molecular_orbitals = (
-                        int(data) if data.dtype.num != 0 else None
-                    )
+                    self.num_molecular_orbitals = int(data) if data.dtype.num != 0 else None
                 data = file["orbitals/num_alpha"][...]
                 self.num_alpha = int(data) if data.dtype.num != 0 else None
                 data = file["orbitals/num_beta"][...]
                 self.num_beta = int(data) if data.dtype.num != 0 else None
                 self.mo_coeff = read_array("orbitals/mo_coeff")
-                self.mo_coeff_b = (
-                    read_array("orbitals/mo_coeff_B") if version > 1 else None
-                )
+                self.mo_coeff_b = read_array("orbitals/mo_coeff_B") if version > 1 else None
                 self.orbital_energies = read_array("orbitals/orbital_energies")
                 self.orbital_energies_b = (
                     read_array("orbitals/orbital_energies_B") if version > 1 else None
@@ -314,29 +302,17 @@ class QMolecule:
                 )
 
                 # dipole integrals in AO basis
-                self.x_dip_ints = (
-                    read_array("dipole/x_dip_ints") if version > 1 else None
-                )
-                self.y_dip_ints = (
-                    read_array("dipole/y_dip_ints") if version > 1 else None
-                )
-                self.z_dip_ints = (
-                    read_array("dipole/z_dip_ints") if version > 1 else None
-                )
+                self.x_dip_ints = read_array("dipole/x_dip_ints") if version > 1 else None
+                self.y_dip_ints = read_array("dipole/y_dip_ints") if version > 1 else None
+                self.z_dip_ints = read_array("dipole/z_dip_ints") if version > 1 else None
 
                 # dipole integrals in MO basis
                 self.x_dip_mo_ints = read_array("dipole/x_dip_mo_ints")
-                self.x_dip_mo_ints_b = (
-                    read_array("dipole/x_dip_mo_ints_B") if version > 1 else None
-                )
+                self.x_dip_mo_ints_b = read_array("dipole/x_dip_mo_ints_B") if version > 1 else None
                 self.y_dip_mo_ints = read_array("dipole/y_dip_mo_ints")
-                self.y_dip_mo_ints_b = (
-                    read_array("dipole/y_dip_mo_ints_B") if version > 1 else None
-                )
+                self.y_dip_mo_ints_b = read_array("dipole/y_dip_mo_ints_B") if version > 1 else None
                 self.z_dip_mo_ints = read_array("dipole/z_dip_mo_ints")
-                self.z_dip_mo_ints_b = (
-                    read_array("dipole/z_dip_mo_ints_B") if version > 1 else None
-                )
+                self.z_dip_mo_ints_b = read_array("dipole/z_dip_mo_ints_B") if version > 1 else None
                 self.nuclear_dipole_moment = file["dipole/nuclear_dipole_moment"][...]
                 self.reverse_dipole_sign = file["dipole/reverse_dipole_sign"][...]
 
@@ -376,9 +352,7 @@ class QMolecule:
                     for k, v in value.items():
                         sub_group.create_dataset(k, data=v)
                 else:
-                    group.create_dataset(
-                        name, data=(value if value is not None else False)
-                    )
+                    group.create_dataset(name, data=(value if value is not None else False))
 
             file.create_dataset("version", data=(self.QMOLECULE_VERSION,))
 
@@ -412,9 +386,7 @@ class QMolecule:
             # Energies
             g_energy = file.create_group("energy")
             create_dataset(g_energy, "hf_energy", self.hf_energy)
-            create_dataset(
-                g_energy, "nuclear_repulsion_energy", self.nuclear_repulsion_energy
-            )
+            create_dataset(g_energy, "nuclear_repulsion_energy", self.nuclear_repulsion_energy)
             create_dataset(g_energy, "energy_shift", self.energy_shift)
             create_dataset(g_energy, "x_dip_energy_shift", self.x_dip_energy_shift)
             create_dataset(g_energy, "y_dip_energy_shift", self.y_dip_energy_shift)
@@ -422,9 +394,7 @@ class QMolecule:
 
             # Orbitals
             g_orbitals = file.create_group("orbitals")
-            create_dataset(
-                g_orbitals, "num_molecular_orbitals", self.num_molecular_orbitals
-            )
+            create_dataset(g_orbitals, "num_molecular_orbitals", self.num_molecular_orbitals)
             create_dataset(g_orbitals, "num_alpha", self.num_alpha)
             create_dataset(g_orbitals, "num_beta", self.num_beta)
             create_dataset(g_orbitals, "mo_coeff", self.mo_coeff)
@@ -473,9 +443,7 @@ class QMolecule:
             create_dataset(g_dipole, "y_dip_mo_ints_B", self.y_dip_mo_ints_b)
             create_dataset(g_dipole, "z_dip_mo_ints", self.z_dip_mo_ints)
             create_dataset(g_dipole, "z_dip_mo_ints_B", self.z_dip_mo_ints_b)
-            create_dataset(
-                g_dipole, "nuclear_dipole_moment", self.nuclear_dipole_moment
-            )
+            create_dataset(g_dipole, "nuclear_dipole_moment", self.nuclear_dipole_moment)
             create_dataset(g_dipole, "reverse_dipole_sign", self.reverse_dipole_sign)
 
     def remove_file(self, file_name=None):
@@ -775,12 +743,8 @@ class QMolecule:
             # Originating driver name & config if set
             if self.origin_driver_name and self.origin_driver_name != "?":
                 logger.info("Originating driver name: %s", self.origin_driver_name)
-                logger.info(
-                    "Originating driver version: %s", self.origin_driver_version
-                )
-                logger.info(
-                    "Originating driver config:\n%s", self.origin_driver_config[:-1]
-                )
+                logger.info("Originating driver version: %s", self.origin_driver_version)
+                logger.info("Originating driver config:\n%s", self.origin_driver_config[:-1])
 
             logger.info("Computed Hartree-Fock energy: %s", self.hf_energy)
             logger.info("Nuclear repulsion energy: %s", self.nuclear_repulsion_energy)
@@ -792,9 +756,7 @@ class QMolecule:
                 )
             logger.info("Number of orbitals is %s", self.num_molecular_orbitals)
             logger.info("%s alpha and %s beta electrons", self.num_alpha, self.num_beta)
-            logger.info(
-                "Molecule comprises %s atoms and in xyz format is ::", self.num_atoms
-            )
+            logger.info("Molecule comprises %s atoms and in xyz format is ::", self.num_atoms)
             logger.info("  %s, %s", self.molecular_charge, self.multiplicity)
             if self.num_atoms is not None:
                 for n in range(0, self.num_atoms):
@@ -849,14 +811,10 @@ class QMolecule:
                 logger.info("Two body ERI MO AA integrals: %s", self.mo_eri_ints.shape)
                 logger.debug("\n%s", self.mo_eri_ints)
             if self.mo_eri_ints_bb is not None:
-                logger.info(
-                    "Two body ERI MO BB integrals: %s", self.mo_eri_ints_bb.shape
-                )
+                logger.info("Two body ERI MO BB integrals: %s", self.mo_eri_ints_bb.shape)
                 logger.debug("\n%s", self.mo_eri_ints_bb)
             if self.mo_eri_ints_ba is not None:
-                logger.info(
-                    "Two body ERI MO BA integrals: %s", self.mo_eri_ints_ba.shape
-                )
+                logger.info("Two body ERI MO BA integrals: %s", self.mo_eri_ints_ba.shape)
                 logger.debug("\n%s", self.mo_eri_ints_ba)
 
             if self.x_dip_ints is not None:

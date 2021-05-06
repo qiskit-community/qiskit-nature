@@ -82,9 +82,7 @@ class PyQuanteDriver(FermionicDriver):
         validate_min("maxiters", maxiters, 1)
         self._check_valid()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
-            raise QiskitNatureError(
-                "Invalid atom input for PYQUANTE Driver '{}'".format(atoms)
-            )
+            raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
 
         if isinstance(atoms, list):
             atoms = ";".join(atoms)
@@ -106,9 +104,7 @@ class PyQuanteDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = (
-            "PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2"
-        )
+        err_msg = "PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2"
         try:
             spec = importlib.util.find_spec("pyquante2")
             if spec is not None:
@@ -122,10 +118,7 @@ class PyQuanteDriver(FermionicDriver):
     def run(self) -> QMolecule:
         if self.molecule is not None:
             atoms = ";".join(
-                [
-                    name + " " + " ".join(map(str, coord))
-                    for (name, coord) in self.molecule.geometry
-                ]
+                [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
             )
             charge = self.molecule.charge
             multiplicity = self.molecule.multiplicity

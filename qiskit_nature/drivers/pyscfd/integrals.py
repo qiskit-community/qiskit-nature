@@ -32,9 +32,7 @@ try:
 
     warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
 except ImportError:
-    logger.info(
-        "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
-    )
+    logger.info("PySCF is not installed. See https://sunqm.github.io/pyscf/install.html")
 
 
 def compute_integrals(
@@ -116,9 +114,7 @@ def _check_molecule_format(val):
     return val
 
 
-def _calculate_integrals(
-    mol, hf_method="rhf", conv_tol=1e-9, max_cycle=50, init_guess="minao"
-):
+def _calculate_integrals(mol, hf_method="rhf", conv_tol=1e-9, max_cycle=50, init_guess="minao"):
     """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation in
         the given basis.
     Args:

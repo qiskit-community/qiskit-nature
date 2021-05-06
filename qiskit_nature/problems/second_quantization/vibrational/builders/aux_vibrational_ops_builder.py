@@ -33,16 +33,12 @@ def _create_all_aux_operators(num_modals: List[int]) -> List[VibrationalOp]:
     aux_second_quantized_ops_list = []
 
     for mode in range(len(num_modals)):
-        aux_second_quantized_ops_list.append(
-            _create_occ_modals_per_mode(num_modals, mode)
-        )
+        aux_second_quantized_ops_list.append(_create_occ_modals_per_mode(num_modals, mode))
 
     return aux_second_quantized_ops_list
 
 
-def _create_occ_modals_per_mode(
-    num_modals: List[int], mode_index: int
-) -> VibrationalOp:
+def _create_occ_modals_per_mode(num_modals: List[int], mode_index: int) -> VibrationalOp:
     return build_vibrational_op_from_ints(
         calc_occ_modals_per_mode_ints(num_modals, mode_index),
         len(num_modals),

@@ -58,9 +58,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
 
     def test_default(self):
         """Default execution"""
-        solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
@@ -68,9 +66,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
     def test_aux_ops_reusability(self):
         """Test that the auxiliary operators can be reused"""
         # Regression test against #1475
-        solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
 
         modes = 4
@@ -81,8 +77,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
 
         _ = calc.solve(self.problem)
         assert all(
-            frozenset(a.to_list()) == frozenset(b.to_list())
-            for a, b in zip(aux_ops, aux_ops_copy)
+            frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
 
     def test_custom_minimum_eigensolver(self):
@@ -92,9 +87,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
             """A custom MESFactory"""
 
             def get_solver(self, problem, qubit_converter):
-                q_molecule_transformed = cast(
-                    QMolecule, problem.molecule_data_transformed
-                )
+                q_molecule_transformed = cast(QMolecule, problem.molecule_data_transformed)
                 num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
                 num_particles = (
                     q_molecule_transformed.num_alpha,
@@ -102,9 +95,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 )
                 num_spin_orbitals = 2 * num_molecular_orbitals
 
-                initial_state = HartreeFock(
-                    num_spin_orbitals, num_particles, qubit_converter
-                )
+                initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
                 ansatz = UCC(
                     qubit_converter=qubit_converter,
                     num_particles=num_particles,
@@ -119,9 +110,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 )
                 return vqe
 
-        solver = CustomFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = CustomFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
 
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
@@ -143,9 +132,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 solver.ansatz.operators = custom_excitation_pool
                 return solver
 
-        solver = CustomFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = CustomFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)

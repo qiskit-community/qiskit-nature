@@ -77,9 +77,7 @@ class BOPESSampler:
                 if not isinstance(self._extrapolator, WindowExtrapolator):
                     raise QiskitNatureError(
                         "If num_bootstrap >= 2 then the extrapolator must be an instance "
-                        "of WindowExtrapolator, got {} instead".format(
-                            self._extrapolator
-                        )
+                        "of WindowExtrapolator, got {} instead".format(self._extrapolator)
                     )
                 self._num_bootstrap = num_bootstrap
                 self._extrapolator.window = num_bootstrap  # window for extrapolator
@@ -176,9 +174,7 @@ class BOPESSampler:
             # Set initial params # if prev_points not empty
             if prev_points:
                 if n_pp <= n_boot:
-                    distances = np.array(point) - np.array(prev_points).reshape(
-                        n_pp, -1
-                    )
+                    distances = np.array(point) - np.array(prev_points).reshape(n_pp, -1)
                     # find min 'distance' from point to previous points
                     min_index = np.argmin(np.linalg.norm(distances, axis=1))
                     # update initial point

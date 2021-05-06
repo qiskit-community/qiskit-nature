@@ -40,31 +40,21 @@ class LinearMapper(SpinMapper):
 
             operatorlist: List[PauliSumOp] = []
 
-            for n_x, n_y, n_z in zip(
-                second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]
-            ):
+            for n_x, n_y, n_z in zip(second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]):
 
                 operator_on_spin_i: List[PauliSumOp] = []
 
                 if n_x > 0:
-                    operator_on_spin_i.append(
-                        reduce(operator.matmul, [spinx] * int(n_x))
-                    )
+                    operator_on_spin_i.append(reduce(operator.matmul, [spinx] * int(n_x)))
 
                 if n_y > 0:
-                    operator_on_spin_i.append(
-                        reduce(operator.matmul, [spiny] * int(n_y))
-                    )
+                    operator_on_spin_i.append(reduce(operator.matmul, [spiny] * int(n_y)))
 
                 if n_z > 0:
-                    operator_on_spin_i.append(
-                        reduce(operator.matmul, [spinz] * int(n_z))
-                    )
+                    operator_on_spin_i.append(reduce(operator.matmul, [spinz] * int(n_z)))
 
                 if np.any([n_x, n_y, n_z]) > 0:
-                    single_operator_on_spin_i = reduce(
-                        operator.matmul, operator_on_spin_i
-                    )
+                    single_operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
                     operatorlist.append(single_operator_on_spin_i.reduce())
 
                 else:
@@ -137,8 +127,7 @@ class LinearMapper(SpinMapper):
             # get the first upper diagonal of coeff.
             z_summands.append(
                 PauliSumOp(
-                    coeff / 2.0 * SparsePauliOp(pauli_z(i))
-                    + coeff / 2.0 * SparsePauliOp(pauli_id)
+                    coeff / 2.0 * SparsePauliOp(pauli_z(i)) + coeff / 2.0 * SparsePauliOp(pauli_id)
                 )
             )
 

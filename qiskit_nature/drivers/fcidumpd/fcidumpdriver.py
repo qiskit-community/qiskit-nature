@@ -49,9 +49,7 @@ class FCIDumpDriver(FermionicDriver):
         super().__init__()
 
         if not isinstance(fcidump_input, str):
-            raise QiskitNatureError(
-                "The fcidump_input must be str, not '{}'".format(fcidump_input)
-            )
+            raise QiskitNatureError("The fcidump_input must be str, not '{}'".format(fcidump_input))
         self._fcidump_input = fcidump_input
 
         if (
@@ -60,9 +58,7 @@ class FCIDumpDriver(FermionicDriver):
             and not all(sym in QMolecule.symbols for sym in atoms)
         ):
             raise QiskitNatureError(
-                "The atoms must be a list of valid atomic symbols, not '{}'".format(
-                    atoms
-                )
+                "The atoms must be a list of valid atomic symbols, not '{}'".format(atoms)
             )
         self.atoms = atoms
 
@@ -85,9 +81,7 @@ class FCIDumpDriver(FermionicDriver):
         if self.atoms is not None:
             q_mol.num_atoms = len(self.atoms)
             q_mol.atom_symbol = self.atoms
-            q_mol.atom_xyz = [[float("NaN")] * 3] * len(
-                self.atoms
-            )  # ensures QMolecule.log() works
+            q_mol.atom_xyz = [[float("NaN")] * 3] * len(self.atoms)  # ensures QMolecule.log() works
 
         q_mol.mo_onee_ints = fcidump_data.get("hij", None)
         q_mol.mo_onee_ints_b = fcidump_data.get("hij_b", None)

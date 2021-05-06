@@ -58,9 +58,7 @@ class MorsePotential(PotentialBase):
             raise ValueError("Molecule masses need to be provided")
 
     @staticmethod
-    def fit_function(
-        x: float, d_e: float, alpha: float, r_0: float, m_shift: float
-    ) -> float:
+    def fit_function(x: float, d_e: float, alpha: float, r_0: float, m_shift: float) -> float:
         """Functional form of the potential.
 
         Args:
@@ -130,20 +128,12 @@ class MorsePotential(PotentialBase):
         # do the Morse potential fit
         # here, the order of parameters is
         # [d_e (Hartree), alpha (1/ang), r_0 (ang), energy_shift (Hartree)]
-        m_p0 = (
-            initial_vals
-            if initial_vals is not None
-            else np.array([0.25, 2, 0.735, 1.5])
-        )
+        m_p0 = initial_vals if initial_vals is not None else np.array([0.25, 2, 0.735, 1.5])
         m_bounds = (
-            bounds_list
-            if bounds_list is not None
-            else ([0, 0, 0.3, -5], [2.5, np.inf, 1.0, 5])
+            bounds_list if bounds_list is not None else ([0, 0, 0.3, -5], [2.5, np.inf, 1.0, 5])
         )
 
-        fit, _ = curve_fit(
-            self.fit_function, xdata, ydata, p0=m_p0, maxfev=100000, bounds=m_bounds
-        )
+        fit, _ = curve_fit(self.fit_function, xdata, ydata, p0=m_p0, maxfev=100000, bounds=m_bounds)
 
         self.d_e = fit[0]
         self.alpha = fit[1]
@@ -233,9 +223,9 @@ class MorsePotential(PotentialBase):
         d_e = self.d_e * const.HARTREE_TO_J  # Hartree, need J/molecule
 
         omega_0 = self.fundamental_frequency()
-        e_n = const.H_J_S * omega_0 * (n + 0.5) - (
-            (const.H_J_S * omega_0 * (n + 0.5)) ** 2
-        ) / (4 * d_e)
+        e_n = const.H_J_S * omega_0 * (n + 0.5) - ((const.H_J_S * omega_0 * (n + 0.5)) ** 2) / (
+            4 * d_e
+        )
 
         # energy level
         return e_n * const.J_TO_HARTREE

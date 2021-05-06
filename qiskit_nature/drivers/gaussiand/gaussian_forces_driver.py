@@ -69,9 +69,7 @@ class GaussianForcesDriver(BosonicDriver):
             QiskitNatureError: If `jcf` or `molecule` given and Gaussian™ 16 executable
                 cannot be located.
         """
-        super().__init__(
-            molecule=molecule, basis=basis, hf_method="", supports_molecule=True
-        )
+        super().__init__(molecule=molecule, basis=basis, hf_method="", supports_molecule=True)
         self._jcf = jcf
         self._logfile = None
         self._normalize = normalize
@@ -104,16 +102,11 @@ class GaussianForcesDriver(BosonicDriver):
         elif self.molecule.units == UnitsType.BOHR:
             units = "Bohr"
         else:
-            raise QiskitNatureError(
-                "Unknown unit '{}'".format(self.molecule.units.value)
-            )
+            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
         cfg1 = f"#p B3LYP/{self.basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
         name = "".join([name for (name, _) in self.molecule.geometry])
         geom = "\n".join(
-            [
-                name + " " + " ".join(map(str, coord))
-                for (name, coord) in self.molecule.geometry
-            ]
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
         )
         cfg2 = f"{name} geometry optimization\n\n"
         cfg3 = f"{self.molecule.charge} {self.molecule.multiplicity}\n{geom}\n\n"

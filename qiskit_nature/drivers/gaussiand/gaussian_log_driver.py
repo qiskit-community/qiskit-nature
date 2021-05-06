@@ -49,9 +49,7 @@ class GaussianLogDriver(BaseDriver):
         GaussianLogDriver._check_valid()
 
         if not isinstance(jcf, list) and not isinstance(jcf, str):
-            raise QiskitNatureError(
-                "Invalid input for Gaussian Log Driver '{}'".format(jcf)
-            )
+            raise QiskitNatureError("Invalid input for Gaussian Log Driver '{}'".format(jcf))
 
         if isinstance(jcf, list):
             jcf = "\n".join(jcf)

@@ -31,13 +31,9 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
     def assertQMolecule(self, q_molecule, expected, dict_key="ActiveSpaceTransformer"):
         """Asserts that the two `QMolecule object's relevant fields are equivalent."""
         with self.subTest("MO 1-electron integrals"):
-            np.testing.assert_array_almost_equal(
-                q_molecule.mo_onee_ints, expected.mo_onee_ints
-            )
+            np.testing.assert_array_almost_equal(q_molecule.mo_onee_ints, expected.mo_onee_ints)
         with self.subTest("MO 2-electron integrals"):
-            np.testing.assert_array_almost_equal(
-                q_molecule.mo_eri_ints, expected.mo_eri_ints
-            )
+            np.testing.assert_array_almost_equal(q_molecule.mo_eri_ints, expected.mo_eri_ints)
         with self.subTest("Inactive energy"):
             self.assertAlmostEqual(
                 q_molecule.energy_shift[dict_key],
@@ -45,27 +41,21 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             )
 
         with self.subTest("MO 1-electron x dipole integrals"):
-            np.testing.assert_array_almost_equal(
-                q_molecule.x_dip_mo_ints, expected.x_dip_mo_ints
-            )
+            np.testing.assert_array_almost_equal(q_molecule.x_dip_mo_ints, expected.x_dip_mo_ints)
         with self.subTest("X dipole energy shift"):
             self.assertAlmostEqual(
                 q_molecule.x_dip_energy_shift[dict_key],
                 expected.x_dip_energy_shift["ActiveSpaceTransformer"],
             )
         with self.subTest("MO 1-electron y dipole integrals"):
-            np.testing.assert_array_almost_equal(
-                q_molecule.y_dip_mo_ints, expected.y_dip_mo_ints
-            )
+            np.testing.assert_array_almost_equal(q_molecule.y_dip_mo_ints, expected.y_dip_mo_ints)
         with self.subTest("Y dipole energy shift"):
             self.assertAlmostEqual(
                 q_molecule.y_dip_energy_shift[dict_key],
                 expected.y_dip_energy_shift["ActiveSpaceTransformer"],
             )
         with self.subTest("MO 1-electron z dipole integrals"):
-            np.testing.assert_array_almost_equal(
-                q_molecule.z_dip_mo_ints, expected.z_dip_mo_ints
-            )
+            np.testing.assert_array_almost_equal(q_molecule.z_dip_mo_ints, expected.z_dip_mo_ints)
         with self.subTest("Z dipole energy shift"):
             self.assertAlmostEqual(
                 q_molecule.z_dip_energy_shift[dict_key],
@@ -79,9 +69,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
     )
     def test_full_active_space(self, kwargs):
         """Test that transformer has no effect when all orbitals are active."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         q_molecule.energy_shift["ActiveSpaceTransformer"] = 0.0
@@ -96,9 +84,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_minimal_active_space(self):
         """Test a minimal active space manually."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
@@ -121,9 +107,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         expected.x_dip_mo_ints = np.zeros((2, 2))
         expected.y_dip_mo_ints = np.zeros((2, 2))
-        expected.z_dip_mo_ints = np.asarray(
-            [[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]
-        )
+        expected.z_dip_mo_ints = np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]])
 
         expected.energy_shift["ActiveSpaceTransformer"] = 0.0
         expected.x_dip_energy_shift["ActiveSpaceTransformer"] = 0.0
@@ -134,9 +118,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_unpaired_electron_active_space(self):
         """Test an active space with an unpaired electron."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=(2, 1), num_molecular_orbitals=3)
@@ -150,9 +132,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_arbitrary_active_orbitals(self):
         """Test manual selection of active orbital indices."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         trafo = ActiveSpaceTransformer(
@@ -161,9 +141,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         q_molecule_reduced = trafo.transform(q_molecule)
 
         expected = QMolecule()
-        expected.mo_onee_ints = np.asarray(
-            [[-1.24943841, -0.16790838], [-0.16790838, -0.18307469]]
-        )
+        expected.mo_onee_ints = np.asarray([[-1.24943841, -0.16790838], [-0.16790838, -0.18307469]])
         expected.mo_eri_ints = np.asarray(
             [
                 [
@@ -198,13 +176,9 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         ]
     )
     @unpack
-    def test_error_raising(
-        self, num_electrons, num_molecular_orbitals, active_orbitals, message
-    ):
+    def test_error_raising(self, num_electrons, num_molecular_orbitals, active_orbitals, message):
         """Test errors are being raised in certain scenarios."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         with self.assertRaises(QiskitNatureError, msg=message):
@@ -216,9 +190,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_active_space_for_q_molecule_v2(self):
         """Test based on QMolecule v2 (mo_occ not available)."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g_v2.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_sto3g_v2.hdf5", "transformers"))
         q_molecule = driver.run()
 
         q_molecule.energy_shift["ActiveSpaceTransformer"] = 0.0

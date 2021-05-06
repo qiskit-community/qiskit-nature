@@ -61,9 +61,7 @@ def _build_vibrational_op(
         watson_hamiltonian, num_modals, truncation_order
     ).convert()
 
-    return build_vibrational_op_from_ints(
-        boson_hamilt_harm_basis, num_modes, num_modals
-    )
+    return build_vibrational_op_from_ints(boson_hamilt_harm_basis, num_modes, num_modals)
 
 
 def build_vibrational_op_from_ints(
