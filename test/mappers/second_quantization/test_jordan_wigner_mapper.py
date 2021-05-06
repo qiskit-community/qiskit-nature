@@ -49,7 +49,9 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
     def test_mapping(self):
         """Test mapping to qubit operator"""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
+            hdf5_input=self.get_resource_path(
+                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+            )
         )
         q_molecule = driver.run()
         fermionic_op = fermionic_op_builder._build_fermionic_op(q_molecule)

@@ -47,7 +47,9 @@ class TestExcitationPreserving(QiskitNatureTestCase):
     def test_excitation_preserving(self):
         """Test the excitation preserving wavefunction on a chemistry example."""
 
-        driver = HDF5Driver(self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d"))
+        driver = HDF5Driver(
+            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+        )
 
         converter = QubitConverter(ParityMapper())
 

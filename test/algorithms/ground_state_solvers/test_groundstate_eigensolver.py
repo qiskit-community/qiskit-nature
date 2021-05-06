@@ -46,7 +46,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.driver = HDF5Driver(self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d"))
+        self.driver = HDF5Driver(
+            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+        )
         self.seed = 56
         algorithm_globals.random_seed = self.seed
 

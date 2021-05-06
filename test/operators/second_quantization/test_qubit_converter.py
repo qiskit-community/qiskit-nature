@@ -85,7 +85,9 @@ class TestQubitConverter(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
+            hdf5_input=self.get_resource_path(
+                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+            )
         )
         self.molecule = driver.run()
         self.num_particles = (self.molecule.num_alpha, self.molecule.num_beta)
@@ -240,7 +242,9 @@ class TestQubitConverter(QiskitNatureTestCase):
         """Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction"""
 
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
+            hdf5_input=self.get_resource_path(
+                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+            )
         )
         problem = ElectronicStructureProblem(driver)
 
