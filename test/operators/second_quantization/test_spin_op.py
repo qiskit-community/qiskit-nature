@@ -353,6 +353,8 @@ class TestSpinOp(QiskitNatureTestCase):
 
     def test_hermiticity(self):
         """test is_hermitian"""
+        # deliberately define test operator with X and Y which creates duplicate terms in .to_list()
+        # in case .adjoint() simplifies terms
         with self.subTest("operator hermitian"):
             test_op = SpinOp("+ZXY") + SpinOp("-ZXY")
             self.assertTrue(test_op.is_hermitian())
