@@ -14,12 +14,12 @@
 PYSCF Installation
 ==================
 `PySCF <https://github.com/sunqm/pyscf>`__ is an open-source library for computational chemistry.
-In order for Qiskit's chemistry module to interface PySCF and execute PySCF to
+In order for Qiskit Nature to interface PySCF and execute PySCF to
 extract the electronic structure information PySCF must be installed.
 
 According to the `PySCF installation instructions <http://sunqm.github.io/pyscf/install.html>`__,
 the preferred installation method is via the pip package management system.  Doing so,
-while in the Python virtual environment where Qiskit's chemistry module is also installed, will
+while in the Python virtual environment where Qiskit Nature is also installed, will
 automatically make PySCF available to Qiskit at run time.
 """
 

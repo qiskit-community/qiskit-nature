@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 class GaussianLogDriver(BaseDriver):
     """Gaussian™ 16 log driver.
 
-    Qiskit chemistry driver using the Gaussian™ 16 program that provides the log
+    Qiskit Nature chemistry driver using the Gaussian™ 16 program that provides the log
     back, via :class:`GaussianLogResult`, for access to the log and data recorded there.
 
     See http://gaussian.com/gaussian16/

@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    Changed documentation and code to better reflect rebranding of Qiskit's
+    chemistry module as Qiskit Nature.

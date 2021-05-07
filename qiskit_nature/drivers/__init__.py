@@ -72,11 +72,11 @@ Driver Common
 Drivers
 =======
 
-The drivers in the chemistry module obtain their information from classical ab-initio programs
-or libraries. Several drivers, interfacing to common programs and libraries, are
-available. To use the driver its dependent program/library must be installed. See
-the relevant installation instructions below for your program/library that you intend
-to use.
+The chemistry drivers in Qiskit Nature obtain their information from classical
+ab-initio programs or libraries. Several drivers, interfacing to common programs
+and libraries, are available. To use the driver its dependent program/library must
+be installed. See the relevant installation instructions below for your
+program/library that you intend to use.
 
 .. toctree::
    :maxdepth: 1

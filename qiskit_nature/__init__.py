@@ -16,7 +16,7 @@ Qiskit Nature module (:mod:`qiskit_nature`)
 
 .. currentmodule:: qiskit_nature
 
-The Qiskit Nature module provides function to experiment with quantum computing for natural
+Qiskit Nature provides function to experiment with quantum computing for natural
 science problems, such as in chemistry and physics. For example computing the ground state energy
 or excited state energies of molecules.
 
