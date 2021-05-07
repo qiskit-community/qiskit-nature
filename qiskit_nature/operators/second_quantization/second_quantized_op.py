@@ -62,4 +62,4 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
     def is_hermitian(self) -> bool:
         """Checks whether the operator is hermitian"""
-        return frozenset(self.to_list()) == frozenset(self.adjoint().to_list())
+        return frozenset(self.reduce().to_list()) == frozenset(self.adjoint().reduce().to_list())
