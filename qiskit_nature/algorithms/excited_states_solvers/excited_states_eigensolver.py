@@ -112,8 +112,6 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         eigenstate_result.raw_result = raw_es_result
         eigenstate_result.eigenenergies = raw_es_result.eigenvalues
         eigenstate_result.eigenstates = raw_es_result.eigenstates
-        eigenstate_result.aux_operator_eigenvalues = (
-            raw_es_result.aux_operator_eigenvalues
-        )
+        eigenstate_result.aux_operator_eigenvalues = raw_es_result.aux_operator_eigenvalues
         result = problem.interpret(eigenstate_result)
         return result

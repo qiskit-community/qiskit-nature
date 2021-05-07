@@ -221,9 +221,7 @@ class TestExtrapolators(unittest.TestCase):
         """
         self.assertIsInstance(Extrapolator.factory(mode="window"), WindowExtrapolator)
         self.assertIsInstance(Extrapolator.factory(mode="poly"), PolynomialExtrapolator)
-        self.assertIsInstance(
-            Extrapolator.factory(mode="diff_model"), DifferentialExtrapolator
-        )
+        self.assertIsInstance(Extrapolator.factory(mode="diff_model"), DifferentialExtrapolator)
         self.assertIsInstance(Extrapolator.factory(mode="pca"), PCAExtrapolator)
         self.assertIsInstance(Extrapolator.factory(mode="l1"), SieveExtrapolator)
         self.assertRaises(QiskitNatureError, Extrapolator.factory, mode="unknown")
@@ -243,8 +241,7 @@ class TestExtrapolators(unittest.TestCase):
             points=[points], param_dict=PARAM_DICT
         )
         sq_diff = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[points], PARAM_DICT[points])
+            (actual - expected) ** 2 for actual, expected in zip(params[points], PARAM_DICT[points])
         ]
         self.assertLess(sum(sq_diff), 1e-3)
 
@@ -260,24 +257,19 @@ class TestExtrapolators(unittest.TestCase):
         window_extrapolator = Extrapolator.factory(
             "window", extrapolator=PolynomialExtrapolator(degree=1), window=3
         )
-        params = window_extrapolator.extrapolate(
-            points=points_interspersed, param_dict=PARAM_DICT
-        )
+        params = window_extrapolator.extrapolate(points=points_interspersed, param_dict=PARAM_DICT)
         self.assertFalse(params.get(0.3))
         self.assertFalse(params.get(0.5))
         sq_diff_1 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
         ]
         self.assertLess(sum(sq_diff_1), 1e-1)
         sq_diff_2 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
         ]
         self.assertLess(sum(sq_diff_2), 1e-2)
         sq_diff_3 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
+            (actual - expected) ** 2 for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
         ]
         self.assertLess(sum(sq_diff_3), 1e-2)
 
@@ -293,24 +285,19 @@ class TestExtrapolators(unittest.TestCase):
         window_extrapolator = WindowExtrapolator(
             extrapolator=DifferentialExtrapolator(degree=1), window=3
         )
-        params = window_extrapolator.extrapolate(
-            points=points_interspersed, param_dict=PARAM_DICT
-        )
+        params = window_extrapolator.extrapolate(points=points_interspersed, param_dict=PARAM_DICT)
         self.assertFalse(params.get(0.3))
         self.assertFalse(params.get(0.5))
         sq_diff_1 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
         ]
         self.assertLess(sum(sq_diff_1), 1e-2)
         sq_diff_2 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
         ]
         self.assertLess(sum(sq_diff_2), 1e-3)
         sq_diff_3 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
+            (actual - expected) ** 2 for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
         ]
         self.assertLess(sum(sq_diff_3), 1e-3)
 
@@ -327,24 +314,19 @@ class TestExtrapolators(unittest.TestCase):
         window_extrapolator = WindowExtrapolator(
             extrapolator=DifferentialExtrapolator(degree=1, model=model), window=3
         )
-        params = window_extrapolator.extrapolate(
-            points=points_interspersed, param_dict=PARAM_DICT
-        )
+        params = window_extrapolator.extrapolate(points=points_interspersed, param_dict=PARAM_DICT)
         self.assertFalse(params.get(0.3))
         self.assertFalse(params.get(0.5))
         sq_diff_1 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
         ]
         self.assertLess(sum(sq_diff_1), 1e-2)
         sq_diff_2 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
         ]
         self.assertLess(sum(sq_diff_2), 1e-3)
         sq_diff_3 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
+            (actual - expected) ** 2 for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
         ]
         self.assertLess(sum(sq_diff_3), 1e-3)
 
@@ -357,27 +339,20 @@ class TestExtrapolators(unittest.TestCase):
         last three points has a specified error relative to the actual parameter values.
         """
         points_interspersed = [0.3, 0.5, 0.7, 0.8, 1.5]
-        pca_poly_win_ext = PCAExtrapolator(
-            extrapolator=PolynomialExtrapolator(degree=1), window=3
-        )
-        params = pca_poly_win_ext.extrapolate(
-            points=points_interspersed, param_dict=PARAM_DICT
-        )
+        pca_poly_win_ext = PCAExtrapolator(extrapolator=PolynomialExtrapolator(degree=1), window=3)
+        params = pca_poly_win_ext.extrapolate(points=points_interspersed, param_dict=PARAM_DICT)
         self.assertFalse(params.get(0.3))
         self.assertFalse(params.get(0.5))
         sq_diff_1 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
         ]
         self.assertLess(sum(sq_diff_1), 1e-2)
         sq_diff_2 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
         ]
         self.assertLess(sum(sq_diff_2), 1e-2)
         sq_diff_3 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
+            (actual - expected) ** 2 for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
         ]
         self.assertLess(sum(sq_diff_3), 1e-2)
 
@@ -399,18 +374,15 @@ class TestExtrapolators(unittest.TestCase):
         self.assertFalse(params.get(0.3))
         self.assertFalse(params.get(0.5))
         sq_diff_1 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.7], PARAM_DICT[0.7])
         ]
         self.assertLess(sum(sq_diff_1), 1e-1)
         sq_diff_2 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
+            (actual - expected) ** 2 for actual, expected in zip(params[0.8], PARAM_DICT[0.8])
         ]
         self.assertLess(sum(sq_diff_2), 1e-1)
         sq_diff_3 = [
-            (actual - expected) ** 2
-            for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
+            (actual - expected) ** 2 for actual, expected in zip(params[1.5], PARAM_DICT[1.5])
         ]
         self.assertLess(sum(sq_diff_3), 1e-1)
 

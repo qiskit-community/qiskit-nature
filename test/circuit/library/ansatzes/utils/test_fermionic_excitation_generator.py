@@ -79,9 +79,7 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
             [((0, 1, 4), (2, 3, 5)), ((0, 1, 4), (2, 3, 6)), ((0, 1, 4), (2, 3, 7))],
         ),
     )
-    def test_generate_excitations(
-        self, num_excitations, num_spin_orbitals, num_particles, expect
-    ):
+    def test_generate_excitations(self, num_excitations, num_spin_orbitals, num_particles, expect):
         """Test standard input arguments."""
         excitations = generate_fermionic_excitations(
             num_excitations, num_spin_orbitals, num_particles
@@ -143,9 +141,7 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
         (1, 6, [1, 1], [((0,), (1,)), ((0,), (2,))]),
         (2, 8, [2, 2], [((0, 1), (2, 3))]),
     )
-    def test_pure_alpha_excitation(
-        self, num_excitations, num_spin_orbitals, num_particles, expect
-    ):
+    def test_pure_alpha_excitation(self, num_excitations, num_spin_orbitals, num_particles, expect):
         """Test disabling beta-spin excitations."""
         excitations = generate_fermionic_excitations(
             num_excitations, num_spin_orbitals, num_particles, beta_spin=False
@@ -158,9 +154,7 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
         (1, 6, [1, 1], [((3,), (4,)), ((3,), (5,))]),
         (2, 8, [2, 2], [((4, 5), (6, 7))]),
     )
-    def test_pure_beta_excitation(
-        self, num_excitations, num_spin_orbitals, num_particles, expect
-    ):
+    def test_pure_beta_excitation(self, num_excitations, num_spin_orbitals, num_particles, expect):
         """Test disabling alpha-spin excitations."""
         excitations = generate_fermionic_excitations(
             num_excitations, num_spin_orbitals, num_particles, alpha_spin=False

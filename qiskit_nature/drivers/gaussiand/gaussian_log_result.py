@@ -173,15 +173,11 @@ class GaussianLogResult:
                 if re.search(r"\s+\(H\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_h = True
-                    h_nums = [
-                        x.strip() for x in line.split("|") if x and "(H)" not in x
-                    ]
+                    h_nums = [x.strip() for x in line.split("|") if x and "(H)" not in x]
                 elif re.search(r"\s+\(A\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_a = True
-                    a_nums = [
-                        x.strip() for x in line.split("|") if x and "(A)" not in x
-                    ]
+                    a_nums = [x.strip() for x in line.split("|") if x and "(A)" not in x]
 
                 if found_h and found_a:
                     for i, a_num in enumerate(a_nums):

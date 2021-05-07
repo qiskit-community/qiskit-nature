@@ -42,9 +42,7 @@ class TestReadmeSample(QiskitNatureTestCase):
 
             _ = Aer.get_backend("statevector_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest(
-                "Aer doesn't appear to be installed. Error: '{}'".format(str(ex))
-            )
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
     def test_readme_sample(self):

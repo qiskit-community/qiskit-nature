@@ -63,9 +63,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
             return np.isclose(aux_values[0][0], 3.0)
 
         self._numpy_eigensolver_factory.filter_criterion = filter_criterion
-        self.assertEqual(
-            self._numpy_eigensolver_factory.filter_criterion, filter_criterion
-        )
+        self.assertEqual(self._numpy_eigensolver_factory.filter_criterion, filter_criterion)
 
         # k
         self.assertEqual(self._numpy_eigensolver_factory.k, self.k)
@@ -77,9 +75,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
         self._numpy_eigensolver_factory.use_default_filter_criterion = True
         self.assertTrue(self._numpy_eigensolver_factory.use_default_filter_criterion)
         # get_solver
-        solver = self._numpy_eigensolver_factory.get_solver(
-            self.electronic_structure_problem
-        )
+        solver = self._numpy_eigensolver_factory.get_solver(self.electronic_structure_problem)
         self.assertIsInstance(solver, NumPyEigensolver)
         self.assertEqual(solver.k, 100)
         self.assertEqual(solver.filter_criterion, filter_criterion)

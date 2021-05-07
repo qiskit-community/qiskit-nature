@@ -54,9 +54,7 @@ class HarmonicBasis(BosonicBasis):
         self._truncation_order = truncation_order
 
     @staticmethod
-    def _harmonic_integrals(
-        m: int, n: int, power: int, kinetic_term: bool = False
-    ) -> float:
+    def _harmonic_integrals(m: int, n: int, power: int, kinetic_term: bool = False) -> float:
         r"""Computes the integral of the Hamiltonian with the harmonic basis.
 
         This computation is as shown in [1].
@@ -108,9 +106,7 @@ class HarmonicBasis(BosonicBasis):
             elif m - n == 4:
                 coeff = np.sqrt(m * (m - 1) * (m - 2) * (m - 3)) / 4
         else:
-            raise ValueError(
-                "The Q power is to high, only up to 4 is " "currently supported."
-            )
+            raise ValueError("The Q power is to high, only up to 4 is currently supported.")
         return coeff * (np.sqrt(2) ** power)
 
     def _is_in_basis(self, indices, order, i):
@@ -122,9 +118,7 @@ class HarmonicBasis(BosonicBasis):
 
         return in_basis
 
-    def convert(
-        self, threshold: float = 1e-6
-    ) -> List[List[Tuple[List[List[int]], complex]]]:
+    def convert(self, threshold: float = 1e-6) -> List[List[Tuple[List[List[int]], complex]]]:
         """
         This prepares an array object representing a bosonic hamiltonian expressed
         in the harmonic basis. This object can directly be given to the BosonicOperator
@@ -145,9 +139,7 @@ class HarmonicBasis(BosonicBasis):
 
         harmonic_dict = {
             1: np.zeros((num_modes, num_modals, num_modals)),
-            2: np.zeros(
-                (num_modes, num_modals, num_modals, num_modes, num_modals, num_modals)
-            ),
+            2: np.zeros((num_modes, num_modals, num_modals, num_modes, num_modals, num_modals)),
             3: np.zeros(
                 (
                     num_modes,
@@ -163,9 +155,7 @@ class HarmonicBasis(BosonicBasis):
             ),
         }
 
-        for (
-            entry
-        ) in self._watson.data:  # Entry is coeff (float) followed by indices (ints)
+        for entry in self._watson.data:  # Entry is coeff (float) followed by indices (ints)
             coeff0 = cast(float, entry[0])
             indices = cast(List[int], entry[1:])
 
@@ -350,8 +340,7 @@ class HarmonicBasis(BosonicBasis):
                                                 ] += coeff
             else:
                 raise ValueError(
-                    "Expansion of the PES is too large, only "
-                    "up to 3-body terms are supported"
+                    "Expansion of the PES is too large, only up to 3-body terms are supported"
                 )
 
         harmonics = []  # type: List[List[Tuple[List[List[int]], complex]]]

@@ -71,9 +71,7 @@ class GaussianDriver(FermionicDriver):
         """
         GaussianDriver._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
-            raise QiskitNatureError(
-                "Invalid config for Gaussian Driver '{}'".format(config)
-            )
+            raise QiskitNatureError("Invalid config for Gaussian Driver '{}'".format(config))
 
         if isinstance(config, list):
             config = "\n".join(config)
@@ -97,16 +95,11 @@ class GaussianDriver(FermionicDriver):
         elif self.molecule.units == UnitsType.BOHR:
             units = "Bohr"
         else:
-            raise QiskitNatureError(
-                "Unknown unit '{}'".format(self.molecule.units.value)
-            )
+            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
         cfg1 = f"# {self.hf_method}/{self.basis} UNITS={units} scf(conventional)\n\n"
         name = "".join([name for (name, _) in self.molecule.geometry])
         geom = "\n".join(
-            [
-                name + " " + " ".join(map(str, coord))
-                for (name, coord) in self.molecule.geometry
-            ]
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
         )
         cfg2 = f"{name} molecule\n\n"
         cfg3 = f"{self.molecule.charge} {self.molecule.multiplicity}\n{geom}\n\n"
@@ -169,9 +162,7 @@ class GaussianDriver(FermionicDriver):
                         while not added:
                             line = inf.readline()
                             if not line:
-                                raise QiskitNatureError(
-                                    "Unexpected end of Gaussian input"
-                                )
+                                raise QiskitNatureError("Unexpected end of Gaussian input")
                             if not line.strip():
                                 outf.write(
                                     "# Window=Full Int=NoRaff Symm=(NoInt,None) "
@@ -229,9 +220,7 @@ class GaussianDriver(FermionicDriver):
         """
         try:
             # add gauopen to sys.path so that binaries can be loaded
-            gauopen_directory = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), "gauopen"
-            )
+            gauopen_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), "gauopen")
             if gauopen_directory not in sys.path:
                 sys.path.insert(0, gauopen_directory)
             # pylint: disable=import-outside-toplevel
@@ -297,9 +286,7 @@ class GaussianDriver(FermionicDriver):
             # From Gaussian interfacing documentation: "The two
             # core Hamiltonians are identical unless
             # a Fermi contact perturbation has been applied."
-            logger.debug(
-                "CORE HAMILTONIAN ALPHA and BETA identical, keeping only ALPHA"
-            )
+            logger.debug("CORE HAMILTONIAN ALPHA and BETA identical, keeping only ALPHA")
             hcore_b = None
         logger.debug(
             "CORE HAMILTONIAN BETA %s",
@@ -312,9 +299,7 @@ class GaussianDriver(FermionicDriver):
         mohij = QMolecule.oneeints2mo(hcore, moc)
         mohij_b = None
         if moc_b is not None:
-            mohij_b = QMolecule.oneeints2mo(
-                hcore if hcore_b is None else hcore_b, moc_b
-            )
+            mohij_b = QMolecule.oneeints2mo(hcore if hcore_b is None else hcore_b, moc_b)
 
         eri = GaussianDriver._get_matrix(mel, "REGULAR 2E INTEGRALS")
         logger.debug("REGULAR 2E INTEGRALS %s", eri.shape)

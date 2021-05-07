@@ -64,9 +64,7 @@ class TestUVCC(QiskitNatureTestCase):
         """Tests the UVCC Ansatz."""
         converter = QubitConverter(DirectMapper())
 
-        ansatz = UVCC(
-            qubit_converter=converter, num_modals=num_modals, excitations=excitations
-        )
+        ansatz = UVCC(qubit_converter=converter, num_modals=num_modals, excitations=excitations)
 
         assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
 

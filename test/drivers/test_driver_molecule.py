@@ -34,9 +34,7 @@ class TestMolecule(QiskitNatureTestCase):
                 degrees_of_freedom=[stretch],
                 masses=[1, 1],
             )
-            self.assertListEqual(
-                mol.geometry, [("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])]
-            )
+            self.assertListEqual(mol.geometry, [("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])])
             self.assertEqual(mol.multiplicity, 1)
             self.assertEqual(mol.charge, 0)
             self.assertIsNone(mol.perturbations)
@@ -96,9 +94,7 @@ class TestMolecule(QiskitNatureTestCase):
             self.assertListEqual(geom[1][1], [0.0, 0.0, 3.0])
 
         with self.subTest("Reduce stretch"):
-            geom = Molecule.absolute_stretching(
-                atom_pair=(1, 0), perturbation=-0.1, geometry=geom
-            )
+            geom = Molecule.absolute_stretching(atom_pair=(1, 0), perturbation=-0.1, geometry=geom)
             self.assertListEqual(geom[1][1], [0.0, 0.0, 3.0 - 0.1])
 
     def test_bend(self):
@@ -116,17 +112,11 @@ class TestMolecule(QiskitNatureTestCase):
             self.assertListEqual(geom[1][1], [0.0, 1.0, 0.0])
 
         with self.subTest("-pi/4 bend 1-0-2"):
-            geom = Molecule.absolute_bending(
-                atom_trio=(1, 0, 2), bend=-np.pi / 4, geometry=geom
-            )
-            np.testing.assert_array_almost_equal(
-                geom[1][1], [0.0, np.sqrt(2) / 2, np.sqrt(2) / 2]
-            )
+            geom = Molecule.absolute_bending(atom_trio=(1, 0, 2), bend=-np.pi / 4, geometry=geom)
+            np.testing.assert_array_almost_equal(geom[1][1], [0.0, np.sqrt(2) / 2, np.sqrt(2) / 2])
 
         with self.subTest("-pi/4 bend 2-0-1"):
-            geom = Molecule.absolute_bending(
-                atom_trio=(2, 0, 1), bend=-np.pi / 4, geometry=geom
-            )
+            geom = Molecule.absolute_bending(atom_trio=(2, 0, 1), bend=-np.pi / 4, geometry=geom)
             np.testing.assert_array_almost_equal(geom[2][1], [0.0, 0.0, -np.sqrt(2)])
 
         # Test linear case

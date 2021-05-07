@@ -71,9 +71,7 @@ class Molecule:
         self._perturbations = None  # type: Optional[List[float]]
 
     @staticmethod
-    def _check_consistency(
-        geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]
-    ):
+    def _check_consistency(geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]):
         if masses is not None and len(masses) != len(geometry):
             raise ValueError(
                 "Length of masses {} must match length of geometries {}".format(
@@ -110,9 +108,7 @@ class Molecule:
         starting_distance_vector = starting_coord1 - coord2
         starting_l2distance = np.linalg.norm(starting_distance_vector)
         new_l2distance = function(starting_l2distance, parameter)
-        new_distance_vector = starting_distance_vector * (
-            new_l2distance / starting_l2distance
-        )
+        new_distance_vector = starting_distance_vector * (new_l2distance / starting_l2distance)
         new_coord1 = coord2 + new_distance_vector
 
         ending_geometry = copy.deepcopy(geometry)
@@ -242,9 +238,7 @@ class Molecule:
         )
         new_angle = function(starting_angle, parameter)
         perturbation = new_angle - starting_angle
-        rot_matrix = scipy.linalg.expm(
-            np.cross(np.eye(3), rot_unit_axis * perturbation)
-        )
+        rot_matrix = scipy.linalg.expm(np.cross(np.eye(3), rot_unit_axis * perturbation))
         new_coord1 = rot_matrix @ starting_coord1
 
         ending_geometry = copy.deepcopy(geometry)

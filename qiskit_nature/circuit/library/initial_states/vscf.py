@@ -57,9 +57,7 @@ class VSCF(QuantumCircuit):
 
         # encode the bitstring in a `VibrationalOp`
         label = ["+" if bit else "I" for bit in bitstr]
-        bitstr_op = VibrationalOp(
-            "".join(label), num_modes=len(num_modals), num_modals=num_modals
-        )
+        bitstr_op = VibrationalOp("".join(label), num_modes=len(num_modals), num_modals=num_modals)
 
         # map the `VibrationalOp` to a qubit operator
         if qubit_converter is not None:

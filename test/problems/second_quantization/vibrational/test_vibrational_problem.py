@@ -35,14 +35,10 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         truncation_order = 3
         num_modes = watson_hamiltonian.num_modes
         num_modals = [num_modals] * num_modes
-        vibrational_problem = VibrationalStructureProblem(
-            driver, num_modals, truncation_order
-        )
+        vibrational_problem = VibrationalStructureProblem(driver, num_modals, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
         vibrational_op = second_quantized_ops[0]
-        with self.subTest(
-            "Check expected length of the list of second quantized operators."
-        ):
+        with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
             assert isinstance(vibrational_op, VibrationalOp)

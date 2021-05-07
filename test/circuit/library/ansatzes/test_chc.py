@@ -83,12 +83,8 @@ class TestCHCVSCF(QiskitNatureTestCase):
 
         num_qubits = sum(num_modals)
         excitations = []
-        excitations += generate_vibration_excitations(
-            num_excitations=1, num_modals=num_modals
-        )
-        excitations += generate_vibration_excitations(
-            num_excitations=2, num_modals=num_modals
-        )
+        excitations += generate_vibration_excitations(num_excitations=1, num_modals=num_modals)
+        excitations += generate_vibration_excitations(num_excitations=2, num_modals=num_modals)
         chc_ansatz = CHC(
             num_qubits, ladder=False, excitations=excitations, initial_state=init_state
         )

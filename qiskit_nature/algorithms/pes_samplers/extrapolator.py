@@ -269,9 +269,7 @@ class WindowExtrapolator(Extrapolator):
         """
         ret_params = {}
         sorted_points = sorted(points)
-        reference_points = [
-            pt for pt in sorted(param_dict.keys()) if pt < max(sorted_points)
-        ]
+        reference_points = [pt for pt in sorted(param_dict.keys()) if pt < max(sorted_points)]
 
         for bottom_index, bottom in enumerate(reference_points):
             if bottom_index < len(reference_points) - 1:
@@ -340,9 +338,7 @@ class PCAExtrapolator(Extrapolator):
 
     def __init__(
         self,
-        extrapolator: Optional[
-            Union[PolynomialExtrapolator, DifferentialExtrapolator]
-        ] = None,
+        extrapolator: Optional[Union[PolynomialExtrapolator, DifferentialExtrapolator]] = None,
         kernel: Optional[str] = None,
         window: int = 2,
     ) -> None:
@@ -360,9 +356,7 @@ class PCAExtrapolator(Extrapolator):
         Raises:
             QiskitNatureError: if kernel is not defined in sklearn module.
         """
-        self._extrapolator = WindowExtrapolator(
-            extrapolator=extrapolator, window=window
-        )
+        self._extrapolator = WindowExtrapolator(extrapolator=extrapolator, window=window)
         self._kernel = kernel
         if self._kernel is None:
             self._pca_model = PCA()
@@ -391,12 +385,9 @@ class PCAExtrapolator(Extrapolator):
         # run pca fitting and extrapolate in pca space
         self._pca_model.fit(list(param_dict.values()))
         updated_params = {
-            pt: self._pca_model.transform([param_dict[pt]])[0]
-            for pt in list(param_dict.keys())
+            pt: self._pca_model.transform([param_dict[pt]])[0] for pt in list(param_dict.keys())
         }
-        output_params = self._extrapolator.extrapolate(
-            points, param_dict=updated_params
-        )
+        output_params = self._extrapolator.extrapolate(points, param_dict=updated_params)
 
         ret_params = {
             point: self._pca_model.inverse_transform(param) if not param else []
@@ -414,9 +405,7 @@ class SieveExtrapolator(Extrapolator):
 
     def __init__(
         self,
-        extrapolator: Optional[
-            Union[PolynomialExtrapolator, DifferentialExtrapolator]
-        ] = None,
+        extrapolator: Optional[Union[PolynomialExtrapolator, DifferentialExtrapolator]] = None,
         window: int = 2,
         filter_before: bool = True,
         filter_after: bool = True,
@@ -432,9 +421,7 @@ class SieveExtrapolator(Extrapolator):
             filter_after: Keyword to perform clustering after extrapolation.
 
         """
-        self._extrapolator = WindowExtrapolator(
-            extrapolator=extrapolator, window=window
-        )
+        self._extrapolator = WindowExtrapolator(extrapolator=extrapolator, window=window)
         self._filter_before = filter_before
         self._filter_after = filter_after
 
@@ -461,27 +448,19 @@ class SieveExtrapolator(Extrapolator):
         """
         # determine clustering cutoff
         param_arr = np.transpose(list(param_dict.values()))
-        param_averages = np.array(
-            sorted(np.average(np.log10(np.abs(param_arr)), axis=0))
-        )
+        param_averages = np.array(sorted(np.average(np.log10(np.abs(param_arr)), axis=0)))
         gaps = param_averages[1:] - param_averages[:-1]
         max_gap = int(np.argmax(gaps))
-        sieve_cutoff = 10 ** np.average(
-            [param_averages[max_gap], param_averages[max_gap + 1]]
-        )
+        sieve_cutoff = 10 ** np.average([param_averages[max_gap], param_averages[max_gap + 1]])
 
         if self._filter_before:
             filtered_dict = {
                 point: list(map(lambda x: x if np.abs(x) > sieve_cutoff else 0, param))
                 for (point, param) in param_dict.items()
             }
-            output_params = self._extrapolator.extrapolate(
-                points, param_dict=filtered_dict
-            )
+            output_params = self._extrapolator.extrapolate(points, param_dict=filtered_dict)
         else:
-            output_params = self._extrapolator.extrapolate(
-                points, param_dict=param_dict
-            )
+            output_params = self._extrapolator.extrapolate(points, param_dict=param_dict)
 
         if self._filter_after:
             ret_params = cast(

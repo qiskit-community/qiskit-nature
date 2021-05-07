@@ -33,9 +33,7 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
     )
     def test_full_active_space(self, kwargs):
         """Test that transformer has no effect when all orbitals are active."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         # The references which we compare too were produced by the `ActiveSpaceTransformer` and,
@@ -48,15 +46,11 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
         trafo = FreezeCoreTransformer(**kwargs)
         q_molecule_reduced = trafo.transform(q_molecule)
 
-        self.assertQMolecule(
-            q_molecule_reduced, q_molecule, dict_key="FreezeCoreTransformer"
-        )
+        self.assertQMolecule(q_molecule_reduced, q_molecule, dict_key="FreezeCoreTransformer")
 
     def test_freeze_core(self):
         """Test the `freeze_core` convenience argument."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         trafo = FreezeCoreTransformer(freeze_core=True)
@@ -66,15 +60,11 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
             hdf5_input=self.get_resource_path("LiH_sto3g_reduced.hdf5", "transformers")
         ).run()
 
-        self.assertQMolecule(
-            q_molecule_reduced, expected, dict_key="FreezeCoreTransformer"
-        )
+        self.assertQMolecule(q_molecule_reduced, expected, dict_key="FreezeCoreTransformer")
 
     def test_freeze_core_with_remove_orbitals(self):
         """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "transformers")
-        )
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "transformers"))
         q_molecule = driver.run()
 
         trafo = FreezeCoreTransformer(freeze_core=True, remove_orbitals=[4, 5])
@@ -84,9 +74,7 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
             hdf5_input=self.get_resource_path("BeH_sto3g_reduced.hdf5", "transformers")
         ).run()
 
-        self.assertQMolecule(
-            q_molecule_reduced, expected, dict_key="FreezeCoreTransformer"
-        )
+        self.assertQMolecule(q_molecule_reduced, expected, dict_key="FreezeCoreTransformer")
 
 
 if __name__ == "__main__":

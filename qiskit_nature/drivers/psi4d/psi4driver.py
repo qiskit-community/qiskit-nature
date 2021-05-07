@@ -69,9 +69,7 @@ class PSI4Driver(FermionicDriver):
         """
         self._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
-            raise QiskitNatureError(
-                "Invalid config for PSI4 Driver '{}'".format(config)
-            )
+            raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
 
         if isinstance(config, list):
             config = "\n".join(config)
@@ -96,15 +94,10 @@ class PSI4Driver(FermionicDriver):
         elif self.molecule.units == UnitsType.BOHR:
             units = "bohr"
         else:
-            raise QiskitNatureError(
-                "Unknown unit '{}'".format(self.molecule.units.value)
-            )
+            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
         name = "".join([name for (name, _) in self.molecule.geometry])
         geom = "\n".join(
-            [
-                name + " " + " ".join(map(str, coord))
-                for (name, coord) in self.molecule.geometry
-            ]
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
         )
         cfg1 = f"molecule {name} {{\nunits {units}\n"
         cfg2 = f"{self.molecule.charge} {self.molecule.multiplicity}\n"
@@ -120,17 +113,13 @@ class PSI4Driver(FermionicDriver):
 
         psi4d_directory = os.path.dirname(os.path.realpath(__file__))
         template_file = psi4d_directory + "/_template.txt"
-        qiskit_chemistry_directory = os.path.abspath(
-            os.path.join(psi4d_directory, "../..")
-        )
+        qiskit_chemistry_directory = os.path.abspath(os.path.join(psi4d_directory, "../.."))
 
         molecule = QMolecule()
 
         input_text = cfg + "\n"
         input_text += "import sys\n"
-        syspath = (
-            "['" + qiskit_chemistry_directory + "','" + "','".join(sys.path) + "']"
-        )
+        syspath = "['" + qiskit_chemistry_directory + "','" + "','".join(sys.path) + "']"
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
         input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"

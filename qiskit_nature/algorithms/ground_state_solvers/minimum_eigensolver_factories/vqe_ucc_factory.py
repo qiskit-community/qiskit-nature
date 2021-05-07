@@ -198,9 +198,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
         initial_state = self.initial_state
         if initial_state is None:
-            initial_state = HartreeFock(
-                num_spin_orbitals, num_particles, qubit_converter
-            )
+            initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
 
         ansatz = self.ansatz
         if ansatz is None:

@@ -122,9 +122,7 @@ class HarmonicPotential(PotentialBase):
         # do the Harmonic potential fit here, the order of parameters is
         # [k (Hartrees/(Ang**2)), r_0 (Ang), energy_shift (Hartrees)]
         h_p0 = initial_vals if initial_vals is not None else np.array([0.2, 0.735, 1.5])
-        h_bounds = (
-            bounds_list if bounds_list is not None else ([0, -1, -2], [2, 3.0, 2])
-        )
+        h_bounds = bounds_list if bounds_list is not None else ([0, -1, -2], [2, 3.0, 2])
 
         xdata_fit = xdata
         ydata_fit = ydata
@@ -238,9 +236,7 @@ class HarmonicPotential(PotentialBase):
         return e_n * const.J_TO_HARTREE
 
     @classmethod
-    def process_fit_data(
-        cls, xdata: List[float], ydata: List[float]
-    ) -> Tuple[list, list]:
+    def process_fit_data(cls, xdata: List[float], ydata: List[float]) -> Tuple[list, list]:
         """
         Mostly for internal use. Preprocesses the data passed to fit_to_data()
             so that only the points around the minimum are fit (which gives
@@ -265,9 +261,7 @@ class HarmonicPotential(PotentialBase):
         # is minimum
         all_of_min = np.array([], dtype=int)
         for i in x_min:
-            all_of_min = np.concatenate(
-                (all_of_min, np.where(xdata_s == xdata_s[i])[0])
-            )
+            all_of_min = np.concatenate((all_of_min, np.where(xdata_s == xdata_s[i])[0]))
         # array of indices where X is equal to the next smaller value
         left_of_min = []
         if min(all_of_min) > 0:
