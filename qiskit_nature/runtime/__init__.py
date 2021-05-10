@@ -16,7 +16,7 @@ Qiskit Nature Runtime (:mod:`qiskit_nature.runtime`)
 
 .. currentmodule:: qiskit_nature.runtime
 
-Programs that embed Qiskit Runtime in the algorithmic interfaces and faciliate usage of
+Programs that embed Qiskit Runtime in the algorithmic interfaces and facilitate usage of
 algorithms and scripts in the cloud.
 
 .. autosummary::
