@@ -10,7 +10,22 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The VQE runtime program."""
+"""
+Qiskit Nature Runtime (:mod:`qiskit_nature.runtime`)
+==========================================
+
+.. currentmodule:: qiskit_nature.runtime
+
+Programs that embed Qiskit Runtime in the algorithmic interfaces and faciliate usage of
+algorithms and scripts in the cloud.
+
+.. autosummary::
+   :toctree:
+
+   VQEProgram
+   VQEProgramResult
+
+"""
 
 from .vqe_program import VQEProgram, VQEProgramResult
 
