@@ -54,10 +54,10 @@ class InitialGuess(Enum):
 
 
 class PySCFDriver(FermionicDriver):
-    """
-    Qiskit chemistry driver using the PySCF library.
+    """A Second-Quantization driver for Qiskit Nature using the PySCF library.
 
-    See https://sunqm.github.io/pyscf/
+    References:
+        https://pyscf.org/
     """
 
     def __init__(
@@ -79,29 +79,40 @@ class PySCFDriver(FermionicDriver):
     ) -> None:
         """
         Args:
-            atom: Atom list or string separated by semicolons or line breaks. Each element in the
-                list is an atom followed by position e.g. `H 0.0 0.0 0.5`. The preceding example
-                shows the `XYZ` format for position but `Z-Matrix` format is supported too here.
-            unit: Angstrom or Bohr
-            charge: Charge on the molecule
-            spin: Spin (2S), in accordance with how PySCF defines a molecule in pyscf.gto.mole.Mole
-            basis: Basis set name as recognized by PySCF, e.g. `sto3g`, `321g` etc.
-                See https://sunqm.github.io/pyscf/_modules/pyscf/gto/basis.html for a listing.
-                Defaults to the minimal basis 'sto3g'.
-            hf_method: Hartree-Fock Method type
-            xc_functional: Exchange-Correlation functional name as recognized by PySCF. See
-                https://pyscf.org/user/dft.html#predefined-xc-functionals-and-functional-aliases for
-                more details. Defaults to PySCF's default: 'lda,vwn'.
-            xcf_library: the Exchange-Correlation functional library to be used. This can be either
+            atom: A string (or a list thereof) denoting the elements and coordinates of all atoms in
+                the system. Two formats are allowed; first, the PySCF-style `XYZ` format which is a
+                list of strings formatted as `{element symbol} {x_coord} {y_coord} {z_coord}`. If a
+                single string is given, the list entries should be joined by `;` as in the example:
+                `H 0.0 0.0 0.0; H 0.0 0.0 0.735`.
+                Second, the `Z-Matrix` format which is explained at 1_. The previous example
+                would be written as `H; H 3 0.735`.
+                See also 2_ for more details on geometry specifications supported by PySCF.
+            unit: Denotes the unit of coordinates. Valid values are given by the ``UnitsType`` enum.
+            charge: The charge of the molecule.
+            spin: The spin of the molecule. In accordance with PySCF's definition, the spin equals
+                :math:`2*S`, where :math:`S` is the total spin number of the molecule.
+            basis: A basis set name as recognized by PySCF (3_), e.g. `sto3g` (the default), `321g`,
+                etc. Note, that more advanced configuration options like a Dictionary or custom
+                basis sets are not allowed for the moment. Refer to 4_ for an extensive list of
+                PySCF's valid basis set names.
+            hf_method: The SCF method type to be used for the PySCF calculation. While the name
+                refers to HF methods, the PySCFDriver also supports KS methods. Refer to the
+                ``HFMethodType`` for a list of the supported methods.
+            xc_functional: One of the predefined Exchange-Correlation functional names as recognized
+                by PySCF (5_). Defaults to PySCF's default: 'lda,vwn'. __Note: this setting only has
+                an effect when a KS method is chosen for `hf_method`.__
+            xcf_library: The Exchange-Correlation functional library to be used. This can be either
                 'libxc' (the default) or 'xcfun'. Depending on this value, a different set of values
-                for `xc_functional` will be available. Refer to its documentation for mote details.
-            conv_tol: Convergence tolerance see PySCF docs and pyscf/scf/hf.py
-            max_cycle: Max convergence cycles see PySCF docs and pyscf/scf/hf.py,
-                has a min. value of 1.
-            init_guess: See PySCF pyscf/scf/hf.py init_guess_by_minao/1e/atom methods
-            max_memory: Maximum memory that PySCF should use
-            chkfile: Path to a PySCF chkfile from which to load a previously run calculation.
-            molecule: A driver independent Molecule definition instance may be provided. When
+                for `xc_functional` will be available. Refer to 5_ for more details.
+            conv_tol: The SCF convergence tolerance. See 6_ for more details.
+            max_cycle: The maximum number of SCF iterations. See 6_ for more details.
+            init_guess: The method to make the initial guess for the SCF starting point. Valid
+                values are given by the ``InitialGuess`` enum. See 6_ for more details.
+            max_memory: The maximum memory that PySCF should use. See 6_ for more details.
+            chkfile: The path to a PySCF checkpoint file from which to load a previously run
+                calculation. The data stored in this file is assumed to be already converged.
+                Refer to 6_ and 7_ for more details.
+            molecule: A driver independent ``Molecule`` definition instance may be provided. When
                 a molecule is supplied the ``atom``, ``unit``, ``charge`` and ``spin`` parameters
                 are all ignored as the Molecule instance now defines these instead. The Molecule
                 object is read when the driver is run and converted to the driver dependent
@@ -109,7 +120,15 @@ class PySCFDriver(FermionicDriver):
                 to be updated to compute different points.
 
         Raises:
-            QiskitNatureError: Invalid Input
+            QiskitNatureError: An invalid input was supplied.
+
+        .. _1: https://en.wikipedia.org/wiki/Z-matrix_(chemistry)
+        .. _2: https://pyscf.org/user/gto.html#geometry
+        .. _3: https://pyscf.org/user/gto.html#basis-set
+        .. _4: https://pyscf.org/pyscf_api_docs/pyscf.gto.basis.html#module-pyscf.gto.basis
+        .. _5: https://pyscf.org/user/dft.html#predefined-xc-functionals-and-functional-aliases
+        .. _6: https://pyscf.org/pyscf_api_docs/pyscf.scf.html#module-pyscf.scf.hf
+        .. _7: https://pyscf.org/pyscf_api_docs/pyscf.lib.html#module-pyscf.lib.chkfile
         """
         # First, ensure that PySCF is actually installed
         self._check_installed()
@@ -216,62 +235,62 @@ class PySCFDriver(FermionicDriver):
 
     @property
     def conv_tol(self) -> float:
-        """Returns the conv_tol."""
+        """Returns the SCF convergence tolerance."""
         return self._conv_tol
 
     @conv_tol.setter
     def conv_tol(self, conv_tol: float) -> None:
-        """Sets the conv_tol."""
+        """Sets the SCF convergence tolerance."""
         self._conv_tol = conv_tol
 
     @property
     def max_cycle(self) -> int:
-        """Returns the max_cycle."""
+        """Returns the maximum number of SCF iterations."""
         return self._max_cycle
 
     @max_cycle.setter
     def max_cycle(self, max_cycle: int) -> None:
-        """Sets the max_cycle."""
+        """Sets the maximum number of SCF iterations."""
         self._max_cycle = max_cycle
 
     @property
     def init_guess(self) -> str:
-        """Returns the init_guess."""
+        """Returns the method for the initial guess."""
         return self._init_guess
 
     @init_guess.setter
     def init_guess(self, init_guess: str) -> None:
-        """Sets the init_guess."""
+        """Sets the method for the initial guess."""
         self._init_guess = init_guess
 
     @property
     def max_memory(self) -> int:
-        """Returns the max_memory."""
+        """Returns the maximum memory allowance for the calculation."""
         return self._max_memory
 
     @max_memory.setter
     def max_memory(self, max_memory: int) -> None:
-        """Sets the max_memory."""
+        """Sets the maximum memory allowance for the calculation."""
         self._max_memory = max_memory
 
     @property
     def chkfile(self) -> str:
-        """Returns the chkfile."""
+        """Returns the path to the PySCF checkpoint file."""
         return self._chkfile
 
     @chkfile.setter
     def chkfile(self, chkfile: str) -> None:
-        """Sets the chkfile."""
+        """Sets the path to the PySCF checkpoint file."""
         self._chkfile = chkfile
 
     @staticmethod
     def _check_installed() -> None:
-        """Checks the PySCF is actually installed.
+        """Checks that PySCF is actually installed.
 
         Raises:
             QiskitNatureError: If PySCF is not installed.
         """
-        err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
+        err_msg = "PySCF is not installed. See https://pyscf.org/install.html"
         try:
             spec = importlib.util.find_spec("pyscf")  # type: ignore
             if spec is not None:
@@ -284,6 +303,9 @@ class PySCFDriver(FermionicDriver):
 
     def run(self) -> QMolecule:
         """Runs the PySCF driver.
+
+        Raises:
+            QiskitNatureError: if an error during the PySCF setup or calculation occurred.
 
         Returns:
             A QMolecule object containing the raw driver results.
@@ -350,9 +372,9 @@ class PySCFDriver(FermionicDriver):
 
     @staticmethod
     def _check_molecule_format(val: str) -> Union[str, List[str]]:
-        """Ensures the molecule coordinates are in xyz format.
+        """Ensures the molecule coordinates are in XYZ format.
 
-        This utility automatically converts a z-matrix coordinate format into xyz coordinates.
+        This utility automatically converts a Z-matrix coordinate format into XYZ coordinates.
 
         Args:
             val: the atomic coordinates.
@@ -361,7 +383,7 @@ class PySCFDriver(FermionicDriver):
             QiskitNatureError: If the provided coordinate are badly formatted.
 
         Returns:
-            The coordinates in xyz format.
+            The coordinates in XYZ format.
         """
         atoms = [x.strip() for x in val.split(";")]
         if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
@@ -389,7 +411,7 @@ class PySCFDriver(FermionicDriver):
         subclass to further tailor the behavior to some specific use case.
 
         Raises:
-            QiskitNatureError: Invalid hf method type
+            QiskitNatureError: If an invalid HF method type was supplied.
         """
         try:
             hf_method_name = self._hf_method.upper()
@@ -423,7 +445,7 @@ class PySCFDriver(FermionicDriver):
         """Constructs a QMolecule out of the PySCF calculation object.
 
         Returns:
-            QMolecule: QMolecule populated with driver integrals etc
+            QMolecule: A QMolecule populated with driver integrals etc.
         """
         # Create driver level molecule object and populate
         q_mol = QMolecule()
@@ -626,7 +648,7 @@ class PySCFDriver(FermionicDriver):
             array_dimension: since PySCF 1.6.2, the alpha and beta components are no longer stored
                 as a tuple but as a multi-dimensional numpy array. This argument specifies the
                 dimension of that array in such a case. Making this configurable permits this
-                function to be used to extract both, MO coefficients (3D array) or MO energies (2D
+                function to be used to extract both, MO coefficients (3D array) and MO energies (2D
                 array).
 
         Returns:
