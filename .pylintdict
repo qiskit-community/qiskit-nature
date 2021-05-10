@@ -152,6 +152,7 @@ logfile
 lookback
 majorana
 maxdepth
+maxiter
 maxiters
 mcardle
 mezzacapo
@@ -219,6 +220,7 @@ qiskit
 qiskit's
 qload
 qmolecule
+qn
 quantized
 quantumcircuit
 quartic
@@ -246,6 +248,7 @@ setia
 setted
 sklearn
 spinop
+spsa
 statevector
 statevectors
 stdout
