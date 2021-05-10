@@ -12,7 +12,7 @@
 
 """
 Qiskit Nature Runtime (:mod:`qiskit_nature.runtime`)
-==========================================
+====================================================
 
 .. currentmodule:: qiskit_nature.runtime
 
