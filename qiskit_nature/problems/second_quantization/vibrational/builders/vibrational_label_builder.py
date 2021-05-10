@@ -15,8 +15,9 @@ This module builds labels for `VibrationalOp`.
 from typing import Tuple, List
 
 
-def _create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]]) -> \
-        List[Tuple[str, complex]]:
+def _create_labels(
+    boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]]
+) -> List[Tuple[str, complex]]:
     """Creates `VibrationalOp` labels from a data structure returned by the convert() method in
     `HarmonicBasis`.
 
@@ -32,8 +33,9 @@ def _create_labels(boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], com
     return all_labels
 
 
-def _create_num_body_labels(num_body_data: List[Tuple[List[List[int]], complex]]) -> \
-        List[Tuple[str, complex]]:
+def _create_num_body_labels(
+    num_body_data: List[Tuple[List[List[int]], complex]]
+) -> List[Tuple[str, complex]]:
     num_body_labels = []
     for indices, coeff in num_body_data:
         indices.sort()

@@ -27,11 +27,13 @@ class BaseDriver(ABC):
     """
 
     @abstractmethod
-    def __init__(self,
-                 molecule: Optional[Molecule] = None,
-                 basis: str = 'sto3g',
-                 hf_method: str = 'rhf',
-                 supports_molecule: bool = False) -> None:
+    def __init__(
+        self,
+        molecule: Optional[Molecule] = None,
+        basis: str = "sto3g",
+        hf_method: str = "rhf",
+        supports_molecule: bool = False,
+    ) -> None:
         """
         Args:
             molecule: molecule
@@ -69,32 +71,32 @@ class BaseDriver(ABC):
 
     @property
     def molecule(self) -> Optional[Molecule]:
-        """ return molecule """
+        """return molecule"""
         return self._molecule
 
     @molecule.setter
     def molecule(self, value: Molecule) -> None:
-        """ set molecule """
+        """set molecule"""
         if not self.supports_molecule:
             raise QiskitNatureError("Driver doesn't support molecule.")
         self._molecule = value
 
     @property
     def basis(self) -> str:
-        """ return basis """
+        """return basis"""
         return self._basis
 
     @basis.setter
     def basis(self, value: str) -> None:
-        """ set basis """
+        """set basis"""
         self._basis = value
 
     @property
     def hf_method(self) -> str:
-        """ return Hartree-Fock method """
+        """return Hartree-Fock method"""
         return self._hf_method
 
     @hf_method.setter
     def hf_method(self, value: str) -> None:
-        """ set Hartree-Fock method """
+        """set Hartree-Fock method"""
         self._hf_method = value

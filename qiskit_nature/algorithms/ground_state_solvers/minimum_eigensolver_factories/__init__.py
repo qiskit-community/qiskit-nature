@@ -37,8 +37,9 @@ from .numpy_minimum_eigensolver_factory import NumPyMinimumEigensolverFactory
 from .vqe_ucc_factory import VQEUCCFactory
 from .vqe_uvcc_factory import VQEUVCCFactory
 
-__all__ = ['MinimumEigensolverFactory',
-           'NumPyMinimumEigensolverFactory',
-           'VQEUCCFactory',
-           'VQEUVCCFactory'
-           ]
+__all__ = [
+    "MinimumEigensolverFactory",
+    "NumPyMinimumEigensolverFactory",
+    "VQEUCCFactory",
+    "VQEUVCCFactory",
+]

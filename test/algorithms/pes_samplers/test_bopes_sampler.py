@@ -38,9 +38,10 @@ class TestBOPES(unittest.TestCase):
 
         # Molecule
         dof = partial(Molecule.absolute_distance, atom_pair=(1, 0))
-        m = Molecule(geometry=[['H', [0., 0., 1.]],
-                               ['H', [0., 0.45, 1.]]],
-                     degrees_of_freedom=[dof])
+        m = Molecule(
+            geometry=[["H", [0.0, 0.0, 1.0]], ["H", [0.0, 0.45, 1.0]]],
+            degrees_of_freedom=[dof],
+        )
 
         mapper = ParityMapper()
         converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
@@ -62,8 +63,9 @@ class TestBOPES(unittest.TestCase):
         energies = results.energies
 
         np.testing.assert_array_almost_equal(points_run, [0.7, 1.0, 1.3])
-        np.testing.assert_array_almost_equal(energies,
-                                             [-1.13618945, -1.10115033, -1.03518627], decimal=2)
+        np.testing.assert_array_almost_equal(
+            energies, [-1.13618945, -1.10115033, -1.03518627], decimal=2
+        )
 
     def test_potential_interface(self):
         """Tests potential interface."""
@@ -72,11 +74,14 @@ class TestBOPES(unittest.TestCase):
 
         stretch = partial(Molecule.absolute_distance, atom_pair=(1, 0))
         # H-H molecule near equilibrium geometry
-        m = Molecule(geometry=[['H', [0., 0., 0.]],
-                               ['H', [1., 0., 0.]],
-                               ],
-                     degrees_of_freedom=[stretch],
-                     masses=[1.6735328E-27, 1.6735328E-27])
+        m = Molecule(
+            geometry=[
+                ["H", [0.0, 0.0, 0.0]],
+                ["H", [1.0, 0.0, 0.0]],
+            ],
+            degrees_of_freedom=[stretch],
+            masses=[1.6735328e-27, 1.6735328e-27],
+        )
 
         mapper = ParityMapper()
         converter = QubitConverter(mapper=mapper)

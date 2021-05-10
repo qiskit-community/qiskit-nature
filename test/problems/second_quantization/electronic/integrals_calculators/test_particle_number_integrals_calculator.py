@@ -16,8 +16,9 @@ from ddt import ddt, data
 
 import numpy as np
 
-from qiskit_nature.problems.second_quantization.electronic.integrals_calculators import \
-    calc_total_particle_num_ints
+from qiskit_nature.problems.second_quantization.electronic.integrals_calculators import (
+    calc_total_particle_num_ints,
+)
 
 
 @ddt
@@ -25,8 +26,11 @@ class TestParticleNumberIntegralsCalculator(QiskitNatureTestCase):
     """Tests total particle number integrals calculator."""
 
     num_modes_list = [1, 2, 3]
-    expected_h_1_list = [np.eye(1, dtype=complex), np.eye(2, dtype=complex),
-                         np.eye(3, dtype=complex)]
+    expected_h_1_list = [
+        np.eye(1, dtype=complex),
+        np.eye(2, dtype=complex),
+        np.eye(3, dtype=complex),
+    ]
     expected_h_2_list = [None, None, None]
 
     @data(*num_modes_list)

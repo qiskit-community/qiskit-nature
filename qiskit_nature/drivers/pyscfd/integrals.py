@@ -29,22 +29,25 @@ try:
     from pyscf.lib import param
     from pyscf.lib import logger as pylogger
     from pyscf.tools import dump_mat
-    warnings.filterwarnings('ignore', category=DeprecationWarning, module='pyscf')
+
+    warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
 except ImportError:
     logger.info("PySCF is not installed. See https://sunqm.github.io/pyscf/install.html")
 
 
-def compute_integrals(atom,
-                      unit,
-                      charge,
-                      spin,
-                      basis,
-                      hf_method='rhf',
-                      conv_tol=1e-9,
-                      max_cycle=50,
-                      init_guess='minao',
-                      max_memory=None):
-    """ compute integrals """
+def compute_integrals(
+    atom,
+    unit,
+    charge,
+    spin,
+    basis,
+    hf_method="rhf",
+    conv_tol=1e-9,
+    max_cycle=50,
+    init_guess="minao",
+    max_memory=None,
+):
+    """compute integrals"""
     # Get config from input parameters
     # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
     #          or in Z-Matrix format e.g. "H; O 1 1.08; H 2 1.08 1 107.5"
@@ -60,11 +63,17 @@ def compute_integrals(atom,
         output = None
         if logger.isEnabledFor(logging.DEBUG):
             verbose = pylogger.INFO
-            file, output = tempfile.mkstemp(suffix='.log')
+            file, output = tempfile.mkstemp(suffix=".log")
             os.close(file)
 
-        mol = gto.Mole(atom=atom, unit=unit, basis=basis,
-                       max_memory=max_memory, verbose=verbose, output=output)
+        mol = gto.Mole(
+            atom=atom,
+            unit=unit,
+            basis=basis,
+            max_memory=max_memory,
+            verbose=verbose,
+            output=output,
+        )
         mol.symmetry = False
         mol.charge = charge
         mol.spin = spin
@@ -78,34 +87,34 @@ def compute_integrals(atom,
                 pass
 
     except Exception as exc:
-        raise QiskitNatureError('Failed electronic structure computation') from exc
+        raise QiskitNatureError("Failed electronic structure computation") from exc
 
     return q_mol
 
 
 def _check_molecule_format(val):
     """If it seems to be zmatrix rather than xyz format we convert before returning"""
-    atoms = [x.strip() for x in val.split(';')]
+    atoms = [x.strip() for x in val.split(";")]
     if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
-        raise QiskitNatureError('Molecule format error: ' + val)
+        raise QiskitNatureError("Molecule format error: " + val)
 
     # An xyz format has 4 parts in each atom, if not then do zmatrix convert
     # Allows dummy atoms, using symbol 'X' in zmatrix format for coord computation to xyz
-    parts = [x.strip() for x in atoms[0].split(' ')]
+    parts = [x.strip() for x in atoms[0].split(" ")]
     if len(parts) != 4:
         try:
             newval = []
             for entry in gto.mole.from_zmatrix(val):
-                if entry[0].upper() != 'X':
+                if entry[0].upper() != "X":
                     newval.append(entry)
             return newval
         except Exception as exc:
-            raise QiskitNatureError('Failed to convert atom string: ' + val) from exc
+            raise QiskitNatureError("Failed to convert atom string: " + val) from exc
 
     return val
 
 
-def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init_guess='minao'):
+def _calculate_integrals(mol, hf_method="rhf", conv_tol=1e-9, max_cycle=50, init_guess="minao"):
     """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation in
         the given basis.
     Args:
@@ -121,20 +130,20 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     """
     enuke = gto.mole.energy_nuc(mol)
 
-    if hf_method == 'rhf':
+    if hf_method == "rhf":
         m_f = scf.RHF(mol)
-    elif hf_method == 'rohf':
+    elif hf_method == "rohf":
         m_f = scf.ROHF(mol)
-    elif hf_method == 'uhf':
+    elif hf_method == "uhf":
         m_f = scf.UHF(mol)
     else:
-        raise QiskitNatureError('Invalid hf_method type: {}'.format(hf_method))
+        raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
 
     m_f.conv_tol = conv_tol
     m_f.max_cycle = max_cycle
     m_f.init_guess = init_guess
     ehf = m_f.kernel()
-    logger.info('PySCF kernel() converged: %s, e(hf): %s', m_f.converged, m_f.e_tot)
+    logger.info("PySCF kernel() converged: %s, e(hf): %s", m_f.converged, m_f.e_tot)
     if isinstance(m_f.mo_coeff, tuple):
         mo_coeff = m_f.mo_coeff[0]
         mo_coeff_b = m_f.mo_coeff[1]
@@ -170,13 +179,13 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     if logger.isEnabledFor(logging.DEBUG):
         # Add some more to PySCF output...
         # First analyze() which prints extra information about MO energy and occupation
-        mol.stdout.write('\n')
+        mol.stdout.write("\n")
         m_f.analyze()
         # Now labelled orbitals for contributions to the MOs for s,p,d etc of each atom
-        mol.stdout.write('\n\n--- Alpha Molecular Orbitals ---\n\n')
+        mol.stdout.write("\n\n--- Alpha Molecular Orbitals ---\n\n")
         dump_mat.dump_mo(mol, mo_coeff, digits=7, start=1)
         if mo_coeff_b is not None:
-            mol.stdout.write('\n--- Beta Molecular Orbitals ---\n\n')
+            mol.stdout.write("\n--- Beta Molecular Orbitals ---\n\n")
             dump_mat.dump_mo(mol, mo_coeff_b, digits=7, start=1)
         mol.stdout.flush()
 
@@ -186,7 +195,7 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     if mo_coeff_b is not None:
         mohij_b = np.dot(np.dot(mo_coeff_b.T, hij), mo_coeff_b)
 
-    eri = mol.intor('int2e', aosym=1)
+    eri = mol.intor("int2e", aosym=1)
     mo_eri = ao2mo.incore.full(m_f._eri, mo_coeff, compact=False)
     mohijkl = mo_eri.reshape(norbs, norbs, norbs, norbs)
     mohijkl_bb = None
@@ -194,14 +203,14 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     if mo_coeff_b is not None:
         mo_eri_b = ao2mo.incore.full(m_f._eri, mo_coeff_b, compact=False)
         mohijkl_bb = mo_eri_b.reshape(norbs, norbs, norbs, norbs)
-        mo_eri_ba = ao2mo.incore.general(m_f._eri,
-                                         (mo_coeff_b, mo_coeff_b, mo_coeff, mo_coeff),
-                                         compact=False)
+        mo_eri_ba = ao2mo.incore.general(
+            m_f._eri, (mo_coeff_b, mo_coeff_b, mo_coeff, mo_coeff), compact=False
+        )
         mohijkl_ba = mo_eri_ba.reshape(norbs, norbs, norbs, norbs)
 
     # dipole integrals
     mol.set_common_orig((0, 0, 0))
-    ao_dip = mol.intor_symmetric('int1e_r', comp=3)
+    ao_dip = mol.intor_symmetric("int1e_r", comp=3)
     x_dip_ints = ao_dip[0]
     y_dip_ints = ao_dip[1]
     z_dip_ints = ao_dip[2]
@@ -209,9 +218,9 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     d_m = m_f.make_rdm1(m_f.mo_coeff, m_f.mo_occ)
     if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
         d_m = d_m[0] + d_m[1]
-    elec_dip = np.negative(np.einsum('xij,ji->x', ao_dip, d_m).real)
+    elec_dip = np.negative(np.einsum("xij,ji->x", ao_dip, d_m).real)
     elec_dip = np.round(elec_dip, decimals=8)
-    nucl_dip = np.einsum('i,ix->x', mol.atom_charges(), mol.atom_coords())
+    nucl_dip = np.einsum("i,ix->x", mol.atom_charges(), mol.atom_coords())
     nucl_dip = np.round(nucl_dip, decimals=8)
     logger.info("HF Electronic dipole moment: %s", elec_dip)
     logger.info("Nuclear dipole moment: %s", nucl_dip)
@@ -248,7 +257,7 @@ def _calculate_integrals(mol, hf_method='rhf', conv_tol=1e-9, max_cycle=50, init
     # 1 and 2 electron integrals AO and MO
     _q_.hcore = hij
     _q_.hcore_b = None
-    _q_.kinetic = mol.intor_symmetric('int1e_kin')
+    _q_.kinetic = mol.intor_symmetric("int1e_kin")
     _q_.overlap = m_f.get_ovlp()
     _q_.eri = eri
     _q_.mo_onee_ints = mohij
@@ -282,8 +291,8 @@ def _process_pyscf_log(logfile):
         content = file.readlines()
 
     for i, _ in enumerate(content):
-        if content[i].startswith('System:'):
+        if content[i].startswith("System:"):
             content = content[i:]
             break
 
-    logger.debug('PySCF processing messages log:\n%s', ''.join(content))
+    logger.debug("PySCF processing messages log:\n%s", "".join(content))

@@ -21,7 +21,7 @@ from .qubit_mapper import QubitMapper
 
 
 class VibrationalMapper(QubitMapper):
-    """ Mapper of Vibrational Operator to Qubit Operator """
+    """Mapper of Vibrational Operator to Qubit Operator"""
 
     @abstractmethod
     def map(self, second_q_op: VibrationalOp) -> PauliSumOp:

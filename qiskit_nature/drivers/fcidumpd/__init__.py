@@ -17,4 +17,4 @@ Contains tools to parse and dump FCIDump files.
 
 from .fcidumpdriver import FCIDumpDriver
 
-__all__ = ['FCIDumpDriver']
+__all__ = ["FCIDumpDriver"]

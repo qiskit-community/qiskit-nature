@@ -23,12 +23,13 @@ logger = logging.getLogger(__name__)
 
 
 class GaussianLogResult:
-    """ Result for Gaussian™ 16 log driver.
+    """Result for Gaussian™ 16 log driver.
 
     This result allows access to selected data from the log file that is not available
     via the use Gaussian 16 interfacing code when using the MatrixElement file.
     Since this parses the text output it is subject to the format of the log file.
     """
+
     def __init__(self, log: Union[str, List[str]]) -> None:
         """
         Args:
@@ -43,11 +44,11 @@ class GaussianLogResult:
         self._log = None
 
         if isinstance(log, str):
-            lines = log.split('\n')
+            lines = log.split("\n")
 
             if len(lines) == 1:
                 with open(lines[0]) as file:
-                    self._log = file.read().split('\n')
+                    self._log = file.read().split("\n")
             else:
                 self._log = lines
 
@@ -59,20 +60,20 @@ class GaussianLogResult:
 
     @property
     def log(self) -> List[str]:
-        """ The complete Gaussian log in the form of a list of strings. """
+        """The complete Gaussian log in the form of a list of strings."""
         return copy.copy(self._log)
 
     def __str__(self):
-        return '\n'.join(self._log)
+        return "\n".join(self._log)
 
     # Sections of interest in the log file
-    _SECTION_QUADRATIC = r':\s+QUADRATIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES'
-    _SECTION_CUBIC = r':\s+CUBIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES'
-    _SECTION_QUARTIC = r':\s+QUARTIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES'
+    _SECTION_QUADRATIC = r":\s+QUADRATIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES"
+    _SECTION_CUBIC = r":\s+CUBIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES"
+    _SECTION_QUARTIC = r":\s+QUARTIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES"
 
     @property
     def quadratic_force_constants(self) -> List[Tuple[str, str, float, float, float]]:
-        """ Quadratic force constants. (2 indices, 3 values)
+        """Quadratic force constants. (2 indices, 3 values)
 
         Returns:
             A list of tuples each with 2 index values and 3 constant values.
@@ -83,7 +84,7 @@ class GaussianLogResult:
 
     @property
     def cubic_force_constants(self) -> List[Tuple[str, str, str, float, float, float]]:
-        """ Cubic force constants. (3 indices, 3 values)
+        """Cubic force constants. (3 indices, 3 values)
 
         Returns:
             A list of tuples each with 3 index values and 3 constant values.
@@ -93,8 +94,10 @@ class GaussianLogResult:
         return cast(List[Tuple[str, str, str, float, float, float]], cfc)
 
     @property
-    def quartic_force_constants(self) -> List[Tuple[str, str, str, str, float, float, float]]:
-        """ Quartic force constants. (4 indices, 3 values)
+    def quartic_force_constants(
+        self,
+    ) -> List[Tuple[str, str, str, str, float, float, float]]:
+        """Quartic force constants. (4 indices, 3 values)
 
         Returns:
             A list of tuples each with 4 index values and 3 constant values.
@@ -105,11 +108,11 @@ class GaussianLogResult:
 
     def _force_constants(self, section_name: str, indices: int) -> List[Tuple]:
         constants = []
-        pattern_constants = ''
+        pattern_constants = ""
         for i in range(indices):
-            pattern_constants += r'\s+(?P<index{}>\w+)'.format(i+1)
+            pattern_constants += r"\s+(?P<index{}>\w+)".format(i + 1)
         for i in range(3):
-            pattern_constants += r'\s+(?P<const{}>[+-]?\d+\.\d+)'.format(i+1)
+            pattern_constants += r"\s+(?P<const{}>[+-]?\d+\.\d+)".format(i + 1)
 
         # Find the section of interest
         i = 0
@@ -139,18 +142,18 @@ class GaussianLogResult:
                     if const is not None:
                         clist = []  # type: List[Union[str, float]]
                         for i in range(indices):
-                            clist.append(const.group('index{}'.format(i + 1)))
+                            clist.append(const.group("index{}".format(i + 1)))
                         for i in range(3):
-                            clist.append(float(const.group('const{}'.format(i + 1))))
+                            clist.append(float(const.group("const{}".format(i + 1))))
                         constants.append(tuple(clist))
                     else:
-                        break   # End of matching lines
+                        break  # End of matching lines
 
         return constants
 
     @property
     def a_to_h_numbering(self) -> Dict[str, int]:
-        """ A to H numbering mapping.
+        """A to H numbering mapping.
 
         Returns:
             Dictionary mapping string A numbering such as '1', '3a' etc from forces modes
@@ -163,18 +166,18 @@ class GaussianLogResult:
         found_a = False
         for line in self._log:
             if not found_section:
-                if re.search(r'Input/Output\sinformation', line) is not None:
+                if re.search(r"Input/Output\sinformation", line) is not None:
                     logger.debug(line)
                     found_section = True
             else:
-                if re.search(r'\s+\(H\)\s+\|', line) is not None:
+                if re.search(r"\s+\(H\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_h = True
-                    h_nums = [x.strip() for x in line.split('|') if x and '(H)' not in x]
-                elif re.search(r'\s+\(A\)\s+\|', line) is not None:
+                    h_nums = [x.strip() for x in line.split("|") if x and "(H)" not in x]
+                elif re.search(r"\s+\(A\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_a = True
-                    a_nums = [x.strip() for x in line.split('|') if x and '(A)' not in x]
+                    a_nums = [x.strip() for x in line.split("|") if x and "(A)" not in x]
 
                 if found_h and found_a:
                     for i, a_num in enumerate(a_nums):

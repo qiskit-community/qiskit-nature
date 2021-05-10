@@ -25,7 +25,8 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         provided."""
         expected_num_of_sec_quant_ops = 5
         logfile = self.get_resource_path(
-            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
+            "CO2_freq_B3LYP_ccpVDZ.log",
+            "problems/second_quantization/vibrational/resources",
         )
         driver = GaussianForcesDriver(logfile=logfile)
 

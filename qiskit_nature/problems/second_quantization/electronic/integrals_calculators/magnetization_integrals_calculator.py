@@ -29,6 +29,6 @@ def calc_total_magnetization_ints(num_modes: int) -> Tuple[np.ndarray, None]:
     """
     modes = num_modes
     h_1 = np.eye(modes, dtype=complex) * 0.5
-    h_1[modes // 2:, modes // 2:] *= -1.0
+    h_1[modes // 2 :, modes // 2 :] *= -1.0
 
     return h_1, None

@@ -38,10 +38,11 @@ class VSCF(QuantumCircuit):
         [1] Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
-    def __init__(self,
-                 num_modals: List[int],
-                 qubit_converter: Optional[QubitConverter] = None,
-                 ) -> None:
+    def __init__(
+        self,
+        num_modals: List[int],
+        qubit_converter: Optional[QubitConverter] = None,
+    ) -> None:
         """
         Args:
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
@@ -55,22 +56,23 @@ class VSCF(QuantumCircuit):
         bitstr = vscf_bitstring(num_modals)
 
         # encode the bitstring in a `VibrationalOp`
-        label = ['+' if bit else 'I' for bit in bitstr]
-        bitstr_op = VibrationalOp(''.join(label), num_modes=len(num_modals), num_modals=num_modals)
+        label = ["+" if bit else "I" for bit in bitstr]
+        bitstr_op = VibrationalOp("".join(label), num_modes=len(num_modals), num_modals=num_modals)
 
         # map the `VibrationalOp` to a qubit operator
         if qubit_converter is not None:
             logger.warning(
-                'The only supported `QubitConverter` is one with a `DirectMapper` as the mapper '
-                'instance. However you specified %s as an input, which will be ignored until more '
-                'variants will be supported.', str(qubit_converter)
+                "The only supported `QubitConverter` is one with a `DirectMapper` as the mapper "
+                "instance. However you specified %s as an input, which will be ignored until more "
+                "variants will be supported.",
+                str(qubit_converter),
             )
         qubit_converter = QubitConverter(DirectMapper())
         qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op)
 
         # construct the circuit
-        qr = QuantumRegister(qubit_op.num_qubits, 'q')
-        super().__init__(qr, name='VSCF')
+        qr = QuantumRegister(qubit_op.num_qubits, "q")
+        super().__init__(qr, name="VSCF")
 
         # add gates in the right positions
         for i, bit in enumerate(qubit_op.primitive.table.X[0]):

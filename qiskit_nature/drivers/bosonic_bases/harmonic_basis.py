@@ -32,8 +32,12 @@ class HarmonicBasis(BosonicBasis):
 
     """
 
-    def __init__(self, watson_hamiltonian: WatsonHamiltonian, num_modals: List[int],
-                 truncation_order: int = 3) -> None:
+    def __init__(
+        self,
+        watson_hamiltonian: WatsonHamiltonian,
+        num_modals: List[int],
+        truncation_order: int = 3,
+    ) -> None:
         """
         Args:
             watson_hamiltonian: A ``WatsonHamiltonian`` object which contains the hamiltonian
@@ -86,7 +90,7 @@ class HarmonicBasis(BosonicBasis):
             # coeff = -coeff
         elif power == 2 and kinetic_term is False:
             if m - n == 0:
-                coeff = (m + 1 / 2)
+                coeff = m + 1 / 2
             elif m - n == 2:
                 coeff = np.sqrt(m * (m - 1)) / 2
         elif power == 3:
@@ -102,8 +106,7 @@ class HarmonicBasis(BosonicBasis):
             elif m - n == 4:
                 coeff = np.sqrt(m * (m - 1) * (m - 2) * (m - 3)) / 4
         else:
-            raise ValueError('The Q power is to high, only up to 4 is '
-                             'currently supported.')
+            raise ValueError("The Q power is to high, only up to 4 is currently supported.")
         return coeff * (np.sqrt(2) ** power)
 
     def _is_in_basis(self, indices, order, i):
@@ -115,8 +118,7 @@ class HarmonicBasis(BosonicBasis):
 
         return in_basis
 
-    def convert(self, threshold: float = 1e-6
-                ) -> List[List[Tuple[List[List[int]], complex]]]:
+    def convert(self, threshold: float = 1e-6) -> List[List[Tuple[List[List[int]], complex]]]:
         """
         This prepares an array object representing a bosonic hamiltonian expressed
         in the harmonic basis. This object can directly be given to the BosonicOperator
@@ -135,12 +137,23 @@ class HarmonicBasis(BosonicBasis):
         num_modes = len(self._num_modals)
         num_modals = self._max_num_modals
 
-        harmonic_dict = {1: np.zeros((num_modes, num_modals, num_modals)),
-                         2: np.zeros((num_modes, num_modals, num_modals,
-                                      num_modes, num_modals, num_modals)),
-                         3: np.zeros((num_modes, num_modals, num_modals,
-                                      num_modes, num_modals, num_modals,
-                                      num_modes, num_modals, num_modals))}
+        harmonic_dict = {
+            1: np.zeros((num_modes, num_modals, num_modals)),
+            2: np.zeros((num_modes, num_modals, num_modals, num_modes, num_modals, num_modals)),
+            3: np.zeros(
+                (
+                    num_modes,
+                    num_modals,
+                    num_modals,
+                    num_modes,
+                    num_modals,
+                    num_modals,
+                    num_modes,
+                    num_modals,
+                    num_modals,
+                )
+            ),
+        }
 
         for entry in self._watson.data:  # Entry is coeff (float) followed by indices (ints)
             coeff0 = cast(float, entry[0])
@@ -165,86 +178,170 @@ class HarmonicBasis(BosonicBasis):
 
             if order == 1:
                 for m in range(num_modals):
-                    for n in range(m+1):
+                    for n in range(m + 1):
 
                         coeff = coeff0 * self._harmonic_integrals(
-                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term)
+                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term
+                        )
 
                         if abs(coeff) > threshold:
-                            harmonic_dict[1][modes[0]-1, m, n] += coeff
+                            harmonic_dict[1][modes[0] - 1, m, n] += coeff
                             if m != n:
                                 harmonic_dict[1][modes[0] - 1, n, m] += coeff
 
             elif order == 2:
                 for m in range(num_modals):
-                    for n in range(m+1):
+                    for n in range(m + 1):
                         coeff1 = coeff0 * self._harmonic_integrals(
-                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term)
+                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term
+                        )
                         for j in range(num_modals):
-                            for k in range(j+1):
+                            for k in range(j + 1):
                                 coeff = coeff1 * self._harmonic_integrals(
-                                    j, k, index_dict[modes[1]], kinetic_term=kinetic_term)
+                                    j,
+                                    k,
+                                    index_dict[modes[1]],
+                                    kinetic_term=kinetic_term,
+                                )
                                 if abs(coeff) > threshold:
-                                    harmonic_dict[2][modes[0] - 1, m, n,
-                                                     modes[1] - 1, j, k] += coeff
+                                    harmonic_dict[2][
+                                        modes[0] - 1, m, n, modes[1] - 1, j, k
+                                    ] += coeff
                                     if m != n:
-                                        harmonic_dict[2][modes[0] - 1, n, m,
-                                                         modes[1] - 1, j, k] += coeff
+                                        harmonic_dict[2][
+                                            modes[0] - 1, n, m, modes[1] - 1, j, k
+                                        ] += coeff
                                     if j != k:
-                                        harmonic_dict[2][modes[0] - 1, m, n,
-                                                         modes[1] - 1, k, j] += coeff
+                                        harmonic_dict[2][
+                                            modes[0] - 1, m, n, modes[1] - 1, k, j
+                                        ] += coeff
                                     if m != n and j != k:
-                                        harmonic_dict[2][modes[0] - 1, n, m,
-                                                         modes[1] - 1, k, j] += coeff
+                                        harmonic_dict[2][
+                                            modes[0] - 1, n, m, modes[1] - 1, k, j
+                                        ] += coeff
             elif order == 3:
                 for m in range(num_modals):
-                    for n in range(m+1):
+                    for n in range(m + 1):
                         coeff1 = coeff0 * self._harmonic_integrals(
-                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term)
+                            m, n, index_dict[modes[0]], kinetic_term=kinetic_term
+                        )
                         for j in range(num_modals):
-                            for k in range(j+1):
+                            for k in range(j + 1):
                                 coeff2 = coeff1 * self._harmonic_integrals(
-                                    j, k, index_dict[modes[1]], kinetic_term=kinetic_term)
+                                    j,
+                                    k,
+                                    index_dict[modes[1]],
+                                    kinetic_term=kinetic_term,
+                                )
                                 # pylint: disable=locally-disabled, invalid-name
                                 for p in range(num_modals):
-                                    for q in range(p+1):
+                                    for q in range(p + 1):
                                         coeff = coeff2 * self._harmonic_integrals(
-                                            p, q, index_dict[modes[2]], kinetic_term=kinetic_term)
+                                            p,
+                                            q,
+                                            index_dict[modes[2]],
+                                            kinetic_term=kinetic_term,
+                                        )
                                         if abs(coeff) > threshold:
-                                            harmonic_dict[3][modes[0] - 1, m, n,
-                                                             modes[1] - 1, j, k,
-                                                             modes[2] - 1, p, q] += coeff
+                                            harmonic_dict[3][
+                                                modes[0] - 1,
+                                                m,
+                                                n,
+                                                modes[1] - 1,
+                                                j,
+                                                k,
+                                                modes[2] - 1,
+                                                p,
+                                                q,
+                                            ] += coeff
                                             if m != n:
-                                                harmonic_dict[3][modes[0] - 1, n, m,
-                                                                 modes[1] - 1, j, k,
-                                                                 modes[2] - 1, p, q] += coeff
+                                                harmonic_dict[3][
+                                                    modes[0] - 1,
+                                                    n,
+                                                    m,
+                                                    modes[1] - 1,
+                                                    j,
+                                                    k,
+                                                    modes[2] - 1,
+                                                    p,
+                                                    q,
+                                                ] += coeff
                                             if k != j:
-                                                harmonic_dict[3][modes[0] - 1, m, n,
-                                                                 modes[1] - 1, k, j,
-                                                                 modes[2] - 1, p, q] += coeff
+                                                harmonic_dict[3][
+                                                    modes[0] - 1,
+                                                    m,
+                                                    n,
+                                                    modes[1] - 1,
+                                                    k,
+                                                    j,
+                                                    modes[2] - 1,
+                                                    p,
+                                                    q,
+                                                ] += coeff
                                             if p != q:
-                                                harmonic_dict[3][modes[0] - 1, m, n,
-                                                                 modes[1] - 1, j, k,
-                                                                 modes[2] - 1, q, p] += coeff
+                                                harmonic_dict[3][
+                                                    modes[0] - 1,
+                                                    m,
+                                                    n,
+                                                    modes[1] - 1,
+                                                    j,
+                                                    k,
+                                                    modes[2] - 1,
+                                                    q,
+                                                    p,
+                                                ] += coeff
                                             if m != n and k != j:
-                                                harmonic_dict[3][modes[0] - 1, n, m,
-                                                                 modes[1] - 1, k, j,
-                                                                 modes[2] - 1, p, q] += coeff
+                                                harmonic_dict[3][
+                                                    modes[0] - 1,
+                                                    n,
+                                                    m,
+                                                    modes[1] - 1,
+                                                    k,
+                                                    j,
+                                                    modes[2] - 1,
+                                                    p,
+                                                    q,
+                                                ] += coeff
                                             if m != n and p != q:
-                                                harmonic_dict[3][modes[0] - 1, n, m,
-                                                                 modes[1] - 1, j, k,
-                                                                 modes[2] - 1, q, p] += coeff
+                                                harmonic_dict[3][
+                                                    modes[0] - 1,
+                                                    n,
+                                                    m,
+                                                    modes[1] - 1,
+                                                    j,
+                                                    k,
+                                                    modes[2] - 1,
+                                                    q,
+                                                    p,
+                                                ] += coeff
                                             if p != q and k != j:
-                                                harmonic_dict[3][modes[0] - 1, m, n,
-                                                                 modes[1] - 1, k, j,
-                                                                 modes[2] - 1, q, p] += coeff
+                                                harmonic_dict[3][
+                                                    modes[0] - 1,
+                                                    m,
+                                                    n,
+                                                    modes[1] - 1,
+                                                    k,
+                                                    j,
+                                                    modes[2] - 1,
+                                                    q,
+                                                    p,
+                                                ] += coeff
                                             if m != n and j != k and p != q:
-                                                harmonic_dict[3][modes[0] - 1, n, m,
-                                                                 modes[1] - 1, k, j,
-                                                                 modes[2] - 1, q, p] += coeff
+                                                harmonic_dict[3][
+                                                    modes[0] - 1,
+                                                    n,
+                                                    m,
+                                                    modes[1] - 1,
+                                                    k,
+                                                    j,
+                                                    modes[2] - 1,
+                                                    q,
+                                                    p,
+                                                ] += coeff
             else:
-                raise ValueError('Expansion of the PES is too large, only '
-                                 'up to 3-body terms are supported')
+                raise ValueError(
+                    "Expansion of the PES is too large, only up to 3-body terms are supported"
+                )
 
         harmonics = []  # type: List[List[Tuple[List[List[int]], complex]]]
         for idx in range(1, self._truncation_order + 1):
@@ -254,8 +351,18 @@ class HarmonicBasis(BosonicBasis):
                 values = harmonic_dict[idx][all_indices]
                 for i in range(len(all_indices[0])):
                     if self._is_in_basis(all_indices, idx, i):
-                        harmonics[- 1].append(([[all_indices[3 * j][i], all_indices[3 * j + 1][i],
-                                                 all_indices[3 * j + 2][i]] for j in range(idx)],
-                                               values[i]))
+                        harmonics[-1].append(
+                            (
+                                [
+                                    [
+                                        all_indices[3 * j][i],
+                                        all_indices[3 * j + 1][i],
+                                        all_indices[3 * j + 2][i],
+                                    ]
+                                    for j in range(idx)
+                                ],
+                                values[i],
+                            )
+                        )
 
         return harmonics

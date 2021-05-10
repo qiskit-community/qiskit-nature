@@ -262,7 +262,7 @@ class SpinOp(SecondQuantizedOp):
                 invalid_labels = [
                     label
                     for label in labels
-                    if not all(label_pattern.match(l) for l in label.split())
+                    if not all(label_pattern.match(lb) for lb in label.split())
                 ]
                 if invalid_labels:
                     raise ValueError(

@@ -60,8 +60,9 @@ class QubitMapper(ABC):
         raise NotImplementedError()
 
     @staticmethod
-    def mode_based_mapping(second_q_op: SecondQuantizedOp,
-                           pauli_table: List[Tuple[Pauli, Pauli]]) -> PauliSumOp:
+    def mode_based_mapping(
+        second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
+    ) -> PauliSumOp:
         """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
 
         Args:
@@ -77,10 +78,13 @@ class QubitMapper(ABC):
         """
         nmodes = len(pauli_table)
         if nmodes != second_q_op.register_length:
-            raise QiskitNatureError(f"Pauli table len {nmodes} does not match"
-                                    f"operator register length {second_q_op.register_length}")
+            raise QiskitNatureError(
+                f"Pauli table len {nmodes} does not match"
+                f"operator register length {second_q_op.register_length}"
+            )
 
             # 0. Some utilities
+
         def times_creation_op(position, pauli_table):
             # The creation operator is given by 0.5*(X + 1j*Y)
             real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
@@ -127,8 +131,7 @@ class QubitMapper(ABC):
                 # catch any disallowed labels
                 else:
                     raise QiskitNatureError(
-                        f"FermionicOp label included '{char}'. "
-                        "Allowed characters: I, N, E, +, -"
+                        f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
                     )
             ret_op_list.append(ret_op)
 

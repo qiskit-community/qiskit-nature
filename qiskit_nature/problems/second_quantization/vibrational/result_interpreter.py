@@ -18,16 +18,17 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
 
 
-def _interpret(num_modes: int, raw_result: Union[EigenstateResult, EigensolverResult,
-                                                 MinimumEigensolverResult]) -> \
-        VibrationalStructureResult:
+def _interpret(
+    num_modes: int,
+    raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+) -> VibrationalStructureResult:
     """Interprets an EigenstateResult in the context of this transformation.
-           Args:
-               num_modes: number of modes.
-               raw_result: an eigenstate result object.
-           Returns:
-               An vibrational structure result.
-           """
+    Args:
+        num_modes: number of modes.
+        raw_result: an eigenstate result object.
+    Returns:
+        An vibrational structure result.
+    """
 
     eigenstate_result = _interpret_raw_result(raw_result)
     result = _interpret_vibr_struct_result(eigenstate_result)

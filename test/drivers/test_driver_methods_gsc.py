@@ -31,21 +31,17 @@ class TestDriverMethods(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.lih = 'LI 0 0 0; H 0 0 1.6'
-        self.o_h = 'O 0 0 0; H 0 0 0.9697'
-        self.ref_energies = {
-            'lih': -7.882,
-            'oh': -74.387
-        }
-        self.ref_dipoles = {
-            'lih': 1.818,
-            'oh': 0.4615
-        }
+        self.lih = "LI 0 0 0; H 0 0 1.6"
+        self.o_h = "O 0 0 0; H 0 0 0.9697"
+        self.ref_energies = {"lih": -7.882, "oh": -74.387}
+        self.ref_dipoles = {"lih": 1.818, "oh": 0.4615}
 
     @staticmethod
-    def _run_driver(driver: FermionicDriver,
-                    converter: QubitConverter = QubitConverter(JordanWignerMapper()),
-                    transformers: Optional[List[BaseTransformer]] = None):
+    def _run_driver(
+        driver: FermionicDriver,
+        converter: QubitConverter = QubitConverter(JordanWignerMapper()),
+        transformers: Optional[List[BaseTransformer]] = None,
+    ):
 
         problem = ElectronicStructureProblem(driver, transformers)
 
@@ -64,5 +60,5 @@ class TestDriverMethods(QiskitNatureTestCase):
         self.assertAlmostEqual(self.ref_dipoles[mol], result.total_dipole_moment[0], places=3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -27,10 +27,12 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 class HartreeFock(QuantumCircuit):
     """A Hartree-Fock initial state."""
 
-    def __init__(self,
-                 num_spin_orbitals: int,
-                 num_particles: Tuple[int, int],
-                 qubit_converter: QubitConverter) -> None:
+    def __init__(
+        self,
+        num_spin_orbitals: int,
+        num_particles: Tuple[int, int],
+        qubit_converter: QubitConverter,
+    ) -> None:
         """
         Args:
             num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
@@ -43,15 +45,15 @@ class HartreeFock(QuantumCircuit):
         bitstr = hartree_fock_bitstring(num_spin_orbitals, num_particles)
 
         # encode the bitstring as a `FermionicOp`
-        label = ['+' if bit else 'I' for bit in bitstr]
-        bitstr_op = FermionicOp(''.join(label))
+        label = ["+" if bit else "I" for bit in bitstr]
+        bitstr_op = FermionicOp("".join(label))
 
         # map the `FermionicOp` to a qubit operator
         qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op)
 
         # construct the circuit
-        qr = QuantumRegister(qubit_op.num_qubits, 'q')
-        super().__init__(qr, name='HF')
+        qr = QuantumRegister(qubit_op.num_qubits, "q")
+        super().__init__(qr, name="HF")
 
         # Add gates in the right positions: we are only interested in the `X` gates because we want
         # to create particles (0 -> 1) where the initial state introduced a creation (`+`) operator.
@@ -60,8 +62,7 @@ class HartreeFock(QuantumCircuit):
                 self.x(i)
 
 
-def hartree_fock_bitstring(num_spin_orbitals: int,
-                           num_particles: Tuple[int, int]) -> List[bool]:
+def hartree_fock_bitstring(num_spin_orbitals: int, num_particles: Tuple[int, int]) -> List[bool]:
     """Compute the bitstring representing the Hartree-Fock state for the specified system.
 
     Args:
@@ -76,15 +77,15 @@ def hartree_fock_bitstring(num_spin_orbitals: int,
         ValueError: If the total number of particles is larger than the number of orbitals.
     """
     # validate the input
-    validate_min('num_spin_orbitals', num_spin_orbitals, 1)
+    validate_min("num_spin_orbitals", num_spin_orbitals, 1)
     num_alpha, num_beta = num_particles
 
     if sum(num_particles) > num_spin_orbitals:
-        raise ValueError('# of particles must be less than or equal to # of orbitals.')
+        raise ValueError("# of particles must be less than or equal to # of orbitals.")
 
     half_orbitals = num_spin_orbitals // 2
     bitstr = np.zeros(num_spin_orbitals, bool)
     bitstr[:num_alpha] = True
-    bitstr[half_orbitals:(half_orbitals + num_beta)] = True
+    bitstr[half_orbitals : (half_orbitals + num_beta)] = True
 
     return bitstr.tolist()

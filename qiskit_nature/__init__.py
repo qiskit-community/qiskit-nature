@@ -42,6 +42,7 @@ Submodules
    operators
    problems
    results
+   runtime
    transformers
 
 """
@@ -50,6 +51,6 @@ from .version import __version__
 from .exceptions import QiskitNatureError
 
 __all__ = [
-    '__version__',
-    'QiskitNatureError',
+    "__version__",
+    "QiskitNatureError",
 ]

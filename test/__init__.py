@@ -14,4 +14,4 @@
 
 from .nature_test_case import QiskitNatureTestCase
 
-__all__ = ['QiskitNatureTestCase']
+__all__ = ["QiskitNatureTestCase"]
