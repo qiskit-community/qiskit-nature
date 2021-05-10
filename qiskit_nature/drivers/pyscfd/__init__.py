@@ -25,5 +25,4 @@ automatically make PySCF available to Qiskit at run time.
 
 from .pyscfdriver import PySCFDriver, InitialGuess
 
-__all__ = ['PySCFDriver',
-           'InitialGuess']
+__all__ = ["PySCFDriver", "InitialGuess"]

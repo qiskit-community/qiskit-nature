@@ -27,28 +27,31 @@ class TestDriverPSI4Extra(QiskitNatureTestCase):
         try:
             PSI4Driver._check_valid()
         except QiskitNatureError:
-            self.skipTest('PSI4 driver does not appear to be installed')
+            self.skipTest("PSI4 driver does not appear to be installed")
 
     def test_input_format_list(self):
-        """ input as a list"""
-        driver = PSI4Driver([
-            'molecule h2 {',
-            '  0 1',
-            '  H  0.0 0.0 0.0',
-            '  H  0.0 0.0 0.735',
-            '  no_com',
-            '  no_reorient',
-            '}',
-            '',
-            'set {',
-            '  basis sto-3g',
-            '  scf_type pk',
-            '}'])
+        """input as a list"""
+        driver = PSI4Driver(
+            [
+                "molecule h2 {",
+                "  0 1",
+                "  H  0.0 0.0 0.0",
+                "  H  0.0 0.0 0.735",
+                "  no_com",
+                "  no_reorient",
+                "}",
+                "",
+                "set {",
+                "  basis sto-3g",
+                "  scf_type pk",
+                "}",
+            ]
+        )
         qmolecule = driver.run()
         self.assertAlmostEqual(qmolecule.hf_energy, -1.117, places=3)
 
     def test_input_format_string(self):
-        """ input as a multi line string """
+        """input as a multi line string"""
         cfg = """
 molecule h2 {
 0 1
@@ -68,12 +71,12 @@ scf_type pk
         self.assertAlmostEqual(qmolecule.hf_energy, -1.117, places=3)
 
     def test_input_format_fail(self):
-        """ input type failure """
+        """input type failure"""
         with self.assertRaises(QiskitNatureError):
             _ = PSI4Driver(1.000)
 
     def test_psi4_failure(self):
-        """ check we catch psi4 failures (bad scf type used here) """
+        """check we catch psi4 failures (bad scf type used here)"""
         bad_cfg = """
 molecule h2 {
 0 1
@@ -94,5 +97,5 @@ scf_type unknown
         self.assertTrue(str(ctxmgr.exception).startswith("'psi4 process return code"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

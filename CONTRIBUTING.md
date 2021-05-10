@@ -33,6 +33,10 @@ please ensure that:
    make style 
    ```
    from the root of the Nature repository clone for lint and style conformance checks.
+
+   If your code fails the local style checks (specifically the black
+   code formatting check) you can use `make black` to automatically
+   fix update the code formatting.
    
    For unit testing please see [Testing](#testing) section below.
    
@@ -303,3 +307,27 @@ the following steps:
 
 The `stable/*` branches should only receive changes in the form of bug
 fixes.
+
+## Dealing with the git blame ignore list
+
+In the qiskit-nature repository we maintain a list of commits for git blame
+to ignore. This is mostly commits that are code style changes that don't
+change the functionality but just change the code formatting (for example,
+when we migrated to use black for code formatting). This file,
+`.git-blame-ignore-revs` just contains a list of commit SHA1s you can tell git
+to ignore when using the `git blame` command. This can be done one time
+with something like
+
+```
+git blame --ignore-revs-file .git-blame-ignore-revs qiskit_nature/version.py
+```
+
+from the root of the repository. If you'd like to enable this by default you
+can update your local repository's configuration with:
+
+```
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+which will update your local repositories configuration to use the ignore list
+by default.

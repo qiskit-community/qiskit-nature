@@ -31,5 +31,5 @@ Z2 Symmetries.
 from .qubit_converter import QubitConverter
 
 __all__ = [
-    'QubitConverter',
+    "QubitConverter",
 ]

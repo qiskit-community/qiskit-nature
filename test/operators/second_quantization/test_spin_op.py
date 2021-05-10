@@ -86,7 +86,7 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_init_label(self, label, pre_processing):
         """Test __init__"""
         spin = SpinOp(pre_processing(label), register_length=len(label) // 3)
-        expected_label = " ".join(l for l in label.split() if l[0] != "I")
+        expected_label = " ".join(lb for lb in label.split() if lb[0] != "I")
         if not expected_label:
             expected_label = f"I_{len(label) // 3 - 1}"
         self.assertListEqual(spin.to_list(), [(expected_label, 1)])
@@ -240,14 +240,18 @@ class TestSpinOp(QiskitNatureTestCase):
         with self.subTest("heisenberg adjoint"):
             actual = self.heisenberg.adjoint()
             desired = SpinOp(
-                (self.heisenberg_spin_array, self.heisenberg_coeffs.conjugate().T), spin=1
+                (self.heisenberg_spin_array, self.heisenberg_coeffs.conjugate().T),
+                spin=1,
             )
             self.assertSpinEqual(actual, desired)
 
         with self.subTest("imag heisenberg adjoint"):
             actual = ~((3 + 2j) * self.heisenberg)
             desired = SpinOp(
-                (self.heisenberg_spin_array, ((3 + 2j) * self.heisenberg_coeffs).conjugate().T),
+                (
+                    self.heisenberg_spin_array,
+                    ((3 + 2j) * self.heisenberg_coeffs).conjugate().T,
+                ),
                 spin=1,
             )
             self.assertSpinEqual(actual, desired)

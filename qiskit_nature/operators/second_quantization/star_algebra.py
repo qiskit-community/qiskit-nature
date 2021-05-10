@@ -39,7 +39,7 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
     @abstractmethod
     def mul(self, other: complex):
-        """ Return scalar multiplication of self and other, overloaded by `*`."""
+        """Return scalar multiplication of self and other, overloaded by `*`."""
         return NotImplementedError
 
     def __mul__(self, other: complex):
@@ -52,7 +52,7 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
     @abstractmethod
     def add(self, other):
-        """ Return Operator addition of self and other, overloaded by `+`."""
+        """Return Operator addition of self and other, overloaded by `+`."""
         return NotImplementedError
 
     def __add__(self, other):
@@ -111,5 +111,5 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
         return self.adjoint()
 
     def __invert__(self):
-        """ Overload unary `~` to return Operator adjoint."""
+        """Overload unary `~` to return Operator adjoint."""
         return self.adjoint()

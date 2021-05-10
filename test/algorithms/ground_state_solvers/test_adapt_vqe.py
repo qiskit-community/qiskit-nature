@@ -31,22 +31,23 @@ from qiskit_nature.drivers import PySCFDriver, UnitsType, QMolecule
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
-        build_ferm_op_from_ints
+from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
+    build_ferm_op_from_ints,
+)
 
 
 class TestAdaptVQE(QiskitNatureTestCase):
-    """ Test Adaptive VQE Ground State Calculation """
+    """Test Adaptive VQE Ground State Calculation"""
 
     def setUp(self):
         super().setUp()
 
         try:
-            self.driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                                      unit=UnitsType.ANGSTROM,
-                                      basis='sto3g')
+            self.driver = PySCFDriver(
+                atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
+            )
         except QiskitNatureError:
-            self.skipTest('PYSCF driver does not appear to be installed')
+            self.skipTest("PYSCF driver does not appear to be installed")
             return
 
         self.problem = ElectronicStructureProblem(self.driver)
@@ -56,16 +57,16 @@ class TestAdaptVQE(QiskitNatureTestCase):
         self.qubit_converter = QubitConverter(ParityMapper())
 
     def test_default(self):
-        """ Default execution """
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        """Default execution"""
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_aux_ops_reusability(self):
-        """ Test that the auxiliary operators can be reused """
+        """Test that the auxiliary operators can be reused"""
         # Regression test against #1475
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
 
         modes = 4
@@ -75,38 +76,48 @@ class TestAdaptVQE(QiskitNatureTestCase):
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.problem)
-        assert all(frozenset(a.to_list()) == frozenset(b.to_list())
-                   for a, b in zip(aux_ops, aux_ops_copy))
+        assert all(
+            frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
+        )
 
     def test_custom_minimum_eigensolver(self):
-        """ Test custom MES """
+        """Test custom MES"""
+
         class CustomFactory(VQEUCCFactory):
             """A custom MESFactory"""
 
             def get_solver(self, problem, qubit_converter):
                 q_molecule_transformed = cast(QMolecule, problem.molecule_data_transformed)
                 num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
-                num_particles = (q_molecule_transformed.num_alpha, q_molecule_transformed.num_beta)
+                num_particles = (
+                    q_molecule_transformed.num_alpha,
+                    q_molecule_transformed.num_beta,
+                )
                 num_spin_orbitals = 2 * num_molecular_orbitals
 
                 initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
-                ansatz = UCC(qubit_converter=qubit_converter,
-                             num_particles=num_particles,
-                             num_spin_orbitals=num_spin_orbitals,
-                             excitations='d',
-                             initial_state=initial_state)
-                vqe = VQE(ansatz=ansatz, quantum_instance=self._quantum_instance,
-                          optimizer=L_BFGS_B())
+                ansatz = UCC(
+                    qubit_converter=qubit_converter,
+                    num_particles=num_particles,
+                    num_spin_orbitals=num_spin_orbitals,
+                    excitations="d",
+                    initial_state=initial_state,
+                )
+                vqe = VQE(
+                    ansatz=ansatz,
+                    quantum_instance=self._quantum_instance,
+                    optimizer=L_BFGS_B(),
+                )
                 return vqe
 
-        solver = CustomFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        solver = CustomFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
 
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_custom_excitation_pool(self):
-        """ Test custom excitation pool """
+        """Test custom excitation pool"""
 
         class CustomFactory(VQEUCCFactory):
             """A custom MES factory."""
@@ -121,13 +132,13 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 solver.ansatz.operators = custom_excitation_pool
                 return solver
 
-        solver = CustomFactory(QuantumInstance(BasicAer.get_backend('statevector_simulator')))
+        solver = CustomFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_vqe_adapt_check_cyclicity(self):
-        """ AdaptVQE index cycle detection """
+        """AdaptVQE index cycle detection"""
         param_list = [
             ([1, 1], True),
             ([1, 11], False),
@@ -160,5 +171,5 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 self.assertEqual(is_cycle, AdaptVQE._check_cyclicity(seq))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

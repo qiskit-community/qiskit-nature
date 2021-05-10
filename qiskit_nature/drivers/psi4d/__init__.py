@@ -36,4 +36,4 @@ In order for the chemistry module to discover PSI4 at run time, it is then neces
 
 from .psi4driver import PSI4Driver
 
-__all__ = ['PSI4Driver']
+__all__ = ["PSI4Driver"]

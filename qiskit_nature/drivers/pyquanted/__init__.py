@@ -38,5 +38,4 @@ install off the setup.py that is there.
 
 from .pyquantedriver import PyQuanteDriver, BasisType
 
-__all__ = ['PyQuanteDriver',
-           'BasisType']
+__all__ = ["PyQuanteDriver", "BasisType"]

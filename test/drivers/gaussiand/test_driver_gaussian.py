@@ -27,17 +27,19 @@ class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
         super().setUp()
         try:
             driver = GaussianDriver(
-                ['# rhf/sto-3g scf(conventional) geom=nocrowd',
-                 '',
-                 'h2 molecule',
-                 '',
-                 '0 1',
-                 'H   0.0  0.0    0.0',
-                 'H   0.0  0.0    0.735',
-                 ''
-                 ])
+                [
+                    "# rhf/sto-3g scf(conventional) geom=nocrowd",
+                    "",
+                    "h2 molecule",
+                    "",
+                    "0 1",
+                    "H   0.0  0.0    0.0",
+                    "H   0.0  0.0    0.735",
+                    "",
+                ]
+            )
         except QiskitNatureError:
-            self.skipTest('GAUSSIAN driver does not appear to be installed')
+            self.skipTest("GAUSSIAN driver does not appear to be installed")
         self.qmolecule = driver.run()
 
 
@@ -49,9 +51,9 @@ class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
         try:
             driver = GaussianDriver(molecule=TestDriver.MOLECULE)
         except QiskitNatureError:
-            self.skipTest('GAUSSIAN driver does not appear to be installed')
+            self.skipTest("GAUSSIAN driver does not appear to be installed")
         self.qmolecule = driver.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

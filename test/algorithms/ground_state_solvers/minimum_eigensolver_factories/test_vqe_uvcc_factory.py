@@ -25,7 +25,7 @@ from qiskit_nature.algorithms import VQEUVCCFactory
 
 
 class TestVQEUVCCFactory(QiskitNatureTestCase):
-    """ Test VQE UVCC MinimumEigensolver Factory """
+    """Test VQE UVCC MinimumEigensolver Factory"""
 
     # NOTE: The actual usage of this class is mostly tested in combination with the ground-state
     # eigensolvers (one module above).
@@ -36,15 +36,17 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
         self.converter = QubitConverter(JordanWignerMapper())
 
         self.seed = 50
-        self.quantum_instance = QuantumInstance(BasicAer.get_backend('statevector_simulator'),
-                                                shots=1,
-                                                seed_simulator=self.seed,
-                                                seed_transpiler=self.seed)
+        self.quantum_instance = QuantumInstance(
+            BasicAer.get_backend("statevector_simulator"),
+            shots=1,
+            seed_simulator=self.seed,
+            seed_transpiler=self.seed,
+        )
 
         self._vqe_uvcc_factory = VQEUVCCFactory(self.quantum_instance)
 
     def test_setters_getters(self):
-        """ Test Getter/Setter """
+        """Test Getter/Setter"""
 
         with self.subTest("Quantum Instance"):
             self.assertEqual(self._vqe_uvcc_factory.quantum_instance, self.quantum_instance)
@@ -87,5 +89,5 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
             self.assertEqual(self._vqe_uvcc_factory.initial_state, initial_state)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

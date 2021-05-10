@@ -30,10 +30,11 @@ logger = logging.getLogger(__name__)
 
 
 class BasisType(Enum):
-    """ Basis Type """
-    BSTO3G = 'sto3g'
-    B631G = '6-31g'
-    B631GSS = '6-31g**'
+    """Basis Type"""
+
+    BSTO3G = "sto3g"
+    B631G = "6-31g"
+    B631GSS = "6-31g**"
 
 
 class PyQuanteDriver(FermionicDriver):
@@ -43,17 +44,18 @@ class PyQuanteDriver(FermionicDriver):
     See https://github.com/rpmuller/pyquante2
     """
 
-    def __init__(self,
-                 atoms: Union[str, List[str]] =
-                 'H 0.0 0.0 0.0; H 0.0 0.0 0.735',
-                 units: UnitsType = UnitsType.ANGSTROM,
-                 charge: int = 0,
-                 multiplicity: int = 1,
-                 basis: BasisType = BasisType.BSTO3G,
-                 hf_method: HFMethodType = HFMethodType.RHF,
-                 tol: float = 1e-8,
-                 maxiters: int = 100,
-                 molecule: Optional[Molecule] = None) -> None:
+    def __init__(
+        self,
+        atoms: Union[str, List[str]] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
+        units: UnitsType = UnitsType.ANGSTROM,
+        charge: int = 0,
+        multiplicity: int = 1,
+        basis: BasisType = BasisType.BSTO3G,
+        hf_method: HFMethodType = HFMethodType.RHF,
+        tol: float = 1e-8,
+        maxiters: int = 100,
+        molecule: Optional[Molecule] = None,
+    ) -> None:
         """
         Args:
             atoms: Atoms list or string separated by semicolons or line breaks. Each element in the
@@ -77,20 +79,22 @@ class PyQuanteDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        validate_min('maxiters', maxiters, 1)
+        validate_min("maxiters", maxiters, 1)
         self._check_valid()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
             raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
 
         if isinstance(atoms, list):
-            atoms = ';'.join(atoms)
+            atoms = ";".join(atoms)
         elif isinstance(atoms, str):
-            atoms = atoms.replace('\n', ';')
+            atoms = atoms.replace("\n", ";")
 
-        super().__init__(molecule=molecule,
-                         basis=basis.value,
-                         hf_method=hf_method.value,
-                         supports_molecule=True)
+        super().__init__(
+            molecule=molecule,
+            basis=basis.value,
+            hf_method=hf_method.value,
+            supports_molecule=True,
+        )
         self._atoms = atoms
         self._units = units.value
         self._charge = charge
@@ -100,21 +104,22 @@ class PyQuanteDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = 'PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2'
+        err_msg = "PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2"
         try:
-            spec = importlib.util.find_spec('pyquante2')
+            spec = importlib.util.find_spec("pyquante2")
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
-            logger.debug('PyQuante2 check error %s', str(ex))
+            logger.debug("PyQuante2 check error %s", str(ex))
             raise QiskitNatureError(err_msg) from ex
 
         raise QiskitNatureError(err_msg)
 
     def run(self) -> QMolecule:
         if self.molecule is not None:
-            atoms = ';'.join([name + ' ' + ' '.join(map(str, coord))
-                              for (name, coord) in self.molecule.geometry])
+            atoms = ";".join(
+                [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
+            )
             charge = self.molecule.charge
             multiplicity = self.molecule.multiplicity
             units = self.molecule.units.value
@@ -127,25 +132,29 @@ class PyQuanteDriver(FermionicDriver):
         basis = self.basis
         hf_method = self.hf_method
 
-        q_mol = compute_integrals(atoms=atoms,
-                                  units=units,
-                                  charge=charge,
-                                  multiplicity=multiplicity,
-                                  basis=basis,
-                                  hf_method=hf_method,
-                                  tol=self._tol,
-                                  maxiters=self._maxiters)
+        q_mol = compute_integrals(
+            atoms=atoms,
+            units=units,
+            charge=charge,
+            multiplicity=multiplicity,
+            basis=basis,
+            hf_method=hf_method,
+            tol=self._tol,
+            maxiters=self._maxiters,
+        )
 
-        q_mol.origin_driver_name = 'PYQUANTE'
-        cfg = ['atoms={}'.format(atoms),
-               'units={}'.format(units),
-               'charge={}'.format(charge),
-               'multiplicity={}'.format(multiplicity),
-               'basis={}'.format(basis),
-               'hf_method={}'.format(hf_method),
-               'tol={}'.format(self._tol),
-               'maxiters={}'.format(self._maxiters),
-               '']
-        q_mol.origin_driver_config = '\n'.join(cfg)
+        q_mol.origin_driver_name = "PYQUANTE"
+        cfg = [
+            "atoms={}".format(atoms),
+            "units={}".format(units),
+            "charge={}".format(charge),
+            "multiplicity={}".format(multiplicity),
+            "basis={}".format(basis),
+            "hf_method={}".format(hf_method),
+            "tol={}".format(self._tol),
+            "maxiters={}".format(self._maxiters),
+            "",
+        ]
+        q_mol.origin_driver_config = "\n".join(cfg)
 
         return q_mol

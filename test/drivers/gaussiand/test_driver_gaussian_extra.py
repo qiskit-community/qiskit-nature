@@ -27,7 +27,7 @@ def _check_valid():
 
 
 class TestDriverGaussianExtra(QiskitNatureTestCase):
-    """Gaussian Driver extra tests for driver specifics, errors etc """
+    """Gaussian Driver extra tests for driver specifics, errors etc"""
 
     def setUp(self):
         super().setUp()
@@ -39,18 +39,22 @@ class TestDriverGaussianExtra(QiskitNatureTestCase):
         GaussianDriver._check_valid = self.good_check
 
     def test_cfg_augment(self):
-        """ test input configuration augmentation """
-        cfg = '# rhf/sto-3g scf(conventional)\n\n' \
-              'h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735\n\n'
+        """test input configuration augmentation"""
+        cfg = (
+            "# rhf/sto-3g scf(conventional)\n\n"
+            "h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735\n\n"
+        )
         g16 = GaussianDriver(cfg)
         aug_cfg = g16._augment_config("mymatfile.mat", cfg)
-        expected = '# rhf/sto-3g scf(conventional)\n' \
-                   '# Window=Full Int=NoRaff Symm=(NoInt,None)' \
-                   ' output=(matrix,i4labels,mo2el) tran=full\n\n' \
-                   'h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735' \
-                   '\n\nmymatfile.mat\n\n'
+        expected = (
+            "# rhf/sto-3g scf(conventional)\n"
+            "# Window=Full Int=NoRaff Symm=(NoInt,None)"
+            " output=(matrix,i4labels,mo2el) tran=full\n\n"
+            "h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735"
+            "\n\nmymatfile.mat\n\n"
+        )
         self.assertEqual(aug_cfg, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

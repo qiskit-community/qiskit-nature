@@ -31,7 +31,7 @@ from .electronic import ElectronicStructureProblem
 from .vibrational.vibrational_structure_problem import VibrationalStructureProblem
 
 __all__ = [
-    'BaseProblem',
-    'ElectronicStructureProblem',
-    'VibrationalStructureProblem',
+    "BaseProblem",
+    "ElectronicStructureProblem",
+    "VibrationalStructureProblem",
 ]

@@ -28,8 +28,7 @@ from qiskit_nature.transformers import BaseTransformer
 class BaseProblem(ABC):
     """Base Problem"""
 
-    def __init__(self, driver: BaseDriver,
-                 transformers: Optional[List[BaseTransformer]] = None):
+    def __init__(self, driver: BaseDriver, transformers: Optional[List[BaseTransformer]] = None):
         """
 
         Args:
@@ -100,8 +99,9 @@ class BaseProblem(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
-                                                                 Optional[List[float]]], bool]]:
+    def get_default_filter_criterion(
+        self,
+    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
@@ -113,13 +113,20 @@ class BaseProblem(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def hopping_qeom_ops(self, qubit_converter: QubitConverter,
-                         excitations: Union[str, int, List[int],
-                                            Callable[[int, Tuple[int, int]],
-                                                     List[Tuple[Tuple[int, ...], Tuple[
-                                                         int, ...]]]]] = 'sd',
-                         ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
-                                    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+    def hopping_qeom_ops(
+        self,
+        qubit_converter: QubitConverter,
+        excitations: Union[
+            str,
+            int,
+            List[int],
+            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+        ] = "sd",
+    ) -> Tuple[
+        Dict[str, PauliSumOp],
+        Dict[str, List[bool]],
+        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+    ]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 

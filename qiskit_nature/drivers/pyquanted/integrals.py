@@ -28,18 +28,13 @@ try:
     from pyquante2.ints.integrals import twoe_integrals
     from pyquante2.utils import simx
 except ImportError:
-    logger.info('PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2')
+    logger.info("PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2")
 
 
-def compute_integrals(atoms,
-                      units,
-                      charge,
-                      multiplicity,
-                      basis,
-                      hf_method='rhf',
-                      tol=1e-8,
-                      maxiters=100):
-    """ Compute integrals """
+def compute_integrals(
+    atoms, units, charge, multiplicity, basis, hf_method="rhf", tol=1e-8, maxiters=100
+):
+    """Compute integrals"""
     # Get config from input parameters
     # Molecule is in this format xyz as below or in Z-matrix e.g "H; O 1 1.08; H 2 1.08 1 107.5":
     # atoms=H .0 .0 .0; H .0 .0 0.2
@@ -55,12 +50,12 @@ def compute_integrals(atoms,
     try:
         q_mol = _calculate_integrals(mol, basis, hf_method, tol, maxiters)
     except Exception as exc:
-        raise QiskitNatureError('Failed electronic structure computation') from exc
+        raise QiskitNatureError("Failed electronic structure computation") from exc
 
     return q_mol
 
 
-def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, maxiters=100):
+def _calculate_integrals(molecule, basis="sto3g", hf_method="rhf", tol=1e-8, maxiters=100):
     """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation in
         the given basis.
     Args:
@@ -82,24 +77,24 @@ def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, max
     # convert overlap integrals to molecular basis
     # calculate the Hartree-Fock solution of the molecule
 
-    if hf_method == 'rhf':
+    if hf_method == "rhf":
         solver = rhf(molecule, bfs)
-    elif hf_method == 'rohf':
+    elif hf_method == "rohf":
         solver = rohf(molecule, bfs)
-    elif hf_method == 'uhf':
+    elif hf_method == "uhf":
         solver = uhf(molecule, bfs)
     else:
-        raise QiskitNatureError('Invalid hf_method type: {}'.format(hf_method))
+        raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
     ehf = solver.converge(tol=tol, maxiters=maxiters)
-    logger.debug('PyQuante2 processing information:\n%s', solver)
-    if hasattr(solver, 'orbs'):
+    logger.debug("PyQuante2 processing information:\n%s", solver)
+    if hasattr(solver, "orbs"):
         orbs = solver.orbs
         orbs_b = None
     else:
         orbs = solver.orbsa
         orbs_b = solver.orbsb
     norbs = len(orbs)
-    if hasattr(solver, 'orbe'):
+    if hasattr(solver, "orbe"):
         orbs_energy = solver.orbe
         orbs_energy_b = None
     else:
@@ -118,11 +113,11 @@ def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, max
     mohijkl_ba = None
     if orbs_b is not None:
         mohijkl_bb = hijkl.transform(orbs_b)
-        mohijkl_ba = np.einsum('aI,bJ,cK,dL,abcd->IJKL', orbs_b, orbs_b, orbs, orbs, hijkl[...])
+        mohijkl_ba = np.einsum("aI,bJ,cK,dL,abcd->IJKL", orbs_b, orbs_b, orbs, orbs, hijkl[...])
 
     # Create driver level molecule object and populate
     _q_ = QMolecule()
-    _q_.origin_driver_version = '?'  # No version info seems available to access
+    _q_.origin_driver_version = "?"  # No version info seems available to access
     # Energies and orbits
     _q_.hf_energy = ehf[0]
     _q_.nuclear_repulsion_energy = enuke
@@ -164,38 +159,42 @@ def _calculate_integrals(molecule, basis='sto3g', hf_method='rhf', tol=1e-8, max
 def _parse_molecule(val, units, charge, multiplicity):
     val = _check_molecule_format(val)
 
-    parts = [x.strip() for x in val.split(';')]
+    parts = [x.strip() for x in val.split(";")]
     if parts is None or len(parts) < 1:  # pylint: disable=len-as-condition
-        raise QiskitNatureError('Molecule format error: ' + val)
+        raise QiskitNatureError("Molecule format error: " + val)
     geom = []
     for n, _ in enumerate(parts):
         part = parts[n]
         geom.append(_parse_atom(part))
 
     if len(geom) < 1:  # pylint: disable=len-as-condition
-        raise QiskitNatureError('Molecule format error: ' + val)
+        raise QiskitNatureError("Molecule format error: " + val)
 
     try:
-        from pyquante2 import molecule  # pylint: disable=import-error,import-outside-toplevel
+        # pylint: disable=import-error,import-outside-toplevel
+        from pyquante2 import (
+            molecule,
+        )
+
         return molecule(geom, units=units, charge=charge, multiplicity=multiplicity)
     except Exception as exc:
-        raise QiskitNatureError('Failed to create molecule') from exc
+        raise QiskitNatureError("Failed to create molecule") from exc
 
 
 def _check_molecule_format(val):
     """If it seems to be zmatrix rather than xyz format we convert before returning"""
-    atoms = [x.strip() for x in val.split(';')]
+    atoms = [x.strip() for x in val.split(";")]
     if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
-        raise QiskitNatureError('Molecule format error: ' + val)
+        raise QiskitNatureError("Molecule format error: " + val)
 
     # An xyz format has 4 parts in each atom, if not then do zmatrix convert
     # Allows dummy atoms, using symbol 'X' in zmatrix format for coord computation to xyz
-    parts = [x.strip() for x in atoms[0].split(' ')]
+    parts = [x.strip() for x in atoms[0].split(" ")]
     if len(parts) != 4:
         try:
             zmat = []
             for atom in atoms:
-                parts = [x.strip() for x in atom.split(' ')]
+                parts = [x.strip() for x in atom.split(" ")]
                 z = [parts[0]]
                 for i in range(1, len(parts), 2):
                     z.append(int(parts[i]))
@@ -204,41 +203,41 @@ def _check_molecule_format(val):
             xyz = z2xyz(zmat)
             new_val = ""
             for atm in xyz:
-                if atm[0].upper() == 'X':
+                if atm[0].upper() == "X":
                     continue
                 if new_val:
                     new_val += "; "
                 new_val += "{} {} {} {}".format(atm[0], atm[1], atm[2], atm[3])
             return new_val
         except Exception as exc:
-            raise QiskitNatureError('Failed to convert atom string: ' + val) from exc
+            raise QiskitNatureError("Failed to convert atom string: " + val) from exc
 
     return val
 
 
 def _parse_atom(val):
     if val is None or len(val) < 1:  # pylint: disable=len-as-condition
-        raise QiskitNatureError('Molecule atom format error: empty')
+        raise QiskitNatureError("Molecule atom format error: empty")
 
-    parts = re.split(r'\s+', val)
+    parts = re.split(r"\s+", val)
     if len(parts) != 4:
-        raise QiskitNatureError('Molecule atom format error: ' + val)
+        raise QiskitNatureError("Molecule atom format error: " + val)
 
     parts[0] = parts[0].lower().capitalize()
     if not parts[0].isdigit():
         if parts[0] in QMolecule.symbols:
             parts[0] = QMolecule.symbols.index(parts[0])
         else:
-            raise QiskitNatureError('Molecule atom symbol error: ' + parts[0])
+            raise QiskitNatureError("Molecule atom symbol error: " + parts[0])
 
     return int(float(parts[0])), float(parts[1]), float(parts[2]), float(parts[3])
 
 
 def _check_units(units):
     if units.lower() in ["angstrom", "ang", "a"]:
-        units = 'Angstrom'
+        units = "Angstrom"
     elif units.lower() in ["bohr", "b"]:
-        units = 'Bohr'
+        units = "Bohr"
     else:
-        raise QiskitNatureError('Molecule units format error: ' + units)
+        raise QiskitNatureError("Molecule units format error: " + units)
     return units
