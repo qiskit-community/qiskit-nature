@@ -38,22 +38,20 @@ class TestVQEProgram(QiskitNatureTestCase):
         circuit = RealAmplitudes(3)
         operator = Z ^ I ^ Z
         initial_point = np.random.random(circuit.num_parameters)
-        optimizer = {
-            'name': 'SPSA',
-            'maxiter': 100
-        }
+        optimizer = {"name": "SPSA", "maxiter": 100}
         backend = QasmSimulatorPy()
 
-        vqe = VQEProgram(ansatz=circuit,
-                         optimizer=optimizer,
-                         initial_point=initial_point,
-                         backend=backend,
-                         provider=self.provider
-                         )
+        vqe = VQEProgram(
+            ansatz=circuit,
+            optimizer=optimizer,
+            initial_point=initial_point,
+            backend=backend,
+            provider=self.provider,
+        )
         result = vqe.compute_minimum_eigenvalue(operator)
 
         self.assertIsInstance(result, VQEResult)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

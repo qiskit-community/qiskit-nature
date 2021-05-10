@@ -28,17 +28,18 @@ from qiskit.quantum_info import SparsePauliOp
 class VQEProgram(MinimumEigensolver):
     """The Qiskit Nature VQE Quantum Program to call the VQE runtime as a MinimumEigensolver."""
 
-    def __init__(self,
-                 ansatz: QuantumCircuit,
-                 optimizer: Optional[Dict[str, Any]] = None,
-                 initial_point: Optional[Union[List, np.ndarray]] = None,
-                 provider: Optional[Provider] = None,
-                 backend: Optional[Backend] = None,
-                 shots: int = 1024,
-                 measurement_error_mitigation: bool = True,
-                 callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
-                 store_intermediate: bool = False,
-                 ) -> None:
+    def __init__(
+        self,
+        ansatz: QuantumCircuit,
+        optimizer: Optional[Dict[str, Any]] = None,
+        initial_point: Optional[Union[List, np.ndarray]] = None,
+        provider: Optional[Provider] = None,
+        backend: Optional[Backend] = None,
+        shots: int = 1024,
+        measurement_error_mitigation: bool = True,
+        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
+        store_intermediate: bool = False,
+    ) -> None:
         """
         Args:
             ansatz: A parameterized circuit used as Ansatz for the wave function.
@@ -61,10 +62,10 @@ class VQEProgram(MinimumEigensolver):
                 steps. Per default False.
         """
         if optimizer is None:
-            optimizer = {'name': 'SPSA'}
+            optimizer = {"name": "SPSA"}
 
         # define program name
-        self._program_id = 'vqe'
+        self._program_id = "vqe"
 
         # store settings
         self._provider = None
@@ -92,10 +93,10 @@ class VQEProgram(MinimumEigensolver):
     def provider(self, provider: Provider) -> None:
         """Set the provider. Must be a provider that supports the runtime feature."""
         try:
-            _ = hasattr(provider, 'runtime')
+            _ = hasattr(provider, "runtime")
         except QiskitError:
             # pylint: disable=raise-missing-from
-            raise ValueError(f'The provider {provider} does not provide a runtime environment.')
+            raise ValueError(f"The provider {provider} does not provide a runtime environment.")
 
         self._provider = provider
 
@@ -122,9 +123,10 @@ class VQEProgram(MinimumEigensolver):
     @optimizer.setter
     def optimizer(self, settings: Dict[str, Any]) -> None:
         """Set the optimizer."""
-        if 'name' not in settings.keys():
-            raise ValueError('The settings must contain a ``name`` key specifying the type of '
-                             'the optimizer.')
+        if "name" not in settings.keys():
+            raise ValueError(
+                "The settings must contain a ``name`` key specifying the type of " "the optimizer."
+            )
 
         _validate_optimizer_settings(settings)
 
@@ -171,7 +173,7 @@ class VQEProgram(MinimumEigensolver):
 
     @measurement_error_mitigation.setter
     def measurement_error_mitigation(self, measurement_error_mitigation: bool) -> None:
-        """Whether or not to use readout error mitigation. """
+        """Whether or not to use readout error mitigation."""
         self._measurement_error_mitigation = measurement_error_mitigation
 
     @property
@@ -211,10 +213,9 @@ class VQEProgram(MinimumEigensolver):
         else:
             return None
 
-    def compute_minimum_eigenvalue(self,
-                                   operator: OperatorBase,
-                                   aux_operators: Optional[List[Optional[OperatorBase]]] = None
-                                   ) -> MinimumEigensolverResult:
+    def compute_minimum_eigenvalue(
+        self, operator: OperatorBase, aux_operators: Optional[List[Optional[OperatorBase]]] = None
+    ) -> MinimumEigensolverResult:
         """Calls the VQE Runtime to approximate the ground state of the given operator.
 
         Args:
@@ -234,10 +235,10 @@ class VQEProgram(MinimumEigensolver):
 
         """
         if self.backend is None:
-            raise ValueError('The backend has not been set.')
+            raise ValueError("The backend has not been set.")
 
         if self.provider is None:
-            raise ValueError('The provider has not been set.')
+            raise ValueError("The provider has not been set.")
 
         # try to convert the operators to a PauliSumOp, if it isn't already one
         operator = _convert_to_paulisumop(operator)
@@ -246,45 +247,45 @@ class VQEProgram(MinimumEigensolver):
 
         # combine the settings with the given operator to runtime inputs
         inputs = {
-            'operator': operator,
-            'aux_operators': aux_operators,
-            'ansatz': self.ansatz,
-            'optimizer': self.optimizer,
-            'initial_point': self.initial_point,
-            'shots': self.shots,
-            'measurement_error_mitigation': self.measurement_error_mitigation,
-            'store_intermediate': self.store_intermediate,
+            "operator": operator,
+            "aux_operators": aux_operators,
+            "ansatz": self.ansatz,
+            "optimizer": self.optimizer,
+            "initial_point": self.initial_point,
+            "shots": self.shots,
+            "measurement_error_mitigation": self.measurement_error_mitigation,
+            "store_intermediate": self.store_intermediate,
         }
 
         # define runtime options
-        options = {
-            'backend_name': self.backend.name()
-        }
+        options = {"backend_name": self.backend.name()}
 
         # send job to runtime and return result
-        job = self.provider.runtime.run(program_id=self.program_id,
-                                        inputs=inputs,
-                                        options=options,
-                                        callback=self._wrap_vqe_callback())
+        job = self.provider.runtime.run(
+            program_id=self.program_id,
+            inputs=inputs,
+            options=options,
+            callback=self._wrap_vqe_callback(),
+        )
         # print job ID if something goes wrong
         try:
             result = job.result()
         except Exception as exc:
-            raise RuntimeError(f'The job {job.job_id()} failed unexpectedly.') from exc
+            raise RuntimeError(f"The job {job.job_id()} failed unexpectedly.") from exc
 
-        # deserialize result
+        # re-build result from serialized return value
         vqe_result = VQEProgramResult()
         vqe_result.job_id = job.job_id()
-        vqe_result.cost_function_evals = result.get('cost_function_evals', None)
-        vqe_result.eigenstate = result.get('eigenstate', None)
-        vqe_result.eigenvalue = result.get('eigenvalue', None)
-        vqe_result.aux_operator_eigenvalues = result.get('aux_operator_eigenvalues', None)
-        vqe_result.optimal_parameters = result.get('optimal_parameters', None)
-        vqe_result.optimal_point = result.get('optimal_point', None)
-        vqe_result.optimal_value = result.get('optimal_value', None)
-        vqe_result.optimizer_evals = result.get('optimizer_evals', None)
-        vqe_result.optimizer_time = result.get('optimizer_time', None)
-        vqe_result.optimizer_history = result.get('optimizer_history', None)
+        vqe_result.cost_function_evals = result.get("cost_function_evals", None)
+        vqe_result.eigenstate = result.get("eigenstate", None)
+        vqe_result.eigenvalue = result.get("eigenvalue", None)
+        vqe_result.aux_operator_eigenvalues = result.get("aux_operator_eigenvalues", None)
+        vqe_result.optimal_parameters = result.get("optimal_parameters", None)
+        vqe_result.optimal_point = result.get("optimal_point", None)
+        vqe_result.optimal_value = result.get("optimal_value", None)
+        vqe_result.optimizer_evals = result.get("optimizer_evals", None)
+        vqe_result.optimizer_time = result.get("optimizer_time", None)
+        vqe_result.optimizer_history = result.get("optimizer_history", None)
 
         return vqe_result
 
@@ -298,8 +299,8 @@ class VQEProgramResult(VQEResult):
 
     def __init__(self) -> None:
         super().__init__()
-        self._job_id = None
-        self._optimizer_history = None
+        self._job_id = None  # type: str
+        self._optimizer_history = None  # type: Dict[str, Any]
 
     @property
     def job_id(self) -> str:
@@ -323,35 +324,37 @@ class VQEProgramResult(VQEResult):
 
 
 def _validate_optimizer_settings(settings):
-    name = settings.get('name', None)
-    if name not in ['SPSA', 'QN-SPSA']:
-        raise NotImplementedError('Only SPSA and QN-SPSA are currently supported.')
+    name = settings.get("name", None)
+    if name not in ["SPSA", "QN-SPSA"]:
+        raise NotImplementedError("Only SPSA and QN-SPSA are currently supported.")
 
     allowed_settings = [
-        'name',
-        'maxiter',
-        'blocking',
-        'allowed_increase',
-        'trust_region',
-        'learning_rate',
-        'perturbation',
-        'resamplings',
-        'last_avg',
-        'second_order',
-        'hessian_delay',
-        'regularization',
-        'initial_hessian'
+        "name",
+        "maxiter",
+        "blocking",
+        "allowed_increase",
+        "trust_region",
+        "learning_rate",
+        "perturbation",
+        "resamplings",
+        "last_avg",
+        "second_order",
+        "hessian_delay",
+        "regularization",
+        "initial_hessian",
     ]
 
-    if name == 'QN-SPSA':
-        allowed_settings.remove('trust_region')
-        allowed_settings.remove('second_order')
+    if name == "QN-SPSA":
+        allowed_settings.remove("trust_region")
+        allowed_settings.remove("second_order")
 
     unsupported_args = set(settings.keys()) - set(allowed_settings)
 
     if len(unsupported_args) > 0:
-        raise ValueError(f'The following settings are unsupported for the {name} optimizer: '
-                         f'{unsupported_args}')
+        raise ValueError(
+            f"The following settings are unsupported for the {name} optimizer: "
+            f"{unsupported_args}"
+        )
 
 
 def _convert_to_paulisumop(operator):
@@ -363,5 +366,7 @@ def _convert_to_paulisumop(operator):
         primitive = SparsePauliOp(operator.primitive)
         return PauliSumOp(primitive, operator.coeff)
     except Exception as exc:
-        raise ValueError(f'Invalid type of the operator {type(operator)} '
-                         'must be PauliSumOp, or castable to one.') from exc
+        raise ValueError(
+            f"Invalid type of the operator {type(operator)} "
+            "must be PauliSumOp, or castable to one."
+        ) from exc

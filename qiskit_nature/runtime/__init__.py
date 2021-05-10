@@ -14,7 +14,4 @@
 
 from .vqe_program import VQEProgram, VQEProgramResult
 
-__all__ = [
-    'VQEProgram',
-    'VQEProgramResult'
-]
+__all__ = ["VQEProgram", "VQEProgramResult"]
