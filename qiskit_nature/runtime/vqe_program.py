@@ -32,7 +32,7 @@ class VQEProgram(MinimumEigensolver):
         self,
         ansatz: QuantumCircuit,
         optimizer: Optional[Dict[str, Any]] = None,
-        initial_point: Optional[Union[List, np.ndarray]] = None,
+        initial_point: Optional[np.ndarray] = None,
         provider: Optional[Provider] = None,
         backend: Optional[Backend] = None,
         shots: int = 1024,
