@@ -13,7 +13,7 @@
 """The Qiskit Nature VQE Quantum Program."""
 
 
-from typing import List, Union, Callable, Optional, Any, Dict
+from typing import List, Callable, Optional, Any, Dict
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -36,7 +36,7 @@ class VQEProgram(MinimumEigensolver):
         provider: Optional[Provider] = None,
         backend: Optional[Backend] = None,
         shots: int = 1024,
-        measurement_error_mitigation: bool = True,
+        measurement_error_mitigation: bool = False,
         callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         store_intermediate: bool = False,
     ) -> None:
