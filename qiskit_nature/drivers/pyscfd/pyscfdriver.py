@@ -312,7 +312,8 @@ class PySCFDriver(FermionicDriver):
         """
         if self.molecule is not None:
             self.atom = [  # type: ignore
-                " ".join(map(str, (name, *coord))) for (name, coord) in self.molecule.geometry
+                " ".join(map(str, (name, *coord)))  # type: ignore
+                for (name, coord) in self.molecule.geometry
             ]
             self._charge = self.molecule.charge
             self._spin = self.molecule.multiplicity - 1
