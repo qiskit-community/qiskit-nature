@@ -40,9 +40,7 @@ class ElectronicStructureResult(EigenstateResult):
         self._nuclear_dipole_moment: Optional[DipoleTuple] = None
         self._computed_energies: Optional[np.ndarray] = None
         self._extracted_transformer_energies: Dict[str, float] = {}
-        self._extracted_transformer_dipoles: Optional[
-            List[Dict[str, DipoleTuple]]
-        ] = None
+        self._extracted_transformer_dipoles: Optional[List[Dict[str, DipoleTuple]]] = None
         self._reverse_dipole_sign: bool = False
 
     @property
@@ -81,11 +79,7 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def total_energies(self) -> np.ndarray:
         """Returns ground state energy if nuclear_repulsion_energy is available from driver"""
-        nre = (
-            self.nuclear_repulsion_energy
-            if self.nuclear_repulsion_energy is not None
-            else 0
-        )
+        nre = self.nuclear_repulsion_energy if self.nuclear_repulsion_energy is not None else 0
         # Adding float to np.ndarray adds it to each entry
         return self.electronic_energies + nre
 
@@ -127,10 +121,7 @@ class ElectronicStructureResult(EigenstateResult):
 
     def has_dipole(self) -> bool:
         """Returns whether dipole moment is present in result or not"""
-        return (
-            self.nuclear_dipole_moment is not None
-            and self.electronic_dipole_moment is not None
-        )
+        return self.nuclear_dipole_moment is not None and self.electronic_dipole_moment is not None
 
     @property
     def reverse_dipole_sign(self) -> bool:
@@ -214,9 +205,7 @@ class ElectronicStructureResult(EigenstateResult):
         return self._extracted_transformer_dipoles
 
     @extracted_transformer_dipoles.setter
-    def extracted_transformer_dipoles(
-        self, value: List[Dict[str, DipoleTuple]]
-    ) -> None:
+    def extracted_transformer_dipoles(self, value: List[Dict[str, DipoleTuple]]) -> None:
         """Sets the dipole moments extracted by any applied transformers."""
         self._extracted_transformer_dipoles = value
 
@@ -299,13 +288,9 @@ class ElectronicStructureResult(EigenstateResult):
                 round(self.electronic_energies[0], 12)
             )
         )
-        lines.append(
-            "  - computed part:      {}".format(round(self.computed_energies[0], 12))
-        )
+        lines.append("  - computed part:      {}".format(round(self.computed_energies[0], 12)))
         for name, value in self.extracted_transformer_energies.items():
-            lines.append(
-                "  - {} extracted energy part: {}".format(name, round(value, 12))
-            )
+            lines.append("  - {} extracted energy part: {}".format(name, round(value, 12)))
         if self.nuclear_repulsion_energy is not None:
             lines.append(
                 "~ Nuclear repulsion energy (Hartree): {}".format(
@@ -327,26 +312,17 @@ class ElectronicStructureResult(EigenstateResult):
             ):
                 lines.append("{: 3d}: ".format(idx + 1))
                 lines.append(
-                    "* Electronic excited state energy (Hartree): {}".format(
-                        round(elec_energy, 12)
-                    )
+                    "* Electronic excited state energy (Hartree): {}".format(round(elec_energy, 12))
                 )
                 lines.append(
-                    "> Total excited state energy (Hartree): {}".format(
-                        round(total_energy, 12)
-                    )
+                    "> Total excited state energy (Hartree): {}".format(round(total_energy, 12))
                 )
 
         if self.has_observables():
             lines.append(" ")
             lines.append("=== MEASURED OBSERVABLES ===")
             lines.append(" ")
-            for idx, (
-                num_particles,
-                spin,
-                total_angular_momentum,
-                magnetization,
-            ) in enumerate(
+            for idx, (num_particles, spin, total_angular_momentum, magnetization,) in enumerate(
                 zip(
                     self.num_particles,
                     self.spin,
@@ -376,15 +352,7 @@ class ElectronicStructureResult(EigenstateResult):
                     )
                 )
                 lines.append(" ")
-            for idx, (
-                elec_dip,
-                comp_dip,
-                extr_dip,
-                dip,
-                tot_dip,
-                dip_db,
-                tot_dip_db,
-            ) in enumerate(
+            for idx, (elec_dip, comp_dip, extr_dip, dip, tot_dip, dip_db, tot_dip_db,) in enumerate(
                 zip(
                     self.electronic_dipole_moment,
                     self.computed_dipole_moment,
@@ -397,18 +365,12 @@ class ElectronicStructureResult(EigenstateResult):
             ):
                 lines.append("{: 3d}: ".format(idx))
                 lines.append(
-                    "  * Electronic dipole moment (a.u.): {}".format(
-                        _dipole_to_string(elec_dip)
-                    )
+                    "  * Electronic dipole moment (a.u.): {}".format(_dipole_to_string(elec_dip))
                 )
-                lines.append(
-                    "    - computed part:      {}".format(_dipole_to_string(comp_dip))
-                )
+                lines.append("    - computed part:      {}".format(_dipole_to_string(comp_dip)))
                 for name, ex_dip in extr_dip.items():
                     lines.append(
-                        "    - {} extracted energy part: {}".format(
-                            name, _dipole_to_string(ex_dip)
-                        )
+                        "    - {} extracted energy part: {}".format(name, _dipole_to_string(ex_dip))
                     )
                 if self.nuclear_dipole_moment is not None:
                     lines.append(
@@ -426,9 +388,7 @@ class ElectronicStructureResult(EigenstateResult):
         return lines
 
 
-def _dipole_tuple_add(
-    x: Optional[DipoleTuple], y: Optional[DipoleTuple]
-) -> Optional[DipoleTuple]:
+def _dipole_tuple_add(x: Optional[DipoleTuple], y: Optional[DipoleTuple]) -> Optional[DipoleTuple]:
     """Utility to add two dipole tuples element-wise for dipole additions"""
     if x is None or y is None:
         return None
@@ -453,8 +413,4 @@ def _float_to_string(value: Optional[float], precision: int = 8) -> str:
     if value is None:
         return "None"
     else:
-        return (
-            "0.0"
-            if value == 0
-            else ("{:." + str(precision) + "f}").format(value).rstrip("0")
-        )
+        return "0.0" if value == 0 else ("{:." + str(precision) + "f}").format(value).rstrip("0")

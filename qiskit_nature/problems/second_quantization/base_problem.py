@@ -28,9 +28,7 @@ from qiskit_nature.transformers import BaseTransformer
 class BaseProblem(ABC):
     """Base Problem"""
 
-    def __init__(
-        self, driver: BaseDriver, transformers: Optional[List[BaseTransformer]] = None
-    ):
+    def __init__(self, driver: BaseDriver, transformers: Optional[List[BaseTransformer]] = None):
         """
 
         Args:
@@ -74,9 +72,7 @@ class BaseProblem(ABC):
             data = transformer.transform(data)
         return data
 
-    def symmetry_sector_locator(
-        self, z2_symmetries: Z2Symmetries
-    ) -> Optional[List[int]]:
+    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
         operators so the correct one can be returned
@@ -105,9 +101,7 @@ class BaseProblem(ABC):
     @abstractmethod
     def get_default_filter_criterion(
         self,
-    ) -> Optional[
-        Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]
-    ]:
+    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
@@ -126,9 +120,7 @@ class BaseProblem(ABC):
             str,
             int,
             List[int],
-            Callable[
-                [int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-            ],
+            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
         ] = "sd",
     ) -> Tuple[
         Dict[str, PauliSumOp],

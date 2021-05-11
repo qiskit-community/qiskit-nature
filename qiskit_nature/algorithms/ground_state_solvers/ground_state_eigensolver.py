@@ -54,9 +54,7 @@ class GroundStateEigensolver(GroundStateSolver):
         return self._solver
 
     @solver.setter
-    def solver(
-        self, solver: Union[MinimumEigensolver, MinimumEigensolverFactory]
-    ) -> None:
+    def solver(self, solver: Union[MinimumEigensolver, MinimumEigensolverFactory]) -> None:
         """Sets the minimum eigensolver or factory."""
         self._solver = solver
 
@@ -129,9 +127,7 @@ class GroundStateEigensolver(GroundStateSolver):
             OperatorBase,
         ],
         operators: Union[PauliSumOp, OperatorBase, list, dict],
-    ) -> Union[
-        Optional[float], List[Optional[float]], Dict[str, List[Optional[float]]]
-    ]:
+    ) -> Union[Optional[float], List[Optional[float]], Dict[str, List[Optional[float]]]]:
         """Evaluates additional operators at the given state.
 
         Args:
@@ -160,18 +156,14 @@ class GroundStateEigensolver(GroundStateSolver):
                 if op is None:
                     results.append(None)
                 else:
-                    results.append(
-                        self._eval_op(state, op, quantum_instance, expectation)
-                    )
+                    results.append(self._eval_op(state, op, quantum_instance, expectation))
         elif isinstance(operators, dict):
             results = {}  # type: ignore
             for name, op in operators.items():
                 if op is None:
                     results[name] = None
                 else:
-                    results[name] = self._eval_op(
-                        state, op, quantum_instance, expectation
-                    )
+                    results[name] = self._eval_op(state, op, quantum_instance, expectation)
         else:
             if operators is None:
                 results = None

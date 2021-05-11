@@ -65,18 +65,13 @@ def _build_qeom_hopping_ops(
 
     excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
     if isinstance(excitations, (str, int)) or (
-        isinstance(excitations, list)
-        and all(isinstance(exc, int) for exc in excitations)
+        isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
     ):
         excitations = cast(Union[str, int, List[int]], excitations)
-        ansatz = UCC(
-            qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations
-        )
+        ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
         excitations_list = ansatz._get_excitation_list()
     else:
-        excitations_list = cast(
-            List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations
-        )
+        excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
 
     size = len(excitations_list)
 
@@ -127,9 +122,7 @@ def _build_single_hopping_operator(
     if not z2_symmetries.is_empty():
         for symmetry in z2_symmetries.symmetries:
             symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
-            commuting = qubit_op.primitive.table.commutes_with_all(
-                symmetry_op.primitive.table
-            )
+            commuting = qubit_op.primitive.table.commutes_with_all(symmetry_op.primitive.table)
             anticommuting = qubit_op.primitive.table.anticommutes_with_all(
                 symmetry_op.primitive.table
             )

@@ -65,19 +65,13 @@ def generate_fermionic_excitations(
         alpha_unocc = list(range(num_particles[0], num_spin_orbitals // 2))
         # the Cartesian product of these lists gives all possible single alpha-spin excitations
         alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
-        logger.debug(
-            "Generated list of single alpha excitations: %s", alpha_excitations
-        )
+        logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
     beta_excitations: List[Tuple[int, int]] = []
     if beta_spin:
         # generate beta-spin orbital indices for occupied and unoccupied ones
-        beta_occ = list(
-            range(num_spin_orbitals // 2, num_spin_orbitals // 2 + num_particles[1])
-        )
-        beta_unocc = list(
-            range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals)
-        )
+        beta_occ = list(range(num_spin_orbitals // 2, num_spin_orbitals // 2 + num_particles[1]))
+        beta_unocc = list(range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals))
         # the Cartesian product of these lists gives all possible single beta-spin excitations
         beta_excitations = list(itertools.product(beta_occ, beta_unocc))
         logger.debug("Generated list of single beta excitations: %s", beta_excitations)

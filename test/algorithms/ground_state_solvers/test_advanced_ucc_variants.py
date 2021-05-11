@@ -101,18 +101,14 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(
-                backend=BasicAer.get_backend("statevector_simulator")
-            ),
+            quantum_instance=QuantumInstance(backend=BasicAer.get_backend("statevector_simulator")),
         )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
-        self.assertAlmostEqual(
-            result.total_energies[0], self.reference_energy_pUCCD, places=6
-        )
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy_pUCCD, places=6)
 
     @slow_test
     def test_uccsd_hf_qUCCD0(self):
@@ -133,22 +129,16 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(
-                backend=BasicAer.get_backend("statevector_simulator")
-            ),
+            quantum_instance=QuantumInstance(backend=BasicAer.get_backend("statevector_simulator")),
         )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
-        self.assertAlmostEqual(
-            result.total_energies[0], self.reference_energy_UCCD0, places=6
-        )
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0, places=6)
 
-    @unittest.skip(
-        "Skip until https://github.com/Qiskit/qiskit-nature/issues/91 is closed."
-    )
+    @unittest.skip("Skip until https://github.com/Qiskit/qiskit-nature/issues/91 is closed.")
     def test_uccsd_hf_qUCCD0full(self):
         """singlet full uccd test"""
         optimizer = SLSQP(maxiter=100)
@@ -168,18 +158,14 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(
-                backend=BasicAer.get_backend("statevector_simulator")
-            ),
+            quantum_instance=QuantumInstance(backend=BasicAer.get_backend("statevector_simulator")),
         )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
-        self.assertAlmostEqual(
-            result.total_energies[0], self.reference_energy_UCCD0full, places=6
-        )
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0full, places=6)
 
 
 if __name__ == "__main__":

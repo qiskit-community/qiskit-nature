@@ -139,13 +139,9 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._beta = mo_coeff_full[1] is not None
         # get molecular orbital occupation numbers
         mo_occ_full = self._extract_mo_occupation_vector(molecule_data)
-        self._mo_occ_total = (
-            mo_occ_full[0] + mo_occ_full[1] if self._beta else mo_occ_full[0]
-        )
+        self._mo_occ_total = mo_occ_full[0] + mo_occ_full[1] if self._beta else mo_occ_full[0]
 
-        active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(
-            molecule_data
-        )
+        active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(molecule_data)
 
         # split molecular orbitals coefficients into active and inactive parts
         self._mo_coeff_inactive = (
@@ -171,9 +167,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         molecule_data_reduced.num_beta = self._num_particles[1]
         molecule_data_reduced.mo_coeff = self._mo_coeff_active[0]
         molecule_data_reduced.mo_coeff_b = self._mo_coeff_active[1]
-        molecule_data_reduced.orbital_energies = molecule_data.orbital_energies[
-            active_orbs_idxs
-        ]
+        molecule_data_reduced.orbital_energies = molecule_data.orbital_energies[active_orbs_idxs]
         if self._beta:
             molecule_data_reduced.orbital_energies_b = molecule_data.orbital_energies_b[
                 active_orbs_idxs
@@ -232,10 +226,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                     self._num_electrons,
                 )
         elif isinstance(self._num_electrons, tuple):
-            if not all(
-                isinstance(n_elec, int) and n_elec >= 0
-                for n_elec in self._num_electrons
-            ):
+            if not all(isinstance(n_elec, int) and n_elec >= 0 for n_elec in self._num_electrons):
                 raise QiskitNatureError(
                     "Neither the number of alpha, nor the number of beta electrons can be "
                     "negative:",
@@ -339,10 +330,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
-            if (
-                norbs_inactive + self._num_molecular_orbitals
-                > molecule_data.num_molecular_orbitals
-            ):
+            if norbs_inactive + self._num_molecular_orbitals > molecule_data.num_molecular_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
             if self._num_molecular_orbitals != len(self._active_orbitals):
@@ -428,9 +416,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         energy_shift = self._compute_inactive_energy(ao_1e_matrix, inactive_op)
 
-        mo_1e_matrix, mo_2e_matrix = self._compute_active_integrals(
-            inactive_op, ao_2e_matrix
-        )
+        mo_1e_matrix, mo_2e_matrix = self._compute_active_integrals(inactive_op, ao_2e_matrix)
 
         getattr(molecule_data_reduced, energy_shift_attribute)[
             "ActiveSpaceTransformer"
@@ -468,18 +454,10 @@ class ActiveSpaceTransformer(BaseTransformer):
         fock_inactive_b = coulomb_inactive_b = exchange_inactive_b = None
 
         if self._beta:
-            coulomb_inactive_b = np.einsum(
-                "ijkl,ji->kl", eri, self._density_inactive[1]
-            )
-            exchange_inactive_b = np.einsum(
-                "ijkl,jk->il", eri, self._density_inactive[1]
-            )
-            fock_inactive = (
-                hcore[0] + coulomb_inactive + coulomb_inactive_b - exchange_inactive
-            )
-            fock_inactive_b = (
-                hcore[1] + coulomb_inactive + coulomb_inactive_b - exchange_inactive_b
-            )
+            coulomb_inactive_b = np.einsum("ijkl,ji->kl", eri, self._density_inactive[1])
+            exchange_inactive_b = np.einsum("ijkl,jk->il", eri, self._density_inactive[1])
+            fock_inactive = hcore[0] + coulomb_inactive + coulomb_inactive_b - exchange_inactive
+            fock_inactive_b = hcore[1] + coulomb_inactive + coulomb_inactive_b - exchange_inactive_b
 
         return (fock_inactive, fock_inactive_b)
 

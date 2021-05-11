@@ -76,9 +76,7 @@ def _build_ferm_op_helper(
 ) -> FermionicOp:
     one_body_base_ops_labels = _create_one_body_base_ops(one_body_integrals)
     two_body_base_ops_labels = (
-        _create_two_body_base_ops(two_body_integrals)
-        if two_body_integrals is not None
-        else []
+        _create_two_body_base_ops(two_body_integrals) if two_body_integrals is not None else []
     )
     base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
     initial_label_with_ceoff = ("I" * len(one_body_integrals), 0)
@@ -95,18 +93,14 @@ def _create_one_body_base_ops(
     one_body_integrals: np.ndarray,
 ) -> List[Tuple[str, complex]]:
     repeat_num = 2
-    return _create_base_ops_labels(
-        one_body_integrals, repeat_num, _calc_coeffs_with_ops_one_body
-    )
+    return _create_base_ops_labels(one_body_integrals, repeat_num, _calc_coeffs_with_ops_one_body)
 
 
 def _create_two_body_base_ops(
     two_body_integrals: np.ndarray,
 ) -> List[Tuple[str, complex]]:
     repeat_num = 4
-    return _create_base_ops_labels(
-        two_body_integrals, repeat_num, _calc_coeffs_with_ops_two_body
-    )
+    return _create_base_ops_labels(two_body_integrals, repeat_num, _calc_coeffs_with_ops_two_body)
 
 
 def _create_base_ops_labels(

@@ -88,9 +88,7 @@ class PySCFDriver(FermionicDriver):
         """
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):
-            raise QiskitNatureError(
-                "Invalid atom input for PYSCF Driver '{}'".format(atom)
-            )
+            raise QiskitNatureError("Invalid atom input for PYSCF Driver '{}'".format(atom))
 
         if isinstance(atom, list):
             atom = ";".join(atom)
@@ -115,9 +113,7 @@ class PySCFDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = (
-            "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
-        )
+        err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
         try:
             spec = importlib.util.find_spec("pyscf")
             if spec is not None:
@@ -131,10 +127,7 @@ class PySCFDriver(FermionicDriver):
     def run(self) -> QMolecule:
         if self.molecule is not None:
             atom = ";".join(
-                [
-                    name + " " + " ".join(map(str, coord))
-                    for (name, coord) in self.molecule.geometry
-                ]
+                [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
             )
             charge = self.molecule.charge
             spin = self.molecule.multiplicity - 1

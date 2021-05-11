@@ -60,9 +60,7 @@ class VibrationalStructureProblem(BaseProblem):
         Returns:
             A list of `SecondQuantizedOp` in the following order: ... .
         """
-        self._molecule_data: WatsonHamiltonian = cast(
-            WatsonHamiltonian, self.driver.run()
-        )
+        self._molecule_data: WatsonHamiltonian = cast(WatsonHamiltonian, self.driver.run())
         self._molecule_data_transformed: WatsonHamiltonian = cast(
             WatsonHamiltonian, self._transform(self._molecule_data)
         )
@@ -77,9 +75,7 @@ class VibrationalStructureProblem(BaseProblem):
         else:
             num_modals = self.num_modals
 
-        second_quantized_ops_list = [vibrational_spin_op] + _create_all_aux_operators(
-            num_modals
-        )
+        second_quantized_ops_list = [vibrational_spin_op] + _create_all_aux_operators(num_modals)
 
         return second_quantized_ops_list
 
@@ -90,9 +86,7 @@ class VibrationalStructureProblem(BaseProblem):
             str,
             int,
             List[int],
-            Callable[
-                [int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-            ],
+            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
         ] = "sd",
     ) -> Tuple[
         Dict[str, PauliSumOp],
@@ -129,9 +123,7 @@ class VibrationalStructureProblem(BaseProblem):
 
     def interpret(
         self,
-        raw_result: Union[
-            EigenstateResult, EigensolverResult, MinimumEigensolverResult
-        ],
+        raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
     ) -> VibrationalStructureResult:
         """Interprets an EigenstateResult in the context of this transformation.
         Args:
@@ -144,9 +136,7 @@ class VibrationalStructureProblem(BaseProblem):
 
     def get_default_filter_criterion(
         self,
-    ) -> Optional[
-        Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]
-    ]:
+    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         aqua.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.

@@ -164,9 +164,7 @@ class TestSpinOp(QiskitNatureTestCase):
 
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
-        actual = SpinOp(
-            [("X_10^20", 1 + 2j), ("X_12^34", 56)], Fraction(5, 2), register_length=13
-        )
+        actual = SpinOp([("X_10^20", 1 + 2j), ("X_12^34", 56)], Fraction(5, 2), register_length=13)
         desired = [("X_10^20", 1 + 2j), ("X_12^34", 56)]
         self.assertListEqual(actual.to_list(), desired)
 
@@ -180,9 +178,7 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test __init__ for +_i -_i pattern"""
         with self.subTest("one reg"):
             actual = SpinOp("+_0 -_0", spin=1, register_length=1)
-            expected = SpinOp(
-                [("X_0^2", 1), ("Y_0^2", 1), ("Z_0", 1)], spin=1, register_length=1
-            )
+            expected = SpinOp([("X_0^2", 1), ("Y_0^2", 1), ("Z_0", 1)], spin=1, register_length=1)
             self.assertSpinEqual(actual, expected)
         with self.subTest("two reg"):
             actual = SpinOp("+_1 -_1 +_0 -_0", spin=3 / 2, register_length=2)
@@ -212,26 +208,20 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_mul(self):
         """Test __mul__, and __rmul__"""
         actual = self.heisenberg * 2
-        desired = SpinOp(
-            (self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1
-        )
+        desired = SpinOp((self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1)
         self.assertSpinEqual(actual, desired)
 
     def test_div(self):
         """Test __truediv__"""
         actual = self.heisenberg / 3
-        desired = SpinOp(
-            (self.heisenberg_spin_array, self.heisenberg_coeffs / 3), spin=1
-        )
+        desired = SpinOp((self.heisenberg_spin_array, self.heisenberg_coeffs / 3), spin=1)
         self.assertSpinEqual(actual, desired)
 
     def test_add(self):
         """Test __add__"""
         with self.subTest("sum of heisenberg"):
             actual = self.heisenberg + self.heisenberg
-            desired = SpinOp(
-                (self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1
-            )
+            desired = SpinOp((self.heisenberg_spin_array, 2 * self.heisenberg_coeffs), spin=1)
             self.assertSpinEqual(actual, desired)
 
         with self.subTest("raising operator"):
@@ -310,9 +300,7 @@ class TestSpinOp(QiskitNatureTestCase):
         with self.subTest("nontrivial reduce 3"):
             test_op = SpinOp([("+_0 -_0", 1)], register_length=4)
             actual = test_op.reduce()
-            self.assertListEqual(
-                actual.to_list(), [("Z_0", 1), ("Y_0^2", 1), ("X_0^2", 1)]
-            )
+            self.assertListEqual(actual.to_list(), [("Z_0", 1), ("Y_0^2", 1), ("X_0^2", 1)])
 
     @data(*dense_labels(1))
     def test_to_matrix_single_qutrit(self, label):

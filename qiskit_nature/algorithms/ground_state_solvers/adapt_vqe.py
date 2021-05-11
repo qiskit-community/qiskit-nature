@@ -99,9 +99,7 @@ class AdaptVQE(GroundStateEigensolver):
             vqe.ansatz = self._ansatz
             ansatz_params = vqe.ansatz._parameter_table.keys()
             # construct the expectation operator of the VQE
-            vqe._expect_op = vqe.construct_expectation(
-                ansatz_params, self._main_operator
-            )
+            vqe._expect_op = vqe.construct_expectation(ansatz_params, self._main_operator)
             # evaluate energies
             parameter_sets = theta + [-self._delta] + theta + [self._delta]
             energy_results = vqe._energy_evaluation(np.asarray(parameter_sets))
@@ -179,13 +177,9 @@ class AdaptVQE(GroundStateEigensolver):
             vqe = self._solver
 
         if not isinstance(vqe, VQE):
-            raise QiskitNatureError(
-                "The AdaptVQE algorithm requires the use of the VQE solver"
-            )
+            raise QiskitNatureError("The AdaptVQE algorithm requires the use of the VQE solver")
         if not isinstance(vqe.ansatz, UCC):
-            raise QiskitNatureError(
-                "The AdaptVQE algorithm requires the use of the UCC ansatz"
-            )
+            raise QiskitNatureError("The AdaptVQE algorithm requires the use of the UCC ansatz")
 
         # We construct the ansatz once to be able to extract the full set of excitation operators.
         self._ansatz = copy.deepcopy(vqe.ansatz)
@@ -222,8 +216,7 @@ class AdaptVQE(GroundStateEigensolver):
                 logger.info(gradlog)
             if np.abs(max_grad[0]) < self._threshold:
                 logger.info(
-                    "Adaptive VQE terminated successfully "
-                    "with a final maximum gradient: %s",
+                    "Adaptive VQE terminated successfully with a final maximum gradient: %s",
                     str(np.abs(max_grad[0])),
                 )
                 threshold_satisfied = True
@@ -263,9 +256,7 @@ class AdaptVQE(GroundStateEigensolver):
         elif max_iterations_exceeded:
             finishing_criterion = "Maximum number of iterations reached"
         else:
-            raise QiskitNatureError(
-                "The algorithm finished due to an unforeseen reason!"
-            )
+            raise QiskitNatureError("The algorithm finished due to an unforeseen reason!")
 
         electronic_result = problem.interpret(raw_vqe_result)
 

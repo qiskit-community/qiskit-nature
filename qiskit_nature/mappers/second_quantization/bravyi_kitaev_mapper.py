@@ -128,12 +128,8 @@ class BravyiKitaevMapper(FermionicMapper):
 
             remainder_sets.append(np.setdiff1d(parity_sets[j], flip_sets[j]))
 
-            update_pauli.append(
-                Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
-            )
-            parity_pauli.append(
-                Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
-            )
+            update_pauli.append(Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool))))
+            parity_pauli.append(Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool))))
             remainder_pauli.append(
                 Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
             )

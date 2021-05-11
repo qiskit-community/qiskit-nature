@@ -56,16 +56,13 @@ def _build_qeom_hopping_ops(
 
     excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
     if isinstance(excitations, (str, int)) or (
-        isinstance(excitations, list)
-        and all(isinstance(exc, int) for exc in excitations)
+        isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
     ):
         excitations = cast(Union[str, int, List[int]], excitations)
         ansatz = UVCC(qubit_converter, num_modals, excitations)
         excitations_list = ansatz._get_excitation_list()
     else:
-        excitations_list = cast(
-            List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations
-        )
+        excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
 
     size = len(excitations_list)
 

@@ -91,9 +91,7 @@ class UVCC(EvolvedOperatorAnsatz):
         self._num_modals = num_modals
         self._excitations = excitations
 
-        super().__init__(
-            reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state
-        )
+        super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
@@ -166,9 +164,7 @@ class UVCC(EvolvedOperatorAnsatz):
             excitation_ops = self.excitation_ops()
 
             logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
-            self.operators = self.qubit_converter.convert_match(
-                excitation_ops, suppress_none=True
-            )
+            self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
 
         logger.debug("Building QuantumCircuit...")
         super()._build()
@@ -237,15 +233,11 @@ class UVCC(EvolvedOperatorAnsatz):
         elif callable(self.excitations):
             generators = [self.excitations]
         else:
-            raise QiskitNatureError(
-                "Invalid excitation configuration: {}".format(self.excitations)
-            )
+            raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
 
         return generators
 
-    def _build_vibration_excitation_ops(
-        self, excitations: Sequence
-    ) -> List[VibrationalOp]:
+    def _build_vibration_excitation_ops(self, excitations: Sequence) -> List[VibrationalOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 

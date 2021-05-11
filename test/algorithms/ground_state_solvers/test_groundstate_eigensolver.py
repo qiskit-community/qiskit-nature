@@ -46,9 +46,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
-        )
+        self.driver = HDF5Driver(self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d"))
         self.seed = 56
         algorithm_globals.random_seed = self.seed
 
@@ -77,9 +75,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_vqe_uccsd(self):
         """Test VQE UCCSD case"""
         solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(
-                BasicAer.get_backend("statevector_simulator")
-            ),
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
             ansatz=UCC(excitations="d"),
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -88,9 +84,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
-        solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -109,15 +103,12 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         _ = calc.solve(self.electronic_structure_problem)
         assert all(
-            frozenset(a.to_list()) == frozenset(b.to_list())
-            for a, b in zip(aux_ops, aux_ops_copy)
+            frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
-        solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -228,9 +219,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
-        ansatz = solver.get_solver(
-            self.electronic_structure_problem, self.qubit_converter
-        ).ansatz
+        ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
         circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
@@ -245,9 +234,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("qasm_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest(
-                "Aer doesn't appear to be installed. Error: '{}'".format(str(ex))
-            )
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
         solver = VQEUCCFactory(
@@ -266,18 +253,14 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
-        ansatz = solver.get_solver(
-            self.electronic_structure_problem, self.qubit_converter
-        ).ansatz
+        ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
         circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
         mean = calc.evaluate_operators(circuit, qubit_op)
 
         self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
 
     def _prepare_uccsd_hf(self, qubit_converter):
-        initial_state = HartreeFock(
-            self.num_spin_orbitals, self.num_particles, qubit_converter
-        )
+        initial_state = HartreeFock(self.num_spin_orbitals, self.num_particles, qubit_converter)
         ansatz = UCCSD(
             qubit_converter,
             self.num_particles,
@@ -303,9 +286,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         result = gsc.solve(self.electronic_structure_problem)
 
-        self.assertAlmostEqual(
-            result.total_energies[0], self.reference_energy, places=6
-        )
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
     @slow_test
     def test_uccsd_hf_qasm(self):
@@ -340,9 +321,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("statevector_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest(
-                "Aer doesn't appear to be installed. Error: '{}'".format(str(ex))
-            )
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
@@ -357,9 +336,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
-        self.assertAlmostEqual(
-            result.total_energies[0], self.reference_energy, places=6
-        )
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
     @slow_test
     def test_uccsd_hf_aer_qasm(self):
@@ -370,9 +347,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("qasm_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest(
-                "Aer doesn't appear to be installed. Error: '{}'".format(str(ex))
-            )
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
@@ -403,9 +378,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("qasm_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest(
-                "Aer doesn't appear to be installed. Error: '{}'".format(str(ex))
-            )
+            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
@@ -421,9 +394,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
-        self.assertAlmostEqual(
-            result.total_energies[0], self.reference_energy, places=3
-        )
+        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=3)
 
 
 if __name__ == "__main__":

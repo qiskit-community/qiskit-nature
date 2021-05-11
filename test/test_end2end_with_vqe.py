@@ -58,9 +58,7 @@ class TestEnd2End(QiskitNatureTestCase):
         ryrz = TwoLocal(rotation_blocks=["ry", "rz"], entanglement_blocks="cz")
         quantum_instance = QuantumInstance(backend, shots=shots)
         vqe = VQE(ryrz, optimizer=optimizer, quantum_instance=quantum_instance)
-        result = vqe.compute_minimum_eigenvalue(
-            self.qubit_op, aux_operators=self.aux_ops
-        )
+        result = vqe.compute_minimum_eigenvalue(self.qubit_op, aux_operators=self.aux_ops)
         self.assertAlmostEqual(result.eigenvalue.real, self.reference_energy, places=4)
 
 

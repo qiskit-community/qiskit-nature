@@ -100,9 +100,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
-            o
-            for o in range(molecule_data.num_molecular_orbitals)
-            if o not in inactive_orbs_idxs
+            o for o in range(molecule_data.num_molecular_orbitals) if o not in inactive_orbs_idxs
         ]
         self._active_orbitals = active_orbs_idxs
         self._num_molecular_orbitals = len(active_orbs_idxs)

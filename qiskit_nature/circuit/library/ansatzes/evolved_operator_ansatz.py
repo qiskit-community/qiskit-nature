@@ -116,9 +116,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
 
         if len(operators) > 1:
             num_qubits = operators[0].num_qubits
-            if any(
-                operators[i].num_qubits != num_qubits for i in range(1, len(operators))
-            ):
+            if any(operators[i].num_qubits != num_qubits for i in range(1, len(operators))):
                 raise ValueError("All operators must act on the same number of qubits.")
 
         self._invalidate()
@@ -163,9 +161,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
 
         # get the evolved operators as circuits
         coeff = Parameter("c")
-        evolved_ops = [
-            self.evolution.convert((coeff * op).exp_i()) for op in self.operators
-        ]
+        evolved_ops = [self.evolution.convert((coeff * op).exp_i()) for op in self.operators]
         circuits = [evolved_op.reduce().to_circuit() for evolved_op in evolved_ops]
 
         # set the registers
@@ -189,9 +185,7 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
                 else:
                     if self._insert_barriers:
                         self.barrier()
-                self.compose(
-                    circuit.assign_parameters({coeff: next(times_it)}), inplace=True
-                )
+                self.compose(circuit.assign_parameters({coeff: next(times_it)}), inplace=True)
 
         if self._initial_state:
             self.compose(self._initial_state, front=True, inplace=True)

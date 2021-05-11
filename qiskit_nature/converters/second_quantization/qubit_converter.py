@@ -113,9 +113,7 @@ class QubitConverter:
         return self._z2symmetry_reduction
 
     @z2symmetry_reduction.setter
-    def z2symmetry_reduction(
-        self, z2symmetry_reduction: Optional[Union[str, List[int]]]
-    ) -> None:
+    def z2symmetry_reduction(self, z2symmetry_reduction: Optional[Union[str, List[int]]]) -> None:
         """Set z2symmetry_reduction"""
         if z2symmetry_reduction is not None:
             if isinstance(z2symmetry_reduction, str):
@@ -127,9 +125,7 @@ class QubitConverter:
             elif not np.all(np.isin(z2symmetry_reduction, [-1, 1])):
                 raise ValueError(
                     "z2symmetry_reduction tapering values list must "
-                    "contain -1's and/or 1's only but was {}".format(
-                        z2symmetry_reduction
-                    )
+                    "contain -1's and/or 1's only but was {}".format(z2symmetry_reduction)
                 )
 
         self._z2symmetry_reduction = z2symmetry_reduction
@@ -253,8 +249,7 @@ class QubitConverter:
 
         qubit_ops = [self._map(second_q_op) for second_q_op in second_q_ops]
         reduced_ops = [
-            self._two_qubit_reduce(qubit_op, self._num_particles)
-            for qubit_op in qubit_ops
+            self._two_qubit_reduce(qubit_op, self._num_particles) for qubit_op in qubit_ops
         ]
         tapered_ops = self._symmetry_reduce(reduced_ops, suppress_none)
 
@@ -317,9 +312,7 @@ class QubitConverter:
                 if sector_locator is not None and self.z2symmetry_reduction == "auto":
                     z2symmetry_reduction = sector_locator(z2_symmetries)
                     if z2symmetry_reduction is not None:
-                        self.z2symmetry_reduction = (
-                            z2symmetry_reduction  # Overrides any value
-                        )
+                        self.z2symmetry_reduction = z2symmetry_reduction  # Overrides any value
 
                     # We may end up that neither were we given a sector nor that the locator
                     # returned one. Since though we may have found valid symmetries above we should
@@ -389,9 +382,7 @@ class QubitConverter:
     def _check_commutes(cliffords: List[PauliSumOp], qubit_op: PauliSumOp) -> bool:
         commutes = []
         for clifford in cliffords:
-            commuting_rows = qubit_op.primitive.table.commutes_with_all(
-                clifford.primitive.table
-            )
+            commuting_rows = qubit_op.primitive.table.commutes_with_all(clifford.primitive.table)
             commutes.append(len(commuting_rows) == qubit_op.primitive.size)
         does_commute = bool(np.all(commutes))
         logger.debug("  '%s' commutes: %s, %s", id(qubit_op), does_commute, commutes)

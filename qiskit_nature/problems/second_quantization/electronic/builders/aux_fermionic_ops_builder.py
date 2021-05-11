@@ -44,9 +44,7 @@ def _create_all_aux_operators(q_molecule: QMolecule) -> List[FermionicOp]:
     ]
 
     if q_molecule.has_dipole_integrals():
-        x_dipole_operator, y_dipole_operator, z_dipole_operator = _create_dipole_ops(
-            q_molecule
-        )
+        x_dipole_operator, y_dipole_operator, z_dipole_operator = _create_dipole_ops(q_molecule)
         aux_second_quantized_ops_list += [
             x_dipole_operator,
             y_dipole_operator,

@@ -55,9 +55,7 @@ def compute_integrals(
     return q_mol
 
 
-def _calculate_integrals(
-    molecule, basis="sto3g", hf_method="rhf", tol=1e-8, maxiters=100
-):
+def _calculate_integrals(molecule, basis="sto3g", hf_method="rhf", tol=1e-8, maxiters=100):
     """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation in
         the given basis.
     Args:
@@ -115,9 +113,7 @@ def _calculate_integrals(
     mohijkl_ba = None
     if orbs_b is not None:
         mohijkl_bb = hijkl.transform(orbs_b)
-        mohijkl_ba = np.einsum(
-            "aI,bJ,cK,dL,abcd->IJKL", orbs_b, orbs_b, orbs, orbs, hijkl[...]
-        )
+        mohijkl_ba = np.einsum("aI,bJ,cK,dL,abcd->IJKL", orbs_b, orbs_b, orbs, orbs, hijkl[...])
 
     # Create driver level molecule object and populate
     _q_ = QMolecule()
