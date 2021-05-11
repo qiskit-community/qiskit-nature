@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Introduce the :class:`~qiskit_nature.runtime.VQEProgram` to allow leveraging Qiskit
+    Runtime to speed up the VQE algorithm. The :class:`~qiskit_nature.runtime.VQEProgram`
+    implements the :class:`~qiskit.algorithms.MinimumEigensolver` interface and can thus
+    be used as a drop-in replacement for other minimum eigensolvers like
+    :class:`qiskit.algorithms.VQE`. See the tutorials under `docs/tutorials` for an
+    explicit example usage.
