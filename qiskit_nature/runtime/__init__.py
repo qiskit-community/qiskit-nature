@@ -20,7 +20,8 @@ Programs that embed Qiskit Runtime in the algorithmic interfaces and facilitate 
 algorithms and scripts in the cloud.
 
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
+   :nosignatures:
 
    VQEProgram
    VQEProgramResult
