@@ -26,7 +26,7 @@ from .fermionic_mapper import FermionicMapper
 
 
 def _pauli_id(n_qubits):
-    return SparsePauliOp.from_operator(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
+    return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
     """
@@ -241,7 +241,7 @@ def edge_operator_aij(edge_list, i, j):
             v[j_j] = 1
 
     qubit_op = Pauli((v, w))
-    return SparsePauliOp.from_operator(qubit_op)
+    return SparsePauliOp(qubit_op)
 
 def edge_operator_bi(edge_list, i):
     """Calculate the edge operator B_i.
@@ -262,7 +262,7 @@ def edge_operator_bi(edge_list, i):
     w = np.zeros(edge_list.shape[1])
     v[qubit_position] = 1
     qubit_op = Pauli((v, w))
-    return SparsePauliOp.from_operator(qubit_op)
+    return SparsePauliOp(qubit_op)
 
 
 class BravyiKitaevSFMapper(FermionicMapper):
@@ -311,5 +311,10 @@ class BravyiKitaevSFMapper(FermionicMapper):
 
                         qubit_op += _two_body(edge_list, p, q, r, s, h2_pqrs)
 
-        qubit_op.simplify()
-        return PauliSumOp(qubit_op)
+        qubit_op = qubit_op.simplify()
+
+        indices = qubit_op.table.argsort()
+        table = qubit_op.table[indices]
+        coeffs = qubit_op.coeffs[indices]
+
+        return PauliSumOp(SparsePauliOp(table, coeffs))
