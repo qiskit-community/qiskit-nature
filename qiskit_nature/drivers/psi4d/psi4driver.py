@@ -35,7 +35,7 @@ PSI4_APP = which(PSI4)
 
 class PSI4Driver(FermionicDriver):
     """
-    Qiskit Nature chemistry driver using the PSI4 program.
+    Qiskit Nature driver using the PSI4 program.
 
     See http://www.psicode.org/
     """
