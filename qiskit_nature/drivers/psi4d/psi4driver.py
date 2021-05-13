@@ -35,7 +35,7 @@ PSI4_APP = which(PSI4)
 
 class PSI4Driver(FermionicDriver):
     """
-    Qiskit chemistry driver using the PSI4 program.
+    Qiskit Nature driver using the PSI4 program.
 
     See http://www.psicode.org/
     """
@@ -113,13 +113,13 @@ class PSI4Driver(FermionicDriver):
 
         psi4d_directory = os.path.dirname(os.path.realpath(__file__))
         template_file = psi4d_directory + "/_template.txt"
-        qiskit_chemistry_directory = os.path.abspath(os.path.join(psi4d_directory, "../.."))
+        qiskit_nature_directory = os.path.abspath(os.path.join(psi4d_directory, "../.."))
 
         molecule = QMolecule()
 
         input_text = cfg + "\n"
         input_text += "import sys\n"
-        syspath = "['" + qiskit_chemistry_directory + "','" + "','".join(sys.path) + "']"
+        syspath = "['" + qiskit_nature_directory + "','" + "','".join(sys.path) + "']"
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
         input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"

@@ -23,7 +23,7 @@ from ...exceptions import QiskitNatureError
 
 class FCIDumpDriver(FermionicDriver):
     """
-    Qiskit chemistry driver reading an FCIDump file.
+    Qiskit Nature driver for reading an FCIDump file.
 
     The FCIDump format is partially defined in Knowles1989.
 

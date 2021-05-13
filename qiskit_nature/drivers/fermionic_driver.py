@@ -31,7 +31,7 @@ class HFMethodType(Enum):
 
 class FermionicDriver(BaseDriver):
     """
-    Base class for Qiskit's chemistry fermionic drivers.
+    Base class for Qiskit Nature's fermionic drivers.
     """
 
     @abstractmethod
