@@ -40,7 +40,7 @@ class InitialGuess(Enum):
 
 class PySCFDriver(FermionicDriver):
     """
-    Qiskit chemistry driver using the PySCF library.
+    Qiskit Nature driver using the PySCF library.
 
     See https://sunqm.github.io/pyscf/
     """

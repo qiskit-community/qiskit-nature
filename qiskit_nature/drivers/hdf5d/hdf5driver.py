@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class HDF5Driver(FermionicDriver):
     """
-    Qiskit chemistry driver reading an HDF5 file.
+    Qiskit Nature driver for reading an HDF5 file.
 
     The HDF5 file is as saved from
     a :class:`~qiskit_nature.drivers.QMolecule` instance.

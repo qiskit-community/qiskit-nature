@@ -23,7 +23,7 @@ from ..exceptions import QiskitNatureError
 
 class BaseDriver(ABC):
     """
-    Base class for Qiskit's chemistry drivers.
+    Base class for Qiskit Nature drivers.
     """
 
     @abstractmethod
