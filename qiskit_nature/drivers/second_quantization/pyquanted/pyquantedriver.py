@@ -40,7 +40,7 @@ class BasisType(Enum):
 
 class PyQuanteDriver(FermionicDriver):
     """
-    Qiskit chemistry driver using the PyQuante2 library.
+    Qiskit Nature driver using the PyQuante2 library.
 
     See https://github.com/rpmuller/pyquante2
     """

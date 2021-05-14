@@ -24,7 +24,7 @@ from ..molecule import Molecule
 
 class BaseDriver(ABC):
     """
-    Base class for Qiskit's chemistry drivers.
+    Base class for Qiskit Nature drivers.
     """
 
     @abstractmethod

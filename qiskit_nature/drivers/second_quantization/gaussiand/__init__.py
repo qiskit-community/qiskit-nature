@@ -32,9 +32,8 @@ and appropriate exports, such as `GAUSS_EXEDIR`, have been configured as per
 Gaussian™ 16 Interfacing Code
 -----------------------------
 
-
 In the :mod:`gauopen` folder the Python part of the above interfacing code,
-as needed by Qiskit's chemistry modules, has been made available. It is licensed under a
+as needed by Qiskit Nature modules, has been made available. It is licensed under a
 `Gaussian Open-Source Public License
 <https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/drivers/second_quantization/gaussiand/gauopen/LICENSE.txt>`_.
 
@@ -52,7 +51,7 @@ must be compiled into object code that can be used by Python. This is accomplish
 `Fortran to Python Interface Generator (F2PY) <https://docs.scipy.org/doc/numpy/f2py/>`__,
 which is part of the `NumPy <http://www.numpy.org/>`__ Python library.
 Specifically, on your command prompt window, change directory to the
-`qiskit/chemistry/drivers/second_quantization/gaussiand/gauopen` directory inside the Qiskit
+`qiskit_nature/drivers/second_quantization/gaussiand/gauopen` directory inside the Qiskit
 installation directory, and while in the Python environment created for Qiskit and the nature
 module, invoke `f2py` on `qcmatrixio.F` as explained below.
 

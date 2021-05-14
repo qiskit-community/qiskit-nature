@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 class GaussianDriver(FermionicDriver):
     """
-    Qiskit chemistry driver using the Gaussian™ 16 program.
+    Qiskit Nature driver using the Gaussian™ 16 program.
 
     See http://gaussian.com/gaussian16/
 

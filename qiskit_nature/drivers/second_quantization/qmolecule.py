@@ -455,7 +455,7 @@ class QMolecule:
         except OSError:
             pass
 
-    # Utility functions to convert integrals into the form expected by Qiskit's chemistry module
+    # Utility functions to convert integrals into the form expected by Qiskit Nature
 
     @staticmethod
     def oneeints2mo(ints, moc):
