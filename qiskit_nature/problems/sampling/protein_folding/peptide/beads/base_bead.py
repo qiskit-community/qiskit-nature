@@ -1,0 +1,37 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+from abc import ABC
+from typing import List, Tuple
+
+from qiskit.opflow import PauliOp, OperatorBase
+
+from qiskit_nature.problems.sampling.protein_folding.peptide.full_identity_builder import \
+    _build_full_identity
+
+
+class BaseBead(ABC):
+
+    def __init__(self, residue_type: str, turn_qubits: List[PauliOp]):
+        self._residue_type = residue_type
+        self._turn_qubits = turn_qubits
+        FULL_ID = _build_full_identity(turn_qubits[0].num_qubits)
+        self._indic_0 = ((FULL_ID - self._turn_qubits[0]) @ (FULL_ID - self._turn_qubits[1])).reduce()
+        self._indic_1 = (
+                self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0])).reduce()
+        self._indic_2 = (
+                self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1])).reduce()
+        self._indic_3 = (self._turn_qubits[0] @ self._turn_qubits[1]).reduce()
+
+    # for the turn that leads to the bead
+    def get_indicator_functions(self) -> Tuple[
+        OperatorBase, OperatorBase, OperatorBase, OperatorBase]:
+        return self._indic_0, self._indic_1, self._indic_2, self._indic_3
