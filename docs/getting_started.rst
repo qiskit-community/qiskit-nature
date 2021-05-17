@@ -15,7 +15,7 @@ specific to Qiskit Nature.
 
 Qiskit Nature has some functions that have been made optional where the dependent code and/or
 support program(s) are not (or cannot be) installed by default. These include, for example,
-classical libary/programs for molecular problems.
+classical library/programs for molecular problems.
 See :ref:`optional_installs` for more information.
 
 .. tabbed:: Start locally
