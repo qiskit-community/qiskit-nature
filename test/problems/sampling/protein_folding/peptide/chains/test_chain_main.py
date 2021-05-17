@@ -9,7 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
+from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
+    InvalidSideChainException
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.main_chain import MainChain
 from test import QiskitNatureTestCase
 
@@ -31,11 +32,11 @@ class TestMainChain(QiskitNatureTestCase):
         assert len(main_chain.beads_list[1].side_chain.beads_list) == 1
 
     def test_main_chain_illegal_side_chain(self):
-        """Tests that a MainChain is created."""
+        """Tests that an exception is thrown in case of illegal side chain."""
         main_chain_len = 2
         main_chain_residue_seq = "SA"
         side_chain_lens = [1, 1]
         side_chain_residue_sequences = "AS"
-        with self.assertRaises(Exception):
+        with self.assertRaises(InvalidSideChainException):
             _ = MainChain(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)

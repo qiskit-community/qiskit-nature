@@ -14,6 +14,8 @@ from typing import List, Tuple
 
 from qiskit.opflow import PauliOp, OperatorBase
 
+from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
+    InvalidResidueException
 from qiskit_nature.problems.sampling.protein_folding.peptide.full_identity_builder import \
     _build_full_identity
 
@@ -21,11 +23,12 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.full_identity_build
 class BaseBead(ABC):
 
     def __init__(self, residue_type: str, turn_qubits: List[PauliOp]):
-        if not self._is_valid_residue():
-            raise Exception(
+        self._residue_type = residue_type
+        if residue_type is not None and not self._is_valid_residue():
+            raise InvalidResidueException(
                 f"Provided residue type {residue_type} is not valid. Valid residue types are [C, "
                 f"M, F, I, L, V, W, Y, A, G, T, S, N, Q, D, E, H, R, K, P].")
-        self._residue_type = residue_type
+
         self._turn_qubits = turn_qubits
         FULL_ID = _build_full_identity(turn_qubits[0].num_qubits)
         self._indic_0 = (

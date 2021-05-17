@@ -11,6 +11,8 @@
 # that they have been altered from the originals.
 from typing import List, Union
 
+from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
+    InvalidSideChainException
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.side_bead import SideBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain import BaseChain
 
@@ -24,7 +26,7 @@ class SideChain(BaseChain):
     def _build_side_chain(self, side_chain_len, side_chain_residue_sequences) -> \
             Union[List[SideBead], None]:
         if side_chain_len > 1:
-            raise Exception(
+            raise InvalidSideChainException(
                 f"Only side chains of length 1 supported, length {side_chain_len} was given.")
         if side_chain_len == 0:
             return None

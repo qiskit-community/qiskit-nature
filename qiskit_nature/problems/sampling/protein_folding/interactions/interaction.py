@@ -11,6 +11,9 @@
 # that they have been altered from the originals.
 from abc import ABC, abstractmethod
 
+from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
+    InvalidResidueException
+
 
 class Interaction(ABC):
 
@@ -25,6 +28,6 @@ class Interaction(ABC):
                           'E', 'H', 'R', 'K', 'P']
         for letter in sequence:
             if letter not in valid_residues:
-                raise Exception(
+                raise InvalidResidueException(
                     f"Provided residue type {letter} is not valid. Valid residue types are [C, "
                     f"M, F, I, L, V, W, Y, A, G, T, S, N, Q, D, E, H, R, K, P].")

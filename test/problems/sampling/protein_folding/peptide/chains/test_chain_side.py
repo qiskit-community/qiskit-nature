@@ -9,6 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
+    InvalidSideChainException
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain import SideChain
 from test import QiskitNatureTestCase
 
@@ -27,5 +29,5 @@ class TestSideChain(QiskitNatureTestCase):
         """Tests that a SideChain of length greater than 1 throws an exception."""
         side_chain_len = 2
         side_chain_residue_seq = "SA"
-        with self.assertRaises(Exception):
+        with self.assertRaises(InvalidSideChainException):
             _ = SideChain(side_chain_len, side_chain_residue_seq)
