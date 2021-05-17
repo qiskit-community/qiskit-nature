@@ -11,7 +11,7 @@ Qiskit Nature depends on the main Qiskit package which has its own
 `Qiskit Getting Started <https://qiskit.org/documentation/getting_started.html>`__ detailing the
 installation options for Qiskit and its supported environments/platforms. You should refer to
 that first. Then the information here can be followed which focuses on the additional installation
-specific to Qiskit Nature .
+specific to Qiskit Nature.
 
 Qiskit Nature has some functions that have been made optional where the dependent code and/or
 support program(s) are not (or cannot be) installed by default. These include, for example,
