@@ -95,7 +95,7 @@ Optional installs
 =================
 
 Qiskit Nature supports the use of different classical libraries and programs, via drivers, which
-compute molecular information, such as one and two body integrals. This is needed as problem input
+compute molecular information, such as one and two body integrals. This is needed as problem input to
 algorithms that compute properties of molecules, such as ground state energy, so at least one such
 library/program should be installed. As you can choose which driver you use, you can install as
 many, or as few as you wish, that are supported by your platform etc.
