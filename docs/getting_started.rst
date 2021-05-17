@@ -47,7 +47,7 @@ See :ref:`optional_installs` for more information.
    the latest version of the Qiskit Nature code more efficiently.
 
    Since Qiskit Nature depends on Qiskit, and its latest changes may require new or changed
-   feature from Qiskit, you should first `Install from source` Qiskit by following the instructions
+   features of Qiskit, you should first follow Qiskit's `"Install from source"` instructions
    here `Qiskit Getting Started <https://qiskit.org/documentation/getting_started.html>`__
 
    .. raw:: html
