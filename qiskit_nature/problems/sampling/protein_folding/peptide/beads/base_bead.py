@@ -21,10 +21,15 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.full_identity_build
 class BaseBead(ABC):
 
     def __init__(self, residue_type: str, turn_qubits: List[PauliOp]):
+        if not self._is_valid_residue():
+            raise Exception(
+                f"Provided residue type {residue_type} is not valid. Valid residue types are [C, "
+                f"M, F, I, L, V, W, Y, A, G, T, S, N, Q, D, E, H, R, K, P].")
         self._residue_type = residue_type
         self._turn_qubits = turn_qubits
         FULL_ID = _build_full_identity(turn_qubits[0].num_qubits)
-        self._indic_0 = ((FULL_ID - self._turn_qubits[0]) @ (FULL_ID - self._turn_qubits[1])).reduce()
+        self._indic_0 = (
+                (FULL_ID - self._turn_qubits[0]) @ (FULL_ID - self._turn_qubits[1])).reduce()
         self._indic_1 = (
                 self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0])).reduce()
         self._indic_2 = (
@@ -35,3 +40,8 @@ class BaseBead(ABC):
     def get_indicator_functions(self) -> Tuple[
         OperatorBase, OperatorBase, OperatorBase, OperatorBase]:
         return self._indic_0, self._indic_1, self._indic_2, self._indic_3
+
+    def _is_valid_residue(self):
+        valid_residues = ['C', 'M', 'F', 'I', 'L', 'V', 'W', 'Y', 'A', 'G', 'T', 'S', 'N', 'Q', 'D',
+                          'E', 'H', 'R', 'K', 'P']
+        return self._residue_type in valid_residues
