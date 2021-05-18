@@ -93,3 +93,23 @@ class TestVibrationalOp(QiskitNatureTestCase):
         actual = (self.vibr_spin_op + self.vibr_spin_op).reduce()
         desired = VibrationalOp(self.labels_double, 4, 2)
         self.assertSpinEqual(actual, desired)
+
+    def test_hermiticity(self):
+        """test is_hermitian"""
+        with self.subTest("operator hermitian"):
+            # deliberately define test operator with duplicate terms in case .adjoint() simplifies terms
+            test_op = (
+                1j * VibrationalOp("+-", 2, 1)
+                + 1j * VibrationalOp("+-", 2, 1)
+                - 1j * VibrationalOp("-+", 2, 1)
+                - 1j * VibrationalOp("-+", 2, 1)
+            )
+            self.assertTrue(test_op.is_hermitian())
+
+        with self.subTest("operator not hermitian"):
+            test_op = (
+                1j * VibrationalOp("+-", 2, 1)
+                + 1j * VibrationalOp("+-", 2, 1)
+                - 1j * VibrationalOp("-+", 2, 1)
+            )
+            self.assertFalse(test_op.is_hermitian())

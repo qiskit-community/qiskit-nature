@@ -339,6 +339,18 @@ class TestSpinOp(QiskitNatureTestCase):
             frozenset([("XX", 2j), ("XY", 2), ("YX", -2), ("YY", 2j)]),
         )
 
+    def test_hermiticity(self):
+        """test is_hermitian"""
+        # deliberately define test operator with X and Y which creates duplicate terms in .to_list()
+        # in case .adjoint() simplifies terms
+        with self.subTest("operator hermitian"):
+            test_op = SpinOp("+ZXY") + SpinOp("-ZXY")
+            self.assertTrue(test_op.is_hermitian())
+
+        with self.subTest("operator not hermitian"):
+            test_op = SpinOp("+ZXY") - SpinOp("-ZXY")
+            self.assertFalse(test_op.is_hermitian())
+
 
 if __name__ == "__main__":
     unittest.main()
