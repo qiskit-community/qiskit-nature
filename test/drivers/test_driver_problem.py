@@ -26,7 +26,7 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 
-class TestDriverMethods(QiskitNatureTestCase):
+class TestDriverProblem(QiskitNatureTestCase):
     """Common driver tests. For H2 @ 0.735, sto3g"""
 
     def setUp(self):

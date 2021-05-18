@@ -14,13 +14,13 @@
 
 import unittest
 
-from test.drivers.test_driver_methods_gsc import TestDriverMethods
+from test.drivers.test_driver_problem import TestDriverProblem
 from qiskit_nature.drivers import GaussianDriver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
-class TestDriverMethodsGaussian(TestDriverMethods):
+class TestDriverMethodsGaussian(TestDriverProblem):
     """Driver Methods Gaussian tests"""
 
     g16_lih_config = """

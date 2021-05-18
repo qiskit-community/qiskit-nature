@@ -10,11 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Methods PySCF """
+""" Test Driver Problem PySCF """
 
 import unittest
 
-from test.drivers.test_driver_methods_gsc import TestDriverMethods
+from test.drivers.test_driver_problem import TestDriverProblem
+from qiskit.test import slow_test
 from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, ParityMapper
@@ -22,8 +23,8 @@ from qiskit_nature.converters.second_quantization.qubit_converter import QubitCo
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
-class TestDriverMethodsPySCF(TestDriverMethods):
-    """Driver Methods PySCF tests"""
+class TestDriverProblemPySCF(TestDriverProblem):
+    """Driver Problem PySCF tests"""
 
     def setUp(self):
         super().setUp()
@@ -122,6 +123,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         self._assert_energy_and_dipole(result, "lih")
 
+    @slow_test
     def test_oh_rohf(self):
         """oh rohf test"""
         driver = PySCFDriver(
@@ -135,6 +137,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf(self):
         """oh uhf test"""
         driver = PySCFDriver(
@@ -148,6 +151,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_rohf_parity(self):
         """oh rohf parity test"""
         driver = PySCFDriver(
@@ -161,6 +165,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_rohf_parity_2q(self):
         """oh rohf parity 2q test"""
         driver = PySCFDriver(
@@ -176,6 +181,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf_parity(self):
         """oh uhf parity test"""
         driver = PySCFDriver(
@@ -189,6 +195,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf_parity_2q(self):
         """oh uhf parity 2q test"""
         driver = PySCFDriver(
@@ -204,6 +211,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_rohf_bk(self):
         """oh rohf bk test"""
         driver = PySCFDriver(
@@ -217,6 +225,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf_bk(self):
         """oh uhf bk test"""
         driver = PySCFDriver(
