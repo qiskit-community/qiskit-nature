@@ -39,6 +39,7 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
     build_ferm_op_from_ints,
 )
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -395,6 +396,24 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=3)
+
+    def test_freeze_core_z2_symmetry_compatibility(self):
+        """Regression test against #192.
+
+        An issue arose when the FreezeCoreTransformer was combined with the automatic Z2Symmetry
+        reduction. This regression test ensures that this behavior remains fixed.
+        """
+        driver = HDF5Driver(hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers"))
+        problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
+        qubit_converter = QubitConverter(
+            ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto",
+        )
+
+        solver = NumPyMinimumEigensolverFactory()
+        gsc = GroundStateEigensolver(qubit_converter, solver)
+
+        result = gsc.solve(problem)
+        self.assertAlmostEqual(result.total_energies[0], -7.882, places=2)
 
 
 if __name__ == "__main__":
