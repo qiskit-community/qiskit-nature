@@ -406,7 +406,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         driver = HDF5Driver(hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers"))
         problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
         qubit_converter = QubitConverter(
-            ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto",
+            ParityMapper(),
+            two_qubit_reduction=True,
+            z2symmetry_reduction="auto",
         )
 
         solver = NumPyMinimumEigensolverFactory()
