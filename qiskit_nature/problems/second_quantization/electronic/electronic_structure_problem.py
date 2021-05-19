@@ -148,11 +148,10 @@ class ElectronicStructureProblem(BaseProblem):
         Returns:
             The sector of the tapered operators with the problem solution.
         """
-        q_molecule = cast(QMolecule, self._molecule_data_transformed)
-
         hf_bitstr = hartree_fock_bitstring(
-            num_spin_orbitals=2 * q_molecule.num_molecular_orbitals,
-            num_particles=self.num_particles)
+            num_spin_orbitals=z2_symmetries.symmetries[0].num_qubits,
+            num_particles=self.num_particles,
+        )
         sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector_locator
