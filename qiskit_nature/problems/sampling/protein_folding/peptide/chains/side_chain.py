@@ -19,11 +19,11 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain i
 
 class SideChain(BaseChain):
 
-    def __init__(self, side_chain_len, side_chain_residue_sequences):
+    def __init__(self, side_chain_len: int, side_chain_residue_sequences: List[str]):
         beads_list = self._build_side_chain(side_chain_len, side_chain_residue_sequences)
         super().__init__(beads_list)
 
-    def _build_side_chain(self, side_chain_len, side_chain_residue_sequences) -> \
+    def _build_side_chain(self, side_chain_len: int, side_chain_residue_sequences: List[str]) -> \
             Union[List[SideBead], None]:
         if side_chain_len > 1:
             raise InvalidSideChainException(

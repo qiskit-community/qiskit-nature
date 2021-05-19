@@ -22,7 +22,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 class MainChain(BaseChain):
 
     def __init__(self, main_chain_len, main_chain_residue_seq, side_chain_lens: List[int],
-                 side_chain_residue_sequences: str):
+                 side_chain_residue_sequences: List[str]):
         beads_list = self._build_main_chain(main_chain_len, main_chain_residue_seq, side_chain_lens,
                                             side_chain_residue_sequences)
         super().__init__(beads_list)
@@ -35,7 +35,7 @@ class MainChain(BaseChain):
         if side_chain_lens is not None and (side_chain_lens[0] != 0 or side_chain_lens[1] != 0):
             raise InvalidSideChainException(
                 "First and second main beads are not allowed to have a side chain. Non-zero "
-                "length provided for an inalid side chain")
+                "length provided for an invalid side chain")
         if side_chain_residue_sequences is not None and (
                 side_chain_residue_sequences[0] is not None or side_chain_residue_sequences[
             1] is not None):

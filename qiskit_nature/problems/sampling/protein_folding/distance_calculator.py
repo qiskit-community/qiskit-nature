@@ -32,7 +32,7 @@ def _calc_total_distances(peptide, delta_n0, delta_n1,
         x_dist: Numpy array that tracks all distances between backbone and side chain
                 beads for all axes: 0,1,2,3
     """
-    main_chain_len = len(peptide.get_main_chain.beads_list)
+    main_chain_len = len(peptide.get_main_chain)
     # initializes dictionaries
     x_dist = dict()
     r = 0
@@ -78,7 +78,7 @@ def _calc_distances_main_chain(peptide: Peptide):
                                                 the number of occurrences
                                                 of turns at axes 0,1,2,3
     """
-    main_chain_len = len(peptide.get_main_chain.beads_list)
+    main_chain_len = len(peptide.get_main_chain)
     delta_n0, delta_n1, delta_n2, delta_n3 = _init_distance_dict(main_chain_len)
     # calculate distances
     for i in range(1, main_chain_len):  # j>i
@@ -88,8 +88,7 @@ def _calc_distances_main_chain(peptide: Peptide):
             delta_n2[i][0][j][0] = 0
             delta_n3[i][0][j][0] = 0
             for k in range(i, j):
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain.beads_list[
-                    k].get_indicator_functions()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[k].get_indicator_functions()
                 delta_n0[i][0][j][0] += (-1) ** k * indic_0
                 delta_n1[i][0][j][0] += (-1) ** k * indic_1
                 delta_n2[i][0][j][0] += (-1) ** k * indic_2
@@ -141,14 +140,13 @@ def _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2,
                                                 of occurrences of turns at axes 0,1,2,3.
     """
     # TODO refactor try clauses
-    main_chain_len = len(peptide.get_main_chain.beads_list)
+    main_chain_len = len(peptide.get_main_chain)
     for i in range(1, main_chain_len):  # j>i
         for j in range(i + 1, main_chain_len + 1):
 
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain.beads_list[
-                    j].side_chain.beads_list[0].get_indicator_functions()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[j].side_chain[0].get_indicator_functions()
                 delta_n0[i][0][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * indic_0[j][1]).reduce()
                 delta_n1[i][0][j][1] = (delta_n1[i][0][j][0] + (-1) ** j * indic_1[j][1]).reduce()
                 delta_n2[i][0][j][1] = (delta_n2[i][0][j][0] + (-1) ** j * indic_2[j][1]).reduce()
@@ -158,8 +156,7 @@ def _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2,
 
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain.beads_list[
-                    i].side_chain.beads_list[0].get_indicator_functions()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[i].side_chain[0].get_indicator_functions()
                 delta_n0[i][1][j][0] = (delta_n0[i][0][j][0] - (-1) ** i * indic_0[i][1]).reduce()
                 delta_n1[i][1][j][0] = (delta_n1[i][0][j][0] - (-1) ** i * indic_1[i][1]).reduce()
                 delta_n2[i][1][j][0] = (delta_n2[i][0][j][0] - (-1) ** i * indic_2[i][1]).reduce()
@@ -168,11 +165,11 @@ def _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2,
                 pass
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain.beads_list[
-                    j].side_chain.beads_list[0].get_indicator_functions()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
+                    j].side_chain[0].get_indicator_functions()
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain.beads_list[
-                    i].side_chain.beads_list[0].get_indicator_functions()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
+                    i].side_chain[0].get_indicator_functions()
 
                 delta_n0[i][1][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * indic_0[j][
                     1] - (-1) ** i * indic_0[i][1]).reduce()

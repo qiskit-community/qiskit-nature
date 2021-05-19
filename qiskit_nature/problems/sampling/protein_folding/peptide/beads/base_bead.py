@@ -16,7 +16,7 @@ from qiskit.opflow import PauliOp, OperatorBase
 
 from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
     InvalidResidueException
-from qiskit_nature.problems.sampling.protein_folding.peptide.full_identity_builder import \
+from qiskit_nature.problems.sampling.protein_folding.peptide.pauli_ops_builder import \
     _build_full_identity
 
 
@@ -38,6 +38,10 @@ class BaseBead(ABC):
         self._indic_2 = (
                 self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1])).reduce()
         self._indic_3 = (self._turn_qubits[0] @ self._turn_qubits[1]).reduce()
+
+    @property
+    def turn_qubits(self):
+        return self._turn_qubits
 
     # for the turn that leads to the bead
     def get_indicator_functions(self) -> Tuple[
