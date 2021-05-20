@@ -28,6 +28,6 @@ class TestPeptide(QiskitNatureTestCase):
                           side_chain_residue_sequences)
 
         assert len(peptide.get_main_chain.beads_list) == 3
-        assert len(peptide.get_main_chain.beads_list[2].side_chain.beads_list)
-        assert peptide.get_main_chain.beads_list[0].side_chain is None
-        assert peptide.get_main_chain.beads_list[1].side_chain is None
+        assert len(peptide.get_main_chain[2].side_chain.beads_list)
+        assert peptide.get_main_chain[0].side_chain is None
+        assert peptide.get_main_chain[1].side_chain is None

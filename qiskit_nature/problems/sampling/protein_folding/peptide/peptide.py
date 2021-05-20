@@ -24,6 +24,15 @@ class Peptide:
         for main_bead in self._main_chain.beads_list:
             side_chains.append(main_bead.side_chain)
 
+    def get_side_chain_hot_vector(self):
+        side_chain_hot_vector = []
+        for main_bead in self._main_chain.beads_list:
+            if main_bead.side_chain is not None:
+                side_chain_hot_vector.append(1)
+            else:
+                side_chain_hot_vector.append(0)
+        return side_chain_hot_vector
+
     @property
     def get_main_chain(self) -> MainChain:
         return self._main_chain
