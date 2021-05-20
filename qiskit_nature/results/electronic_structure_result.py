@@ -135,15 +135,16 @@ class ElectronicStructureResult(EigenstateResult):
 
     @property
     def total_dipole_moment(self) -> Optional[List[float]]:
-        """ Returns total dipole of moment """
-        if self.dipole_moment is None:
-            return None  # No dipole at all
-        dms = [dip for dip in self.dipole_moment[0] if dip is not None]
-        return [np.sqrt(np.sum(np.power(dms, 2)))]
+        """Returns total dipole of moment"""
+        if np.all(np.equal(self.dipole_moment[0], None)):
+            return [None]
+        else:
+            dms = [dip for dip in self.dipole_moment[0] if dip is not None]
+            return [np.sqrt(np.sum(np.power(dms, 2)))]
 
     @property
     def total_dipole_moment_in_debye(self) -> Optional[List[float]]:
-        """ Returns total dipole of moment in Debye """
+        """Returns total dipole of moment in Debye"""
         tdm = self.total_dipole_moment
         return [dip / QMolecule.DEBYE if dip is not None else None for dip in tdm]
 

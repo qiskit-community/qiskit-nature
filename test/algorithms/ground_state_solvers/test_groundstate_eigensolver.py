@@ -417,6 +417,16 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         result = gsc.solve(problem)
         self.assertAlmostEqual(result.total_energies[0], -7.882, places=2)
 
+    def test_total_dipole(self):
+        """Regression test against #198.
+
+        An issue with calculating the dipole moment that had division None/float.
+        """
+        solver = NumPyMinimumEigensolverFactory()
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        self.assertAlmostEqual(res.total_dipole_moment_in_debye[0], 0.0, places=1)
+
 
 if __name__ == "__main__":
     unittest.main()
