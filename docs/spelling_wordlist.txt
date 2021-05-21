@@ -107,6 +107,7 @@ NumPyEigensolver
 NumPyEigensolverFactory
 NumPyMinimumEigensolverFactory
 OrbitalOptimizationVQE
+oneeints
 ortho
 orthonormal
 param
@@ -131,6 +132,7 @@ qregs
 rcccx
 rccx
 realise
+rebranding
 regs
 rhs
 rtype
@@ -157,6 +159,8 @@ sx
 sxdg
 tdg
 tensored
+twoe
+twoeints
 toffoli
 traceback
 translational
@@ -180,3 +184,4 @@ vy
 vz
 WatsonHamiltonian
 WindowExtrapolator
+zsh
