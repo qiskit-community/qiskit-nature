@@ -60,6 +60,7 @@ test_ci:
 
 spell:
 	pylint -rn --disable=all --enable=spelling --spelling-dict=en_US --spelling-private-dict-file=.pylintdict --ignore=gauopen qiskit_nature test tools
+	make -C docs spell SPHINXOPTS=$(SPHINXOPTS)
 
 copyright:
 	python tools/check_copyright.py

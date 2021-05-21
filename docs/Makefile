@@ -20,6 +20,9 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+spell:
+	@$(SPHINXBUILD) -W -b spelling "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new

@@ -1,0 +1,11 @@
+Distinguishability
+LiH
+minao
+natom
+noancilla
+NumPyEigensolver
+oneeints
+perturbative
+rebranding
+twoeints
+zsh
