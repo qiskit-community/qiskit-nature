@@ -83,9 +83,6 @@ class TestFermionicOp(QiskitNatureTestCase):
     @data(
         ("INX", None),
         ([("++", 1), ("EF", 1)], None),
-        ("", None),
-        ("+_2 -_0", 3),
-        ("+_0 -_1 +_2 -_2", 4),
     )
     @unpack
     def test_init_invalid_label(self, label, register_length):
