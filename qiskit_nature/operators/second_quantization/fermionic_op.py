@@ -10,11 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Sparse Fermionic-particle Operator."""
+"""The Fermionic-particle Operator."""
 
 import re
 from functools import reduce
 from typing import List, Optional, Tuple, Union, cast
+
+from qiskit.utils.validation import validate_range_exclusive_max
 
 from qiskit_nature.operators.second_quantization.legacy_fermionic_op import LegacyFermionicOp
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
@@ -22,7 +24,125 @@ from qiskit_nature.operators.second_quantization.second_quantized_op import Seco
 
 class FermionicOp(SecondQuantizedOp):
     r"""
-    Sparse Fermionic operator.
+    N-mode Fermionic operator.
+
+    **Label**
+
+    Allowed characters for the label are `I`, `-`, `+`, `N`, and, `E`.
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Label
+          - Mathematical Representation
+          - Meaning
+        * - `I`
+          - :math:`I`
+          - Identity operator
+        * - `-`
+          - :math:`c`
+          - Annihilation operator
+        * - `+`
+          - :math:`c^\dagger`
+          - Creation operator
+        * - `N`
+          - :math:`n = c^\dagger c`
+          - Number operator
+        * - `E`
+          - :math:`I - n = c c^\dagger`
+          - Hole number
+
+    There are two types of label modes for this class.
+    The label mode is automatically detected.
+
+    1. Dense Label (default, `register_length = None`)
+
+    Dense labels are strings with allowed characters above.
+    This is similar to Qiskit's string-based representation of qubit operators.
+    For example,
+
+    .. code-block:: python
+
+        "+"
+        "II++N-IE"
+
+    are possible labels.
+
+    2. Sparse Label (`register_length` is passed)
+
+    When the parameter `register_length` is passed to :meth:`~FermionicOp.__init__`,
+    label is assumed to be a sparse label.
+    A sparse label is a string consisting of a space-separated list of words.
+    Each word must look like :code:`[+-INE]_<index>`, where the :code:`<index>`
+    is a non-negative integer representing the index of the fermionic mode.
+    For example,
+
+    .. code-block:: python
+
+        "+_0"
+        "-_2"
+        "+_0 -_1 +_4 +_10"
+
+    are possible labels.
+    The :code:`index` must be in ascending order, and it does not allow duplicated indices.
+    Thus, :code:`"+_1 N_0"` and `+_0 -_0` are invalid labels.
+
+    **Initialization**
+
+    The FermionicOp can be initialized in several ways:
+
+        `FermionicOp(label)`
+          A label consists of the permitted characters listed above.
+
+        `FermionicOp(tuple)`
+          Valid tuples are of the form `(label, coeff)`. `coeff` can be either `int`, `float`,
+          or `complex`.
+
+        `FermionicOp(list)`
+          The list must be a list of valid tuples as explained above.
+
+    **Algebra**
+
+    This class supports the following basic arithmetic operations: addition, subtraction, scalar
+    multiplication, operator multiplication, and dagger(adjoint).
+    For example,
+
+    Addition
+
+    .. jupyter-execute::
+
+      from qiskit_nature.operators.second_quantization import FermionicOp
+      0.5 * FermionicOp("I+") + FermionicOp("+I")
+
+    Sum
+
+    .. jupyter-execute::
+
+      0.25 * sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN'])
+
+    Operator multiplication
+
+    .. jupyter-execute::
+
+      print(FermionicOp("+-") @ FermionicOp("E+"))
+
+    Dagger
+
+    .. jupyter-execute::
+
+      ~FermionicOp("+")
+
+    In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
+    addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
+    and it is useful in the following scenario:
+
+    .. code-block:: python
+
+        fermion = 0
+        for i in some_iterable:
+            some processing
+            fermion += FermionicOp(somedata)
+
     """
 
     def __init__(
