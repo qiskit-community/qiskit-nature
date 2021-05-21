@@ -22,7 +22,7 @@ from qiskit_nature import QiskitNatureError
 from .second_quantized_op import SecondQuantizedOp
 
 
-class LegacyFermionicOp(SecondQuantizedOp):
+class _LegacyFermionicOp(SecondQuantizedOp):
     r"""
     N-mode Fermionic operator.
 
@@ -225,9 +225,9 @@ class LegacyFermionicOp(SecondQuantizedOp):
     def __repr__(self) -> str:
         if len(self) == 1:
             if self._coeffs[0] == 1:
-                return f"LegacyFermionicOp('{self._labels[0]}')"
-            return f"LegacyFermionicOp({self.to_list()[0]})"
-        return f"LegacyFermionicOp({self.to_list()})"  # TODO truncate
+                return f"_LegacyFermionicOp('{self._labels[0]}')"
+            return f"_LegacyFermionicOp({self.to_list()[0]})"
+        return f"_LegacyFermionicOp({self.to_list()})"  # TODO truncate
 
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
@@ -244,15 +244,15 @@ class LegacyFermionicOp(SecondQuantizedOp):
         """Gets the register length."""
         return self._register_length
 
-    def mul(self, other: complex) -> "LegacyFermionicOp":
+    def mul(self, other: complex) -> "_LegacyFermionicOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
-                f"Unsupported operand type(s) for *: 'LegacyFermionicOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for *: '_LegacyFermionicOp' and '{type(other).__name__}'"
             )
-        return LegacyFermionicOp(list(zip(self._labels, (other * self._coeffs).tolist())))
+        return _LegacyFermionicOp(list(zip(self._labels, (other * self._coeffs).tolist())))
 
-    def compose(self, other: "LegacyFermionicOp") -> "LegacyFermionicOp":
-        if isinstance(other, LegacyFermionicOp):
+    def compose(self, other: "_LegacyFermionicOp") -> "_LegacyFermionicOp":
+        if isinstance(other, _LegacyFermionicOp):
             # Initialize new operator_list for the returned Fermionic operator
             new_data = []
 
@@ -267,9 +267,9 @@ class LegacyFermionicOp(SecondQuantizedOp):
                     new_data.append((new_label, cf1 * cf2 * sign))
 
             if not new_data:
-                return LegacyFermionicOp(("I" * self._register_length, 0))
+                return _LegacyFermionicOp(("I" * self._register_length, 0))
 
-            return LegacyFermionicOp(new_data)
+            return _LegacyFermionicOp(new_data)
 
         raise TypeError(
             f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
@@ -339,17 +339,17 @@ class LegacyFermionicOp(SecondQuantizedOp):
 
         return "".join(new_label), sign
 
-    def add(self, other: "LegacyFermionicOp") -> "LegacyFermionicOp":
-        if not isinstance(other, LegacyFermionicOp):
+    def add(self, other: "_LegacyFermionicOp") -> "_LegacyFermionicOp":
+        if not isinstance(other, _LegacyFermionicOp):
             raise TypeError(
-                f"Unsupported operand type(s) for +: 'LegacyFermionicOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for +: '_LegacyFermionicOp' and '{type(other).__name__}'"
             )
 
         # Check compatibility (i.e. operators act on same register length)
         if self.register_length != other.register_length:
             raise TypeError("Incompatible register lengths for '+'.")
 
-        return LegacyFermionicOp(
+        return _LegacyFermionicOp(
             list(
                 zip(
                     self._labels + other._labels,
@@ -366,7 +366,7 @@ class LegacyFermionicOp(SecondQuantizedOp):
         """
         return list(zip(self._labels, self._coeffs.tolist()))
 
-    def adjoint(self) -> "LegacyFermionicOp":
+    def adjoint(self) -> "_LegacyFermionicOp":
         dagger_map = {"+": "-", "-": "+", "I": "I", "N": "N", "E": "E"}
         label_list = []
         coeff_list = []
@@ -385,11 +385,11 @@ class LegacyFermionicOp(SecondQuantizedOp):
             label_list.append("".join(daggered_label))
             coeff_list.append(conjugated_coeff)
 
-        return LegacyFermionicOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))))
+        return _LegacyFermionicOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))))
 
     def reduce(
         self, atol: Optional[float] = None, rtol: Optional[float] = None
-    ) -> "LegacyFermionicOp":
+    ) -> "_LegacyFermionicOp":
         if atol is None:
             atol = self.atol
         if rtol is None:
@@ -403,5 +403,5 @@ class LegacyFermionicOp(SecondQuantizedOp):
             i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
-            return LegacyFermionicOp(("I" * self.register_length, 0))
-        return LegacyFermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
+            return _LegacyFermionicOp(("I" * self.register_length, 0))
+        return _LegacyFermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))

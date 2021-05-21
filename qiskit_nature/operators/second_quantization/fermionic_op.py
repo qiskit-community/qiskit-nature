@@ -16,7 +16,7 @@ import re
 from functools import reduce
 from typing import List, Optional, Tuple, Union, cast
 
-from qiskit_nature.operators.second_quantization.legacy_fermionic_op import LegacyFermionicOp
+from qiskit_nature.operators.second_quantization.legacy_fermionic_op import _LegacyFermionicOp
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 
 
@@ -301,30 +301,30 @@ class FermionicOp(SecondQuantizedOp):
         return FermionicOp._from_legacy(op)
 
     @classmethod
-    def _from_legacy(cls, op: LegacyFermionicOp):
+    def _from_legacy(cls, op: _LegacyFermionicOp):
         return cls(
             [(cls._to_sp_label(label), coeff) for label, coeff in op.to_list()],
             register_length=op.register_length,
         )
 
-    def _to_legacy(self) -> LegacyFermionicOp:
+    def _to_legacy(self) -> _LegacyFermionicOp:
         op = sum(
             (
                 reduce(
                     lambda a, b: a.compose(b),
-                    (LegacyFermionicOp(c, self.register_length) for c in label.split()),
+                    (_LegacyFermionicOp(c, self.register_length) for c in label.split()),
                 )
                 if label != ""
-                else LegacyFermionicOp("", self.register_length)
+                else _LegacyFermionicOp("", self.register_length)
             )
             * coeff
             for label, coeff in self._data
         )
-        op = cast(LegacyFermionicOp, op)
+        op = cast(_LegacyFermionicOp, op)
         non_zero_list = [elem for elem in op.to_list() if elem[1] != 0]
         if not non_zero_list:
-            return LegacyFermionicOp(("I" * self.register_length, 0))
-        return LegacyFermionicOp(non_zero_list)
+            return _LegacyFermionicOp(("I" * self.register_length, 0))
+        return _LegacyFermionicOp(non_zero_list)
 
     @staticmethod
     def _to_sp_label(label):
