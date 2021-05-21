@@ -16,8 +16,6 @@ import re
 from functools import reduce
 from typing import List, Optional, Tuple, Union, cast
 
-from qiskit.utils.validation import validate_range_exclusive_max
-
 from qiskit_nature.operators.second_quantization.legacy_fermionic_op import LegacyFermionicOp
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 

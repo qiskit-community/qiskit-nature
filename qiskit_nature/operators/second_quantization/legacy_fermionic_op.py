@@ -225,9 +225,9 @@ class LegacyFermionicOp(SecondQuantizedOp):
     def __repr__(self) -> str:
         if len(self) == 1:
             if self._coeffs[0] == 1:
-                return f"FermionicOp('{self._labels[0]}')"
-            return f"FermionicOp({self.to_list()[0]})"
-        return f"FermionicOp({self.to_list()})"  # TODO truncate
+                return f"LegacyFermionicOp('{self._labels[0]}')"
+            return f"LegacyFermionicOp({self.to_list()[0]})"
+        return f"LegacyFermionicOp({self.to_list()})"  # TODO truncate
 
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
@@ -244,14 +244,14 @@ class LegacyFermionicOp(SecondQuantizedOp):
         """Gets the register length."""
         return self._register_length
 
-    def mul(self, other: complex) -> "FermionicOp":
+    def mul(self, other: complex) -> "LegacyFermionicOp":
         if not isinstance(other, (int, float, complex)):
             raise TypeError(
-                f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for *: 'LegacyFermionicOp' and '{type(other).__name__}'"
             )
         return LegacyFermionicOp(list(zip(self._labels, (other * self._coeffs).tolist())))
 
-    def compose(self, other: "FermionicOp") -> "FermionicOp":
+    def compose(self, other: "LegacyFermionicOp") -> "LegacyFermionicOp":
         if isinstance(other, LegacyFermionicOp):
             # Initialize new operator_list for the returned Fermionic operator
             new_data = []
@@ -339,10 +339,10 @@ class LegacyFermionicOp(SecondQuantizedOp):
 
         return "".join(new_label), sign
 
-    def add(self, other: "FermionicOp") -> "FermionicOp":
+    def add(self, other: "LegacyFermionicOp") -> "LegacyFermionicOp":
         if not isinstance(other, LegacyFermionicOp):
             raise TypeError(
-                f"Unsupported operand type(s) for +: 'FermionicOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for +: 'LegacyFermionicOp' and '{type(other).__name__}'"
             )
 
         # Check compatibility (i.e. operators act on same register length)
@@ -366,7 +366,7 @@ class LegacyFermionicOp(SecondQuantizedOp):
         """
         return list(zip(self._labels, self._coeffs.tolist()))
 
-    def adjoint(self) -> "FermionicOp":
+    def adjoint(self) -> "LegacyFermionicOp":
         dagger_map = {"+": "-", "-": "+", "I": "I", "N": "N", "E": "E"}
         label_list = []
         coeff_list = []
@@ -387,7 +387,9 @@ class LegacyFermionicOp(SecondQuantizedOp):
 
         return LegacyFermionicOp(list(zip(label_list, np.array(coeff_list, dtype=np.complex128))))
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "FermionicOp":
+    def reduce(
+        self, atol: Optional[float] = None, rtol: Optional[float] = None
+    ) -> "LegacyFermionicOp":
         if atol is None:
             atol = self.atol
         if rtol is None:
