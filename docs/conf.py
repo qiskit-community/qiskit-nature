@@ -109,6 +109,8 @@ exclude_patterns = ['_build', '**.ipynb_checkpoints']
 nbsphinx_thumbnails = {
 }
 
+spelling_word_list_filename = ['spelling_wordlist.txt', '../.pylintdict']
+
 # -----------------------------------------------------------------------------
 # Autosummary
 # -----------------------------------------------------------------------------
