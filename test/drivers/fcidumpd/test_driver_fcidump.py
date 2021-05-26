@@ -173,7 +173,8 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.mo_eri_ba = None
         self.mo_eri_bb = None
         driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_h2.fcidump", "drivers/fcidumpd")
+            self.get_resource_path("test_driver_fcidump_h2.fcidump",
+                                   "drivers/second_quantization/fcidumpd")
         )
         self.qmolecule = driver.run()
 
@@ -187,14 +188,16 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_molecular_orbitals = 6
         self.num_alpha = 2
         self.num_beta = 2
-        loaded = np.load(self.get_resource_path("test_driver_fcidump_lih.npz", "drivers/fcidumpd"))
+        loaded = np.load(self.get_resource_path("test_driver_fcidump_lih.npz",
+                                                "drivers/second_quantization/fcidumpd"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = None
         self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = None
         self.mo_eri_bb = None
         driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_lih.fcidump", "drivers/fcidumpd")
+            self.get_resource_path("test_driver_fcidump_lih.fcidump",
+                                   "drivers/second_quantization/fcidumpd")
         )
         self.qmolecule = driver.run()
 
@@ -208,14 +211,16 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_molecular_orbitals = 6
         self.num_alpha = 5
         self.num_beta = 4
-        loaded = np.load(self.get_resource_path("test_driver_fcidump_oh.npz", "drivers/fcidumpd"))
+        loaded = np.load(self.get_resource_path("test_driver_fcidump_oh.npz",
+                                                "drivers/second_quantization/fcidumpd"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = loaded["mo_onee_b"]
         self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = loaded["mo_eri_ba"]
         self.mo_eri_bb = loaded["mo_eri_bb"]
         driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_oh.fcidump", "drivers/fcidumpd")
+            self.get_resource_path("test_driver_fcidump_oh.fcidump",
+                                   "drivers/second_quantization/fcidumpd")
         )
         self.qmolecule = driver.run()
 

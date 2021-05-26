@@ -39,7 +39,8 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
         # and create a qmolecule from the saved output matrix file. This will test the
         # parsing of it into the qmolecule is correct.
         g16 = GaussianDriver()
-        matfile = self.get_resource_path("test_driver_gaussian_from_mat.mat", "drivers/gaussiand")
+        matfile = self.get_resource_path("test_driver_gaussian_from_mat.mat",
+                                         "drivers/second_quantization/gaussiand")
         try:
             self.qmolecule = g16._parse_matrix_file(matfile)
         except QiskitNatureError:
