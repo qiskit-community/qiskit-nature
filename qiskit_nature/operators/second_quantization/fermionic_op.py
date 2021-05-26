@@ -196,9 +196,7 @@ class FermionicOp(SecondQuantizedOp):
             else max(max((int(c[2:]) for c in label.split()), default=0) for label, _ in data) + 1
         )
 
-        data = [(self._sub_label(label), coeff) for label, coeff in data]
-
-        self._data = [(label, complex(coeff)) for label, coeff in data]
+        self._data = [(self._sub_label(label), complex(coeff)) for label, coeff in data]
 
     @staticmethod
     def _sub_label(label):
