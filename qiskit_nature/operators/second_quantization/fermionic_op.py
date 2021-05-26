@@ -270,12 +270,18 @@ class FermionicOp(SecondQuantizedOp):
             max(self.register_length, other.register_length),
         )
 
-    def to_list(self) -> List[Tuple[str, complex]]:
+    # pylint: disable=arguments-differ
+    def to_list(self, sparse: bool = False) -> List[Tuple[str, complex]]:
         """Returns the operators internal contents in list-format.
+
+        Args:
+            sparse: The labels in the return list are sparse or not. (Default: False)
 
         Returns:
             A list of tuples consisting of the dense label and corresponding coefficient.
         """
+        if sparse:
+            return self._data[:]
         return self._to_legacy().to_list()
 
     def adjoint(self) -> "FermionicOp":

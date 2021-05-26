@@ -31,11 +31,12 @@ def dense_labels(length):
 
 
 @lru_cache(3)
-def sparse_labels(length):
+def sparse_labels(length, only_plus_minus=False):
     """Generate list of fermion labels with given length."""
+    generator = ["+", "-"] if only_plus_minus else ["I", "+", "-", "N", "E"]
     return [
         " ".join(f"{char}_{i}" for i, char in enumerate(label))
-        for label in product(["I", "+", "-", "N", "E"], repeat=length)
+        for label in product(generator, repeat=length)
     ]
 
 
@@ -278,6 +279,24 @@ class TestFermionicOp(QiskitNatureTestCase):
                 - 1j * FermionicOp("-+NE")
             )
             self.assertFalse(fer_op.is_hermitian())
+
+    @data(
+        *product(
+            (
+                *sparse_labels(1, True),
+                *sparse_labels(2, True),
+                *sparse_labels(3, True),
+            ),
+            (str2str, str2tuple, str2list),
+        )
+    )
+    @unpack
+    def test_to_list_sparse(self, label, pre_processing):
+        """test to_list with sparse"""
+        fer_op = FermionicOp(pre_processing(label))
+
+        self.assertListEqual(fer_op.to_list(sparse=True), str2list(label))
+        self.assertNotEqual(fer_op.to_list(sparse=False), str2list(label))
 
 
 if __name__ == "__main__":
