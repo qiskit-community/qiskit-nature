@@ -25,6 +25,7 @@ from .base_driver import BaseDriver
 class HFMethodType(Enum):
     """HFMethodType Enum"""
 
+    # pylint: disable=unused-argument
     def __init__(self, *args):
         warnings.warn(
             "This HFMethodType is deprecated as of 0.2.0, "

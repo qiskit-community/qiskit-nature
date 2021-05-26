@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 class InitialGuess(Enum):
     """Initial Guess Enum"""
 
+    # pylint: disable=unused-argument
     def __init__(self, *args):
         warnings.warn(
             "This InitialGuess is deprecated as of 0.2.0, "
