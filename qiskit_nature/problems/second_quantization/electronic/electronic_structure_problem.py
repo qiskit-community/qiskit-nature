@@ -63,8 +63,7 @@ class ElectronicStructureProblem(BaseProblem):
 
         Returns:
             A list of `SecondQuantizedOp` in the following order: Hamiltonian operator,
-            total particle number
-            operator, total angular momentum operator, total magnetization operator, and (if available) x, y, z dipole operators.
+            total particle number operator, total angular momentum operator, total magnetization operator, and (if available) x, y, z dipole operators.
         """
         self._molecule_data = cast(QMolecule, self.driver.run())
         self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
