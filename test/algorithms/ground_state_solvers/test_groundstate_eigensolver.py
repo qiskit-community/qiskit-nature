@@ -39,7 +39,7 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
     build_ferm_op_from_ints,
 )
-from qiskit_nature.transformers import FreezeCoreTransformer
+from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):

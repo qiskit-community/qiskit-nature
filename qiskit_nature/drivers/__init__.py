@@ -33,19 +33,35 @@ Driver Common
 
 """
 
-from importlib import import_module
-from warnings import warn
-
+from .base_driver import BaseDriver
+from .qmolecule import QMolecule
+from .watson_hamiltonian import WatsonHamiltonian
 from .molecule import Molecule
+from .bosonic_driver import BosonicDriver
+from .fermionic_driver import FermionicDriver, HFMethodType
 from .units_type import UnitsType
+from .fcidumpd import FCIDumpDriver
+from .gaussiand import (
+    GaussianDriver,
+    GaussianLogDriver,
+    GaussianLogResult,
+    GaussianForcesDriver,
+)
+from .hdf5d import HDF5Driver
+from .psi4d import PSI4Driver
+from .pyquanted import PyQuanteDriver, BasisType
+from .pyscfd import PySCFDriver, InitialGuess
 
-deprecated_names = [
+
+__all__ = [
     "HFMethodType",
     "QMolecule",
+    "Molecule",
     "WatsonHamiltonian",
     "BaseDriver",
     "BosonicDriver",
     "FermionicDriver",
+    "UnitsType",
     "FCIDumpDriver",
     "GaussianDriver",
     "GaussianForcesDriver",
@@ -57,26 +73,4 @@ deprecated_names = [
     "PyQuanteDriver",
     "PySCFDriver",
     "InitialGuess",
-]
-
-
-def __getattr__(name):
-    if name in deprecated_names:
-        warn(
-            f"{name} has been moved to {__name__}.second_quantization.{name}",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        module = import_module(".second_quantization", __name__)
-        return getattr(module, name)
-    raise AttributeError(f"module {__name__} has no attribute {name}")
-
-
-def __dir__():
-    return sorted(__all__ + deprecated_names)
-
-
-__all__ = [
-    "Molecule",
-    "UnitsType",
 ]
