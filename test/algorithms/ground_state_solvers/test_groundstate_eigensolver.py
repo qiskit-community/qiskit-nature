@@ -405,8 +405,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         An issue arose when the FreezeCoreTransformer was combined with the automatic Z2Symmetry
         reduction. This regression test ensures that this behavior remains fixed.
         """
-        driver = HDF5Driver(hdf5_input=self.get_resource_path("LiH_sto3g.hdf5",
-                                                              "transformers/second_quantization"))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization")
+        )
         problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
         qubit_converter = QubitConverter(
             ParityMapper(),

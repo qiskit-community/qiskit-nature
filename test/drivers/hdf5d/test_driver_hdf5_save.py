@@ -28,7 +28,8 @@ class TestDriverHDF5Save(QiskitNatureTestCase, TestDriver):
         super().setUp()
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+            )
         )
         temp_qmolecule = driver.run()
         file, self.save_file = tempfile.mkstemp(suffix=".hdf5")

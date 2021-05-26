@@ -25,7 +25,8 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
         super().setUp()
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+            )
         )
         self.qmolecule = driver.run()
 

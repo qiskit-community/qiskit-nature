@@ -71,8 +71,9 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         """Test the driver works with logfile (Gaussian does not need to be installed)"""
 
         driver = GaussianForcesDriver(
-            logfile=self.get_resource_path("test_driver_gaussian_log.txt",
-                                           "drivers/second_quantization/gaussiand")
+            logfile=self.get_resource_path(
+                "test_driver_gaussian_log.txt", "drivers/second_quantization/gaussiand"
+            )
         )
 
         result = driver.run()
