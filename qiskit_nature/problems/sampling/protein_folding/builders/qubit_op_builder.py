@@ -151,7 +151,7 @@ def _create_H_chiral(peptide, lambda_chiral):
                                                                               lower_main_bead_indic_2 @ higher_main_bead_indic_0 +
                                                                               lower_main_bead_indic_0 @ higher_main_bead_indic_1 +
                                                                               lower_main_bead_indic_1 @ higher_main_bead_indic_2))
-        H_chiral = H_chiral.reduce()
+        H_chiral = _set_binaries(H_chiral).reduce()
     return H_chiral
 
 
@@ -204,7 +204,7 @@ def _create_H_BBBB(main_chain_len, lambda_1, pair_energies,
                                                                       pair_energies, x_dist)
                 except:
                     pass
-            H_BBBB = H_BBBB.reduce()
+            H_BBBB = _set_binaries(H_BBBB).reduce()
     return H_BBBB
 
 
@@ -241,46 +241,46 @@ def _create_H_BBSC_and_H_SCBB(main_chain_len, side_chain, lambda_1,
                 continue
             else:
                 if side_chain[j - 1] == 1:
-                    H_BBSC += contacts[i][0][j][1] * (
-                            _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
+                    H_BBSC += contacts[i][1][j][0] * (
+                            _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
                     try:
-                        H_BBSC += contacts[i][0][j][1] * _first_neighbor(i, 1, j, 1, lambda_1,
+                        H_BBSC += contacts[i][1][j][0] * _first_neighbor(i, 1, j, 1, lambda_1,
                                                                          pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_BBSC += contacts[i][0][j][1] * _second_neighbor(i + 1, 0, j, 1, lambda_1,
+                        H_BBSC += contacts[i][1][j][0] * _second_neighbor(i + 1, 1, j, 0, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_BBSC += contacts[i][0][j][1] * _second_neighbor(i - 1, 0, j, 1, lambda_1,
+                        H_BBSC += contacts[i][1][j][0] * _second_neighbor(i - 1, 1, j, 0, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     H_BBSC = H_BBSC.reduce()
                 if side_chain[i - 1] == 1:
-                    H_SCBB += contacts[i][1][j][0] * (
-                            _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
+                    H_SCBB += contacts[i][0][j][1] * (
+                            _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
                     try:
-                        H_SCBB += contacts[i][1][j][0] * _second_neighbor(i, 1, j, 1, lambda_1,
+                        H_SCBB += contacts[i][0][j][1] * _second_neighbor(i, 0, j, 1, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_SCBB += contacts[i][1][j][0] * _second_neighbor(i, 1, j + 1, 0, lambda_1,
+                        H_SCBB += contacts[i][0][j][1] * _second_neighbor(i, 0, j + 1, 1, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_SCBB += contacts[i][1][j][0] * _second_neighbor(i, 1, j - 1, 0, lambda_1,
+                        H_SCBB += contacts[i][0][j][1] * _second_neighbor(i, 0, j - 1, 1, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     H_SCBB = H_SCBB.reduce()
-    return H_BBSC, H_SCBB
+    return _set_binaries(H_BBSC), _set_binaries(H_SCBB)
 
 
 def _create_H_SCSC(main_chain_len, side_chain, lambda_1,
@@ -317,7 +317,7 @@ def _create_H_SCSC(main_chain_len, side_chain, lambda_1,
                     +
                     _second_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist))
             H_SCSC = H_SCSC.reduce()
-    return H_SCSC
+    return _set_binaries(H_SCSC)
 
 
 def _create_H_short(main_chain_len, side_chain, pair_energies,
@@ -354,4 +354,4 @@ def _create_H_short(main_chain_len, side_chain, pair_energies,
                                               pauli_conf)) * \
                        (pair_energies[i, 1, i + 3, 1] + 0.1 * (
                                pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
-    return H_short
+    return _set_binaries(H_short)
