@@ -35,9 +35,9 @@ endif
 # You can set this variable from the command line.
 SPHINXOPTS    =
 
-.PHONY: lint mypy style test test_ci spell copyright html doctest coverage coverage_erase
+.PHONY: lint mypy style black test test_ci spell copyright html doctest clean_sphinx coverage coverage_erase clean
 
-all_check: spell style lint copyright mypy html doctest
+all_check: spell style lint copyright mypy clean_sphinx html doctest
 
 lint:
 	pylint -rn --ignore=gauopen qiskit_nature test tools
@@ -71,6 +71,9 @@ html:
 doctest:
 	make -C docs doctest SPHINXOPTS=$(SPHINXOPTS)
 
+clean_sphinx:
+	make -C docs clean
+
 coverage:
 	coverage3 run --source qiskit_nature --omit */gauopen/* -m unittest discover -s test -q
 	coverage3 report
@@ -78,4 +81,5 @@ coverage:
 coverage_erase:
 	coverage erase
 
-clean: coverage_erase ;
+clean: clean_sphinx coverage_erase; 
+
