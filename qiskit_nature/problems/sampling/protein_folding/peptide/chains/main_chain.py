@@ -48,15 +48,19 @@ class MainChain(BaseChain):
             if side_chain_lens and side_chain_lens[
                 main_bead_id] != 0 and side_chain_residue_sequences and \
                     side_chain_residue_sequences[main_bead_id] is not None:
-                side_chain = SideChain(side_chain_lens[main_bead_id], side_chain_residue_sequences)
+                side_chain = SideChain(side_chain_lens[main_bead_id], side_chain_residue_sequences[main_bead_id])
             else:
                 side_chain = None
             main_bead = MainBead(main_chain_residue_seq[main_bead_id],
                                  [bead_turn_qubit_1, bead_turn_qubit_2],
                                  side_chain)
             main_chain.append(main_bead)
+        if side_chain_lens and side_chain_lens[
+            main_chain_len-1] != 0 and side_chain_residue_sequences and \
+                side_chain_residue_sequences[main_chain_len-1] is not None:
+            side_chain = SideChain(side_chain_lens[main_chain_len-1], side_chain_residue_sequences[main_chain_len-1])
         main_bead = MainBead(None,
                              None,
-                             None)
+                             side_chain)
         main_chain.append(main_bead)
         return main_chain
