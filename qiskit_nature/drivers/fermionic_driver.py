@@ -25,7 +25,7 @@ from .base_driver import BaseDriver
 class HFMethodType(Enum):
     """HFMethodType Enum"""
 
-    def __init__(self):
+    def __init__(self, *args):
         warnings.warn(
             "This HFMethodType is deprecated as of 0.2.0, "
             "and will be removed no earlier than 3 months after the release. "

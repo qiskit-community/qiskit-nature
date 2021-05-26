@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class InitialGuess(Enum):
     """Initial Guess Enum"""
 
-    def __init__(self):
+    def __init__(self, *args):
         warnings.warn(
             "This InitialGuess is deprecated as of 0.2.0, "
             "and will be removed no earlier than 3 months after the release. "
