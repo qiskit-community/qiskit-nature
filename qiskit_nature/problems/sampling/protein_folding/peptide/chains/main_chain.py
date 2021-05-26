@@ -42,9 +42,9 @@ class MainChain(BaseChain):
             raise InvalidSideChainException(
                 "First and second main beads are not allowed to have a side chain. Non-None "
                 "residue provided for an invalid side chain")
-        for main_bead_id in range(main_chain_len):
-            bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, main_bead_id)
-            bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, main_bead_id + 1)
+        for main_bead_id in range(main_chain_len - 1):
+            bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id)
+            bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
             if side_chain_lens and side_chain_lens[
                 main_bead_id] != 0 and side_chain_residue_sequences and \
                     side_chain_residue_sequences[main_bead_id] is not None:
@@ -55,4 +55,8 @@ class MainChain(BaseChain):
                                  [bead_turn_qubit_1, bead_turn_qubit_2],
                                  side_chain)
             main_chain.append(main_bead)
+        main_bead = MainBead(None,
+                             None,
+                             None)
+        main_chain.append(main_bead)
         return main_chain

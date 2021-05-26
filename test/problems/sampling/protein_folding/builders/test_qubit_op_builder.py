@@ -9,10 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+import numpy as np
 from qiskit.opflow import PauliOp, I, Z
 
+from problems.sampling.protein_folding.builders import contact_qubits_builder
 from problems.sampling.protein_folding.builders.qubit_op_builder import _create_h_back, \
-    _create_H_chiral
+    _create_H_chiral, _create_H_BBBB, _create_H_BBSC_and_H_SCBB, _create_H_SCSC
+from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
+    _add_distances_side_chain, _calc_total_distances
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from test import QiskitNatureTestCase
 
@@ -30,20 +34,17 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that the Hamiltonian to back-overlaps is created correctly.
         """
-        lambda_back = 2
+        lambda_back = 10
         main_chain_residue_seq = "SAASS"
         main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 0, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None]
+        side_chain_lens = [0, 0, 0, 0, 0]
+        side_chain_residue_sequences = [None, None, None, None, None]
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         h_back = _create_h_back(peptide, lambda_back)
-        assert h_back == 1.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.5 * (
-                I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I) \
-               + 0.5 * (I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I) + 1.0 * (I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I) + \
-               0.5 * (I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I) + 1.0 * (I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I) + \
-               0.5 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z) + 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z)
+
+        assert h_back == 2.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 2.5 * (Z ^ I ^ I ^ I ^ I ^ I ^ I ^I) + 2.5 * (I ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I) - 2.5 * (Z ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I)
 
     def test_create_H_chiral(self):
         """
