@@ -64,6 +64,7 @@ jobs:
         shell: bash
       - name: Run make html
         run:  |
+          make clean_sphinx
           make html SPHINXOPTS=-W
           cd docs/_build/html
           mkdir artifacts
