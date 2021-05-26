@@ -13,11 +13,11 @@
 """The Sum Operator base interface."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
+from qiskit.opflow.mixins import StarAlgebraMixin
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
-
-from .star_algebra import StarAlgebraMixin
+from qiskit.utils.deprecation import deprecate_function
 
 
 class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
@@ -63,3 +63,14 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
     def is_hermitian(self) -> bool:
         """Checks whether the operator is hermitian"""
         return frozenset(self.reduce().to_list()) == frozenset(self.adjoint().reduce().to_list())
+
+    @property  # type: ignore
+    # pylint: disable=bad-docstring-quotes
+    @deprecate_function(
+        "Using the `dagger` property is deprecated as of version 0.2.0 and will be removed no "
+        "eariler than 3 months after the release date. As an alternative, use the `adjoint()` "
+        "method in place of `dagger` as a replacement."
+    )
+    def dagger(self):
+        """DEPRECATED - Alias of :meth:`adjoint()`"""
+        return self.adjoint()
