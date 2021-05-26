@@ -17,7 +17,7 @@ PYSCF Installation
 In order for Qiskit Nature to interface PySCF and execute PySCF to
 extract the electronic structure information PySCF must be installed.
 
-According to the `PySCF installation instructions <http://sunqm.github.io/pyscf/install.html>`__,
+According to the `PySCF installation instructions <https://pyscf.org/install.html>`__,
 the preferred installation method is via the pip package management system.  Doing so,
 while in the Python virtual environment where Qiskit Nature is also installed, will
 automatically make PySCF available to Qiskit at run time.
