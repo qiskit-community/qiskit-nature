@@ -36,7 +36,6 @@ class BaseChain(ABC):
 
     def _build_turn_qubit(self, chain_len, bead_id) -> PauliOp:
         num_turn_qubits = 2 * (chain_len - 1)
-        temp = None
         if bead_id != 0:
             temp = I
         else:

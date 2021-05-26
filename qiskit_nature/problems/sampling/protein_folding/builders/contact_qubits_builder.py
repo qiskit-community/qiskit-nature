@@ -110,7 +110,7 @@ def _create_new_qubit_list(main_chain_len, side_chain,
     """
     old_qubits_conf = []
     old_qubits_contact = []
-    for q in range(1, main_chain_len + 1):
+    for q in range(1, main_chain_len):
         if q != 6:
             old_qubits_conf.append(peptide.get_main_chain[q - 1].turn_qubits[0])
             old_qubits_conf.append(peptide.get_main_chain[q - 1].turn_qubits[1])
@@ -194,3 +194,20 @@ def _second_neighbor(i, p, j, s,
     x = x_dist[i][p][j][s]
     expr = lambda_1 * (2 * _build_full_identity(x.num_qubits) - x)  # + e*0.1
     return expr.reduce()
+
+
+def _create_H_contacts(new_qubits, n_contact, lambda_contacts, N_contacts):
+    """
+    To document
+
+    Approximating nearest neighbor interactions (2 and greater?) #+ e*0.1
+
+    energy of contacts that are present in system (energy shift)
+
+    """
+    H_contacts = lambda_contacts * (
+            0.5 * (np.sum(1 - np.array(new_qubits[-n_contact:]))) - N_contacts) ** 2
+    H_contacts = H_contacts.expand()
+    H_contacts = H_contacts.subs(
+        {new_qubits[k] ** 2: 1 for k in range(1, len(new_qubits))})  # convert to identity
+    return H_contacts

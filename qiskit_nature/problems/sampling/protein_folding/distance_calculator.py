@@ -88,7 +88,7 @@ def _calc_distances_main_chain(peptide: Peptide):
             delta_n2[i][0][j][0] = 0
             delta_n3[i][0][j][0] = 0
             for k in range(i, j):
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[k].get_indicator_functions()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[k-1].get_indicator_functions()
                 delta_n0[i][0][j][0] += (-1) ** k * indic_0
                 delta_n1[i][0][j][0] += (-1) ** k * indic_1
                 delta_n2[i][0][j][0] += (-1) ** k * indic_2

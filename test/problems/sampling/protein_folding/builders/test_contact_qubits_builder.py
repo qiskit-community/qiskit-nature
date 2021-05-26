@@ -58,65 +58,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(
             main_chain_len, side_chain)
         new_qubits = _create_new_qubit_list(main_chain_len, side_chain, peptide, pauli_contacts)
-
-        assert new_qubits == [0, PauliSumOp(
-            SparsePauliOp([[False, False, False, False, False, False, False, False,
-                            False, False, False, False, False, False, False, False],
-                           [False, False, False, False, False, False, False, False,
-                            True, False, False, False, False, False, False, False]],
-                          coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-            SparsePauliOp([[False, False, False, False, False, False, False, False,
-                            False, False, False, False, False, False, False, False],
-                           [False, False, False, False, False, False, False, False,
-                            False, True, False, False, False, False, False, False]],
-                          coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-            SparsePauliOp([[False, False, False, False, False, False, False, False,
-                            False, False, False, False, False, False, False, False],
-                           [False, False, False, False, False, False, False, False,
-                            False, True, False, False, False, False, False, False]],
-                          coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-            SparsePauliOp([[False, False, False, False, False, False, False, False,
-                            False, False, False, False, False, False, False, False],
-                           [False, False, False, False, False, False, False, False,
-                            False, False, True, False, False, False, False, False]],
-                          coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-            SparsePauliOp([[False, False, False, False, False, False, False, False,
-                            False, False, False, False, False, False, False, False],
-                           [False, False, False, False, False, False, False, False,
-                            False, False, True, False, False, False, False, False]],
-                          coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-            SparsePauliOp([[False, False, False, False, False, False, False, False,
-                            False, False, False, False, False, False, False, False],
-                           [False, False, False, False, False, False, False, False,
-                            False, False, False, True, False, False, False, False]],
-                          coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0),
-                              PauliSumOp(SparsePauliOp([[False, False],
-                                                        [False, True]],
-                                                       coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0),
-                              PauliSumOp(SparsePauliOp([[False, False],
-                                                        [False, True]],
-                                                       coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0),
-                              PauliSumOp(SparsePauliOp(
-                                  [[False, False, False, False, False, False, False, False,
-                                    False, False, False, False, False, False, False, False],
-                                   [False, False, False, False, False, False, False, False,
-                                    False, False, False, True, False, False, False, False]],
-                                  coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-                SparsePauliOp([[False, False, False, False, False, False, False, False,
-                                False, False, False, False, False, False, False, False],
-                               [False, False, False, False, False, False, False, False,
-                                False, False, False, False, True, False, False, False]],
-                              coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-                SparsePauliOp([[False, False, False, False, False, False, False, False,
-                                False, False, False, False, False, False, False, False],
-                               [False, False, False, False, False, False, False, False,
-                                False, False, False, False, True, False, False, False]],
-                              coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0), PauliSumOp(
-                SparsePauliOp([[False, False, False, False, False, False, False, False,
-                                False, False, False, False, False, False, False, False],
-                               [False, False, False, False, False, False, False, False,
-                                False, False, False, False, False, True, False, False]],
-                              coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0)]
+        assert new_qubits[0] == 0
+        assert new_qubits[1] == 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
+                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
 
     def test_first_neighbor(self):
         """
@@ -146,8 +90,8 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                                upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
                                pair_energies, x_dist)
         assert expr == 21.0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 21.0 * (
-                I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I) - 21.0 * (
-                       I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I) - 21.0 * (I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I)
+                I ^ I ^ Z ^ I ^ Z ^ I ^ I ^ I) - 21.0 * (
+                       I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I) - 21.0 * (I ^ I ^ Z ^ Z ^ Z ^ Z ^ I ^ I)
 
     def test_second_neighbor(self):
         """
@@ -176,5 +120,5 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                                 upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
                                 pair_energies, x_dist)
         assert expr == 1.0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 1.0 * (
-                I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I) + 1.0 * (I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I) + 1.0 * (
-                       I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I)
+                I ^ I ^ Z ^ I ^ Z ^ I ^ I ^ I) + 1.0 * (I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I) + 1.0 * (
+                       I ^ I ^ Z ^ Z ^ Z ^ Z ^ I ^ I)
