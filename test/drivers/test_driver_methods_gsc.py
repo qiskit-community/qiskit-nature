@@ -43,7 +43,7 @@ class TestDriverMethods(QiskitNatureTestCase):
         transformers: Optional[List[BaseTransformer]] = None,
     ):
 
-        problem = ElectronicStructureProblem(driver, transformers)
+        problem = ElectronicStructureProblem(driver, transformers)  # type: ignore
 
         solver = NumPyMinimumEigensolver()
 
