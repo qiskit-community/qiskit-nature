@@ -320,7 +320,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             # pylint: disable=import-outside-toplevel
             from qiskit import Aer
 
-            backend = Aer.get_backend("statevector_simulator")
+            backend = Aer.get_backend("aer_simulator_statevector")
         except ImportError as ex:  # pylint: disable=broad-except
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
