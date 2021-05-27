@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import numpy as np
-from qiskit.opflow import PauliOp, I, Z
+from qiskit.opflow import PauliOp, I, Z, PauliSumOp
 
 from problems.sampling.protein_folding.builders import contact_qubits_builder
 from problems.sampling.protein_folding.builders.qubit_op_builder import _create_h_back, \
@@ -61,8 +61,10 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         H_chiral = _create_H_chiral(peptide, lambda_chiral)
-        print(H_chiral)
-        assert H_chiral == 3.0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+        # TODO improve PauliSumOp
+        expected = 3 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 1 * (Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1 * (
+                Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+        assert H_chiral == expected.reduce()
 
     def test_create_H_BBBB(self):
         """
