@@ -68,7 +68,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
     # pylint: disable=bad-docstring-quotes
     @deprecate_function(
         "Using the `dagger` property is deprecated as of version 0.2.0 and will be removed no "
-        "eariler than 3 months after the release date. As an alternative, use the `adjoint()` "
+        "earlier than 3 months after the release date. As an alternative, use the `adjoint()` "
         "method in place of `dagger` as a replacement."
     )
     def dagger(self):
