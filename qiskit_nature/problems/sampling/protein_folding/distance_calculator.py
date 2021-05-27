@@ -166,10 +166,10 @@ def _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2,
             try:
                 # TODO generalize to side chains longer than 1
                 indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
-                    j].side_chain[0].get_indicator_functions()
+                    j-1].side_chain[0].get_indicator_functions()
                 # TODO generalize to side chains longer than 1
                 indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
-                    i].side_chain[0].get_indicator_functions()
+                    i-1].side_chain[0].get_indicator_functions()
 
                 delta_n0[i][1][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * indic_0[j][
                     1] - (-1) ** i * indic_0[i][1]).reduce()
