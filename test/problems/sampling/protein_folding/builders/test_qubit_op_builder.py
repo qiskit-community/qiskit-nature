@@ -103,7 +103,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             main_chain_len, side_chain)
         h_bbbb = _create_H_BBBB(main_chain_len, lambda_1, pair_energies,
                                 x_dist, contacts)
-        print(h_bbbb)
+        expected = 0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 1 * (Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1 * (
+                Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+        assert h_bbbb == expected.reduce()
 
     def test_create_H_BBSC_and_H_SCBB(self):
         """
