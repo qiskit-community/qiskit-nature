@@ -240,7 +240,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             targ = FermionicOp([("-N", 3), ("N+", 1), ("++", (-2 + 4j))])
             self.assertFermionEqual(fer_op, targ)
 
-        with self.subTest("adojoint2"):
+        with self.subTest("adjoint 2"):
             fer_op = FermionicOp([("+-", 1), ("II", 2j)]).adjoint()
             targ = FermionicOp([("-+", -1), ("II", -2j)])
             self.assertFermionEqual(fer_op, targ)
