@@ -51,9 +51,9 @@ class FermionicOp(SecondQuantizedOp):
           - Hole number
 
     There are two types of label modes for this class.
-    The label mode is automatically detected.
+    The label mode is automatically detected by the presence of underscore `_`.
 
-    1. Dense Label (default, `register_length = None`)
+    1. Dense Label
 
     Dense labels are strings with allowed characters above.
     This is similar to Qiskit's string-based representation of qubit operators.
@@ -66,7 +66,7 @@ class FermionicOp(SecondQuantizedOp):
 
     are possible labels.
 
-    2. Sparse Label (`register_length` is passed)
+    2. Sparse Label
 
     When the parameter `register_length` is passed to :meth:`~FermionicOp.__init__`,
     label is assumed to be a sparse label.
@@ -82,8 +82,6 @@ class FermionicOp(SecondQuantizedOp):
         "+_0 -_1 +_4 +_10"
 
     are possible labels.
-    The :code:`index` must be in ascending order, and it does not allow duplicated indices.
-    Thus, :code:`"+_1 N_0"` and `+_0 -_0` are invalid labels.
 
     **Initialization**
 
@@ -196,14 +194,14 @@ class FermionicOp(SecondQuantizedOp):
             else max(max((int(c[2:]) for c in label.split()), default=0) for label, _ in data) + 1
         )
 
-        self._data = [(self._sub_label(label), complex(coeff)) for label, coeff in data]
+        self._data = [(self._substituted_label(label), complex(coeff)) for label, coeff in data]
 
     @staticmethod
-    def _sub_label(label):
+    def _substituted_label(label):
         re_number = re.compile(r"N_(\d+)")
         re_empty = re.compile(r"E_(\d+)")
-        sub_label = re_number.sub(r"+_\1 -_\1", re_empty.sub(r"-_\1 +_\1", label))
-        return " ".join(filter(lambda x: x[0] != "I", sub_label.split()))
+        substituted_label = re_number.sub(r"+_\1 -_\1", re_empty.sub(r"-_\1 +_\1", label))
+        return " ".join(filter(lambda x: x[0] != "I", substituted_label.split()))
 
     def __repr__(self) -> str:
         data = self.to_list()
@@ -307,7 +305,7 @@ class FermionicOp(SecondQuantizedOp):
     @classmethod
     def _from_legacy(cls, op: _LegacyFermionicOp):
         return cls(
-            [(cls._to_sp_label(label), coeff) for label, coeff in op.to_list()],
+            [(cls._to_sparse_label(label), coeff) for label, coeff in op.to_list()],
             register_length=op.register_length,
         )
 
@@ -331,7 +329,7 @@ class FermionicOp(SecondQuantizedOp):
         return _LegacyFermionicOp(non_zero_list)
 
     @staticmethod
-    def _to_sp_label(label):
+    def _to_sparse_label(label):
         label_transformation = {
             "I": "",
             "N": "+_{i} -_{i}",
