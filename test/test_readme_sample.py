@@ -40,7 +40,7 @@ class TestReadmeSample(QiskitNatureTestCase):
             # pylint: disable=unused-import
             from qiskit import Aer
 
-            _ = Aer.get_backend("statevector_simulator")
+            _ = Aer.get_backend("aer_simulator_statevector")
         except ImportError as ex:  # pylint: disable=broad-except
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
@@ -110,7 +110,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         # set the backend for the quantum computation
         from qiskit import Aer
 
-        backend = Aer.get_backend("statevector_simulator")
+        backend = Aer.get_backend("aer_simulator_statevector")
 
         # setup and run VQE
         from qiskit.algorithms import VQE

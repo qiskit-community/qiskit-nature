@@ -54,7 +54,7 @@ class InitialGuess(Enum):
 class PySCFDriver(FermionicDriver):
     """**DEPRECATED** Qiskit Nature driver using the PySCF library.
 
-    See https://sunqm.github.io/pyscf/
+    See https://pyscf.org/install.html
     """
 
     def __init__(
@@ -80,7 +80,7 @@ class PySCFDriver(FermionicDriver):
             charge: Charge on the molecule
             spin: Spin (2S), in accordance with how PySCF defines a molecule in pyscf.gto.mole.Mole
             basis: Basis set name as recognized by PySCF, e.g. `sto3g`, `321g` etc.
-                See https://sunqm.github.io/pyscf/_modules/pyscf/gto/basis.html for a listing.
+                See https://pyscf.org/user/gto.html for a listing.
                 Defaults to the minimal basis 'sto3g'.
             hf_method: Hartree-Fock Method type
             conv_tol: Convergence tolerance see PySCF docs and pyscf/scf/hf.py
@@ -133,7 +133,7 @@ class PySCFDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
+        err_msg = "PySCF is not installed. See https://pyscf.org/install.html"
         try:
             spec = importlib.util.find_spec("pyscf")
             if spec is not None:

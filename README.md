@@ -110,7 +110,7 @@ ansatz.compose(init_state, front=True)
 # set the backend for the quantum computation
 from qiskit import Aer
 
-backend = Aer.get_backend('statevector_simulator')
+backend = Aer.get_backend('aer_simulator_statevector')
 
 # setup and run VQE
 from qiskit.algorithms import VQE
