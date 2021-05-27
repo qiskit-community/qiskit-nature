@@ -241,41 +241,41 @@ def _create_H_BBSC_and_H_SCBB(main_chain_len, side_chain, lambda_1,
                 continue
             else:
                 if side_chain[j - 1] == 1:
-                    H_BBSC += contacts[i][1][j][0] * (
-                            _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
+                    H_BBSC += contacts[i][0][j][1] * (
+                            _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
                     try:
-                        H_BBSC += contacts[i][1][j][0] * _first_neighbor(i, 1, j, 1, lambda_1,
+                        H_BBSC += contacts[i][0][j][1] * _first_neighbor(i, 1, j, 1, lambda_1,
                                                                          pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_BBSC += contacts[i][1][j][0] * _second_neighbor(i + 1, 1, j, 0, lambda_1,
+                        H_BBSC += contacts[i][0][j][1] * _second_neighbor(i + 1, 0, j, 1, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_BBSC += contacts[i][1][j][0] * _second_neighbor(i - 1, 1, j, 0, lambda_1,
+                        H_BBSC += contacts[i][0][j][1] * _second_neighbor(i - 1, 1, j, 0, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     H_BBSC = H_BBSC.reduce()
                 if side_chain[i - 1] == 1:
-                    H_SCBB += contacts[i][0][j][1] * (
-                            _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
+                    H_SCBB += contacts[i][1][j][0] * (
+                            _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
                     try:
-                        H_SCBB += contacts[i][0][j][1] * _second_neighbor(i, 0, j, 1, lambda_1,
+                        H_SCBB += contacts[i][1][j][0] * _second_neighbor(i, 1, j, 0, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_SCBB += contacts[i][0][j][1] * _second_neighbor(i, 0, j + 1, 1, lambda_1,
+                        H_SCBB += contacts[i][1][j][0] * _second_neighbor(i, 1, j + 1, 0, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass
                     try:
-                        H_SCBB += contacts[i][0][j][1] * _second_neighbor(i, 0, j - 1, 1, lambda_1,
+                        H_SCBB += contacts[i][1][j][0] * _second_neighbor(i, 1, j - 1, 0, lambda_1,
                                                                           pair_energies, x_dist)
                     except:
                         pass

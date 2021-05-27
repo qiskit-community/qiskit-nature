@@ -146,39 +146,35 @@ def _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2,
 
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[j].side_chain[0].get_indicator_functions()
-                delta_n0[i][0][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * indic_0[j][1]).reduce()
-                delta_n1[i][0][j][1] = (delta_n1[i][0][j][0] + (-1) ** j * indic_1[j][1]).reduce()
-                delta_n2[i][0][j][1] = (delta_n2[i][0][j][0] + (-1) ** j * indic_2[j][1]).reduce()
-                delta_n3[i][0][j][1] = (delta_n3[i][0][j][0] + (-1) ** j * indic_3[j][1]).reduce()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[j-1].side_chain[0].get_indicator_functions()
+                delta_n0[i][0][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * indic_0).reduce()
+                delta_n1[i][0][j][1] = (delta_n1[i][0][j][0] + (-1) ** j * indic_1).reduce()
+                delta_n2[i][0][j][1] = (delta_n2[i][0][j][0] + (-1) ** j * indic_2).reduce()
+                delta_n3[i][0][j][1] = (delta_n3[i][0][j][0] + (-1) ** j * indic_3).reduce()
             except:
                 pass
 
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[i].side_chain[0].get_indicator_functions()
-                delta_n0[i][1][j][0] = (delta_n0[i][0][j][0] - (-1) ** i * indic_0[i][1]).reduce()
-                delta_n1[i][1][j][0] = (delta_n1[i][0][j][0] - (-1) ** i * indic_1[i][1]).reduce()
-                delta_n2[i][1][j][0] = (delta_n2[i][0][j][0] - (-1) ** i * indic_2[i][1]).reduce()
-                delta_n3[i][1][j][0] = (delta_n3[i][0][j][0] - (-1) ** i * indic_3[i][1]).reduce()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[i-1].side_chain[0].get_indicator_functions()
+                delta_n0[i][1][j][0] = (delta_n0[i][0][j][0] - (-1) ** i * indic_0).reduce()
+                delta_n1[i][1][j][0] = (delta_n1[i][0][j][0] - (-1) ** i * indic_1).reduce()
+                delta_n2[i][1][j][0] = (delta_n2[i][0][j][0] - (-1) ** i * indic_2).reduce()
+                delta_n3[i][1][j][0] = (delta_n3[i][0][j][0] - (-1) ** i * indic_3).reduce()
             except:
                 pass
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
+                higher_indic_0, higher_indic_1, higher_indic_2, higher_indic_3 = peptide.get_main_chain[
                     j-1].side_chain[0].get_indicator_functions()
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
+                lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = peptide.get_main_chain[
                     i-1].side_chain[0].get_indicator_functions()
 
-                delta_n0[i][1][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * indic_0[j][
-                    1] - (-1) ** i * indic_0[i][1]).reduce()
-                delta_n1[i][1][j][1] = (delta_n1[i][0][j][0] + (-1) ** j * indic_1[j][
-                    1] - (-1) ** i * indic_1[i][1]).reduce()
-                delta_n2[i][1][j][1] = (delta_n2[i][0][j][0] + (-1) ** j * indic_2[j][
-                    1] - (-1) ** i * indic_2[i][1]).reduce()
-                delta_n3[i][1][j][1] = (delta_n3[i][0][j][0] + (-1) ** j * indic_3[j][
-                    1] - (-1) ** i * indic_3[i][1]).reduce()
+                delta_n0[i][1][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * higher_indic_0 - (-1) ** i * lower_indic_0).reduce()
+                delta_n1[i][1][j][1] = (delta_n1[i][0][j][0] + (-1) ** j * higher_indic_1 - (-1) ** i * lower_indic_1).reduce()
+                delta_n2[i][1][j][1] = (delta_n2[i][0][j][0] + (-1) ** j * higher_indic_2 - (-1) ** i * lower_indic_2).reduce()
+                delta_n3[i][1][j][1] = (delta_n3[i][0][j][0] + (-1) ** j * higher_indic_3 - (-1) ** i * lower_indic_3).reduce()
             except:
                 pass
     return delta_n0, delta_n1, delta_n2, delta_n3
