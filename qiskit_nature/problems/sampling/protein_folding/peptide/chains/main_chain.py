@@ -55,6 +55,7 @@ class MainChain(BaseChain):
                                  [bead_turn_qubit_1, bead_turn_qubit_2],
                                  side_chain)
             main_chain.append(main_bead)
+        side_chain = None
         if side_chain_lens and side_chain_lens[
             main_chain_len-1] != 0 and side_chain_residue_sequences and \
                 side_chain_residue_sequences[main_chain_len-1] is not None:

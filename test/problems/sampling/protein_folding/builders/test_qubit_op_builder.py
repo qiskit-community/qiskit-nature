@@ -132,7 +132,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         main_chain_residue_seq = "SAASSASA"
         main_chain_len = 8
         side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None, "A", "A", None]
+        side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
         pair_energies = np.zeros((main_chain_len, 2, main_chain_len, 2))
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)

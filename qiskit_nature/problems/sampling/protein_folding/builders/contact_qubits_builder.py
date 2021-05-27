@@ -161,7 +161,6 @@ def _first_neighbor(i, p, j, s,
     lambda_0 = 7 * (j - i + 1) * lambda_1
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
-    idenitity = _build_full_identity(x.num_qubits)
     expr = lambda_0 * (x - _build_full_identity(x.num_qubits))  # +e TODO how to add a scalar here?
     return expr.reduce()
 
