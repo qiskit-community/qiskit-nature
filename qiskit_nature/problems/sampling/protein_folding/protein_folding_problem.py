@@ -9,8 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from problems.sampling.protein_folding.builders.qubit_op_builder import _build_qubit_op
 from problems.sampling.protein_folding.peptide.peptide import Peptide
-from qiskit_nature.problems.sampling.folding.folding_qubit_op_builder import _build_qubit_op
 from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction
 from qiskit_nature.problems.sampling.protein_folding.penalties import Penalties
 from qiskit_nature.problems.sampling.sampling_problem import SamplingProblem
@@ -18,15 +18,19 @@ from qiskit_nature.problems.sampling.sampling_problem import SamplingProblem
 
 class ProteinFoldingProblem(SamplingProblem):
 
-    def __init__(self, peptide: Peptide, interaction: Interaction, penalties: Penalties):
+    def __init__(self, peptide: Peptide, interaction: Interaction, penalty_terms: Penalties):
         self._peptide = peptide
         self._interaction = interaction
-        self._penalties = penalties
+        self._penalty_terms = penalty_terms
         self._pair_energies = interaction.calc_energy_matrix(len(peptide.get_main_chain),
                                                              peptide.get_main_chain.get_residue_sequence())
+        self._N_contacts = 0  # TODO what is the meaning of this param?
 
     def qubit_op(self):
-        return _build_qubit_op()
+        return _build_qubit_op(self._peptide, self._pair_energies,
+                               self._penalty_terms.lambda_chiral, self._penalty_terms.lambda_back,
+                               self._penalty_terms.lambda_1, self._penalty_terms.lambda_contacts,
+                               self._N_contacts)
 
     def interpret(self):
         pass
