@@ -36,14 +36,20 @@ class BaseBead(ABC):
             self._indic_0 = (
                     (FULL_ID - self._turn_qubits[0]) @ (FULL_ID - self._turn_qubits[1])).reduce()
             self._indic_1 = (
-                    self._turn_qubits[1] @ (self._turn_qubits[1] - 1 * self._turn_qubits[0])).reduce()
+                    self._turn_qubits[1] @ (
+                        self._turn_qubits[1] - 1 * self._turn_qubits[0])).reduce()
             self._indic_2 = (
-                    self._turn_qubits[0] @ (self._turn_qubits[0] - 1 * self._turn_qubits[1])).reduce()
+                    self._turn_qubits[0] @ (
+                        self._turn_qubits[0] - 1 * self._turn_qubits[1])).reduce()
             self._indic_3 = (self._turn_qubits[0] @ self._turn_qubits[1]).reduce()
 
     @property
     def turn_qubits(self):
         return self._turn_qubits
+
+    @property
+    def residue_type(self):
+        return self._residue_type
 
     # for the turn that leads from the bead
     def get_indicator_functions(self) -> Tuple[

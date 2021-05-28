@@ -14,14 +14,50 @@ from qiskit.opflow import I, PauliSumOp, OperatorBase
 from qiskit.quantum_info import SparsePauliOp, PauliTable
 
 from problems.sampling.protein_folding.builders.contact_qubits_builder import _first_neighbor, \
-    _second_neighbor
+    _second_neighbor, _create_pauli_for_contacts, _create_new_qubit_list
+from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
+    _add_distances_side_chain, _calc_total_distances
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
-def _build_qubit_op(n, side_chain, pair_energies, lambda_chiral, lambda_back, lambda_1,
+def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back, lambda_1,
                     lambda_contacts, n_contacts):
-    pass
+    side_chain = peptide.get_side_chain_hot_vector()
+    main_chain_len = len(peptide.get_main_chain)
+
+    if len(side_chain) != main_chain_len:
+        raise Exception('size the side_chain is not equal to N')
+    if side_chain[0] == 1 or side_chain[-1] == 1 or side_chain[1] == 1:
+        raise Exception('please add extra bead instead of side chain on terminal bead')
+
+    delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
+    delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
+                                                                       delta_n1, delta_n2,
+                                                                       delta_n3)
+    x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
+                                   delta_n2, delta_n3)
+    h_chiral = _create_h_chiral(peptide, lambda_chiral)
+    h_back = _create_h_back(peptide, lambda_back)
+
+    contacts, r_contact = _create_pauli_for_contacts(main_chain_len, side_chain)
+
+    h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
+                            pair_energies, x_dist, contacts)
+    h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies, x_dist, contacts)
+
+    h_short = _create_h_short(peptide, lambda_1)
+
+    h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
+                                               pair_energies, x_dist, contacts)
+    h_contacts = _create_H_contacts(peptide, lambda_contacts, n_contacts)
+
+    h_tot = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
+
+    print('number of terms in the hamiltonian : ', len(h_tot.args))
+    print('Hamiltonian: ', h_tot)
+
+    return h_tot
 
 
 def _check_turns(lower_bead: BaseBead, higher_bead: BaseBead) -> OperatorBase:
@@ -76,7 +112,7 @@ def _set_binaries(H_back):
     return H_back_updated
 
 
-def _create_H_chiral(peptide, lambda_chiral):
+def _create_h_chiral(peptide, lambda_chiral):
     """
     Creates a penalty/constrain term to the total Hamiltonian that imposes that all the position
     of all side chain beads impose the right chirality. Note that the position of the side chain
@@ -155,7 +191,7 @@ def _create_H_chiral(peptide, lambda_chiral):
     return H_chiral
 
 
-def _create_H_BBBB(main_chain_len, lambda_1, pair_energies,
+def _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
                    x_dist, contacts):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
@@ -181,26 +217,26 @@ def _create_H_BBBB(main_chain_len, lambda_1, pair_energies,
             if (j - i) % 2 == 0:
                 continue
             else:
-                H_BBBB += contacts[i][0][j][0] * _first_neighbor(i, 0, j, 0, lambda_1,
+                H_BBBB += contacts[i][0][j][0] @ _first_neighbor(i, 0, j, 0, lambda_1,
                                                                  pair_energies,
                                                                  x_dist)
                 try:
-                    H_BBBB += contacts[i][0][j][0] * _second_neighbor(i - 1, 0, j, 0, lambda_1,
+                    H_BBBB += contacts[i][0][j][0] @ _second_neighbor(i - 1, 0, j, 0, lambda_1,
                                                                       pair_energies, x_dist)
                 except:
                     pass
                 try:
-                    H_BBBB += contacts[i][0][j][0] * _second_neighbor(i + 1, 0, j, 0, lambda_1,
+                    H_BBBB += contacts[i][0][j][0] @ _second_neighbor(i + 1, 0, j, 0, lambda_1,
                                                                       pair_energies, x_dist)
                 except:
                     pass
                 try:
-                    H_BBBB += contacts[i][0][j][0] * _second_neighbor(i, 0, j - 1, 0, lambda_1,
+                    H_BBBB += contacts[i][0][j][0] @ _second_neighbor(i, 0, j - 1, 0, lambda_1,
                                                                       pair_energies, x_dist)
                 except:
                     pass
                 try:
-                    H_BBBB += contacts[i][0][j][0] * _second_neighbor(i, 0, j + 1, 0, lambda_1,
+                    H_BBBB += contacts[i][0][j][0] @ _second_neighbor(i, 0, j + 1, 0, lambda_1,
                                                                       pair_energies, x_dist)
                 except:
                     pass
@@ -208,7 +244,7 @@ def _create_H_BBBB(main_chain_len, lambda_1, pair_energies,
     return H_BBBB
 
 
-def _create_H_BBSC_and_H_SCBB(main_chain_len, side_chain, lambda_1,
+def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                               pair_energies, x_dist,
                               contacts):
     """
@@ -283,7 +319,7 @@ def _create_H_BBSC_and_H_SCBB(main_chain_len, side_chain, lambda_1,
     return _set_binaries(H_BBSC), _set_binaries(H_SCBB)
 
 
-def _create_H_SCSC(main_chain_len, side_chain, lambda_1,
+def _create_h_scsc(main_chain_len, side_chain, lambda_1,
                    pair_energies, x_dist, contacts):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
@@ -320,9 +356,7 @@ def _create_H_SCSC(main_chain_len, side_chain, lambda_1,
     return _set_binaries(H_SCSC)
 
 
-def _create_H_short(main_chain_len, side_chain, pair_energies,
-                    x_dist, indic_0,
-                    indic_1, indic_2, indic_3):
+def _create_h_short(peptide: Peptide, pair_energies):
     """
     Creates Hamiltonian constituting interactions between beads that are no more than
     4 beads apart. If no side chains are present, this function returns 0.
@@ -340,18 +374,40 @@ def _create_H_short(main_chain_len, side_chain, pair_energies,
         indic_3: Turn indicator for axis 3
 
     Returns:
-        H_short: Contribution to energetic Hamiltonian in symbolic notation t
+        h_short: Contribution to energetic Hamiltonian in symbolic notation t
     """
-    H_short = PauliSumOp.from_list(
+    main_chain_len = len(peptide.get_main_chain)
+    side_chain = peptide.get_side_chain_hot_vector()
+    h_short = PauliSumOp.from_list(
         [("I" * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
     for i in range(1, main_chain_len - 2):
         # checks interactions between beads no more than 4 beads apart
         if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
-            H_short += _simplify(pauli_conf,
-                                 _check_turns(i, 1, i + 2, 0, indic_0, indic_1, indic_2, indic_3,
-                                              pauli_conf) * \
-                                 _check_turns(i + 3, 1, i, 0, indic_0, indic_1, indic_2, indic_3,
-                                              pauli_conf)) * \
+            h_short += _check_turns(peptide.get_main_chain[i],
+                                    peptide.get_main_chain[i + 2 - 1].side_chain[0]) @ \
+                       _check_turns(peptide.get_main_chain[i + 3 - 1],
+                                    peptide.get_main_chain[i - 1].side_chain[0]) * \
                        (pair_energies[i, 1, i + 3, 1] + 0.1 * (
                                pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
-    return _set_binaries(H_short)
+    return _set_binaries(h_short)
+
+
+# TODO in the original code, N_contacts is always set to 0. What is the meaning of this param?
+def _create_H_contacts(peptide, lambda_contacts, N_contacts):
+    """
+    To document
+
+    Approximating nearest neighbor interactions (2 and greater?) #+ e*0.1
+
+    energy of contacts that are present in system (energy shift)
+
+    """
+    pauli_contacts, n_contact = _create_pauli_for_contacts(peptide)
+    new_qubits = _create_new_qubit_list(peptide, pauli_contacts)
+
+    h_contacts = lambda_contacts * (
+            0.5 * (np.sum(1 - np.array(new_qubits[-n_contact:]))) - N_contacts) ** 2
+    h_contacts = h_contacts.expand()
+    h_contacts = h_contacts.subs(
+        {new_qubits[k] ** 2: 1 for k in range(1, len(new_qubits))})  # convert to identity
+    return h_contacts

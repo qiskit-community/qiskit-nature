@@ -34,6 +34,12 @@ class BaseChain(ABC):
     def beads_list(self) -> List[BaseBead]:
         return self._beads_list
 
+    def get_residue_sequence(self):
+        residue_sequence = []
+        for bead in self._beads_list:
+            residue_sequence.append(bead.residue_type)
+        return residue_sequence
+
     def _build_turn_qubit(self, chain_len, bead_id) -> PauliOp:
         num_turn_qubits = 2 * (chain_len - 1)
         if bead_id != 0:

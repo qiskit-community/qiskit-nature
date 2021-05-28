@@ -15,7 +15,7 @@ from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
 # TODO refactor data structures and try clauses
-def _create_pauli_for_contacts(main_chain_len, side_chain):
+def _create_pauli_for_contacts(peptide: Peptide):
     """
     Creates Pauli operators for 1st nearest neighbor interactions
 
@@ -30,6 +30,8 @@ def _create_pauli_for_contacts(main_chain_len, side_chain):
                                     contacts
        pauli_contacts[i][p][j][s]
     """
+    main_chain_len = len(peptide.get_main_chain)
+    side_chain = peptide.get_side_chain_hot_vector()
     pauli_contacts = _init_pauli_contacts_dict(main_chain_len)
 
     r_contact = 0
@@ -92,8 +94,7 @@ def _init_pauli_contacts_dict(main_chain_len):
 
 
 # gathers qubits from conformation and qubits from NN intraction
-def _create_new_qubit_list(main_chain_len, side_chain,
-                           peptide: Peptide, pauli_contacts):
+def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
     """
     Creates new set of contact qubits for second nearest neighbour
     interactions. Note, the need of multiple interaction qubits
@@ -108,6 +109,8 @@ def _create_new_qubit_list(main_chain_len, side_chain,
     Returns:
         new_qubits: Dictionary of qubits in symbolic notation
     """
+    main_chain_len = len(peptide.get_main_chain)
+    side_chain = peptide.get_side_chain_hot_vector()
     old_qubits_conf = []
     old_qubits_contact = []
     for q in range(1, main_chain_len):
@@ -193,20 +196,3 @@ def _second_neighbor(i, p, j, s,
     x = x_dist[i][p][j][s]
     expr = lambda_1 * (2 * _build_full_identity(x.num_qubits) - x)  # + e*0.1
     return expr.reduce()
-
-
-def _create_H_contacts(new_qubits, n_contact, lambda_contacts, N_contacts):
-    """
-    To document
-
-    Approximating nearest neighbor interactions (2 and greater?) #+ e*0.1
-
-    energy of contacts that are present in system (energy shift)
-
-    """
-    H_contacts = lambda_contacts * (
-            0.5 * (np.sum(1 - np.array(new_qubits[-n_contact:]))) - N_contacts) ** 2
-    H_contacts = H_contacts.expand()
-    H_contacts = H_contacts.subs(
-        {new_qubits[k] ** 2: 1 for k in range(1, len(new_qubits))})  # convert to identity
-    return H_contacts

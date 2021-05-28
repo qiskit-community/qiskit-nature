@@ -29,10 +29,13 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
+        main_chain_residue_seq = "SAASS"
         main_chain_len = 5
         side_chains = [0, 0, 1, 1, 1]
-        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(
-            main_chain_len, side_chains)
+        side_chain_residue_sequences = [None, None, "A", "A", "A"]
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
+                          side_chain_residue_sequences)
+        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
         assert pauli_contacts == {1: {0: {4: {}, 5: {
             1: PauliSumOp(SparsePauliOp([[False, False, False, False, False, False, False, False,
                                           False, False, False, False, False, False, False, False,
@@ -54,13 +57,11 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        side_chain = peptide.get_side_chain_hot_vector()
-        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(
-            main_chain_len, side_chain)
-        new_qubits = _create_new_qubit_list(main_chain_len, side_chain, peptide, pauli_contacts)
+        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
+        new_qubits = _create_new_qubit_list(peptide, pauli_contacts)
         assert new_qubits[0] == 0
         assert new_qubits[1] == 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
 
     def test_first_neighbor(self):
         """
