@@ -26,11 +26,11 @@ from qiskit_nature.circuit.library.initial_states.hartree_fock import (
 from qiskit_nature.drivers import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.properties.electronic_energy import ElectronicEnergy
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 from qiskit_nature.transformers import BaseTransformer
 
 from .builders.aux_fermionic_ops_builder import _create_all_aux_operators
-from .builders.fermionic_op_builder import _build_fermionic_op
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
@@ -69,8 +69,10 @@ class ElectronicStructureProblem(BaseProblem):
         self._molecule_data = cast(QMolecule, self.driver.run())
         self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
-        electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
-        second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
+        electronic_energy = ElectronicEnergy.from_driver_result(self._molecule_data_transformed)
+
+        electronic_fermionic_op = electronic_energy.second_q_ops()
+        second_quantized_ops_list = electronic_fermionic_op + _create_all_aux_operators(
             self._molecule_data_transformed
         )
 
