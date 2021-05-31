@@ -21,11 +21,13 @@ class TestMainBead(QiskitNatureTestCase):
 
     def test_main_bead_constructor(self):
         """Tests that a MainBead is created."""
+        main_chain_len = 4
+        main_bead_id = 3
         residue_type = "S"
         turn_qubits = [I, Z]
         side_chain_len = 1
         side_chain_residue_sequences = ["S"]
-        side_chain = SideChain(side_chain_len, side_chain_residue_sequences)
+        side_chain = SideChain(main_chain_len, main_bead_id, side_chain_len, side_chain_residue_sequences)
         main_bead = MainBead(residue_type, turn_qubits, side_chain)
 
         assert main_bead.side_chain == side_chain
