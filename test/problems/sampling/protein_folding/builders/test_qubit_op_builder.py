@@ -48,23 +48,54 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                 Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 2.5 * (I ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I) - 2.5 * (
                        Z ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I)
 
-    def test_create_H_chiral(self):
+    def test_create_h_chiral(self):
         """
         Tests that the Hamiltonian chirality constraints is created correctly.
         """
-        lambda_chiral = 3
-        main_chain_residue_seq = "SAASS"
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 0, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None]
-
+        lambda_chiral = 10
+        main_chain_residue_seq = "SAASSASA"
+        main_chain_len = 8
+        side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        H_chiral = _create_h_chiral(peptide, lambda_chiral)
-        # TODO improve PauliSumOp
-        expected = 3 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 1 * (Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1 * (
-                Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-        assert H_chiral == expected.reduce()
+        h_chiral = _create_h_chiral(peptide, lambda_chiral)
+        expected = \
+        18.75 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I)+ \
+        2.5 * (I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^I^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^Z^I^I^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^Z^I^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^Z^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^Z^Z^I^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^Z^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^Z^I^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^Z^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^Z^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^Z^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^I^I^I^I^I^I^I^I)+ \
+        0.625 * (I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^Z^Z^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^Z^I^I^I^I^I^I^I^I)+ \
+        - 1.875 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^Z^Z^Z^I^I^I^I^I^I^I^I)+ \
+        2.5 * (I^I^I^I^I^I^I^I^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I)+ \
+        - 2.5 * (I^I^I^I^I^I^I^I^Z^Z^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I)
+        assert h_chiral == expected
 
     def test_create_H_BBBB(self):
         """

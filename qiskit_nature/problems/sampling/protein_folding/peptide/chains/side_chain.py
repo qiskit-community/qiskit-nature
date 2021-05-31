@@ -19,11 +19,14 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain i
 
 class SideChain(BaseChain):
 
-    def __init__(self, side_chain_len: int, side_chain_residue_sequences: List[str]):
-        beads_list = self._build_side_chain(side_chain_len, side_chain_residue_sequences)
+    def __init__(self, main_chain_len: int, main_bead_id, side_chain_len: int,
+                 side_chain_residue_sequences: List[str]):
+        beads_list = self._build_side_chain(main_chain_len, main_bead_id, side_chain_len,
+                                            side_chain_residue_sequences)
         super().__init__(beads_list)
 
-    def _build_side_chain(self, side_chain_len: int, side_chain_residue_sequences: List[str]) -> \
+    def _build_side_chain(self, main_chain_len: int, main_bead_id, side_chain_len: int,
+                          side_chain_residue_sequences: List[str]) -> \
             Union[List[SideBead], None]:
         if side_chain_len > 1:
             raise InvalidSideChainException(
@@ -32,8 +35,9 @@ class SideChain(BaseChain):
             return None
         side_chain = []
         for side_bead_id in range(side_chain_len):
-            bead_turn_qubit_1 = self._build_turn_qubit(side_chain_len, side_bead_id)
-            bead_turn_qubit_2 = self._build_turn_qubit(side_chain_len, side_bead_id)
+            # TODO generlize for longer side chains
+            bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id)
+            bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
             side_bead = SideBead(side_chain_residue_sequences[side_bead_id],
                                  [bead_turn_qubit_1, bead_turn_qubit_2])
             side_chain.append(side_bead)

@@ -17,6 +17,7 @@ from problems.sampling.protein_folding.builders.contact_qubits_builder import _f
     _second_neighbor, _create_pauli_for_contacts, _create_new_qubit_list
 from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
     _add_distances_side_chain, _calc_total_distances
+from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
@@ -135,17 +136,19 @@ def _create_h_chiral(peptide, lambda_chiral):
 
     main_chain = peptide.get_main_chain
     main_chain_len = len(main_chain)
+    # 2 stands for 2 qubits per turn, another 2 stands for main and side qubit register
     H_chiral = PauliSumOp.from_list(
-        [("I" * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
-    for i in range(1, len(main_chain)):  # TODO double check range
-        higher_main_bead = main_chain[i]
+        [("I" * 2 * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
+    full_id = _build_full_identity(2 * (main_chain_len - 1))
+    for i in range(1, len(main_chain) + 1):  # TODO double check range
+        higher_main_bead = main_chain[i - 1]
 
-        if not higher_main_bead.side_chain:
+        if higher_main_bead.side_chain is None:
             continue
 
         higher_side_bead = higher_main_bead.side_chain[0]
 
-        lower_main_bead = main_chain[i - 1]
+        lower_main_bead = main_chain[i - 2]
 
         lower_main_bead_indic_0, lower_main_bead_indic_1, lower_main_bead_indic_2, \
         lower_main_bead_indic_3 = \
@@ -159,34 +162,34 @@ def _create_h_chiral(peptide, lambda_chiral):
             higher_side_bead.get_indicator_functions()
 
         si = int((1 - (-1) ** i) / 2)
-        H_chiral += lambda_chiral * (I - higher_side_bead_indic_0) @ ((1 - si) * (
+        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_0) ^ ((1 - si) * (
                 lower_main_bead_indic_1 @ higher_main_bead_indic_2 + lower_main_bead_indic_2 @
                 higher_main_bead_indic_3 +
                 lower_main_bead_indic_3 @ higher_main_bead_indic_1) + si * (
-                                                                              lower_main_bead_indic_2 @ higher_main_bead_indic_1 +
-                                                                              lower_main_bead_indic_3 @ higher_main_bead_indic_2 +
-                                                                              lower_main_bead_indic_1 @ higher_main_bead_indic_3))
-        H_chiral += lambda_chiral * (I - higher_side_bead_indic_1) @ ((1 - si) * (
+                                                                                    lower_main_bead_indic_2 @ higher_main_bead_indic_1 +
+                                                                                    lower_main_bead_indic_3 @ higher_main_bead_indic_2 +
+                                                                                    lower_main_bead_indic_1 @ higher_main_bead_indic_3))
+        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_1) ^ ((1 - si) * (
                 lower_main_bead_indic_0 @ higher_main_bead_indic_3 + lower_main_bead_indic_2 @
                 higher_main_bead_indic_0 +
                 lower_main_bead_indic_3 @ higher_main_bead_indic_2) + si * (
-                                                                              lower_main_bead_indic_3 @ higher_main_bead_indic_0 +
-                                                                              lower_main_bead_indic_0 @ higher_main_bead_indic_2 +
-                                                                              lower_main_bead_indic_2 @ higher_main_bead_indic_3))
-        H_chiral += lambda_chiral * (I - higher_side_bead_indic_2) @ ((1 - si) * (
+                                                                                    lower_main_bead_indic_3 @ higher_main_bead_indic_0 +
+                                                                                    lower_main_bead_indic_0 @ higher_main_bead_indic_2 +
+                                                                                    lower_main_bead_indic_2 @ higher_main_bead_indic_3))
+        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_2) ^ ((1 - si) * (
                 lower_main_bead_indic_0 @ higher_main_bead_indic_1 + lower_main_bead_indic_1 @
                 higher_main_bead_indic_3 +
                 lower_main_bead_indic_3 @ higher_main_bead_indic_0) + si * (
-                                                                              lower_main_bead_indic_1 @ higher_main_bead_indic_0 +
-                                                                              lower_main_bead_indic_3 @ higher_main_bead_indic_1 +
-                                                                              lower_main_bead_indic_0 @ higher_main_bead_indic_3))
-        H_chiral += lambda_chiral * (I - higher_side_bead_indic_3) @ ((1 - si) * (
+                                                                                    lower_main_bead_indic_1 @ higher_main_bead_indic_0 +
+                                                                                    lower_main_bead_indic_3 @ higher_main_bead_indic_1 +
+                                                                                    lower_main_bead_indic_0 @ higher_main_bead_indic_3))
+        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_3) ^ ((1 - si) * (
                 lower_main_bead_indic_0 @ higher_main_bead_indic_2 + lower_main_bead_indic_1 @
                 higher_main_bead_indic_0 +
                 lower_main_bead_indic_2 @ higher_main_bead_indic_1) + si * (
-                                                                              lower_main_bead_indic_2 @ higher_main_bead_indic_0 +
-                                                                              lower_main_bead_indic_0 @ higher_main_bead_indic_1 +
-                                                                              lower_main_bead_indic_1 @ higher_main_bead_indic_2))
+                                                                                    lower_main_bead_indic_2 @ higher_main_bead_indic_0 +
+                                                                                    lower_main_bead_indic_0 @ higher_main_bead_indic_1 +
+                                                                                    lower_main_bead_indic_1 @ higher_main_bead_indic_2))
         H_chiral = _set_binaries(H_chiral).reduce()
     return H_chiral
 
