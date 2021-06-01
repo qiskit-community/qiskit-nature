@@ -75,4 +75,5 @@ def _create_total_ang_momentum_op(q_molecule: QMolecule) -> FermionicOp:
 
 def _create_total_particle_num_op(q_molecule: QMolecule) -> FermionicOp:
     num_modes = q_molecule.one_body_integrals.shape[0]
-    return build_ferm_op_from_ints(*calc_total_particle_num_ints(num_modes))
+    from qiskit_nature.properties.particle_number import ParticleNumber
+    return ParticleNumber(num_modes, (1, 1)).second_q_ops()[0]
