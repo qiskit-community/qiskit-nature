@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import cast, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -27,72 +26,10 @@ from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op
 )
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 
+from .electronic_integrals import (
+        _ElectronicIntegrals, _1BodyElectronicIntegrals, _2BodyElectronicIntegrals
+)
 from .property import Property
-
-
-class _ElectronicIntegrals(ABC):
-    """TODO."""
-
-    def __init__(
-        self,
-        num_body_terms: int,
-        matrices: Tuple[Optional[np.ndarray], ...],
-    ) -> None:
-        """TODO."""
-        assert num_body_terms >= 1
-        self._num_body_terms = num_body_terms
-        assert len(matrices) == 2 ** num_body_terms
-        assert matrices[0] is not None
-        self._matrices = matrices
-
-    @abstractmethod
-    def to_spin(self) -> np.ndarray:
-        """TODO."""
-        raise NotImplementedError("TODO.")
-
-
-class _1BodyElectronicIntegrals(_ElectronicIntegrals):
-    """TODO."""
-
-    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...]) -> None:
-        """TODO."""
-        super().__init__(1, matrices)
-
-    def to_spin(self) -> np.ndarray:
-        """TODO."""
-        matrix_a = self._matrices[0]
-        matrix_b = self._matrices[1] or matrix_a
-        zeros = np.zeros(matrix_a.shape)
-        return np.block([[matrix_a, zeros], [zeros, matrix_b]])
-
-
-class _2BodyElectronicIntegrals(_ElectronicIntegrals):
-    """TODO."""
-
-    EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
-    EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
-
-    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...]) -> None:
-        """TODO."""
-        super().__init__(2, matrices)
-
-    def to_spin(self) -> np.ndarray:
-        """TODO."""
-        so_matrix = np.zeros([2 * s for s in self._matrices[0].shape])
-        one_indices = (
-            (0, 0, 0, 0),
-            (0, 1, 1, 0),
-            (1, 0, 0, 1),
-            (1, 1, 1, 1),
-        )
-        for ao_mat, one_idx in zip(self._matrices, one_indices):
-            if ao_mat is None:
-                ao_mat = self._matrices[0]
-            phys_matrix = np.einsum(_2BodyElectronicIntegrals.EINSUM_CHEM_TO_PHYS, ao_mat)
-            kron = np.zeros((2, 2, 2, 2))
-            kron[one_idx] = 1
-            so_matrix -= 0.5 * np.kron(kron, phys_matrix)
-        return so_matrix
 
 
 class ElectronicEnergy(Property):
@@ -139,15 +76,9 @@ class ElectronicEnergy(Property):
             energy_shift=energy_shift,
         )
 
-    def _integrals(self) -> Tuple[np.ndarray, np.ndarray]:
-        """TODO."""
-        so_onee_ints = self._electronic_integrals[1].to_spin()
-        so_twoe_ints = self._electronic_integrals[2].to_spin()
-        return (so_onee_ints, so_twoe_ints)
-
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """TODO."""
-        return [build_ferm_op_from_ints(*self._integrals())]
+        return [sum(ints.to_second_q_op() for ints in self._electronic_integrals.values()).reduce()]
 
     def interpret(self, result: EigenstateResult) -> None:
         """TODO."""
