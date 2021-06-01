@@ -21,10 +21,7 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
-    build_ferm_op_from_ints,
-)
-from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
+from qiskit_nature.results import EigenstateResult
 
 from .electronic_integrals import _1BodyElectronicIntegrals
 from .property import Property
@@ -49,13 +46,13 @@ class ParticleNumber(Property):
             self._num_alpha, self._num_beta = num_particles
 
         if occupation is None:
-            self._occupation_alpha = [1. for _ in range(self._num_alpha)]
+            self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
             self._occupation_alpha += [0] * (register_length // 2 - len(self._occupation_alpha))
-            self._occupation_beta = [1. for _ in range(self._num_beta)]
+            self._occupation_beta = [1.0 for _ in range(self._num_beta)]
             self._occupation_beta += [0] * (register_length // 2 - len(self._occupation_beta))
         elif occupation_beta is None:
-            self._occupation_alpha = [o / 2. for o in occupation]
-            self._occupation_beta = [o / 2. for o in occupation]
+            self._occupation_alpha = [o / 2.0 for o in occupation]
+            self._occupation_beta = [o / 2.0 for o in occupation]
         else:
             self._occupation_alpha = occupation
             self._occupation_beta = occupation_beta

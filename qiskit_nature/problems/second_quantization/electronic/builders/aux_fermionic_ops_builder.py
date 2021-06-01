@@ -22,7 +22,6 @@ from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op
 from qiskit_nature.problems.second_quantization.electronic.integrals_calculators import (
     calc_total_magnetization_ints,
     calc_total_ang_momentum_ints,
-    calc_total_particle_num_ints,
 )
 
 
@@ -76,4 +75,5 @@ def _create_total_ang_momentum_op(q_molecule: QMolecule) -> FermionicOp:
 def _create_total_particle_num_op(q_molecule: QMolecule) -> FermionicOp:
     num_modes = q_molecule.one_body_integrals.shape[0]
     from qiskit_nature.properties.particle_number import ParticleNumber
+
     return ParticleNumber(num_modes, (1, 1)).second_q_ops()[0]

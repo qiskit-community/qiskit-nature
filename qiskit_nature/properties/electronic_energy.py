@@ -16,18 +16,15 @@ from __future__ import annotations
 
 from typing import cast, Dict, List, Optional, Tuple, Union
 
-import numpy as np
-
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
-    build_ferm_op_from_ints,
-)
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 
 from .electronic_integrals import (
-        _ElectronicIntegrals, _1BodyElectronicIntegrals, _2BodyElectronicIntegrals
+    _ElectronicIntegrals,
+    _1BodyElectronicIntegrals,
+    _2BodyElectronicIntegrals,
 )
 from .property import Property
 
@@ -78,7 +75,11 @@ class ElectronicEnergy(Property):
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """TODO."""
-        return [sum(ints.to_second_q_op() for ints in self._electronic_integrals.values()).reduce()]
+        return [
+            sum(
+                ints.to_second_q_op() for ints in self._electronic_integrals.values()
+            ).reduce()  # type: ignore
+        ]
 
     def interpret(self, result: EigenstateResult) -> None:
         """TODO."""
