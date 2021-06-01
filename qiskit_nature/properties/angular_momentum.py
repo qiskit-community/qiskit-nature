@@ -53,14 +53,14 @@ class AngularMomentum(Property):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        x_h1, x_h2 = _calc_s_x_squared_ints(self.register_length // 2)
-        y_h1, y_h2 = _calc_s_y_squared_ints(self.register_length // 2)
-        z_h1, z_h2 = _calc_s_z_squared_ints(self.register_length // 2)
+        x_h1, x_h2 = _calc_s_x_squared_ints(self.register_length)
+        y_h1, y_h2 = _calc_s_y_squared_ints(self.register_length)
+        z_h1, z_h2 = _calc_s_z_squared_ints(self.register_length)
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
-        h1_ints = _1BodyElectronicIntegrals((h_1, None))
-        h2_ints = _2BodyElectronicIntegrals((h_2, None, None, None))
+        h1_ints = _1BodyElectronicIntegrals((h_1, None), basis="so")
+        h2_ints = _2BodyElectronicIntegrals((h_2, None, None, None), basis="so")
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
     def interpret(self, result: EigenstateResult) -> None:

@@ -77,7 +77,7 @@ class ElectronicStructureProblem(BaseProblem):
         properties = []
         for cls in [ElectronicEnergy, ParticleNumber, AngularMomentum, Magnetization, DipoleMoment]:
             prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
-            if prop:
+            if prop is not None:
                 properties.append(prop)
 
         second_quantized_ops_list = reduce(

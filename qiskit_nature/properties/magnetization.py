@@ -51,9 +51,9 @@ class Magnetization(Property):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        matrix = np.eye(self.register_length // 2, dtype=complex) * 0.5
-        matrix[self.register_length // 4 :, self.register_length // 4 :] *= -1.0
-        ints = _1BodyElectronicIntegrals((matrix, None))
+        matrix_a = np.eye(self.register_length // 2, dtype=complex) * 0.5
+        matrix_b = -1.0 * matrix_a.copy()
+        ints = _1BodyElectronicIntegrals((matrix_a, matrix_b))
         return [ints.to_second_q_op()]
 
     def interpret(self, result: EigenstateResult) -> None:

@@ -31,6 +31,7 @@ class _ElectronicIntegrals(ABC):
         self,
         num_body_terms: int,
         matrices: Tuple[Optional[np.ndarray], ...],
+        basis: str = "mo",
     ) -> None:
         """TODO."""
         assert num_body_terms >= 1
@@ -38,6 +39,7 @@ class _ElectronicIntegrals(ABC):
         assert len(matrices) == 2 ** num_body_terms
         assert matrices[0] is not None
         self._matrices = matrices
+        self._basis = basis
 
     @abstractmethod
     def to_spin(self) -> np.ndarray:
@@ -52,7 +54,8 @@ class _ElectronicIntegrals(ABC):
     def to_second_q_op(self) -> FermionicOp:
         """TODO."""
         base_ops_labels = self._create_base_ops()
-        initial_label_with_ceoff = ("I" * 2 * len(self._matrices[0]), 0)
+        fac = 2 if self._basis != "so" else 1
+        initial_label_with_ceoff = ("I" * fac * len(self._matrices[0]), 0)
         # TODO the initial label should be eliminated once QMolecule is refactored (currently
         # has_dipole_integrals() checks for None only but zero-matrices happen instead of None and
         # initial labels prevents from an empty labels list when building a FermionicOp)
@@ -90,19 +93,22 @@ class _ElectronicIntegrals(ABC):
 class _1BodyElectronicIntegrals(_ElectronicIntegrals):
     """TODO."""
 
-    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...]) -> None:
+    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...], basis: str = "mo") -> None:
         """TODO."""
-        super().__init__(1, matrices)
+        super().__init__(1, matrices, basis)
 
     def to_spin(self) -> np.ndarray:
         """TODO."""
         matrix_a = self._matrices[0]
-        matrix_b = self._matrices[1] or matrix_a
+        matrix_b = matrix_a if self._matrices[1] is None else self._matrices[1]
         zeros = np.zeros(matrix_a.shape)
-        return np.block([[matrix_a, zeros], [zeros, matrix_b]])
+        so_matrix = np.block([[matrix_a, zeros], [zeros, matrix_b]])
+
+        return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
 
     def _create_base_ops(self) -> List[Tuple[str, complex]]:
-        return self._create_base_ops_labels(self.to_spin(), 2, self._calc_coeffs_with_ops)
+        so_matrix = self.to_spin() if self._basis.lower() != "so" else self._matrices[0]
+        return self._create_base_ops_labels(so_matrix, 2, self._calc_coeffs_with_ops)
 
     def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:
         return [(idx[0], "+"), (idx[1], "-")]
@@ -114,9 +120,9 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
     EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
-    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...]) -> None:
+    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...], basis: str = "mo") -> None:
         """TODO."""
-        super().__init__(2, matrices)
+        super().__init__(2, matrices, basis)
 
     def to_spin(self) -> np.ndarray:
         """TODO."""
@@ -134,10 +140,12 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
             kron = np.zeros((2, 2, 2, 2))
             kron[one_idx] = 1
             so_matrix -= 0.5 * np.kron(kron, phys_matrix)
-        return so_matrix
+
+        return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
 
     def _create_base_ops(self) -> List[Tuple[str, complex]]:
-        return self._create_base_ops_labels(self.to_spin(), 4, self._calc_coeffs_with_ops)
+        so_matrix = self.to_spin() if self._basis.lower() != "so" else self._matrices[0]
+        return self._create_base_ops_labels(so_matrix, 4, self._calc_coeffs_with_ops)
 
     def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:
         return [(idx[0], "+"), (idx[2], "+"), (idx[3], "-"), (idx[1], "-")]
