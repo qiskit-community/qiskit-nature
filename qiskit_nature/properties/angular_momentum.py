@@ -59,8 +59,8 @@ class AngularMomentum(Property):
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
-        h1_ints = _1BodyElectronicIntegrals(Basis.SO, (h_1, None))
-        h2_ints = _2BodyElectronicIntegrals(Basis.SO, (h_2, None, None, None))
+        h1_ints = _1BodyElectronicIntegrals(Basis.SO, h_1)
+        h2_ints = _2BodyElectronicIntegrals(Basis.SO, h_2)
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
     def interpret(self, result: EigenstateResult) -> None:
