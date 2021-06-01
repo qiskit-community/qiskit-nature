@@ -35,21 +35,18 @@ def _create_pauli_for_contacts(peptide: Peptide):
     pauli_contacts = _init_pauli_contacts_dict(main_chain_len)
 
     r_contact = 0
-    num_qubits = main_chain_len-1
+    num_qubits = 2*(main_chain_len-1)
+    full_id = _build_full_identity(num_qubits)
     for i in range(1, main_chain_len - 3):  # first qubit is number 1
         for j in range(i + 3, main_chain_len + 1):
             if (j - i) % 2 == 1:
                 if (j - i) >= 5:
-                    pauli_contacts[i][0][j][0] = (_build_full_identity(
-                        2 * num_qubits) - _build_pauli_z_op(2 * num_qubits, [i - 1, j - 1])) / 2.0
+                    pauli_contacts[i][0][j][0] = (full_id ^ (full_id - _build_pauli_z_op(num_qubits, [i - 1, j - 1]))) * 0.5
                     print('possible contact between', i, '0 and', j, '0')
                     r_contact += 1
                 if side_chain[i - 1] == 1 and side_chain[j - 1] == 1:
                     try:
-                        pauli_contacts[i][1][j][1] = (_build_full_identity(
-                            2 * num_qubits) - _build_pauli_z_op(2 * num_qubits,
-                                                                [num_qubits + i - 1,
-                                                                 num_qubits + j - 1])) / 2.0
+                        pauli_contacts[i][1][j][1] = ((full_id - _build_pauli_z_op(num_qubits, [i - 1, j - 1])) ^ full_id)* 0.5
                         print('possible contact between', i, '1 and', j, '1')
                         r_contact += 1
                     except:
@@ -59,10 +56,10 @@ def _create_pauli_for_contacts(peptide: Peptide):
                     if side_chain[j - 1] == 1:
                         try:
                             print('possible contact between', i, '0 and', j, '1')
-                            pauli_contacts[i][0][j][1] = (_build_full_identity(
-                                2 * num_qubits) - _build_pauli_z_op(2 * num_qubits, [i - 1,
-                                                                                     num_qubits +
-                                                                                     j - 1])) / 2.0
+                            a = full_id ^ full_id
+                            b = full_id ^ _build_pauli_z_op(num_qubits, [i - 1])
+                            d = _build_pauli_z_op(num_qubits, [j - 1]) ^ full_id
+                            pauli_contacts[i][0][j][1] = ((a-b) @ (a-d))/2.0
                             r_contact += 1
                         except:
                             pass
@@ -70,10 +67,10 @@ def _create_pauli_for_contacts(peptide: Peptide):
                     if side_chain[i - 1] == 1:
                         try:
                             print('possible contact between', i, '1 and', j, '0')
-                            pauli_contacts[i][1][j][0] = (_build_full_identity(
-                                2 * num_qubits) - _build_pauli_z_op(2 * num_qubits, [j - 1,
-                                                                                     num_qubits +
-                                                                                     i - 1])) / 2.0
+                            a = full_id ^ full_id
+                            b = full_id ^ _build_pauli_z_op(num_qubits, [j - 1])
+                            d = _build_pauli_z_op(num_qubits, [i - 1]) ^ full_id
+                            pauli_contacts[i][1][j][0] = ((a-b) @ (a-d)) / 2.0
                             r_contact += 1
                         except:
                             pass
@@ -113,15 +110,17 @@ def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
     side_chain = peptide.get_side_chain_hot_vector()
     old_qubits_conf = []
     old_qubits_contact = []
+    num_qubits = 2 * (main_chain_len - 1)
+    full_id = _build_full_identity(num_qubits)
     for q in range(1, main_chain_len):
         if q != 6:
-            old_qubits_conf.append(peptide.get_main_chain[q - 1].turn_qubits[0])
-            old_qubits_conf.append(peptide.get_main_chain[q - 1].turn_qubits[1])
+            old_qubits_conf.append(full_id^peptide.get_main_chain[q - 1].turn_qubits[0])
+            old_qubits_conf.append(full_id^peptide.get_main_chain[q - 1].turn_qubits[1])
         if side_chain[q - 1] == 1:
             old_qubits_conf.append(
-                peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0])
+                peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0]^full_id)
             old_qubits_conf.append(
-                peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[1])
+                peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[1]^full_id)
 
     for i in range(1, main_chain_len - 3):
         for j in range(i + 4, main_chain_len + 1):
@@ -162,7 +161,7 @@ def _first_neighbor(i, p, j, s,
         expr: Contribution to energetic Hamiltonian in symbolic notation
     """
     lambda_0 = 7 * (j - i + 1) * lambda_1
-    e = pair_energies[i, p, j, s]
+    #e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
     expr = lambda_0 * (x - _build_full_identity(x.num_qubits))  # +e TODO how to add a scalar here?
     return expr.reduce()
