@@ -280,13 +280,9 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                 continue
             else:
                 if side_chain[j - 1] == 1:
-                    # H_BBSC += contacts[i][0][j][1] @ (
-                    #         _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
-                    #         _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
-                    fn = _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist)
-                    sn = _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)
-                    ctn = contacts[i][0][j][1]
-                    print(2)
+                    H_BBSC += contacts[i][0][j][1] @ (
+                            _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
+                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
                     try:
                         H_BBSC += contacts[i][0][j][1] @ _first_neighbor(i, 1, j, 1, lambda_1,
                                                                          pair_energies, x_dist)
