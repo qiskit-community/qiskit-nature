@@ -140,6 +140,7 @@ class FermionicOp(SecondQuantizedOp):
             fermion += FermionicOp(somedata)
 
     """
+    _label_display_mode_is_dense: bool = True
 
     def __init__(
         self,
@@ -268,19 +269,15 @@ class FermionicOp(SecondQuantizedOp):
             max(self.register_length, other.register_length),
         )
 
-    # pylint: disable=arguments-differ
-    def to_list(self, sparse: bool = False) -> List[Tuple[str, complex]]:
+    def to_list(self) -> List[Tuple[str, complex]]:
         """Returns the operators internal contents in list-format.
-
-        Args:
-            sparse: The labels in the return list are sparse or not. (Default: False)
 
         Returns:
             A list of tuples consisting of the dense label and corresponding coefficient.
         """
-        if sparse:
-            return self._data.copy()
-        return self._to_legacy().to_list()
+        if FermionicOp._label_display_mode_is_dense:
+            return self._to_legacy().to_list()
+        return self._data.copy()
 
     def adjoint(self) -> "FermionicOp":
         data = []
@@ -301,6 +298,24 @@ class FermionicOp(SecondQuantizedOp):
 
         op = self._to_legacy().reduce(atol, rtol)
         return FermionicOp._from_legacy(op)
+
+    @classmethod
+    def set_label_display_mode(cls, mode: str):
+        """Set the display mode of labels.
+
+        Args:
+            mode: display mode of labels. "sparse" or "dense" is available.
+
+        Raises:
+            ValueError: invalid mode is given
+        """
+        mode_lower = mode.lower()
+        if mode_lower == "dense":
+            cls._label_display_mode_is_dense = True
+        elif mode_lower == "sparse":
+            cls._label_display_mode_is_dense = False
+        else:
+            raise ValueError(f"Invalid `mode` {mode} is given. `mode` must be dense or sparse.")
 
     @classmethod
     def _from_legacy(cls, op: _LegacyFermionicOp):

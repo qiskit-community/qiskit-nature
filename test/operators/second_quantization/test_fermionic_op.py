@@ -291,12 +291,14 @@ class TestFermionicOp(QiskitNatureTestCase):
         )
     )
     @unpack
-    def test_to_list_sparse(self, label, pre_processing):
-        """test to_list with sparse"""
+    def test_label_display_mode(self, label, pre_processing):
+        """test label_display_mode"""
         fer_op = FermionicOp(pre_processing(label))
 
-        self.assertListEqual(fer_op.to_list(sparse=True), str2list(label))
-        self.assertNotEqual(fer_op.to_list(sparse=False), str2list(label))
+        fer_op.set_label_display_mode("sparse")
+        self.assertListEqual(fer_op.to_list(), str2list(label))
+        fer_op.set_label_display_mode("dense")
+        self.assertNotEqual(fer_op.to_list(), str2list(label))
 
 
 if __name__ == "__main__":
