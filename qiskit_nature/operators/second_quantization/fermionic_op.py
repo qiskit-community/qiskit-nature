@@ -279,7 +279,7 @@ class FermionicOp(SecondQuantizedOp):
             A list of tuples consisting of the dense label and corresponding coefficient.
         """
         if sparse:
-            return self._data[:]
+            return self._data.copy()
         return self._to_legacy().to_list()
 
     def adjoint(self) -> "FermionicOp":
