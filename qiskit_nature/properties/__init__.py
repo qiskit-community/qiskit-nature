@@ -17,3 +17,17 @@ Properties (:mod:`qiskit_nature.properties`)
 .. currentmodule:: qiskit_nature.properties
 
 """
+
+from .angular_momentum import AngularMomentum
+from .dipole_moment import DipoleMoment
+from .electronic_energy import ElectronicEnergy
+from .magnetization import Magnetization
+from .particle_number import ParticleNumber
+
+__all__ = [
+    "AngularMomentum",
+    "DipoleMoment",
+    "ElectronicEnergy",
+    "Magnetization",
+    "ParticleNumber",
+]

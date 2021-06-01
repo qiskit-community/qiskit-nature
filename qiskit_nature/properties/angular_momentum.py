@@ -10,32 +10,62 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Calculator of 1- and 2-body integrals for a total angular momentum."""
+"""TODO."""
+
+from __future__ import annotations
+
+from typing import cast, Dict, List, Optional, Tuple, Union
 
 import itertools
-from typing import Tuple, List
 
 import numpy as np
 
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
-def calc_total_ang_momentum_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Calculates 1- and 2-body integrals for a total angular momentum.
+from .electronic_integrals import _1BodyElectronicIntegrals, _2BodyElectronicIntegrals
+from .property import Property
 
-    Args:
-        num_modes (int): Number of modes.
 
-    Returns:
-        Tuple(numpy.ndarray, numpy.ndarray): Tuple of 1- and 2-body integrals for a total angular
-        momentum.
-    """
-    x_h1, x_h2 = _calc_s_x_squared_ints(num_modes)
-    y_h1, y_h2 = _calc_s_y_squared_ints(num_modes)
-    z_h1, z_h2 = _calc_s_z_squared_ints(num_modes)
-    h_1 = x_h1 + y_h1 + z_h1
-    h_2 = x_h2 + y_h2 + z_h2
+class AngularMomentum(Property):
+    """TODO."""
 
-    return h_1, h_2
+    def __init__(
+        self,
+        register_length: int,
+    ):
+        """TODO."""
+        super().__init__(self.__class__.__name__, register_length)
+
+    @classmethod
+    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> AngularMomentum:
+        """TODO."""
+        if isinstance(result, WatsonHamiltonian):
+            raise QiskitNatureError("TODO.")
+
+        qmol = cast(QMolecule, result)
+
+        return cls(
+            qmol.num_molecular_orbitals * 2,
+        )
+
+    def second_q_ops(self) -> List[FermionicOp]:
+        """TODO."""
+        x_h1, x_h2 = _calc_s_x_squared_ints(self.register_length // 2)
+        y_h1, y_h2 = _calc_s_y_squared_ints(self.register_length // 2)
+        z_h1, z_h2 = _calc_s_z_squared_ints(self.register_length // 2)
+        h_1 = x_h1 + y_h1 + z_h1
+        h_2 = x_h2 + y_h2 + z_h2
+
+        h1_ints = _1BodyElectronicIntegrals((h_1, None))
+        h2_ints = _2BodyElectronicIntegrals((h_2, None, None, None))
+        return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """TODO."""
+        pass
 
 
 def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:

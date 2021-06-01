@@ -18,7 +18,7 @@ from typing import cast, Dict, List, Optional, Tuple, Union
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 
 from .electronic_integrals import (
@@ -73,7 +73,7 @@ class ElectronicEnergy(Property):
             energy_shift=energy_shift,
         )
 
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
+    def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
         return [
             sum(

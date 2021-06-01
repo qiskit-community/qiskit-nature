@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+# TODO: remove! This is now only being used by the test suite...
+
 """ Fermionic operator builder. """
 
 import itertools

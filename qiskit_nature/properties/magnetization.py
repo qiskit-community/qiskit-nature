@@ -27,38 +27,18 @@ from .electronic_integrals import _1BodyElectronicIntegrals
 from .property import Property
 
 
-class ParticleNumber(Property):
+class Magnetization(Property):
     """TODO."""
 
     def __init__(
         self,
         register_length: int,
-        num_particles: Union[int, Tuple[int, int]],
-        occupation: Optional[List[float]] = None,
-        occupation_beta: Optional[List[float]] = None,
     ):
         """TODO."""
         super().__init__(self.__class__.__name__, register_length)
-        if isinstance(num_particles, int):
-            self._num_alpha = num_particles // 2 + num_particles % 2
-            self._num_beta = num_particles // 2
-        else:
-            self._num_alpha, self._num_beta = num_particles
-
-        if occupation is None:
-            self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
-            self._occupation_alpha += [0] * (register_length // 2 - len(self._occupation_alpha))
-            self._occupation_beta = [1.0 for _ in range(self._num_beta)]
-            self._occupation_beta += [0] * (register_length // 2 - len(self._occupation_beta))
-        elif occupation_beta is None:
-            self._occupation_alpha = [o / 2.0 for o in occupation]
-            self._occupation_beta = [o / 2.0 for o in occupation]
-        else:
-            self._occupation_alpha = occupation
-            self._occupation_beta = occupation_beta
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> ParticleNumber:
+    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> Magnetization:
         """TODO."""
         if isinstance(result, WatsonHamiltonian):
             raise QiskitNatureError("TODO.")
@@ -67,14 +47,13 @@ class ParticleNumber(Property):
 
         return cls(
             qmol.num_molecular_orbitals * 2,
-            (qmol.num_alpha, qmol.num_beta),
-            qmol.mo_occ,
-            qmol.mo_occ_b,
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        ints = _1BodyElectronicIntegrals((np.eye(self.register_length // 2), None))
+        matrix = np.eye(self.register_length // 2, dtype=complex) * 0.5
+        matrix[self.register_length // 4 :, self.register_length // 4 :] *= -1.0
+        ints = _1BodyElectronicIntegrals((matrix, None))
         return [ints.to_second_q_op()]
 
     def interpret(self, result: EigenstateResult) -> None:

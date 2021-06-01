@@ -52,6 +52,11 @@ class _ElectronicIntegrals(ABC):
     def to_second_q_op(self) -> FermionicOp:
         """TODO."""
         base_ops_labels = self._create_base_ops()
+        initial_label_with_ceoff = ("I" * 2 * len(self._matrices[0]), 0)
+        # TODO the initial label should be eliminated once QMolecule is refactored (currently
+        # has_dipole_integrals() checks for None only but zero-matrices happen instead of None and
+        # initial labels prevents from an empty labels list when building a FermionicOp)
+        base_ops_labels.append(initial_label_with_ceoff)
         return FermionicOp(base_ops_labels)
 
     @staticmethod
