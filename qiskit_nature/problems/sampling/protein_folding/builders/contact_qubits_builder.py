@@ -35,7 +35,7 @@ def _create_pauli_for_contacts(peptide: Peptide):
     pauli_contacts = _init_pauli_contacts_dict(main_chain_len)
 
     r_contact = 0
-    num_qubits = main_chain_len
+    num_qubits = main_chain_len-1
     for i in range(1, main_chain_len - 3):  # first qubit is number 1
         for j in range(i + 3, main_chain_len + 1):
             if (j - i) % 2 == 1:
