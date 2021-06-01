@@ -315,7 +315,7 @@ class FermionicOp(SecondQuantizedOp):
         elif mode_lower == "sparse":
             cls._label_display_mode_is_dense = False
         else:
-            raise ValueError(f"Invalid `mode` {mode} is given. `mode` must be dense or sparse.")
+            raise ValueError(f"Invalid `mode` {mode} is given. `mode` must be 'dense' or 'sparse'.")
 
     @classmethod
     def _from_legacy(cls, op: _LegacyFermionicOp):
