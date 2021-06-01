@@ -314,6 +314,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
 
+    @slow_test
     def test_uccsd_hf_aer_statevector(self):
         """uccsd hf test with Aer statevector"""
         try:
@@ -339,6 +340,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
+    @slow_test
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
         try:
