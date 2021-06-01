@@ -23,7 +23,7 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .electronic_integrals import _1BodyElectronicIntegrals
+from .electronic_integrals import Basis, _1BodyElectronicIntegrals
 from .property import Property
 
 
@@ -53,7 +53,7 @@ class Magnetization(Property):
         """TODO."""
         matrix_a = np.eye(self.register_length // 2, dtype=complex) * 0.5
         matrix_b = -1.0 * matrix_a.copy()
-        ints = _1BodyElectronicIntegrals((matrix_a, matrix_b))
+        ints = _1BodyElectronicIntegrals(Basis.MO, (matrix_a, matrix_b))
         return [ints.to_second_q_op()]
 
     def interpret(self, result: EigenstateResult) -> None:

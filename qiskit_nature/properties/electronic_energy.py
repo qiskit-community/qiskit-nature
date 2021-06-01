@@ -22,6 +22,7 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 
 from .electronic_integrals import (
+    Basis,
     _ElectronicIntegrals,
     _1BodyElectronicIntegrals,
     _2BodyElectronicIntegrals,
@@ -59,8 +60,9 @@ class ElectronicEnergy(Property):
         return cls(
             qmol.num_molecular_orbitals * 2,
             {
-                1: _1BodyElectronicIntegrals((qmol.mo_onee_ints, qmol.mo_onee_ints_b)),
+                1: _1BodyElectronicIntegrals(Basis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)),
                 2: _2BodyElectronicIntegrals(
+                    Basis.MO,
                     (
                         qmol.mo_eri_ints,
                         qmol.mo_eri_ints_ba.T if qmol.mo_eri_ints_ba is not None else None,

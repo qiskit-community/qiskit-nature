@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
 
 import itertools
@@ -24,22 +25,29 @@ import numpy as np
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
+class Basis(Enum):
+    """TODO."""
+    AO = "ao"
+    MO = "mo"
+    SO = "so"
+
+
 class _ElectronicIntegrals(ABC):
     """TODO."""
 
     def __init__(
         self,
+        basis: Basis,
         num_body_terms: int,
         matrices: Tuple[Optional[np.ndarray], ...],
-        basis: str = "mo",
     ) -> None:
         """TODO."""
+        self._basis = basis
         assert num_body_terms >= 1
         self._num_body_terms = num_body_terms
         assert len(matrices) == 2 ** num_body_terms
         assert matrices[0] is not None
         self._matrices = matrices
-        self._basis = basis
 
     @abstractmethod
     def to_spin(self) -> np.ndarray:
@@ -54,11 +62,9 @@ class _ElectronicIntegrals(ABC):
     def to_second_q_op(self) -> FermionicOp:
         """TODO."""
         base_ops_labels = self._create_base_ops()
-        fac = 2 if self._basis != "so" else 1
+        fac = 2 if self._basis != Basis.SO else 1
+        # TODO: allow an empty list as argument to FermionicOp
         initial_label_with_ceoff = ("I" * fac * len(self._matrices[0]), 0)
-        # TODO the initial label should be eliminated once QMolecule is refactored (currently
-        # has_dipole_integrals() checks for None only but zero-matrices happen instead of None and
-        # initial labels prevents from an empty labels list when building a FermionicOp)
         base_ops_labels.append(initial_label_with_ceoff)
         return FermionicOp(base_ops_labels)
 
@@ -93,9 +99,9 @@ class _ElectronicIntegrals(ABC):
 class _1BodyElectronicIntegrals(_ElectronicIntegrals):
     """TODO."""
 
-    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...], basis: str = "mo") -> None:
+    def __init__(self, basis: Basis, matrices: Tuple[Optional[np.ndarray], ...]) -> None:
         """TODO."""
-        super().__init__(1, matrices, basis)
+        super().__init__(basis, 1, matrices)
 
     def to_spin(self) -> np.ndarray:
         """TODO."""
@@ -107,7 +113,7 @@ class _1BodyElectronicIntegrals(_ElectronicIntegrals):
         return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
 
     def _create_base_ops(self) -> List[Tuple[str, complex]]:
-        so_matrix = self.to_spin() if self._basis.lower() != "so" else self._matrices[0]
+        so_matrix = self.to_spin() if self._basis != Basis.SO else self._matrices[0]
         return self._create_base_ops_labels(so_matrix, 2, self._calc_coeffs_with_ops)
 
     def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:
@@ -120,9 +126,9 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
     EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
-    def __init__(self, matrices: Tuple[Optional[np.ndarray], ...], basis: str = "mo") -> None:
+    def __init__(self, basis: Basis, matrices: Tuple[Optional[np.ndarray], ...]) -> None:
         """TODO."""
-        super().__init__(2, matrices, basis)
+        super().__init__(basis, 2, matrices)
 
     def to_spin(self) -> np.ndarray:
         """TODO."""
@@ -144,7 +150,7 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
         return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
 
     def _create_base_ops(self) -> List[Tuple[str, complex]]:
-        so_matrix = self.to_spin() if self._basis.lower() != "so" else self._matrices[0]
+        so_matrix = self.to_spin() if self._basis != Basis.SO else self._matrices[0]
         return self._create_base_ops_labels(so_matrix, 4, self._calc_coeffs_with_ops)
 
     def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:

@@ -21,7 +21,7 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .electronic_integrals import _1BodyElectronicIntegrals
+from .electronic_integrals import Basis, _1BodyElectronicIntegrals
 from .electronic_energy import ElectronicEnergy
 from .property import Property
 
@@ -66,17 +66,29 @@ class DipoleMoment(Property):
             {
                 "x": ElectronicEnergy(
                     register_length,
-                    {1: _1BodyElectronicIntegrals((qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b))},
+                    {
+                        1: _1BodyElectronicIntegrals(
+                            Basis.MO, (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b)
+                        )
+                    },
                     energy_shift=qmol.x_dip_energy_shift,
                 ),
                 "y": ElectronicEnergy(
                     register_length,
-                    {1: _1BodyElectronicIntegrals((qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b))},
+                    {
+                        1: _1BodyElectronicIntegrals(
+                            Basis.MO, (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b)
+                        )
+                    },
                     energy_shift=qmol.y_dip_energy_shift,
                 ),
                 "z": ElectronicEnergy(
                     register_length,
-                    {1: _1BodyElectronicIntegrals((qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b))},
+                    {
+                        1: _1BodyElectronicIntegrals(
+                            Basis.MO, (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b)
+                        )
+                    },
                     energy_shift=qmol.z_dip_energy_shift,
                 ),
             },
