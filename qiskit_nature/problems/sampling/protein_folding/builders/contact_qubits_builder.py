@@ -70,7 +70,7 @@ def _create_pauli_for_contacts(peptide: Peptide):
                             a = full_id ^ full_id
                             b = full_id ^ _build_pauli_z_op(num_qubits, [j - 1])
                             d = _build_pauli_z_op(num_qubits, [i - 1]) ^ full_id
-                            pauli_contacts[i][1][j][0] = ((a-b) @ (a-d)) / 2.0
+                            pauli_contacts[i][1][j][0] = ((a-d) @ (a-b)) / 2.0
                             r_contact += 1
                         except:
                             pass

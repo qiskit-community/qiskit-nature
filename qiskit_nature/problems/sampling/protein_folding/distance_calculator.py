@@ -9,8 +9,38 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+import numpy as np
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp, PauliTable
+
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
+def _set_binaries(H_back):
+    new_tables = []
+    new_coeffs = []
+    for i in range(len(H_back)):
+        H = H_back[i]
+        table_Z = np.copy(H.primitive.table.Z[0])
+        table_X = np.copy(H.primitive.table.X[0])
+        # get coeffs and update
+        coeffs = np.copy(H.primitive.coeffs[0])
+        if table_Z[1] == np.bool_(True):
+            coeffs = -1 * coeffs
+        if table_Z[5] == np.bool_(True):
+            coeffs = -1 * coeffs
+        # impose preset binary values
+        table_Z[0] = np.bool_(False)
+        table_Z[1] = np.bool_(False)
+        table_Z[2] = np.bool_(False)
+        table_Z[3] = np.bool_(False)
+        table_Z[5] = np.bool_(False)
+        new_table = np.concatenate((table_X, table_Z), axis=0)
+        new_tables.append(new_table)
+        new_coeffs.append(coeffs)
+    new_pauli_table = PauliTable(data=new_tables)
+    H_back_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
+    H_back_updated = H_back_updated.reduce()
+    return H_back_updated
 
 # TODO refactor the data structure storing distances
 def _calc_total_distances(peptide, delta_n0, delta_n1,
@@ -49,10 +79,10 @@ def _calc_total_distances(peptide, delta_n0, delta_n1,
                     if i == 1 and p == 1 or j == main_chain_len and s == 1:
                         continue
                     try:
-                        x_dist[i][p][j][s] = (delta_n0[i][p][j][s] ** 2 +
+                        x_dist[i][p][j][s] = _set_binaries((delta_n0[i][p][j][s] ** 2 +
                                               delta_n1[i][p][j][s] ** 2 +
                                               delta_n2[i][p][j][s] ** 2 +
-                                              delta_n3[i][p][j][s] ** 2).reduce()
+                                              delta_n3[i][p][j][s] ** 2)).reduce()
                         r += 1
                     except:
                         pass
@@ -88,15 +118,17 @@ def _calc_distances_main_chain(peptide: Peptide):
             delta_n2[i][0][j][0] = 0
             delta_n3[i][0][j][0] = 0
             for k in range(i, j):
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[k-1].get_indicator_functions()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
+                    k - 1].get_indicator_functions()
                 delta_n0[i][0][j][0] += (-1) ** k * indic_0
                 delta_n1[i][0][j][0] += (-1) ** k * indic_1
                 delta_n2[i][0][j][0] += (-1) ** k * indic_2
                 delta_n3[i][0][j][0] += (-1) ** k * indic_3
-            delta_n0[i][0][j][0] = delta_n0[i][0][j][0].reduce()
-            delta_n1[i][0][j][0] = delta_n1[i][0][j][0].reduce()
-            delta_n2[i][0][j][0] = delta_n2[i][0][j][0].reduce()
-            delta_n3[i][0][j][0] = delta_n3[i][0][j][0].reduce()
+            delta_n0[i][0][j][0] = _set_binaries(delta_n0[i][0][j][0]).reduce()
+            delta_n1[i][0][j][0] = _set_binaries(delta_n1[i][0][j][0]).reduce()
+            delta_n2[i][0][j][0] = _set_binaries(delta_n2[i][0][j][0]).reduce()
+            delta_n3[i][0][j][0] = _set_binaries(delta_n3[i][0][j][0]).reduce()
+
     return delta_n0, delta_n1, delta_n2, delta_n3
 
 
@@ -146,35 +178,42 @@ def _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2,
 
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[j-1].side_chain[0].get_indicator_functions()
-                delta_n0[i][0][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * indic_0).reduce()
-                delta_n1[i][0][j][1] = (delta_n1[i][0][j][0] + (-1) ** j * indic_1).reduce()
-                delta_n2[i][0][j][1] = (delta_n2[i][0][j][0] + (-1) ** j * indic_2).reduce()
-                delta_n3[i][0][j][1] = (delta_n3[i][0][j][0] + (-1) ** j * indic_3).reduce()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[j - 1].side_chain[
+                    0].get_indicator_functions()
+                delta_n0[i][0][j][1] = _set_binaries((delta_n0[i][0][j][0] + (-1) ** j * indic_0)).reduce()
+                delta_n1[i][0][j][1] = _set_binaries((delta_n1[i][0][j][0] + (-1) ** j * indic_1)).reduce()
+                delta_n2[i][0][j][1] = _set_binaries((delta_n2[i][0][j][0] + (-1) ** j * indic_2)).reduce()
+                delta_n3[i][0][j][1] = _set_binaries((delta_n3[i][0][j][0] + (-1) ** j * indic_3)).reduce()
             except:
                 pass
 
             try:
                 # TODO generalize to side chains longer than 1
-                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[i-1].side_chain[0].get_indicator_functions()
-                delta_n0[i][1][j][0] = (delta_n0[i][0][j][0] - (-1) ** i * indic_0).reduce()
-                delta_n1[i][1][j][0] = (delta_n1[i][0][j][0] - (-1) ** i * indic_1).reduce()
-                delta_n2[i][1][j][0] = (delta_n2[i][0][j][0] - (-1) ** i * indic_2).reduce()
-                delta_n3[i][1][j][0] = (delta_n3[i][0][j][0] - (-1) ** i * indic_3).reduce()
+                indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[i - 1].side_chain[
+                    0].get_indicator_functions()
+                delta_n0[i][1][j][0] = _set_binaries((delta_n0[i][0][j][0] - (-1) ** i * indic_0)).reduce()
+                delta_n1[i][1][j][0] = _set_binaries((delta_n1[i][0][j][0] - (-1) ** i * indic_1)).reduce()
+                delta_n2[i][1][j][0] = _set_binaries((delta_n2[i][0][j][0] - (-1) ** i * indic_2)).reduce()
+                delta_n3[i][1][j][0] = _set_binaries((delta_n3[i][0][j][0] - (-1) ** i * indic_3)).reduce()
             except:
                 pass
             try:
                 # TODO generalize to side chains longer than 1
-                higher_indic_0, higher_indic_1, higher_indic_2, higher_indic_3 = peptide.get_main_chain[
-                    j-1].side_chain[0].get_indicator_functions()
+                higher_indic_0, higher_indic_1, higher_indic_2, higher_indic_3 = \
+                peptide.get_main_chain[
+                    j - 1].side_chain[0].get_indicator_functions()
                 # TODO generalize to side chains longer than 1
                 lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = peptide.get_main_chain[
-                    i-1].side_chain[0].get_indicator_functions()
+                    i - 1].side_chain[0].get_indicator_functions()
 
-                delta_n0[i][1][j][1] = (delta_n0[i][0][j][0] + (-1) ** j * higher_indic_0 - (-1) ** i * lower_indic_0).reduce()
-                delta_n1[i][1][j][1] = (delta_n1[i][0][j][0] + (-1) ** j * higher_indic_1 - (-1) ** i * lower_indic_1).reduce()
-                delta_n2[i][1][j][1] = (delta_n2[i][0][j][0] + (-1) ** j * higher_indic_2 - (-1) ** i * lower_indic_2).reduce()
-                delta_n3[i][1][j][1] = (delta_n3[i][0][j][0] + (-1) ** j * higher_indic_3 - (-1) ** i * lower_indic_3).reduce()
+                delta_n0[i][1][j][1] = _set_binaries((delta_n0[i][0][j][0] + (-1) ** j * higher_indic_0 - (
+                    -1) ** i * lower_indic_0)).reduce()
+                delta_n1[i][1][j][1] = _set_binaries((delta_n1[i][0][j][0] + (-1) ** j * higher_indic_1 - (
+                    -1) ** i * lower_indic_1)).reduce()
+                delta_n2[i][1][j][1] = _set_binaries((delta_n2[i][0][j][0] + (-1) ** j * higher_indic_2 - (
+                    -1) ** i * lower_indic_2)).reduce()
+                delta_n3[i][1][j][1] = _set_binaries((delta_n3[i][0][j][0] + (-1) ** j * higher_indic_3 - (
+                    -1) ** i * lower_indic_3)).reduce()
             except:
                 pass
     return delta_n0, delta_n1, delta_n2, delta_n3

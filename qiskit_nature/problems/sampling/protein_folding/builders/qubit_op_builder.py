@@ -385,7 +385,7 @@ def _create_h_short(peptide: Peptide, pair_energies):
         [("I" * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
     for i in range(1, main_chain_len - 2):
         # checks interactions between beads no more than 4 beads apart
-        if side_chain[i - 1] == 1 and side_chain[i + 2 - 1] == 1:
+        if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
             h_short += _check_turns(peptide.get_main_chain[i],
                                     peptide.get_main_chain[i + 2 - 1].side_chain[0]) @ \
                        _check_turns(peptide.get_main_chain[i + 3 - 1],
