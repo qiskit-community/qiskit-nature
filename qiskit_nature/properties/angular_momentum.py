@@ -12,8 +12,6 @@
 
 """TODO."""
 
-from __future__ import annotations
-
 from typing import cast, Dict, List, Optional, Tuple, Union
 
 import itertools
@@ -41,7 +39,7 @@ class AngularMomentum(Property):
         self._num_spin_orbitals = num_spin_orbitals
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> AngularMomentum:
+    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "AngularMomentum":
         """TODO."""
         if isinstance(result, WatsonHamiltonian):
             raise QiskitNatureError("TODO.")

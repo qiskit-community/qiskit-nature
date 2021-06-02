@@ -12,8 +12,6 @@
 
 """TODO."""
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod, abstractclassmethod
 from typing import List, Optional, Union
 
@@ -40,7 +38,7 @@ class Property(ABC):
         self._name = name
 
     @abstractclassmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> Property:
+    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "Property":
         """TODO."""
 
     @abstractmethod

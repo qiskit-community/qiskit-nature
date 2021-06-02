@@ -12,8 +12,6 @@
 
 """TODO."""
 
-from __future__ import annotations
-
 from typing import cast, Dict, List, Optional, Tuple, Union
 
 from qiskit_nature import QiskitNatureError
@@ -46,7 +44,7 @@ class ElectronicEnergy(Property):
         self._reference_energy = reference_energy
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> ElectronicEnergy:
+    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "ElectronicEnergy":
         """TODO."""
         if isinstance(result, WatsonHamiltonian):
             raise QiskitNatureError("TODO.")

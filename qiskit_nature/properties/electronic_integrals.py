@@ -12,8 +12,6 @@
 
 """TODO."""
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
@@ -132,7 +130,7 @@ class _1BodyElectronicIntegrals(_ElectronicIntegrals):
         """TODO."""
         super().__init__(1, basis, matrices)
 
-    def transform_basis(self, transform: BasisTransform) -> _1BodyElectronicIntegrals:
+    def transform_basis(self, transform: BasisTransform) -> "_1BodyElectronicIntegrals":
         """TODO."""
         if self._basis == transform._final_basis:
             return self
@@ -181,7 +179,7 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
         """TODO."""
         super().__init__(2, basis, matrices)
 
-    def transform_basis(self, transform: BasisTransform) -> _2BodyElectronicIntegrals:
+    def transform_basis(self, transform: BasisTransform) -> "_2BodyElectronicIntegrals":
         """TODO."""
         if self._basis == transform._final_basis:
             return self

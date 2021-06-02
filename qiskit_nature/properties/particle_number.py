@@ -12,8 +12,6 @@
 
 """TODO."""
 
-from __future__ import annotations
-
 from typing import cast, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -59,7 +57,7 @@ class ParticleNumber(Property):
             self._occupation_beta = occupation_beta
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> ParticleNumber:
+    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "ParticleNumber":
         """TODO."""
         if isinstance(result, WatsonHamiltonian):
             raise QiskitNatureError("TODO.")

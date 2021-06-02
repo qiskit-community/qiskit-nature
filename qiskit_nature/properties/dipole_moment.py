@@ -12,8 +12,6 @@
 
 """TODO."""
 
-from __future__ import annotations
-
 from typing import cast, Dict, List, Optional, Tuple, Union
 
 from qiskit_nature import QiskitNatureError
@@ -48,7 +46,7 @@ class DipoleMoment(Property):
     @classmethod
     def from_driver_result(
         cls, result: Union[QMolecule, WatsonHamiltonian]
-    ) -> Optional[DipoleMoment]:
+    ) -> Optional["DipoleMoment"]:
         """TODO."""
         if isinstance(result, WatsonHamiltonian):
             raise QiskitNatureError("TODO.")
