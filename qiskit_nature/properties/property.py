@@ -25,10 +25,9 @@ from qiskit_nature.results import EigenstateResult
 class Property(ABC):
     """TODO."""
 
-    def __init__(self, name: str, register_length: int) -> None:
+    def __init__(self, name: str) -> None:
         """TODO."""
         self._name = name
-        self._register_length = register_length
 
     @property
     def name(self) -> str:
@@ -39,16 +38,6 @@ class Property(ABC):
     def name(self, name: str) -> None:
         """Sets the name."""
         self._name = name
-
-    @property
-    def register_length(self) -> int:
-        """Returns the register_length."""
-        return self._register_length
-
-    @register_length.setter
-    def register_length(self, register_length: int) -> None:
-        """Sets the register_length."""
-        self._register_length = register_length
 
     @abstractclassmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> Property:

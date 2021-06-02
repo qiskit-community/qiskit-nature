@@ -32,10 +32,11 @@ class Magnetization(Property):
 
     def __init__(
         self,
-        register_length: int,
+        num_spin_orbitals: int,
     ):
         """TODO."""
-        super().__init__(self.__class__.__name__, register_length)
+        super().__init__(self.__class__.__name__)
+        self._num_spin_orbitals = num_spin_orbitals
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> Magnetization:
@@ -51,7 +52,7 @@ class Magnetization(Property):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        matrix_a = np.eye(self.register_length // 2, dtype=complex) * 0.5
+        matrix_a = np.eye(self._num_spin_orbitals // 2, dtype=complex) * 0.5
         matrix_b = -1.0 * matrix_a.copy()
         ints = _1BodyElectronicIntegrals(Basis.MO, (matrix_a, matrix_b))
         return [ints.to_second_q_op()]

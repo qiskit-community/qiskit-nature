@@ -34,10 +34,11 @@ class AngularMomentum(Property):
 
     def __init__(
         self,
-        register_length: int,
+        num_spin_orbitals: int,
     ):
         """TODO."""
-        super().__init__(self.__class__.__name__, register_length)
+        super().__init__(self.__class__.__name__)
+        self._num_spin_orbitals = num_spin_orbitals
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> AngularMomentum:
@@ -53,9 +54,9 @@ class AngularMomentum(Property):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        x_h1, x_h2 = _calc_s_x_squared_ints(self.register_length)
-        y_h1, y_h2 = _calc_s_y_squared_ints(self.register_length)
-        z_h1, z_h2 = _calc_s_z_squared_ints(self.register_length)
+        x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
+        y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
+        z_h1, z_h2 = _calc_s_z_squared_ints(self._num_spin_orbitals)
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 

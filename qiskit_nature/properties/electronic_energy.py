@@ -35,13 +35,12 @@ class ElectronicEnergy(Property):
 
     def __init__(
         self,
-        register_length: int,
         electronic_integrals: Dict[int, _ElectronicIntegrals],
         reference_energy: Optional[float] = None,
         energy_shift: Optional[Dict[str, float]] = None,
     ):
         """TODO."""
-        super().__init__(self.__class__.__name__, register_length)
+        super().__init__(self.__class__.__name__)
         self._electronic_integrals = electronic_integrals
         self._energy_shift = energy_shift
         self._reference_energy = reference_energy
@@ -58,7 +57,6 @@ class ElectronicEnergy(Property):
         energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
         return cls(
-            qmol.num_molecular_orbitals * 2,
             {
                 1: _1BodyElectronicIntegrals(Basis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)),
                 2: _2BodyElectronicIntegrals(

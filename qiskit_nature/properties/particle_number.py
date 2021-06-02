@@ -32,13 +32,14 @@ class ParticleNumber(Property):
 
     def __init__(
         self,
-        register_length: int,
+        num_spin_orbitals: int,
         num_particles: Union[int, Tuple[int, int]],
         occupation: Optional[List[float]] = None,
         occupation_beta: Optional[List[float]] = None,
     ):
         """TODO."""
-        super().__init__(self.__class__.__name__, register_length)
+        super().__init__(self.__class__.__name__)
+        self._num_spin_orbitals = num_spin_orbitals
         if isinstance(num_particles, int):
             self._num_alpha = num_particles // 2 + num_particles % 2
             self._num_beta = num_particles // 2
@@ -47,9 +48,9 @@ class ParticleNumber(Property):
 
         if occupation is None:
             self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
-            self._occupation_alpha += [0] * (register_length // 2 - len(self._occupation_alpha))
+            self._occupation_alpha += [0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
             self._occupation_beta = [1.0 for _ in range(self._num_beta)]
-            self._occupation_beta += [0] * (register_length // 2 - len(self._occupation_beta))
+            self._occupation_beta += [0] * (num_spin_orbitals // 2 - len(self._occupation_beta))
         elif occupation_beta is None:
             self._occupation_alpha = [o / 2.0 for o in occupation]
             self._occupation_beta = [o / 2.0 for o in occupation]
@@ -74,7 +75,7 @@ class ParticleNumber(Property):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        ints = _1BodyElectronicIntegrals(Basis.MO, (np.eye(self.register_length // 2), None))
+        ints = _1BodyElectronicIntegrals(Basis.MO, (np.eye(self._num_spin_orbitals // 2), None))
         return [ints.to_second_q_op()]
 
     def interpret(self, result: EigenstateResult) -> None:
