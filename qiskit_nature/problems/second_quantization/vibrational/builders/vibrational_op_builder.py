@@ -14,8 +14,8 @@ from typing import Union, List, Optional, Tuple
 
 import logging
 
-from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.drivers.bosonic_bases import BosonicBasis, HarmonicBasis
+from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization.bosonic_bases import BosonicBasis, HarmonicBasis
 
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_label_builder import (

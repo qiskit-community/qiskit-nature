@@ -15,12 +15,8 @@ from typing import cast, Union
 import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature.drivers import QMolecule
-from qiskit_nature.results import (
-    EigenstateResult,
-    ElectronicStructureResult,
-    DipoleTuple,
-)
+from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.results import EigenstateResult, ElectronicStructureResult, DipoleTuple
 
 
 def _interpret(

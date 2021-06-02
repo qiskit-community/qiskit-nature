@@ -23,7 +23,7 @@ from qiskit_nature.operators.second_quantization.vibrational_op import Vibration
 from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import (
     _build_vibrational_op,
 )
-from qiskit_nature.drivers import GaussianForcesDriver
+from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 
 
 class TestVibrationalOpBuilder(QiskitNatureTestCase):

@@ -17,8 +17,8 @@ from test.problems.second_quantization.electronic.resources.resource_reader impo
     read_expected_file,
 )
 import numpy as np
-from qiskit_nature.transformers import ActiveSpaceTransformer
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.transformers.second_quantization import ActiveSpaceTransformer
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
@@ -36,7 +36,9 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
-        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers"))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers/second_quantization")
+        )
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
         second_quantized_ops = electronic_structure_problem.second_q_ops()
@@ -61,7 +63,9 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
             "problems/second_quantization/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
-        driver = HDF5Driver(hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers"))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers/second_quantization")
+        )
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
         electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])

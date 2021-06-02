@@ -17,6 +17,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import warnings
 from shutil import which
 from typing import Union, List, Optional
 
@@ -34,8 +35,7 @@ PSI4_APP = which(PSI4)
 
 
 class PSI4Driver(FermionicDriver):
-    """
-    Qiskit Nature driver using the PSI4 program.
+    """**DEPRECATED** Qiskit Nature driver using the PSI4 program.
 
     See http://www.psicode.org/
     """
@@ -48,7 +48,7 @@ class PSI4Driver(FermionicDriver):
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
         molecule: Optional[Molecule] = None,
         basis: str = "sto-3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
     ) -> None:
         """
         Args:
@@ -67,10 +67,19 @@ class PSI4Driver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        warnings.warn(
+            "This PSI4Driver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.psi4d "
+            "PSI4Driver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
-
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
         if isinstance(config, list):
             config = "\n".join(config)
 

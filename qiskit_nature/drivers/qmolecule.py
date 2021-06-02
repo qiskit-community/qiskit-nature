@@ -30,8 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class QMolecule:
-    """
-    Molecule data class containing driver result.
+    """**DEPRECATED** Molecule data class containing driver result.
 
     When one of the chemistry :mod:`~qiskit_nature.drivers` is run and instance
     of this class is returned. This contains various properties that are made available in
@@ -47,6 +46,14 @@ class QMolecule:
     QMOLECULE_VERSION = 3
 
     def __init__(self, filename=None):
+        warnings.warn(
+            "This QMolecule is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization "
+            "QMolecule as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._filename = filename
 
         # All the following fields are saved/loaded in the save/load methods.

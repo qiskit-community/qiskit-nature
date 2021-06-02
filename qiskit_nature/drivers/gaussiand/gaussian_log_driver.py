@@ -14,6 +14,7 @@
 
 from typing import Union, List
 import logging
+import warnings
 
 from ..base_driver import BaseDriver
 from ...exceptions import QiskitNatureError
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class GaussianLogDriver(BaseDriver):
-    """Gaussian™ 16 log driver.
+    """**DEPRECATED** Gaussian™ 16 log driver.
 
     Qiskit Nature driver using the Gaussian™ 16 program that provides the log
     back, via :class:`GaussianLogResult`, for access to the log and data recorded there.
@@ -46,6 +47,14 @@ class GaussianLogDriver(BaseDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        warnings.warn(
+            "This GaussianLogDriver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.bosonic_bases "
+            "GaussianLogDriver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         GaussianLogDriver._check_valid()
 
         if not isinstance(jcf, list) and not isinstance(jcf, str):
