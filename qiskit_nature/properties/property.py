@@ -13,7 +13,7 @@
 """TODO."""
 
 from abc import ABC, abstractmethod, abstractclassmethod
-from typing import List, Optional, Union
+from typing import List, Union
 
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
