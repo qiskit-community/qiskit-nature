@@ -213,9 +213,9 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
         so_matrix = np.zeros([2 * s for s in self._matrices[0].shape])
         one_indices = (
             (0, 0, 0, 0),
-            (0, 1, 1, 0),
-            (1, 1, 1, 1),
             (1, 0, 0, 1),
+            (1, 1, 1, 1),
+            (0, 1, 1, 0),
         )
         for ao_mat, one_idx in zip(self._matrices, one_indices):
             if ao_mat is None:
