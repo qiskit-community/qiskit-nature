@@ -22,6 +22,8 @@ __pycache__/
 #Allow
 !qiskit_nature/drivers/gaussiand/gauopen/*.so
 !qiskit_nature/drivers/gaussiand/gauopen/*.pyd
+!qiskit_nature/drivers/second_quantization/gaussiand/gauopen/*.so
+!qiskit_nature/drivers/second_quantization/gaussiand/gauopen/*.pyd
 
 
 # Distribution / packaging

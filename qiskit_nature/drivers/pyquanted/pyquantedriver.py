@@ -14,6 +14,7 @@
 
 import importlib
 import logging
+import warnings
 from enum import Enum
 from typing import Union, List, Optional
 
@@ -38,8 +39,7 @@ class BasisType(Enum):
 
 
 class PyQuanteDriver(FermionicDriver):
-    """
-    Qiskit Nature driver using the PyQuante2 library.
+    """**DEPRECATED** Qiskit Nature driver using the PyQuante2 library.
 
     See https://github.com/rpmuller/pyquante2
     """
@@ -51,7 +51,7 @@ class PyQuanteDriver(FermionicDriver):
         charge: int = 0,
         multiplicity: int = 1,
         basis: BasisType = BasisType.BSTO3G,
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
         tol: float = 1e-8,
         maxiters: int = 100,
         molecule: Optional[Molecule] = None,
@@ -79,11 +79,20 @@ class PyQuanteDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        warnings.warn(
+            "This PyQuanteDriver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.pyquanted "
+            "PyQuanteDriver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         validate_min("maxiters", maxiters, 1)
         self._check_valid()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
             raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
-
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
         if isinstance(atoms, list):
             atoms = ";".join(atoms)
         elif isinstance(atoms, str):

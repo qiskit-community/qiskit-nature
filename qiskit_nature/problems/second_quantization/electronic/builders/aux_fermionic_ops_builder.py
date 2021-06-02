@@ -14,7 +14,7 @@
 
 from typing import List, Tuple
 
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
     build_ferm_op_from_ints,

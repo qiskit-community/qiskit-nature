@@ -1,0 +1,9 @@
+---
+deprecations:
+  - |
+    All currently existing drivers have been moved from `qiskit_nature.drivers`
+    to `qiskit_nature.drivers.second_quantization`. This is necessary because
+    future additions to Nature which reside in parallel to the
+    `second_quantization` submodules will not be using these drivers. Making
+    this separation reflects that in the code structure.
+    The same change was necessary for the existing `qiskit_nature.transformers`.

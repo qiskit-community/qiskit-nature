@@ -21,7 +21,7 @@ from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.problems.second_quantization.electronic import (
@@ -37,7 +37,9 @@ class TestEnd2End(QiskitNatureTestCase):
         algorithm_globals.random_seed = 42
 
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d")
+            hdf5_input=self.get_resource_path(
+                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+            )
         )
         problem = ElectronicStructureProblem(driver)
         second_q_ops = problem.second_q_ops()

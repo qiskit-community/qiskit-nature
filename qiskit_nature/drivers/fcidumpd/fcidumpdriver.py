@@ -14,6 +14,8 @@
 
 from typing import List, Optional
 
+import warnings
+
 from ..qmolecule import QMolecule
 from .dumper import dump
 from .parser import parse
@@ -22,8 +24,7 @@ from ...exceptions import QiskitNatureError
 
 
 class FCIDumpDriver(FermionicDriver):
-    """
-    Qiskit Nature driver for reading an FCIDump file.
+    """**DEPRECATED** Qiskit Nature driver for reading an FCIDump file.
 
     The FCIDump format is partially defined in Knowles1989.
 
@@ -46,6 +47,14 @@ class FCIDumpDriver(FermionicDriver):
             QiskitNatureError: If ``fcidump_input`` is not a string or if ``atoms`` is not a list
                 of valid atomic symbols as specified in ``QMolecule``.
         """
+        warnings.warn(
+            "This FCIDumpDriver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.fcidumpd "
+            "FCIDumpDriver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__()
 
         if not isinstance(fcidump_input, str):

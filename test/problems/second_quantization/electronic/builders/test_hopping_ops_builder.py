@@ -17,7 +17,8 @@ from qiskit.quantum_info import SparsePauliOp
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.drivers import UnitsType
+from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem

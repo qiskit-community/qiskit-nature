@@ -17,7 +17,7 @@ import unittest
 from test import QiskitNatureTestCase
 from test.mappers.second_quantization.resources.reference_direct_mapper import REFERENCE
 
-from qiskit_nature.drivers import GaussianForcesDriver
+from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import (
     _build_vibrational_op,

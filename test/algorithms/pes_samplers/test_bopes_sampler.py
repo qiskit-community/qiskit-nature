@@ -22,7 +22,8 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.algorithms import GroundStateEigensolver, BOPESSampler
 from qiskit_nature.algorithms.pes_samplers import MorsePotential
-from qiskit_nature.drivers import Molecule, PySCFDriver
+from qiskit_nature.drivers import Molecule
+from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
