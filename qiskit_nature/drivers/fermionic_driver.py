@@ -14,28 +14,14 @@
 This module implements the abstract base class for fermionic driver modules.
 """
 
-import warnings
 from abc import abstractmethod
-from enum import Enum
 
 from .qmolecule import QMolecule
-from .base_driver import BaseDriver
+from .base_driver import BaseDriver, DeprecatedEnum, DeprecatedEnumMeta
 
 
-class HFMethodType(Enum):
+class HFMethodType(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
     """HFMethodType Enum"""
-
-    # pylint: disable=unused-argument
-    def __init__(self, *args):
-        warnings.warn(
-            "This HFMethodType is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization "
-            "HFMethodType as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__()
 
     RHF = "rhf"
     ROHF = "rohf"

@@ -48,7 +48,7 @@ class PSI4Driver(FermionicDriver):
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
         molecule: Optional[Molecule] = None,
         basis: str = "sto-3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
     ) -> None:
         """
         Args:
@@ -78,7 +78,8 @@ class PSI4Driver(FermionicDriver):
         self._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
-
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
         if isinstance(config, list):
             config = "\n".join(config)
 

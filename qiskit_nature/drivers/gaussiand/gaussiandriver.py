@@ -50,7 +50,7 @@ class GaussianDriver(FermionicDriver):
         "h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735\n\n",
         molecule: Optional[Molecule] = None,
         basis: str = "sto-3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
     ) -> None:
         """
         Args:
@@ -80,7 +80,8 @@ class GaussianDriver(FermionicDriver):
         GaussianDriver._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for Gaussian Driver '{}'".format(config))
-
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
         if isinstance(config, list):
             config = "\n".join(config)
 

@@ -51,7 +51,7 @@ class PyQuanteDriver(FermionicDriver):
         charge: int = 0,
         multiplicity: int = 1,
         basis: BasisType = BasisType.BSTO3G,
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
         tol: float = 1e-8,
         maxiters: int = 100,
         molecule: Optional[Molecule] = None,
@@ -91,7 +91,8 @@ class PyQuanteDriver(FermionicDriver):
         self._check_valid()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
             raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
-
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
         if isinstance(atoms, list):
             atoms = ";".join(atoms)
         elif isinstance(atoms, str):

@@ -15,13 +15,13 @@
 import importlib
 import logging
 import warnings
-from enum import Enum
 from typing import Optional, Union, List
 
 from qiskit.utils.validation import validate_min
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals
+from ..base_driver import DeprecatedEnum, DeprecatedEnumMeta
 from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
@@ -30,20 +30,8 @@ from ...exceptions import QiskitNatureError
 logger = logging.getLogger(__name__)
 
 
-class InitialGuess(Enum):
+class InitialGuess(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
     """Initial Guess Enum"""
-
-    # pylint: disable=unused-argument
-    def __init__(self, *args):
-        warnings.warn(
-            "This InitialGuess is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.pyscfd "
-            "InitialGuess as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__()
 
     MINAO = "minao"
     HCORE = "1e"
@@ -64,10 +52,10 @@ class PySCFDriver(FermionicDriver):
         charge: int = 0,
         spin: int = 0,
         basis: str = "sto3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
         conv_tol: float = 1e-9,
         max_cycle: int = 50,
-        init_guess: InitialGuess = InitialGuess.MINAO,
+        init_guess: Optional[InitialGuess] = None,
         max_memory: Optional[int] = None,
         molecule: Optional[Molecule] = None,
     ) -> None:
@@ -109,6 +97,10 @@ class PySCFDriver(FermionicDriver):
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):
             raise QiskitNatureError("Invalid atom input for PYSCF Driver '{}'".format(atom))
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
+        if init_guess is None:
+            init_guess = InitialGuess.MINAO
 
         if isinstance(atom, list):
             atom = ";".join(atom)
