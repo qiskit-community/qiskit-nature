@@ -339,7 +339,6 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
-    @slow_test
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
         try:
@@ -357,7 +356,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            expectation=PauliExpectation(),
+            expectation=PauliExpectation(group_paulis=False),
             quantum_instance=QuantumInstance(
                 backend=backend,
                 seed_simulator=algorithm_globals.random_seed,
@@ -368,7 +367,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
-        self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
+        self.assertAlmostEqual(result.total_energies[0], -1.131, places=2)
 
     @slow_test
     def test_uccsd_hf_aer_qasm_snapshot(self):

@@ -218,36 +218,36 @@ class ActiveSpaceTransformer(BaseTransformer):
                 raise QiskitNatureError(
                     "The number of active electrons must be even! Otherwise you must specify them "
                     "as a tuple, not as:",
-                    self._num_electrons,
+                    str(self._num_electrons),
                 )
             if self._num_electrons < 0:
                 raise QiskitNatureError(
                     "The number of active electrons cannot be negative:",
-                    self._num_electrons,
+                    str(self._num_electrons),
                 )
         elif isinstance(self._num_electrons, tuple):
             if not all(isinstance(n_elec, int) and n_elec >= 0 for n_elec in self._num_electrons):
                 raise QiskitNatureError(
                     "Neither the number of alpha, nor the number of beta electrons can be "
                     "negative:",
-                    self._num_electrons,
+                    str(self._num_electrons),
                 )
         else:
             raise QiskitNatureError(
                 "The number of active electrons must be an int, or a tuple thereof, not:",
-                self._num_electrons,
+                str(self._num_electrons),
             )
 
         if isinstance(self._num_molecular_orbitals, int):
             if self._num_molecular_orbitals < 0:
                 raise QiskitNatureError(
                     "The number of active orbitals cannot be negative:",
-                    self._num_molecular_orbitals,
+                    str(self._num_molecular_orbitals),
                 )
         else:
             raise QiskitNatureError(
                 "The number of active orbitals must be an int, not:",
-                self._num_electrons,
+                str(self._num_electrons),
             )
 
     def _extract_mo_occupation_vector(self, molecule_data: QMolecule):
