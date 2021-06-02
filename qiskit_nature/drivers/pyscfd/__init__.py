@@ -13,7 +13,7 @@
 """
 PYSCF Installation
 ==================
-`PySCF <https://github.com/sunqm/pyscf>`__ is an open-source library for computational chemistry.
+`PySCF <https://github.com/pyscf/pyscf>`__ is an open-source library for computational chemistry.
 In order for Qiskit Nature to interface PySCF and execute PySCF to
 extract the electronic structure information PySCF must be installed.
 
