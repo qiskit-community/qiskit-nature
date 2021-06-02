@@ -27,7 +27,25 @@ class TestPeptide(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
 
+        side_chain_hot_vector = peptide.get_side_chain_hot_vector()
+
         assert len(peptide.get_main_chain.beads_list) == 3
         assert len(peptide.get_main_chain[2].side_chain.beads_list)
         assert peptide.get_main_chain[0].side_chain is None
         assert peptide.get_main_chain[1].side_chain is None
+        assert side_chain_hot_vector == [0, 0, 1]
+
+    def test_peptide_hot_vector_longer_chain(self):
+        """Tests that a Peptide is created."""
+        main_chain_residue_seq = "SAAAAAAAA"
+        main_chain_len = 9
+        side_chain_lens = [0, 0, 1, 0 ,0 ,1 ,0, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", None, None, "A", None, "A", None]
+
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
+                          side_chain_residue_sequences)
+
+        side_chain_hot_vector = peptide.get_side_chain_hot_vector()
+
+        assert len(peptide.get_main_chain.beads_list) == 9
+        assert side_chain_hot_vector == [0, 0, 1, 0 ,0 ,1 ,0, 1, 0]
