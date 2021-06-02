@@ -74,9 +74,9 @@ class ElectronicEnergy(Property):
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
         return [
-            sum(
+            sum(  # type: ignore
                 ints.to_second_q_op() for ints in self._electronic_integrals.values()
-            ).reduce()  # type: ignore
+            ).reduce()
         ]
 
     def interpret(self, result: EigenstateResult) -> None:
