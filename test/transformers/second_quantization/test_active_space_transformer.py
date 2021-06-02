@@ -183,6 +183,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             [(1, 0), 2, None, "The number of inactive electrons may not be odd."],
             [2, 2, [0, 1, 2], "The number of active orbitals do not match."],
             [2, 2, [1, 2], "The number of active electrons do not match."],
+            [1, 2, None, "The number of active electrons must be even when not a tuple."],
+            [-2, 2, None, "The number of active electrons must not be negative."],
         ]
     )
     @unpack

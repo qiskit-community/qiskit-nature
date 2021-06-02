@@ -32,7 +32,7 @@ try:
 
     warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
 except ImportError:
-    logger.info("PySCF is not installed. See https://sunqm.github.io/pyscf/install.html")
+    logger.info("PySCF is not installed. See https://pyscf.org/install.html")
 
 
 def compute_integrals(
