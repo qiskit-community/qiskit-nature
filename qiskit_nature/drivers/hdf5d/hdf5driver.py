@@ -14,6 +14,7 @@
 
 import logging
 import os
+import warnings
 
 from ..qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver
@@ -22,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class HDF5Driver(FermionicDriver):
-    """
-    Qiskit Nature driver for reading an HDF5 file.
+    """**DEPRECATED** Qiskit Nature driver for reading an HDF5 file.
 
     The HDF5 file is as saved from
     a :class:`~qiskit_nature.drivers.QMolecule` instance.
@@ -35,6 +35,14 @@ class HDF5Driver(FermionicDriver):
             hdf5_input: Path to HDF5 file
         """
         super().__init__()
+        warnings.warn(
+            "This HDF5Driver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.hdf5d "
+            "HDF5Driver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._hdf5_input = hdf5_input
         self._work_path = None
 

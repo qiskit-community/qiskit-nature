@@ -17,7 +17,7 @@ from typing import Optional, List, Dict
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
-from qiskit_nature.drivers import BaseDriver
+from qiskit_nature.drivers.second_quantization import BaseDriver
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import BOPESSamplerResult, EigenstateResult

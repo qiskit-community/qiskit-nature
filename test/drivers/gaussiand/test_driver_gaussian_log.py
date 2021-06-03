@@ -25,7 +25,9 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.logfile = self.get_resource_path("test_driver_gaussian_log.txt", "drivers/gaussiand")
+        self.logfile = self.get_resource_path(
+            "test_driver_gaussian_log.txt", "drivers/second_quantization/gaussiand"
+        )
 
     def test_log_driver(self):
         """Test the driver itself creates log and we can get a result"""

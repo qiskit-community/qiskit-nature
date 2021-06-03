@@ -27,7 +27,8 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
-from qiskit_nature.drivers import PySCFDriver, UnitsType, QMolecule
+from qiskit_nature.drivers import UnitsType
+from qiskit_nature.drivers.second_quantization import PySCFDriver, QMolecule
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem

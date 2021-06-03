@@ -18,7 +18,7 @@ import logging
 
 import numpy as np
 
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import QMolecule
 from .eigenstate_result import EigenstateResult
 
 logger = logging.getLogger(__name__)

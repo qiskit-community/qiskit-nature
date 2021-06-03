@@ -19,7 +19,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
@@ -54,10 +54,10 @@ def build_ferm_op_from_ints(
              h2(i,j,k,l) --> adag_i adag_j a_k a_l
     If you are using the '*physicist*' notation, you need to convert it to
     the '*chemist*' notation. E.g. h2=numpy.einsum('ikmj->ijkm', h2)
-    The :class:`~qiskit_nature.drivers.QMolecule` class has
-    :attr:`~qiskit_nature.drivers.QMolecule.one_body_integrals` and
-    :attr:`~qiskit_nature.drivers.QMolecule.two_body_integrals` properties that can be
-    directly supplied to the `h1` and `h2` parameters here respectively.
+    The :class:`~qiskit_nature.drivers.second_quantization.QMolecule` class has
+    :attr:`~qiskit_nature.drivers.second_quantization.QMolecule.one_body_integrals` and
+    :attr:`~qiskit_nature.drivers.second_quantization.QMolecule.two_body_integrals` properties that
+    can be directly supplied to the `h1` and `h2` parameters here respectively.
 
     Args:
         one_body_integrals (numpy.ndarray): One-body integrals stored in the chemist notation.

@@ -32,14 +32,14 @@ from qiskit_nature.algorithms import (
     NumPyMinimumEigensolverFactory,
 )
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
     build_ferm_op_from_ints,
 )
-from qiskit_nature.transformers import FreezeCoreTransformer
+from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -47,7 +47,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.driver = HDF5Driver(self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d"))
+        self.driver = HDF5Driver(
+            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+        )
         self.seed = 56
         algorithm_globals.random_seed = self.seed
 
@@ -404,7 +406,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         An issue arose when the FreezeCoreTransformer was combined with the automatic Z2Symmetry
         reduction. This regression test ensures that this behavior remains fixed.
         """
-        driver = HDF5Driver(hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers"))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization")
+        )
         problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
         qubit_converter = QubitConverter(
             ParityMapper(),
