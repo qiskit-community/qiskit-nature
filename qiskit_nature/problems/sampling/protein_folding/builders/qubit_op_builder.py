@@ -68,16 +68,15 @@ def _check_turns(lower_bead: BaseBead, higher_bead: BaseBead) -> OperatorBase:
     higher_bead_indic_0, higher_bead_indic_1, higher_bead_indic_2, higher_bead_indic_3 = \
         higher_bead.get_indicator_functions()
 
-    t_ij = _set_binaries(lower_bead_indic_0 @ higher_bead_indic_0 + lower_bead_indic_1 @ higher_bead_indic_1 + \
-           lower_bead_indic_2 @ higher_bead_indic_2 + lower_bead_indic_3 @ higher_bead_indic_3)
+    t_ij = _set_binaries(
+        lower_bead_indic_0 @ higher_bead_indic_0 + lower_bead_indic_1 @ higher_bead_indic_1 + \
+        lower_bead_indic_2 @ higher_bead_indic_2 + lower_bead_indic_3 @ higher_bead_indic_3)
     return t_ij
 
 
 def _create_h_back(peptide: Peptide, lambda_back):
     main_chain = peptide.get_main_chain
-    main_chain_len = len(main_chain)
-    h_back = PauliSumOp.from_list(
-        [("I" * 2 * 2 * (main_chain_len - 1), 0)])
+    h_back = 0
     for i in range(len(main_chain) - 2):
         h_back += lambda_back * _check_turns(main_chain[i], main_chain[i + 1])
 
@@ -137,8 +136,7 @@ def _create_h_chiral(peptide, lambda_chiral):
     main_chain = peptide.get_main_chain
     main_chain_len = len(main_chain)
     # 2 stands for 2 qubits per turn, another 2 stands for main and side qubit register
-    H_chiral = PauliSumOp.from_list(
-        [("I" * 2 * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
+    H_chiral = 0
     full_id = _build_full_identity(2 * 2 * (main_chain_len - 1))
     for i in range(1, len(main_chain) + 1):  # TODO double check range
         higher_main_bead = main_chain[i - 1]
@@ -213,8 +211,7 @@ def _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
     Returns:
         H_BBBB: Hamiltonian term in symbolic notation
     """
-    H_BBBB = PauliSumOp.from_list(
-        [("I" * 2 * 2*(main_chain_len - 1), 0)])  # TODO make sure correct size
+    H_BBBB = 0
     for i in range(1, main_chain_len - 3):
         for j in range(i + 5, main_chain_len + 1):
             if (j - i) % 2 == 0:
@@ -270,10 +267,8 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
         H_BBSC, H_SCBB: Tuple of Hamiltonian terms consisting of backbone and side chain 
         interactions
     """
-    H_BBSC = PauliSumOp.from_list(
-        [("I" * 2 * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
-    H_SCBB = PauliSumOp.from_list(
-        [("I" * 2 * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
+    H_BBSC = 0
+    H_SCBB = 0
     for i in range(1, main_chain_len - 3):
         for j in range(i + 4, main_chain_len + 1):
             if (j - i) % 2 == 1:
@@ -285,17 +280,17 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
                         H_BBSC += (contacts[i][0][j][1] @ _first_neighbor(i, 1, j, 1, lambda_1,
-                                                                         pair_energies, x_dist))
+                                                                          pair_energies, x_dist))
                     except:
                         pass
                     try:
                         H_BBSC += (contacts[i][0][j][1] @ _second_neighbor(i + 1, 0, j, 1, lambda_1,
-                                                                          pair_energies, x_dist))
+                                                                           pair_energies, x_dist))
                     except:
                         pass
                     try:
                         H_BBSC += (contacts[i][0][j][1] @ _second_neighbor(i - 1, 0, j, 1, lambda_1,
-                                                                          pair_energies, x_dist))
+                                                                           pair_energies, x_dist))
                     except:
                         pass
                     H_BBSC = H_BBSC.reduce()
@@ -305,17 +300,17 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
                         H_SCBB += (contacts[i][1][j][0] @ _second_neighbor(i, 1, j, 1, lambda_1,
-                                                                          pair_energies, x_dist))
+                                                                           pair_energies, x_dist))
                     except:
                         pass
                     try:
                         H_SCBB += (contacts[i][1][j][0] @ _second_neighbor(i, 1, j + 1, 0, lambda_1,
-                                                                          pair_energies, x_dist))
+                                                                           pair_energies, x_dist))
                     except:
                         pass
                     try:
                         H_SCBB += (contacts[i][1][j][0] @ _second_neighbor(i, 1, j - 1, 0, lambda_1,
-                                                                          pair_energies, x_dist))
+                                                                           pair_energies, x_dist))
                     except:
                         pass
                     H_SCBB = H_SCBB.reduce()
@@ -344,8 +339,7 @@ def _create_h_scsc(main_chain_len, side_chain, lambda_1,
     Returns:
         H_SCSC: Hamiltonian term consisting of side chain pairwise interactions
     """
-    H_SCSC = PauliSumOp.from_list(
-        [("I" * 2 * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
+    H_SCSC = 0
     for i in range(1, main_chain_len - 3):
         for j in range(i + 5, main_chain_len + 1):
             if (j - i) % 2 == 0:
@@ -383,15 +377,14 @@ def _create_h_short(peptide: Peptide, pair_energies):
     """
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
-    h_short = PauliSumOp.from_list(
-        [("I" * 2 * (main_chain_len - 1), 0)])  # TODO make sure correct size
+    h_short = 0
     for i in range(1, main_chain_len - 2):
         # checks interactions between beads no more than 4 beads apart
         if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
-            h_short += _check_turns(peptide.get_main_chain[i],
-                                    peptide.get_main_chain[i + 2 - 1].side_chain[0]) @ \
-                       _check_turns(peptide.get_main_chain[i + 3 - 1],
-                                    peptide.get_main_chain[i - 1].side_chain[0]) @ \
+            h_short += (_check_turns(peptide.get_main_chain[i],
+                                     peptide.get_main_chain[i + 2].side_chain[0]) @ \
+                        _check_turns(peptide.get_main_chain[i + 3 - 1],
+                                     peptide.get_main_chain[i - 1].side_chain[0])) * \
                        (pair_energies[i, 1, i + 3, 1] + 0.1 * (
                                pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
     return _set_binaries(h_short).reduce()
@@ -409,10 +402,12 @@ def _create_H_contacts(peptide, lambda_contacts, N_contacts):
     """
     pauli_contacts, n_contact = _create_pauli_for_contacts(peptide)
     new_qubits = _create_new_qubit_list(peptide, pauli_contacts)
-
-    h_contacts = lambda_contacts * (
-            0.5 * (np.sum(1 - np.array(new_qubits[-n_contact:]))) - N_contacts) ** 2
-    h_contacts = h_contacts.expand()
-    h_contacts = h_contacts.subs(
-        {new_qubits[k] ** 2: 1 for k in range(1, len(new_qubits))})  # convert to identity
+    print(len(new_qubits))
+    main_chain_len = len(peptide.get_main_chain)
+    full_id = _build_full_identity(2 * (main_chain_len - 1))
+    h_contacts = 0
+    for el in new_qubits[-n_contact:]:
+        h_contacts += (lambda_contacts * (
+                el - N_contacts * (full_id ^ full_id)) ** 2)
+    h_contacts = _set_binaries(h_contacts).reduce()
     return h_contacts

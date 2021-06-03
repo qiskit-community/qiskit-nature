@@ -1079,7 +1079,6 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
             Tests that the Hamiltonian to back-overlaps is created correctly.
             """
-        lambda_back = 10
         main_chain_residue_seq = 'APRLRAAA'
         main_chain_len = 8
         side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
@@ -1088,15 +1087,8 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        side_chain = peptide.get_side_chain_hot_vector()
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                           delta_n1, delta_n2,
-                                                                           delta_n3)
-        x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                       delta_n2, delta_n3)
-        contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
-        h_short = _create_h_short(peptide, lambda_back)
+        h_short = _create_h_short(peptide, pair_energies)
+        print(h_short)
 
     def test_create_h_contacts(self):
         """
