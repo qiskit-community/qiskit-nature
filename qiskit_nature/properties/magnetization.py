@@ -14,14 +14,11 @@
 
 from typing import cast, List, Union
 
-import numpy as np
-
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .electronic_integrals import Basis, _1BodyElectronicIntegrals
 from .property import Property
 
 
@@ -50,10 +47,14 @@ class Magnetization(Property):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        matrix_a = np.eye(self._num_spin_orbitals // 2, dtype=complex) * 0.5
-        matrix_b = -1.0 * matrix_a.copy()
-        ints = _1BodyElectronicIntegrals(Basis.MO, (matrix_a, matrix_b))
-        return [ints.to_second_q_op()]
+        op = FermionicOp(
+            [
+                (f"N_{o}", 0.5 if o < self._num_spin_orbitals // 2 else -0.5)
+                for o in range(self._num_spin_orbitals)
+            ],
+            register_length=self._num_spin_orbitals,
+        )
+        return [op]
 
     def interpret(self, result: EigenstateResult) -> None:
         """TODO."""

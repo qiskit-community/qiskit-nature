@@ -14,14 +14,11 @@
 
 from typing import cast, List, Optional, Tuple, Union
 
-import numpy as np
-
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .electronic_integrals import Basis, _1BodyElectronicIntegrals
 from .property import Property
 
 
@@ -73,8 +70,11 @@ class ParticleNumber(Property):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
-        ints = _1BodyElectronicIntegrals(Basis.MO, (np.eye(self._num_spin_orbitals // 2), None))
-        return [ints.to_second_q_op()]
+        op = FermionicOp(
+            [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
+            register_length=self._num_spin_orbitals,
+        )
+        return [op]
 
     def interpret(self, result: EigenstateResult) -> None:
         """TODO."""
