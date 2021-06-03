@@ -26,9 +26,6 @@ class HFMethodType(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
     RHF = "rhf"
     ROHF = "rohf"
     UHF = "uhf"
-    RKS = "rks"
-    ROKS = "roks"
-    UKS = "uks"
 
 
 class FermionicDriver(BaseDriver):

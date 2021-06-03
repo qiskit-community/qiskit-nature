@@ -24,7 +24,7 @@ import numpy as np
 from qiskit.utils.validation import validate_min
 
 from ...exceptions import QiskitNatureError
-from ..fermionic_driver import FermionicDriver, HFMethodType
+from ..fermionic_driver import FermionicDriver, MethodType
 from ..molecule import Molecule
 from ..qmolecule import QMolecule
 from ..units_type import UnitsType
@@ -67,7 +67,7 @@ class PySCFDriver(FermionicDriver):
         charge: int = 0,
         spin: int = 0,
         basis: str = "sto3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        method: MethodType = MethodType.RHF,
         xc_functional: str = "lda,vwn",
         xcf_library: str = "libxc",
         conv_tol: float = 1e-9,
@@ -95,12 +95,12 @@ class PySCFDriver(FermionicDriver):
                 etc. Note, that more advanced configuration options like a Dictionary or custom
                 basis sets are not allowed for the moment. Refer to 4_ for an extensive list of
                 PySCF's valid basis set names.
-            hf_method: The SCF method type to be used for the PySCF calculation. While the name
+            method: The SCF method type to be used for the PySCF calculation. While the name
                 refers to HF methods, the PySCFDriver also supports KS methods. Refer to the
-                ``HFMethodType`` for a list of the supported methods.
+                ``MethodType`` for a list of the supported methods.
             xc_functional: One of the predefined Exchange-Correlation functional names as recognized
                 by PySCF (5_). Defaults to PySCF's default: 'lda,vwn'. __Note: this setting only has
-                an effect when a KS method is chosen for `hf_method`.__
+                an effect when a KS method is chosen for `method`.__
             xcf_library: The Exchange-Correlation functional library to be used. This can be either
                 'libxc' (the default) or 'xcfun'. Depending on this value, a different set of values
                 for `xc_functional` will be available. Refer to 5_ for more details.
@@ -146,7 +146,7 @@ class PySCFDriver(FermionicDriver):
         super().__init__(
             molecule=molecule,
             basis=basis,
-            hf_method=hf_method.value,
+            method=method.value,
             supports_molecule=True,
         )
 
@@ -415,14 +415,14 @@ class PySCFDriver(FermionicDriver):
             QiskitNatureError: If an invalid HF method type was supplied.
         """
         try:
-            hf_method_name = self._hf_method.upper()
-            hf_method_cls = getattr(scf, hf_method_name)
+            method_name = self._method.upper()
+            method_cls = getattr(scf, method_name)
         except AttributeError as exc:
-            raise QiskitNatureError("Failed to load {} HF object.".format(hf_method_name)) from exc
+            raise QiskitNatureError("Failed to load {} HF object.".format(method_name)) from exc
 
-        self._calc = hf_method_cls(self._mol)
+        self._calc = method_cls(self._mol)
 
-        if "KS" in hf_method_name:
+        if "KS" in method_name:
             self._calc._numint.libxc = getattr(dft, self.xcf_library)
             self._calc.xc = self.xc_functional
 
@@ -474,13 +474,13 @@ class PySCFDriver(FermionicDriver):
             "charge={}".format(self._charge),
             "spin={}".format(self._spin),
             "basis={}".format(self._basis),
-            "hf_method={}".format(self._hf_method),
+            "method={}".format(self._method),
             "conv_tol={}".format(self._conv_tol),
             "max_cycle={}".format(self._max_cycle),
             "init_guess={}".format(self._init_guess),
             "max_memory={}".format(self._max_memory),
         ]
-        if "ks" in self._hf_method.lower():
+        if "ks" in self._method.lower():
             cfg.extend(
                 [
                     "xc_functional={}".format(self._xc_functional),
