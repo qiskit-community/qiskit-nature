@@ -22,12 +22,19 @@ from .angular_momentum import AngularMomentum
 from .dipole_moment import DipoleMoment
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
+from .occupied_modals import OccupiedModals
 from .particle_number import ParticleNumber
+from .vibrational_energy import VibrationalEnergy
+from .vibrational_integrals import BosonicBasis, HarmonicBasis
 
 __all__ = [
     "AngularMomentum",
     "DipoleMoment",
     "ElectronicEnergy",
     "Magnetization",
+    "OccupiedModals",
     "ParticleNumber",
+    "VibrationalEnergy",
+    "BosonicBasis",
+    "HarmonicBasis",
 ]

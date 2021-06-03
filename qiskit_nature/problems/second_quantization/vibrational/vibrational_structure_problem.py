@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """The Vibrational Structure Problem class."""
 
-from functools import partial
+from functools import partial, reduce
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -22,6 +22,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.properties import BosonicBasis, HarmonicBasis, OccupiedModals, VibrationalEnergy
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
 from qiskit_nature.transformers import BaseTransformer
 
@@ -65,17 +66,25 @@ class VibrationalStructureProblem(BaseProblem):
             WatsonHamiltonian, self._transform(self._molecule_data)
         )
 
-        vibrational_spin_op = _build_vibrational_op(
-            self._molecule_data_transformed, self.num_modals, self.truncation_order
-        )
-
         num_modes = self._molecule_data_transformed.num_modes
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * num_modes
         else:
             num_modals = self.num_modals
 
-        second_quantized_ops_list = [vibrational_spin_op] + _create_all_aux_operators(num_modals)
+        # TODO: expose this as an argument in __init__
+        basis = HarmonicBasis(num_modals)
+
+        properties = []
+        for cls in [VibrationalEnergy, OccupiedModals]:
+            prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
+            if prop is not None:
+                prop.basis = basis  # type: ignore
+                properties.append(prop)
+
+        second_quantized_ops_list = reduce(
+            lambda a, b: a + b, [prop.second_q_ops() for prop in properties]
+        )
 
         return second_quantized_ops_list
 
