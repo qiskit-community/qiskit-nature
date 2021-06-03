@@ -15,7 +15,7 @@
 from abc import ABC, abstractmethod
 from collections import Counter
 from itertools import chain, cycle, permutations, product, tee
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
 
 import numpy as np
 
