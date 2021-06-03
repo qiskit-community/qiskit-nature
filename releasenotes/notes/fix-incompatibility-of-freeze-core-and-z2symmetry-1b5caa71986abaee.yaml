@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The `FreezeCoreTransformer` (and `ActiveSpaceTransformer`) were incompatible with the automatic
+    `Z2Symmetry` reduction. This issue was fixed by correcting the
+    `ElectronicStructureProblem.symmetry_sector_locator` method.

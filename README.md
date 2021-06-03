@@ -110,7 +110,7 @@ ansatz.compose(init_state, front=True)
 # set the backend for the quantum computation
 from qiskit import Aer
 
-backend = Aer.get_backend('statevector_simulator')
+backend = Aer.get_backend('aer_simulator_statevector')
 
 # setup and run VQE
 from qiskit.algorithms import VQE
@@ -193,6 +193,6 @@ This project uses the [Apache License 2.0](LICENSE.txt).
 
 However there is some code that is included under other licensing as follows:
 
-* The [Gaussian 16 driver](qiskit_nature/drivers/gaussiand) in `Qiskit Nature`
-  contains [work](qiskit_nature/drivers/gaussiand/gauopen) licensed under the
-  [Gaussian Open-Source Public License](qiskit_nature/drivers/gaussiand/gauopen/LICENSE.txt).
+* The [Gaussian 16 driver](qiskit_nature/drivers/second_quantization/gaussiand) in `qiskit.chemistry`
+  contains [work](qiskit_nature/drivers/second_quantization/gaussiand/gauopen) licensed under the
+  [Gaussian Open-Source Public License](qiskit_nature/drivers/second_quantization/gaussiand/gauopen/LICENSE.txt).

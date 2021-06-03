@@ -14,6 +14,7 @@
 
 from typing import Union, List, Optional
 import logging
+import warnings
 
 from ..watson_hamiltonian import WatsonHamiltonian
 from ..units_type import UnitsType
@@ -40,7 +41,7 @@ O        -1.796073    1.479446    0.481721
 
 
 class GaussianForcesDriver(BosonicDriver):
-    """Gaussian™ 16 forces driver."""
+    """**DEPRECATED** Gaussian™ 16 forces driver."""
 
     def __init__(
         self,
@@ -69,6 +70,14 @@ class GaussianForcesDriver(BosonicDriver):
             QiskitNatureError: If `jcf` or `molecule` given and Gaussian™ 16 executable
                 cannot be located.
         """
+        warnings.warn(
+            "This GaussianForcesDriver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.gaussiand "
+            "GaussianForcesDriver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(molecule=molecule, basis=basis, hf_method="", supports_molecule=True)
         self._jcf = jcf
         self._logfile = None

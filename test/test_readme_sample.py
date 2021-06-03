@@ -29,7 +29,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         super().setUp()
         try:
             # pylint: disable=import-outside-toplevel
-            from qiskit_nature.drivers import PySCFDriver
+            from qiskit_nature.drivers.second_quantization import PySCFDriver
 
             PySCFDriver(atom="Li .0 .0 .0; H .0 .0 1.6")
         except QiskitNatureError:
@@ -40,7 +40,7 @@ class TestReadmeSample(QiskitNatureTestCase):
             # pylint: disable=unused-import
             from qiskit import Aer
 
-            _ = Aer.get_backend("statevector_simulator")
+            _ = Aer.get_backend("aer_simulator_statevector")
         except ImportError as ex:  # pylint: disable=broad-except
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
@@ -56,10 +56,9 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         # --- Exact copy of sample code ----------------------------------------
 
-        from qiskit_nature.drivers import PySCFDriver, UnitsType
-        from qiskit_nature.problems.second_quantization.electronic import (
-            ElectronicStructureProblem,
-        )
+        from qiskit_nature.drivers import UnitsType
+        from qiskit_nature.drivers.second_quantization import PySCFDriver
+        from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
         # Use PySCF, a classical computational chemistry software
         # package, to compute the one-body and two-body integrals in
@@ -111,7 +110,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         # set the backend for the quantum computation
         from qiskit import Aer
 
-        backend = Aer.get_backend("statevector_simulator")
+        backend = Aer.get_backend("aer_simulator_statevector")
 
         # setup and run VQE
         from qiskit.algorithms import VQE
