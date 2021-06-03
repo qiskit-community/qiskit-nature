@@ -10,19 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Methods FCIDump """
+""" Test Driver Problem FCIDump """
 
 import unittest
 
 from test import QiskitNatureTestCase
-from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
+from test.drivers.second_quantization.test_driver_problem import TestDriverProblem
 from qiskit_nature.drivers.second_quantization import FCIDumpDriver
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
 @unittest.skip("Skip test until refactored.")
-class TestDriverMethodsFCIDump(TestDriverMethods):
-    """Driver Methods FCIDump tests"""
+class TestDriverProblemFCIDump(TestDriverProblem):
+    """Driver Problem FCIDump tests"""
 
     def test_lih(self):
         """LiH test"""

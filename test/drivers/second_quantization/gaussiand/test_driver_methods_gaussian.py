@@ -10,18 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Methods Gaussian """
+""" Test Driver Problem Gaussian """
 
 import unittest
 
-from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
+from test.drivers.second_quantization.test_driver_problem import TestDriverProblem
 from qiskit_nature.drivers.second_quantization import GaussianDriver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
-class TestDriverMethodsGaussian(TestDriverMethods):
-    """Driver Methods Gaussian tests"""
+class TestDriverProblemGaussian(TestDriverProblem):
+    """Driver Problem Gaussian tests"""
 
     g16_lih_config = """
 # {}/sto-3g scf(conventional)

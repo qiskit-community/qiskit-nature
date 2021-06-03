@@ -14,12 +14,12 @@
 
 import unittest
 
-from test.drivers.test_driver_problem import TestDriverProblem
+from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import PyQuanteDriver, UnitsType, BasisType, HFMethodType
 
 
-class TestDriverMethodsPyquante(TestDriverProblem):
+class TestDriverMethodsPyquante(TestDriverMethods):
     """Driver Methods Pyquante tests"""
 
     def setUp(self):

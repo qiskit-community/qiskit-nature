@@ -10,18 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Methods Pyquante """
+""" Test Driver Problem Pyquante """
 
 import unittest
 
-from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
+from test.drivers.second_quantization.test_driver_problem import TestDriverProblem
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType, HFMethodType
 
 
-class TestDriverMethodsPyquante(TestDriverMethods):
-    """Driver Methods Pyquante tests"""
+class TestDriverProblemPyquante(TestDriverProblem):
+    """Driver Problem Pyquante tests"""
 
     def setUp(self):
         super().setUp()

@@ -15,13 +15,13 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from test.drivers.test_driver_problem import TestDriverProblem
+from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import FCIDumpDriver
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
 @unittest.skip("Skip test until refactored.")
-class TestDriverMethodsFCIDump(TestDriverProblem):
+class TestDriverMethodsFCIDump(TestDriverMethods):
     """Driver Methods FCIDump tests"""
 
     def test_lih(self):

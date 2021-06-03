@@ -14,13 +14,13 @@
 
 import unittest
 
-from test.drivers.test_driver_problem import TestDriverProblem
+from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import PSI4Driver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
-class TestDriverMethodsPSI4(TestDriverProblem):
+class TestDriverMethodsPSI4(TestDriverMethods):
     """Driver Methods PSI4 tests"""
 
     psi4_lih_config = """
