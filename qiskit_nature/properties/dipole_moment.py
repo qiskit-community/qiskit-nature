@@ -19,7 +19,7 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .electronic_integrals import Basis, _1BodyElectronicIntegrals
+from .electronic_integrals import ElectronicOrbitalBasis, _1BodyElectronicIntegrals
 from .electronic_energy import ElectronicEnergy
 from .property import Property
 
@@ -30,12 +30,12 @@ from .property import Property
 DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
 
 
-class DipoleMoment(Property):
+class TotalDipoleMoment(Property):
     """TODO."""
 
     def __init__(
         self,
-        dipole_axes: Dict[str, ElectronicEnergy],
+        dipole_axes: Dict[str, DipoleMoment],
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
     ):
         """TODO."""
@@ -46,7 +46,7 @@ class DipoleMoment(Property):
     @classmethod
     def from_driver_result(
         cls, result: Union[QMolecule, WatsonHamiltonian]
-    ) -> Optional["DipoleMoment"]:
+    ) -> Optional["TotalDipoleMoment"]:
         """TODO."""
         if isinstance(result, WatsonHamiltonian):
             raise QiskitNatureError("TODO.")
@@ -58,29 +58,44 @@ class DipoleMoment(Property):
 
         return cls(
             {
-                "x": ElectronicEnergy(
-                    {
-                        1: _1BodyElectronicIntegrals(
-                            Basis.MO, (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b)
-                        )
-                    },
-                    energy_shift=qmol.x_dip_energy_shift,
+                "x": DipoleMoment(
+                    "x",
+                    ElectronicEnergy(
+                        ElectronicOrbitalBasis.MO,
+                        {
+                            1: _1BodyElectronicIntegrals(
+                                ElectronicOrbitalBasis.MO,
+                                (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
+                            )
+                        },
+                        energy_shift=qmol.x_dip_energy_shift,
+                    ),
                 ),
-                "y": ElectronicEnergy(
-                    {
-                        1: _1BodyElectronicIntegrals(
-                            Basis.MO, (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b)
-                        )
-                    },
-                    energy_shift=qmol.y_dip_energy_shift,
+                "y": DipoleMoment(
+                    "y",
+                    ElectronicEnergy(
+                        ElectronicOrbitalBasis.MO,
+                        {
+                            1: _1BodyElectronicIntegrals(
+                                ElectronicOrbitalBasis.MO,
+                                (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
+                            )
+                        },
+                        energy_shift=qmol.y_dip_energy_shift,
+                    ),
                 ),
-                "z": ElectronicEnergy(
-                    {
-                        1: _1BodyElectronicIntegrals(
-                            Basis.MO, (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b)
-                        )
-                    },
-                    energy_shift=qmol.z_dip_energy_shift,
+                "z": DipoleMoment(
+                    "z",
+                    ElectronicEnergy(
+                        ElectronicOrbitalBasis.MO,
+                        {
+                            1: _1BodyElectronicIntegrals(
+                                ElectronicOrbitalBasis.MO,
+                                (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
+                            )
+                        },
+                        energy_shift=qmol.z_dip_energy_shift,
+                    ),
                 ),
             },
             dipole_shift={
@@ -93,6 +108,28 @@ class DipoleMoment(Property):
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
         return [dip.second_q_ops()[0] for dip in self._dipole_axes.values()]
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """TODO."""
+        pass
+
+
+class DipoleMoment(Property):
+    """TODO."""
+
+    def __init__(
+        self,
+        axis: str,
+        dipole: ElectronicEnergy,
+    ):
+        """TODO."""
+        super().__init__(self.__class__.__name__)
+        self._axis = axis
+        self._dipole = dipole
+
+    def second_q_ops(self) -> List[FermionicOp]:
+        """TODO."""
+        return self._dipole.second_q_ops()
 
     def interpret(self, result: EigenstateResult) -> None:
         """TODO."""

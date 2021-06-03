@@ -19,7 +19,7 @@ Properties (:mod:`qiskit_nature.properties`)
 """
 
 from .angular_momentum import AngularMomentum
-from .dipole_moment import DipoleMoment
+from .dipole_moment import TotalDipoleMoment
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .occupied_modals import OccupiedModals

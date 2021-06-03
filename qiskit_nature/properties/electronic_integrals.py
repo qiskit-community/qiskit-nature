@@ -24,22 +24,22 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
-class Basis(Enum):
+class ElectronicOrbitalBasis(Enum):
     """TODO."""
 
     # pylint: disable=invalid-name
-    AO = "ao"
-    MO = "mo"
-    SO = "so"
+    AO = "atomic"
+    MO = "molecular"
+    SO = "spin"
 
 
-class BasisTransform:
+class ElectronicOrbitalBasisTransform:
     """TODO."""
 
     def __init__(
         self,
-        initial_basis: Basis,
-        final_basis: Basis,
+        initial_basis: ElectronicOrbitalBasis,
+        final_basis: ElectronicOrbitalBasis,
         coeff_alpha: np.ndarray,
         coeff_beta: Optional[np.ndarray] = None,
     ) -> None:
@@ -56,7 +56,7 @@ class _ElectronicIntegrals(ABC):
     def __init__(
         self,
         num_body_terms: int,
-        basis: Basis,
+        basis: ElectronicOrbitalBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
     ) -> None:
         """TODO."""
@@ -64,7 +64,7 @@ class _ElectronicIntegrals(ABC):
         assert num_body_terms >= 1
         self._num_body_terms = num_body_terms
         self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
-        if basis == Basis.SO:
+        if basis == ElectronicOrbitalBasis.SO:
             assert isinstance(matrices, np.ndarray)
             self._matrices = matrices
         else:
@@ -93,7 +93,7 @@ class _ElectronicIntegrals(ABC):
         base_ops_labels = self._create_base_ops()
 
         # TODO: allow an empty list as argument to FermionicOp
-        fac = 2 if self._basis != Basis.SO else 1
+        fac = 2 if self._basis != ElectronicOrbitalBasis.SO else 1
         initial_label_with_ceoff = ("I" * fac * len(self._matrices[0]), 0)
         base_ops_labels.append(initial_label_with_ceoff)
 
@@ -131,12 +131,16 @@ class _1BodyElectronicIntegrals(_ElectronicIntegrals):
     """TODO."""
 
     def __init__(
-        self, basis: Basis, matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
+        self,
+        basis: ElectronicOrbitalBasis,
+        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
     ) -> None:
         """TODO."""
         super().__init__(1, basis, matrices)
 
-    def transform_basis(self, transform: BasisTransform) -> "_1BodyElectronicIntegrals":
+    def transform_basis(
+        self, transform: ElectronicOrbitalBasisTransform
+    ) -> "_1BodyElectronicIntegrals":
         """TODO."""
         if self._basis == transform._final_basis:
             return self
@@ -156,7 +160,7 @@ class _1BodyElectronicIntegrals(_ElectronicIntegrals):
 
     def to_spin(self) -> np.ndarray:
         """TODO."""
-        if self._basis == Basis.SO:
+        if self._basis == ElectronicOrbitalBasis.SO:
             return self._matrices  # type: ignore
 
         matrix_a = self._matrices[0]
@@ -177,12 +181,16 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
     def __init__(
-        self, basis: Basis, matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
+        self,
+        basis: ElectronicOrbitalBasis,
+        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
     ) -> None:
         """TODO."""
         super().__init__(2, basis, matrices)
 
-    def transform_basis(self, transform: BasisTransform) -> "_2BodyElectronicIntegrals":
+    def transform_basis(
+        self, transform: ElectronicOrbitalBasisTransform
+    ) -> "_2BodyElectronicIntegrals":
         """TODO."""
         if self._basis == transform._final_basis:
             return self
@@ -210,7 +218,7 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
 
     def to_spin(self) -> np.ndarray:
         """TODO."""
-        if self._basis == Basis.SO:
+        if self._basis == ElectronicOrbitalBasis.SO:
             return self._matrices  # type: ignore
 
         so_matrix = np.zeros([2 * s for s in self._matrices[0].shape])

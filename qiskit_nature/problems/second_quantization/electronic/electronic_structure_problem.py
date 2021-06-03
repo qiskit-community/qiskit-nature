@@ -26,7 +26,7 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties import (
     AngularMomentum,
-    DipoleMoment,
+    TotalDipoleMoment,
     ElectronicEnergy,
     Magnetization,
     ParticleNumber,
@@ -73,7 +73,13 @@ class ElectronicStructureProblem(BaseProblem):
         self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
         properties = []
-        for cls in [ElectronicEnergy, ParticleNumber, AngularMomentum, Magnetization, DipoleMoment]:
+        for cls in [
+            ElectronicEnergy,
+            ParticleNumber,
+            AngularMomentum,
+            Magnetization,
+            TotalDipoleMoment,
+        ]:
             prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
             if prop is not None:
                 properties.append(prop)
