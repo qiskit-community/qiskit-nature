@@ -78,9 +78,15 @@ class _ElectronicIntegrals(ABC):
         raise NotImplementedError("TODO.")
 
     @abstractmethod
-    def _create_base_ops(self) -> List[Tuple[str, complex]]:
+    def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:
         """TODO."""
         raise NotImplementedError("TODO.")
+
+    def _create_base_ops(self) -> List[Tuple[str, complex]]:
+        """TODO."""
+        return self._create_base_ops_labels(
+            self.to_spin(), 2 * self._num_body_terms, self._calc_coeffs_with_ops
+        )
 
     def to_second_q_op(self) -> FermionicOp:
         """TODO."""
@@ -160,9 +166,6 @@ class _1BodyElectronicIntegrals(_ElectronicIntegrals):
 
         return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
 
-    def _create_base_ops(self) -> List[Tuple[str, complex]]:
-        return self._create_base_ops_labels(self.to_spin(), 2, self._calc_coeffs_with_ops)
-
     def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:
         return [(idx[0], "+"), (idx[1], "-")]
 
@@ -226,9 +229,6 @@ class _2BodyElectronicIntegrals(_ElectronicIntegrals):
             so_matrix -= 0.5 * np.kron(kron, phys_matrix)
 
         return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
-
-    def _create_base_ops(self) -> List[Tuple[str, complex]]:
-        return self._create_base_ops_labels(self.to_spin(), 4, self._calc_coeffs_with_ops)
 
     def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:
         return [(idx[0], "+"), (idx[2], "+"), (idx[3], "-"), (idx[1], "-")]

@@ -14,8 +14,6 @@
 
 from typing import cast, Dict, List, Optional, Tuple, Union
 
-import numpy as np
-
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
@@ -23,9 +21,6 @@ from qiskit_nature.results import EigenstateResult
 
 from .vibrational_integrals import (
     _VibrationalIntegrals,
-    _1BodyVibrationalIntegrals,
-    _2BodyVibrationalIntegrals,
-    _3BodyVibrationalIntegrals,
     BosonicBasis,
 )
 from .property import Property
@@ -38,12 +33,13 @@ class VibrationalEnergy(Property):
         self,
         vibrational_integrals: Dict[int, _VibrationalIntegrals],
         truncation_order: Optional[int] = None,
+        basis: Optional[BosonicBasis] = None,
     ):
         """TODO."""
         super().__init__(self.__class__.__name__)
         self._vibrational_integrals = vibrational_integrals
         self._truncation_order = truncation_order
-        self._basis: BosonicBasis = None
+        self._basis = basis
 
     @property
     def truncation_order(self) -> int:
@@ -73,35 +69,27 @@ class VibrationalEnergy(Property):
 
         w_h = cast(WatsonHamiltonian, result)
 
-        # TODO: construct empty _VibrationalIntegrals and append to their lists
-        parsed: Dict[int, List[Tuple[float, Tuple[int, ...]]]] = {}
+        vib_ints: Dict[int, _VibrationalIntegrals] = {
+            1: _VibrationalIntegrals(1, []),
+            2: _VibrationalIntegrals(2, []),
+            3: _VibrationalIntegrals(3, []),
+        }
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]
             num_body = len(set(ints))
-            if num_body not in parsed.keys():
-                parsed[num_body] = []
-            parsed[num_body].append((coeff, tuple(ints)))
-
-        vib_ints: Dict[int, _VibrationalIntegrals] = {}
-        if 1 in parsed.keys():
-            vib_ints[1] = _1BodyVibrationalIntegrals(1, parsed[1])
-        if 2 in parsed.keys():
-            vib_ints[2] = _2BodyVibrationalIntegrals(2, parsed[2])
-        if 3 in parsed.keys():
-            vib_ints[3] = _3BodyVibrationalIntegrals(3, parsed[3])
+            vib_ints[num_body]._integrals.append((coeff, tuple(ints)))
 
         return cls(vib_ints)
 
     def second_q_ops(self) -> List[VibrationalOp]:
         """TODO."""
-        # TODO: limit to truncation_order
-        self._vibrational_integrals[1].basis = self.basis
-        op = self._vibrational_integrals[1].to_second_q_op()
-        self._vibrational_integrals[2].basis = self.basis
-        op += self._vibrational_integrals[2].to_second_q_op()
-        self._vibrational_integrals[3].basis = self.basis
-        op += self._vibrational_integrals[3].to_second_q_op()
-        return [op]
+        ops = []
+        for num_body, ints in self._vibrational_integrals.items():
+            if self._truncation_order is not None and num_body > self._truncation_order:
+                break
+            ints.basis = self.basis
+            ops.append(ints.to_second_q_op())
+        return [sum(ops)]  # type: ignore
 
     def interpret(self, result: EigenstateResult) -> None:
         """TODO."""

@@ -13,10 +13,9 @@
 """TODO."""
 
 from abc import ABC, abstractmethod
-from enum import Enum
-from typing import cast, Dict, List, Optional, Tuple, Union
-
-import itertools
+from collections import Counter
+from itertools import chain, cycle, permutations, product, tee
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -112,10 +111,53 @@ class _VibrationalIntegrals(ABC):
         """Sets the basis."""
         self._basis = basis
 
-    @abstractmethod
     def to_basis(self) -> np.ndarray:
         """TODO."""
-        raise NotImplementedError("TODO.")
+        num_modals_per_mode = self.basis._num_modals_per_mode
+        num_modes = len(num_modals_per_mode)
+        max_num_modals = max(num_modals_per_mode)
+
+        matrix = np.zeros((num_modes, max_num_modals, max_num_modals) * self._num_body_terms)
+
+        coeff_cache: Dict[Tuple[int, int, int, int, bool], float] = {}
+
+        for coeff0, indices in self._integrals:
+            assert len(set(indices)) == self._num_body_terms
+
+            # NOTE: negative indices may be treated specially by a basis
+            kinetic_term = any(index < 0 for index in indices)
+            if kinetic_term:
+                indices = np.absolute(indices)
+
+            powers = Counter(indices)
+
+            index_list = []
+
+            for mode, power in powers.items():
+                iter_1, iter_2 = tee(zip(*np.tril_indices(num_modals_per_mode[mode - 1])))
+                index_list.append(zip(cycle([mode]), iter_1))
+                for m, n in iter_2:
+                    if (mode - 1, m, n, power, kinetic_term) in coeff_cache.keys():
+                        continue
+                    coeff_cache[(mode - 1, m, n, power, kinetic_term)] = self.basis._eval_integral(
+                        mode - 1, m, n, power, kinetic_term=kinetic_term
+                    )
+
+            for index in product(*index_list):
+                index_permutations = []
+                coeff = coeff0
+                for mode, (m, n) in index:
+                    coeff *= coeff_cache[(mode - 1, m, n, powers[mode], kinetic_term)]
+                    index_set = set()
+                    for _m, _n in permutations((m, n)):
+                        index_set.add((_m, _n))
+                    index_permutations.append({(mode - 1, _m, _n) for (_m, _n) in index_set})
+
+                if abs(coeff) > self.basis._threshold:
+                    for i in product(*index_permutations):
+                        matrix[tuple(chain(*i))] += coeff
+
+        return matrix
 
     def to_second_q_op(self) -> VibrationalOp:
         """TODO."""
@@ -153,264 +195,3 @@ class _VibrationalIntegrals(ABC):
                 complete_labels_list.append(f"+_{mode}*{modal_raise}")
         complete_label = " ".join(complete_labels_list)
         return complete_label
-
-
-class _1BodyVibrationalIntegrals(_VibrationalIntegrals):
-    """TODO."""
-
-    def to_basis(self) -> np.ndarray:
-        """TODO."""
-        num_modals_per_mode = self.basis._num_modals_per_mode
-        num_modes = len(num_modals_per_mode)
-        max_num_modals = max(num_modals_per_mode)
-
-        matrix = np.zeros((num_modes, max_num_modals, max_num_modals))
-
-        for coeff0, indices in self._integrals:  # Entry is coeff (float) followed by indices (ints)
-            assert len(set(indices)) == 1
-            index = indices[0]
-            power = len(indices)
-
-            # NOTE: negative indices may be treated specially by a basis
-            kinetic_term = index < 0
-            if kinetic_term:
-                index = -index
-
-            local_num_modals = num_modals_per_mode[index - 1]
-            for m in range(local_num_modals):
-                for n in range(m + 1):
-
-                    coeff = coeff0 * self.basis._eval_integral(
-                        index - 1, m, n, power, kinetic_term=kinetic_term
-                    )
-
-                    if abs(coeff) > self.basis._threshold:
-                        matrix[index - 1, m, n] += coeff
-                        if m != n:
-                            matrix[index - 1, n, m] += coeff
-
-        return matrix
-
-
-class _2BodyVibrationalIntegrals(_VibrationalIntegrals):
-    """TODO."""
-
-    def to_basis(self) -> np.ndarray:
-        """TODO."""
-        num_modals_per_mode = self.basis._num_modals_per_mode
-        num_modes = len(num_modals_per_mode)
-        max_num_modals = max(num_modals_per_mode)
-
-        matrix = np.zeros(
-            (num_modes, max_num_modals, max_num_modals, num_modes, max_num_modals, max_num_modals)
-        )
-
-        for coeff0, indices in self._integrals:  # Entry is coeff (float) followed by indices (ints)
-            assert len(set(indices)) == 2
-
-            kinetic_term = False
-
-            # Note: these negative indices as detected below are explicitly generated in
-            # _compute_modes for other potential uses. They are not wanted by this logic.
-            if any(index < 0 for index in indices):
-                kinetic_term = True
-                indices = np.absolute(indices)
-            index_dict = {}  # type: Dict[int, int]
-            for i in indices:
-                if index_dict.get(i) is None:
-                    index_dict[i] = 1
-                else:
-                    index_dict[i] += 1
-
-            modes = list(index_dict.keys())
-
-            for m in range(num_modals_per_mode[modes[0] - 1]):
-                for n in range(m + 1):
-                    coeff1 = coeff0 * self.basis._eval_integral(
-                        modes[0] - 1, m, n, index_dict[modes[0]], kinetic_term=kinetic_term
-                    )
-                    for j in range(num_modals_per_mode[modes[1] - 1]):
-                        for k in range(j + 1):
-                            coeff = coeff1 * self.basis._eval_integral(
-                                modes[1] - 1,
-                                j,
-                                k,
-                                index_dict[modes[1]],
-                                kinetic_term=kinetic_term,
-                            )
-                            if abs(coeff) > self.basis._threshold:
-                                matrix[modes[0] - 1, m, n, modes[1] - 1, j, k] += coeff
-                                if m != n:
-                                    matrix[modes[0] - 1, n, m, modes[1] - 1, j, k] += coeff
-                                if j != k:
-                                    matrix[modes[0] - 1, m, n, modes[1] - 1, k, j] += coeff
-                                if m != n and j != k:
-                                    matrix[modes[0] - 1, n, m, modes[1] - 1, k, j] += coeff
-
-        return matrix
-
-
-class _3BodyVibrationalIntegrals(_VibrationalIntegrals):
-    """TODO."""
-
-    def to_basis(self) -> np.ndarray:
-        """TODO."""
-        num_modals_per_mode = self.basis._num_modals_per_mode
-        num_modes = len(num_modals_per_mode)
-        max_num_modals = max(num_modals_per_mode)
-
-        matrix = np.zeros(
-            (
-                num_modes,
-                max_num_modals,
-                max_num_modals,
-                num_modes,
-                max_num_modals,
-                max_num_modals,
-                num_modes,
-                max_num_modals,
-                max_num_modals,
-            )
-        )
-
-        for coeff0, indices in self._integrals:  # Entry is coeff (float) followed by indices (ints)
-            assert len(set(indices)) == 3
-
-            kinetic_term = False
-
-            # Note: these negative indices as detected below are explicitly generated in
-            # _compute_modes for other potential uses. They are not wanted by this logic.
-            if any(index < 0 for index in indices):
-                kinetic_term = True
-                indices = np.absolute(indices)
-            index_dict = {}  # type: Dict[int, int]
-            for i in indices:
-                if index_dict.get(i) is None:
-                    index_dict[i] = 1
-                else:
-                    index_dict[i] += 1
-
-            modes = list(index_dict.keys())
-
-            for m in range(num_modals_per_mode[modes[0] - 1]):
-                for n in range(m + 1):
-                    coeff1 = coeff0 * self.basis._eval_integral(
-                        modes[0] - 1, m, n, index_dict[modes[0]], kinetic_term=kinetic_term
-                    )
-                    for j in range(num_modals_per_mode[modes[1] - 1]):
-                        for k in range(j + 1):
-                            coeff2 = coeff1 * self.basis._eval_integral(
-                                modes[1] - 1,
-                                j,
-                                k,
-                                index_dict[modes[1]],
-                                kinetic_term=kinetic_term,
-                            )
-                            # pylint: disable=locally-disabled, invalid-name
-                            for p in range(num_modals_per_mode[modes[2] - 1]):
-                                for q in range(p + 1):
-                                    coeff = coeff2 * self.basis._eval_integral(
-                                        modes[2] - 1,
-                                        p,
-                                        q,
-                                        index_dict[modes[2]],
-                                        kinetic_term=kinetic_term,
-                                    )
-                                    if abs(coeff) > self.basis._threshold:
-                                        matrix[
-                                            modes[0] - 1,
-                                            m,
-                                            n,
-                                            modes[1] - 1,
-                                            j,
-                                            k,
-                                            modes[2] - 1,
-                                            p,
-                                            q,
-                                        ] += coeff
-                                        if m != n:
-                                            matrix[
-                                                modes[0] - 1,
-                                                n,
-                                                m,
-                                                modes[1] - 1,
-                                                j,
-                                                k,
-                                                modes[2] - 1,
-                                                p,
-                                                q,
-                                            ] += coeff
-                                        if k != j:
-                                            matrix[
-                                                modes[0] - 1,
-                                                m,
-                                                n,
-                                                modes[1] - 1,
-                                                k,
-                                                j,
-                                                modes[2] - 1,
-                                                p,
-                                                q,
-                                            ] += coeff
-                                        if p != q:
-                                            matrix[
-                                                modes[0] - 1,
-                                                m,
-                                                n,
-                                                modes[1] - 1,
-                                                j,
-                                                k,
-                                                modes[2] - 1,
-                                                q,
-                                                p,
-                                            ] += coeff
-                                        if m != n and k != j:
-                                            matrix[
-                                                modes[0] - 1,
-                                                n,
-                                                m,
-                                                modes[1] - 1,
-                                                k,
-                                                j,
-                                                modes[2] - 1,
-                                                p,
-                                                q,
-                                            ] += coeff
-                                        if m != n and p != q:
-                                            matrix[
-                                                modes[0] - 1,
-                                                n,
-                                                m,
-                                                modes[1] - 1,
-                                                j,
-                                                k,
-                                                modes[2] - 1,
-                                                q,
-                                                p,
-                                            ] += coeff
-                                        if p != q and k != j:
-                                            matrix[
-                                                modes[0] - 1,
-                                                m,
-                                                n,
-                                                modes[1] - 1,
-                                                k,
-                                                j,
-                                                modes[2] - 1,
-                                                q,
-                                                p,
-                                            ] += coeff
-                                        if m != n and j != k and p != q:
-                                            matrix[
-                                                modes[0] - 1,
-                                                n,
-                                                m,
-                                                modes[1] - 1,
-                                                k,
-                                                j,
-                                                modes[2] - 1,
-                                                q,
-                                                p,
-                                            ] += coeff
-
-        return matrix
