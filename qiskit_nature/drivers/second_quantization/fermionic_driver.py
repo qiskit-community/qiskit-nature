@@ -22,7 +22,12 @@ from .base_driver import BaseDriver
 
 
 class MethodType(Enum):
-    """MethodType Enum"""
+    """MethodType Enum
+
+    The HF-style methods are common names which are likely available everywhere.
+    The KS-style methods are not available for all drivers. Please check the specific driver
+    documentation for details.
+    """
 
     RHF = "rhf"
     ROHF = "rohf"

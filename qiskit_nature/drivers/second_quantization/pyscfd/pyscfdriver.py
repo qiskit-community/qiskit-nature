@@ -415,6 +415,7 @@ class PySCFDriver(FermionicDriver):
             QiskitNatureError: If an invalid HF method type was supplied.
         """
         try:
+            # attempt to gather the SCF-method class specified by the MethodType
             method_name = self._method.upper()
             method_cls = getattr(scf, method_name)
         except AttributeError as exc:
@@ -422,7 +423,7 @@ class PySCFDriver(FermionicDriver):
 
         self._calc = method_cls(self._mol)
 
-        if "KS" in method_name:
+        if method_name in ("RKS", "ROKS", "UKS"):
             self._calc._numint.libxc = getattr(dft, self.xcf_library)
             self._calc.xc = self.xc_functional
 
@@ -480,7 +481,7 @@ class PySCFDriver(FermionicDriver):
             "init_guess={}".format(self._init_guess),
             "max_memory={}".format(self._max_memory),
         ]
-        if "ks" in self._method.lower():
+        if self._method.lower() in ("rks", "roks", "uks"):
             cfg.extend(
                 [
                     "xc_functional={}".format(self._xc_functional),
