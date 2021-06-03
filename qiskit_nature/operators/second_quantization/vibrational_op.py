@@ -119,16 +119,6 @@ class VibrationalOp(SecondQuantizedOp):
         if isinstance(data, str):
             data = [(data, 1)]
 
-        if isinstance(num_modals, int):
-            num_modals = [num_modals] * num_modes
-
-        self._num_modes = num_modes
-        self._num_modals = num_modals
-        self._register_length = sum(self._num_modals)
-
-        if data == []:
-            data = [("I" * self._register_length, 0)]
-
         if not all(
             isinstance(label, str) and isinstance(coeff, (int, float, complex))
             for label, coeff in data
@@ -137,6 +127,13 @@ class VibrationalOp(SecondQuantizedOp):
 
         self._coeffs: np.ndarray
         self._labels: List[str]
+
+        if isinstance(num_modals, int):
+            num_modals = [num_modals] * num_modes
+
+        self._num_modes = num_modes
+        self._num_modals = num_modals
+        self._register_length = sum(self._num_modals)
 
         labels, coeffs = zip(*data)
         self._coeffs = np.array(coeffs, np.complex128)
