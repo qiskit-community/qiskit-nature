@@ -23,11 +23,11 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 from qiskit.utils.validation import validate_min
 
-from ...exceptions import QiskitNatureError
+from ....exceptions import QiskitNatureError
 from ..fermionic_driver import FermionicDriver, MethodType
-from ..molecule import Molecule
 from ..qmolecule import QMolecule
-from ..units_type import UnitsType
+from ...molecule import Molecule
+from ...units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 

@@ -14,8 +14,9 @@
 
 import unittest
 
-from test.drivers.test_driver_problem import TestDriverProblem
-from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
+from test.drivers.second_quantization.test_driver_problem import TestDriverProblem
+from qiskit_nature.drivers import UnitsType
+from qiskit_nature.drivers.second_quantization import PySCFDriver, MethodType
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, ParityMapper
 from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
@@ -40,7 +41,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=0,
             basis="sto-3g",
-            hf_method=HFMethodType.RHF,
+            method=MethodType.RHF,
         )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, "lih")
@@ -53,7 +54,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=0,
             basis="sto-3g",
-            hf_method=HFMethodType.ROHF,
+            method=MethodType.ROHF,
         )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, "lih")
@@ -66,7 +67,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=0,
             basis="sto-3g",
-            hf_method=HFMethodType.UHF,
+            method=MethodType.UHF,
         )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, "lih")
@@ -79,7 +80,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=0,
             basis="sto-3g",
-            hf_method=HFMethodType.RHF,
+            method=MethodType.RHF,
         )
         result = self._run_driver(
             driver,
@@ -96,7 +97,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=0,
             basis="sto-3g",
-            hf_method=HFMethodType.RHF,
+            method=MethodType.RHF,
         )
         result = self._run_driver(
             driver,
@@ -113,7 +114,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=0,
             basis="sto-3g",
-            hf_method=HFMethodType.RHF,
+            method=MethodType.RHF,
         )
         result = self._run_driver(
             driver,
@@ -130,7 +131,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.ROHF,
+            method=MethodType.ROHF,
         )
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
@@ -143,7 +144,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.UHF,
+            method=MethodType.UHF,
         )
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
@@ -156,7 +157,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.ROHF,
+            method=MethodType.ROHF,
         )
         result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
         self._assert_energy_and_dipole(result, "oh")
@@ -169,7 +170,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.ROHF,
+            method=MethodType.ROHF,
         )
         result = self._run_driver(
             driver, converter=QubitConverter(ParityMapper(), two_qubit_reduction=True)
@@ -184,7 +185,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.UHF,
+            method=MethodType.UHF,
         )
         result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
         self._assert_energy_and_dipole(result, "oh")
@@ -197,7 +198,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.UHF,
+            method=MethodType.UHF,
         )
         result = self._run_driver(
             driver, converter=QubitConverter(ParityMapper(), two_qubit_reduction=True)
@@ -212,7 +213,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.ROHF,
+            method=MethodType.ROHF,
         )
         result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
         self._assert_energy_and_dipole(result, "oh")
@@ -225,7 +226,7 @@ class TestDriverProblemPySCF(TestDriverProblem):
             charge=0,
             spin=1,
             basis="sto-3g",
-            hf_method=HFMethodType.UHF,
+            method=MethodType.UHF,
         )
         result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
         self._assert_energy_and_dipole(result, "oh")
