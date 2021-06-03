@@ -32,14 +32,14 @@ from qiskit_nature.algorithms import (
     NumPyMinimumEigensolverFactory,
 )
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
     build_ferm_op_from_ints,
 )
-from qiskit_nature.transformers import FreezeCoreTransformer
+from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -47,7 +47,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.driver = HDF5Driver(self.get_resource_path("test_driver_hdf5.hdf5", "drivers/hdf5d"))
+        self.driver = HDF5Driver(
+            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+        )
         self.seed = 56
         algorithm_globals.random_seed = self.seed
 
@@ -233,7 +235,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             # pylint: disable=unused-import
             from qiskit import Aer
 
-            backend = Aer.get_backend("qasm_simulator")
+            backend = Aer.get_backend("aer_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
@@ -291,7 +293,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     @slow_test
     def test_uccsd_hf_qasm(self):
-        """uccsd hf test with qasm_simulator."""
+        """uccsd hf test with qasm simulator."""
         qubit_converter = QubitConverter(ParityMapper())
         ansatz = self._prepare_uccsd_hf(qubit_converter)
 
@@ -320,7 +322,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             # pylint: disable=import-outside-toplevel
             from qiskit import Aer
 
-            backend = Aer.get_backend("statevector_simulator")
+            backend = Aer.get_backend("aer_simulator_statevector")
         except ImportError as ex:  # pylint: disable=broad-except
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
@@ -339,14 +341,13 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
-    @slow_test
     def test_uccsd_hf_aer_qasm(self):
-        """uccsd hf test with Aer qasm_simulator."""
+        """uccsd hf test with Aer qasm simulator."""
         try:
             # pylint: disable=import-outside-toplevel
             from qiskit import Aer
 
-            backend = Aer.get_backend("qasm_simulator")
+            backend = Aer.get_backend("aer_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
@@ -357,7 +358,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            expectation=PauliExpectation(),
+            expectation=PauliExpectation(group_paulis=False),
             quantum_instance=QuantumInstance(
                 backend=backend,
                 seed_simulator=algorithm_globals.random_seed,
@@ -368,16 +369,16 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
-        self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
+        self.assertAlmostEqual(result.total_energies[0], -1.131, places=2)
 
     @slow_test
     def test_uccsd_hf_aer_qasm_snapshot(self):
-        """uccsd hf test with Aer qasm_simulator snapshot."""
+        """uccsd hf test with Aer qasm simulator snapshot."""
         try:
             # pylint: disable=import-outside-toplevel
             from qiskit import Aer
 
-            backend = Aer.get_backend("qasm_simulator")
+            backend = Aer.get_backend("aer_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
             self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
             return
@@ -403,7 +404,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         An issue arose when the FreezeCoreTransformer was combined with the automatic Z2Symmetry
         reduction. This regression test ensures that this behavior remains fixed.
         """
-        driver = HDF5Driver(hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers"))
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization")
+        )
         problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
         qubit_converter = QubitConverter(
             ParityMapper(),

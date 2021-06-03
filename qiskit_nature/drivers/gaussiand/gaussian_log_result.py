@@ -12,6 +12,7 @@
 
 """ Gaussian Log File Result """
 import math
+import warnings
 from typing import Dict, Union, List, Tuple, cast
 import copy
 import logging
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class GaussianLogResult:
-    """Result for Gaussian™ 16 log driver.
+    """**DEPRECATED** Result for Gaussian™ 16 log driver.
 
     This result allows access to selected data from the log file that is not available
     via the use Gaussian 16 interfacing code when using the MatrixElement file.
@@ -40,6 +41,14 @@ class GaussianLogResult:
         Raises:
             ValueError: Invalid Input
         """
+        warnings.warn(
+            "This GaussianLogResult is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.gaussiand "
+            "GaussianLogResult as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         self._log = None
 

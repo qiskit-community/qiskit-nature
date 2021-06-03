@@ -14,13 +14,14 @@
 
 import importlib
 import logging
-from enum import Enum
+import warnings
 from typing import Optional, Union, List
 
 from qiskit.utils.validation import validate_min
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals
+from ..base_driver import DeprecatedEnum, DeprecatedEnumMeta
 from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
@@ -29,7 +30,7 @@ from ...exceptions import QiskitNatureError
 logger = logging.getLogger(__name__)
 
 
-class InitialGuess(Enum):
+class InitialGuess(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
     """Initial Guess Enum"""
 
     MINAO = "minao"
@@ -39,10 +40,9 @@ class InitialGuess(Enum):
 
 
 class PySCFDriver(FermionicDriver):
-    """
-    Qiskit Nature driver using the PySCF library.
+    """**DEPRECATED** Qiskit Nature driver using the PySCF library.
 
-    See https://sunqm.github.io/pyscf/
+    See https://pyscf.org/install.html
     """
 
     def __init__(
@@ -52,10 +52,10 @@ class PySCFDriver(FermionicDriver):
         charge: int = 0,
         spin: int = 0,
         basis: str = "sto3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
         conv_tol: float = 1e-9,
         max_cycle: int = 50,
-        init_guess: InitialGuess = InitialGuess.MINAO,
+        init_guess: Optional[InitialGuess] = None,
         max_memory: Optional[int] = None,
         molecule: Optional[Molecule] = None,
     ) -> None:
@@ -68,7 +68,7 @@ class PySCFDriver(FermionicDriver):
             charge: Charge on the molecule
             spin: Spin (2S), in accordance with how PySCF defines a molecule in pyscf.gto.mole.Mole
             basis: Basis set name as recognized by PySCF, e.g. `sto3g`, `321g` etc.
-                See https://sunqm.github.io/pyscf/_modules/pyscf/gto/basis.html for a listing.
+                See https://pyscf.org/user/gto.html for a listing.
                 Defaults to the minimal basis 'sto3g'.
             hf_method: Hartree-Fock Method type
             conv_tol: Convergence tolerance see PySCF docs and pyscf/scf/hf.py
@@ -86,9 +86,21 @@ class PySCFDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        warnings.warn(
+            "This PySCFDriver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.pyscfd "
+            "PySCFDriver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):
             raise QiskitNatureError("Invalid atom input for PYSCF Driver '{}'".format(atom))
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
+        if init_guess is None:
+            init_guess = InitialGuess.MINAO
 
         if isinstance(atom, list):
             atom = ";".join(atom)
@@ -113,7 +125,7 @@ class PySCFDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
+        err_msg = "PySCF is not installed. See https://pyscf.org/install.html"
         try:
             spec = importlib.util.find_spec("pyscf")
             if spec is not None:

@@ -14,9 +14,11 @@
 
 from typing import Union, List
 
+import warnings
+
 
 class WatsonHamiltonian:
-    """
+    """**DEPRECATED**
     Watson Hamiltonian class containing the results of a driver's anharmonic calculation
     """
 
@@ -26,6 +28,14 @@ class WatsonHamiltonian:
             data: Hamiltonian matrix elements
             num_modes: number of modes
         """
+        warnings.warn(
+            "This WatsonHamiltonian is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization "
+            "WatsonHamiltonian as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._data = data
         self._num_modes = num_modes
 
