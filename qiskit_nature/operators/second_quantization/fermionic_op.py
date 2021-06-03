@@ -177,6 +177,14 @@ class FermionicOp(SecondQuantizedOp):
         if isinstance(data, str):
             data = [(data, 1)]
 
+        if data == []:
+            if register_length is None:
+                raise TypeError(
+                    "If you want to initialize an empty operator, you _must_ specify the length of "
+                    "the register!"
+                )
+            data = [("I_0", 0)]
+
         if not all(
             isinstance(label, str) and isinstance(coeff, (int, float, complex))
             for label, coeff in data

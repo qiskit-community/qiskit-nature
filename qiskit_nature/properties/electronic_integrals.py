@@ -92,10 +92,8 @@ class _ElectronicIntegrals(ABC):
         """TODO."""
         base_ops_labels = self._create_base_ops()
 
-        # TODO: allow an empty list as argument to FermionicOp
-        fac = 2 if self._basis != Basis.SO else 1
-        initial_label_with_ceoff = ("I" * fac * len(self._matrices[0]), 0)
-        base_ops_labels.append(initial_label_with_ceoff)
+        if base_ops_labels == []:
+            return FermionicOp([], register_length=len(self._matrices[0]))
 
         return FermionicOp(base_ops_labels)
 
