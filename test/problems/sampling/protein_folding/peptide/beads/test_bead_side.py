@@ -26,7 +26,16 @@ class TestSideBead(QiskitNatureTestCase):
 
         indic_0, indic_1, indic_2, indic_3 = side_bead.get_indicator_functions()
 
-        assert indic_0 == 2.0 * I - 2.0 * Z  # TODO why is this not reduced?
-        assert indic_1 == 0.0 * I
-        assert indic_2 == 0.0 * I
-        assert indic_3 == I
+        assert indic_0 == 2.0 * (I ^ I) - 2.0 * (Z ^ I)
+        assert indic_1 == 0.0 * (I ^ I)
+        assert indic_2 == 0.0 * (I ^ I)
+        assert indic_3 == I ^ I
+
+    def test_side_bead_constructor_none(self):
+        """Tests that a SideBead is created."""
+        residue_type = None
+        turn_qubits = [Z, Z]
+        side_bead = SideBead(residue_type, turn_qubits)
+
+        with self.assertRaises(AttributeError):
+            _, _, _, _ = side_bead.get_indicator_functions()
