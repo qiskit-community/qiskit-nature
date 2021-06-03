@@ -68,8 +68,8 @@ def _check_turns(lower_bead: BaseBead, higher_bead: BaseBead) -> OperatorBase:
     higher_bead_indic_0, higher_bead_indic_1, higher_bead_indic_2, higher_bead_indic_3 = \
         higher_bead.get_indicator_functions()
 
-    t_ij = lower_bead_indic_0 @ higher_bead_indic_0 + lower_bead_indic_1 @ higher_bead_indic_1 + \
-           lower_bead_indic_2 @ higher_bead_indic_2 + lower_bead_indic_3 @ higher_bead_indic_3
+    t_ij = _set_binaries(lower_bead_indic_0 @ higher_bead_indic_0 + lower_bead_indic_1 @ higher_bead_indic_1 + \
+           lower_bead_indic_2 @ higher_bead_indic_2 + lower_bead_indic_3 @ higher_bead_indic_3)
     return t_ij
 
 
@@ -280,46 +280,48 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                 continue
             else:
                 if side_chain[j - 1] == 1:
-                    H_BBSC += contacts[i][0][j][1] @ (
+                    H_BBSC += (contacts[i][0][j][1] @ (
                             _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
-                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
+                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        H_BBSC += contacts[i][0][j][1] @ _first_neighbor(i, 1, j, 1, lambda_1,
-                                                                         pair_energies, x_dist)
+                        H_BBSC += (contacts[i][0][j][1] @ _first_neighbor(i, 1, j, 1, lambda_1,
+                                                                         pair_energies, x_dist))
                     except:
                         pass
                     try:
-                        H_BBSC += contacts[i][0][j][1] @ _second_neighbor(i + 1, 0, j, 1, lambda_1,
-                                                                          pair_energies, x_dist)
+                        H_BBSC += (contacts[i][0][j][1] @ _second_neighbor(i + 1, 0, j, 1, lambda_1,
+                                                                          pair_energies, x_dist))
                     except:
                         pass
                     try:
-                        H_BBSC += contacts[i][0][j][1] @ _second_neighbor(i - 1, 1, j, 0, lambda_1,
-                                                                          pair_energies, x_dist)
+                        H_BBSC += (contacts[i][0][j][1] @ _second_neighbor(i - 1, 0, j, 1, lambda_1,
+                                                                          pair_energies, x_dist))
                     except:
                         pass
                     H_BBSC = H_BBSC.reduce()
                 if side_chain[i - 1] == 1:
-                    H_SCBB += contacts[i][1][j][0] @ (
+                    H_SCBB += (contacts[i][1][j][0] @ (
                             _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
-                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist))
+                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        H_SCBB += contacts[i][1][j][0] @ _second_neighbor(i, 1, j, 0, lambda_1,
-                                                                          pair_energies, x_dist)
+                        H_SCBB += (contacts[i][1][j][0] @ _second_neighbor(i, 1, j, 1, lambda_1,
+                                                                          pair_energies, x_dist))
                     except:
                         pass
                     try:
-                        H_SCBB += contacts[i][1][j][0] @ _second_neighbor(i, 1, j + 1, 0, lambda_1,
-                                                                          pair_energies, x_dist)
+                        H_SCBB += (contacts[i][1][j][0] @ _second_neighbor(i, 1, j + 1, 0, lambda_1,
+                                                                          pair_energies, x_dist))
                     except:
                         pass
                     try:
-                        H_SCBB += contacts[i][1][j][0] @ _second_neighbor(i, 1, j - 1, 0, lambda_1,
-                                                                          pair_energies, x_dist)
+                        H_SCBB += (contacts[i][1][j][0] @ _second_neighbor(i, 1, j - 1, 0, lambda_1,
+                                                                          pair_energies, x_dist))
                     except:
                         pass
                     H_SCBB = H_SCBB.reduce()
-    return _set_binaries(H_BBSC).reduce(), _set_binaries(H_SCBB).reduce()
+    H_BBSC = _set_binaries(H_BBSC).reduce()
+    H_SCBB = _set_binaries(H_SCBB).reduce()
+    return H_BBSC, H_SCBB
 
 
 def _create_h_scsc(main_chain_len, side_chain, lambda_1,
@@ -356,7 +358,7 @@ def _create_h_scsc(main_chain_len, side_chain, lambda_1,
                     +
                     _second_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist))
             H_SCSC = H_SCSC.reduce()
-    return _set_binaries(H_SCSC)
+    return _set_binaries(H_SCSC).reduce()
 
 
 def _create_h_short(peptide: Peptide, pair_energies):
@@ -392,7 +394,7 @@ def _create_h_short(peptide: Peptide, pair_energies):
                                     peptide.get_main_chain[i - 1].side_chain[0]) @ \
                        (pair_energies[i, 1, i + 3, 1] + 0.1 * (
                                pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
-    return _set_binaries(h_short)
+    return _set_binaries(h_short).reduce()
 
 
 # TODO in the original code, N_contacts is always set to 0. What is the meaning of this param?

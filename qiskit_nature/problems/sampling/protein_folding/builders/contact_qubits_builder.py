@@ -9,10 +9,40 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+import numpy as np
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp, PauliTable
+
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_pauli_z_op, \
     _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
+def _set_binaries(H_back):
+    new_tables = []
+    new_coeffs = []
+    for i in range(len(H_back)):
+        H = H_back[i]
+        table_Z = np.copy(H.primitive.table.Z[0])
+        table_X = np.copy(H.primitive.table.X[0])
+        # get coeffs and update
+        coeffs = np.copy(H.primitive.coeffs[0])
+        if table_Z[1] == np.bool_(True):
+            coeffs = -1 * coeffs
+        if table_Z[5] == np.bool_(True):
+            coeffs = -1 * coeffs
+        # impose preset binary values
+        table_Z[0] = np.bool_(False)
+        table_Z[1] = np.bool_(False)
+        table_Z[2] = np.bool_(False)
+        table_Z[3] = np.bool_(False)
+        table_Z[5] = np.bool_(False)
+        new_table = np.concatenate((table_X, table_Z), axis=0)
+        new_tables.append(new_table)
+        new_coeffs.append(coeffs)
+    new_pauli_table = PauliTable(data=new_tables)
+    H_back_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
+    H_back_updated = H_back_updated.reduce()
+    return H_back_updated
 
 # TODO refactor data structures and try clauses
 def _create_pauli_for_contacts(peptide: Peptide):
@@ -41,12 +71,12 @@ def _create_pauli_for_contacts(peptide: Peptide):
         for j in range(i + 3, main_chain_len + 1):
             if (j - i) % 2 == 1:
                 if (j - i) >= 5:
-                    pauli_contacts[i][0][j][0] = (full_id ^ (full_id - _build_pauli_z_op(num_qubits, [i - 1, j - 1]))) * 0.5
+                    pauli_contacts[i][0][j][0] = (full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1]))
                     print('possible contact between', i, '0 and', j, '0')
                     r_contact += 1
                 if side_chain[i - 1] == 1 and side_chain[j - 1] == 1:
                     try:
-                        pauli_contacts[i][1][j][1] = ((full_id - _build_pauli_z_op(num_qubits, [i - 1, j - 1])) ^ full_id)* 0.5
+                        pauli_contacts[i][1][j][1] = (_build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id)
                         print('possible contact between', i, '1 and', j, '1')
                         r_contact += 1
                     except:
@@ -56,10 +86,9 @@ def _create_pauli_for_contacts(peptide: Peptide):
                     if side_chain[j - 1] == 1:
                         try:
                             print('possible contact between', i, '0 and', j, '1')
-                            a = full_id ^ full_id
                             b = full_id ^ _build_pauli_z_op(num_qubits, [i - 1])
                             d = _build_pauli_z_op(num_qubits, [j - 1]) ^ full_id
-                            pauli_contacts[i][0][j][1] = ((a-b) @ (a-d))/2.0
+                            pauli_contacts[i][0][j][1] = (b @ d)
                             r_contact += 1
                         except:
                             pass
@@ -67,16 +96,47 @@ def _create_pauli_for_contacts(peptide: Peptide):
                     if side_chain[i - 1] == 1:
                         try:
                             print('possible contact between', i, '1 and', j, '0')
-                            a = full_id ^ full_id
                             b = full_id ^ _build_pauli_z_op(num_qubits, [j - 1])
                             d = _build_pauli_z_op(num_qubits, [i - 1]) ^ full_id
-                            pauli_contacts[i][1][j][0] = ((a-d) @ (a-b)) / 2.0
+                            pauli_contacts[i][1][j][0] = (d @ b)
                             r_contact += 1
                         except:
                             pass
     print('number of qubits required for contact : ', r_contact)
     return pauli_contacts, r_contact
 
+def _create_contact_qubits(main_chain_len, pauli_contacts):
+    """
+    Creates contact qubits to track 1st nearest
+    neighbor interactions
+
+    Args:
+        main_chain_len: Number of total beads in peptide
+        pauli_contacts: Dictionary of Pauli operators to track
+                        contacts/interactions between beads
+
+    Returns:
+        contacts: Dictionary of contact qubits in symbolic notation
+    """
+    contacts = dict()
+    for i in range(1, main_chain_len - 3):
+        contacts[i] = dict()
+        contacts[i][0] = dict()
+        contacts[i][1] = dict()
+        for j in range(i + 3, main_chain_len + 1): # j > i
+            contacts[i][0][j] = dict()
+            contacts[i][1][j] = dict()
+    num_qubits = 2 * (main_chain_len - 1)
+    full_id = _build_full_identity(num_qubits)
+    for i in range(1, main_chain_len - 3):  # first qubits is number 1
+        for j in range(i + 4, main_chain_len + 1):
+            for p in range(2):
+                for s in range(2):
+                    try:
+                        contacts[i][p][j][s] = ((full_id ^ full_id) - pauli_contacts[i][p][j][s])/2
+                    except:
+                        pass
+    return contacts
 
 def _init_pauli_contacts_dict(main_chain_len):
     pauli_contacts = dict()
@@ -164,7 +224,7 @@ def _first_neighbor(i, p, j, s,
     #e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
     expr = lambda_0 * (x - _build_full_identity(x.num_qubits))  # +e TODO how to add a scalar here?
-    return expr.reduce()
+    return _set_binaries(expr).reduce()
 
 
 def _second_neighbor(i, p, j, s,
@@ -193,5 +253,5 @@ def _second_neighbor(i, p, j, s,
     """
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
-    expr = lambda_1 * (2 * _build_full_identity(x.num_qubits) - x)  # + e*0.1
-    return expr.reduce()
+    expr = lambda_1 * (2 * (_build_full_identity(x.num_qubits)) - x)  # + e*0.1
+    return _set_binaries(expr).reduce()
