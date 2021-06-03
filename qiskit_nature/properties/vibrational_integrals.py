@@ -169,7 +169,7 @@ class _VibrationalIntegrals(ABC):
                     )
 
                 if abs(coeff) > self.basis._threshold:
-                    # update the matrix in all permutated locations
+                    # update the matrix in all permuted locations
                     for i in product(*index_permutations):
                         matrix[tuple(chain(*i))] += coeff
 
