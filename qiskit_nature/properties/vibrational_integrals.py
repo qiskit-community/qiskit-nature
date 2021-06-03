@@ -185,6 +185,12 @@ class _VibrationalIntegrals(ABC):
 
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
+
+        if labels == []:
+            # TODO: allow an empty list as argument to VibrationalOp
+            initial_label_with_ceoff = ("I" * sum(num_modals_per_mode), 0)
+            labels.append(initial_label_with_ceoff)
+
         return VibrationalOp(labels, num_modes, num_modals_per_mode)
 
     @staticmethod
