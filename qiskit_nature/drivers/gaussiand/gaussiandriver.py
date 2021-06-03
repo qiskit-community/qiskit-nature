@@ -17,6 +17,7 @@ import logging
 import os
 import sys
 import tempfile
+import warnings
 from typing import Union, List, Optional
 
 import numpy as np
@@ -32,8 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class GaussianDriver(FermionicDriver):
-    """
-    Qiskit Nature driver using the Gaussian™ 16 program.
+    """**DEPRECATED** Qiskit Nature driver using the Gaussian™ 16 program.
 
     See http://gaussian.com/gaussian16/
 
@@ -50,7 +50,7 @@ class GaussianDriver(FermionicDriver):
         "h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735\n\n",
         molecule: Optional[Molecule] = None,
         basis: str = "sto-3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        hf_method: Optional[HFMethodType] = None,
     ) -> None:
         """
         Args:
@@ -69,10 +69,19 @@ class GaussianDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        warnings.warn(
+            "This GaussianDriver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.gaussiand "
+            "GaussianDriver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         GaussianDriver._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for Gaussian Driver '{}'".format(config))
-
+        if hf_method is None:
+            hf_method = HFMethodType.RHF
         if isinstance(config, list):
             config = "\n".join(config)
 

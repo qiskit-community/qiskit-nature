@@ -23,7 +23,7 @@ from qiskit_nature.algorithms.pes_samplers.potentials.morse_potential import (
     MorsePotential,
 )
 from qiskit_nature.constants import HARTREE_TO_J_PER_MOL
-from qiskit_nature.drivers.molecule import Molecule
+from qiskit_nature.drivers import Molecule
 
 
 class TestPotential(unittest.TestCase):
