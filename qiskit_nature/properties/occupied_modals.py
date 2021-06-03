@@ -12,9 +12,7 @@
 
 """TODO."""
 
-from typing import cast, Dict, List, Optional, Tuple, Union
-
-import numpy as np
+from typing import Dict, List, Optional, Tuple, Union
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
@@ -56,17 +54,17 @@ class OccupiedModals(Property):
         if isinstance(result, QMolecule):
             raise QiskitNatureError("TODO.")
 
-        w_h = cast(WatsonHamiltonian, result)
-
         return cls()
 
     def second_q_ops(self) -> List[VibrationalOp]:
         """TODO."""
-        ops = []
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
+
+        ops = []
         for mode in range(num_modes):
             ops.append(self.get_mode_op(mode))
+
         return ops
 
     def interpret(self, result: EigenstateResult) -> None:
@@ -76,38 +74,10 @@ class OccupiedModals(Property):
     def get_mode_op(self, mode) -> VibrationalOp:
         """TODO."""
         num_modals_per_mode = self.basis._num_modals_per_mode
-        num_modes = len(num_modals_per_mode)
-        max_num_modals = max(num_modals_per_mode)
 
-        matrix = np.zeros((num_modes, max_num_modals, max_num_modals))
+        labels: List[Tuple[str, complex]] = []
 
         for modal in range(num_modals_per_mode[mode]):
-            matrix[(mode, modal, modal)] = 1.0
+            labels.append((f"+_{mode}*{modal} -_{mode}*{modal}", 1.0))
 
-        labels = self._create_num_body_labels(matrix)
-        return VibrationalOp(labels, num_modes, num_modals_per_mode)
-
-    @staticmethod
-    def _create_num_body_labels(matrix: np.ndarray) -> List[Tuple[str, complex]]:
-        num_body_labels = []
-        nonzero = np.nonzero(matrix)
-        for coeff, indices in zip(matrix[nonzero], zip(*nonzero)):
-            grouped_indices = sorted(
-                [tuple(int(j) for j in indices[i : i + 3]) for i in range(0, len(indices), 3)]
-            )
-            coeff_label = _VibrationalIntegrals._create_label_for_coeff(grouped_indices)
-            num_body_labels.append((coeff_label, coeff))
-        return num_body_labels
-
-    @staticmethod
-    def _create_label_for_coeff(indices: List[Tuple[int, ...]]) -> str:
-        complete_labels_list = []
-        for mode, modal_raise, modal_lower in indices:
-            if modal_raise <= modal_lower:
-                complete_labels_list.append(f"+_{mode}*{modal_raise}")
-                complete_labels_list.append(f"-_{mode}*{modal_lower}")
-            else:
-                complete_labels_list.append(f"-_{mode}*{modal_lower}")
-                complete_labels_list.append(f"+_{mode}*{modal_raise}")
-        complete_label = " ".join(complete_labels_list)
-        return complete_label
+        return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)

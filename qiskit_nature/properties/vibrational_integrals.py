@@ -119,6 +119,8 @@ class _VibrationalIntegrals(ABC):
 
         matrix = np.zeros((num_modes, max_num_modals, max_num_modals) * self._num_body_terms)
 
+        # we can cache already evaluated integrals to improve cases in which a basis is very
+        # expensive to compute
         coeff_cache: Dict[Tuple[int, int, int, int, bool], float] = {}
 
         for coeff0, indices in self._integrals:
@@ -127,33 +129,47 @@ class _VibrationalIntegrals(ABC):
             # NOTE: negative indices may be treated specially by a basis
             kinetic_term = any(index < 0 for index in indices)
             if kinetic_term:
+                # once we have determined whether a term is kinetic, all indices must be positive
                 indices = np.absolute(indices)
 
+            # the number of times which an index occurs corresponds to the power of the operator
             powers = Counter(indices)
 
             index_list = []
 
+            # we do an initial loop to evaluate all relevant basis integrals
             for mode, power in powers.items():
                 iter_1, iter_2 = tee(zip(*np.tril_indices(num_modals_per_mode[mode - 1])))
+                # we must store the indices of the mode in combination with all possible modal
+                # permutations (lower triangular indices) for the next step
                 index_list.append(zip(cycle([mode]), iter_1))
                 for m, n in iter_2:
                     if (mode - 1, m, n, power, kinetic_term) in coeff_cache.keys():
+                        # value already in cache
                         continue
                     coeff_cache[(mode - 1, m, n, power, kinetic_term)] = self.basis._eval_integral(
                         mode - 1, m, n, power, kinetic_term=kinetic_term
                     )
 
+            # now we can iterate the product of all index lists (the cartesian product is equivalent
+            # to nested for loops but has the benefit of being agnostic w.r.t. the number of body
+            # terms)
             for index in product(*index_list):
                 index_permutations = []
                 coeff = coeff0
                 for mode, (m, n) in index:
+                    # compute the total coefficient
                     coeff *= coeff_cache[(mode - 1, m, n, powers[mode], kinetic_term)]
                     index_set = set()
-                    for _m, _n in permutations((m, n)):
-                        index_set.add((_m, _n))
-                    index_permutations.append({(mode - 1, _m, _n) for (_m, _n) in index_set})
+                    # generate potentially symmetric permutations of the modal indices
+                    for m_sub, n_sub in permutations((m, n)):
+                        index_set.add((m_sub, n_sub))
+                    index_permutations.append(
+                        {(mode - 1, m_sub, n_sub) for (m_sub, n_sub) in index_set}
+                    )
 
                 if abs(coeff) > self.basis._threshold:
+                    # update the matrix in all permutated locations
                     for i in product(*index_permutations):
                         matrix[tuple(chain(*i))] += coeff
 
