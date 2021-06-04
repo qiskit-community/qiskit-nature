@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The internal API of the abstract class
+    :class:`qiskit_nature.operators.second_quantization.SecondQuantizedOp` abstract class has been
+    changed to use :class:`~qiskit.opflow.mixins.StarAlgebraMixin`.
+deprecations:
+  - |
+    The property `dagger` in the second quantized operators is deprecated. Use `adjoint()` method
+    alternatively.
