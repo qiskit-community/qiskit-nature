@@ -71,6 +71,10 @@ class Property(ABC):
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns the (list of) second quantized operators associated with this Property."""
 
+    # TODO: use this to replace the result interpreter utilities of the structure problems?
+    # This requires that a property-gathering super-object (e.g. ElectronicDriverResult) exists
+    # which is stored inside of the ElectronicStructureProblem instead of the currently stored
+    # QMolecule (vibrational case accordingly).
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
 
