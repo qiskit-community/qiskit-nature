@@ -28,7 +28,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
-    # TODO(mrossinek, jlapeyre): provide symmetry testing functionalities?
+    # TODO: provide symmetry testing functionality?
 
     def __init__(
         self,
