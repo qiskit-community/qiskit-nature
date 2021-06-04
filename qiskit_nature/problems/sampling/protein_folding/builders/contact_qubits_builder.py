@@ -64,7 +64,7 @@ def _create_pauli_for_contacts(peptide: Peptide):
     """
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
-    pauli_contacts = _init_pauli_contacts_dict(main_chain_len)
+    pauli_contacts = _init_contacts_dict(main_chain_len)
 
     r_contact = 0
     num_qubits = 2 * (main_chain_len - 1)
@@ -77,35 +77,26 @@ def _create_pauli_for_contacts(peptide: Peptide):
                                 full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1]))
                     print('possible contact between', i, '0 and', j, '0')
                     r_contact += 1
-                if side_chain[i - 1] == 1 and side_chain[j - 1] == 1:
-                    try:
-                        pauli_contacts[i][1][j][1] = (
-                                    _build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id)
-                        print('possible contact between', i, '1 and', j, '1')
-                        r_contact += 1
-                    except:
-                        pass
+                if side_chain[i - 1] and side_chain[j - 1]:
+                    pauli_contacts[i][1][j][1] = (
+                                _build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id)
+                    print('possible contact between', i, '1 and', j, '1')
+                    r_contact += 1
             else:
                 if (j - i) >= 4:
-                    if side_chain[j - 1] == 1:
-                        try:
-                            print('possible contact between', i, '0 and', j, '1')
-                            b = full_id ^ _build_pauli_z_op(num_qubits, [i - 1])
-                            d = _build_pauli_z_op(num_qubits, [j - 1]) ^ full_id
-                            pauli_contacts[i][0][j][1] = (b @ d)
-                            r_contact += 1
-                        except:
-                            pass
+                    if side_chain[j - 1]:
+                        print('possible contact between', i, '0 and', j, '1')
+                        b = full_id ^ _build_pauli_z_op(num_qubits, [i - 1])
+                        d = _build_pauli_z_op(num_qubits, [j - 1]) ^ full_id
+                        pauli_contacts[i][0][j][1] = (b @ d)
+                        r_contact += 1
 
-                    if side_chain[i - 1] == 1:
-                        try:
-                            print('possible contact between', i, '1 and', j, '0')
-                            b = full_id ^ _build_pauli_z_op(num_qubits, [j - 1])
-                            d = _build_pauli_z_op(num_qubits, [i - 1]) ^ full_id
-                            pauli_contacts[i][1][j][0] = (d @ b)
-                            r_contact += 1
-                        except:
-                            pass
+                    if side_chain[i - 1]:
+                        print('possible contact between', i, '1 and', j, '0')
+                        b = full_id ^ _build_pauli_z_op(num_qubits, [j - 1])
+                        d = _build_pauli_z_op(num_qubits, [i - 1]) ^ full_id
+                        pauli_contacts[i][1][j][0] = (d @ b)
+                        r_contact += 1
     print('number of qubits required for contact : ', r_contact)
     return pauli_contacts, r_contact
 
@@ -123,16 +114,9 @@ def _create_contact_qubits(main_chain_len, pauli_contacts):
     Returns:
         contacts: Dictionary of contact qubits in symbolic notation
     """
-    contacts = dict()
-    for i in range(1, main_chain_len - 3):
-        contacts[i] = dict()
-        contacts[i][0] = dict()
-        contacts[i][1] = dict()
-        for j in range(i + 3, main_chain_len + 1):  # j > i
-            contacts[i][0][j] = dict()
-            contacts[i][1][j] = dict()
-    num_qubits = 2 * (main_chain_len - 1)
-    full_id = _build_full_identity(num_qubits)
+    contacts = _init_contacts_dict(main_chain_len)
+    num_qubits_num = 2 * (main_chain_len - 1)
+    full_id = _build_full_identity(num_qubits_num)
     for i in range(1, main_chain_len - 3):  # first qubits is number 1
         for j in range(i + 4, main_chain_len + 1):
             for p in range(2):
@@ -140,12 +124,12 @@ def _create_contact_qubits(main_chain_len, pauli_contacts):
                     try:
                         contacts[i][p][j][s] = ((full_id ^ full_id) - pauli_contacts[i][p][j][
                             s]) / 2
-                    except:
+                    except KeyError:
                         pass
     return contacts
 
 
-def _init_pauli_contacts_dict(main_chain_len):
+def _init_contacts_dict(main_chain_len):
     pauli_contacts = dict()
     for i in range(1, main_chain_len - 3):
         pauli_contacts[i] = dict()
@@ -185,7 +169,7 @@ def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
             old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[1])
         else:
             old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[0])
-        if side_chain[q - 1] == 1:
+        if side_chain[q - 1]:
             old_qubits_conf.append(
                 peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0] ^ full_id)
             old_qubits_conf.append(
@@ -197,7 +181,7 @@ def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
                 for s in range(2):
                     try:
                         old_qubits_contact.append(0.5*((full_id^full_id) - pauli_contacts[i][p][j][s]))
-                    except:
+                    except KeyError:
                         pass
 
     new_qubits = [0] + old_qubits_conf + old_qubits_contact

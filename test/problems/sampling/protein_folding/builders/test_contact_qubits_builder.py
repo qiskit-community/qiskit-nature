@@ -10,9 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import numpy as np
-from qiskit.opflow import I, Z, PauliOp
-from qiskit.quantum_info import Pauli
+from qiskit.opflow import I, Z, PauliSumOp, PauliOp
+from qiskit.quantum_info import SparsePauliOp, Pauli
 
+from problems import LatticeFoldingProblem
+from problems.sampling.folding import folding_qubit_op_builder
+from problems.sampling.folding.folding_qubit_op_builder import _create_pauli_for_conf, \
+    _create_qubits_for_conf, _create_indic_turn, _create_delta_BB, _add_delta_SC, _create_x_dist, \
+    _create_H_short, _create_pauli_for_contacts
 from problems.sampling.protein_folding.builders import contact_qubits_builder
 from problems.sampling.protein_folding.builders.contact_qubits_builder import \
     _create_new_qubit_list, _first_neighbor, _second_neighbor
@@ -82,6 +87,102 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             6: {1: PauliOp(Pauli('IIIIIIZIIZIIIIIIIIIIIIII'), coeff=1.0)},
             7: {0: PauliOp(Pauli('IIIIIIIIIZIIIIIIIZIIIIII'), coeff=1.0)}}}}
         assert r_contact == 6
+
+    # TODO validate with original
+    def test_create_contact_qubits(self):
+        """
+        Tests that Pauli operators for contact qubits are created correctly.
+        """
+        main_chain_residue_seq = "SAASSSS"
+        main_chain_len = 7
+        side_chains = [0, 0, 1, 1, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", "S", "A", None]
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
+                          side_chain_residue_sequences)
+        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
+        contacts = contact_qubits_builder._create_contact_qubits(main_chain_len, pauli_contacts)
+        assert contacts == {1: {0: {4: {}, 5: {
+            1: PauliSumOp(SparsePauliOp([[False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False],
+                                         [False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          True, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          True, False, False, False, False, False, False, False]],
+                                        coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0)}, 6: {
+            0: PauliSumOp(SparsePauliOp([[False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False],
+                                         [False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          True, False, False, False, False, True, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False]],
+                                        coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0)}, 7: {}},
+                                1: {4: {}, 5: {}, 6: {}, 7: {}}}, 2: {0: {5: {}, 6: {
+            1: PauliSumOp(SparsePauliOp([[False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False],
+                                         [False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, True, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, True, False, False, False, False, False, False]],
+                                        coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0)}, 7: {
+            0: PauliSumOp(SparsePauliOp([[False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False],
+                                         [False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, True, False, False, False, False, True, False,
+                                          False, False, False, False, False, False, False, False,
+                                          False, False, False, False, False, False, False, False]],
+                                        coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0)}},
+                                                                      1: {5: {}, 6: {}, 7: {}}},
+                            3: {0: {6: {}, 7: {}}, 1: {6: {}, 7: {0: PauliSumOp(SparsePauliOp(
+                                [[False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, False, False],
+                                 [False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, False, False,
+                                  False, False, False, False, False, False, True, False,
+                                  False, False, False, False, False, False, True, False,
+                                  False, False, False, False, False, False, False, False]],
+                                coeffs=[0.5 + 0.j, -0.5 + 0.j]), coeff=1.0)}}}}
+
+    # def test_create_h_short_old(self):
+    #     """
+    #         Tests that the Hamiltonian to back-overlaps is created correctly.
+    #         """
+    #     lf = LatticeFoldingProblem(residue_sequence="SAASSSS")
+    #     lf.pauli_op()
+    #     N = 7
+    #     side_chain = [0, 0, 0, 0, 0, 0, 0]
+    #
+    #     pauli_contacts, r_contact = _create_pauli_for_contacts(N, side_chain)
+    #     print(pauli_contacts)
+    #     print(r_contact)
 
     def test_create_new_qubit_list(self):
         """
