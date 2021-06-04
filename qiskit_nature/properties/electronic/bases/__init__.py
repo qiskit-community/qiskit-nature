@@ -10,10 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-============================================
-Properties (:mod:`qiskit_nature.properties`)
-============================================
+===================================================================
+Electronic Bases (:mod:`qiskit_nature.properties.electronic.bases`)
+===================================================================
 
-.. currentmodule:: qiskit_nature.properties
+.. currentmodule:: qiskit_nature.properties.electronic.bases
 
 """
+
+from .electronic_basis import ElectronicBasis
+from .electronic_basis_transform import ElectronicBasisTransform
+
+__all__ = [
+    "ElectronicBasis",
+    "ElectronicBasisTransform",
+]

@@ -19,13 +19,13 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 
-from .electronic_integrals import (
-    ElectronicOrbitalBasis,
-    _ElectronicIntegrals,
-    _1BodyElectronicIntegrals,
-    _2BodyElectronicIntegrals,
+from .bases import ElectronicBasis
+from .integrals import (
+    ElectronicIntegrals,
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
 )
-from .property import Property
+from ..property import Property
 
 
 class ElectronicEnergy(Property):
@@ -33,8 +33,8 @@ class ElectronicEnergy(Property):
 
     def __init__(
         self,
-        basis: ElectronicOrbitalBasis,
-        electronic_integrals: Dict[int, _ElectronicIntegrals],
+        basis: ElectronicBasis,
+        electronic_integrals: Dict[int, ElectronicIntegrals],
         reference_energy: Optional[float] = None,
         energy_shift: Optional[Dict[str, float]] = None,
     ):
@@ -57,13 +57,13 @@ class ElectronicEnergy(Property):
         energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
         return cls(
-            ElectronicOrbitalBasis.MO,
+            ElectronicBasis.MO,
             {
-                1: _1BodyElectronicIntegrals(
-                    ElectronicOrbitalBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
+                1: OneBodyElectronicIntegrals(
+                    ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
                 ),
-                2: _2BodyElectronicIntegrals(
-                    ElectronicOrbitalBasis.MO,
+                2: TwoBodyElectronicIntegrals(
+                    ElectronicBasis.MO,
                     (
                         qmol.mo_eri_ints,
                         qmol.mo_eri_ints_ba.T if qmol.mo_eri_ints_ba is not None else None,

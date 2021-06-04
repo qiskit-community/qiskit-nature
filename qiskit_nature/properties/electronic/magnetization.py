@@ -19,7 +19,7 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .property import Property
+from ..property import Property
 
 
 class Magnetization(Property):

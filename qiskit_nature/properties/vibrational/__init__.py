@@ -10,10 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-============================================
-Properties (:mod:`qiskit_nature.properties`)
-============================================
+====================================================================
+Vibratioanl Properties (:mod:`qiskit_nature.properties.vibrational`)
+====================================================================
 
-.. currentmodule:: qiskit_nature.properties
+.. currentmodule:: qiskit_nature.properties.vibrational
 
 """
+
+from .occupied_modals import OccupiedModals
+from .vibrational_energy import VibrationalEnergy
+
+__all__ = [
+    "OccupiedModals",
+    "VibrationalEnergy",
+]

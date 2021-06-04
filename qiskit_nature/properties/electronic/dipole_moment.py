@@ -19,9 +19,10 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .electronic_integrals import ElectronicOrbitalBasis, _1BodyElectronicIntegrals
+from .bases import ElectronicBasis
 from .electronic_energy import ElectronicEnergy
-from .property import Property
+from .integrals import OneBodyElectronicIntegrals
+from ..property import Property
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -88,10 +89,10 @@ class TotalDipoleMoment(Property):
                 "x": DipoleMoment(
                     "x",
                     ElectronicEnergy(
-                        ElectronicOrbitalBasis.MO,
+                        ElectronicBasis.MO,
                         {
-                            1: _1BodyElectronicIntegrals(
-                                ElectronicOrbitalBasis.MO,
+                            1: OneBodyElectronicIntegrals(
+                                ElectronicBasis.MO,
                                 (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
                             )
                         },
@@ -101,10 +102,10 @@ class TotalDipoleMoment(Property):
                 "y": DipoleMoment(
                     "y",
                     ElectronicEnergy(
-                        ElectronicOrbitalBasis.MO,
+                        ElectronicBasis.MO,
                         {
-                            1: _1BodyElectronicIntegrals(
-                                ElectronicOrbitalBasis.MO,
+                            1: OneBodyElectronicIntegrals(
+                                ElectronicBasis.MO,
                                 (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
                             )
                         },
@@ -114,10 +115,10 @@ class TotalDipoleMoment(Property):
                 "z": DipoleMoment(
                     "z",
                     ElectronicEnergy(
-                        ElectronicOrbitalBasis.MO,
+                        ElectronicBasis.MO,
                         {
-                            1: _1BodyElectronicIntegrals(
-                                ElectronicOrbitalBasis.MO,
+                            1: OneBodyElectronicIntegrals(
+                                ElectronicBasis.MO,
                                 (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
                             )
                         },

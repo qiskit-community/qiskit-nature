@@ -23,12 +23,12 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from .electronic_integrals import (
-    ElectronicOrbitalBasis,
-    _1BodyElectronicIntegrals,
-    _2BodyElectronicIntegrals,
+from .bases import ElectronicBasis
+from .integrals import (
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
 )
-from .property import Property
+from ..property import Property
 
 
 class AngularMomentum(Property):
@@ -62,8 +62,8 @@ class AngularMomentum(Property):
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
-        h1_ints = _1BodyElectronicIntegrals(ElectronicOrbitalBasis.SO, h_1)
-        h2_ints = _2BodyElectronicIntegrals(ElectronicOrbitalBasis.SO, h_2)
+        h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
+        h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
     def interpret(self, result: EigenstateResult) -> None:

@@ -19,11 +19,9 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
-from .vibrational_integrals import (
-    _VibrationalIntegrals,
-    BosonicBasis,
-)
-from .property import Property
+from .bases import VibrationalBasis
+from .integrals import VibrationalIntegrals
+from ..property import Property
 
 
 class VibrationalEnergy(Property):
@@ -31,9 +29,9 @@ class VibrationalEnergy(Property):
 
     def __init__(
         self,
-        vibrational_integrals: Dict[int, _VibrationalIntegrals],
+        vibrational_integrals: Dict[int, VibrationalIntegrals],
         truncation_order: Optional[int] = None,
-        basis: Optional[BosonicBasis] = None,
+        basis: Optional[VibrationalBasis] = None,
     ):
         """TODO."""
         super().__init__(self.__class__.__name__)
@@ -52,12 +50,12 @@ class VibrationalEnergy(Property):
         self._truncation_order = truncation_order
 
     @property
-    def basis(self) -> BosonicBasis:
+    def basis(self) -> VibrationalBasis:
         """Returns the basis."""
         return self._basis
 
     @basis.setter
-    def basis(self, basis: BosonicBasis) -> None:
+    def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
         self._basis = basis
 
@@ -69,10 +67,10 @@ class VibrationalEnergy(Property):
 
         w_h = cast(WatsonHamiltonian, result)
 
-        vib_ints: Dict[int, _VibrationalIntegrals] = {
-            1: _VibrationalIntegrals(1, []),
-            2: _VibrationalIntegrals(2, []),
-            3: _VibrationalIntegrals(3, []),
+        vib_ints: Dict[int, VibrationalIntegrals] = {
+            1: VibrationalIntegrals(1, []),
+            2: VibrationalIntegrals(2, []),
+            3: VibrationalIntegrals(3, []),
         }
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]

@@ -9,11 +9,16 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-r"""
-============================================
-Properties (:mod:`qiskit_nature.properties`)
-============================================
 
-.. currentmodule:: qiskit_nature.properties
+"""TODO."""
 
-"""
+from enum import Enum
+
+
+class ElectronicBasis(Enum):
+    """TODO."""
+
+    # pylint: disable=invalid-name
+    AO = "atomic"
+    MO = "molecular"
+    SO = "spin"

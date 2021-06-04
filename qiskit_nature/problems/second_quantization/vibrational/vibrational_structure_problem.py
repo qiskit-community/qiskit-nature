@@ -22,7 +22,8 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature.drivers.second_quantization import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.properties import HarmonicBasis, OccupiedModals, VibrationalEnergy
+from qiskit_nature.properties.vibrational import OccupiedModals, VibrationalEnergy
+from qiskit_nature.properties.vibrational.bases import HarmonicBasis
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 

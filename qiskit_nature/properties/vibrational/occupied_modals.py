@@ -19,11 +19,8 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
-from .vibrational_integrals import (
-    _VibrationalIntegrals,
-    BosonicBasis,
-)
-from .property import Property
+from .bases import VibrationalBasis
+from ..property import Property
 
 
 class OccupiedModals(Property):
@@ -31,20 +28,19 @@ class OccupiedModals(Property):
 
     def __init__(
         self,
-        basis: Optional[BosonicBasis] = None,
+        basis: Optional[VibrationalBasis] = None,
     ):
         """TODO."""
         super().__init__(self.__class__.__name__)
         self._basis = basis
-        self._integrals: _VibrationalIntegrals = None
 
     @property
-    def basis(self) -> BosonicBasis:
+    def basis(self) -> VibrationalBasis:
         """Returns the basis."""
         return self._basis
 
     @basis.setter
-    def basis(self, basis: BosonicBasis) -> None:
+    def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
         self._basis = basis
 

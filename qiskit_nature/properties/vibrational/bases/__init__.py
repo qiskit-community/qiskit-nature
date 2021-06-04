@@ -10,10 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-============================================
-Properties (:mod:`qiskit_nature.properties`)
-============================================
+====================================================================
+Vibrational Bases (:mod:`qiskit_nature.properties.virational.bases`)
+====================================================================
 
-.. currentmodule:: qiskit_nature.properties
+.. currentmodule:: qiskit_nature.properties.virational.bases
 
 """
+
+from .harmonic_basis import HarmonicBasis
+from .vibrational_basis import VibrationalBasis
+
+__all__ = [
+    "HarmonicBasis",
+    "VibrationalBasis",
+]

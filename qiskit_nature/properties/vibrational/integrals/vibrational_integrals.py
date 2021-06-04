@@ -12,7 +12,7 @@
 
 """TODO."""
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from collections import Counter
 from itertools import chain, cycle, permutations, product, tee
 from typing import Dict, List, Tuple
@@ -22,72 +22,10 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
-
-class BosonicBasis(ABC):
-    """TODO."""
-
-    def __init__(
-        self,
-        num_modals_per_mode: List[int],
-        threshold: float = 1e-6,
-    ) -> None:
-        """TODO."""
-        self._num_modals_per_mode = num_modals_per_mode
-        self._threshold = threshold
-
-    @abstractmethod
-    def _eval_integral(
-        self,
-        mode: int,
-        modal_1: int,
-        modal_2: int,
-        power: int,
-        kinetic_term: bool = False,
-    ) -> float:
-        """TODO."""
+from ..bases import VibrationalBasis
 
 
-class HarmonicBasis(BosonicBasis):
-    """TODO."""
-
-    def _eval_integral(
-        self,
-        mode: int,
-        modal_1: int,
-        modal_2: int,
-        power: int,
-        kinetic_term: bool = False,
-    ) -> float:
-        """TODO."""
-        coeff = 0.0
-
-        if power == 1:
-            if modal_1 - modal_2 == 1:
-                coeff = np.sqrt(modal_1 / 2)
-        elif power == 2:
-            if modal_1 - modal_2 == 0:
-                coeff = (modal_1 + 1 / 2) * (-1.0 if kinetic_term else 1.0)
-            elif modal_1 - modal_2 == 2:
-                coeff = np.sqrt(modal_1 * (modal_1 - 1)) / 2
-        elif power == 3:
-            if modal_1 - modal_2 == 1:
-                coeff = 3 * np.power(modal_1 / 2, 3 / 2)
-            elif modal_1 - modal_2 == 3:
-                coeff = np.sqrt(modal_1 * (modal_1 - 1) * (modal_1 - 2)) / np.power(2, 3 / 2)
-        elif power == 4:
-            if modal_1 - modal_2 == 0:
-                coeff = (6 * modal_1 * (modal_1 + 1) + 3) / 4
-            elif modal_1 - modal_2 == 2:
-                coeff = (modal_1 - 1 / 2) * np.sqrt(modal_1 * (modal_1 - 1))
-            elif modal_1 - modal_2 == 4:
-                coeff = np.sqrt(modal_1 * (modal_1 - 1) * (modal_1 - 2) * (modal_1 - 3)) / 4
-        else:
-            raise ValueError("The Q power is to high, only up to 4 is currently supported.")
-
-        return coeff * (np.sqrt(2) ** power)
-
-
-class _VibrationalIntegrals(ABC):
+class VibrationalIntegrals(ABC):
     """TODO."""
 
     def __init__(
@@ -99,15 +37,15 @@ class _VibrationalIntegrals(ABC):
         assert num_body_terms >= 1
         self._num_body_terms = num_body_terms
         self._integrals = integrals
-        self._basis: BosonicBasis = None
+        self._basis: VibrationalBasis = None
 
     @property
-    def basis(self) -> BosonicBasis:
+    def basis(self) -> VibrationalBasis:
         """Returns the basis."""
         return self._basis
 
     @basis.setter
-    def basis(self, basis: BosonicBasis) -> None:
+    def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
         self._basis = basis
 
@@ -201,7 +139,7 @@ class _VibrationalIntegrals(ABC):
             grouped_indices = sorted(
                 [tuple(int(j) for j in indices[i : i + 3]) for i in range(0, len(indices), 3)]
             )
-            coeff_label = _VibrationalIntegrals._create_label_for_coeff(grouped_indices)
+            coeff_label = VibrationalIntegrals._create_label_for_coeff(grouped_indices)
             num_body_labels.append((coeff_label, coeff))
         return num_body_labels
 
