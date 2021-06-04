@@ -37,8 +37,7 @@ def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):
 
     test_case.assertEqual(len(excitation_ops), len(expected_ops))
     for op, exp in zip(excitation_ops, expected_ops):
-        test_case.assertEqual(op._labels, exp._labels)
-        test_case.assertEqual(op._coeffs.tolist(), exp._coeffs.tolist())
+        test_case.assertListEqual(op.to_list(), exp.to_list())
 
     ansatz._build()
     test_case.assertEqual(ansatz.num_qubits, sum(num_modals))
