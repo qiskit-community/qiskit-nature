@@ -41,7 +41,8 @@ class BaseChain(ABC):
         return residue_sequence
 
     # TODO use existing method
-    def _build_turn_qubit(self, chain_len, bead_id) -> PauliOp:
+    @staticmethod
+    def _build_turn_qubit(chain_len, bead_id) -> PauliOp:
         num_turn_qubits = 2 * (chain_len - 1)
         if bead_id != 0:
             temp = I

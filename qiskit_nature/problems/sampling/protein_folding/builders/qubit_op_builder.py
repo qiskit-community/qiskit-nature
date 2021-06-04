@@ -314,8 +314,11 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                     except:
                         pass
                     H_SCBB = H_SCBB.reduce()
-    H_BBSC = _set_binaries(H_BBSC).reduce()
-    H_SCBB = _set_binaries(H_SCBB).reduce()
+
+    if H_BBSC != 0 and H_BBSC is not None:
+        H_BBSC = _set_binaries(H_BBSC).reduce()
+    if H_SCBB != 0 and H_SCBB is not None:
+        H_SCBB = _set_binaries(H_SCBB).reduce()
     return H_BBSC, H_SCBB
 
 

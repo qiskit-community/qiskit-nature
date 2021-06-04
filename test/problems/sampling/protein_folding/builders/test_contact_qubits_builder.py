@@ -39,7 +39,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
                           side_chain_residue_sequences)
         pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
-        assert pauli_contacts == {1: {0: {4: {}, 5: {1: PauliOp(Pauli('IIIZIIIIIIIIIIIZ'), coeff=1.0)}}, 1: {4: {}, 5: {}}}}
+        assert pauli_contacts == {
+            1: {0: {4: {}, 5: {1: PauliOp(Pauli('IIIZIIIIIIIIIIIZ'), coeff=1.0)}},
+                1: {4: {}, 5: {}}}}
         assert r_contact == 1
 
     # TODO validate with symbolic
@@ -57,7 +59,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
         new_qubits = _create_new_qubit_list(peptide, pauli_contacts)
         assert new_qubits[0] == 0
-        assert new_qubits[1] == 0.5 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I)- 0.5 * (I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I^I)
+        assert new_qubits[1] == 0.5 * (
+                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I)
 
     # TODO validate with symbolic
     def test_first_neighbor(self):
@@ -68,7 +72,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         main_chain_residue_seq = "SAASSS"
         main_chain_len = 6
         side_chain_lens = [0, 0, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "S", "S",None]
+        side_chain_residue_sequences = [None, None, "A", "S", "S", None]
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
@@ -89,7 +93,11 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                                upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
                                pair_energies, x_dist)
 
-        assert expr == 168.0 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I)+ 56.0 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I)
+        assert expr == 168.0 * (
+                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                    I) + 56.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
+                           ^ I ^ I)
 
     # TODO validate with symbolic
     def test_second_neighbor(self):
@@ -118,4 +126,6 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         expr = _second_neighbor(lower_main_bead_index, side_chain_upper_main_bead,
                                 upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
                                 pair_energies, x_dist)
-        assert expr == -4.0 * (I^I^I^I^I^I^I^I^I^I^I^I^I^I^I^I)- 2.0 * (I^I^I^I^I^I^I^I^I^I^I^Z^I^I^I^I)
+        assert expr == -4.0 * (
+                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 2.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)

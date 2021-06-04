@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 from qiskit.opflow import I, Z
 
+from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.side_bead import SideBead
 from test import QiskitNatureTestCase
 
@@ -21,15 +22,30 @@ class TestSideBead(QiskitNatureTestCase):
     def test_side_bead_constructor(self):
         """Tests that a SideBead is created."""
         residue_type = "S"
-        turn_qubits = [Z, Z]
+        main_chain_len = 4
+        num_turn_qubits = 2 * (main_chain_len - 1)
+        turn_qubits = [0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ I ^ I ^ I ^ I ^ Z),
+                       0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ I ^ I ^ I ^ Z ^ I)]
         side_bead = SideBead(residue_type, turn_qubits)
 
         indic_0, indic_1, indic_2, indic_3 = side_bead.get_indicator_functions()
 
-        assert indic_0 == 2.0 * (I ^ I) - 2.0 * (Z ^ I)
-        assert indic_1 == 0.0 * (I ^ I)
-        assert indic_2 == 0.0 * (I ^ I)
-        assert indic_3 == I ^ I
+        assert indic_0 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
+                    I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
+                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
+                           I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
+        assert indic_1 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
+                    I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
+                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
+                           I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
+        assert indic_2 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
+                    I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
+                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
+                           I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
+        assert indic_3 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
+                    I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
+                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
+                           I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
 
     def test_side_bead_constructor_none(self):
         """Tests that a SideBead is created."""
