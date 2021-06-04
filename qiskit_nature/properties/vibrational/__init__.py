@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 r"""
 ====================================================================
-Vibratioanl Properties (:mod:`qiskit_nature.properties.vibrational`)
+Vibrational Properties (:mod:`qiskit_nature.properties.vibrational`)
 ====================================================================
 
 .. currentmodule:: qiskit_nature.properties.vibrational
