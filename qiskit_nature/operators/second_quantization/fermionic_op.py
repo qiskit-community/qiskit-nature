@@ -100,7 +100,7 @@ class FermionicOp(SecondQuantizedOp):
     **Algebra**
 
     This class supports the following basic arithmetic operations: addition, subtraction, scalar
-    multiplication, operator multiplication, and dagger(adjoint).
+    multiplication, operator multiplication, and adjoint.
     For example,
 
     Addition

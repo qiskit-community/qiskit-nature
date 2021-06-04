@@ -232,14 +232,14 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertFermionEqual(fer_op, targ)
 
     def test_adjoint(self):
-        """Test adjoint method and dagger property"""
+        """Test adjoint method"""
         with self.subTest("adjoint"):
             fer_op = ~FermionicOp([("+N", 3), ("N-", 1), ("--", 2 + 4j)])
             targ = FermionicOp([("-N", 3), ("N+", 1), ("++", (-2 + 4j))])
             self.assertFermionEqual(fer_op, targ)
 
-        with self.subTest("dagger"):
-            fer_op = FermionicOp([("+-", 1), ("II", 2j)]).dagger
+        with self.subTest("adjoint 2"):
+            fer_op = FermionicOp([("+-", 1), ("II", 2j)]).adjoint()
             targ = FermionicOp([("-+", -1), ("II", -2j)])
             self.assertFermionEqual(fer_op, targ)
 
