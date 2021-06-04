@@ -36,8 +36,11 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
-    build_ferm_op_from_ints,
+from qiskit_nature.properties.electronic import ElectronicEnergy
+from qiskit_nature.properties.electronic.bases import ElectronicBasis
+from qiskit_nature.properties.electronic.integrals import (
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
 )
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
@@ -101,7 +104,13 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = [build_ferm_op_from_ints(h_1, h_2)]
+        aux_ops = ElectronicEnergy(
+            ElectronicBasis.MO,
+            {
+                1: OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
+                2: TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
+            },
+        ).second_q_ops()
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.electronic_structure_problem)
