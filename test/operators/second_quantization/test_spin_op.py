@@ -236,7 +236,7 @@ class TestSpinOp(QiskitNatureTestCase):
         self.assertSpinEqual(actual, self.zero_op)
 
     def test_adjoint(self):
-        """Test adjoint method and dagger property"""
+        """Test adjoint method"""
         with self.subTest("heisenberg adjoint"):
             actual = self.heisenberg.adjoint()
             desired = SpinOp(
@@ -258,7 +258,7 @@ class TestSpinOp(QiskitNatureTestCase):
 
         # TODO: implement adjoint for same register operators.
         # with self.sub Test("adjoint same register op"):
-        #     actual = SpinOp("X_0 Y_0 Z_0").dagger
+        #     actual = SpinOp("X_0 Y_0 Z_0").adjoint()
 
         #     print(actual.to_matrix())
         #     print(SpinOp("X_0 Y_0 Z_0").to_matrix().T.conjugate())
