@@ -33,9 +33,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         """TODO."""
         super().__init__(1, basis, matrices)
 
-    def transform_basis(
-        self, transform: ElectronicBasisTransform
-    ) -> "OneBodyElectronicIntegrals":
+    def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
         """TODO."""
         if self._basis == transform._final_basis:
             return self

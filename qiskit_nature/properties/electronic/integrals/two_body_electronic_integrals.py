@@ -36,9 +36,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         """TODO."""
         super().__init__(2, basis, matrices)
 
-    def transform_basis(
-        self, transform: ElectronicBasisTransform
-    ) -> "TwoBodyElectronicIntegrals":
+    def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         """TODO."""
         if self._basis == transform._final_basis:
             return self
