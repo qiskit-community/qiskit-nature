@@ -60,6 +60,7 @@ class ElectronicIntegrals(ABC):
             assert isinstance(matrices, np.ndarray)
             self._matrices = matrices
         else:
+            assert isinstance(matrices, tuple)
             assert len(matrices) == 2 ** num_body_terms
             assert matrices[0] is not None
             self._matrices = matrices
