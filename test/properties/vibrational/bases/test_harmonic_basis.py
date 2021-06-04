@@ -65,6 +65,18 @@ class TestHarmonicBasis(QiskitNatureTestCase):
                     728.38419469,
                 ],
             ),
+            [
+                ("NIIIIIII", 1268.0676746875001),
+                ("INIIIIII", 3813.8767834375008),
+                ("IINIIIII", 705.8633821875002),
+                ("II+-IIII", -46.025705898886045),
+                ("II-+IIII", -46.025705898886045),
+                ("IIINIIII", 2120.1145609375008),
+                ("IIIINIII", 238.19997093750004),
+                ("IIIIINII", 728.3841946875002),
+                ("IIIIIINI", 238.19997093750004),
+                ("IIIIIIIN", 728.3841946875002),
+            ],
         ),
         (
             2,
@@ -379,6 +391,48 @@ class TestHarmonicBasis(QiskitNatureTestCase):
                     6.59630194e01,
                 ],
             ),
+            [
+                ("NINIIIII", 4.942542500000002),
+                ("NI+-IIII", -88.20174216876333),
+                ("NI-+IIII", -88.20174216876333),
+                ("NIINIIII", 14.827627500000007),
+                ("INNIIIII", 14.827627500000007),
+                ("IN+-IIII", -264.60522650629),
+                ("IN-+IIII", -264.60522650629),
+                ("ININIIII", 44.482882500000024),
+                ("NIIINIII", -10.205891250000004),
+                ("INIINIII", -30.617673750000016),
+                ("IININIII", -4.194299375000002),
+                ("II+-NIII", 2.2874639206341874),
+                ("II-+NIII", 2.2874639206341874),
+                ("IIINNIII", -12.582898125000007),
+                ("NIIIINII", -30.61767375000002),
+                ("INIIINII", -91.85302125000007),
+                ("IINIINII", -12.582898125000007),
+                ("II+-INII", 6.862391761902563),
+                ("II-+INII", 6.862391761902563),
+                ("IIININII", -37.74869437500002),
+                ("NIIIIINI", -10.205891250000004),
+                ("INIIIINI", -30.617673750000016),
+                ("IINIIINI", -4.194299375000002),
+                ("II+-IINI", 42.404785313591134),
+                ("II-+IINI", 42.404785313591134),
+                ("IIINIINI", -12.582898125000007),
+                ("IIIININI", 7.3292243750000035),
+                ("IIIIINNI", 21.98767312500001),
+                ("IIII+-+-", 1.2499999986204102e-06),
+                ("IIII-++-", 1.2499999986204102e-06),
+                ("IIII+--+", 1.2499999986204102e-06),
+                ("IIII-+-+", 1.2499999986204102e-06),
+                ("NIIIIIIN", -30.61767375000002),
+                ("INIIIIIN", -91.85302125000007),
+                ("IINIIIIN", -12.582898125000007),
+                ("II+-IIIN", 127.21435594077343),
+                ("II-+IIIN", 127.21435594077343),
+                ("IIINIIIN", -37.74869437500002),
+                ("IIIINIIN", 21.98767312500001),
+                ("IIIIININ", 65.96301937500004),
+            ],
         ),
         (
             3,
@@ -408,9 +462,19 @@ class TestHarmonicBasis(QiskitNatureTestCase):
                     26.25167513,
                 ],
             ),
+            [
+                ("II+-+-+-", 26.25167512727166),
+                ("II-++-+-", 26.25167512727166),
+                ("II+--++-", 26.25167512727166),
+                ("II-+-++-", 26.25167512727166),
+                ("II+-+--+", 26.25167512727166),
+                ("II-++--+", 26.25167512727166),
+                ("II+--+-+", 26.25167512727166),
+                ("II-+-+-+", 26.25167512727166),
+            ],
         ),
     )
-    def test_harmonic_basis(self, num_body, integrals, expected):
+    def test_harmonic_basis(self, num_body, integrals, expected, operator):
         """Test HarmonicBasis"""
         integrals = VibrationalIntegrals(num_body, integrals)
 
@@ -421,9 +485,17 @@ class TestHarmonicBasis(QiskitNatureTestCase):
         basis = HarmonicBasis(num_modals_per_mode)
 
         integrals.basis = basis
-        matrix = integrals.to_basis()
-        nonzero = np.nonzero(matrix)
 
-        exp_nonzero, exp_values = expected
-        assert np.allclose(np.asarray(nonzero), np.asarray(exp_nonzero))
-        assert np.allclose(matrix[nonzero], np.asarray(exp_values))
+        with self.subTest("Test to_basis"):
+            matrix = integrals.to_basis()
+            nonzero = np.nonzero(matrix)
+
+            exp_nonzero, exp_values = expected
+            assert np.allclose(np.asarray(nonzero), np.asarray(exp_nonzero))
+            assert np.allclose(matrix[nonzero], np.asarray(exp_values))
+
+        with self.subTest("Test to_second_q_op"):
+            op = integrals.to_second_q_op()
+            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), operator):
+                assert real_label == exp_label
+                assert np.isclose(real_coeff, exp_coeff)
