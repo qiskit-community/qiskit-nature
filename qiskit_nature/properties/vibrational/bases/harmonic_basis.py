@@ -10,7 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The Harmonic basis."""
+
+from typing import Optional
 
 import numpy as np
 
@@ -18,17 +20,46 @@ from .vibrational_basis import VibrationalBasis
 
 
 class HarmonicBasis(VibrationalBasis):
-    """TODO."""
+    """The Harmonic basis.
 
-    def _eval_integral(
+    This class uses the Hermite polynomials (eigenstates of the harmonic oscillator) as a modal
+    basis for the expression of the Watson Hamiltonian or any bosonic operator.
+
+    References:
+
+        [1] Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
+    """
+
+    def eval_integral(
         self,
         mode: int,
         modal_1: int,
         modal_2: int,
         power: int,
         kinetic_term: bool = False,
-    ) -> float:
-        """TODO."""
+    ) -> Optional[float]:
+        """The integral evaluation method of this basis.
+
+        Args:
+            mode: the index of the mode.
+            modal_1: the index of the first modal.
+            modal_2: the index of the second modal.
+            power: the exponent of the coordinate.
+            kinetic_term: if this is True, the method should compute the integral of the kinetic
+                term of the vibrational Hamiltonian, :math:``d^2/dQ^2``.
+
+        Returns:
+            The evaluated integral for the specified coordinate or ``None`` if this integral value
+            falls below the threshold.
+
+        Raises:
+            ValueError: if the ``power`` exceeds 4.
+
+        References:
+
+            [1] J. Chem. Phys. 135, 134108 (2011)
+                https://doi.org/10.1063/1.3644895 (Table 1)
+        """
         coeff = 0.0
 
         if power == 1:
@@ -54,4 +85,6 @@ class HarmonicBasis(VibrationalBasis):
         else:
             raise ValueError("The Q power is to high, only up to 4 is currently supported.")
 
-        return coeff * (np.sqrt(2) ** power)
+        coeff *= np.sqrt(2) ** power
+
+        return None if abs(coeff) < self._threshold else coeff

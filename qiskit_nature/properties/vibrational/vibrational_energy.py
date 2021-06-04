@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The VibrationalEnergy property."""
 
 from typing import cast, Dict, List, Optional, Union
 
@@ -25,7 +25,11 @@ from ..property import Property
 
 
 class VibrationalEnergy(Property):
-    """TODO."""
+    """The VibrationalEnergy property.
+
+    This is the main property of any vibrational structure problem. It constructs the Hamiltonian
+    whose eigenvalue is the target of a later used Quantum algorithm.
+    """
 
     def __init__(
         self,
@@ -33,7 +37,16 @@ class VibrationalEnergy(Property):
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
     ):
-        """TODO."""
+        """
+        Args:
+            vibrational_integrals: a dictionary mapping the ``# body terms`` to the corresponding
+                ``VibrationalIntegrals``.
+            truncation_order: an optional truncation order for the highest number of body terms to
+                include in the constructed Hamiltonian.
+            basis: the ``VibrationalBasis`` through which to map the integrals into second
+                quantization. This property **MUST** be set before the second-quantized operator can
+                be constructed.
+        """
         super().__init__(self.__class__.__name__)
         self._vibrational_integrals = vibrational_integrals
         self._truncation_order = truncation_order
@@ -41,12 +54,12 @@ class VibrationalEnergy(Property):
 
     @property
     def truncation_order(self) -> int:
-        """Returns the truncation_order."""
+        """Returns the truncation order."""
         return self._truncation_order
 
     @truncation_order.setter
     def truncation_order(self, truncation_order: int) -> None:
-        """Sets the truncation_order."""
+        """Sets the truncation order."""
         self._truncation_order = truncation_order
 
     @property
@@ -61,9 +74,23 @@ class VibrationalEnergy(Property):
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "VibrationalEnergy":
-        """TODO."""
+        """Construct a VibrationalEnergy instance from a WatsonHamiltonian.
+
+        Args:
+            result: the driver result from which to extract the raw data. For this property, a
+                WatsonHamiltonian is required!
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a QMolecule is provided.
+        """
         if isinstance(result, QMolecule):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "You cannot construct an VibrationalEnergy from a QMolecule. Please provide a "
+                "WatsonHamiltonian object instead."
+            )
 
         w_h = cast(WatsonHamiltonian, result)
 
@@ -75,12 +102,12 @@ class VibrationalEnergy(Property):
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]
             num_body = len(set(ints))
-            vib_ints[num_body]._integrals.append((coeff, tuple(ints)))
+            vib_ints[num_body].integrals.append((coeff, tuple(ints)))
 
         return cls(vib_ints)
 
     def second_q_ops(self) -> List[VibrationalOp]:
-        """TODO."""
+        """Returns a list containing the Hamiltonian constructed by the stored integrals."""
         ops = []
         for num_body, ints in self._vibrational_integrals.items():
             if self._truncation_order is not None and num_body > self._truncation_order:
@@ -90,5 +117,11 @@ class VibrationalEnergy(Property):
         return [sum(ops)]  # type: ignore
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()

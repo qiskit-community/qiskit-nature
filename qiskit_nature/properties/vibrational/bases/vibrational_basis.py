@@ -10,31 +10,56 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The Vibrational basis base class."""
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 
 class VibrationalBasis(ABC):
-    """TODO."""
+    """The Vibrational basis base class.
+
+    This class defines the interface which any vibrational basis must implement. A basis must be
+    applied to the vibrational integrals in order to map them into a second-quantization form. Refer
+    to the documentation of ``qiskit_nature.properties.vibrational.integrals`` for more details.
+    """
 
     def __init__(
         self,
         num_modals_per_mode: List[int],
         threshold: float = 1e-6,
     ) -> None:
-        """TODO."""
+        """
+        Args:
+            num_modals_per_mode: the number of modals to be used for each mode.
+            threshold: the threshold value below which an integral coefficient gets neglected.
+        """
         self._num_modals_per_mode = num_modals_per_mode
         self._threshold = threshold
 
     @abstractmethod
-    def _eval_integral(
+    def eval_integral(
         self,
         mode: int,
         modal_1: int,
         modal_2: int,
         power: int,
         kinetic_term: bool = False,
-    ) -> float:
-        """TODO."""
+    ) -> Optional[float]:
+        """The integral evaluation method of this basis.
+
+        Args:
+            mode: the index of the mode.
+            modal_1: the index of the first modal.
+            modal_2: the index of the second modal.
+            power: the exponent of the coordinate.
+            kinetic_term: if this is True, the method should compute the integral of the kinetic
+                term of the vibrational Hamiltonian, :math:``d^2/dQ^2``.
+
+        Returns:
+            The evaluated integral for the specified coordinate or ``None`` if this integral value
+            falls below the threshold.
+
+        Raises:
+            ValueError: if an unsupported parameter is supplied.
+        """

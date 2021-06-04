@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The OccupiedModals property."""
 
 from typing import List, Optional, Tuple, Union
 
@@ -24,13 +24,18 @@ from ..property import Property
 
 
 class OccupiedModals(Property):
-    """TODO."""
+    """The OccupiedModals property."""
 
     def __init__(
         self,
         basis: Optional[VibrationalBasis] = None,
     ):
-        """TODO."""
+        """
+        Args:
+            basis: the ``VibrationalBasis`` through which to map the integrals into second
+                quantization. This property **MUST** be set before the second-quantized operator can
+                be constructed.
+        """
         super().__init__(self.__class__.__name__)
         self._basis = basis
 
@@ -46,29 +51,46 @@ class OccupiedModals(Property):
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "OccupiedModals":
-        """TODO."""
+        """Construct an OccupiedModals instance from a WatsonHamiltonian.
+
+        Args:
+            result: the driver result from which to extract the raw data. For this property, a
+                WatsonHamiltonian is required!
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a QMolecule is provided.
+        """
         if isinstance(result, QMolecule):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "You cannot construct an VibrationalEnergy from a QMolecule. Please provide a "
+                "WatsonHamiltonian object instead."
+            )
 
         return cls()
 
     def second_q_ops(self) -> List[VibrationalOp]:
-        """TODO."""
+        """Returns a list of operators each evaluating the occupied modal on a mode."""
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 
         ops = []
         for mode in range(num_modes):
-            ops.append(self.get_mode_op(mode))
+            ops.append(self._get_mode_op(mode))
 
         return ops
 
-    def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
+    def _get_mode_op(self, mode: int) -> VibrationalOp:
+        """Constructs an operator to evaluate which modal of a given mode is occupied.
 
-    def get_mode_op(self, mode) -> VibrationalOp:
-        """TODO."""
+        Args:
+            mode: the mode index.
+
+        Returns:
+            The operator to evaluate which modal of the given mode is occupied.
+        """
         num_modals_per_mode = self.basis._num_modals_per_mode
 
         labels: List[Tuple[str, complex]] = []
@@ -77,3 +99,13 @@ class OccupiedModals(Property):
             labels.append((f"+_{mode}*{modal} -_{mode}*{modal}", 1.0))
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()

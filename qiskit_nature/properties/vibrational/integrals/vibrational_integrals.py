@@ -10,12 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""A container for arbitrary ``n-body`` vibrational integrals."""
 
 from abc import ABC
 from collections import Counter
 from itertools import chain, cycle, permutations, product, tee
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -26,14 +26,22 @@ from ..bases import VibrationalBasis
 
 
 class VibrationalIntegrals(ABC):
-    """TODO."""
+    """A container for arbitrary ``n-body`` vibrational integrals."""
 
     def __init__(
         self,
         num_body_terms: int,
         integrals: List[Tuple[float, Tuple[int, ...]]],
     ) -> None:
-        """TODO."""
+        """
+        Args:
+            num_body_terms: ``n``, as in the ``n-body`` terms stored in these integrals.
+            integrals: a sparse list of integrals. The data format corresponds a list of pairs, with
+                its first entry being the integral coefficient and the second entry being a tuple of
+                integers of length ``num_body_terms``. These integers are the indices of the modes
+                associated with the integral. If the indices are negative, the integral is treated
+                as a kinetic term of the vibrational hamiltonian.
+        """
         assert num_body_terms >= 1
         self._num_body_terms = num_body_terms
         self._integrals = integrals
@@ -49,8 +57,28 @@ class VibrationalIntegrals(ABC):
         """Sets the basis."""
         self._basis = basis
 
+    @property
+    def integrals(self) -> List[Tuple[float, Tuple[int, ...]]]:
+        """Returns the integrals."""
+        return self._integrals
+
+    @integrals.setter
+    def integrals(self, integrals: List[Tuple[float, Tuple[int, ...]]]) -> None:
+        """Sets the integrals."""
+        self._integrals = integrals
+
     def to_basis(self) -> np.ndarray:
-        """TODO."""
+        """Maps the integrals into a basis which permits mapping into second-quantization.
+
+        Returns:
+            A single matrix containing the ``n-body`` integrals in the mapped basis.
+
+        Raises:
+            QiskitNatureError: if no basis has been set yet.
+        """
+        if self._basis is None:
+            raise QiskitNatureError("You must set a basis first!")
+
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
         max_num_modals = max(num_modals_per_mode)
@@ -59,7 +87,7 @@ class VibrationalIntegrals(ABC):
 
         # we can cache already evaluated integrals to improve cases in which a basis is very
         # expensive to compute
-        coeff_cache: Dict[Tuple[int, int, int, int, bool], float] = {}
+        coeff_cache: Dict[Tuple[int, int, int, int, bool], Optional[float]] = {}
 
         for coeff0, indices in self._integrals:
             assert len(set(indices)) == self._num_body_terms
@@ -85,7 +113,7 @@ class VibrationalIntegrals(ABC):
                     if (mode - 1, m, n, power, kinetic_term) in coeff_cache.keys():
                         # value already in cache
                         continue
-                    coeff_cache[(mode - 1, m, n, power, kinetic_term)] = self.basis._eval_integral(
+                    coeff_cache[(mode - 1, m, n, power, kinetic_term)] = self.basis.eval_integral(
                         mode - 1, m, n, power, kinetic_term=kinetic_term
                     )
 
@@ -97,7 +125,10 @@ class VibrationalIntegrals(ABC):
                 coeff = coeff0
                 for mode, (m, n) in index:
                     # compute the total coefficient
-                    coeff *= coeff_cache[(mode - 1, m, n, powers[mode], kinetic_term)]
+                    cached_coeff = coeff_cache[(mode - 1, m, n, powers[mode], kinetic_term)]
+                    if cached_coeff is None:
+                        break
+                    coeff *= cached_coeff
                     index_set = set()
                     # generate potentially symmetric permutations of the modal indices
                     for m_sub, n_sub in permutations((m, n)):
@@ -105,8 +136,7 @@ class VibrationalIntegrals(ABC):
                     index_permutations.append(
                         {(mode - 1, m_sub, n_sub) for (m_sub, n_sub) in index_set}
                     )
-
-                if abs(coeff) > self.basis._threshold:
+                else:
                     # update the matrix in all permuted locations
                     for i in product(*index_permutations):
                         matrix[tuple(chain(*i))] += coeff
@@ -114,37 +144,51 @@ class VibrationalIntegrals(ABC):
         return matrix
 
     def to_second_q_op(self) -> VibrationalOp:
-        """TODO."""
-        if self._basis is None:
-            raise QiskitNatureError("TODO")
+        """Creates the operator representing the Hamiltonian defined by these vibrational integrals.
 
-        matrix = self.to_basis()
-        labels = self._create_num_body_labels(matrix)
+        Returns:
+            The ``VibrationalOp`` given by these vibrational integrals.
+
+        Raises:
+            QiskitNatureError: if no basis has been set yet.
+        """
+        try:
+            matrix = self.to_basis()
+        except QiskitNatureError as exc:
+            raise QiskitNatureError() from exc
 
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 
-        if labels == []:
-            # TODO: allow an empty list as argument to VibrationalOp
-            initial_label_with_ceoff = ("I" * sum(num_modals_per_mode), 0)
-            labels.append(initial_label_with_ceoff)
+        nonzero = np.nonzero(matrix)
+
+        if not np.any(np.asarray(nonzero)):
+            return VibrationalOp.zero(num_modes, num_modals_per_mode)
+
+        labels = []
+
+        for coeff, indices in zip(matrix[nonzero], zip(*nonzero)):
+            # the indices need to be grouped into triplets of the form: (mode, modal_1, modal_2)
+            grouped_indices = [
+                tuple(int(j) for j in indices[i : i + 3]) for i in range(0, len(indices), 3)
+            ]
+            # the index groups need to processed in sorted order to produce a valid label
+            coeff_label = self._create_label_for_coeff(sorted(grouped_indices))
+            labels.append((coeff_label, coeff))
 
         return VibrationalOp(labels, num_modes, num_modals_per_mode)
 
     @staticmethod
-    def _create_num_body_labels(matrix: np.ndarray) -> List[Tuple[str, complex]]:
-        num_body_labels = []
-        nonzero = np.nonzero(matrix)
-        for coeff, indices in zip(matrix[nonzero], zip(*nonzero)):
-            grouped_indices = sorted(
-                [tuple(int(j) for j in indices[i : i + 3]) for i in range(0, len(indices), 3)]
-            )
-            coeff_label = VibrationalIntegrals._create_label_for_coeff(grouped_indices)
-            num_body_labels.append((coeff_label, coeff))
-        return num_body_labels
-
-    @staticmethod
     def _create_label_for_coeff(indices: List[Tuple[int, ...]]) -> str:
+        """Generates the operator label for the given indices.
+
+        Args:
+            indices: A list of index triplets, where the first number is the mode index and the
+                second and third numbers are the modal indices of that mode.
+
+        Returns:
+            The constructed operator label.
+        """
         complete_labels_list = []
         for mode, modal_raise, modal_lower in indices:
             if modal_raise <= modal_lower:
