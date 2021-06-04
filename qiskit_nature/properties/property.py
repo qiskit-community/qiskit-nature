@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The Property base class."""
 
 from abc import ABC, abstractmethod, abstractclassmethod
 from typing import List, Union
@@ -21,10 +21,23 @@ from qiskit_nature.results import EigenstateResult
 
 
 class Property(ABC):
-    """TODO."""
+    """The Property base class.
+
+    A Property in Qiskit Nature provides the means to give meaning to a given set of raw data.
+    As such, it provides the logic to transform a raw data (as e.g. produced by a
+    `qiskit_nature.drivers.BaseDriver`) into a
+    `qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+    As such, every Property is an object which constructs an operator to be evaluated during the
+    problem solution and the interface provides the means for a user to write any custom Property
+    (i.e. the user can evaluate custom _observables_ by writing a class which can generate an
+    operator out of a given set of raw data).
+    """
 
     def __init__(self, name: str) -> None:
-        """TODO."""
+        """
+        Args:
+            name: the name of the property.
+        """
         self._name = name
 
     @property
@@ -39,12 +52,25 @@ class Property(ABC):
 
     @abstractclassmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "Property":
-        """TODO."""
+        """Construct a Property instance from a driver result.
+
+        This method should implement the logic which is required to extract the raw data for a
+        certain property from the result produced by a driver.
+
+        Args:
+            result: the driver result from which to extract the raw data.
+        """
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """TODO."""
+        """Generates the (list of) second quantized operators associated with this Property."""
 
-    @abstractmethod
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()

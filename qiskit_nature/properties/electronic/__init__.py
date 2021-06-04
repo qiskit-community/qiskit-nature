@@ -10,11 +10,54 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-==================================================================
 Electronic Properties (:mod:`qiskit_nature.properties.electronic`)
 ==================================================================
 
 .. currentmodule:: qiskit_nature.properties.electronic
+
+This module provides commonly evaluated properties for *electronic* problems.
+
+The main ``Property`` of this module is the
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   ElectronicEnergy
+
+which constructs the primary Hamiltonian whose solution is the goal of the Quantum Algorithm.
+The following auxiliary properties will be evaluated by default to provide further details of the
+solution:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   ParticleNumber
+   AngularMomentum
+   Magnetization
+
+These properties are required if you want to ensure that the number of particles in your system is
+being conserved.
+
+Finally, if the driver which you used provided dipole moment integrals, this property will also be
+evaluated:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   TotalDipoleMoment
+
+
+Utilities
++++++++++
+
+.. autosummary::
+   :toctree:
+
+   bases
+   integrals
 
 """
 
