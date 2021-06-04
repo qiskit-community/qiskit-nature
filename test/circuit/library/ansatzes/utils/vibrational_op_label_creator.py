@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Some utility methods which were removed but are still required for some unittests."""
+"""Some utility methods which were removed but are still required for some unit-tests."""
 
 from typing import List, Tuple
 
