@@ -41,7 +41,7 @@ def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back,
     h_chiral = _create_h_chiral(peptide, lambda_chiral)
     h_back = _create_h_back(peptide, lambda_back)
 
-    contacts, r_contact = _create_pauli_for_contacts(main_chain_len, side_chain)
+    contacts, r_contact = _create_pauli_for_contacts(peptide)
 
     h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
                             pair_energies, x_dist, contacts)

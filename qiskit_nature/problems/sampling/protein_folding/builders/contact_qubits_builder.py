@@ -71,7 +71,7 @@ def _create_pauli_for_contacts(peptide: Peptide):
     full_id = _build_full_identity(num_qubits)
     for i in range(1, main_chain_len - 3):  # first qubit is number 1
         for j in range(i + 3, main_chain_len + 1):
-            if (j - i) % 2 == 1:
+            if (j - i) % 2:
                 if (j - i) >= 5:
                     pauli_contacts[i][0][j][0] = (
                                 full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1]))
@@ -184,7 +184,7 @@ def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
             old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[0])
             old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[1])
         else:
-            old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[1])
+            old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[0])
         if side_chain[q - 1] == 1:
             old_qubits_conf.append(
                 peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0] ^ full_id)
@@ -230,9 +230,9 @@ def _first_neighbor(i, p, j, s,
         expr: Contribution to energetic Hamiltonian in symbolic notation
     """
     lambda_0 = 7 * (j - i + 1) * lambda_1
-    # e = pair_energies[i, p, j, s]
+    e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
-    expr = lambda_0 * (x - _build_full_identity(x.num_qubits))  # +e TODO how to add a scalar here?
+    expr = lambda_0 * (x - _build_full_identity(x.num_qubits)) #+e*_build_full_identity(x.num_qubits)
     return _set_binaries(expr).reduce()
 
 
@@ -262,5 +262,5 @@ def _second_neighbor(i, p, j, s,
     """
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
-    expr = lambda_1 * (2 * (_build_full_identity(x.num_qubits)) - x)  # + e*0.1
+    expr = lambda_1 * (2 * (_build_full_identity(x.num_qubits)) - x)  #+ e*0.1*_build_full_identity(x.num_qubits)
     return _set_binaries(expr).reduce()
