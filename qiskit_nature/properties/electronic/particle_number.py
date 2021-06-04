@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The ParticleNumber property."""
 
 from typing import cast, List, Optional, Tuple, Union
 
@@ -23,7 +23,7 @@ from ..property import Property
 
 
 class ParticleNumber(Property):
-    """TODO."""
+    """The ParticleNumber property."""
 
     def __init__(
         self,
@@ -32,7 +32,16 @@ class ParticleNumber(Property):
         occupation: Optional[List[float]] = None,
         occupation_beta: Optional[List[float]] = None,
     ):
-        """TODO."""
+        """
+        Args:
+            num_spin_orbitals: the number of spin orbitals in the system.
+            num_particles: the number of particles in the system. If this is a pair of integers, the
+                first is the alpha and the second is the beta spin. If it is an int, the number is
+                halved, with the remainder being added onto the alpha spin number.
+            occupation: the occupation numbers. If ``occupation_beta`` is ``None``, these are the
+                total occupation numbers, otherwise these are treated as the alpha-spin occupation.
+            occupation_beta: the beta-spin occupation numbers.
+        """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
         if isinstance(num_particles, int):
@@ -55,9 +64,23 @@ class ParticleNumber(Property):
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "ParticleNumber":
-        """TODO."""
+        """Construct a ParticleNumber instance from a QMolecule.
+
+        Args:
+            result: the driver result from which to extract the raw data. For this property, a
+                QMolecule is required!
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a WatsonHamiltonian is provided.
+        """
         if isinstance(result, WatsonHamiltonian):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "You cannot construct an AngularMomentum from a WatsonHamiltonian. Please provide "
+                "a QMolecule object instead."
+            )
 
         qmol = cast(QMolecule, result)
 
@@ -69,7 +92,7 @@ class ParticleNumber(Property):
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
+        """Returns a list containing the particle number operator."""
         op = FermionicOp(
             [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
             register_length=self._num_spin_orbitals,
@@ -77,5 +100,11 @@ class ParticleNumber(Property):
         return [op]
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()

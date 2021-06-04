@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The 1-body electronic integrals."""
 
 from typing import List, Optional, Tuple, Union
 
@@ -23,23 +23,49 @@ from ..bases import ElectronicBasis, ElectronicBasisTransform
 
 
 class OneBodyElectronicIntegrals(ElectronicIntegrals):
-    """TODO."""
+    """The 1-body electronic integrals."""
 
     def __init__(
         self,
         basis: ElectronicBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
     ) -> None:
-        """TODO."""
+        """
+        Args:
+            basis: the basis which these integrals are stored in. If this is initialized with
+                ``ElectronicBasis.SO``, these integrals will be used *ad verbatim* during the
+                mapping to a ``SecondQuantizedOp``.
+            matrices: the matrices (one or many) storing the actual electronic integrals. If this is
+                a single matrix, ``basis`` must be set to ``ElectronicBasis.SO``. Otherwise, this
+                must be a pair of matrices, the first one being the alpha-spin matrix (which is
+                required) and the second one being an optional beta-spin matrix. If the latter is
+                ``None``, the alpha-spin matrix is used in its place.
+        """
         super().__init__(1, basis, matrices)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
-        """TODO."""
+        """Transforms the integrals according to the given transform object.
+
+        If the integrals are already in the correct basis, ``self`` is returned.
+
+        Args:
+            transform: the transformation object with the integral coefficients.
+
+        Returns:
+            The transformed ``ElectronicIntegrals``.
+
+        Raises:
+            QiskitNatureError: if the integrals do not match
+                ``ElectronicBasisTransform.initial_basis``.
+        """
         if self._basis == transform._final_basis:
             return self
 
         if self._basis != transform._initial_basis:
-            raise QiskitNatureError("TODO")
+            raise QiskitNatureError(
+                f"The integrals' basis, {self._basis}, does not match the initial basis of the "
+                f"transform, {transform._initial_basis}."
+            )
 
         matrix_a = np.dot(
             np.dot(transform._coeff_alpha.T, self._matrices[0]), transform._coeff_alpha
@@ -52,7 +78,14 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         return OneBodyElectronicIntegrals(transform._final_basis, (matrix_a, matrix_b))
 
     def to_spin(self) -> np.ndarray:
-        """TODO."""
+        """Transforms the integrals into the special ``ElectronicBasis.SO`` basis.
+
+        In this case of the 1-body integrals, the returned matrix is a block matrix of the form:
+        ``[[alpha_spin, zeros], [zeros, beta_spin]]``.
+
+        Returns:
+            A single matrix containing the ``n-body`` integrals in the spin orbital basis.
+        """
         if self._basis == ElectronicBasis.SO:
             return self._matrices  # type: ignore
 
@@ -63,5 +96,5 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
 
-    def _calc_coeffs_with_ops(self, idx) -> List[Tuple[complex, str]]:
-        return [(idx[0], "+"), (idx[1], "-")]
+    def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
+        return [(indices[0], "+"), (indices[1], "-")]

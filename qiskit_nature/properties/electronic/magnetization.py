@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The Magnetization property."""
 
 from typing import cast, List, Union
 
@@ -23,21 +23,35 @@ from ..property import Property
 
 
 class Magnetization(Property):
-    """TODO."""
+    """The Magnetization property."""
 
-    def __init__(
-        self,
-        num_spin_orbitals: int,
-    ):
-        """TODO."""
+    def __init__(self, num_spin_orbitals: int):
+        """
+        Args:
+            num_spin_orbitals: the number of spin orbitals in the system.
+        """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "Magnetization":
-        """TODO."""
+        """Construct a Magnetization instance from a QMolecule.
+
+        Args:
+            result: the driver result from which to extract the raw data. For this property, a
+                QMolecule is required!
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a WatsonHamiltonian is provided.
+        """
         if isinstance(result, WatsonHamiltonian):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "You cannot construct an AngularMomentum from a WatsonHamiltonian. Please provide "
+                "a QMolecule object instead."
+            )
 
         qmol = cast(QMolecule, result)
 
@@ -46,7 +60,7 @@ class Magnetization(Property):
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
+        """Returns a list containing the magnetization operator."""
         op = FermionicOp(
             [
                 (f"N_{o}", 0.5 if o < self._num_spin_orbitals // 2 else -0.5)
@@ -57,5 +71,11 @@ class Magnetization(Property):
         return [op]
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()

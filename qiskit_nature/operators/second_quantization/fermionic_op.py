@@ -355,3 +355,27 @@ class FermionicOp(SecondQuantizedOp):
         return " ".join(
             filter(None, (label_transformation[c].format(i=i) for i, c in enumerate(label)))
         )
+
+    @classmethod
+    def zero(cls, register_length: int) -> "FermionicOp":
+        """Constructs a zero-operator.
+
+        Args:
+            register_length: the length of the operator.
+
+        Returns:
+            The zero-operator of the given length.
+        """
+        return FermionicOp(("I_0", 0.0), register_length=register_length)
+
+    @classmethod
+    def one(cls, register_length: int) -> "FermionicOp":
+        """Constructs a unity-operator.
+
+        Args:
+            register_length: the length of the operator.
+
+        Returns:
+            The unity-operator of the given length.
+        """
+        return FermionicOp(("I_0", 1.0), register_length=register_length)

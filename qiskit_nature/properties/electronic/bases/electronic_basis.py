@@ -10,13 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The definition of the available electronic bases."""
 
 from enum import Enum
 
 
 class ElectronicBasis(Enum):
-    """TODO."""
+    """An enumeration of the available electronic bases.
+
+    This ``Enum`` simply names the available electronic bases. The ``SO`` basis is the _special_
+    basis into which an ``ElectronicEnergy`` must map its integrals before being able to perform the
+    mapping to a ``qiskit_nature.operators.second_quantization.SecondQuantizedOp``.
+    """
 
     # pylint: disable=invalid-name
     AO = "atomic"

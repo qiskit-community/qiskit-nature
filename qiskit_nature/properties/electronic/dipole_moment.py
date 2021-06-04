@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The TotalDipoleMoment property."""
 
 from typing import cast, Dict, List, Optional, Tuple, Union
 
@@ -32,41 +32,66 @@ DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
 
 
 class DipoleMoment(Property):
-    """TODO."""
+    """The DipoleMoment property.
+
+    This contains the dipole moment along a single Cartesian axis.
+    """
 
     def __init__(
         self,
         axis: str,
         dipole: ElectronicEnergy,
     ):
-        """TODO."""
+        """
+        Args:
+            axis: the name of the Cartesian axis.
+            dipole: an ElectronicEnergy property exploited to represent the dipole moment operator
+                rather than an electronic energy.
+        """
         super().__init__(self.__class__.__name__)
         self._axis = axis
         self._dipole = dipole
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> None:
-        """TODO."""
+        """This property does not support construction from a driver result (yet).
+
+        Args:
+            result: ignored.
+
+        Raises:
+            NotImplemented
+        """
         raise NotImplementedError()
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
+        """Returns a list containing the dipole moment operator."""
         return self._dipole.second_q_ops()
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()
 
 
 class TotalDipoleMoment(Property):
-    """TODO."""
+    """The TotalDipoleMoment property."""
 
     def __init__(
         self,
         dipole_axes: Dict[str, DipoleMoment],
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
     ):
-        """TODO."""
+        """
+        Args:
+            dipole_axes: a dictionary mapping Cartesian axes to DipoleMoment properties.
+            dipole_shift: an optional dictionary of named dipole shifts.
+        """
         super().__init__(self.__class__.__name__)
         self._dipole_axes = dipole_axes
         self._dipole_shift = dipole_shift
@@ -75,9 +100,23 @@ class TotalDipoleMoment(Property):
     def from_driver_result(
         cls, result: Union[QMolecule, WatsonHamiltonian]
     ) -> Optional["TotalDipoleMoment"]:
-        """TODO."""
+        """Construct a TotalDipoleMoment instance from a QMolecule.
+
+        Args:
+            result: the driver result from which to extract the raw data. For this property, a
+                QMolecule is required!
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a WatsonHamiltonian is provided.
+        """
         if isinstance(result, WatsonHamiltonian):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "You cannot construct an ElectronicEnergy from a WatsonHamiltonian. Please provide "
+                "a QMolecule object instead."
+            )
 
         qmol = cast(QMolecule, result)
 
@@ -134,9 +173,15 @@ class TotalDipoleMoment(Property):
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
+        """Returns a list of dipole moment operators along all Cartesian axes."""
         return [dip.second_q_ops()[0] for dip in self._dipole_axes.values()]
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()

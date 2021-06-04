@@ -10,14 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The ElectronicEnergy property."""
 
 from typing import cast, Dict, List, Optional, Union
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
+from qiskit_nature.results import EigenstateResult
 
 from .bases import ElectronicBasis
 from .integrals import (
@@ -29,7 +29,11 @@ from ..property import Property
 
 
 class ElectronicEnergy(Property):
-    """TODO."""
+    """The ElectronicEnergy property.
+
+    This is the main property of any electronic structure problem. It constructs the Hamiltonian
+    whose eigenvalue is the target of a later used Quantum algorithm.
+    """
 
     def __init__(
         self,
@@ -38,7 +42,14 @@ class ElectronicEnergy(Property):
         reference_energy: Optional[float] = None,
         energy_shift: Optional[Dict[str, float]] = None,
     ):
-        """TODO."""
+        """
+        Args:
+            basis: the basis which the integrals in ``electronic_integrals`` are stored in.
+            electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
+                ``ElectronicIntegrals``.
+            reference_energy: an optional reference energy (such as the HF energy).
+            energy_shift: an optional dictionary of energy shifts.
+        """
         super().__init__(self.__class__.__name__)
         self._basis = basis
         self._electronic_integrals = electronic_integrals
@@ -47,9 +58,23 @@ class ElectronicEnergy(Property):
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "ElectronicEnergy":
-        """TODO."""
+        """Construct an ElectronicEnergy instance from a QMolecule.
+
+        Args:
+            result: the driver result from which to extract the raw data. For this property, a
+                QMolecule is required!
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a WatsonHamiltonian is provided.
+        """
         if isinstance(result, WatsonHamiltonian):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "You cannot construct an ElectronicEnergy from a WatsonHamiltonian. Please provide "
+                "a QMolecule object instead."
+            )
 
         qmol = cast(QMolecule, result)
 
@@ -66,9 +91,9 @@ class ElectronicEnergy(Property):
                     ElectronicBasis.MO,
                     (
                         qmol.mo_eri_ints,
-                        qmol.mo_eri_ints_ba.T if qmol.mo_eri_ints_ba is not None else None,
-                        qmol.mo_eri_ints_bb,
                         qmol.mo_eri_ints_ba,
+                        qmol.mo_eri_ints_bb,
+                        None,
                     ),
                 ),
             },
@@ -77,7 +102,7 @@ class ElectronicEnergy(Property):
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
+        """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
         return [
             sum(  # type: ignore
                 ints.to_second_q_op() for ints in self._electronic_integrals.values()
@@ -85,10 +110,11 @@ class ElectronicEnergy(Property):
         ]
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        if not isinstance(result, ElectronicStructureResult):
-            raise QiskitNatureError("TODO")
-        if self._reference_energy is not None:
-            result.hf_energy = self._reference_energy
-        if "nuclear_repulsion_energy" in self._energy_shift.keys():
-            result.nuclear_repulsion_energy = self._energy_shift["nuclear_repulsion_energy"]
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The AngularMomentum property."""
 
 from typing import cast, List, Tuple, Union
 
@@ -32,21 +32,35 @@ from ..property import Property
 
 
 class AngularMomentum(Property):
-    """TODO."""
+    """The AngularMomentum property."""
 
-    def __init__(
-        self,
-        num_spin_orbitals: int,
-    ):
-        """TODO."""
+    def __init__(self, num_spin_orbitals: int):
+        """
+        Args:
+            num_spin_orbitals: the number of spin orbitals in the system.
+        """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
 
     @classmethod
     def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "AngularMomentum":
-        """TODO."""
+        """Construct an AngularMomentum instance from a QMolecule.
+
+        Args:
+            result: the driver result from which to extract the raw data. For this property, a
+                QMolecule is required!
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a WatsonHamiltonian is provided.
+        """
         if isinstance(result, WatsonHamiltonian):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "You cannot construct an AngularMomentum from a WatsonHamiltonian. Please provide "
+                "a QMolecule object instead."
+            )
 
         qmol = cast(QMolecule, result)
 
@@ -55,7 +69,7 @@ class AngularMomentum(Property):
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
+        """Returns a list containing the angular momentum operator."""
         x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
         y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
         z_h1, z_h2 = _calc_s_z_squared_ints(self._num_spin_orbitals)
@@ -67,8 +81,14 @@ class AngularMomentum(Property):
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
+        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+
+        This is currently a method stub which may be used in the future.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        raise NotImplementedError()
 
 
 def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:

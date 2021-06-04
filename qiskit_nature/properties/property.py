@@ -59,11 +59,17 @@ class Property(ABC):
 
         Args:
             result: the driver result from which to extract the raw data.
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if an invalid driver result type is passed.
         """
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Generates the (list of) second quantized operators associated with this Property."""
+        """Returns the (list of) second quantized operators associated with this Property."""
 
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.

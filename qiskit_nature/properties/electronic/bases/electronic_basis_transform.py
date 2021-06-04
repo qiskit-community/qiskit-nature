@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""TODO."""
+"""The ElectronicBasisTransform provides a container of bases transformation data."""
 
 from typing import Optional
 
@@ -20,7 +20,7 @@ from .electronic_basis import ElectronicBasis
 
 
 class ElectronicBasisTransform:
-    """TODO."""
+    """This class contains the coefficients required to map from one basis into another."""
 
     def __init__(
         self,
@@ -29,7 +29,16 @@ class ElectronicBasisTransform:
         coeff_alpha: np.ndarray,
         coeff_beta: Optional[np.ndarray] = None,
     ) -> None:
-        """TODO."""
+        """
+        Args:
+            initial_basis: the initial basis from which to map out of.
+            final_basis: the final basis which to map in to.
+            coeff_alpha: the matrix (``# orbitals in initial basis x # orbitals in final basis``)
+                for mapping the alpha-spin orbitals.
+            coeff_beta: an optional matrix to use for the beta-spin orbitals. This must match the
+                dimension of ``coeff_alpha``. If it is left as ``None``, ``coeff_alpha`` will be
+                used for the beta-spin orbitals too.
+        """
         self._initial_basis = initial_basis
         self._final_basis = final_basis
         self._coeff_alpha = coeff_alpha
