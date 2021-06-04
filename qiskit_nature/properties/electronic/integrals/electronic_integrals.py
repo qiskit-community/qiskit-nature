@@ -93,7 +93,7 @@ class ElectronicIntegrals(ABC):
     @staticmethod
     def _create_base_op_from_labels(coeff: complex, length: int, coeffs_with_ops) -> FermionicOp:
         label = ["I"] * length
-        base_op = FermionicOp("".join(label)) * coeff
+        base_op = FermionicOp(("".join(label), coeff))
         for i, op in coeffs_with_ops:
             label_i = label.copy()
             label_i[i] = op
