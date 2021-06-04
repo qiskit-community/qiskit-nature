@@ -12,12 +12,11 @@
 
 """Test HarmonicBasis."""
 
-from ddt import ddt, data, unpack
 from test import QiskitNatureTestCase
+from ddt import ddt, data, unpack
 
 import numpy as np
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.vibrational.bases import HarmonicBasis
 from qiskit_nature.properties.vibrational.integrals import VibrationalIntegrals
 
