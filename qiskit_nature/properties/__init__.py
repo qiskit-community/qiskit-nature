@@ -29,7 +29,7 @@ from .vibrational_integrals import BosonicBasis, HarmonicBasis
 
 __all__ = [
     "AngularMomentum",
-    "DipoleMoment",
+    "TotalDipoleMoment",
     "ElectronicEnergy",
     "Magnetization",
     "OccupiedModals",

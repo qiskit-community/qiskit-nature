@@ -30,6 +30,33 @@ from .property import Property
 DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
 
 
+class DipoleMoment(Property):
+    """TODO."""
+
+    def __init__(
+        self,
+        axis: str,
+        dipole: ElectronicEnergy,
+    ):
+        """TODO."""
+        super().__init__(self.__class__.__name__)
+        self._axis = axis
+        self._dipole = dipole
+
+    @classmethod
+    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> None:
+        """TODO."""
+        raise NotImplementedError()
+
+    def second_q_ops(self) -> List[FermionicOp]:
+        """TODO."""
+        return self._dipole.second_q_ops()
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """TODO."""
+        pass
+
+
 class TotalDipoleMoment(Property):
     """TODO."""
 
@@ -108,28 +135,6 @@ class TotalDipoleMoment(Property):
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
         return [dip.second_q_ops()[0] for dip in self._dipole_axes.values()]
-
-    def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
-        pass
-
-
-class DipoleMoment(Property):
-    """TODO."""
-
-    def __init__(
-        self,
-        axis: str,
-        dipole: ElectronicEnergy,
-    ):
-        """TODO."""
-        super().__init__(self.__class__.__name__)
-        self._axis = axis
-        self._dipole = dipole
-
-    def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
-        return self._dipole.second_q_ops()
 
     def interpret(self, result: EigenstateResult) -> None:
         """TODO."""
