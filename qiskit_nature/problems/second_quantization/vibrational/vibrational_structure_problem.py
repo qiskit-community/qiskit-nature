@@ -74,6 +74,8 @@ class VibrationalStructureProblem(BaseProblem):
         # TODO: expose this as an argument in __init__
         basis = HarmonicBasis(num_modals)
 
+        # TODO: in a follow-up PR we should gather these properties in a super-object. Possibly
+        # VibrationalDriverResult?
         properties = []
         for cls in [VibrationalEnergy, OccupiedModals]:
             prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore

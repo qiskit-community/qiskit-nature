@@ -72,6 +72,8 @@ class ElectronicStructureProblem(BaseProblem):
         self._molecule_data = cast(QMolecule, self.driver.run())
         self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
+        # TODO: in a follow-up PR we should gather these properties in a super-object. Possibly
+        # ElectronicDriverResult?
         properties = []
         for cls in [
             ElectronicEnergy,
