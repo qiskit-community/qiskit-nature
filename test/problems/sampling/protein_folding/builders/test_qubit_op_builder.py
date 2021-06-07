@@ -866,66 +866,66 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                                                    pair_energies, x_dist,
                                                    contacts)
         assert H_BBSC == 767.5 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                    I) - 257.5 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 2.5 * (
-                           I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 172.5 * (
-                           Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 767.5 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 257.5 * (
-                           Z ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 2.5 * (
-                           I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 172.5 * (
-                           Z ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 250.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 85.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 250.0 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 85.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 2.5 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 85.0 * (
-                           I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 2.5 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 85.0 * (
-                           I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 167.5 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 85.0 * (
-                           Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) - 167.5 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 85.0 * (
-                           Z ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 170.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) + 85.0 * (
-                           I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) - 85.0 * (
-                           Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) - 170.0 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) - 85.0 * (
-                           I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) + 85.0 * (
-                           Z ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) - 82.5 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) + 82.5 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) + 82.5 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ Z ^ I ^ I
-                           ^ I ^ I) - 82.5 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ Z ^ I ^ I
-                           ^ I ^ I)
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                I) - 257.5 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 2.5 * (
+                       I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 172.5 * (
+                       Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 767.5 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 257.5 * (
+                       Z ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 2.5 * (
+                       I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 172.5 * (
+                       Z ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 250.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 85.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 250.0 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 85.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 2.5 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 85.0 * (
+                       I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 2.5 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 85.0 * (
+                       I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 167.5 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 85.0 * (
+                       Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) - 167.5 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 85.0 * (
+                       Z ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 170.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) + 85.0 * (
+                       I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) - 85.0 * (
+                       Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) - 170.0 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) - 85.0 * (
+                       I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) + 85.0 * (
+                       Z ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) - 82.5 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) + 82.5 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) + 82.5 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ Z ^ I ^ I
+                       ^ I ^ I) - 82.5 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ Z ^ I ^ I
+                       ^ I ^ I)
         assert H_SCBB == 0
 
     def test_create_H_SCSC(self):
@@ -1256,7 +1256,8 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
     #     delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic_0, indic_1, indic_2,
     #                                                               indic_3, pauli_conf)
     #     delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
-    #                                                            delta_n3, indic_0, indic_1, indic_2,
+    #                                                            delta_n3, indic_0, indic_1,
+    #                                                            indic_2,
     #                                                            indic_3, pauli_conf)
     #     x_dist = _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf)
     #
@@ -1265,38 +1266,57 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
     #                               indic_1, indic_2, indic_3)
     #     print(h_short)
 
-    # def test_create_h_contacts(self):
-    #     """
-    #         Tests that the Hamiltonian to back-overlaps is created correctly.
-    #         """
-    #     lambda_contacts = 10
-    #     main_chain_residue_seq = 'APRLRAAA'
-    #     main_chain_len = 8
-    #     side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
-    #     side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
-    #     peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-    #                       side_chain_residue_sequences)
-    #
-    #     N_contacts = 0
-    #     h_contacts = _create_H_contacts(peptide, lambda_contacts, N_contacts)
-    #     print(h_contacts)
-    #
-    # def test_create_h_contacts_old(self):
-    #     """
-    #         Tests that the Hamiltonian to back-overlaps is created correctly.
-    #         """
-    #     lf = LatticeFoldingProblem(residue_sequence="APRLRAAA")
-    #     lf.pauli_op()
-    #     N = 8
-    #
-    #     lambda_contacts = 10
-    #     pauli_conf = _create_pauli_for_conf(N)
-    #     side_chain = [0, 0, 1, 0, 0, 1, 1, 0]
-    #     N_contacts = 0
-    #     pauli_contacts, n_contact = _create_pauli_for_contacts(N, [0, 0, 1, 0, 0, 1, 1, 0])
-    #     new_qubits = _create_new_qubit_list(N, [0, 0, 1, 0, 0, 1, 1, 0], pauli_conf, pauli_contacts)
-    #     print(len(new_qubits))
-    #     h_contacts = folding_qubit_op_builder._create_H_contacts(pauli_conf, new_qubits,
-    #                                                              n_contact, lambda_contacts,
-    #                                                              N_contacts)
-    #     print(h_contacts)
+    def test_create_h_contacts(self):
+        """
+        Tests that the Hamiltonian to back-overlaps is created correctly.
+        """
+        lambda_contacts = 10
+        main_chain_residue_seq = 'APRLRAAA'
+        main_chain_len = 8
+        side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
+                          side_chain_residue_sequences)
+
+        N_contacts = 0
+        h_contacts = _create_H_contacts(peptide, lambda_contacts, N_contacts)
+        assert h_contacts == 280.0 * (
+                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                    ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (
+                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 100.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 50.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 100.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 20.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 50.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 5.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 5.0 * (
+                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)

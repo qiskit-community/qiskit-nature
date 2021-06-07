@@ -22,13 +22,13 @@ class MixedInteraction(Interaction):
 
     def calc_energy_matrix(self, num_beads, sequence):
         Interaction._validate_residue(sequence)
-        MJ, list_AA = _load_energy_matrix_file()
+        mj, list_aa = _load_energy_matrix_file()
         pair_energies = np.zeros((num_beads + 1, 2, num_beads + 1, 2))
         for i in range(1, num_beads + 1):
             for j in range(i + 1, num_beads + 1):
-                aa_i = list_AA.index(sequence[i - 1])
-                aa_j = list_AA.index(sequence[j - 1])
-                pair_energies[i, 0, j, 0] = MJ[min(aa_i, aa_j), max(aa_i, aa_j)]
+                aa_i = list_aa.index(sequence[i - 1])
+                aa_j = list_aa.index(sequence[j - 1])
+                pair_energies[i, 0, j, 0] = mj[min(aa_i, aa_j), max(aa_i, aa_j)]
             if self.additional_energies is not None:
                 for interaction in self.additional_energies:
                     b1, b2, ener = tuple(interaction)

@@ -19,21 +19,21 @@ def _fix_qubits(qubits):
     new_coeffs = []
     for i in range(len(qubits)):
         H = qubits[i]
-        table_Z = np.copy(H.primitive.table.Z[0])
-        table_X = np.copy(H.primitive.table.X[0])
+        table_z = np.copy(H.primitive.table.Z[0])
+        table_x = np.copy(H.primitive.table.X[0])
         # get coeffs and update
         coeffs = np.copy(H.primitive.coeffs[0])
-        if table_Z[1] == np.bool_(True):
+        if table_z[1] == np.bool_(True):
             coeffs = -1 * coeffs
-        if table_Z[5] == np.bool_(True):
+        if table_z[5] == np.bool_(True):
             coeffs = -1 * coeffs
         # impose preset binary values
-        table_Z[0] = np.bool_(False)
-        table_Z[1] = np.bool_(False)
-        table_Z[2] = np.bool_(False)
-        table_Z[3] = np.bool_(False)
-        table_Z[5] = np.bool_(False)
-        new_table = np.concatenate((table_X, table_Z), axis=0)
+        table_z[0] = np.bool_(False)
+        table_z[1] = np.bool_(False)
+        table_z[2] = np.bool_(False)
+        table_z[3] = np.bool_(False)
+        table_z[5] = np.bool_(False)
+        new_table = np.concatenate((table_x, table_z), axis=0)
         new_tables.append(new_table)
         new_coeffs.append(coeffs)
     new_pauli_table = PauliTable(data=new_tables)

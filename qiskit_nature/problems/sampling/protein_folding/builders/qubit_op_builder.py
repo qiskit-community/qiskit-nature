@@ -101,13 +101,13 @@ def _create_h_chiral(peptide, lambda_chiral):
         pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
 
     Returns:
-        H_chiral: Hamiltonian term in symbolic notation that imposes the right chirality
+        h_chiral: Hamiltonian term in symbolic notation that imposes the right chirality
     """
 
     main_chain = peptide.get_main_chain
     main_chain_len = len(main_chain)
     # 2 stands for 2 qubits per turn, another 2 stands for main and side qubit register
-    H_chiral = 0
+    h_chiral = 0
     full_id = _build_full_identity(2 * 2 * (main_chain_len - 1))
     for i in range(1, len(main_chain) + 1):
         higher_main_bead = main_chain[i - 1]
@@ -131,36 +131,36 @@ def _create_h_chiral(peptide, lambda_chiral):
             higher_side_bead.get_indicator_functions()
 
         si = int((1 - (-1) ** i) / 2)
-        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_0) @ ((1 - si) * (
+        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_0) @ ((1 - si) * (
                 lower_main_bead_indic_1 @ higher_main_bead_indic_2 + lower_main_bead_indic_2 @
                 higher_main_bead_indic_3 +
                 lower_main_bead_indic_3 @ higher_main_bead_indic_1) + si * (
                                                                                     lower_main_bead_indic_2 @ higher_main_bead_indic_1 +
                                                                                     lower_main_bead_indic_3 @ higher_main_bead_indic_2 +
                                                                                     lower_main_bead_indic_1 @ higher_main_bead_indic_3))
-        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_1) @ ((1 - si) * (
+        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_1) @ ((1 - si) * (
                 lower_main_bead_indic_0 @ higher_main_bead_indic_3 + lower_main_bead_indic_2 @
                 higher_main_bead_indic_0 +
                 lower_main_bead_indic_3 @ higher_main_bead_indic_2) + si * (
                                                                                     lower_main_bead_indic_3 @ higher_main_bead_indic_0 +
                                                                                     lower_main_bead_indic_0 @ higher_main_bead_indic_2 +
                                                                                     lower_main_bead_indic_2 @ higher_main_bead_indic_3))
-        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_2) @ ((1 - si) * (
+        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_2) @ ((1 - si) * (
                 lower_main_bead_indic_0 @ higher_main_bead_indic_1 + lower_main_bead_indic_1 @
                 higher_main_bead_indic_3 +
                 lower_main_bead_indic_3 @ higher_main_bead_indic_0) + si * (
                                                                                     lower_main_bead_indic_1 @ higher_main_bead_indic_0 +
                                                                                     lower_main_bead_indic_3 @ higher_main_bead_indic_1 +
                                                                                     lower_main_bead_indic_0 @ higher_main_bead_indic_3))
-        H_chiral += lambda_chiral * (full_id - higher_side_bead_indic_3) @ ((1 - si) * (
+        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_3) @ ((1 - si) * (
                 lower_main_bead_indic_0 @ higher_main_bead_indic_2 + lower_main_bead_indic_1 @
                 higher_main_bead_indic_0 +
                 lower_main_bead_indic_2 @ higher_main_bead_indic_1) + si * (
                                                                                     lower_main_bead_indic_2 @ higher_main_bead_indic_0 +
                                                                                     lower_main_bead_indic_0 @ higher_main_bead_indic_1 +
                                                                                     lower_main_bead_indic_1 @ higher_main_bead_indic_2))
-        H_chiral = _fix_qubits(H_chiral).reduce()
-    return H_chiral
+        h_chiral = _fix_qubits(h_chiral).reduce()
+    return h_chiral
 
 
 def _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
@@ -365,7 +365,7 @@ def _create_h_short(peptide: Peptide, pair_energies):
 
 
 # TODO in the original code, N_contacts is always set to 0. What is the meaning of this param?
-def _create_H_contacts(peptide, lambda_contacts, n_contacts = 0):
+def _create_H_contacts(peptide, lambda_contacts, n_contacts=0):
     """
     To document
 
@@ -376,12 +376,13 @@ def _create_H_contacts(peptide, lambda_contacts, n_contacts = 0):
     """
     pauli_contacts, n_contact = _create_pauli_for_contacts(peptide)
     new_qubits = _create_new_qubit_list(peptide, pauli_contacts)
-    print(len(new_qubits))
     main_chain_len = len(peptide.get_main_chain)
     full_id = _build_full_identity(2 * (main_chain_len - 1))
     h_contacts = 0
     for el in new_qubits[-n_contact:]:
-        h_contacts += (lambda_contacts * (
-                el - n_contacts * (full_id ^ full_id)) ** 2)
+        h_contacts += el
+    h_contacts -= n_contacts * (full_id ^ full_id)
+    h_contacts = h_contacts ** 2
+    h_contacts *= lambda_contacts
     h_contacts = _fix_qubits(h_contacts).reduce()
     return h_contacts
