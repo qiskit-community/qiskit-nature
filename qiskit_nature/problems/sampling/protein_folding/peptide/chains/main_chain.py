@@ -30,41 +30,53 @@ class MainChain(BaseChain):
     def _build_main_chain(self, main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences) -> List[MainBead]:
         main_chain = []
-        if side_chain_lens is not None and main_chain_len != len(side_chain_lens):
-            raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
-        if side_chain_lens is not None and (side_chain_lens[0] != 0 or side_chain_lens[1] != 0):
-            raise InvalidSideChainException(
-                "First and second main beads are not allowed to have a side chain. Non-zero "
-                "length provided for an invalid side chain")
-        if side_chain_residue_sequences is not None and (
-                side_chain_residue_sequences[0] is not None or side_chain_residue_sequences[
-            1] is not None):
-            raise InvalidSideChainException(
-                "First and second main beads are not allowed to have a side chain. Non-None "
-                "residue provided for an invalid side chain")
+        self._validate_chain_lengths(main_chain_len, side_chain_lens)
+        self._validate_side_chain_index_by_lengths(side_chain_lens)
+        self._validate_side_chain_index_by_residues(side_chain_residue_sequences)
+
         for main_bead_id in range(main_chain_len - 1):
             bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id)
             bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
-            if side_chain_lens and side_chain_lens[
-                main_bead_id] != 0 and side_chain_residue_sequences and \
-                    side_chain_residue_sequences[main_bead_id] is not None:
-                side_chain = SideChain(main_chain_len, main_bead_id, side_chain_lens[main_bead_id],
-                                       side_chain_residue_sequences[main_bead_id])
-            else:
-                side_chain = None
+            side_chain = self._create_side_chain(main_bead_id, main_chain_len, side_chain_lens,
+                                                 side_chain_residue_sequences)
             main_bead = MainBead(main_chain_residue_seq[main_bead_id],
                                  [bead_turn_qubit_1, bead_turn_qubit_2],
                                  side_chain)
             main_chain.append(main_bead)
-        side_chain = None
-        if side_chain_lens and side_chain_lens[
-            main_chain_len - 1] != 0 and side_chain_residue_sequences and \
-                side_chain_residue_sequences[main_chain_len - 1] is not None:
-            side_chain = SideChain(main_chain_len, main_chain_len - 1,
-                                   side_chain_lens[main_chain_len - 1],
-                                   side_chain_residue_sequences[main_chain_len - 1])
-        main_bead = MainBead(None,
-                             None,
-                             side_chain)
+        main_bead = MainBead(None, None, None)
         main_chain.append(main_bead)
         return main_chain
+
+    def _validate_chain_lengths(self, main_chain_len, side_chain_lens):
+        if side_chain_lens is not None and main_chain_len != len(side_chain_lens):
+            raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
+
+    def _validate_side_chain_index_by_lengths(self, side_chain_lens):
+        if side_chain_lens is not None and (
+                side_chain_lens[0] != 0 or side_chain_lens[1] != 0 or side_chain_lens[-1] != 0):
+            raise InvalidSideChainException(
+                "First, second and last main beads are not allowed to have a side chain. Non-zero "
+                "length provided for an invalid side chain.")
+
+    def _validate_side_chain_index_by_residues(self, side_chain_residue_sequences):
+        if side_chain_residue_sequences is not None and (
+                side_chain_residue_sequences[0] is not None or side_chain_residue_sequences[
+            1] is not None or side_chain_residue_sequences[-1] is not None):
+            raise InvalidSideChainException(
+                "First, second and last main beads are not allowed to have a side chain. Non-None "
+                "residue provided for an invalid side chain")
+
+    def _create_side_chain(self, main_bead_id, main_chain_len, side_chain_lens,
+                           side_chain_residue_sequences):
+        if self._is_side_chain_present(main_bead_id, side_chain_lens,
+                                       side_chain_residue_sequences):
+            side_chain = SideChain(main_chain_len, main_bead_id, side_chain_lens[main_bead_id],
+                                   side_chain_residue_sequences[main_bead_id])
+        else:
+            side_chain = None
+        return side_chain
+
+    def _is_side_chain_present(self, main_bead_id, side_chain_lens, side_chain_residue_sequences):
+        return side_chain_lens and side_chain_lens[
+            main_bead_id] != 0 and side_chain_residue_sequences and \
+               side_chain_residue_sequences[main_bead_id] is not None

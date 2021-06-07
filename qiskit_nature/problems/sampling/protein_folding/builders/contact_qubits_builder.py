@@ -18,35 +18,10 @@ from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_p
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
-def _set_binaries(H_back):
-    new_tables = []
-    new_coeffs = []
-    for i in range(len(H_back)):
-        H = H_back[i]
-        table_Z = np.copy(H.primitive.table.Z[0])
-        table_X = np.copy(H.primitive.table.X[0])
-        # get coeffs and update
-        coeffs = np.copy(H.primitive.coeffs[0])
-        if table_Z[1] == np.bool_(True):
-            coeffs = -1 * coeffs
-        if table_Z[5] == np.bool_(True):
-            coeffs = -1 * coeffs
-        # impose preset binary values
-        table_Z[0] = np.bool_(False)
-        table_Z[1] = np.bool_(False)
-        table_Z[2] = np.bool_(False)
-        table_Z[3] = np.bool_(False)
-        table_Z[5] = np.bool_(False)
-        new_table = np.concatenate((table_X, table_Z), axis=0)
-        new_tables.append(new_table)
-        new_coeffs.append(coeffs)
-    new_pauli_table = PauliTable(data=new_tables)
-    H_back_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
-    H_back_updated = H_back_updated.reduce()
-    return H_back_updated
-
-
 # TODO refactor data structures and try clauses
+from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
+
+
 def _create_pauli_for_contacts(peptide: Peptide):
     """
     Creates Pauli operators for 1st nearest neighbor interactions
@@ -74,12 +49,12 @@ def _create_pauli_for_contacts(peptide: Peptide):
             if (j - i) % 2:
                 if (j - i) >= 5:
                     pauli_contacts[i][0][j][0] = (
-                                full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1]))
+                            full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1]))
                     print('possible contact between', i, '0 and', j, '0')
                     r_contact += 1
                 if side_chain[i - 1] and side_chain[j - 1]:
                     pauli_contacts[i][1][j][1] = (
-                                _build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id)
+                            _build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id)
                     print('possible contact between', i, '1 and', j, '1')
                     r_contact += 1
             else:
@@ -180,7 +155,8 @@ def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
             for p in range(2):
                 for s in range(2):
                     try:
-                        old_qubits_contact.append(0.5*((full_id^full_id) - pauli_contacts[i][p][j][s]))
+                        old_qubits_contact.append(
+                            0.5 * ((full_id ^ full_id) - pauli_contacts[i][p][j][s]))
                     except KeyError:
                         pass
 
@@ -188,9 +164,9 @@ def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
     return new_qubits
 
 
-def _first_neighbor(i, p, j, s,
+def _first_neighbor(i: int, p: int, j: int, s: int,
                     lambda_1, pair_energies,
-                    x_dist):
+                    x_dist, pair_energies_multiplier: float = 0.1):
     """
     Creates first nearest neighbor interaction if beads are in contact
     and at a distance of 1 unit from each other. Otherwise, a large positive
@@ -216,13 +192,14 @@ def _first_neighbor(i, p, j, s,
     lambda_0 = 7 * (j - i + 1) * lambda_1
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
-    expr = lambda_0 * (x - _build_full_identity(x.num_qubits)) #+e*_build_full_identity(x.num_qubits)
-    return _set_binaries(expr).reduce()
+    expr = lambda_0 * (x - _build_full_identity(x.num_qubits))
+    # + pair_energies_multiplier*e*_build_full_identity(x.num_qubits)
+    return _fix_qubits(expr).reduce()
 
 
-def _second_neighbor(i, p, j, s,
+def _second_neighbor(i: int, p: int, j: int, s: int,
                      lambda_1, pair_energies,
-                     x_dist):
+                     x_dist, pair_energies_multiplier: float = 0.1):
     """
     Creates energetic interaction that penalizes local overlap between
     beads that correspond to a nearest neighbor contact or adds no net
@@ -246,5 +223,6 @@ def _second_neighbor(i, p, j, s,
     """
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
-    expr = lambda_1 * (2 * (_build_full_identity(x.num_qubits)) - x)  #+ e*0.1*_build_full_identity(x.num_qubits)
-    return _set_binaries(expr).reduce()
+    expr = lambda_1 * (2 * (_build_full_identity(
+        x.num_qubits)) - x) #+ pair_energies_multiplier * e * _build_full_identity(x.num_qubits)
+    return _fix_qubits(expr).reduce()

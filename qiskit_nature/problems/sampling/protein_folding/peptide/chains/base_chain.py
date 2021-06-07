@@ -12,11 +12,11 @@
 from abc import ABC
 from typing import List
 
-from qiskit.opflow import I, Z, PauliOp
+from qiskit.opflow import PauliOp
 
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.pauli_ops_builder import \
-    _build_full_identity
+    _build_full_identity, _build_pauli_z_op
 
 
 class BaseChain(ABC):
@@ -40,17 +40,8 @@ class BaseChain(ABC):
             residue_sequence.append(bead.residue_type)
         return residue_sequence
 
-    # TODO use existing method
     @staticmethod
     def _build_turn_qubit(chain_len, bead_id) -> PauliOp:
         num_turn_qubits = 2 * (chain_len - 1)
-        if bead_id != 0:
-            temp = I
-        else:
-            temp = Z
-        for i in range(1, num_turn_qubits):
-            if i == bead_id:
-                temp = Z ^ temp
-            else:
-                temp = I ^ temp
-        return 0.5 * _build_full_identity(num_turn_qubits) - 0.5 * temp
+        return 0.5 * _build_full_identity(num_turn_qubits) - 0.5 * _build_pauli_z_op(
+            num_turn_qubits, [bead_id])

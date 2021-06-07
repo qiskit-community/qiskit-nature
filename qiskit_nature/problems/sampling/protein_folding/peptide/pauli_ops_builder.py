@@ -15,10 +15,10 @@ from qiskit.opflow import PauliOp, I, Z
 
 
 def _build_full_identity(num_turn_qubits) -> PauliOp:
-    FULL_ID = I
+    full_identity = I
     for _ in range(1, num_turn_qubits):
-        FULL_ID = I ^ FULL_ID
-    return FULL_ID
+        full_identity = I ^ full_identity
+    return full_identity
 
 
 def _build_pauli_z_op(num_qubits: int, pauli_z_indices: List[int]):

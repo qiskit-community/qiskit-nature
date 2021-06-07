@@ -16,8 +16,6 @@ from qiskit.opflow import PauliOp, OperatorBase
 
 from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
     InvalidResidueException
-from qiskit_nature.problems.sampling.protein_folding.peptide.pauli_ops_builder import \
-    _build_full_identity
 
 
 class BaseBead(ABC):

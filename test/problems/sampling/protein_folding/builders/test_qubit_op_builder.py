@@ -65,8 +65,8 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         lambda_back = 10
         main_chain_residue_seq = "SAASS"
         main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 1, 1]
-        side_chain_residue_sequences = [None, None, "A", "A", "A"]
+        side_chain_lens = [0, 0, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", None]
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)

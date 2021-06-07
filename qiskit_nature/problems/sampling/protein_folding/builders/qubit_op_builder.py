@@ -9,15 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-import numpy as np
-from qiskit.opflow import I, PauliSumOp, OperatorBase
-from qiskit.quantum_info import SparsePauliOp, PauliTable
+from qiskit.opflow import OperatorBase
 
 from problems.sampling.protein_folding.builders.contact_qubits_builder import _first_neighbor, \
     _second_neighbor, _create_pauli_for_contacts, _create_new_qubit_list
 from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
     _add_distances_side_chain, _calc_total_distances
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
+from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
@@ -68,7 +67,7 @@ def _check_turns(lower_bead: BaseBead, higher_bead: BaseBead) -> OperatorBase:
     higher_bead_indic_0, higher_bead_indic_1, higher_bead_indic_2, higher_bead_indic_3 = \
         higher_bead.get_indicator_functions()
 
-    t_ij = _set_binaries(
+    t_ij = _fix_qubits(
         lower_bead_indic_0 @ higher_bead_indic_0 + lower_bead_indic_1 @ higher_bead_indic_1 + \
         lower_bead_indic_2 @ higher_bead_indic_2 + lower_bead_indic_3 @ higher_bead_indic_3)
     return t_ij
@@ -80,36 +79,8 @@ def _create_h_back(peptide: Peptide, lambda_back):
     for i in range(len(main_chain) - 2):
         h_back += lambda_back * _check_turns(main_chain[i], main_chain[i + 1])
 
-    h_back = _set_binaries(h_back).reduce()
+    h_back = _fix_qubits(h_back).reduce()
     return h_back
-
-
-def _set_binaries(H_back):
-    new_tables = []
-    new_coeffs = []
-    for i in range(len(H_back)):
-        H = H_back[i]
-        table_Z = np.copy(H.primitive.table.Z[0])
-        table_X = np.copy(H.primitive.table.X[0])
-        # get coeffs and update
-        coeffs = np.copy(H.primitive.coeffs[0])
-        if table_Z[1] == np.bool_(True):
-            coeffs = -1 * coeffs
-        if table_Z[5] == np.bool_(True):
-            coeffs = -1 * coeffs
-        # impose preset binary values
-        table_Z[0] = np.bool_(False)
-        table_Z[1] = np.bool_(False)
-        table_Z[2] = np.bool_(False)
-        table_Z[3] = np.bool_(False)
-        table_Z[5] = np.bool_(False)
-        new_table = np.concatenate((table_X, table_Z), axis=0)
-        new_tables.append(new_table)
-        new_coeffs.append(coeffs)
-    new_pauli_table = PauliTable(data=new_tables)
-    H_back_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
-    H_back_updated = H_back_updated.reduce()
-    return H_back_updated
 
 
 def _create_h_chiral(peptide, lambda_chiral):
@@ -138,7 +109,7 @@ def _create_h_chiral(peptide, lambda_chiral):
     # 2 stands for 2 qubits per turn, another 2 stands for main and side qubit register
     H_chiral = 0
     full_id = _build_full_identity(2 * 2 * (main_chain_len - 1))
-    for i in range(1, len(main_chain) + 1):  # TODO double check range
+    for i in range(1, len(main_chain) + 1):
         higher_main_bead = main_chain[i - 1]
 
         if higher_main_bead.side_chain is None:
@@ -188,7 +159,7 @@ def _create_h_chiral(peptide, lambda_chiral):
                                                                                     lower_main_bead_indic_2 @ higher_main_bead_indic_0 +
                                                                                     lower_main_bead_indic_0 @ higher_main_bead_indic_1 +
                                                                                     lower_main_bead_indic_1 @ higher_main_bead_indic_2))
-        H_chiral = _set_binaries(H_chiral).reduce()
+        H_chiral = _fix_qubits(H_chiral).reduce()
     return H_chiral
 
 
@@ -240,7 +211,7 @@ def _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
                                                                       pair_energies, x_dist)
                 except:
                     pass
-            H_BBBB = _set_binaries(H_BBBB).reduce()
+            H_BBBB = _fix_qubits(H_BBBB).reduce()
     return H_BBBB
 
 
@@ -316,9 +287,9 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                     H_SCBB = H_SCBB.reduce()
 
     if H_BBSC != 0 and H_BBSC is not None:
-        H_BBSC = _set_binaries(H_BBSC).reduce()
+        H_BBSC = _fix_qubits(H_BBSC).reduce()
     if H_SCBB != 0 and H_SCBB is not None:
-        H_SCBB = _set_binaries(H_SCBB).reduce()
+        H_SCBB = _fix_qubits(H_SCBB).reduce()
     return H_BBSC, H_SCBB
 
 
@@ -355,7 +326,7 @@ def _create_h_scsc(main_chain_len, side_chain, lambda_1,
                     +
                     _second_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist))
             H_SCSC = H_SCSC.reduce()
-    return _set_binaries(H_SCSC).reduce()
+    return _fix_qubits(H_SCSC).reduce()
 
 
 def _create_h_short(peptide: Peptide, pair_energies):
@@ -390,11 +361,11 @@ def _create_h_short(peptide: Peptide, pair_energies):
                                      peptide.get_main_chain[i - 1].side_chain[0])) * \
                        (pair_energies[i, 1, i + 3, 1] + 0.1 * (
                                pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
-    return _set_binaries(h_short).reduce()
+    return _fix_qubits(h_short).reduce()
 
 
 # TODO in the original code, N_contacts is always set to 0. What is the meaning of this param?
-def _create_H_contacts(peptide, lambda_contacts, N_contacts):
+def _create_H_contacts(peptide, lambda_contacts, n_contacts = 0):
     """
     To document
 
@@ -411,6 +382,6 @@ def _create_H_contacts(peptide, lambda_contacts, N_contacts):
     h_contacts = 0
     for el in new_qubits[-n_contact:]:
         h_contacts += (lambda_contacts * (
-                el - N_contacts * (full_id ^ full_id)) ** 2)
-    h_contacts = _set_binaries(h_contacts).reduce()
+                el - n_contacts * (full_id ^ full_id)) ** 2)
+    h_contacts = _fix_qubits(h_contacts).reduce()
     return h_contacts
