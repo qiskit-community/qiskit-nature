@@ -9,6 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import List
+
 from qiskit.opflow import OperatorBase
 
 from problems.sampling.protein_folding.builders.contact_qubits_builder import _first_neighbor, \
@@ -28,9 +30,9 @@ def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back,
     main_chain_len = len(peptide.get_main_chain)
 
     if len(side_chain) != main_chain_len:
-        raise Exception('size the side_chain is not equal to N')
+        raise Exception('Size of the side_chain is not equal to N.')
     if side_chain[0] == 1 or side_chain[-1] == 1 or side_chain[1] == 1:
-        raise Exception('please add extra bead instead of side chain on terminal bead')
+        raise Exception('Please add extra bead instead of side chain on a terminal bead.')
 
     delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
     delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
@@ -61,16 +63,16 @@ def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back,
     return h_tot
 
 
-def _check_turns(lower_bead: BaseBead, higher_bead: BaseBead) -> OperatorBase:
+def _check_turns(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
     lower_bead_indic_0, lower_bead_indic_1, lower_bead_indic_2, lower_bead_indic_3 = \
         lower_bead.get_indicator_functions()
 
-    higher_bead_indic_0, higher_bead_indic_1, higher_bead_indic_2, higher_bead_indic_3 = \
-        higher_bead.get_indicator_functions()
+    upper_bead_indic_0, upper_bead_indic_1, upper_bead_indic_2, upper_bead_indic_3 = \
+        upper_bead.get_indicator_functions()
 
     t_ij = _fix_qubits(
-        lower_bead_indic_0 @ higher_bead_indic_0 + lower_bead_indic_1 @ higher_bead_indic_1 + \
-        lower_bead_indic_2 @ higher_bead_indic_2 + lower_bead_indic_3 @ higher_bead_indic_3)
+        lower_bead_indic_0 @ upper_bead_indic_0 + lower_bead_indic_1 @ upper_bead_indic_1 + \
+        lower_bead_indic_2 @ upper_bead_indic_2 + lower_bead_indic_3 @ upper_bead_indic_3)
     return t_ij
 
 
@@ -111,12 +113,12 @@ def _create_h_chiral(peptide, lambda_chiral):
     h_chiral = 0
     full_id = _build_full_identity(2 * 2 * (main_chain_len - 1))
     for i in range(1, len(main_chain) + 1):
-        higher_main_bead = main_chain[i - 1]
+        upper_main_bead = main_chain[i - 1]
 
-        if higher_main_bead.side_chain is None:
+        if upper_main_bead.side_chain is None:
             continue
 
-        higher_side_bead = higher_main_bead.side_chain[0]
+        upper_side_bead = upper_main_bead.side_chain[0]
 
         lower_main_bead = main_chain[i - 2]
 
@@ -124,42 +126,42 @@ def _create_h_chiral(peptide, lambda_chiral):
         lower_main_bead_indic_3 = \
             lower_main_bead.get_indicator_functions()
 
-        higher_main_bead_indic_0, higher_main_bead_indic_1, higher_main_bead_indic_2, \
-        higher_main_bead_indic_3 = \
-            higher_main_bead.get_indicator_functions()
-        higher_side_bead_indic_0, higher_side_bead_indic_1, higher_side_bead_indic_2, \
-        higher_side_bead_indic_3 = \
-            higher_side_bead.get_indicator_functions()
+        upper_main_bead_indic_0, upper_main_bead_indic_1, upper_main_bead_indic_2, \
+        upper_main_bead_indic_3 = \
+            upper_main_bead.get_indicator_functions()
+        upper_side_bead_indic_0, upper_side_bead_indic_1, upper_side_bead_indic_2, \
+        upper_side_bead_indic_3 = \
+            upper_side_bead.get_indicator_functions()
 
         si = int((1 - (-1) ** i) / 2)
-        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_0) @ ((1 - si) * (
-                lower_main_bead_indic_1 @ higher_main_bead_indic_2 + lower_main_bead_indic_2 @
-                higher_main_bead_indic_3 +
-                lower_main_bead_indic_3 @ higher_main_bead_indic_1) + si * (
-                                                                                    lower_main_bead_indic_2 @ higher_main_bead_indic_1 +
-                                                                                    lower_main_bead_indic_3 @ higher_main_bead_indic_2 +
-                                                                                    lower_main_bead_indic_1 @ higher_main_bead_indic_3))
-        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_1) @ ((1 - si) * (
-                lower_main_bead_indic_0 @ higher_main_bead_indic_3 + lower_main_bead_indic_2 @
-                higher_main_bead_indic_0 +
-                lower_main_bead_indic_3 @ higher_main_bead_indic_2) + si * (
-                                                                                    lower_main_bead_indic_3 @ higher_main_bead_indic_0 +
-                                                                                    lower_main_bead_indic_0 @ higher_main_bead_indic_2 +
-                                                                                    lower_main_bead_indic_2 @ higher_main_bead_indic_3))
-        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_2) @ ((1 - si) * (
-                lower_main_bead_indic_0 @ higher_main_bead_indic_1 + lower_main_bead_indic_1 @
-                higher_main_bead_indic_3 +
-                lower_main_bead_indic_3 @ higher_main_bead_indic_0) + si * (
-                                                                                    lower_main_bead_indic_1 @ higher_main_bead_indic_0 +
-                                                                                    lower_main_bead_indic_3 @ higher_main_bead_indic_1 +
-                                                                                    lower_main_bead_indic_0 @ higher_main_bead_indic_3))
-        h_chiral += lambda_chiral * (full_id - higher_side_bead_indic_3) @ ((1 - si) * (
-                lower_main_bead_indic_0 @ higher_main_bead_indic_2 + lower_main_bead_indic_1 @
-                higher_main_bead_indic_0 +
-                lower_main_bead_indic_2 @ higher_main_bead_indic_1) + si * (
-                                                                                    lower_main_bead_indic_2 @ higher_main_bead_indic_0 +
-                                                                                    lower_main_bead_indic_0 @ higher_main_bead_indic_1 +
-                                                                                    lower_main_bead_indic_1 @ higher_main_bead_indic_2))
+        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_0) @ ((1 - si) * (
+                lower_main_bead_indic_1 @ upper_main_bead_indic_2 + lower_main_bead_indic_2 @
+                upper_main_bead_indic_3 +
+                lower_main_bead_indic_3 @ upper_main_bead_indic_1) + si * (
+                                                                                   lower_main_bead_indic_2 @ upper_main_bead_indic_1 +
+                                                                                   lower_main_bead_indic_3 @ upper_main_bead_indic_2 +
+                                                                                   lower_main_bead_indic_1 @ upper_main_bead_indic_3))
+        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_1) @ ((1 - si) * (
+                lower_main_bead_indic_0 @ upper_main_bead_indic_3 + lower_main_bead_indic_2 @
+                upper_main_bead_indic_0 +
+                lower_main_bead_indic_3 @ upper_main_bead_indic_2) + si * (
+                                                                                   lower_main_bead_indic_3 @ upper_main_bead_indic_0 +
+                                                                                   lower_main_bead_indic_0 @ upper_main_bead_indic_2 +
+                                                                                   lower_main_bead_indic_2 @ upper_main_bead_indic_3))
+        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_2) @ ((1 - si) * (
+                lower_main_bead_indic_0 @ upper_main_bead_indic_1 + lower_main_bead_indic_1 @
+                upper_main_bead_indic_3 +
+                lower_main_bead_indic_3 @ upper_main_bead_indic_0) + si * (
+                                                                                   lower_main_bead_indic_1 @ upper_main_bead_indic_0 +
+                                                                                   lower_main_bead_indic_3 @ upper_main_bead_indic_1 +
+                                                                                   lower_main_bead_indic_0 @ upper_main_bead_indic_3))
+        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_3) @ ((1 - si) * (
+                lower_main_bead_indic_0 @ upper_main_bead_indic_2 + lower_main_bead_indic_1 @
+                upper_main_bead_indic_0 +
+                lower_main_bead_indic_2 @ upper_main_bead_indic_1) + si * (
+                                                                                   lower_main_bead_indic_2 @ upper_main_bead_indic_0 +
+                                                                                   lower_main_bead_indic_0 @ upper_main_bead_indic_1 +
+                                                                                   lower_main_bead_indic_1 @ upper_main_bead_indic_2))
         h_chiral = _fix_qubits(h_chiral).reduce()
     return h_chiral
 
@@ -189,22 +191,41 @@ def _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
             if (j - i) % 2 == 0:
                 continue
             else:
-                H_BBBB += contact_map.lower_main_upper_main[i][j] @ _first_neighbor(i, 0, j, 0, lambda_1,pair_energies,x_dist)
+                H_BBBB += contact_map.lower_main_upper_main[i][j] @ _first_neighbor(i, 0, j, 0,
+                                                                                    lambda_1,
+                                                                                    pair_energies,
+                                                                                    x_dist)
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i - 1, 0, j, 0, lambda_1,pair_energies, x_dist)
-                except:
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i - 1, 0,
+                                                                                         j, 0,
+                                                                                         lambda_1,
+                                                                                         pair_energies,
+                                                                                         x_dist)
+                except (IndexError, KeyError):
                     pass
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i + 1, 0, j, 0, lambda_1,pair_energies, x_dist)
-                except:
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i + 1, 0,
+                                                                                         j, 0,
+                                                                                         lambda_1,
+                                                                                         pair_energies,
+                                                                                         x_dist)
+                except (IndexError, KeyError):
                     pass
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i, 0, j - 1, 0, lambda_1,pair_energies, x_dist)
-                except:
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i, 0,
+                                                                                         j - 1, 0,
+                                                                                         lambda_1,
+                                                                                         pair_energies,
+                                                                                         x_dist)
+                except (IndexError, KeyError):
                     pass
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i, 0, j + 1, 0, lambda_1,pair_energies, x_dist)
-                except:
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i, 0,
+                                                                                         j + 1, 0,
+                                                                                         lambda_1,
+                                                                                         pair_energies,
+                                                                                         x_dist)
+                except (IndexError, KeyError):
                     pass
             H_BBBB = _fix_qubits(H_BBBB).reduce()
     return H_BBBB
@@ -245,19 +266,30 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                             _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _first_neighbor(i, 1, j, 1, lambda_1,
-                                                                             pair_energies, x_dist))
-                    except:
+                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _first_neighbor(i, 1,
+                                                                                             j, 1,
+                                                                                             lambda_1,
+                                                                                             pair_energies,
+                                                                                             x_dist))
+                    except (IndexError, KeyError):
                         pass
                     try:
-                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i + 1, 0, j, 1, lambda_1,
-                                                                              pair_energies, x_dist))
-                    except:
+                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i + 1,
+                                                                                              0, j,
+                                                                                              1,
+                                                                                              lambda_1,
+                                                                                              pair_energies,
+                                                                                              x_dist))
+                    except (IndexError, KeyError):
                         pass
                     try:
-                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i - 1, 0, j, 1, lambda_1,
-                                                                              pair_energies, x_dist))
-                    except:
+                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i - 1,
+                                                                                              0, j,
+                                                                                              1,
+                                                                                              lambda_1,
+                                                                                              pair_energies,
+                                                                                              x_dist))
+                    except (IndexError, KeyError):
                         pass
                     H_BBSC = H_BBSC.reduce()
                 if side_chain[i - 1] == 1:
@@ -265,16 +297,30 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                             _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1, j, 1, lambda_1,pair_energies, x_dist))
-                    except:
+                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
+                                                                                              j, 1,
+                                                                                              lambda_1,
+                                                                                              pair_energies,
+                                                                                              x_dist))
+                    except (IndexError, KeyError):
                         pass
                     try:
-                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1, j + 1, 0, lambda_1,pair_energies, x_dist))
-                    except:
+                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
+                                                                                              j + 1,
+                                                                                              0,
+                                                                                              lambda_1,
+                                                                                              pair_energies,
+                                                                                              x_dist))
+                    except (IndexError, KeyError):
                         pass
                     try:
-                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1, j - 1, 0, lambda_1,pair_energies, x_dist))
-                    except:
+                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
+                                                                                              j - 1,
+                                                                                              0,
+                                                                                              lambda_1,
+                                                                                              pair_energies,
+                                                                                              x_dist))
+                    except (IndexError, KeyError):
                         pass
                     H_SCBB = H_SCBB.reduce()
 
@@ -285,7 +331,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
     return H_BBSC, H_SCBB
 
 
-def _create_h_scsc(main_chain_len, side_chain, lambda_1,
+def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
                    pair_energies, x_dist, contact_map: ContactMap):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
@@ -356,7 +402,7 @@ def _create_h_short(peptide: Peptide, pair_energies):
     return _fix_qubits(h_short).reduce()
 
 
-# TODO in the original code, N_contacts is always set to 0. What is the meaning of this param?
+# TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
 def _create_H_contacts(peptide, contact_map: ContactMap, lambda_contacts, n_contacts=0):
     """
     To document
@@ -366,13 +412,11 @@ def _create_H_contacts(peptide, contact_map: ContactMap, lambda_contacts, n_cont
     energy of contacts that are present in system (energy shift)
 
     """
-    _,_,_,_, n_contact = _create_contact_qubits(peptide)
     new_qubits = contact_map.create_peptide_qubit_list()
-    print(len(new_qubits))
     main_chain_len = len(peptide.get_main_chain)
     full_id = _build_full_identity(2 * (main_chain_len - 1))
     h_contacts = 0
-    for el in new_qubits[-n_contact:]:
+    for el in new_qubits[-contact_map.r_contact:]:
         h_contacts += el
     h_contacts -= n_contacts * (full_id ^ full_id)
     h_contacts = h_contacts ** 2

@@ -59,11 +59,6 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
         lower_side_upper_side, r_contact = contact_qubits_builder._create_contact_qubits(peptide)
 
-        print(lower_main_upper_main[1][6])
-        print(lower_side_upper_main[1][5])
-        print(lower_main_upper_side)
-        print(lower_side_upper_side)
-
         assert lower_main_upper_main == {1: {6: 0.5 * (
                     I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
                     I) - 0.5 * (
@@ -94,9 +89,36 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         lower_side_upper_side, r_contact = contact_qubits_builder._create_contact_qubits(peptide)
 
         print(lower_main_upper_main[1][6])
+        print("########")
+        print(lower_main_upper_main[2][7])
+        print("########")
         print(lower_side_upper_main[1][5])
-        print(lower_main_upper_side)
-        print(lower_side_upper_side)
+        print("########")
+        print(lower_side_upper_main[2][6])
+        print("########")
+        print(lower_main_upper_side[3][7])
+        print("########")
+        print(lower_side_upper_side[3][6])
+        print("########")
+
+        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
+        # - 0.5 * IIIIIIIIIIIIIIIIIIZIIIIZ
+        # ########
+        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
+        # - 0.5 * IIIIIIIIIIIIIIIIIZIIIIZI
+        # ########
+        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
+        # - 0.5 * IIIIIIIZIIIIIIIIIIIIIIIZ
+        # ########
+        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
+        # - 0.5 * IIIIIIZIIIIIIIIIIIIIIIZI
+        # ########
+        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
+        # - 0.5 * IIIIIIIIIZIIIIIIIZIIIIII
+        # ########
+        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
+        # - 0.5 * IIIIIIZIIZIIIIIIIIIIIIII
+        # ########
 
         # assert pauli_contacts == {1: {
         #     0: {4: {}, 5: {1: PauliOp(Pauli('IIIIIIIZIIIIIIIIIIIIIIIZ'), coeff=1.0)},

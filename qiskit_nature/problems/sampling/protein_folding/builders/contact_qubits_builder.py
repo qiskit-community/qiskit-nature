@@ -16,8 +16,6 @@ from qiskit.opflow import PauliSumOp
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_pauli_z_op, \
     _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide
-
-# TODO refactor data structures and try clauses
 from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 
 
@@ -34,7 +32,7 @@ def _create_contact_qubits(peptide: Peptide):
                                     of Pauli operators for contacts/
                                     interactions and number of qubits/
                                     contacts
-       pauli_contacts[i][p][j][s]
+       pauli_contacts[lower_bead_id][p][upper_bead_id][s]
     """
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
@@ -47,33 +45,41 @@ def _create_contact_qubits(peptide: Peptide):
     r_contact = 0
     num_qubits = 2 * (main_chain_len - 1)
     full_id = _build_full_identity(num_qubits)
-    for i in range(1, main_chain_len - 3):  # first qubit is number 1
-        for j in range(i + 3, main_chain_len + 1):
-            if (j - i) % 2:
-                if (j - i) >= 5:
-                    lower_main_upper_main[i][j] = _convert_to_qubits(main_chain_len, (
-                            full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1])))
-                    print('possible contact between', i, '0 and', j, '0')
+    for lower_bead_id in range(1, main_chain_len - 3):  # first qubit is number 1
+        for upper_bead_id in range(lower_bead_id + 3, main_chain_len + 1):
+            if (upper_bead_id - lower_bead_id) % 2:
+                if (upper_bead_id - lower_bead_id) >= 5:
+                    lower_main_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
+                        main_chain_len, (
+                                full_id ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1,
+                                                                         upper_bead_id - 1])))
+                    print('possible contact between', lower_bead_id, '0 and', upper_bead_id, '0')
                     r_contact += 1
-                if side_chain[i - 1] and side_chain[j - 1]:
-                    lower_side_upper_side[i][j] = _convert_to_qubits(main_chain_len, (
-                            _build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id))
-                    print('possible contact between', i, '1 and', j, '1')
+                if side_chain[lower_bead_id - 1] and side_chain[upper_bead_id - 1]:
+                    lower_side_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
+                        main_chain_len, (
+                                _build_pauli_z_op(num_qubits, [lower_bead_id - 1,
+                                                               upper_bead_id - 1]) ^ full_id))
+                    print('possible contact between', lower_bead_id, '1 and', upper_bead_id, '1')
                     r_contact += 1
             else:
-                if (j - i) >= 4:
-                    if side_chain[j - 1]:
-                        print('possible contact between', i, '0 and', j, '1')
-                        b = full_id ^ _build_pauli_z_op(num_qubits, [i - 1])
-                        d = _build_pauli_z_op(num_qubits, [j - 1]) ^ full_id
-                        lower_side_upper_main[i][j] = _convert_to_qubits(main_chain_len, b @ d)
+                if (upper_bead_id - lower_bead_id) >= 4:
+                    if side_chain[upper_bead_id - 1]:
+                        print('possible contact between', lower_bead_id, '0 and', upper_bead_id,
+                              '1')
+                        main_op = full_id ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1])
+                        side_op = _build_pauli_z_op(num_qubits, [upper_bead_id - 1]) ^ full_id
+                        lower_side_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
+                            main_chain_len, main_op @ side_op)
                         r_contact += 1
 
-                    if side_chain[i - 1]:
-                        print('possible contact between', i, '1 and', j, '0')
-                        b = full_id ^ _build_pauli_z_op(num_qubits, [j - 1])
-                        d = _build_pauli_z_op(num_qubits, [i - 1]) ^ full_id
-                        lower_main_upper_side[i][j] = _convert_to_qubits(main_chain_len, (d @ b))
+                    if side_chain[lower_bead_id - 1]:
+                        print('possible contact between', lower_bead_id, '1 and', upper_bead_id,
+                              '0')
+                        main_op = full_id ^ _build_pauli_z_op(num_qubits, [upper_bead_id - 1])
+                        side_op = _build_pauli_z_op(num_qubits, [lower_bead_id - 1]) ^ full_id
+                        lower_main_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
+                            main_chain_len, (side_op @ main_op))
                         r_contact += 1
     print('number of qubits required for contact : ', r_contact)
     return lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
@@ -87,10 +93,8 @@ def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp):
 
 
 # gathers qubits from conformation and qubits from NN intraction
-
-
 def _first_neighbor(i: int, p: int, j: int, s: int,
-                    lambda_1, pair_energies,
+                    lambda_1: float, pair_energies,
                     x_dist, pair_energies_multiplier: float = 0.1):
     """
     Creates first nearest neighbor interaction if beads are in contact
@@ -123,7 +127,7 @@ def _first_neighbor(i: int, p: int, j: int, s: int,
 
 
 def _second_neighbor(i: int, p: int, j: int, s: int,
-                     lambda_1, pair_energies,
+                     lambda_1: float, pair_energies,
                      x_dist, pair_energies_multiplier: float = 0.1):
     """
     Creates energetic interaction that penalizes local overlap between
