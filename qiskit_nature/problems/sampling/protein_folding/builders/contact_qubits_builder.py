@@ -9,20 +9,19 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-import numpy as np
+import collections
+
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info import SparsePauliOp, PauliTable
 
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_pauli_z_op, \
     _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
-
 # TODO refactor data structures and try clauses
 from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 
 
-def _create_pauli_for_contacts(peptide: Peptide):
+def _create_contact_qubits(peptide: Peptide):
     """
     Creates Pauli operators for 1st nearest neighbor interactions
 
@@ -39,7 +38,11 @@ def _create_pauli_for_contacts(peptide: Peptide):
     """
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
-    pauli_contacts = _init_contacts_dict(main_chain_len)
+
+    lower_main_upper_main = collections.defaultdict(dict)
+    lower_side_upper_main = collections.defaultdict(dict)
+    lower_main_upper_side = collections.defaultdict(dict)
+    lower_side_upper_side = collections.defaultdict(dict)
 
     r_contact = 0
     num_qubits = 2 * (main_chain_len - 1)
@@ -48,13 +51,13 @@ def _create_pauli_for_contacts(peptide: Peptide):
         for j in range(i + 3, main_chain_len + 1):
             if (j - i) % 2:
                 if (j - i) >= 5:
-                    pauli_contacts[i][0][j][0] = (
-                            full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1]))
+                    lower_main_upper_main[i][j] = _convert_to_qubits(main_chain_len, (
+                            full_id ^ _build_pauli_z_op(num_qubits, [i - 1, j - 1])))
                     print('possible contact between', i, '0 and', j, '0')
                     r_contact += 1
                 if side_chain[i - 1] and side_chain[j - 1]:
-                    pauli_contacts[i][1][j][1] = (
-                            _build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id)
+                    lower_side_upper_side[i][j] = _convert_to_qubits(main_chain_len, (
+                            _build_pauli_z_op(num_qubits, [i - 1, j - 1]) ^ full_id))
                     print('possible contact between', i, '1 and', j, '1')
                     r_contact += 1
             else:
@@ -63,105 +66,27 @@ def _create_pauli_for_contacts(peptide: Peptide):
                         print('possible contact between', i, '0 and', j, '1')
                         b = full_id ^ _build_pauli_z_op(num_qubits, [i - 1])
                         d = _build_pauli_z_op(num_qubits, [j - 1]) ^ full_id
-                        pauli_contacts[i][0][j][1] = (b @ d)
+                        lower_side_upper_main[i][j] = _convert_to_qubits(main_chain_len, b @ d)
                         r_contact += 1
 
                     if side_chain[i - 1]:
                         print('possible contact between', i, '1 and', j, '0')
                         b = full_id ^ _build_pauli_z_op(num_qubits, [j - 1])
                         d = _build_pauli_z_op(num_qubits, [i - 1]) ^ full_id
-                        pauli_contacts[i][1][j][0] = (d @ b)
+                        lower_main_upper_side[i][j] = _convert_to_qubits(main_chain_len, (d @ b))
                         r_contact += 1
     print('number of qubits required for contact : ', r_contact)
-    return pauli_contacts, r_contact
+    return lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
+           lower_side_upper_side, r_contact
 
 
-def _create_contact_qubits(main_chain_len, pauli_contacts):
-    """
-    Creates contact qubits to track 1st nearest
-    neighbor interactions
-
-    Args:
-        main_chain_len: Number of total beads in peptide
-        pauli_contacts: Dictionary of Pauli operators to track
-                        contacts/interactions between beads
-
-    Returns:
-        contacts: Dictionary of contact qubits in symbolic notation
-    """
-    contacts = _init_contacts_dict(main_chain_len)
+def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp):
     num_qubits_num = 2 * (main_chain_len - 1)
     full_id = _build_full_identity(num_qubits_num)
-    for i in range(1, main_chain_len - 3):  # first qubits is number 1
-        for j in range(i + 4, main_chain_len + 1):
-            for p in range(2):
-                for s in range(2):
-                    try:
-                        contacts[i][p][j][s] = ((full_id ^ full_id) - pauli_contacts[i][p][j][
-                            s]) / 2
-                    except KeyError:
-                        pass
-    return contacts
-
-
-def _init_contacts_dict(main_chain_len):
-    pauli_contacts = dict()
-    for i in range(1, main_chain_len - 3):
-        pauli_contacts[i] = dict()
-        pauli_contacts[i][0] = dict()
-        pauli_contacts[i][1] = dict()
-        for j in range(i + 3, main_chain_len + 1):
-            pauli_contacts[i][0][j] = dict()
-            pauli_contacts[i][1][j] = dict()
-    return pauli_contacts
+    return ((full_id ^ full_id) - pauli_sum_op) / 2
 
 
 # gathers qubits from conformation and qubits from NN intraction
-def _create_new_qubit_list(peptide: Peptide, pauli_contacts):
-    """
-    Creates new set of contact qubits for second nearest neighbour
-    interactions. Note, the need of multiple interaction qubits
-    for each i,j pair.
-
-    Args:
-        main_chain_len: Number of total beads in peptide
-        side_chain: List of side chains in peptide
-        pauli_conf: Dictionary of Pauli operators to track conformation
-        pauli_contacts: Dictionary of Pauli operators to track contacts between beads
-
-    Returns:
-        new_qubits: Dictionary of qubits in symbolic notation
-    """
-    main_chain_len = len(peptide.get_main_chain)
-    side_chain = peptide.get_side_chain_hot_vector()
-    old_qubits_conf = []
-    old_qubits_contact = []
-    num_qubits = 2 * (main_chain_len - 1)
-    full_id = _build_full_identity(num_qubits)
-    for q in range(3, main_chain_len):
-        if q != 3:
-            old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[0])
-            old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[1])
-        else:
-            old_qubits_conf.append(full_id ^ peptide.get_main_chain[q - 1].turn_qubits[0])
-        if side_chain[q - 1]:
-            old_qubits_conf.append(
-                peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0] ^ full_id)
-            old_qubits_conf.append(
-                peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[1] ^ full_id)
-
-    for i in range(1, main_chain_len - 3):
-        for j in range(i + 4, main_chain_len + 1):
-            for p in range(2):
-                for s in range(2):
-                    try:
-                        old_qubits_contact.append(
-                            0.5 * ((full_id ^ full_id) - pauli_contacts[i][p][j][s]))
-                    except KeyError:
-                        pass
-
-    new_qubits = [0] + old_qubits_conf + old_qubits_contact
-    return new_qubits
 
 
 def _first_neighbor(i: int, p: int, j: int, s: int,
@@ -224,5 +149,5 @@ def _second_neighbor(i: int, p: int, j: int, s: int,
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
     expr = lambda_1 * (2 * (_build_full_identity(
-        x.num_qubits)) - x) #+ pair_energies_multiplier * e * _build_full_identity(x.num_qubits)
+        x.num_qubits)) - x)  # + pair_energies_multiplier * e * _build_full_identity(x.num_qubits)
     return _fix_qubits(expr).reduce()

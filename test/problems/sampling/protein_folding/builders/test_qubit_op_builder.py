@@ -11,15 +11,9 @@
 # that they have been altered from the originals.
 from qiskit.opflow import PauliOp, I, Z
 
-from problems import LatticeFoldingProblem
-from problems.sampling.folding import folding_qubit_op_builder
-from problems.sampling.folding.folding_qubit_op_builder import _create_pauli_for_conf, \
-    _create_indic_turn, _create_delta_BB, _add_delta_SC, _create_qubits_for_conf, _create_x_dist, \
-    _create_pauli_for_contacts, _create_H_short, _create_new_qubit_list, _create_contact_qubits
-from problems.sampling.protein_folding.builders import contact_qubits_builder
 from problems.sampling.protein_folding.builders.qubit_op_builder import _create_h_back, \
-    _create_h_chiral, _create_h_bbbb, _create_h_bbsc_and_h_scbb, _create_h_scsc, _create_h_short, \
-    _create_H_contacts
+    _create_h_chiral, _create_h_bbbb, _create_h_bbsc_and_h_scbb, _create_h_scsc, _create_H_contacts
+from problems.sampling.protein_folding.contact_map import ContactMap
 from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
     _add_distances_side_chain, _calc_total_distances
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
@@ -228,10 +222,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                                                                            delta_n3)
         x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
                                        delta_n2, delta_n3)
-        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
-        contacts = contact_qubits_builder._create_contact_qubits(main_chain_len, pauli_contacts)
+        contact_map = ContactMap(peptide)
         h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
-                                x_dist, contacts)
+                                x_dist, contact_map)
         expected = 4342.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
@@ -583,12 +576,11 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
                                        delta_n2, delta_n3)
 
-        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
-        contacts = contact_qubits_builder._create_contact_qubits(main_chain_len, pauli_contacts)
+        contact_map = ContactMap(peptide)
 
         H_BBSC, H_SCBB = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                                                    pair_energies, x_dist,
-                                                   contacts)
+                                                   contact_map)
         assert H_BBSC == 580.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I) + 165.0 * (
@@ -859,12 +851,11 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
                                        delta_n2, delta_n3)
 
-        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
-        contacts = contact_qubits_builder._create_contact_qubits(main_chain_len, pauli_contacts)
+        contact_map = ContactMap(peptide)
 
         H_BBSC, H_SCBB = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                                                    pair_energies, x_dist,
-                                                   contacts)
+                                                   contact_map)
         assert H_BBSC == 767.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
                 I) - 257.5 * (
@@ -963,10 +954,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                                                                            delta_n3)
         x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
                                        delta_n2, delta_n3)
-        pauli_contacts, r_contact = contact_qubits_builder._create_pauli_for_contacts(peptide)
-        contacts = contact_qubits_builder._create_contact_qubits(main_chain_len, pauli_contacts)
+        contact_map = ContactMap(peptide)
         H_SCSC = _create_h_scsc(main_chain_len, side_chain, lambda_1,
-                                pair_energies, x_dist, contacts)
+                                pair_energies, x_dist, contact_map)
         assert H_SCSC == 920.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 102.5 * (
@@ -1279,7 +1269,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                           side_chain_residue_sequences)
 
         N_contacts = 0
-        h_contacts = _create_H_contacts(peptide, lambda_contacts, N_contacts)
+        contact_map = ContactMap(peptide)
+        h_contacts = _create_H_contacts(peptide, contact_map, lambda_contacts, N_contacts)
+        print(h_contacts)
         assert h_contacts == 280.0 * (
                     I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                     ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (
