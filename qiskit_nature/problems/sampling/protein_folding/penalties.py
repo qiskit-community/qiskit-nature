@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 class Penalties:
-    def __init__(self, lambda_chiral, lambda_back, lambda_1, lambda_contacts):
+    def __init__(self, lambda_chiral: float, lambda_back: float, lambda_1: float, lambda_contacts: float):
         self._lambda_chiral = lambda_chiral
         self._lambda_back = lambda_back
         self._lambda_1 = lambda_1

@@ -12,7 +12,9 @@
 from qiskit.opflow import PauliOp, I, Z
 
 from problems.sampling.protein_folding.builders.qubit_op_builder import _create_h_back, \
-    _create_h_chiral, _create_h_bbbb, _create_h_bbsc_and_h_scbb, _create_h_scsc, _create_H_contacts
+    _create_h_chiral, _create_h_bbbb, _create_h_bbsc_and_h_scbb, _create_h_scsc, \
+    _create_H_contacts, \
+    _build_qubit_op
 from problems.sampling.protein_folding.contact_map import ContactMap
 from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
     _add_distances_side_chain, _calc_total_distances
@@ -30,6 +32,25 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
 
         """
         pass
+
+    def test_build_qubit_op(self):
+        n_contacts = 0
+        lambda_back = 10
+        lambda_chiral = 10
+        lambda_1 = 10
+        lambda_contacts = 10
+        main_chain_residue_seq = "SAASSASAA"
+        main_chain_len = 9
+        side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", None]
+
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
+                          side_chain_residue_sequences)
+        mj = MiyazawaJerniganInteraction()
+        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        qubit_op = _build_qubit_op(peptide, pair_energies, lambda_chiral, lambda_back, lambda_1,
+                                   lambda_contacts, n_contacts)
+        print(qubit_op)
 
     def test_create_h_back(self):
         """
@@ -1273,42 +1294,47 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         h_contacts = _create_H_contacts(peptide, contact_map, lambda_contacts, N_contacts)
         print(h_contacts)
         assert h_contacts == 280.0 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                    ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 100.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 50.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 100.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 20.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 50.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 5.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 5.0 * (
-                           Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 100.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 50.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 100.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 20.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 50.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 5.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 5.0 * (
+                       Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 5.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 10.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 10.0 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)

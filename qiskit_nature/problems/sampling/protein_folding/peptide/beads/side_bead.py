@@ -22,14 +22,14 @@ class SideBead(BaseBead):
     def __init__(self, residue_type: str, turn_qubits: List[PauliOp]):
         super().__init__(residue_type, turn_qubits)
         if self._residue_type is not None and self.turn_qubits is not None:
-            FULL_ID = _build_full_identity(turn_qubits[0].num_qubits)
+            full_id = _build_full_identity(turn_qubits[0].num_qubits)
             self._indic_0 = (
-                    (FULL_ID - self._turn_qubits[0]) @ (
-                        FULL_ID - self._turn_qubits[1]) ^ FULL_ID).reduce()
+                    (full_id - self._turn_qubits[0]) @ (
+                        full_id - self._turn_qubits[1]) ^ full_id).reduce()
             self._indic_1 = (
                     self._turn_qubits[1] @ (
-                    self._turn_qubits[1] - 1 * self._turn_qubits[0]) ^ FULL_ID).reduce()
+                    self._turn_qubits[1] - 1 * self._turn_qubits[0]) ^ full_id).reduce()
             self._indic_2 = (
                     self._turn_qubits[0] @ (
-                    self._turn_qubits[0] - 1 * self._turn_qubits[1]) ^ FULL_ID).reduce()
-            self._indic_3 = (self._turn_qubits[0] @ self._turn_qubits[1] ^ FULL_ID).reduce()
+                    self._turn_qubits[0] - 1 * self._turn_qubits[1]) ^ full_id).reduce()
+            self._indic_3 = (self._turn_qubits[0] @ self._turn_qubits[1] ^ full_id).reduce()

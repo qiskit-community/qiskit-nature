@@ -16,6 +16,7 @@ from qiskit.opflow import PauliOp, OperatorBase
 
 from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
     InvalidResidueException
+from problems.sampling.protein_folding.residue_validator import _validate_residue_symbol
 
 
 class BaseBead(ABC):
@@ -23,11 +24,7 @@ class BaseBead(ABC):
     def __init__(self, residue_type: str, turn_qubits: List[PauliOp]):
 
         self._residue_type = residue_type
-        if residue_type is not None and not self._is_valid_residue():
-            raise InvalidResidueException(
-                f"Provided residue type {residue_type} is not valid. Valid residue types are [C, "
-                f"M, F, I, L, V, W, Y, A, G, T, S, N, Q, D, E, H, R, K, P].")
-
+        _validate_residue_symbol(residue_type)
         self._turn_qubits = turn_qubits
 
     @property
@@ -44,8 +41,3 @@ class BaseBead(ABC):
         if self.turn_qubits is None:
             return None
         return self._indic_0, self._indic_1, self._indic_2, self._indic_3
-
-    def _is_valid_residue(self):
-        valid_residues = ['C', 'M', 'F', 'I', 'L', 'V', 'W', 'Y', 'A', 'G', 'T', 'S', 'N', 'Q', 'D',
-                          'E', 'H', 'R', 'K', 'P']
-        return self._residue_type in valid_residues

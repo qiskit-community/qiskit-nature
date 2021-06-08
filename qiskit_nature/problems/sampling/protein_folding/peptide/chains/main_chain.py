@@ -21,13 +21,13 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 
 class MainChain(BaseChain):
 
-    def __init__(self, main_chain_len, main_chain_residue_seq, side_chain_lens: List[int],
+    def __init__(self, main_chain_len: int, main_chain_residue_seq, side_chain_lens: List[int],
                  side_chain_residue_sequences: List[str]):
         beads_list = self._build_main_chain(main_chain_len, main_chain_residue_seq, side_chain_lens,
                                             side_chain_residue_sequences)
         super().__init__(beads_list)
 
-    def _build_main_chain(self, main_chain_len, main_chain_residue_seq, side_chain_lens,
+    def _build_main_chain(self, main_chain_len: int, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences) -> List[MainBead]:
         main_chain = []
         self._validate_chain_lengths(main_chain_len, side_chain_lens)
@@ -47,7 +47,7 @@ class MainChain(BaseChain):
         main_chain.append(main_bead)
         return main_chain
 
-    def _validate_chain_lengths(self, main_chain_len, side_chain_lens):
+    def _validate_chain_lengths(self, main_chain_len: int, side_chain_lens):
         if side_chain_lens is not None and main_chain_len != len(side_chain_lens):
             raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
 
@@ -66,7 +66,7 @@ class MainChain(BaseChain):
                 "First, second and last main beads are not allowed to have a side chain. Non-None "
                 "residue provided for an invalid side chain")
 
-    def _create_side_chain(self, main_bead_id, main_chain_len, side_chain_lens,
+    def _create_side_chain(self, main_bead_id: int, main_chain_len: int, side_chain_lens,
                            side_chain_residue_sequences):
         if self._is_side_chain_present(main_bead_id, side_chain_lens,
                                        side_chain_residue_sequences):
@@ -76,7 +76,7 @@ class MainChain(BaseChain):
             side_chain = None
         return side_chain
 
-    def _is_side_chain_present(self, main_bead_id, side_chain_lens, side_chain_residue_sequences):
+    def _is_side_chain_present(self, main_bead_id: int, side_chain_lens, side_chain_residue_sequences):
         return side_chain_lens and side_chain_lens[
             main_bead_id] != 0 and side_chain_residue_sequences and \
                side_chain_residue_sequences[main_bead_id] is not None

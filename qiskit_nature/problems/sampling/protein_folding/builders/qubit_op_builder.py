@@ -18,6 +18,9 @@ from problems.sampling.protein_folding.builders.contact_qubits_builder import _f
 from problems.sampling.protein_folding.contact_map import ContactMap
 from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
     _add_distances_side_chain, _calc_total_distances
+from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
+    InvalidSideChainException
+from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
@@ -30,9 +33,11 @@ def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back,
     main_chain_len = len(peptide.get_main_chain)
 
     if len(side_chain) != main_chain_len:
-        raise Exception('Size of the side_chain is not equal to N.')
+        raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
     if side_chain[0] == 1 or side_chain[-1] == 1 or side_chain[1] == 1:
-        raise Exception('Please add extra bead instead of side chain on a terminal bead.')
+        raise InvalidSideChainException(
+            "First, second and last main beads are not allowed to have a side chain. Non-None "
+            "residue provided for an invalid side chain")
 
     delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
     delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
@@ -43,24 +48,21 @@ def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back,
     h_chiral = _create_h_chiral(peptide, lambda_chiral)
     h_back = _create_h_back(peptide, lambda_back)
 
-    contacts, r_contact = _create_contact_qubits(peptide)
+    contact_map = ContactMap(peptide)
 
     h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
-                            pair_energies, x_dist, contacts)
-    h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies, x_dist, contacts)
+                            pair_energies, x_dist, contact_map)
+    h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies, x_dist, contact_map)
 
-    h_short = _create_h_short(peptide, lambda_1)
+    h_short = _create_h_short(peptide, pair_energies)
 
     h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
-                                               pair_energies, x_dist, contacts)
-    h_contacts = _create_H_contacts(peptide, lambda_contacts, n_contacts)
+                                               pair_energies, x_dist, contact_map)
+    h_contacts = _create_H_contacts(peptide, contact_map, lambda_contacts, n_contacts)
 
     h_tot = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
 
-    print('number of terms in the hamiltonian : ', len(h_tot.args))
-    print('Hamiltonian: ', h_tot)
-
-    return h_tot
+    return h_tot.reduce()
 
 
 def _check_turns(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:

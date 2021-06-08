@@ -25,7 +25,7 @@ class SideChain(BaseChain):
                                             side_chain_residue_sequences)
         super().__init__(beads_list)
 
-    def _build_side_chain(self, main_chain_len: int, main_bead_id, side_chain_len: int,
+    def _build_side_chain(self, main_chain_len: int, main_bead_id: int, side_chain_len: int,
                           side_chain_residue_sequences: List[str]) -> \
             Union[List[SideBead], None]:
         if side_chain_len > 1:

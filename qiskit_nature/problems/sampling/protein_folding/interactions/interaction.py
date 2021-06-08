@@ -11,23 +11,9 @@
 # that they have been altered from the originals.
 from abc import ABC, abstractmethod
 
-from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
-    InvalidResidueException
-
 
 class Interaction(ABC):
 
     @abstractmethod
-    def calc_energy_matrix(self, num_beads: int, sequence):
+    def calc_energy_matrix(self, chain_len: int, sequence):
         pass
-
-    # TODO duplicated from another class
-    @staticmethod
-    def _validate_residue(sequence):
-        valid_residues = ['C', 'M', 'F', 'I', 'L', 'V', 'W', 'Y', 'A', 'G', 'T', 'S', 'N', 'Q', 'D',
-                          'E', 'H', 'R', 'K', 'P']
-        for letter in sequence:
-            if letter not in valid_residues:
-                raise InvalidResidueException(
-                    f"Provided residue type {letter} is not valid. Valid residue types are [C, "
-                    f"M, F, I, L, V, W, Y, A, G, T, S, N, Q, D, E, H, R, K, P].")

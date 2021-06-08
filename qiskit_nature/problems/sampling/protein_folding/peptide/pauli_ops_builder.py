@@ -14,7 +14,7 @@ from typing import List
 from qiskit.opflow import PauliOp, I, Z
 
 
-def _build_full_identity(num_turn_qubits) -> PauliOp:
+def _build_full_identity(num_turn_qubits: int) -> PauliOp:
     full_identity = I
     for _ in range(1, num_turn_qubits):
         full_identity = I ^ full_identity
