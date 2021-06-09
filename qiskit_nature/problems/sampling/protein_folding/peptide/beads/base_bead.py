@@ -14,8 +14,6 @@ from typing import List, Tuple
 
 from qiskit.opflow import PauliOp, OperatorBase
 
-from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
-    InvalidResidueException
 from problems.sampling.protein_folding.residue_validator import _validate_residue_symbol
 
 

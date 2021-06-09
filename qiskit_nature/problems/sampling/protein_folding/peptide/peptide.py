@@ -9,12 +9,13 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import List
 
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.main_chain import MainChain
 
 
 class Peptide:
-    def __init__(self, main_chain_len: int, main_chain_residue_seq, side_chain_lens,
+    def __init__(self, main_chain_len: int, main_chain_residue_seq, side_chain_lens: List[int],
                  side_chain_residue_sequences):
         self._main_chain = MainChain(main_chain_len, main_chain_residue_seq, side_chain_lens,
                                      side_chain_residue_sequences)

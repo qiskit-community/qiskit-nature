@@ -84,11 +84,11 @@ class ContactMap:
         return new_qubits
 
     @staticmethod
-    def _add_qubits(main_chain_len: int, contact_qubits, contact_map):
+    def _add_qubits(main_chain_len: int, contact_qubits, contact_map_component):
         for lower_bead_id in range(1, main_chain_len - 3):
             for upper_bead_id in range(lower_bead_id + 4, main_chain_len + 1):
                 try:
-                    contact_op = contact_map[lower_bead_id][upper_bead_id]
+                    contact_op = contact_map_component[lower_bead_id][upper_bead_id]
                     contact_qubits.append(contact_op)
                 except KeyError:
                     pass

@@ -14,25 +14,15 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import PauliTable, SparsePauliOp
 
 
-def _fix_qubits(qubits):
+def _fix_qubits(qubits: PauliSumOp):
     new_tables = []
     new_coeffs = []
     for i in range(len(qubits)):
         H = qubits[i]
         table_z = np.copy(H.primitive.table.Z[0])
         table_x = np.copy(H.primitive.table.X[0])
-        # get coeffs and update
-        coeffs = np.copy(H.primitive.coeffs[0])
-        if table_z[1] == np.bool_(True):
-            coeffs = -1 * coeffs
-        if table_z[5] == np.bool_(True):
-            coeffs = -1 * coeffs
-        # impose preset binary values
-        table_z[0] = np.bool_(False)
-        table_z[1] = np.bool_(False)
-        table_z[2] = np.bool_(False)
-        table_z[3] = np.bool_(False)
-        table_z[5] = np.bool_(False)
+        coeffs = _calc_updated_coeffs(H, table_z)
+        _preset_binary_vals(table_z)
         new_table = np.concatenate((table_x, table_z), axis=0)
         new_tables.append(new_table)
         new_coeffs.append(coeffs)
@@ -40,3 +30,20 @@ def _fix_qubits(qubits):
     qubits_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
     qubits_updated = qubits_updated.reduce()
     return qubits_updated
+
+
+def _calc_updated_coeffs(h: PauliSumOp, table_z):
+    coeffs = np.copy(h.primitive.coeffs[0])
+    if table_z[1] == np.bool_(True):
+        coeffs = -1 * coeffs
+    if table_z[5] == np.bool_(True):
+        coeffs = -1 * coeffs
+    return coeffs
+
+
+def _preset_binary_vals(table_z):
+    table_z[0] = np.bool_(False)
+    table_z[1] = np.bool_(False)
+    table_z[2] = np.bool_(False)
+    table_z[3] = np.bool_(False)
+    table_z[5] = np.bool_(False)

@@ -19,7 +19,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain i
 
 class SideChain(BaseChain):
 
-    def __init__(self, main_chain_len: int, main_bead_id, side_chain_len: int,
+    def __init__(self, main_chain_len: int, main_bead_id: int, side_chain_len: int,
                  side_chain_residue_sequences: List[str]):
         beads_list = self._build_side_chain(main_chain_len, main_bead_id, side_chain_len,
                                             side_chain_residue_sequences)

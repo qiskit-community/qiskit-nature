@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import collections
+from typing import List
 
 from qiskit.opflow import PauliSumOp
 
@@ -94,7 +95,7 @@ def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp):
 
 # gathers qubits from conformation and qubits from NN intraction
 def _first_neighbor(i: int, p: int, j: int, s: int,
-                    lambda_1: float, pair_energies,
+                    lambda_1: float, pair_energies: List[List[List[List[float]]]],
                     x_dist, pair_energies_multiplier: float = 0.1):
     """
     Creates first nearest neighbor interaction if beads are in contact
@@ -127,7 +128,7 @@ def _first_neighbor(i: int, p: int, j: int, s: int,
 
 
 def _second_neighbor(i: int, p: int, j: int, s: int,
-                     lambda_1: float, pair_energies,
+                     lambda_1: float, pair_energies: List[List[List[List[float]]]],
                      x_dist, pair_energies_multiplier: float = 0.1):
     """
     Creates energetic interaction that penalizes local overlap between

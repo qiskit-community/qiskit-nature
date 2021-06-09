@@ -27,7 +27,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead imp
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
-def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back, lambda_1,
+def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]], lambda_chiral, lambda_back, lambda_1,
                     lambda_contacts, n_contacts):
     side_chain = peptide.get_side_chain_hot_vector()
     main_chain_len = len(peptide.get_main_chain)
@@ -88,7 +88,7 @@ def _create_h_back(peptide: Peptide, lambda_back):
     return h_back
 
 
-def _create_h_chiral(peptide, lambda_chiral):
+def _create_h_chiral(peptide: Peptide, lambda_chiral):
     """
     Creates a penalty/constrain term to the total Hamiltonian that imposes that all the position
     of all side chain beads impose the right chirality. Note that the position of the side chain
@@ -168,7 +168,7 @@ def _create_h_chiral(peptide, lambda_chiral):
     return h_chiral
 
 
-def _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
+def _create_h_bbbb(main_chain_len: int, lambda_1, pair_energies: List[List[List[List[float]]]],
                    x_dist, contact_map: ContactMap):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
@@ -233,8 +233,8 @@ def _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
     return H_BBBB
 
 
-def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
-                              pair_energies, x_dist,
+def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1,
+                              pair_energies: List[List[List[List[float]]]], x_dist,
                               contact_map: ContactMap):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
@@ -334,7 +334,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
 
 
 def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
-                   pair_energies, x_dist, contact_map: ContactMap):
+                   pair_energies: List[List[List[List[float]]]], x_dist, contact_map: ContactMap):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
     side chain (SC) beads. In the absence of side chains, this function
@@ -369,7 +369,7 @@ def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
     return _fix_qubits(H_SCSC).reduce()
 
 
-def _create_h_short(peptide: Peptide, pair_energies):
+def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]]]):
     """
     Creates Hamiltonian constituting interactions between beads that are no more than
     4 beads apart. If no side chains are present, this function returns 0.
@@ -405,7 +405,7 @@ def _create_h_short(peptide: Peptide, pair_energies):
 
 
 # TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
-def _create_h_contacts(peptide, contact_map: ContactMap, lambda_contacts, n_contacts=0):
+def _create_h_contacts(peptide: Peptide, contact_map: ContactMap, lambda_contacts, n_contacts=0):
     """
     To document
 

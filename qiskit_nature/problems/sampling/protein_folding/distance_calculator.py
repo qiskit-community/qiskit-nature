@@ -14,7 +14,7 @@ from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 # TODO refactor the data structure storing distances
-def _calc_total_distances(peptide, delta_n0, delta_n1,
+def _calc_total_distances(peptide: Peptide, delta_n0, delta_n1,
                           delta_n2, delta_n3):
     """
     Creates total distances between all bead pairs by summing the
@@ -103,7 +103,7 @@ def _calc_distances_main_chain(peptide: Peptide):
     return delta_n0, delta_n1, delta_n2, delta_n3
 
 
-def _init_distance_dict(main_chain_len):
+def _init_distance_dict(main_chain_len: int):
     delta_n0, delta_n1, delta_n2, delta_n3 = dict(), dict(), dict(), dict()
     for i in range(1, main_chain_len):
         delta_n0[i] = dict()
@@ -123,7 +123,7 @@ def _init_distance_dict(main_chain_len):
     return delta_n0, delta_n1, delta_n2, delta_n3
 
 
-def _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2,
+def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2,
                               delta_n3):
     """
     Calculates distances between beads located on side chains and adds the contribution to the

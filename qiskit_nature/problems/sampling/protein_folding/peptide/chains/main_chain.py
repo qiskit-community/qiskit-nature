@@ -51,7 +51,7 @@ class MainChain(BaseChain):
         if side_chain_lens is not None and main_chain_len != len(side_chain_lens):
             raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
 
-    def _validate_side_chain_index_by_lengths(self, side_chain_lens):
+    def _validate_side_chain_index_by_lengths(self, side_chain_lens: List[int]):
         if side_chain_lens is not None and (
                 side_chain_lens[0] != 0 or side_chain_lens[1] != 0 or side_chain_lens[-1] != 0):
             raise InvalidSideChainException(
@@ -66,7 +66,7 @@ class MainChain(BaseChain):
                 "First, second and last main beads are not allowed to have a side chain. Non-None "
                 "residue provided for an invalid side chain")
 
-    def _create_side_chain(self, main_bead_id: int, main_chain_len: int, side_chain_lens,
+    def _create_side_chain(self, main_bead_id: int, main_chain_len: int, side_chain_lens: List[int],
                            side_chain_residue_sequences):
         if self._is_side_chain_present(main_bead_id, side_chain_lens,
                                        side_chain_residue_sequences):
@@ -76,7 +76,7 @@ class MainChain(BaseChain):
             side_chain = None
         return side_chain
 
-    def _is_side_chain_present(self, main_bead_id: int, side_chain_lens, side_chain_residue_sequences):
+    def _is_side_chain_present(self, main_bead_id: int, side_chain_lens: List[int], side_chain_residue_sequences):
         return side_chain_lens and side_chain_lens[
             main_bead_id] != 0 and side_chain_residue_sequences and \
                side_chain_residue_sequences[main_bead_id] is not None
