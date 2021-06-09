@@ -12,7 +12,7 @@
 
 """FCIDump dumper."""
 
-from typing import List, Optional, Union, TextIO, Tuple
+from typing import List, Optional, Union, TextIO, Tuple, Iterator, Any
 import itertools
 import numpy as np
 
@@ -122,6 +122,7 @@ def _dump_2e_ints(
             continue
         bra_perms = set(itertools.permutations(elem[:2]))
         ket_perms = set(itertools.permutations(elem[2:]))
+        permutations: Iterator[Any]
         if beta == 1:
             permutations = itertools.product(bra_perms, ket_perms)
         else:
