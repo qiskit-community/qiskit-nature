@@ -15,7 +15,7 @@ sphinxcontrib-spelling
 jupyter-sphinx
 discover
 qiskit-aer
-mypy>=0.780,<0.900
+mypy>=0.780
 mypy-extensions>=0.4.3
 nbsphinx
 qiskit_sphinx_theme
