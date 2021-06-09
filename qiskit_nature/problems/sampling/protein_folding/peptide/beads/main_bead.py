@@ -25,16 +25,14 @@ class MainBead(BaseBead):
         self._side_chain = side_chain
         if self._residue_type is not None and self.turn_qubits is not None:
             full_id = _build_full_identity(turn_qubits[0].num_qubits)
-            self._indic_0 = (full_id ^
-                             (full_id - self._turn_qubits[0]) @ (
-                                         full_id - self._turn_qubits[1])).reduce()
-            self._indic_1 = (full_id ^
+            self._indic_0 = (full_id ^ ((full_id - self._turn_qubits[0]) @ (full_id - self._turn_qubits[1]))).reduce()
+            self._indic_1 = (full_id ^ (
                              self._turn_qubits[1] @ (
-                                     self._turn_qubits[1] - 1 * self._turn_qubits[0])).reduce()
-            self._indic_2 = (full_id ^
+                                     self._turn_qubits[1] - 1 * self._turn_qubits[0]))).reduce()
+            self._indic_2 = (full_id ^(
                              self._turn_qubits[0] @ (
-                                     self._turn_qubits[0] - 1 * self._turn_qubits[1])).reduce()
-            self._indic_3 = (full_id ^ self._turn_qubits[0] @ self._turn_qubits[1]).reduce()
+                                     self._turn_qubits[0] - 1 * self._turn_qubits[1]))).reduce()
+            self._indic_3 = (full_id ^ (self._turn_qubits[0] @ self._turn_qubits[1])).reduce()
 
     @property
     def side_chain(self) -> SideChain:

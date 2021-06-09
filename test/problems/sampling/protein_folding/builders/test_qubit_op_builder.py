@@ -9,12 +9,16 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from qiskit.opflow import PauliOp, I, Z
+from qiskit.opflow import I, Z
 
+from problems import LatticeFoldingProblem
+from problems.sampling.folding.folding_qubit_op_builder import _create_x_dist, _create_H_short, \
+    _create_qubits_for_conf, _create_indic_turn, _create_delta_BB, _add_delta_SC, \
+    _create_pauli_for_conf
 from problems.sampling.protein_folding.builders.qubit_op_builder import _create_h_back, \
     _create_h_chiral, _create_h_bbbb, _create_h_bbsc_and_h_scbb, _create_h_scsc, \
-    _create_H_contacts, \
-    _build_qubit_op
+    _create_h_contacts, \
+    _build_qubit_op, _create_h_short, _check_turns
 from problems.sampling.protein_folding.contact_map import ContactMap
 from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
     _add_distances_side_chain, _calc_total_distances
@@ -27,11 +31,64 @@ from test import QiskitNatureTestCase
 class TestContactQubitsBuilder(QiskitNatureTestCase):
     """Tests ContactQubitsBuilder."""
 
-    def test_check_turns(self) -> PauliOp:
+    def test_check_turns(self):
         """
+        Tests that check turns operators are generate correctly.
+        """
+        main_chain_residue_seq = "SAASSA"
+        main_chain_len = 6
+        side_chain_lens = [0, 0, 1, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", "A", None]
 
-        """
-        pass
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
+                          side_chain_residue_sequences)
+        bead_2 = peptide.get_main_chain[2]
+        bead_3 = peptide.get_main_chain[3]
+        bead_4 = peptide.get_main_chain[4]
+        side_bead_2 = bead_2.side_chain[0]
+        side_bead_3 = bead_3.side_chain[0]
+        side_bead_4 = bead_4.side_chain[0]
+
+        t_23 = _check_turns(bead_2, bead_3)
+        t_34 = _check_turns(bead_3, bead_4)
+        t_2s3 = _check_turns(side_bead_2, bead_3)
+        t_3s4s = _check_turns(side_bead_3, side_bead_4)
+        assert t_23 == 0.25 * (
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                I) - 0.25 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I) + 0.25 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I ^ I
+                       ^ I) - 0.25 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ Z ^ I ^ I ^ I
+                       ^ I)
+        assert t_34 == 0.25 * (
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                I) + 0.25 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 0.25 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 0.25 * (
+                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ Z ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I)
+        assert t_2s3 == 0.25 * (
+                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                    I) + 0.25 * (
+                           I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I) + 0.25 * (
+                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
+                           ^ I ^ I) + 0.25 * (
+                           I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+                           ^ I ^ I)
+        assert t_3s4s == 0.25 * (
+                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                    I) + 0.25 * (
+                           Z ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I) + 0.25 * (
+                           I ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I) + 0.25 * (
+                           Z ^ Z ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                           ^ I ^ I)
 
     def test_build_qubit_op(self):
         n_contacts = 0
@@ -210,7 +267,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                     ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
         assert h_chiral == expected
 
-    def test_create_H_BBBB(self):
+    def test_create_h_bbbb(self):
         """
         Creates Hamiltonian term corresponding to 1st neighbor interaction between
         main/backbone (BB) beads
@@ -558,7 +615,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                            ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
         assert h_bbbb == expected
 
-    def test_create_H_BBSC_and_H_SCBB(self):
+    def test_create_h_bbsc_and_h_scbb(self):
         """
         Creates Hamiltonian term corresponding to 1st neighbor interaction between
         main/backbone (BB) and side chain (SC) beads. In the absence
@@ -576,7 +633,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             contacts: Dictionary of contact qubits in symbolic notation
 
         Returns:
-            H_BBSC, H_SCBB: Tuple of Hamiltonian terms consisting of backbone and side chain
+            h_bbsc, h_scbb: Tuple of Hamiltonian terms consisting of backbone and side chain
             interactions
         """
 
@@ -599,10 +656,10 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
 
         contact_map = ContactMap(peptide)
 
-        H_BBSC, H_SCBB = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
+        h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                                                    pair_energies, x_dist,
                                                    contact_map)
-        assert H_BBSC == 580.0 * (
+        assert h_bbsc == 580.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I) + 165.0 * (
                        Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
@@ -707,7 +764,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                        ^ I ^ Z ^ I ^ I ^ I ^ I) + 80.0 * (
                        I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z
                        ^ I ^ Z ^ I ^ I ^ I ^ I)
-        assert H_SCBB == 515.0 * (
+        assert h_scbb == 515.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I) + 85.0 * (
                        I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
@@ -833,7 +890,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z
                        ^ I ^ Z ^ I ^ I ^ I ^ I)
 
-    def test_create_H_BBSC_and_H_SCBB_2(self):
+    def test_create_h_bbsc_and_h_scbb_2(self):
         """
         Creates Hamiltonian term corresponding to 1st neighbor interaction between
         main/backbone (BB) and side chain (SC) beads. In the absence
@@ -851,7 +908,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             contacts: Dictionary of contact qubits in symbolic notation
 
         Returns:
-            H_BBSC, H_SCBB: Tuple of Hamiltonian terms consisting of backbone and side chain
+            h_bbsc, h_scbb: Tuple of Hamiltonian terms consisting of backbone and side chain
             interactions
         """
 
@@ -874,10 +931,10 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
 
         contact_map = ContactMap(peptide)
 
-        H_BBSC, H_SCBB = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
+        h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                                                    pair_energies, x_dist,
                                                    contact_map)
-        assert H_BBSC == 767.5 * (
+        assert h_bbsc == 767.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
                 I) - 257.5 * (
                        Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
@@ -938,9 +995,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                        ^ I ^ I) - 82.5 * (
                        I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ Z ^ I ^ I
                        ^ I ^ I)
-        assert H_SCBB == 0
+        assert h_scbb == 0
 
-    def test_create_H_SCSC(self):
+    def test_create_h_scsc(self):
         """
             Creates Hamiltonian term corresponding to 1st neighbor interaction between
             side chain (SC) beads. In the absence of side chains, this function
@@ -957,7 +1014,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                 contacts: Dictionary of contact qubits in symbolic notation
 
             Returns:
-                H_SCSC: Hamiltonian term consisting of side chain pairwise interactions
+                h_scsc: Hamiltonian term consisting of side chain pairwise interactions
             """
         lambda_1 = 10
         main_chain_residue_seq = "SAASSASAA"
@@ -976,9 +1033,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
                                        delta_n2, delta_n3)
         contact_map = ContactMap(peptide)
-        H_SCSC = _create_h_scsc(main_chain_len, side_chain, lambda_1,
+        h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
                                 pair_energies, x_dist, contact_map)
-        assert H_SCSC == 920.0 * (
+        assert h_scsc == 920.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 102.5 * (
                        Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
@@ -1236,46 +1293,47 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
                        ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I)
 
-    # def test_create_h_short(self):
-    #     """
-    #         Tests that the Hamiltonian to back-overlaps is created correctly.
-    #         """
-    #     main_chain_residue_seq = 'APRLRAAA'
-    #     main_chain_len = 8
-    #     side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
-    #     side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
-    #     mj = MiyazawaJerniganInteraction()
-    #     pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
-    #     peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-    #                       side_chain_residue_sequences)
-    #     h_short = _create_h_short(peptide, pair_energies)
-    #     print(h_short)
+    def test_create_h_short(self):
+        """
+            Tests that the Hamiltonian to back-overlaps is created correctly.
+            """
+        main_chain_residue_seq = 'APRLRAAA'
+        main_chain_len = 8
+        side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
+        mj = MiyazawaJerniganInteraction()
+        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
+                          side_chain_residue_sequences)
+        h_short = _create_h_short(peptide, pair_energies).reduce()
+        print(h_short)
+
     #
-    # def test_create_h_short_old(self):
-    #     """
-    #         Tests that the Hamiltonian to back-overlaps is created correctly.
-    #         """
-    #     lf = LatticeFoldingProblem(residue_sequence="SAASSASSSS")
-    #     lf.pauli_op()
-    #     N = 10
-    #     side_chain = [0, 0, 1, 1, 0, 0, 0, 1, 1, 0]
-    #     pair_energies = lf._pair_energies
-    #
-    #     pauli_conf = _create_pauli_for_conf(N)
-    #     qubits = _create_qubits_for_conf(pauli_conf)
-    #     indic_0, indic_1, indic_2, indic_3, n_conf = _create_indic_turn(N, side_chain, qubits)
-    #     delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic_0, indic_1, indic_2,
-    #                                                               indic_3, pauli_conf)
-    #     delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
-    #                                                            delta_n3, indic_0, indic_1,
-    #                                                            indic_2,
-    #                                                            indic_3, pauli_conf)
-    #     x_dist = _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf)
-    #
-    #     h_short = _create_H_short(N, side_chain, pair_energies,
-    #                               x_dist, pauli_conf, indic_0,
-    #                               indic_1, indic_2, indic_3)
-    #     print(h_short)
+    def test_create_h_short_old(self):
+        """
+            Tests that the Hamiltonian to back-overlaps is created correctly.
+            """
+        lf = LatticeFoldingProblem(residue_sequence='APRLRAAA')
+        lf.pauli_op()
+        N = 8
+        side_chain = [0, 0, 1, 0, 0, 1, 1, 0]
+        pair_energies = lf._pair_energies
+
+        pauli_conf = _create_pauli_for_conf(N)
+        qubits = _create_qubits_for_conf(pauli_conf)
+        indic_0, indic_1, indic_2, indic_3, n_conf = _create_indic_turn(N, side_chain, qubits)
+        delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic_0, indic_1, indic_2,
+                                                                  indic_3, pauli_conf)
+        delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
+                                                               delta_n3, indic_0, indic_1,
+                                                               indic_2,
+                                                               indic_3, pauli_conf)
+        x_dist = _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf)
+
+        h_short = _create_H_short(N, side_chain, pair_energies,
+                                  x_dist, pauli_conf, indic_0,
+                                  indic_1, indic_2, indic_3)
+        print(h_short)
 
     def test_create_h_contacts(self):
         """
@@ -1291,7 +1349,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
 
         N_contacts = 0
         contact_map = ContactMap(peptide)
-        h_contacts = _create_H_contacts(peptide, contact_map, lambda_contacts, N_contacts)
+        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, N_contacts)
         print(h_contacts)
         assert h_contacts == 280.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I

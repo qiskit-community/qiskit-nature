@@ -24,12 +24,12 @@ class SideBead(BaseBead):
         if self._residue_type is not None and self.turn_qubits is not None:
             full_id = _build_full_identity(turn_qubits[0].num_qubits)
             self._indic_0 = (
-                    (full_id - self._turn_qubits[0]) @ (
-                        full_id - self._turn_qubits[1]) ^ full_id).reduce()
+                                ((full_id - self._turn_qubits[0]) @ (
+                        full_id - self._turn_qubits[1])) ^ full_id).reduce()
             self._indic_1 = (
-                    self._turn_qubits[1] @ (
-                    self._turn_qubits[1] - 1 * self._turn_qubits[0]) ^ full_id).reduce()
+                                (self._turn_qubits[1] @ (
+                    self._turn_qubits[1] - 1 * self._turn_qubits[0])) ^ full_id).reduce()
             self._indic_2 = (
-                    self._turn_qubits[0] @ (
-                    self._turn_qubits[0] - 1 * self._turn_qubits[1]) ^ full_id).reduce()
+                (self._turn_qubits[0] @ (
+                    self._turn_qubits[0] - 1 * self._turn_qubits[1])) ^ full_id).reduce()
             self._indic_3 = (self._turn_qubits[0] @ self._turn_qubits[1] ^ full_id).reduce()

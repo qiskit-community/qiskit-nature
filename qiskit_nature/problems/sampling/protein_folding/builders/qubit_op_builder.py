@@ -58,7 +58,7 @@ def _build_qubit_op(peptide: Peptide, pair_energies, lambda_chiral, lambda_back,
 
     h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
                                                pair_energies, x_dist, contact_map)
-    h_contacts = _create_H_contacts(peptide, contact_map, lambda_contacts, n_contacts)
+    h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
 
     h_tot = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
 
@@ -395,17 +395,17 @@ def _create_h_short(peptide: Peptide, pair_energies):
     for i in range(1, main_chain_len - 2):
         # checks interactions between beads no more than 4 beads apart
         if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
-            h_short += (_check_turns(peptide.get_main_chain[i],
-                                     peptide.get_main_chain[i + 2].side_chain[0]) @ \
-                        _check_turns(peptide.get_main_chain[i + 3 - 1],
-                                     peptide.get_main_chain[i - 1].side_chain[0])) * \
+            h_short += (_check_turns(peptide.get_main_chain[i + 1],
+                                     peptide.get_main_chain[i - 1].side_chain[0]) @ \
+                        _check_turns(peptide.get_main_chain[i - 1],
+                                     peptide.get_main_chain[i + 2].side_chain[0])) * \
                        (pair_energies[i, 1, i + 3, 1] + 0.1 * (
                                pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
     return _fix_qubits(h_short).reduce()
 
 
 # TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
-def _create_H_contacts(peptide, contact_map: ContactMap, lambda_contacts, n_contacts=0):
+def _create_h_contacts(peptide, contact_map: ContactMap, lambda_contacts, n_contacts=0):
     """
     To document
 
