@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from qiskit.opflow import I, Z
+from qiskit.opflow import I, Z, PauliSumOp
 
 from problems import LatticeFoldingProblem
 from problems.sampling.folding.folding_qubit_op_builder import _create_x_dist, _create_H_short, \
@@ -28,8 +28,8 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 from test import QiskitNatureTestCase
 
 
-class TestContactQubitsBuilder(QiskitNatureTestCase):
-    """Tests ContactQubitsBuilder."""
+class TestQubitOpBuilder(QiskitNatureTestCase):
+    """Tests QubitOpBuilder."""
 
     def test_check_turns(self):
         """
@@ -1299,14 +1299,15 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             """
         main_chain_residue_seq = 'APRLRAAA'
         main_chain_len = 8
-        side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
+        side_chain_lens = [0, 0, 1, 1,1, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", None]
         mj = MiyazawaJerniganInteraction()
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         h_short = _create_h_short(peptide, pair_energies).reduce()
-        print(h_short)
+        expected = PauliSumOp.from_list([("IIIIIIIIIIIIIIIIIIIIIIIIIIII", 0)])
+        assert h_short == expected
 
     #
     def test_create_h_short_old(self):
@@ -1316,7 +1317,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         lf = LatticeFoldingProblem(residue_sequence='APRLRAAA')
         lf.pauli_op()
         N = 8
-        side_chain = [0, 0, 1, 0, 0, 1, 1, 0]
+        side_chain = [0, 0, 1, 1,1, 1, 1, 0]
         pair_energies = lf._pair_energies
 
         pauli_conf = _create_pauli_for_conf(N)
@@ -1350,7 +1351,6 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         N_contacts = 0
         contact_map = ContactMap(peptide)
         h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, N_contacts)
-        print(h_contacts)
         assert h_contacts == 280.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (

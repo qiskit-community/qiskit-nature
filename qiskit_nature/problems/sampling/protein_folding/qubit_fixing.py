@@ -18,10 +18,10 @@ def _fix_qubits(qubits: PauliSumOp):
     new_tables = []
     new_coeffs = []
     for i in range(len(qubits)):
-        H = qubits[i]
-        table_z = np.copy(H.primitive.table.Z[0])
-        table_x = np.copy(H.primitive.table.X[0])
-        coeffs = _calc_updated_coeffs(H, table_z)
+        h = qubits[i]
+        table_z = np.copy(h.primitive.table.Z[0])
+        table_x = np.copy(h.primitive.table.X[0])
+        coeffs = _calc_updated_coeffs(h, table_z)
         _preset_binary_vals(table_z)
         new_table = np.concatenate((table_x, table_z), axis=0)
         new_tables.append(new_table)

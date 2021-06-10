@@ -395,12 +395,15 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
     for i in range(1, main_chain_len - 2):
         # checks interactions between beads no more than 4 beads apart
         if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
-            h_short += (_check_turns(peptide.get_main_chain[i + 1],
-                                     peptide.get_main_chain[i - 1].side_chain[0]) @ \
-                        _check_turns(peptide.get_main_chain[i - 1],
-                                     peptide.get_main_chain[i + 2].side_chain[0])) * \
-                       (pair_energies[i, 1, i + 3, 1] + 0.1 * (
+            op1 = _check_turns(peptide.get_main_chain[i + 1],
+                                     peptide.get_main_chain[i - 1].side_chain[0])
+            op2 = _check_turns(peptide.get_main_chain[i - 1],
+                                     peptide.get_main_chain[i + 2].side_chain[0])
+            coeff = float(pair_energies[i, 1, i + 3, 1] + 0.1 * (
                                pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
+            composed = op1 @ op2
+            h_short += (coeff * composed).reduce()
+
     return _fix_qubits(h_short).reduce()
 
 
