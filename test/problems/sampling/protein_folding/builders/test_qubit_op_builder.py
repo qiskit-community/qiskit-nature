@@ -35,7 +35,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests that check turns operators are generate correctly.
         """
-        main_chain_residue_seq = "SAASSA"
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A"]
         main_chain_len = 6
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", None]
@@ -72,23 +72,23 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ Z ^ Z ^ I ^ I ^ I ^ I
                        ^ I ^ I)
         assert t_2s3 == 0.25 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                    I) + 0.25 * (
-                           I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 0.25 * (
-                           I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
-                           ^ I ^ I)
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                I) + 0.25 * (
+                       I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 0.25 * (
+                       I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 0.25 * (
+                       I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+                       ^ I ^ I)
         assert t_3s4s == 0.25 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                    I) + 0.25 * (
-                           Z ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 0.25 * (
-                           I ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I) + 0.25 * (
-                           Z ^ Z ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                           ^ I ^ I)
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                I) + 0.25 * (
+                       Z ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 0.25 * (
+                       I ^ Z ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I) + 0.25 * (
+                       Z ^ Z ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                       ^ I ^ I)
 
     def test_build_qubit_op(self):
         n_contacts = 0
@@ -96,7 +96,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         lambda_chiral = 10
         lambda_1 = 10
         lambda_contacts = 10
-        main_chain_residue_seq = "SAASSASAA"
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9
         side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", None]
@@ -114,7 +114,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         Tests that the Hamiltonian to back-overlaps is created correctly.
         """
         lambda_back = 10
-        main_chain_residue_seq = "SAASS"
+        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 0, 0, 0]
         side_chain_residue_sequences = [None, None, None, None, None]
@@ -135,7 +135,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         chains which should not have any influence in this case.
         """
         lambda_back = 10
-        main_chain_residue_seq = "SAASS"
+        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", None]
@@ -155,7 +155,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         Tests that the Hamiltonian chirality constraints is created correctly.
         """
         lambda_chiral = 10
-        main_chain_residue_seq = "SAASSASA"
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A"]
         main_chain_len = 8
         side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
@@ -286,7 +286,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             H_BBBB: Hamiltonian term in symbolic notation
         """
         lambda_1 = 10
-        main_chain_residue_seq = "SAASSASA"
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A"]
         main_chain_len = 8
         side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
@@ -638,7 +638,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
 
         lambda_1 = 10
-        main_chain_residue_seq = 'APRLRAA'
+        main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A"]
         main_chain_len = 7
         side_chain_lens = [0, 0, 1, 0, 0, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", None]
@@ -913,7 +913,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
 
         lambda_1 = 10
-        main_chain_residue_seq = 'APRLAA'
+        main_chain_residue_seq = ["A", "P", "R", "L", "A", "A"]
         main_chain_len = 6
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", None]
@@ -1017,7 +1017,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
                 h_scsc: Hamiltonian term consisting of side chain pairwise interactions
             """
         lambda_1 = 10
-        main_chain_residue_seq = "SAASSASAA"
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9
         side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", None]
@@ -1297,9 +1297,9 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
             Tests that the Hamiltonian to back-overlaps is created correctly.
             """
-        main_chain_residue_seq = 'APRLRAAA'
+        main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A", "A"]
         main_chain_len = 8
-        side_chain_lens = [0, 0, 1, 1,1, 1, 1, 0]
+        side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", None]
         mj = MiyazawaJerniganInteraction()
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
@@ -1314,10 +1314,10 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
             Tests that the Hamiltonian to back-overlaps is created correctly.
             """
-        lf = LatticeFoldingProblem(residue_sequence='APRLRAAA')
+        lf = LatticeFoldingProblem(residue_sequence=["A", "P", "R", "L", "A", "A", "A"])
         lf.pauli_op()
         N = 8
-        side_chain = [0, 0, 1, 1,1, 1, 1, 0]
+        side_chain = [0, 0, 1, 1, 1, 1, 1, 0]
         pair_energies = lf._pair_energies
 
         pauli_conf = _create_pauli_for_conf(N)
@@ -1341,7 +1341,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         Tests that the Hamiltonian to back-overlaps is created correctly.
         """
         lambda_contacts = 10
-        main_chain_residue_seq = 'APRLRAAA'
+        main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A"]
         main_chain_len = 8
         side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]

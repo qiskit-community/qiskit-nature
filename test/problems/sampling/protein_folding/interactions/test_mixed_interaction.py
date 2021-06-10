@@ -24,7 +24,7 @@ class TestMixedInteraction(QiskitNatureTestCase):
         additional_energies = None
         interaction = MixedInteraction(additional_energies)
         num_beads = 3
-        sequence = "AAS"
+        sequence = ["A","A","S"]
         energy_matrix = interaction.calc_energy_matrix(num_beads, sequence)
 
         assert len(energy_matrix) == num_beads + 1
@@ -34,7 +34,7 @@ class TestMixedInteraction(QiskitNatureTestCase):
         """Tests that an exception is thrown when an invalid residue is provided."""
         interaction = MixedInteraction()
         num_beads = 1
-        sequence = "Z"
+        sequence = ["Z"]
 
         with self.assertRaises(InvalidResidueException):
             _ = interaction.calc_energy_matrix(num_beads, sequence)

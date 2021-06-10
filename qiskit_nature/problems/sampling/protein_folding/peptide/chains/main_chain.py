@@ -21,7 +21,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 
 class MainChain(BaseChain):
 
-    def __init__(self, main_chain_len: int, main_chain_residue_seq, side_chain_lens: List[int],
+    def __init__(self, main_chain_len: int, main_chain_residue_seq: List[str], side_chain_lens: List[int],
                  side_chain_residue_sequences: List[str]):
         beads_list = self._build_main_chain(main_chain_len, main_chain_residue_seq, side_chain_lens,
                                             side_chain_residue_sequences)
@@ -58,7 +58,7 @@ class MainChain(BaseChain):
                 "First, second and last main beads are not allowed to have a side chain. Non-zero "
                 "length provided for an invalid side chain.")
 
-    def _validate_side_chain_index_by_residues(self, side_chain_residue_sequences):
+    def _validate_side_chain_index_by_residues(self, side_chain_residue_sequences: List[str]):
         if side_chain_residue_sequences is not None and (
                 side_chain_residue_sequences[0] is not None or side_chain_residue_sequences[
             1] is not None or side_chain_residue_sequences[-1] is not None):
@@ -67,11 +67,11 @@ class MainChain(BaseChain):
                 "residue provided for an invalid side chain")
 
     def _create_side_chain(self, main_bead_id: int, main_chain_len: int, side_chain_lens: List[int],
-                           side_chain_residue_sequences):
+                           side_chain_residue_sequences: List[str]):
         if self._is_side_chain_present(main_bead_id, side_chain_lens,
                                        side_chain_residue_sequences):
             side_chain = SideChain(main_chain_len, main_bead_id, side_chain_lens[main_bead_id],
-                                   side_chain_residue_sequences[main_bead_id])
+                                   [side_chain_residue_sequences[main_bead_id]])
         else:
             side_chain = None
         return side_chain

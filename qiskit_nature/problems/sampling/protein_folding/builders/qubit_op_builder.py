@@ -27,7 +27,8 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead imp
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
-def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]], lambda_chiral, lambda_back, lambda_1,
+def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]], lambda_chiral,
+                    lambda_back, lambda_1,
                     lambda_contacts, n_contacts):
     side_chain = peptide.get_side_chain_hot_vector()
     main_chain_len = len(peptide.get_main_chain)
@@ -78,7 +79,7 @@ def _check_turns(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
     return t_ij
 
 
-def _create_h_back(peptide: Peptide, lambda_back):
+def _create_h_back(peptide: Peptide, lambda_back: float):
     main_chain = peptide.get_main_chain
     h_back = 0
     for i in range(len(main_chain) - 2):
@@ -88,7 +89,7 @@ def _create_h_back(peptide: Peptide, lambda_back):
     return h_back
 
 
-def _create_h_chiral(peptide: Peptide, lambda_chiral):
+def _create_h_chiral(peptide: Peptide, lambda_chiral: float):
     """
     Creates a penalty/constrain term to the total Hamiltonian that imposes that all the position
     of all side chain beads impose the right chirality. Note that the position of the side chain
@@ -168,7 +169,8 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral):
     return h_chiral
 
 
-def _create_h_bbbb(main_chain_len: int, lambda_1, pair_energies: List[List[List[List[float]]]],
+def _create_h_bbbb(main_chain_len: int, lambda_1: float,
+                   pair_energies: List[List[List[List[float]]]],
                    x_dist, contact_map: ContactMap):
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
@@ -233,7 +235,7 @@ def _create_h_bbbb(main_chain_len: int, lambda_1, pair_energies: List[List[List[
     return H_BBBB
 
 
-def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1,
+def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                               pair_energies: List[List[List[List[float]]]], x_dist,
                               contact_map: ContactMap):
     """
@@ -396,11 +398,11 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
         # checks interactions between beads no more than 4 beads apart
         if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
             op1 = _check_turns(peptide.get_main_chain[i + 1],
-                                     peptide.get_main_chain[i - 1].side_chain[0])
+                               peptide.get_main_chain[i - 1].side_chain[0])
             op2 = _check_turns(peptide.get_main_chain[i - 1],
-                                     peptide.get_main_chain[i + 2].side_chain[0])
+                               peptide.get_main_chain[i + 2].side_chain[0])
             coeff = float(pair_energies[i, 1, i + 3, 1] + 0.1 * (
-                               pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
+                    pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
             composed = op1 @ op2
             h_short += (coeff * composed).reduce()
 
@@ -408,7 +410,8 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
 
 
 # TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
-def _create_h_contacts(peptide: Peptide, contact_map: ContactMap, lambda_contacts, n_contacts=0):
+def _create_h_contacts(peptide: Peptide, contact_map: ContactMap, lambda_contacts: float,
+                       n_contacts=0):
     """
     To document
 

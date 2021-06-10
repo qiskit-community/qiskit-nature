@@ -119,7 +119,8 @@ def _first_neighbor(i: int, p: int, j: int, s: int,
     Returns:
         expr: Contribution to energetic Hamiltonian in symbolic notation
     """
-    lambda_0 = 7 * (j - i + 1) * lambda_1
+    bounding_constant = 7
+    lambda_0 = bounding_constant * (j - i + 1) * lambda_1
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]
     expr = lambda_0 * (x - _build_full_identity(x.num_qubits))

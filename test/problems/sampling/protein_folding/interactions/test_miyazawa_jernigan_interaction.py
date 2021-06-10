@@ -24,7 +24,7 @@ class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
         """Tests that energy matrix is calculated correctly."""
         interaction = MiyazawaJerniganInteraction()
         num_beads = 3
-        sequence = "AAA"
+        sequence = ["A","A","A"]
         energy_matrix = interaction.calc_energy_matrix(num_beads, sequence)
 
         assert len(energy_matrix) == num_beads + 1
@@ -34,7 +34,7 @@ class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
         """Tests that an exception is thrown when an invalid residue is provided."""
         interaction = MiyazawaJerniganInteraction()
         num_beads = 3
-        sequence = "AAB"
+        sequence = ["A","A","B"]
 
         with self.assertRaises(InvalidResidueException):
             _ = interaction.calc_energy_matrix(num_beads, sequence)

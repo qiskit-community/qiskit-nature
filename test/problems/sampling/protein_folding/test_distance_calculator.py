@@ -26,7 +26,7 @@ class TestDistanceCalculator(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        main_chain_residue_seq = "SAAAA"
+        main_chain_residue_seq = ["S","A","A","A","A"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]
@@ -38,7 +38,6 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         lf.pauli_op()
         self.N = 5
         side_chain = [0, 0, 1, 0, 0]
-        # pair_energies = lf._pair_energies
 
         self.pauli_conf = _create_pauli_for_conf(self.N)
         qubits = _create_qubits_for_conf(self.pauli_conf)

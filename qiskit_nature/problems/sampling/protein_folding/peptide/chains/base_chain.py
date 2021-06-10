@@ -43,5 +43,6 @@ class BaseChain(ABC):
     @staticmethod
     def _build_turn_qubit(chain_len: int, bead_id: int) -> PauliOp:
         num_turn_qubits = 2 * (chain_len - 1)
-        return 0.5 * _build_full_identity(num_turn_qubits) - 0.5 * _build_pauli_z_op(
+        norm_factor = 0.5
+        return norm_factor * _build_full_identity(num_turn_qubits) - norm_factor * _build_pauli_z_op(
             num_turn_qubits, [bead_id])

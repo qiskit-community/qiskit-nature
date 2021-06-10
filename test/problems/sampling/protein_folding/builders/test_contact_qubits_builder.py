@@ -31,7 +31,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = "SAASS"
+        main_chain_residue_seq = ["S","A","A","S","S"]
         main_chain_len = 5
         side_chains = [0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", None]
@@ -50,7 +50,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = "SAASSS"
+        main_chain_residue_seq = ["S","A","A","S","S","S"]
         main_chain_len = 6
         side_chains = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "S", None]
@@ -75,11 +75,12 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         assert lower_side_upper_side == {}
         assert r_contact == 2
 
+    # TODO
     def test_create_pauli_for_contacts_3(self):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = "SAASSSS"
+        main_chain_residue_seq = ["S","A","A","S","S","S", "S"]
         main_chain_len = 7
         side_chains = [0, 0, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "S", "A", None]
@@ -135,7 +136,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that the list of all qubits (conformation and interaction) is created correctly.
         """
-        main_chain_residue_seq = "SAASS"
+        main_chain_residue_seq = ["S","A","A","S","S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]
@@ -168,7 +169,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         Tests that Pauli operators for 1st neighbour interactions are created correctly.
         """
 
-        main_chain_residue_seq = "SAASSS"
+        main_chain_residue_seq = ["S","A","A","S","S","S"]
         main_chain_len = 6
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "S", "S", None]
@@ -202,7 +203,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for 2nd neighbour interactions are created correctly.
         """
-        main_chain_residue_seq = "SAASS"
+        main_chain_residue_seq = ["S","A","A","S","S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]

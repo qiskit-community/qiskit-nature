@@ -24,7 +24,7 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]):
     if isinstance(total_hamiltonian, PauliOp):
         table_z = total_hamiltonian.primitive.z
         table_x = total_hamiltonian.primitive.x
-        new_table_z, new_table_x = _update_pauli_tables(num_qubits, table_x, table_z, unused_qubits)
+        new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z, unused_qubits)
         return PauliOp(Pauli((new_table_z, new_table_x)))
 
     elif isinstance(total_hamiltonian, PauliSumOp):
@@ -32,8 +32,8 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]):
             table_z = term.primitive.table.Z[0]
             table_x = term.primitive.table.X[0]
             coeffs = term.primitive.coeffs[0]
-            new_table_z, new_table_x = _update_pauli_tables(num_qubits, table_x, table_z,
-                                                            unused_qubits)
+            new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
+                                                                  unused_qubits)
             new_table = np.concatenate((new_table_x, new_table_z), axis=0)
             new_tables.append(new_table)
             new_coeffs.append(coeffs)
@@ -42,7 +42,7 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]):
     return qubits_updated.reduce()
 
 
-def _update_pauli_tables(num_qubits: int, table_x, table_z, unused_qubits):
+def _calc_reduced_pauli_tables(num_qubits: int, table_x, table_z, unused_qubits):
     new_table_z = []
     new_table_x = []
     for ind in range(num_qubits):
