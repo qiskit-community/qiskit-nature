@@ -26,7 +26,7 @@ class TestDistanceCalculator(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        main_chain_residue_seq = ["S","A","A","A","A"]
+        main_chain_residue_seq = ["S", "A", "A", "A", "A"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]
@@ -70,7 +70,6 @@ class TestDistanceCalculator(QiskitNatureTestCase):
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
 
-
     def test_add_distances_side_chain(self):
         """
         Tests that distances for all beads on side chains are calculated correctly.
@@ -89,26 +88,17 @@ class TestDistanceCalculator(QiskitNatureTestCase):
                        I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
                        I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
 
-
     def test_calc_total_distances(self):
         """
         Tests that total distances for all beads are calculated correctly.
         """
-        delta_n0_main, delta_n1_main, delta_n2_main, delta_n3_main = _calc_distances_main_chain(
-            self.peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(self.peptide,
-                                                                           delta_n0_main,
-                                                                           delta_n1_main,
-                                                                           delta_n2_main,
-                                                                           delta_n3_main)
-        x_dist = _calc_total_distances(self.peptide, delta_n0, delta_n1, delta_n2, delta_n3)
+        x_dist = _calc_total_distances(self.peptide)
         assert x_dist[2][0][3][1] == 1.5 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                           I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                           I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                           I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
+                       I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
+                       I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
+                       I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
         assert x_dist[1][0][3][1] == 3.0 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
-                           I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
-                           I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
+                       I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
+                       I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)

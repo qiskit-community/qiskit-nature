@@ -294,12 +294,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                           delta_n1, delta_n2,
-                                                                           delta_n3)
-        x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                       delta_n2, delta_n3)
+        x_dist = _calc_total_distances(peptide)
         contact_map = ContactMap(peptide)
         h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
                                 x_dist, contact_map)
@@ -647,12 +642,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         side_chain = peptide.get_side_chain_hot_vector()
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                           delta_n1, delta_n2,
-                                                                           delta_n3)
-        x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                       delta_n2, delta_n3)
+        x_dist = _calc_total_distances(peptide)
 
         contact_map = ContactMap(peptide)
 
@@ -922,12 +912,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         side_chain = peptide.get_side_chain_hot_vector()
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                           delta_n1, delta_n2,
-                                                                           delta_n3)
-        x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                       delta_n2, delta_n3)
+        x_dist = _calc_total_distances(peptide)
 
         contact_map = ContactMap(peptide)
 
@@ -1026,12 +1011,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         mj = MiyazawaJerniganInteraction()
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         side_chain = peptide.get_side_chain_hot_vector()
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                           delta_n1, delta_n2,
-                                                                           delta_n3)
-        x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                       delta_n2, delta_n3)
+        x_dist = _calc_total_distances(peptide)
         contact_map = ContactMap(peptide)
         h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
                                 pair_energies, x_dist, contact_map)

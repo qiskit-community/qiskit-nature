@@ -14,8 +14,7 @@ from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 # TODO refactor the data structure storing distances
-def _calc_total_distances(peptide: Peptide, delta_n0, delta_n1,
-                          delta_n2, delta_n3):
+def _calc_total_distances(peptide: Peptide):
     """
     Creates total distances between all bead pairs by summing the
     distances over all turns with axes, a = 0,1,2,3. For bead i with
@@ -33,6 +32,8 @@ def _calc_total_distances(peptide: Peptide, delta_n0, delta_n1,
         x_dist: Numpy array that tracks all distances between backbone and side chain
                 beads for all axes: 0,1,2,3
     """
+    delta_n0, delta_n1,delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
+    delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2, delta_n3)
     main_chain_len = len(peptide.get_main_chain)
     # initializes dictionaries
     x_dist = dict()

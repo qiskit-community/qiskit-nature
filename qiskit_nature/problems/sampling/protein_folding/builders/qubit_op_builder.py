@@ -40,12 +40,7 @@ def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]
             "First, second and last main beads are not allowed to have a side chain. Non-None "
             "residue provided for an invalid side chain")
 
-    delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-    delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                       delta_n1, delta_n2,
-                                                                       delta_n3)
-    x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                   delta_n2, delta_n3)
+    x_dist = _calc_total_distances(peptide)
     h_chiral = _create_h_chiral(peptide, lambda_chiral)
     h_back = _create_h_back(peptide, lambda_back)
 

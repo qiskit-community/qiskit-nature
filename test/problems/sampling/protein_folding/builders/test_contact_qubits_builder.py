@@ -183,12 +183,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         upper_main_bead_index = 4
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                           delta_n1, delta_n2,
-                                                                           delta_n3)
-        x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                       delta_n2, delta_n3)
+        x_dist = _calc_total_distances(peptide)
         expr = _first_neighbor(lower_main_bead_index, side_chain_upper_main_bead,
                                upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
                                pair_energies, x_dist)
@@ -216,12 +211,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         upper_main_bead_index = 4
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0,
-                                                                           delta_n1, delta_n2,
-                                                                           delta_n3)
-        x_dist = _calc_total_distances(peptide, delta_n0, delta_n1,
-                                       delta_n2, delta_n3)
+        x_dist = _calc_total_distances(peptide)
         expr = _second_neighbor(lower_main_bead_index, side_chain_upper_main_bead,
                                 upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
                                 pair_energies, x_dist)
