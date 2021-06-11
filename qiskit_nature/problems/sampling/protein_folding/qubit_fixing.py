@@ -12,13 +12,19 @@
 from typing import Union
 
 import numpy as np
-from qiskit.opflow import PauliSumOp, OperatorBase
-from qiskit.quantum_info import PauliTable, SparsePauliOp
+from qiskit.opflow import PauliSumOp, OperatorBase, PauliOp
+from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
-# TODO handle PauliOp as well?
-def _fix_qubits(qubits: Union[PauliSumOp, OperatorBase]):
+
+def _fix_qubits(qubits: Union[PauliSumOp, PauliOp, OperatorBase]):
     new_tables = []
     new_coeffs = []
+    if isinstance(qubits, PauliOp):
+        table_z = np.copy(qubits.primitive.z)
+        table_x = np.copy(qubits.primitive.x)
+        _preset_binary_vals(table_z)
+        return PauliOp(Pauli((table_z, table_x)))
+
     for i in range(len(qubits)):
         h = qubits[i]
         table_z = np.copy(h.primitive.table.Z[0])
@@ -34,18 +40,22 @@ def _fix_qubits(qubits: Union[PauliSumOp, OperatorBase]):
     return qubits_updated
 
 
-def _calc_updated_coeffs(h: PauliSumOp, table_z):
+def _calc_updated_coeffs(h: Union[PauliSumOp, PauliOp], table_z):
     coeffs = np.copy(h.primitive.coeffs[0])
-    if table_z[1] == np.bool_(True):
+    if len(table_z) > 1 and table_z[1] == np.bool_(True):
         coeffs = -1 * coeffs
-    if table_z[5] == np.bool_(True):
+    if len(table_z) > 6 and table_z[5] == np.bool_(True):
         coeffs = -1 * coeffs
     return coeffs
 
 
 def _preset_binary_vals(table_z):
-    table_z[0] = np.bool_(False)
-    table_z[1] = np.bool_(False)
-    table_z[2] = np.bool_(False)
-    table_z[3] = np.bool_(False)
-    table_z[5] = np.bool_(False)
+    for index in (0, 1, 2, 3, 5):
+        _preset_single_binary_val(table_z, index)
+
+
+def _preset_single_binary_val(table_z, index: int):
+    try:
+        table_z[index] = np.bool_(False)
+    except IndexError:
+        pass
