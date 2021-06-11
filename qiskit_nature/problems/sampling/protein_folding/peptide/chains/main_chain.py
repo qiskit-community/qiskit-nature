@@ -21,14 +21,16 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 
 class MainChain(BaseChain):
 
-    def __init__(self, main_chain_len: int, main_chain_residue_seq: List[str], side_chain_lens: List[int],
+    def __init__(self, main_chain_len: int, main_chain_residue_seq: List[str],
+                 side_chain_lens: List[int],
                  side_chain_residue_sequences: List[str]):
         beads_list = self._build_main_chain(main_chain_len, main_chain_residue_seq, side_chain_lens,
                                             side_chain_residue_sequences)
         super().__init__(beads_list)
 
-    def _build_main_chain(self, main_chain_len: int, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences) -> List[MainBead]:
+    def _build_main_chain(self, main_chain_len: int, main_chain_residue_seq: List[str],
+                          side_chain_lens: List[int],
+                          side_chain_residue_sequences: List[str]) -> List[MainBead]:
         main_chain = []
         self._validate_chain_lengths(main_chain_len, side_chain_lens)
         self._validate_side_chain_index_by_lengths(side_chain_lens)
@@ -67,7 +69,7 @@ class MainChain(BaseChain):
                 "residue provided for an invalid side chain")
 
     def _create_side_chain(self, main_bead_id: int, main_chain_len: int, side_chain_lens: List[int],
-                           side_chain_residue_sequences: List[str]):
+                           side_chain_residue_sequences: List[str]) -> SideChain:
         if self._is_side_chain_present(main_bead_id, side_chain_lens,
                                        side_chain_residue_sequences):
             side_chain = SideChain(main_chain_len, main_bead_id, side_chain_lens[main_bead_id],
@@ -76,7 +78,8 @@ class MainChain(BaseChain):
             side_chain = None
         return side_chain
 
-    def _is_side_chain_present(self, main_bead_id: int, side_chain_lens: List[int], side_chain_residue_sequences):
+    def _is_side_chain_present(self, main_bead_id: int, side_chain_lens: List[int],
+                               side_chain_residue_sequences) -> bool:
         return side_chain_lens and side_chain_lens[
             main_bead_id] != 0 and side_chain_residue_sequences and \
                side_chain_residue_sequences[main_bead_id] is not None

@@ -9,15 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from typing import List
+from typing import List, Union
 
-from qiskit.opflow import OperatorBase
+from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
 from problems.sampling.protein_folding.builders.contact_qubits_builder import _first_neighbor, \
-    _second_neighbor, _create_contact_qubits
+    _second_neighbor
 from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
-    _add_distances_side_chain, _calc_total_distances
+from problems.sampling.protein_folding.distance_calculator import _calc_total_distances
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
 from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
@@ -29,7 +28,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 
 def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]], lambda_chiral,
                     lambda_back, lambda_1,
-                    lambda_contacts, n_contacts):
+                    lambda_contacts, n_contacts) -> Union[PauliSumOp, PauliOp]:
     side_chain = peptide.get_side_chain_hot_vector()
     main_chain_len = len(peptide.get_main_chain)
 
@@ -74,7 +73,7 @@ def _check_turns(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
     return t_ij
 
 
-def _create_h_back(peptide: Peptide, lambda_back: float):
+def _create_h_back(peptide: Peptide, lambda_back: float) -> Union[PauliSumOp, PauliOp]:
     main_chain = peptide.get_main_chain
     h_back = 0
     for i in range(len(main_chain) - 2):
@@ -84,7 +83,7 @@ def _create_h_back(peptide: Peptide, lambda_back: float):
     return h_back
 
 
-def _create_h_chiral(peptide: Peptide, lambda_chiral: float):
+def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp, PauliOp]:
     """
     Creates a penalty/constrain term to the total Hamiltonian that imposes that all the position
     of all side chain beads impose the right chirality. Note that the position of the side chain
@@ -166,7 +165,7 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float):
 
 def _create_h_bbbb(main_chain_len: int, lambda_1: float,
                    pair_energies: List[List[List[List[float]]]],
-                   x_dist, contact_map: ContactMap):
+                   x_dist, contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
     main/backbone (BB) beads
@@ -232,7 +231,7 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
 
 def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                               pair_energies: List[List[List[List[float]]]], x_dist,
-                              contact_map: ContactMap):
+                              contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
     main/backbone (BB) and side chain (SC) beads. In the absence
@@ -331,7 +330,8 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
 
 
 def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
-                   pair_energies: List[List[List[List[float]]]], x_dist, contact_map: ContactMap):
+                   pair_energies: List[List[List[List[float]]]], x_dist, contact_map: ContactMap)\
+        -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
     side chain (SC) beads. In the absence of side chains, this function
@@ -366,7 +366,8 @@ def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
     return _fix_qubits(H_SCSC).reduce()
 
 
-def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]]]):
+def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]]]) -> Union[
+    PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian constituting interactions between beads that are no more than
     4 beads apart. If no side chains are present, this function returns 0.
@@ -406,7 +407,7 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
 
 # TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
 def _create_h_contacts(peptide: Peptide, contact_map: ContactMap, lambda_contacts: float,
-                       n_contacts=0):
+                       n_contacts: int = 0) -> Union[PauliSumOp, PauliOp]:
     """
     To document
 

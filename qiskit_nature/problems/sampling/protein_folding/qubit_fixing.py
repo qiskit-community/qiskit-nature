@@ -9,12 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import Union
+
 import numpy as np
-from qiskit.opflow import PauliSumOp
+from qiskit.opflow import PauliSumOp, OperatorBase
 from qiskit.quantum_info import PauliTable, SparsePauliOp
 
-
-def _fix_qubits(qubits: PauliSumOp):
+# TODO handle PauliOp as well?
+def _fix_qubits(qubits: Union[PauliSumOp, OperatorBase]):
     new_tables = []
     new_coeffs = []
     for i in range(len(qubits)):

@@ -21,7 +21,7 @@ def _build_full_identity(num_turn_qubits: int) -> PauliOp:
     return full_identity
 
 
-def _build_pauli_z_op(num_qubits: int, pauli_z_indices: List[int]):
+def _build_pauli_z_op(num_qubits: int, pauli_z_indices: List[int]) -> PauliOp:
     if 0 in pauli_z_indices:
         temp = Z
     else:

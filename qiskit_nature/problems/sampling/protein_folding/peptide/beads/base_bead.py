@@ -26,11 +26,11 @@ class BaseBead(ABC):
         self._turn_qubits = turn_qubits
 
     @property
-    def turn_qubits(self):
+    def turn_qubits(self) -> List[PauliOp]:
         return self._turn_qubits
 
     @property
-    def residue_type(self):
+    def residue_type(self) -> str:
         return self._residue_type
 
     # for the turn that leads from the bead

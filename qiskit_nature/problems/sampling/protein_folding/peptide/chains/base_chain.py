@@ -34,7 +34,7 @@ class BaseChain(ABC):
     def beads_list(self) -> List[BaseBead]:
         return self._beads_list
 
-    def get_residue_sequence(self):
+    def get_residue_sequence(self) -> List[str]:
         residue_sequence = []
         for bead in self._beads_list:
             residue_sequence.append(bead.residue_type)

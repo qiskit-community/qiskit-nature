@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import collections
-from typing import List
+from typing import List, Union, Tuple, Any
 
-from qiskit.opflow import PauliSumOp
+from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
 
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_pauli_z_op, \
     _build_full_identity
@@ -87,7 +87,7 @@ def _create_contact_qubits(peptide: Peptide):
            lower_side_upper_side, r_contact
 
 
-def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp):
+def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp) -> OperatorBase:
     num_qubits_num = 2 * (main_chain_len - 1)
     full_id = _build_full_identity(num_qubits_num)
     return ((full_id ^ full_id) - pauli_sum_op) / 2
@@ -96,7 +96,7 @@ def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp):
 # gathers qubits from conformation and qubits from NN intraction
 def _first_neighbor(i: int, p: int, j: int, s: int,
                     lambda_1: float, pair_energies: List[List[List[List[float]]]],
-                    x_dist, pair_energies_multiplier: float = 0.1):
+                    x_dist, pair_energies_multiplier: float = 0.1) -> Union[PauliSumOp, PauliOp]:
     """
     Creates first nearest neighbor interaction if beads are in contact
     and at a distance of 1 unit from each other. Otherwise, a large positive
@@ -130,7 +130,7 @@ def _first_neighbor(i: int, p: int, j: int, s: int,
 
 def _second_neighbor(i: int, p: int, j: int, s: int,
                      lambda_1: float, pair_energies: List[List[List[List[float]]]],
-                     x_dist, pair_energies_multiplier: float = 0.1):
+                     x_dist, pair_energies_multiplier: float = 0.1) -> Union[PauliSumOp, PauliOp]:
     """
     Creates energetic interaction that penalizes local overlap between
     beads that correspond to a nearest neighbor contact or adds no net
