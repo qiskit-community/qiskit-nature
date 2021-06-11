@@ -23,7 +23,7 @@ class ProteinFoldingProblem(SamplingProblem):
         self._interaction = interaction
         self._penalty_terms = penalty_terms
         self._pair_energies = interaction.calc_energy_matrix(len(peptide.get_main_chain),
-                                                             peptide.get_main_chain.get_residue_sequence())
+                                                             peptide.get_main_chain.main_chain_residue_sequence)
         self._N_contacts = 0  # TODO what is the meaning of this param?
 
     def qubit_op(self):
