@@ -48,14 +48,8 @@ class ContactMap:
         interactions. Note, the need of multiple interaction qubits
         for each i,j pair.
 
-        Args:
-            main_chain_len: Number of total beads in peptide
-            side_chain: List of side chains in peptide
-            pauli_conf: Dictionary of Pauli operators to track conformation
-            pauli_contacts: Dictionary of Pauli operators to track contacts between beads
-
         Returns:
-            new_qubits: Dictionary of qubits in symbolic notation
+            new_qubits: The list of all qubits.
         """
         main_chain_len = len(self.peptide.get_main_chain)
         side_chain = self.peptide.get_side_chain_hot_vector()

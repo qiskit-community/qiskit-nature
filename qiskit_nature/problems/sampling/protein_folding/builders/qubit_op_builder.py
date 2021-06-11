@@ -90,17 +90,11 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
     of side chains, this function returns a value of 0.
 
     Args:
-        N: Number of total beads in peptide
-        side_chain: List of side chains in peptide
-        lambda_chiral: Penalty/constraint to impose the right chirality
-        indic_0: Turn indicator for axis 0
-        indic_1: Turn indicator for axis 1
-        indic_2: Turn indicator for axis 2
-        indic_3: Turn indicator for axis 3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
+        peptide: A Peptide object that includes all information about a protein.
+        lambda_chiral: Penalty/constraint to impose the right chirality.
 
     Returns:
-        h_chiral: Hamiltonian term in symbolic notation that imposes the right chirality
+        h_chiral: Hamiltonian term that imposes the right chirality.
     """
 
     main_chain = peptide.get_main_chain
@@ -166,21 +160,21 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
                    pair_energies: List[List[List[List[float]]]],
                    x_dist, contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
     """
-    Creates Hamiltonian term corresponding to 1st neighbor interaction between
-    main/backbone (BB) beads
+    Creates Hamiltonian term corresponding to a 1st neighbor interaction between
+    main/backbone (BB) beads.
 
     Args:
-        main_chain_len: Number of total beads in peptide
+        main_chain_len: Number of total beads in a peptide.
         lambda_1: Constraint to penalize local overlap between
-                 beads within a nearest neighbor contact
-        pair_energies: Numpy array of pair energies for amino acids
+                 beads within a nearest neighbor contact.
+        pair_energies: Numpy array of pair energies for amino acids.
         x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-        contact_map: Dictionary of contact qubits in symbolic notation
+                beads for all axes: 0,1,2,3.
+        contact_map: ContactMap object that stores contact qubits for all beads.
 
     Returns:
-        H_BBBB: Hamiltonian term in symbolic notation
+        H_BBBB: Hamiltonian term corresponding to a 1st neighbor interaction between
+                main/backbone (BB) beads.
     """
     H_BBBB = 0
     for i in range(1, main_chain_len - 3):
@@ -228,7 +222,7 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
     return H_BBBB
 
 
-def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
+def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain: List[int], lambda_1: float,
                               pair_energies: List[List[List[List[float]]]], x_dist,
                               contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
     """
@@ -238,32 +232,31 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
 
     Args:
         main_chain_len: Number of total beads in peptide
-        side: List of side chains in peptide
+        side_chain: One-hot encoded list of side chains in peptide.
         lambda_1: Constraint to penalize local overlap between
-                 beads within a nearest neighbor contact
-        pair_energies: Numpy array of pair energies for amino acids
+                 beads within a nearest neighbor contact.
+        pair_energies: Numpy array of pair energies for amino acids.
         x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-        contact_map: Dictionary of contact qubits in symbolic notation
+                beads for all axes: 0,1,2,3.
+        contact_map: ContactMap object that stores contact qubits for all beads.
 
     Returns:
-        H_BBSC, H_SCBB: Tuple of Hamiltonian terms consisting of backbone and side chain 
-        interactions
+        h_bbsc, h_scbb: Tuple of Hamiltonian terms consisting of backbone and side chain
+        interactions.
     """
-    H_BBSC = 0
-    H_SCBB = 0
+    h_bbsc = 0
+    h_scbb = 0
     for i in range(1, main_chain_len - 3):
         for j in range(i + 4, main_chain_len + 1):
             if (j - i) % 2 == 1:
                 continue
             else:
                 if side_chain[j - 1] == 1:
-                    H_BBSC += (contact_map.lower_side_upper_main[i][j] @ (
+                    h_bbsc += (contact_map.lower_side_upper_main[i][j] @ (
                             _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _first_neighbor(i, 1,
+                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _first_neighbor(i, 1,
                                                                                              j, 1,
                                                                                              lambda_1,
                                                                                              pair_energies,
@@ -271,7 +264,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                     except (IndexError, KeyError):
                         pass
                     try:
-                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i + 1,
+                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i + 1,
                                                                                               0, j,
                                                                                               1,
                                                                                               lambda_1,
@@ -280,7 +273,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                     except (IndexError, KeyError):
                         pass
                     try:
-                        H_BBSC += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i - 1,
+                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(i - 1,
                                                                                               0, j,
                                                                                               1,
                                                                                               lambda_1,
@@ -288,13 +281,13 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                                                                                               x_dist))
                     except (IndexError, KeyError):
                         pass
-                    H_BBSC = H_BBSC.reduce()
+                    h_bbsc = h_bbsc.reduce()
                 if side_chain[i - 1] == 1:
-                    H_SCBB += (contact_map.lower_main_upper_side[i][j] @ (
+                    h_scbb += (contact_map.lower_main_upper_side[i][j] @ (
                             _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
                             _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
+                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
                                                                                               j, 1,
                                                                                               lambda_1,
                                                                                               pair_energies,
@@ -302,7 +295,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                     except (IndexError, KeyError):
                         pass
                     try:
-                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
+                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
                                                                                               j + 1,
                                                                                               0,
                                                                                               lambda_1,
@@ -311,7 +304,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                     except (IndexError, KeyError):
                         pass
                     try:
-                        H_SCBB += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
+                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
                                                                                               j - 1,
                                                                                               0,
                                                                                               lambda_1,
@@ -319,17 +312,17 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain, lambda_1: float,
                                                                                               x_dist))
                     except (IndexError, KeyError):
                         pass
-                    H_SCBB = H_SCBB.reduce()
+                    h_scbb = h_scbb.reduce()
 
-    if H_BBSC != 0 and H_BBSC is not None:
-        H_BBSC = _fix_qubits(H_BBSC).reduce()
-    if H_SCBB != 0 and H_SCBB is not None:
-        H_SCBB = _fix_qubits(H_SCBB).reduce()
-    return H_BBSC, H_SCBB
+    if h_bbsc != 0 and h_bbsc is not None:
+        h_bbsc = _fix_qubits(h_bbsc).reduce()
+    if h_scbb != 0 and h_scbb is not None:
+        h_scbb = _fix_qubits(h_scbb).reduce()
+    return h_bbsc, h_scbb
 
 
 def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
-                   pair_energies: List[List[List[List[float]]]], x_dist, contact_map: ContactMap)\
+                   pair_energies: List[List[List[List[float]]]], x_dist, contact_map: ContactMap) \
         -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
@@ -337,32 +330,32 @@ def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
     returns a value of 0.
 
     Args:
-        main_chain_len: Number of total beads in peptides
+        main_chain_len: Number of total beads in peptides.
+        side_chain: One-hot encoded list of side chains in peptide.
         lambda_1: Constraint to penalize local overlap between
-                 beads within a nearest neighbor contact
-        pair_energies: Numpy array of pair energies for amino acids
+                 beads within a nearest neighbor contact.
+        pair_energies: Numpy array of pair energies for amino acids.
         x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-        contact_map: Dictionary of contact qubits in symbolic notation
+                beads for all axes: 0,1,2,3.
+        contact_map: ContactMap object that stores contact qubits for all beads.
 
     Returns:
-        H_SCSC: Hamiltonian term consisting of side chain pairwise interactions
+        h_scsc: Hamiltonian term consisting of side chain pairwise interactions
     """
-    H_SCSC = 0
+    h_scsc = 0
     for i in range(1, main_chain_len - 3):
         for j in range(i + 5, main_chain_len + 1):
             if (j - i) % 2 == 0:
                 continue
             if side_chain[i - 1] == 0 or side_chain[j - 1] == 0:
                 continue
-            H_SCSC += contact_map.lower_side_upper_side[i][j] @ (
+            h_scsc += contact_map.lower_side_upper_side[i][j] @ (
                     _first_neighbor(i, 1, j, 1, lambda_1, pair_energies, x_dist) +
                     _second_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist)
                     +
                     _second_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist))
-            H_SCSC = H_SCSC.reduce()
-    return _fix_qubits(H_SCSC).reduce()
+            h_scsc = h_scsc.reduce()
+    return _fix_qubits(h_scsc).reduce()
 
 
 def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]]]) -> Union[
@@ -372,19 +365,12 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
     4 beads apart. If no side chains are present, this function returns 0.
 
     Args:
-        main_chain_len: Number of total beads in peptide
-        side_chain: List of side chains in peptide
-        pair_energies: Numpy array of pair energies for amino acids
-        x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-        indic_0: Turn indicator for axis 0
-        indic_1: Turn indicator for axis 1
-        indic_2: Turn indicator for axis 2
-        indic_3: Turn indicator for axis 3
+        peptide: A Peptide object that includes all information about a protein.
+        pair_energies: Numpy array of pair energies for amino acids.
 
     Returns:
-        h_short: Contribution to energetic Hamiltonian in symbolic notation t
+        h_short: Contribution to energetic Hamiltonian for interactions between beads that are no
+        more than 4 beads apart.
     """
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
@@ -400,19 +386,27 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
                     pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
             composed = op1 @ op2
             h_short += (coeff * composed).reduce()
+    h_short = _fix_qubits(h_short).reduce()
 
-    return _fix_qubits(h_short).reduce()
+    return h_short
 
 
 # TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
 def _create_h_contacts(peptide: Peptide, contact_map: ContactMap, lambda_contacts: float,
                        n_contacts: int = 0) -> Union[PauliSumOp, PauliOp]:
     """
-    To document
+    Creates a Hamiltonian term approximating nearest neighbor interactions and includes energy of
+    contacts that are present in system (energy shift). # TODO better description?
 
-    Approximating nearest neighbor interactions (2 and greater?) #+ e*0.1
-
-    energy of contacts that are present in system (energy shift)
+    Args:
+        peptide: A Peptide object that includes all information about a protein.
+        contact_map: ContactMap object that stores contact qubits for all beads.
+        lambda_contacts: Constraint to penalize local overlap between beads within a nearest
+        neighbor contact.
+        n_contacts: # TODO
+    Returns:
+        h_contacts: Contribution to energetic Hamiltonian for approximate nearest neighbor
+        interactions.
 
     """
     new_qubits = contact_map.create_peptide_qubit_list()

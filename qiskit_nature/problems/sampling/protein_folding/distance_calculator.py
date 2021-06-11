@@ -200,7 +200,7 @@ def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2,
                     pass
     return delta_n0, delta_n1, delta_n2, delta_n3
 
-# gathers qubits from conformation and qubits from NN intraction
+
 def _first_neighbor(i: int, p: int, j: int, s: int,
                     lambda_1: float, pair_energies: List[List[List[List[float]]]],
                     x_dist, pair_energies_multiplier: float = 0.1) -> Union[PauliSumOp, PauliOp]:
@@ -212,19 +212,19 @@ def _first_neighbor(i: int, p: int, j: int, s: int,
     Here, we chose, lambda_0 = 7*(j- 1 + 1).
 
     Args:
-        i: Backbone bead at turn i
-        j: Backbone bead at turn j (j > i)
-        p: Side chain on backbone bead j
-        s: Side chain on backbone bead i
+        i: Backbone bead at turn i.
+        j: Backbone bead at turn j (j > i).
+        p: Side chain on backbone bead j.
+        s: Side chain on backbone bead i.
         lambda_1: Constraint to penalize local overlap between
-                 beads within a nearest neighbor contact
-        pair_energies: Numpy array of pair energies for amino acids
+                 beads within a nearest neighbor contact.
+        pair_energies: Numpy array of pair energies for amino acids.
         x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
+                beads for all axes: 0,1,2,3.
+        pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
     Returns:
-        expr: Contribution to energetic Hamiltonian in symbolic notation
+        expr: Contribution to energetic Hamiltonian.
     """
     bounding_constant = 7
     lambda_0 = bounding_constant * (j - i + 1) * lambda_1
@@ -245,19 +245,19 @@ def _second_neighbor(i: int, p: int, j: int, s: int,
     Ensure second NN does not overlap with reference point
 
     Args:
-        i: Backbone bead at turn i
-        j: Backbone bead at turn j (j > i)
-        p: Side chain on backbone bead j
-        s: Side chain on backbone bead i
+        i: Backbone bead at turn i.
+        j: Backbone bead at turn j (j > i).
+        p: Side chain on backbone bead j.
+        s: Side chain on backbone bead i.
         lambda_1: Constraint to penalize local overlap between
-                 beads within a nearest neighbor contact
-        pair_energies: Numpy array of pair energies for amino acids
+                 beads within a nearest neighbor contact.
+        pair_energies: Numpy array of pair energies for amino acids.
         x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
+                beads for all axes: 0,1,2,3.
+        pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
     Returns:
-        expr: Contribution to energetic Hamiltonian in symbolic notation
+        expr: Contribution to energetic Hamiltonian.
     """
     e = pair_energies[i, p, j, s]
     x = x_dist[i][p][j][s]

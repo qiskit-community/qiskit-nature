@@ -18,6 +18,7 @@ from qiskit_nature.problems.sampling.sampling_problem import SamplingProblem
 
 class ProteinFoldingProblem(SamplingProblem):
 
+    # TODO add loader here
     def __init__(self, peptide: Peptide, interaction: Interaction, penalty_terms: Penalties):
         self._peptide = peptide
         self._interaction = interaction

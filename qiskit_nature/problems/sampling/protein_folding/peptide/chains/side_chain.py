@@ -35,7 +35,6 @@ class SideChain(BaseChain):
             return None
         side_chain = []
         for side_bead_id in range(side_chain_len):
-            # TODO generlize for longer side chains
             bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id)
             bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
             side_bead = SideBead(side_chain_residue_sequences[side_bead_id],

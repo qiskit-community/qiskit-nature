@@ -54,18 +54,21 @@ class MainChain(BaseChain):
         main_chain.append(main_bead)
         return main_chain
 
-    def _validate_chain_lengths(self, main_chain_len: int, side_chain_lens):
+    @staticmethod
+    def _validate_chain_lengths(main_chain_len: int, side_chain_lens):
         if side_chain_lens is not None and main_chain_len != len(side_chain_lens):
             raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
 
-    def _validate_side_chain_index_by_lengths(self, side_chain_lens: List[int]):
+    @staticmethod
+    def _validate_side_chain_index_by_lengths(side_chain_lens: List[int]):
         if side_chain_lens is not None and (
                 side_chain_lens[0] != 0 or side_chain_lens[1] != 0 or side_chain_lens[-1] != 0):
             raise InvalidSideChainException(
                 "First, second and last main beads are not allowed to have a side chain. Non-zero "
                 "length provided for an invalid side chain.")
 
-    def _validate_side_chain_index_by_residues(self, side_chain_residue_sequences: List[str]):
+    @staticmethod
+    def _validate_side_chain_index_by_residues(side_chain_residue_sequences: List[str]):
         if side_chain_residue_sequences is not None and (
                 side_chain_residue_sequences[0] is not None or side_chain_residue_sequences[
             1] is not None or side_chain_residue_sequences[-1] is not None):

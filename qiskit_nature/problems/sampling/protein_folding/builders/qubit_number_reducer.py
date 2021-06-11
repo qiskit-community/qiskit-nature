@@ -18,6 +18,18 @@ from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> Union[
     PauliSumOp, PauliOp]:
+    """
+    Removes qubits these from a total Hamiltonian that are equal to an identity operator across
+    all terms, i.e. they are irrelevant for the problem. It makes the number of qubits required
+    for encoding the problem smaller or equal.
+
+    Args:
+        total_hamiltonian: A full Hamiltonian for the protein folding problem.
+
+    Returns:
+        total_hamiltonian_compressed: The total_hamiltonian compressed to an equivalent
+        Hamiltonian.
+    """
     unused_qubits = _find_unused_qubits(total_hamiltonian)
     num_qubits = total_hamiltonian.num_qubits
     new_tables = []
@@ -27,7 +39,8 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> Unio
         table_x = total_hamiltonian.primitive.x
         new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
                                                               unused_qubits)
-        return PauliOp(Pauli((new_table_z, new_table_x)))
+        total_hamiltonian_compressed = PauliOp(Pauli((new_table_z, new_table_x)))
+        return total_hamiltonian_compressed
 
     elif isinstance(total_hamiltonian, PauliSumOp):
         for term in total_hamiltonian:
@@ -40,8 +53,9 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> Unio
             new_tables.append(new_table)
             new_coeffs.append(coeffs)
     new_pauli_table = PauliTable(data=new_tables)
-    qubits_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
-    return qubits_updated.reduce()
+    total_hamiltonian_compressed = PauliSumOp(
+        SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs)).reduce()
+    return total_hamiltonian_compressed
 
 
 def _calc_reduced_pauli_tables(num_qubits: int, table_x, table_z, unused_qubits) -> Tuple[

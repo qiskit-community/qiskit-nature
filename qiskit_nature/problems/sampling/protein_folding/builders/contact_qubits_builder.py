@@ -23,15 +23,15 @@ def _create_contact_qubits(peptide: Peptide):
     Creates Pauli operators for 1st nearest neighbor interactions
 
     Args:
-        main_chain_len: Number of total beads in peptide
-        side_chain: List of side chains in peptide
+        peptide: A Peptide object that includes all information about a protein.
 
     Returns:
-        pauli_contacts, r_contacts: Tuple consisting of dictionary
+        lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
+           lower_side_upper_side, r_contact: Tuple consisting of dictionaries
                                     of Pauli operators for contacts/
-                                    interactions and number of qubits/
-                                    contacts
-       pauli_contacts[lower_bead_id][p][upper_bead_id][s]
+                                    interactions between a lower/upper bead from the main/side
+                                    chain and a lower/upper bead from the main/side chain and the
+                                    total number of contacts.
     """
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
@@ -89,6 +89,3 @@ def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp) -> Operato
     num_qubits_num = 2 * (main_chain_len - 1)
     full_id = _build_full_identity(num_qubits_num)
     return ((full_id ^ full_id) - pauli_sum_op) / 2
-
-
-
