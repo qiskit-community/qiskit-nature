@@ -24,9 +24,14 @@ class MainChain(BaseChain):
     def __init__(self, main_chain_len: int, main_chain_residue_seq: List[str],
                  side_chain_lens: List[int],
                  side_chain_residue_sequences: List[str]):
+        self._main_chain_residue_sequence = main_chain_residue_seq
         beads_list = self._build_main_chain(main_chain_len, main_chain_residue_seq, side_chain_lens,
                                             side_chain_residue_sequences)
         super().__init__(beads_list)
+
+    @property
+    def main_chain_residue_sequence(self):
+        return self._main_chain_residue_sequence
 
     def _build_main_chain(self, main_chain_len: int, main_chain_residue_seq: List[str],
                           side_chain_lens: List[int],

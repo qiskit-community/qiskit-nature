@@ -13,11 +13,9 @@ import numpy as np
 from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.builders import contact_qubits_builder
-from problems.sampling.protein_folding.builders.contact_qubits_builder import \
-    _first_neighbor, _second_neighbor
 from problems.sampling.protein_folding.contact_map import ContactMap
 from problems.sampling.protein_folding.distance_calculator import _calc_total_distances, \
-    _calc_distances_main_chain, _add_distances_side_chain
+    _calc_distances_main_chain, _add_distances_side_chain, _first_neighbor, _second_neighbor
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.peptide.peptide import Peptide

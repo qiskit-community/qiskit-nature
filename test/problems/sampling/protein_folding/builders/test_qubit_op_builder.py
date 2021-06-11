@@ -1290,31 +1290,31 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         assert h_short == expected
 
     #
-    def test_create_h_short_old(self):
-        """
-            Tests that the Hamiltonian to back-overlaps is created correctly.
-            """
-        lf = LatticeFoldingProblem(residue_sequence=["A", "P", "R", "L", "A", "A", "A"])
-        lf.pauli_op()
-        N = 8
-        side_chain = [0, 0, 1, 1, 1, 1, 1, 0]
-        pair_energies = lf._pair_energies
-
-        pauli_conf = _create_pauli_for_conf(N)
-        qubits = _create_qubits_for_conf(pauli_conf)
-        indic_0, indic_1, indic_2, indic_3, n_conf = _create_indic_turn(N, side_chain, qubits)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic_0, indic_1, indic_2,
-                                                                  indic_3, pauli_conf)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
-                                                               delta_n3, indic_0, indic_1,
-                                                               indic_2,
-                                                               indic_3, pauli_conf)
-        x_dist = _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf)
-
-        h_short = _create_H_short(N, side_chain, pair_energies,
-                                  x_dist, pauli_conf, indic_0,
-                                  indic_1, indic_2, indic_3)
-        print(h_short)
+    # def test_create_h_short_old(self):
+    #     """
+    #         Tests that the Hamiltonian to back-overlaps is created correctly.
+    #         """
+    #     lf = LatticeFoldingProblem(residue_sequence=["A", "P", "R", "L", "A", "A", "A"])
+    #     lf.pauli_op()
+    #     N = 8
+    #     side_chain = [0, 0, 1, 1, 1, 1, 1, 0]
+    #     pair_energies = lf._pair_energies
+    #
+    #     pauli_conf = _create_pauli_for_conf(N)
+    #     qubits = _create_qubits_for_conf(pauli_conf)
+    #     indic_0, indic_1, indic_2, indic_3, n_conf = _create_indic_turn(N, side_chain, qubits)
+    #     delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic_0, indic_1, indic_2,
+    #                                                               indic_3, pauli_conf)
+    #     delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
+    #                                                            delta_n3, indic_0, indic_1,
+    #                                                            indic_2,
+    #                                                            indic_3, pauli_conf)
+    #     x_dist = _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf)
+    #
+    #     h_short = _create_H_short(N, side_chain, pair_energies,
+    #                               x_dist, pauli_conf, indic_0,
+    #                               indic_1, indic_2, indic_3)
+    #     print(h_short)
 
     def test_create_h_contacts(self):
         """

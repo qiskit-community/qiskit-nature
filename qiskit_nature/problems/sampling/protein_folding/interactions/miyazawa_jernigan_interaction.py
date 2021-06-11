@@ -9,6 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import List
+
 import numpy as np
 
 from problems.sampling.protein_folding.residue_validator import _validate_residue_sequence
@@ -19,7 +21,7 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.interaction im
 
 class MiyazawaJerniganInteraction(Interaction):
 
-    def calc_energy_matrix(self, chain_len: int, sequence):
+    def calc_energy_matrix(self, chain_len: int, sequence: List[str]):
         _validate_residue_sequence(sequence)
         mj, list_aa = _load_energy_matrix_file()
         pair_energies = np.zeros((chain_len + 1, 2, chain_len + 1, 2))

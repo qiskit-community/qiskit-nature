@@ -13,10 +13,9 @@ from typing import List, Union
 
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
-from problems.sampling.protein_folding.builders.contact_qubits_builder import _first_neighbor, \
-    _second_neighbor
 from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _calc_total_distances
+from problems.sampling.protein_folding.distance_calculator import _calc_total_distances, \
+    _first_neighbor, _second_neighbor
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
 from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
