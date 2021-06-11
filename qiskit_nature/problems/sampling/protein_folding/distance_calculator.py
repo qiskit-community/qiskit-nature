@@ -9,9 +9,11 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+import collections
 
 from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
+
 
 # TODO refactor the data structure storing distances
 def _calc_total_distances(peptide: Peptide):
@@ -32,8 +34,9 @@ def _calc_total_distances(peptide: Peptide):
         x_dist: Numpy array that tracks all distances between backbone and side chain
                 beads for all axes: 0,1,2,3
     """
-    delta_n0, delta_n1,delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-    delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0, delta_n1, delta_n2, delta_n3)
+    delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
+    delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0, delta_n1,
+                                                                       delta_n2, delta_n3)
     main_chain_len = len(peptide.get_main_chain)
     # initializes dictionaries
     x_dist = dict()
@@ -52,9 +55,9 @@ def _calc_total_distances(peptide: Peptide):
                         continue
                     try:
                         x_dist[i][p][j][s] = _fix_qubits((delta_n0[i][p][j][s] ** 2 +
-                                              delta_n1[i][p][j][s] ** 2 +
-                                              delta_n2[i][p][j][s] ** 2 +
-                                              delta_n3[i][p][j][s] ** 2)).reduce()
+                                                          delta_n1[i][p][j][s] ** 2 +
+                                                          delta_n2[i][p][j][s] ** 2 +
+                                                          delta_n3[i][p][j][s] ** 2)).reduce()
                         r += 1
                     except KeyError:
                         pass
@@ -81,7 +84,8 @@ def _calc_distances_main_chain(peptide: Peptide):
                                                 of turns at axes 0,1,2,3
     """
     main_chain_len = len(peptide.get_main_chain)
-    delta_n0, delta_n1, delta_n2, delta_n3 = _init_distance_dict(main_chain_len)
+    delta_n0, delta_n1, delta_n2, delta_n3 = _init_distance_dict(), _init_distance_dict(), \
+                                             _init_distance_dict(), _init_distance_dict()
     # calculate distances
     for i in range(1, main_chain_len):  # j>i
         for j in range(i + 1, main_chain_len + 1):
@@ -104,24 +108,9 @@ def _calc_distances_main_chain(peptide: Peptide):
     return delta_n0, delta_n1, delta_n2, delta_n3
 
 
-def _init_distance_dict(main_chain_len: int):
-    delta_n0, delta_n1, delta_n2, delta_n3 = dict(), dict(), dict(), dict()
-    for i in range(1, main_chain_len):
-        delta_n0[i] = dict()
-        delta_n1[i] = dict()
-        delta_n2[i] = dict()
-        delta_n3[i] = dict()
-        delta_n0[i][0], delta_n0[i][1] = dict(), dict()
-        delta_n1[i][0], delta_n1[i][1] = dict(), dict()
-        delta_n2[i][0], delta_n2[i][1] = dict(), dict()
-        delta_n3[i][0], delta_n3[i][1] = dict(), dict()
-        for j in range(i + 1, main_chain_len + 1):
-            delta_n0[i][0][j], delta_n0[i][1][j] = dict(), dict()
-            delta_n1[i][0][j], delta_n1[i][1][j] = dict(), dict()
-            delta_n2[i][0][j], delta_n2[i][1][j] = dict(), dict()
-            delta_n3[i][0][j], delta_n3[i][1][j] = dict(), dict()
-
-    return delta_n0, delta_n1, delta_n2, delta_n3
+def _init_distance_dict():
+    return collections.defaultdict(
+        lambda: collections.defaultdict(lambda: collections.defaultdict(dict)))
 
 
 def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2,
@@ -143,54 +132,66 @@ def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2,
                                                 contributions) that track the number
                                                 of occurrences of turns at axes 0,1,2,3.
     """
-    # TODO refactor try clauses
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
     for i in range(1, main_chain_len):  # j>i
         for j in range(i + 1, main_chain_len + 1):
 
-            if side_chain[j-1]:
+            if side_chain[j - 1]:
                 try:
                     # TODO generalize to side chains longer than 1
                     indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[j - 1].side_chain[
                         0].get_indicator_functions()
-                    delta_n0[i][0][j][1] = _fix_qubits((delta_n0[i][0][j][0] + (-1) ** j * indic_0)).reduce()
-                    delta_n1[i][0][j][1] = _fix_qubits((delta_n1[i][0][j][0] + (-1) ** j * indic_1)).reduce()
-                    delta_n2[i][0][j][1] = _fix_qubits((delta_n2[i][0][j][0] + (-1) ** j * indic_2)).reduce()
-                    delta_n3[i][0][j][1] = _fix_qubits((delta_n3[i][0][j][0] + (-1) ** j * indic_3)).reduce()
+                    delta_n0[i][0][j][1] = _fix_qubits(
+                        (delta_n0[i][0][j][0] + (-1) ** j * indic_0)).reduce()
+                    delta_n1[i][0][j][1] = _fix_qubits(
+                        (delta_n1[i][0][j][0] + (-1) ** j * indic_1)).reduce()
+                    delta_n2[i][0][j][1] = _fix_qubits(
+                        (delta_n2[i][0][j][0] + (-1) ** j * indic_2)).reduce()
+                    delta_n3[i][0][j][1] = _fix_qubits(
+                        (delta_n3[i][0][j][0] + (-1) ** j * indic_3)).reduce()
                 except KeyError:
                     pass
 
-            if side_chain[i-1]:
+            if side_chain[i - 1]:
                 try:
                     # TODO generalize to side chains longer than 1
                     indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[i - 1].side_chain[
                         0].get_indicator_functions()
-                    delta_n0[i][1][j][0] = _fix_qubits((delta_n0[i][0][j][0] - (-1) ** i * indic_0)).reduce()
-                    delta_n1[i][1][j][0] = _fix_qubits((delta_n1[i][0][j][0] - (-1) ** i * indic_1)).reduce()
-                    delta_n2[i][1][j][0] = _fix_qubits((delta_n2[i][0][j][0] - (-1) ** i * indic_2)).reduce()
-                    delta_n3[i][1][j][0] = _fix_qubits((delta_n3[i][0][j][0] - (-1) ** i * indic_3)).reduce()
+                    delta_n0[i][1][j][0] = _fix_qubits(
+                        (delta_n0[i][0][j][0] - (-1) ** i * indic_0)).reduce()
+                    delta_n1[i][1][j][0] = _fix_qubits(
+                        (delta_n1[i][0][j][0] - (-1) ** i * indic_1)).reduce()
+                    delta_n2[i][1][j][0] = _fix_qubits(
+                        (delta_n2[i][0][j][0] - (-1) ** i * indic_2)).reduce()
+                    delta_n3[i][1][j][0] = _fix_qubits(
+                        (delta_n3[i][0][j][0] - (-1) ** i * indic_3)).reduce()
                 except KeyError:
                     pass
 
-            if side_chain[i-1] and side_chain[j-1]:
+            if side_chain[i - 1] and side_chain[j - 1]:
                 try:
                     # TODO generalize to side chains longer than 1
                     higher_indic_0, higher_indic_1, higher_indic_2, higher_indic_3 = \
-                    peptide.get_main_chain[
-                        j - 1].side_chain[0].get_indicator_functions()
+                        peptide.get_main_chain[
+                            j - 1].side_chain[0].get_indicator_functions()
                     # TODO generalize to side chains longer than 1
-                    lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = peptide.get_main_chain[
-                        i - 1].side_chain[0].get_indicator_functions()
+                    lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = \
+                        peptide.get_main_chain[
+                            i - 1].side_chain[0].get_indicator_functions()
 
-                    delta_n0[i][1][j][1] = _fix_qubits((delta_n0[i][0][j][0] + (-1) ** j * higher_indic_0 - (
-                        -1) ** i * lower_indic_0)).reduce()
-                    delta_n1[i][1][j][1] = _fix_qubits((delta_n1[i][0][j][0] + (-1) ** j * higher_indic_1 - (
-                        -1) ** i * lower_indic_1)).reduce()
-                    delta_n2[i][1][j][1] = _fix_qubits((delta_n2[i][0][j][0] + (-1) ** j * higher_indic_2 - (
-                        -1) ** i * lower_indic_2)).reduce()
-                    delta_n3[i][1][j][1] = _fix_qubits((delta_n3[i][0][j][0] + (-1) ** j * higher_indic_3 - (
-                        -1) ** i * lower_indic_3)).reduce()
+                    delta_n0[i][1][j][1] = _fix_qubits(
+                        (delta_n0[i][0][j][0] + (-1) ** j * higher_indic_0 - (
+                            -1) ** i * lower_indic_0)).reduce()
+                    delta_n1[i][1][j][1] = _fix_qubits(
+                        (delta_n1[i][0][j][0] + (-1) ** j * higher_indic_1 - (
+                            -1) ** i * lower_indic_1)).reduce()
+                    delta_n2[i][1][j][1] = _fix_qubits(
+                        (delta_n2[i][0][j][0] + (-1) ** j * higher_indic_2 - (
+                            -1) ** i * lower_indic_2)).reduce()
+                    delta_n3[i][1][j][1] = _fix_qubits(
+                        (delta_n3[i][0][j][0] + (-1) ** j * higher_indic_3 - (
+                            -1) ** i * lower_indic_3)).reduce()
                 except KeyError:
                     pass
     return delta_n0, delta_n1, delta_n2, delta_n3
