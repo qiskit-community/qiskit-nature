@@ -10,14 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import collections
-from typing import List, Union, Tuple, Any
 
-from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
+from qiskit.opflow import PauliSumOp, OperatorBase
 
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_pauli_z_op, \
     _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide
-from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 
 
 def _create_contact_qubits(peptide: Peptide):
@@ -93,67 +91,4 @@ def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp) -> Operato
     return ((full_id ^ full_id) - pauli_sum_op) / 2
 
 
-# gathers qubits from conformation and qubits from NN intraction
-def _first_neighbor(i: int, p: int, j: int, s: int,
-                    lambda_1: float, pair_energies: List[List[List[List[float]]]],
-                    x_dist, pair_energies_multiplier: float = 0.1) -> Union[PauliSumOp, PauliOp]:
-    """
-    Creates first nearest neighbor interaction if beads are in contact
-    and at a distance of 1 unit from each other. Otherwise, a large positive
-    energetic penalty is added. Here, the penalty depends on the neighboring
-    beads of interest (i and j), that is, lambda_0 > 6*(j -i + 1)*lambda_1 + e_ij.
-    Here, we chose, lambda_0 = 7*(j- 1 + 1).
 
-    Args:
-        i: Backbone bead at turn i
-        j: Backbone bead at turn j (j > i)
-        p: Side chain on backbone bead j
-        s: Side chain on backbone bead i
-        lambda_1: Constraint to penalize local overlap between
-                 beads within a nearest neighbor contact
-        pair_energies: Numpy array of pair energies for amino acids
-        x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-
-    Returns:
-        expr: Contribution to energetic Hamiltonian in symbolic notation
-    """
-    bounding_constant = 7
-    lambda_0 = bounding_constant * (j - i + 1) * lambda_1
-    e = pair_energies[i, p, j, s]
-    x = x_dist[i][p][j][s]
-    expr = lambda_0 * (x - _build_full_identity(x.num_qubits))
-    # + pair_energies_multiplier*e*_build_full_identity(x.num_qubits)
-    return _fix_qubits(expr).reduce()
-
-
-def _second_neighbor(i: int, p: int, j: int, s: int,
-                     lambda_1: float, pair_energies: List[List[List[List[float]]]],
-                     x_dist, pair_energies_multiplier: float = 0.1) -> Union[PauliSumOp, PauliOp]:
-    """
-    Creates energetic interaction that penalizes local overlap between
-    beads that correspond to a nearest neighbor contact or adds no net
-    interaction (zero) if beads are at a distance of 2 units from each other.
-    Ensure second NN does not overlap with reference point
-
-    Args:
-        i: Backbone bead at turn i
-        j: Backbone bead at turn j (j > i)
-        p: Side chain on backbone bead j
-        s: Side chain on backbone bead i
-        lambda_1: Constraint to penalize local overlap between
-                 beads within a nearest neighbor contact
-        pair_energies: Numpy array of pair energies for amino acids
-        x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-
-    Returns:
-        expr: Contribution to energetic Hamiltonian in symbolic notation
-    """
-    e = pair_energies[i, p, j, s]
-    x = x_dist[i][p][j][s]
-    expr = lambda_1 * (2 * (_build_full_identity(
-        x.num_qubits)) - x)  # + pair_energies_multiplier * e * _build_full_identity(x.num_qubits)
-    return _fix_qubits(expr).reduce()
