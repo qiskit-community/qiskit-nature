@@ -105,7 +105,7 @@ from qiskit.circuit.library import TwoLocal
 ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 
 # add the initial state
-ansatz.compose(init_state, front=True)
+ansatz.compose(init_state, front=True, inplace=True)
 
 # set the backend for the quantum computation
 from qiskit import Aer
