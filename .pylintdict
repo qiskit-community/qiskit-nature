@@ -17,6 +17,7 @@ autosummary
 avogadro
 backend
 barkoutsos
+bb
 bergholm
 berlin
 bitstring
@@ -351,6 +352,7 @@ uncompiled
 unitaries
 untransforms
 uvcc
+vals
 variational
 vibrational
 vibrationalop
