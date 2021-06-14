@@ -24,6 +24,7 @@ from problems.sampling.protein_folding.distance_calculator import _calc_distance
     _add_distances_side_chain, _calc_total_distances
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
+from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from test import QiskitNatureTestCase
 
@@ -104,9 +105,9 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         mj = MiyazawaJerniganInteraction()
+        penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
-        qubit_op = _build_qubit_op(peptide, pair_energies, lambda_chiral, lambda_back, lambda_1,
-                                   lambda_contacts, n_contacts)
+        qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params, n_contacts)
         print(qubit_op)
 
     def test_create_h_back(self):

@@ -19,18 +19,18 @@ from qiskit_nature.problems.sampling.sampling_problem import SamplingProblem
 class ProteinFoldingProblem(SamplingProblem):
 
     # TODO add loader here
-    def __init__(self, peptide: Peptide, interaction: Interaction, penalty_terms: Penalties):
+    def __init__(self, peptide: Peptide, interaction: Interaction,
+                 penalty_parameters: PenaltyParameters):
         self._peptide = peptide
         self._interaction = interaction
-        self._penalty_terms = penalty_terms
+        self._penalty_parameters = penalty_parameters
         self._pair_energies = interaction.calc_energy_matrix(len(peptide.get_main_chain),
                                                              peptide.get_main_chain.main_chain_residue_sequence)
         self._N_contacts = 0  # TODO what is the meaning of this param?
 
     def qubit_op(self):
         return _build_qubit_op(self._peptide, self._pair_energies,
-                               self._penalty_terms.lambda_chiral, self._penalty_terms.lambda_back,
-                               self._penalty_terms.lambda_1, self._penalty_terms.lambda_contacts,
+                               self._penalty_parameters,
                                self._N_contacts)
 
     def interpret(self):

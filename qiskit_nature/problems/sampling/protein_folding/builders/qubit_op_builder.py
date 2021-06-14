@@ -19,15 +19,35 @@ from problems.sampling.protein_folding.distance_calculator import _calc_total_di
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
 from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
+from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
-def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]], lambda_chiral,
-                    lambda_back, lambda_1,
-                    lambda_contacts, n_contacts) -> Union[PauliSumOp, PauliOp]:
+def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]],
+                    penalty_parameters: PenaltyParameters, n_contacts) -> Union[
+    PauliSumOp, PauliOp]:
+    """
+        Builds a qubit operator for a total Hamiltonian for a protein folding problem. It includes
+        8 terms responsible for chirality, geometry and nearest neighbours interactions.
+
+        Args:
+            peptide: A Peptide object that includes all information about a protein.
+            pair_energies: Numpy array of pair energies for amino acids.
+            penalty_parameters: A PenaltyParameters object storing the values of all penalty
+                                parameters.
+            n_contacts: # TODO
+
+
+        Returns:
+            h_total: A total Hamiltonian for the protein folding problem.
+        """
+    lambda_chiral, lambda_back, lambda_1, lambda_contacts = penalty_parameters.lambda_chiral, \
+                                                            penalty_parameters.lambda_back, \
+                                                            penalty_parameters.lambda_1, \
+                                                            penalty_parameters.lambda_contacts
     side_chain = peptide.get_side_chain_hot_vector()
     main_chain_len = len(peptide.get_main_chain)
 

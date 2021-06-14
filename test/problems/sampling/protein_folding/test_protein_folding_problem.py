@@ -13,7 +13,7 @@ from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interactio
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from problems.sampling.protein_folding.protein_folding_problem import ProteinFoldingProblem
-from qiskit_nature.problems.sampling.protein_folding.penalties import Penalties
+from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from test import QiskitNatureTestCase
 
 
@@ -26,7 +26,7 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         lambda_chiral = 10
         lambda_1 = 10
         lambda_contacts = 10
-        penalty_terms = Penalties(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
+        penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
 
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9
