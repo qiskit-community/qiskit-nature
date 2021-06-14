@@ -14,9 +14,8 @@ from qiskit.opflow import I, Z
 from problems import LatticeFoldingProblem
 from problems.sampling.folding.folding_qubit_op_builder import _create_pauli_for_conf, \
     _create_qubits_for_conf, _create_indic_turn
-from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
-    _add_distances_side_chain, \
-    _calc_total_distances
+from problems.sampling.protein_folding import distance_calculator
+from problems.sampling.protein_folding.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from test import QiskitNatureTestCase
 
@@ -48,7 +47,7 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         """
         Tests that distances for all beads on the main chain are calculated correctly.
         """
-        delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(self.peptide)
+        delta_n0, delta_n1, delta_n2, delta_n3 = distance_calculator._calc_distances_main_chain(self.peptide)
         # checking only some of the entries
         assert delta_n0[1][0][5][0] == 1.25 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
@@ -74,9 +73,9 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         """
         Tests that distances for all beads on side chains are calculated correctly.
         """
-        delta_n0_main, delta_n1_main, delta_n2_main, delta_n3_main = _calc_distances_main_chain(
+        delta_n0_main, delta_n1_main, delta_n2_main, delta_n3_main = distance_calculator._calc_distances_main_chain(
             self.peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(self.peptide,
+        delta_n0, delta_n1, delta_n2, delta_n3 = distance_calculator._add_distances_side_chain(self.peptide,
                                                                            delta_n0_main,
                                                                            delta_n1_main,
                                                                            delta_n2_main,
@@ -92,13 +91,13 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         """
         Tests that total distances for all beads are calculated correctly.
         """
-        x_dist = _calc_total_distances(self.peptide)
-        assert x_dist[2][0][3][1] == 1.5 * (
+        x_dist = DistanceMap(self.peptide)
+        assert x_dist.lower_side_upper_main[2][3] == 1.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
                        I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
                        I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
                        I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-        assert x_dist[1][0][3][1] == 3.0 * (
+        assert x_dist.lower_side_upper_main[1][3] == 3.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
                        I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
                        I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)

@@ -14,8 +14,8 @@ from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.builders import contact_qubits_builder
 from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _calc_total_distances, \
-    _calc_distances_main_chain, _add_distances_side_chain, _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.distance_calculator import _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.distance_map import DistanceMap
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.peptide.peptide import Peptide
@@ -181,10 +181,10 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         upper_main_bead_index = 4
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
-        x_dist = _calc_total_distances(peptide)
+        x_dist = DistanceMap(peptide)
         expr = _first_neighbor(lower_main_bead_index, side_chain_upper_main_bead,
                                upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
-                               pair_energies, x_dist)
+                               pair_energies, x_dist.lower_main_upper_main)
 
         assert expr == 168.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
@@ -209,10 +209,10 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         upper_main_bead_index = 4
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
-        x_dist = _calc_total_distances(peptide)
+        x_dist = DistanceMap(peptide)
         expr = _second_neighbor(lower_main_bead_index, side_chain_upper_main_bead,
                                 upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
-                                pair_energies, x_dist)
+                                pair_energies, x_dist.lower_main_upper_main)
         assert expr == -4.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 2.0 * (
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)

@@ -27,7 +27,7 @@ def _create_contact_qubits(peptide: Peptide):
 
     Returns:
         lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-           lower_side_upper_side, r_contact: Tuple consisting of dictionaries
+           lower_side_upper_side, num_contacts: Tuple consisting of dictionaries
                                     of Pauli operators for contacts/
                                     interactions between a lower/upper bead from the main/side
                                     chain and a lower/upper bead from the main/side chain and the
@@ -41,7 +41,7 @@ def _create_contact_qubits(peptide: Peptide):
     lower_main_upper_side = collections.defaultdict(dict)
     lower_side_upper_side = collections.defaultdict(dict)
 
-    r_contact = 0
+    num_contacts = 0
     num_qubits = 2 * (main_chain_len - 1)
     full_id = _build_full_identity(num_qubits)
     for lower_bead_id in range(1, main_chain_len - 3):  # first qubit is number 1
@@ -53,14 +53,14 @@ def _create_contact_qubits(peptide: Peptide):
                                 full_id ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1,
                                                                          upper_bead_id - 1])))
                     print('possible contact between', lower_bead_id, '0 and', upper_bead_id, '0')
-                    r_contact += 1
+                    num_contacts += 1
                 if side_chain[lower_bead_id - 1] and side_chain[upper_bead_id - 1]:
                     lower_side_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                         main_chain_len, (
                                 _build_pauli_z_op(num_qubits, [lower_bead_id - 1,
                                                                upper_bead_id - 1]) ^ full_id))
                     print('possible contact between', lower_bead_id, '1 and', upper_bead_id, '1')
-                    r_contact += 1
+                    num_contacts += 1
             else:
                 if (upper_bead_id - lower_bead_id) >= 4:
                     if side_chain[upper_bead_id - 1]:
@@ -70,7 +70,7 @@ def _create_contact_qubits(peptide: Peptide):
                         side_op = _build_pauli_z_op(num_qubits, [upper_bead_id - 1]) ^ full_id
                         lower_side_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                             main_chain_len, main_op @ side_op)
-                        r_contact += 1
+                        num_contacts += 1
 
                     if side_chain[lower_bead_id - 1]:
                         print('possible contact between', lower_bead_id, '1 and', upper_bead_id,
@@ -79,10 +79,10 @@ def _create_contact_qubits(peptide: Peptide):
                         side_op = _build_pauli_z_op(num_qubits, [lower_bead_id - 1]) ^ full_id
                         lower_main_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                             main_chain_len, (side_op @ main_op))
-                        r_contact += 1
-    print('number of qubits required for contact : ', r_contact)
+                        num_contacts += 1
+    print('number of qubits required for contact : ', num_contacts)
     return lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-           lower_side_upper_side, r_contact
+           lower_side_upper_side, num_contacts
 
 
 def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp) -> OperatorBase:

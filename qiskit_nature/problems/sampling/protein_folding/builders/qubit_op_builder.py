@@ -14,8 +14,9 @@ from typing import List, Union
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
 from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _calc_total_distances, \
+from problems.sampling.protein_folding.distance_calculator import _create_distance_qubits, \
     _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.distance_map import DistanceMap
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
 from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
@@ -58,20 +59,20 @@ def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]
             "First, second and last main beads are not allowed to have a side chain. Non-None "
             "residue provided for an invalid side chain")
 
-    x_dist = _calc_total_distances(peptide)
+    distance_map = DistanceMap(peptide)
     h_chiral = _create_h_chiral(peptide, lambda_chiral)
     h_back = _create_h_back(peptide, lambda_back)
 
     contact_map = ContactMap(peptide)
 
     h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
-                            pair_energies, x_dist, contact_map)
-    h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies, x_dist, contact_map)
+                            pair_energies, distance_map, contact_map)
+    h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies, distance_map, contact_map)
 
     h_short = _create_h_short(peptide, pair_energies)
 
     h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
-                                               pair_energies, x_dist, contact_map)
+                                               pair_energies, distance_map, contact_map)
     h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
 
     h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
@@ -202,7 +203,7 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
 
 def _create_h_bbbb(main_chain_len: int, lambda_1: float,
                    pair_energies: List[List[List[List[float]]]],
-                   x_dist, contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
+                   distance_map, contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to a 1st neighbor interaction between
     main/backbone (BB) beads.
@@ -212,7 +213,7 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
         lambda_1: Constraint to penalize local overlap between
                  beads within a nearest neighbor contact.
         pair_energies: Numpy array of pair energies for amino acids.
-        x_dist: Numpy array that tracks all distances between backbone and side chain
+        distance_map: Numpy array that tracks all distances between backbone and side chain
                 beads for all axes: 0,1,2,3.
         contact_map: ContactMap object that stores contact qubits for all beads.
 
@@ -229,13 +230,13 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
                 H_BBBB += contact_map.lower_main_upper_main[i][j] @ _first_neighbor(i, 0, j, 0,
                                                                                     lambda_1,
                                                                                     pair_energies,
-                                                                                    x_dist)
+                                                                                    distance_map.lower_main_upper_main)
                 try:
                     H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(i - 1, 0,
                                                                                          j, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
-                                                                                         x_dist)
+                                                                                         distance_map.lower_main_upper_main)
                 except (IndexError, KeyError):
                     pass
                 try:
@@ -243,7 +244,7 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
                                                                                          j, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
-                                                                                         x_dist)
+                                                                                         distance_map.lower_main_upper_main)
                 except (IndexError, KeyError):
                     pass
                 try:
@@ -251,7 +252,7 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
                                                                                          j - 1, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
-                                                                                         x_dist)
+                                                                                         distance_map.lower_main_upper_main)
                 except (IndexError, KeyError):
                     pass
                 try:
@@ -259,7 +260,7 @@ def _create_h_bbbb(main_chain_len: int, lambda_1: float,
                                                                                          j + 1, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
-                                                                                         x_dist)
+                                                                                         distance_map.lower_main_upper_main)
                 except (IndexError, KeyError):
                     pass
             H_BBBB = _fix_qubits(H_BBBB).reduce()
@@ -297,14 +298,14 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain: List[int], lambda
             else:
                 if side_chain[j - 1] == 1:
                     h_bbsc += (contact_map.lower_side_upper_main[i][j] @ (
-                            _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist) +
-                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
+                            _first_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist.lower_side_upper_main) +
+                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist.lower_main_upper_main)))
                     try:
                         h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _first_neighbor(i, 1,
                                                                                              j, 1,
                                                                                              lambda_1,
                                                                                              pair_energies,
-                                                                                             x_dist))
+                                                                                             x_dist.lower_side_upper_side))
                     except (IndexError, KeyError):
                         pass
                     try:
@@ -313,7 +314,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain: List[int], lambda
                                                                                               1,
                                                                                               lambda_1,
                                                                                               pair_energies,
-                                                                                              x_dist))
+                                                                                              x_dist.lower_side_upper_main))
                     except (IndexError, KeyError):
                         pass
                     try:
@@ -322,20 +323,20 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain: List[int], lambda
                                                                                               1,
                                                                                               lambda_1,
                                                                                               pair_energies,
-                                                                                              x_dist))
+                                                                                              x_dist.lower_side_upper_main))
                     except (IndexError, KeyError):
                         pass
                     h_bbsc = h_bbsc.reduce()
                 if side_chain[i - 1] == 1:
                     h_scbb += (contact_map.lower_main_upper_side[i][j] @ (
-                            _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist) +
-                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist)))
+                            _first_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist.lower_main_upper_side) +
+                            _second_neighbor(i, 0, j, 0, lambda_1, pair_energies, x_dist.lower_main_upper_main)))
                     try:
                         h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(i, 1,
                                                                                               j, 1,
                                                                                               lambda_1,
                                                                                               pair_energies,
-                                                                                              x_dist))
+                                                                                              x_dist.lower_side_upper_side))
                     except (IndexError, KeyError):
                         pass
                     try:
@@ -344,7 +345,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain: List[int], lambda
                                                                                               0,
                                                                                               lambda_1,
                                                                                               pair_energies,
-                                                                                              x_dist))
+                                                                                              x_dist.lower_main_upper_side))
                     except (IndexError, KeyError):
                         pass
                     try:
@@ -353,7 +354,7 @@ def _create_h_bbsc_and_h_scbb(main_chain_len: int, side_chain: List[int], lambda
                                                                                               0,
                                                                                               lambda_1,
                                                                                               pair_energies,
-                                                                                              x_dist))
+                                                                                              x_dist.lower_main_upper_side))
                     except (IndexError, KeyError):
                         pass
                     h_scbb = h_scbb.reduce()
@@ -394,10 +395,10 @@ def _create_h_scsc(main_chain_len: int, side_chain: List[int], lambda_1: float,
             if side_chain[i - 1] == 0 or side_chain[j - 1] == 0:
                 continue
             h_scsc += contact_map.lower_side_upper_side[i][j] @ (
-                    _first_neighbor(i, 1, j, 1, lambda_1, pair_energies, x_dist) +
-                    _second_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist)
+                    _first_neighbor(i, 1, j, 1, lambda_1, pair_energies, x_dist.lower_side_upper_side) +
+                    _second_neighbor(i, 1, j, 0, lambda_1, pair_energies, x_dist.lower_main_upper_side)
                     +
-                    _second_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist))
+                    _second_neighbor(i, 0, j, 1, lambda_1, pair_energies, x_dist.lower_side_upper_main))
             h_scsc = h_scsc.reduce()
     return _fix_qubits(h_scsc).reduce()
 

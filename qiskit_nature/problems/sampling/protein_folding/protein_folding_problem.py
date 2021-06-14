@@ -12,7 +12,7 @@
 from problems.sampling.protein_folding.builders.qubit_op_builder import _build_qubit_op
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction
-from qiskit_nature.problems.sampling.protein_folding.penalties import Penalties
+from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from qiskit_nature.problems.sampling.sampling_problem import SamplingProblem
 
 

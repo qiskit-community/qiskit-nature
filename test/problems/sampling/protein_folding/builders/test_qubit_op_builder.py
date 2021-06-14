@@ -20,8 +20,7 @@ from problems.sampling.protein_folding.builders.qubit_op_builder import _create_
     _create_h_contacts, \
     _build_qubit_op, _create_h_short, _create_turn_operators
 from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
-    _add_distances_side_chain, _calc_total_distances
+from problems.sampling.protein_folding.distance_map import DistanceMap
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
@@ -295,7 +294,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        x_dist = _calc_total_distances(peptide)
+        x_dist = DistanceMap(peptide)
         contact_map = ContactMap(peptide)
         h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
                                 x_dist, contact_map)
@@ -643,7 +642,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         side_chain = peptide.get_side_chain_hot_vector()
-        x_dist = _calc_total_distances(peptide)
+        x_dist = DistanceMap(peptide)
 
         contact_map = ContactMap(peptide)
 
@@ -913,7 +912,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         side_chain = peptide.get_side_chain_hot_vector()
-        x_dist = _calc_total_distances(peptide)
+        x_dist =  DistanceMap(peptide)
 
         contact_map = ContactMap(peptide)
 
@@ -1012,7 +1011,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         mj = MiyazawaJerniganInteraction()
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         side_chain = peptide.get_side_chain_hot_vector()
-        x_dist = _calc_total_distances(peptide)
+        x_dist =  DistanceMap(peptide)
         contact_map = ContactMap(peptide)
         h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
                                 pair_energies, x_dist, contact_map)
