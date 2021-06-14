@@ -14,8 +14,7 @@ from typing import List, Union
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
 from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _create_distance_qubits, \
-    _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.distance_calculator import _first_neighbor, _second_neighbor
 from problems.sampling.protein_folding.distance_map import DistanceMap
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
@@ -400,10 +399,6 @@ def _create_h_scsc(peptide: Peptide, lambda_1: float,
                 continue
             if side_chain[i - 1] == 0 or side_chain[j - 1] == 0:
                 continue
-            lower_main_bead = peptide.get_main_chain[i-1]
-            upper_main_bead = peptide.get_main_chain[j-1]
-            lower_side_bead = lower_main_bead.side_chain[0]
-            upper_side_bead = upper_main_bead.side_chain[0]
             h_scsc += contact_map.lower_side_upper_side[i][j] @ (
                     _first_neighbor(peptide, i, 1, j, 1, lambda_1, pair_energies, x_dist) +
                     _second_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies, x_dist)

@@ -33,16 +33,20 @@ class MainChain(BaseChain):
     def main_chain_residue_sequence(self):
         return self._main_chain_residue_sequence
 
-    def _build_main_chain(self, main_chain_len: int, main_chain_residue_seq: List[str],
+    def _build_main_chain(self, main_chain_len: int, main_chain_residue_sequences: List[str],
                           side_chain_lens: List[int],
                           side_chain_residue_sequences: List[str]) -> List[MainBead]:
         """
-
+        Creates a main chain for a given main chain length and side chain data.
         Args:
-            :
+            main_chain_len: length of the main chain of a peptide.
+            main_chain_residue_sequences: list of characters that define residues for a main chain.
+            side_chain_lens: list of lengths of all side chains.
+            side_chain_residue_sequences: list of characters that define residues for all side
+            beads.
 
         Returns:
-            :
+            main_chain: an instance of a MainChain class.
         """
         main_chain = []
         self._validate_chain_lengths(main_chain_len, side_chain_lens)
@@ -54,7 +58,7 @@ class MainChain(BaseChain):
             bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
             side_chain = self._create_side_chain(main_bead_id, main_chain_len, side_chain_lens,
                                                  side_chain_residue_sequences)
-            main_bead = MainBead(main_bead_id, main_chain_residue_seq[main_bead_id],
+            main_bead = MainBead(main_bead_id, main_chain_residue_sequences[main_bead_id],
                                  [bead_turn_qubit_1, bead_turn_qubit_2],
                                  side_chain)
             main_chain.append(main_bead)
@@ -87,12 +91,16 @@ class MainChain(BaseChain):
     def _create_side_chain(self, main_bead_id: int, main_chain_len: int, side_chain_lens: List[int],
                            side_chain_residue_sequences: List[str]) -> SideChain:
         """
-
+        Creates a side chain for a given main bead.
         Args:
-            :
+            main_bead_id: id of a main bead that will host a side chain.
+            main_chain_len: length of the main chain of a peptide.
+            side_chain_lens: list of lengths of all side chains.
+            side_chain_residue_sequences: list of characters that define residues for all side
+            beads.
 
         Returns:
-            :
+            side_chain: an instance of a SideChain class.
         """
         if self._is_side_chain_present(main_bead_id, side_chain_lens,
                                        side_chain_residue_sequences):
@@ -105,13 +113,18 @@ class MainChain(BaseChain):
     def _is_side_chain_present(self, main_bead_id: int, side_chain_lens: List[int],
                                side_chain_residue_sequences) -> bool:
         """
-
+        Returns true if a main bead of a given id hosts a side chain. Returns false otherwise.
         Args:
-            :
+            main_bead_id: id of a main bead that will host a side chain.
+            side_chain_lens: list of lengths of all side chains.
+            side_chain_residue_sequences: list of characters that define residues for all side
+            beads.
 
         Returns:
-            :
+            is_side_chain_present: a boolean indicating whether a given main bead hosts a side
+            chain.
         """
-        return side_chain_lens and side_chain_lens[
+        is_side_chain_present = side_chain_lens and side_chain_lens[
             main_bead_id] != 0 and side_chain_residue_sequences and \
-               side_chain_residue_sequences[main_bead_id] is not None
+                                side_chain_residue_sequences[main_bead_id] is not None
+        return is_side_chain_present

@@ -29,9 +29,16 @@ class ProteinFoldingProblem(SamplingProblem):
         self._N_contacts = 0  # TODO what is the meaning of this param?
 
     def qubit_op(self):
-        return _build_qubit_op(self._peptide, self._pair_energies,
-                               self._penalty_parameters,
-                               self._N_contacts)
+        """
+        Builds a qubit operator for the Hamiltonian encoding a protein folding problem.
+
+        Returns:
+            qubit_operator: a qubit operator for the Hamiltonian encoding a protein folding problem.
+        """
+        qubit_operator = _build_qubit_op(self._peptide, self._pair_energies,
+                                         self._penalty_parameters,
+                                         self._N_contacts)
+        return qubit_operator
 
     def interpret(self):
         pass

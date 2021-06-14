@@ -14,7 +14,7 @@ import numpy as np
 
 
 def _load_energy_matrix_file():
-    """Returns the energy matrix from the MJ potential file"""
+    """Returns the energy matrix from the MJ potential file."""
 
     path = "qiskit_nature/problems/sampling/protein_folding/resources/mj_matrix.txt"
     matrix = np.loadtxt(fname=path, dtype=str)

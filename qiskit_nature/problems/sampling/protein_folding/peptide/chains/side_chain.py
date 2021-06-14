@@ -29,12 +29,16 @@ class SideChain(BaseChain):
                           side_chain_residue_sequences: List[str]) -> \
             Union[List[SideBead], None]:
         """
-
+        Creates a side chain for a given main bead.
         Args:
-            :
+            main_bead_id: id of a main bead that will host a side chain.
+            main_chain_len: length of the main chain of a peptide.
+            side_chain_len: length of a given side chain.
+            side_chain_residue_sequences: list of characters that define residues for all side
+            beads.
 
         Returns:
-            :
+            side_chain: an instance of a SideChain class.
         """
         if side_chain_len > 1:
             raise InvalidSideChainException(
@@ -45,7 +49,8 @@ class SideChain(BaseChain):
         for side_bead_id in range(side_chain_len):
             bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id)
             bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
-            side_bead = SideBead(main_bead_id, side_bead_id, side_chain_residue_sequences[side_bead_id],
+            side_bead = SideBead(main_bead_id, side_bead_id,
+                                 side_chain_residue_sequences[side_bead_id],
                                  [bead_turn_qubit_1, bead_turn_qubit_2])
             side_chain.append(side_bead)
         return side_chain

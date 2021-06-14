@@ -29,6 +29,14 @@ def _validate_residue_sequence(residue_sequence: List[str]):
 
 
 def _validate_residue_symbol(residue_symbol: str):
+    """
+    Checks if the provided residue character is legal. If not, an InvalidResidueException is thrown.
+    Args:
+        residue_symbol: symbol of a residue.
+
+    Throws:
+        InvalidResidueException: if a symbol provided is not legal.
+    """
     valid_residues = ['C', 'M', 'F', 'I', 'L', 'V', 'W', 'Y', 'A', 'G', 'T', 'S', 'N', 'Q', 'D',
                       'E', 'H', 'R', 'K', 'P']
     if residue_symbol is not None and residue_symbol not in valid_residues:

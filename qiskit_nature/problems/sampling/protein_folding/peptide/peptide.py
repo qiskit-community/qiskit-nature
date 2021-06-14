@@ -23,18 +23,31 @@ class Peptide:
                                      side_chain_residue_sequences)
 
     def get_side_chains(self) -> List[SideChain]:
+        """
+        Returns the list of all side chains in a peptide.
+
+        Returns:
+            side_chains: the list of all side chains in a peptide.
+        """
         side_chains = []
         for main_bead in self._main_chain.beads_list:
             side_chains.append(main_bead.side_chain)
         return side_chains
 
-    def get_side_chain_hot_vector(self) -> List[int]:
+    def get_side_chain_hot_vector(self) -> List[bool]:
+        """
+        Returns a one-hot encoding list for side chains in a peptide which indicates which side
+        chains are present.
+
+        Returns:
+            side_chain_hot_vector: a one-hot encoding list for side chains in a peptide.
+        """
         side_chain_hot_vector = []
         for main_bead in self._main_chain.beads_list:
             if main_bead.side_chain is not None:
-                side_chain_hot_vector.append(1)
+                side_chain_hot_vector.append(True)
             else:
-                side_chain_hot_vector.append(0)
+                side_chain_hot_vector.append(False)
         return side_chain_hot_vector
 
     @property

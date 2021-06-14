@@ -16,17 +16,26 @@ from qiskit.opflow import PauliSumOp, OperatorBase, PauliOp
 from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
-def _fix_qubits(qubits: Union[PauliSumOp, PauliOp, OperatorBase]):
+def _fix_qubits(operator: Union[PauliSumOp, PauliOp, OperatorBase]):
+    """
+    Assigns predefined values for qubits on positions 0, 1, 2, 3, 5 in the main chain. Qubits on
+    these position considered fixed and not subject to optimization.
+    Args:
+        operator: an operator whose qubits shall be fixed.
+
+    Returns:
+        operator_updated: an operator with relevant qubits changed to fixed values.
+    """
     new_tables = []
     new_coeffs = []
-    if isinstance(qubits, PauliOp):
-        table_z = np.copy(qubits.primitive.z)
-        table_x = np.copy(qubits.primitive.x)
+    if isinstance(operator, PauliOp):
+        table_z = np.copy(operator.primitive.z)
+        table_x = np.copy(operator.primitive.x)
         _preset_binary_vals(table_z)
         return PauliOp(Pauli((table_z, table_x)))
 
-    for i in range(len(qubits)):
-        h = qubits[i]
+    for i in range(len(operator)):
+        h = operator[i]
         table_z = np.copy(h.primitive.table.Z[0])
         table_x = np.copy(h.primitive.table.X[0])
         coeffs = _calc_updated_coeffs(h, table_z)
@@ -35,9 +44,9 @@ def _fix_qubits(qubits: Union[PauliSumOp, PauliOp, OperatorBase]):
         new_tables.append(new_table)
         new_coeffs.append(coeffs)
     new_pauli_table = PauliTable(data=new_tables)
-    qubits_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
-    qubits_updated = qubits_updated.reduce()
-    return qubits_updated
+    operator_updated = PauliSumOp(SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs))
+    operator_updated = operator_updated.reduce()
+    return operator_updated
 
 
 def _calc_updated_coeffs(h: Union[PauliSumOp, PauliOp], table_z):

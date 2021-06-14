@@ -14,22 +14,40 @@ from typing import List
 from qiskit.opflow import PauliOp, I, Z
 
 
-def _build_full_identity(num_turn_qubits: int) -> PauliOp:
+def _build_full_identity(num_qubits: int) -> PauliOp:
+    """
+    Builds a full identity operator of a given size.
+    Args:
+        num_qubits: number of qubits on which a full identity operator will be created.
+
+    Returns:
+        full_identity: a full identity operator of a given size.
+    """
     full_identity = I
-    for _ in range(1, num_turn_qubits):
+    for _ in range(1, num_qubits):
         full_identity = I ^ full_identity
     return full_identity
 
 
 def _build_pauli_z_op(num_qubits: int, pauli_z_indices: List[int]) -> PauliOp:
+    """
+    Builds a Pauli operator of a given size with Pauli Z operators on indicated positions and
+    identity operators on other positions.
+    Args:
+        num_qubits: number of qubits on which a Pauli operator will be created.
+
+    Returns:
+        operator: a Pauli operator of a given size with Pauli Z operators on indicated positions
+                andidentity operators on other positions.
+    """
     if 0 in pauli_z_indices:
-        temp = Z
+        operator = Z
     else:
-        temp = I
+        operator = I
     for i in range(1, num_qubits):
         if i in pauli_z_indices:
-            temp = Z ^ temp
+            operator = Z ^ operator
         else:
-            temp = I ^ temp
+            operator = I ^ operator
 
-    return temp
+    return operator
