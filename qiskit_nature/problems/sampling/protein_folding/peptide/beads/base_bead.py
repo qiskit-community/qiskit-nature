@@ -38,4 +38,5 @@ class BaseBead(ABC):
         OperatorBase, OperatorBase, OperatorBase, OperatorBase]:
         if self.turn_qubits is None:
             return None
-        return self._indic_0, self._indic_1, self._indic_2, self._indic_3
+        return self._turn_indicator_fun_0, self._turn_indicator_fun_1, \
+               self._turn_indicator_fun_2, self._turn_indicator_fun_3

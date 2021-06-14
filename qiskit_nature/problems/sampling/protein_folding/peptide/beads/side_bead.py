@@ -23,13 +23,25 @@ class SideBead(BaseBead):
         super().__init__(residue_type, turn_qubits)
         if self._residue_type is not None and self.turn_qubits is not None:
             full_id = _build_full_identity(turn_qubits[0].num_qubits)
-            self._indic_0 = (
-                                ((full_id - self._turn_qubits[0]) @ (
+            self._turn_indicator_fun_0 = self._build_turn_indicator_fun_0(full_id)
+            self._turn_indicator_fun_1 = self._build_turn_indicator_fun_1(full_id)
+            self._turn_indicator_fun_2 = self._build_turn_indicator_fun_2(full_id)
+            self._turn_indicator_fun_3 = self._build_turn_indicator_fun_3(full_id)
+
+    def _build_turn_indicator_fun_0(self, full_id):
+        return (
+                ((full_id - self._turn_qubits[0]) @ (
                         full_id - self._turn_qubits[1])) ^ full_id).reduce()
-            self._indic_1 = (
-                                (self._turn_qubits[1] @ (
-                    self._turn_qubits[1] - 1 * self._turn_qubits[0])) ^ full_id).reduce()
-            self._indic_2 = (
+
+    def _build_turn_indicator_fun_1(self, full_id):
+        return (
+                (self._turn_qubits[1] @ (
+                        self._turn_qubits[1] - self._turn_qubits[0])) ^ full_id).reduce()
+
+    def _build_turn_indicator_fun_2(self, full_id):
+        return (
                 (self._turn_qubits[0] @ (
-                    self._turn_qubits[0] - 1 * self._turn_qubits[1])) ^ full_id).reduce()
-            self._indic_3 = (self._turn_qubits[0] @ self._turn_qubits[1] ^ full_id).reduce()
+                        self._turn_qubits[0] - self._turn_qubits[1])) ^ full_id).reduce()
+
+    def _build_turn_indicator_fun_3(self, full_id):
+        return (self._turn_qubits[0] @ self._turn_qubits[1] ^ full_id).reduce()
