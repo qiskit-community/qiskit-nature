@@ -236,7 +236,7 @@ class HarmonicPotential(PotentialBase):
         return e_n * const.J_TO_HARTREE
 
     @classmethod
-    def process_fit_data(cls, xdata: List[float], ydata: List[float]) -> Tuple[list, list]:
+    def process_fit_data(cls, xdata: np.ndarray, ydata: np.ndarray) -> Tuple[list, list]:
         """
         Mostly for internal use. Preprocesses the data passed to fit_to_data()
             so that only the points around the minimum are fit (which gives
@@ -250,8 +250,8 @@ class HarmonicPotential(PotentialBase):
             the processed data that fit better to a harmonic potential
         """
         sort_ind = np.argsort(xdata)
-        ydata_s = ydata[sort_ind]  # type: ignore
-        xdata_s = xdata[sort_ind]  # type: ignore
+        ydata_s = ydata[sort_ind]
+        xdata_s = xdata[sort_ind]
         min_y = min(ydata_s)
 
         # array of indices for X for which Y is min
