@@ -28,6 +28,14 @@ class SideChain(BaseChain):
     def _build_side_chain(self, main_chain_len: int, main_bead_id: int, side_chain_len: int,
                           side_chain_residue_sequences: List[str]) -> \
             Union[List[SideBead], None]:
+        """
+
+        Args:
+            :
+
+        Returns:
+            :
+        """
         if side_chain_len > 1:
             raise InvalidSideChainException(
                 f"Only side chains of length 1 supported, length {side_chain_len} was given.")
@@ -37,7 +45,7 @@ class SideChain(BaseChain):
         for side_bead_id in range(side_chain_len):
             bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id)
             bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
-            side_bead = SideBead(side_chain_residue_sequences[side_bead_id],
+            side_bead = SideBead(main_bead_id, side_bead_id, side_chain_residue_sequences[side_bead_id],
                                  [bead_turn_qubit_1, bead_turn_qubit_2])
             side_chain.append(side_bead)
         return side_chain

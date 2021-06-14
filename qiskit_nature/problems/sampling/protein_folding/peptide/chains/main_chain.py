@@ -36,6 +36,14 @@ class MainChain(BaseChain):
     def _build_main_chain(self, main_chain_len: int, main_chain_residue_seq: List[str],
                           side_chain_lens: List[int],
                           side_chain_residue_sequences: List[str]) -> List[MainBead]:
+        """
+
+        Args:
+            :
+
+        Returns:
+            :
+        """
         main_chain = []
         self._validate_chain_lengths(main_chain_len, side_chain_lens)
         self._validate_side_chain_index_by_lengths(side_chain_lens)
@@ -46,11 +54,11 @@ class MainChain(BaseChain):
             bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
             side_chain = self._create_side_chain(main_bead_id, main_chain_len, side_chain_lens,
                                                  side_chain_residue_sequences)
-            main_bead = MainBead(main_chain_residue_seq[main_bead_id],
+            main_bead = MainBead(main_bead_id, main_chain_residue_seq[main_bead_id],
                                  [bead_turn_qubit_1, bead_turn_qubit_2],
                                  side_chain)
             main_chain.append(main_bead)
-        main_bead = MainBead(None, None, None)
+        main_bead = MainBead(None, None, None, None)
         main_chain.append(main_bead)
         return main_chain
 
@@ -78,6 +86,14 @@ class MainChain(BaseChain):
 
     def _create_side_chain(self, main_bead_id: int, main_chain_len: int, side_chain_lens: List[int],
                            side_chain_residue_sequences: List[str]) -> SideChain:
+        """
+
+        Args:
+            :
+
+        Returns:
+            :
+        """
         if self._is_side_chain_present(main_bead_id, side_chain_lens,
                                        side_chain_residue_sequences):
             side_chain = SideChain(main_chain_len, main_bead_id, side_chain_lens[main_bead_id],
@@ -88,6 +104,14 @@ class MainChain(BaseChain):
 
     def _is_side_chain_present(self, main_bead_id: int, side_chain_lens: List[int],
                                side_chain_residue_sequences) -> bool:
+        """
+
+        Args:
+            :
+
+        Returns:
+            :
+        """
         return side_chain_lens and side_chain_lens[
             main_bead_id] != 0 and side_chain_residue_sequences and \
                side_chain_residue_sequences[main_bead_id] is not None

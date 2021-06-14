@@ -24,9 +24,11 @@ class TestSideBead(QiskitNatureTestCase):
         residue_type = "S"
         main_chain_len = 4
         num_turn_qubits = 2 * (main_chain_len - 1)
+        main_chain_id = 3
+        side_bead_id = 3
         turn_qubits = [0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ I ^ I ^ I ^ I ^ Z),
                        0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ I ^ I ^ I ^ Z ^ I)]
-        side_bead = SideBead(residue_type, turn_qubits)
+        side_bead = SideBead(main_chain_id, side_bead_id, residue_type, turn_qubits)
 
         indic_0, indic_1, indic_2, indic_3 = side_bead.get_indicator_functions()
 
@@ -51,7 +53,9 @@ class TestSideBead(QiskitNatureTestCase):
         """Tests that a SideBead is created."""
         residue_type = None
         turn_qubits = [Z, Z]
-        side_bead = SideBead(residue_type, turn_qubits)
+        main_chain_id = 3
+        side_bead_id = 3
+        side_bead = SideBead(main_chain_id, side_bead_id, residue_type, turn_qubits)
 
         with self.assertRaises(AttributeError):
             _, _, _, _ = side_bead.get_indicator_functions()

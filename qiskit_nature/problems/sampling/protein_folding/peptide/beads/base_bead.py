@@ -19,8 +19,9 @@ from problems.sampling.protein_folding.residue_validator import _validate_residu
 
 class BaseBead(ABC):
 
-    def __init__(self, residue_type: str, turn_qubits: List[PauliOp]):
-
+    def __init__(self, chain_type: str, main_index: int, residue_type: str, turn_qubits: List[PauliOp]):
+        self.chain_type = chain_type
+        self.main_index = main_index
         self._residue_type = residue_type
         _validate_residue_symbol(residue_type)
         self._turn_qubits = turn_qubits

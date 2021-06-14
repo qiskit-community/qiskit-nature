@@ -32,7 +32,7 @@ class TestMainBead(QiskitNatureTestCase):
         side_chain_residue_sequences = ["S"]
         side_chain = SideChain(main_chain_len, main_bead_id, side_chain_len,
                                side_chain_residue_sequences)
-        main_bead = MainBead(residue_type, turn_qubits, side_chain)
+        main_bead = MainBead(main_bead_id, residue_type, turn_qubits, side_chain)
 
         assert main_bead.side_chain == side_chain
         indic_0, indic_1, indic_2, indic_3 = main_bead.get_indicator_functions()
