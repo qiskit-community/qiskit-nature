@@ -20,8 +20,8 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 
 class MainBead(BaseBead):
 
-    def __init__(self, index: int, residue_type: str, turn_qubits: List[PauliOp], side_chain: SideChain):
-        super().__init__("main_chain", index, residue_type, turn_qubits)
+    def __init__(self, main_index: int, residue_type: str, turn_qubits: List[PauliOp], side_chain: SideChain):
+        super().__init__("main_chain", main_index, residue_type, turn_qubits)
         self._side_chain = side_chain
         if self._residue_type is not None and self.turn_qubits is not None:
             full_id = _build_full_identity(turn_qubits[0].num_qubits)
@@ -31,13 +31,13 @@ class MainBead(BaseBead):
             self._turn_indicator_fun_3 = self._build_turn_indicator_fun_3(full_id)
 
     def __str__(self):
-        return self.chain_type + "_" + str(self.index)
+        return self.chain_type + "_" + str(self.main_index)
 
     def __hash__(self):
         return hash(str(self))
 
     def __eq__(self, other):
-        return self.index == other.index and self.chain_type == other.chain_type
+        return self.main_index == other.index and self.chain_type == other.chain_type
 
     def _build_turn_indicator_fun_0(self, full_id):
         return (full_id ^ (
