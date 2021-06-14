@@ -12,6 +12,10 @@
 import numpy as np
 from qiskit.opflow import I, Z
 
+from problems import LatticeFoldingProblem
+from problems.sampling.folding import folding_qubit_op_builder
+from problems.sampling.folding.folding_qubit_op_builder import _create_pauli_for_conf, \
+    _create_qubits_for_conf, _create_indic_turn, _create_delta_BB, _add_delta_SC, _create_x_dist
 from problems.sampling.protein_folding.builders import contact_qubits_builder
 from problems.sampling.protein_folding.contact_map import ContactMap
 from problems.sampling.protein_folding.distance_calculator import _first_neighbor, _second_neighbor
@@ -182,15 +186,60 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
         x_dist = DistanceMap(peptide)
-        expr = _first_neighbor(lower_main_bead_index, side_chain_upper_main_bead,
+        expr = _first_neighbor(peptide, lower_main_bead_index, side_chain_upper_main_bead,
                                upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
-                               pair_energies, x_dist.lower_main_upper_main)
+                               pair_energies, x_dist)
 
         assert expr == 168.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
                 I) + 56.0 * (
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
                        ^ I ^ I)
+
+    def test_first_neighbor_side(self):
+        """
+        Tests that Pauli operators for 1st neighbour interactions are created correctly.
+        """
+
+        main_chain_residue_seq = ["S","A","A","S","S","S"]
+        main_chain_len = 6
+        side_chain_lens = [0, 0, 1, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "S", "S", None]
+
+        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
+                          side_chain_residue_sequences)
+        mj = MiyazawaJerniganInteraction()
+        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        lambda_1 = 2
+        lower_main_bead_index = 3
+        upper_main_bead_index = 5
+        side_chain_lower_main_bead = 1
+        side_chain_upper_main_bead = 1
+        x_dist = DistanceMap(peptide)
+        expr = _first_neighbor(peptide, lower_main_bead_index, side_chain_upper_main_bead,
+                               upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
+                               pair_energies, x_dist)
+
+        print(expr)
+        # 84.0 * IIIIIIIIIIIIIIIIIIII
+        # - 21.0 * ZIIIIIIIIIIIIIIIIIII
+        # + 21.0 * IIIIZIIIIIIIIIIIIIII
+        # - 21.0 * ZIIIZIIIIIIIIIIIIIII
+        # - 21.0 * IZIIIZIIIIIIIIIIIIII
+        # - 21.0 * ZZIIZZIIIIIIIIIIIIII
+        # + 21.0 * IIIIIIIIIIIIZIIIIIII
+        # - 21.0 * ZIIIIIIIIIIIZIIIIIII
+        # + 21.0 * IIIIZIIIIIIIZIIIIIII
+        # - 21.0 * IZIIIIIIIIIIIZIIIIII
+        # + 21.0 * IIIIIZIIIIIIIZIIIIII
+        # - 21.0 * ZZIIIIIIIIIIZZIIIIII
+        # + 21.0 * IIIIZZIIIIIIZZIIIIII
+        # + 21.0 * IZIIIIIIIIIIIIIZIIII
+        # - 21.0 * ZZIIIIIIIIIIIIIZIIII
+        # - 21.0 * IIIIIZIIIIIIIIIZIIII
+        # + 21.0 * IIIIZZIIIIIIIIIZIIII
+        # - 21.0 * IIIIIIIIIIIIIZIZIIII
+        # + 21.0 * IIIIIIIIIIIIZZIZIIII
 
     def test_second_neighbor(self):
         """
@@ -210,9 +259,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
         x_dist = DistanceMap(peptide)
-        expr = _second_neighbor(lower_main_bead_index, side_chain_upper_main_bead,
+        expr = _second_neighbor(peptide, lower_main_bead_index, side_chain_upper_main_bead,
                                 upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
-                                pair_energies, x_dist.lower_main_upper_main)
+                                pair_energies, x_dist)
         assert expr == -4.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 2.0 * (
                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)

@@ -10,10 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 from abc import ABC, abstractmethod
+from typing import List
 
 
 class Interaction(ABC):
 
     @abstractmethod
-    def calc_energy_matrix(self, chain_len: int, sequence):
+    def calc_energy_matrix(self, chain_len: int, sequence: List[str]):
+        """
+        Calculates an energy matrix for a particular interaction type.
+        Args:
+            chain_len: Length of a protein chain.
+            residue_sequence: A list that contains characters defining residues for a chain of
+                            proteins.
+
+        Returns:
+            pair_energies: Numpy array of pair energies for amino acids.
+        """
         pass

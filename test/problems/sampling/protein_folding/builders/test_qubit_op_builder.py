@@ -296,7 +296,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
                           side_chain_residue_sequences)
         x_dist = DistanceMap(peptide)
         contact_map = ContactMap(peptide)
-        h_bbbb = _create_h_bbbb(main_chain_len, lambda_1, pair_energies,
+        h_bbbb = _create_h_bbbb(peptide,  lambda_1, pair_energies,
                                 x_dist, contact_map)
         expected = 4342.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
@@ -646,7 +646,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
         contact_map = ContactMap(peptide)
 
-        h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
+        h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(peptide, lambda_1,
                                                    pair_energies, x_dist,
                                                    contact_map)
         assert h_bbsc == 580.0 * (
@@ -911,14 +911,14 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        side_chain = peptide.get_side_chain_hot_vector()
-        x_dist =  DistanceMap(peptide)
+        x_dist = DistanceMap(peptide)
 
         contact_map = ContactMap(peptide)
 
-        h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(main_chain_len, side_chain, lambda_1,
+        h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(peptide, lambda_1,
                                                    pair_energies, x_dist,
                                                    contact_map)
+        print(h_bbsc)
         assert h_bbsc == 767.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
                 I) - 257.5 * (
@@ -1013,7 +1013,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain = peptide.get_side_chain_hot_vector()
         x_dist =  DistanceMap(peptide)
         contact_map = ContactMap(peptide)
-        h_scsc = _create_h_scsc(main_chain_len, side_chain, lambda_1,
+        h_scsc = _create_h_scsc(peptide,  lambda_1,
                                 pair_energies, x_dist, contact_map)
         assert h_scsc == 920.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I

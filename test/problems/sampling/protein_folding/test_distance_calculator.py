@@ -91,13 +91,19 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         """
         Tests that total distances for all beads are calculated correctly.
         """
-        x_dist = DistanceMap(self.peptide)
-        assert x_dist.lower_side_upper_main[2][3] == 1.5 * (
+        distance_map = DistanceMap(self.peptide)
+        upper_bead_1 = self.peptide.get_main_chain[2].side_chain[0]
+        lower_bead_1 = self.peptide.get_main_chain[1]
+
+        upper_bead_2 = self.peptide.get_main_chain[2].side_chain[0]
+        lower_bead_2 = self.peptide.get_main_chain[0]
+
+        assert distance_map[lower_bead_1, upper_bead_1] == 1.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
                        I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
                        I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
                        I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-        assert x_dist.lower_side_upper_main[1][3] == 3.0 * (
+        assert distance_map[lower_bead_2, upper_bead_2] == 3.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
                        I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 1.0 * (
                        I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)

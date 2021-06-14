@@ -17,28 +17,20 @@ class DistanceMap:
 
     def __init__(self, peptide: Peptide):
         self._peptide = peptide
-        self._lower_main_upper_main, self._lower_side_upper_main, self._lower_main_upper_side, \
-        self._lower_side_upper_side, self.num_distances = _create_distance_qubits(peptide)
+        self._distance_map, self.num_distances = _create_distance_qubits(peptide)
+
+    def __getitem__(self, position):
+        item1, item2 = position
+        return self._distance_map[item1][item2]
 
     @property
     def peptide(self):
         return self._peptide
 
     @property
-    def lower_main_upper_main(self):
-        return self._lower_main_upper_main
+    def distance_map(self):
+        return self._distance_map
 
-    @property
-    def lower_side_upper_main(self):
-        return self._lower_side_upper_main
-
-    @property
-    def lower_main_upper_side(self):
-        return self._lower_main_upper_side
-
-    @property
-    def lower_side_upper_side(self):
-        return self._lower_side_upper_side
 
 
 

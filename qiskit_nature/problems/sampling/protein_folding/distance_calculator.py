@@ -41,16 +41,22 @@ def _create_distance_qubits(peptide: Peptide):
 
     num_distances = 0
 
-    lower_main_upper_main = collections.defaultdict(dict)
-    lower_side_upper_main = collections.defaultdict(dict)
-    lower_main_upper_side = collections.defaultdict(dict)
-    lower_side_upper_side = collections.defaultdict(dict)
+    distance_map = collections.defaultdict(dict)
 
     for i in range(1, main_chain_len):  # j>i
         for j in range(i + 1, main_chain_len + 1):
-
+            lower_main_bead = peptide.get_main_chain[i-1]
+            if lower_main_bead.side_chain:
+                lower_side_bead = lower_main_bead.side_chain[0]
+            else:
+                lower_side_bead = None
+            upper_main_bead = peptide.get_main_chain[j-1]
+            if upper_main_bead.side_chain:
+                upper_side_bead = upper_main_bead.side_chain[0]
+            else:
+                upper_side_bead = None
             try:
-                lower_main_upper_main[i][j] = _fix_qubits((delta_n0[i][0][j][0] ** 2 +
+                distance_map[lower_main_bead][upper_main_bead] = _fix_qubits((delta_n0[i][0][j][0] ** 2 +
                                                      delta_n1[i][0][j][0] ** 2 +
                                                      delta_n2[i][0][j][0] ** 2 +
                                                      delta_n3[i][0][j][0] ** 2)).reduce()
@@ -58,15 +64,7 @@ def _create_distance_qubits(peptide: Peptide):
             except KeyError:
                 pass
             try:
-                lower_side_upper_main[i][j] = _fix_qubits((delta_n0[i][0][j][1] ** 2 +
-                                                     delta_n1[i][0][j][1] ** 2 +
-                                                     delta_n2[i][0][j][1] ** 2 +
-                                                     delta_n3[i][0][j][1] ** 2)).reduce()
-                num_distances += 1
-            except KeyError:
-                pass
-            try:
-                lower_main_upper_side[i][j] = _fix_qubits((delta_n0[i][1][j][0] ** 2 +
+                distance_map[lower_side_bead][upper_main_bead] = _fix_qubits((delta_n0[i][1][j][0] ** 2 +
                                                      delta_n1[i][1][j][0] ** 2 +
                                                      delta_n2[i][1][j][0] ** 2 +
                                                      delta_n3[i][1][j][0] ** 2)).reduce()
@@ -74,7 +72,15 @@ def _create_distance_qubits(peptide: Peptide):
             except KeyError:
                 pass
             try:
-                lower_side_upper_side[i][j] = _fix_qubits((delta_n0[i][1][j][1] ** 2 +
+                distance_map[lower_main_bead][upper_side_bead] = _fix_qubits((delta_n0[i][0][j][1] ** 2 +
+                                                     delta_n1[i][0][j][1] ** 2 +
+                                                     delta_n2[i][0][j][1] ** 2 +
+                                                     delta_n3[i][0][j][1] ** 2)).reduce()
+                num_distances += 1
+            except KeyError:
+                pass
+            try:
+                distance_map[lower_side_bead][upper_side_bead] = _fix_qubits((delta_n0[i][1][j][1] ** 2 +
                                                      delta_n1[i][1][j][1] ** 2 +
                                                      delta_n2[i][1][j][1] ** 2 +
                                                      delta_n3[i][1][j][1] ** 2)).reduce()
@@ -83,8 +89,7 @@ def _create_distance_qubits(peptide: Peptide):
                 pass
 
     print(num_distances, ' distances created')
-    return lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-           lower_side_upper_side, num_distances
+    return distance_map, num_distances
 
 
 def _calc_distances_main_chain(peptide: Peptide):
@@ -214,9 +219,9 @@ def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2,
     return delta_n0, delta_n1, delta_n2, delta_n3
 
 
-def _first_neighbor(i: int, p: int, j: int, s: int,
+def _first_neighbor(peptide: Peptide, i: int, p: int, j: int, s: int,
                     lambda_1: float, pair_energies: List[List[List[List[float]]]],
-                    distance_component, pair_energies_multiplier: float = 0.1) -> Union[
+                    distance_map, pair_energies_multiplier: float = 0.1) -> Union[
     PauliSumOp, PauliOp]:
     """
     Creates first nearest neighbor interaction if beads are in contact
@@ -233,7 +238,7 @@ def _first_neighbor(i: int, p: int, j: int, s: int,
         lambda_1: Constraint to penalize local overlap between
                  beads within a nearest neighbor contact.
         pair_energies: Numpy array of pair energies for amino acids.
-        distance_component: #TODO
+        distance_map: #TODO
         pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
     Returns:
@@ -241,16 +246,22 @@ def _first_neighbor(i: int, p: int, j: int, s: int,
     """
     bounding_constant = 7
     lambda_0 = bounding_constant * (j - i + 1) * lambda_1
+    lower_bead = peptide.get_main_chain[i - 1]
+    upper_bead = peptide.get_main_chain[j - 1]
+    if p == 1:
+        lower_bead = lower_bead.side_chain[0]
+    if s == 1:
+        upper_bead = upper_bead.side_chain[0]
     e = pair_energies[i, p, j, s]
-    x = distance_component[i][j]
+    x = distance_map[lower_bead, upper_bead]
     expr = lambda_0 * (x - _build_full_identity(x.num_qubits))
     # + pair_energies_multiplier*e*_build_full_identity(x.num_qubits)
     return _fix_qubits(expr).reduce()
 
 
-def _second_neighbor(i: int, p: int, j: int, s: int,
+def _second_neighbor(peptide: Peptide, i: int, p: int, j: int, s: int,
                      lambda_1: float, pair_energies: List[List[List[List[float]]]],
-                     distance_component, pair_energies_multiplier: float = 0.1) -> Union[PauliSumOp, PauliOp]:
+                     distance_map, pair_energies_multiplier: float = 0.1) -> Union[PauliSumOp, PauliOp]:
     """
     Creates energetic interaction that penalizes local overlap between
     beads that correspond to a nearest neighbor contact or adds no net
@@ -273,7 +284,13 @@ def _second_neighbor(i: int, p: int, j: int, s: int,
         expr: Contribution to energetic Hamiltonian.
     """
     e = pair_energies[i, p, j, s]
-    x = distance_component[i][j]
+    lower_bead = peptide.get_main_chain[i - 1]
+    upper_bead = peptide.get_main_chain[j - 1]
+    if p == 1:
+        lower_bead = lower_bead.side_chain[0]
+    if s == 1:
+        upper_bead = upper_bead.side_chain[0]
+    x = distance_map[lower_bead, upper_bead]
     expr = lambda_1 * (2 * (_build_full_identity(
         x.num_qubits)) - x)  # + pair_energies_multiplier * e * _build_full_identity(x.num_qubits)
     return _fix_qubits(expr).reduce()
