@@ -32,26 +32,34 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> Unio
     """
     unused_qubits = _find_unused_qubits(total_hamiltonian)
     num_qubits = total_hamiltonian.num_qubits
-    new_tables = []
-    new_coeffs = []
     if isinstance(total_hamiltonian, PauliOp):
-        table_z = total_hamiltonian.primitive.z
-        table_x = total_hamiltonian.primitive.x
-        new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
-                                                              unused_qubits)
-        total_hamiltonian_compressed = PauliOp(Pauli((new_table_z, new_table_x)))
-        return total_hamiltonian_compressed
+        return _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits)
 
     elif isinstance(total_hamiltonian, PauliSumOp):
-        for term in total_hamiltonian:
-            table_z = term.primitive.table.Z[0]
-            table_x = term.primitive.table.X[0]
-            coeffs = term.primitive.coeffs[0]
-            new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
-                                                                  unused_qubits)
-            new_table = np.concatenate((new_table_x, new_table_z), axis=0)
-            new_tables.append(new_table)
-            new_coeffs.append(coeffs)
+        return _compress_pauli_sum_op(num_qubits, total_hamiltonian, unused_qubits)
+
+
+def _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits):
+    table_z = total_hamiltonian.primitive.z
+    table_x = total_hamiltonian.primitive.x
+    new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
+                                                          unused_qubits)
+    total_hamiltonian_compressed = PauliOp(Pauli((new_table_z, new_table_x)))
+    return total_hamiltonian_compressed
+
+
+def _compress_pauli_sum_op(num_qubits, total_hamiltonian, unused_qubits):
+    new_tables = []
+    new_coeffs = []
+    for term in total_hamiltonian:
+        table_z = term.primitive.table.Z[0]
+        table_x = term.primitive.table.X[0]
+        coeffs = term.primitive.coeffs[0]
+        new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
+                                                              unused_qubits)
+        new_table = np.concatenate((new_table_x, new_table_z), axis=0)
+        new_tables.append(new_table)
+        new_coeffs.append(coeffs)
     new_pauli_table = PauliTable(data=new_tables)
     total_hamiltonian_compressed = PauliSumOp(
         SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs)).reduce()

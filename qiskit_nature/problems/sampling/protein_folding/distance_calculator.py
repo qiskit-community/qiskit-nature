@@ -28,15 +28,11 @@ def _calc_total_distances(peptide: Peptide):
     can be referenced as x_dist[i][p][j][s]
 
     Args:
-        delta_n0: Number of occurrences of axis 0 between beads
-        delta_n1: Number of occurrences of axis 1 between beads
-        delta_n2: Number of occurrences of axis 2 between beads
-        delta_n3: Number of occurrences of axis 3 between beads
-        pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
+        peptide: A Peptide object that includes all information about a protein.
 
     Returns:
         x_dist: Numpy array that tracks all distances between backbone and side chain
-                beads for all axes: 0,1,2,3
+                beads for all axes: 0,1,2,3.
     """
     delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
     delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(peptide, delta_n0, delta_n1,
@@ -77,21 +73,16 @@ def _calc_distances_main_chain(peptide: Peptide):
     distance between i and j bead pairs,
     delta_na = summation (k = i to j - 1) of (-1)^k*indica(k)
     Args:
-        main_chain_len: Number of total beads in peptide
-        indic_0: Turn indicator for axis 0
-        indic_1: Turn indicator for axis 1
-        indic_2: Turn indicator for axis 2
-        indic_3: Turn indicator for axis 3
+        peptide: A Peptide object that includes all information about a protein.
     Returns:
         delta_n0, delta_n1, delta_n2, delta_n3: Tuple corresponding to
                                                 the number of occurrences
-                                                of turns at axes 0,1,2,3
+                                                of turns at axes 0,1,2,3.
     """
     main_chain_len = len(peptide.get_main_chain)
     delta_n0, delta_n1, delta_n2, delta_n3 = _init_distance_dict(), _init_distance_dict(), \
                                              _init_distance_dict(), _init_distance_dict()
-    # calculate distances
-    for i in range(1, main_chain_len):  # j>i
+    for i in range(1, main_chain_len):
         for j in range(i + 1, main_chain_len + 1):
             delta_n0[i][0][j][0] = 0
             delta_n1[i][0][j][0] = 0
@@ -125,11 +116,11 @@ def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2,
     of side chains, this function returns a value of 0.
 
     Args:
-        main_chain_len: Number of total beads in peptide
-        delta_n0: Number of occurrences of axis 0 between beads
-        delta_n1: Number of occurrences of axis 1 between beads
-        delta_n2: Number of occurrences of axis 2 between beads
-        delta_n3: Number of occurrences of axis 3 between beads
+        peptide: A Peptide object that includes all information about a protein.
+        delta_n0: Number of occurrences of axis 0 between beads.
+        delta_n1: Number of occurrences of axis 1 between beads.
+        delta_n2: Number of occurrences of axis 2 between beads.
+        delta_n3: Number of occurrences of axis 3 between beads.
 
     Returns:
         delta_n0, delta_n1, delta_n2, delta_n3: Updated tuple (with added side chain

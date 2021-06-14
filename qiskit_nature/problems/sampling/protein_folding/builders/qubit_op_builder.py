@@ -74,29 +74,53 @@ def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]
                                                pair_energies, x_dist, contact_map)
     h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
 
-    h_tot = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
+    h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
 
-    return h_tot.reduce()
+    return h_total.reduce()
 
 
-def _check_turns(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
+def _create_turn_operators(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
+    """
+        Creates a qubit operator for consecutive turns.
+
+        Args:
+            lower_bead: A bead with a smaller index in the chain.
+            upper_bead: A bead with a bigger index in the chain.
+
+        Returns:
+            turns_operator: A qubit operator for consecutive turns.
+        """
     lower_bead_indic_0, lower_bead_indic_1, lower_bead_indic_2, lower_bead_indic_3 = \
         lower_bead.get_indicator_functions()
 
     upper_bead_indic_0, upper_bead_indic_1, upper_bead_indic_2, upper_bead_indic_3 = \
         upper_bead.get_indicator_functions()
 
-    t_ij = _fix_qubits(
+    turns_operator = _fix_qubits(
         lower_bead_indic_0 @ upper_bead_indic_0 + lower_bead_indic_1 @ upper_bead_indic_1 + \
         lower_bead_indic_2 @ upper_bead_indic_2 + lower_bead_indic_3 @ upper_bead_indic_3)
-    return t_ij
+    return turns_operator
 
 
 def _create_h_back(peptide: Peptide, lambda_back: float) -> Union[PauliSumOp, PauliOp]:
+    """
+        Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns
+        (N - 1) along the same axis are penalized by a factor, lambda_back. Note,
+        that the first two turns are omitted.
+
+        Args:
+            N: Number of total beads in peptide.
+            lambda_back: Constrain that penalizes turns along the same axis.
+
+        Returns:
+            H_back: Contribution to Hamiltonian in symbolic notation that penalizes
+                    consecutive turns along the same axis
+        """
+
     main_chain = peptide.get_main_chain
     h_back = 0
     for i in range(len(main_chain) - 2):
-        h_back += lambda_back * _check_turns(main_chain[i], main_chain[i + 1])
+        h_back += lambda_back * _create_turn_operators(main_chain[i], main_chain[i + 1])
 
     h_back = _fix_qubits(h_back).reduce()
     return h_back
@@ -398,10 +422,10 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
     for i in range(1, main_chain_len - 2):
         # checks interactions between beads no more than 4 beads apart
         if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
-            op1 = _check_turns(peptide.get_main_chain[i + 1],
-                               peptide.get_main_chain[i - 1].side_chain[0])
-            op2 = _check_turns(peptide.get_main_chain[i - 1],
-                               peptide.get_main_chain[i + 2].side_chain[0])
+            op1 = _create_turn_operators(peptide.get_main_chain[i + 1],
+                                         peptide.get_main_chain[i - 1].side_chain[0])
+            op2 = _create_turn_operators(peptide.get_main_chain[i - 1],
+                                         peptide.get_main_chain[i + 2].side_chain[0])
             coeff = float(pair_energies[i, 1, i + 3, 1] + 0.1 * (
                     pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
             composed = op1 @ op2

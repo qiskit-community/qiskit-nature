@@ -9,11 +9,21 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import List
+
 from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
     InvalidResidueException
 
 
-def _validate_residue_sequence(residue_sequence):
+def _validate_residue_sequence(residue_sequence: List[str]):
+    """
+    Checks if the provided residue sequence contains legal characters.
+    Args:
+        residue_sequence: A list that contains characters defining residues for a chain of proteins.
+
+    Throws:
+        InvalidResidueException: If an illegal residue character is discovered.
+    """
     for residue_symbol in residue_sequence:
         _validate_residue_symbol(residue_symbol)
 

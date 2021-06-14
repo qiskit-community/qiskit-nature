@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 from abc import ABC
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from qiskit.opflow import PauliOp, OperatorBase
 
@@ -34,8 +34,15 @@ class BaseBead(ABC):
         return self._residue_type
 
     # for the turn that leads from the bead
-    def get_indicator_functions(self) -> Tuple[
-        OperatorBase, OperatorBase, OperatorBase, OperatorBase]:
+    def get_indicator_functions(self) -> Union[None, Tuple[
+        OperatorBase, OperatorBase, OperatorBase, OperatorBase]]:
+        """
+        Returns all turn indicator functions for the bead.
+        Returns:
+            turn_indicator_fun_0, turn_indicator_fun_1, \
+               turn_indicator_fun_2, turn_indicator_fun_3: A tuple of all turn indicator
+               functions for the bead.
+        """
         if self.turn_qubits is None:
             return None
         return self._turn_indicator_fun_0, self._turn_indicator_fun_1, \

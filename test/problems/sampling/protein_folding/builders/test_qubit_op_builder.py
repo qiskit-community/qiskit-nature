@@ -18,7 +18,7 @@ from problems.sampling.folding.folding_qubit_op_builder import _create_x_dist, _
 from problems.sampling.protein_folding.builders.qubit_op_builder import _create_h_back, \
     _create_h_chiral, _create_h_bbbb, _create_h_bbsc_and_h_scbb, _create_h_scsc, \
     _create_h_contacts, \
-    _build_qubit_op, _create_h_short, _check_turns
+    _build_qubit_op, _create_h_short, _create_turn_operators
 from problems.sampling.protein_folding.contact_map import ContactMap
 from problems.sampling.protein_folding.distance_calculator import _calc_distances_main_chain, \
     _add_distances_side_chain, _calc_total_distances
@@ -50,10 +50,10 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_bead_3 = bead_3.side_chain[0]
         side_bead_4 = bead_4.side_chain[0]
 
-        t_23 = _check_turns(bead_2, bead_3)
-        t_34 = _check_turns(bead_3, bead_4)
-        t_2s3 = _check_turns(side_bead_2, bead_3)
-        t_3s4s = _check_turns(side_bead_3, side_bead_4)
+        t_23 = _create_turn_operators(bead_2, bead_3)
+        t_34 = _create_turn_operators(bead_3, bead_4)
+        t_2s3 = _create_turn_operators(side_bead_2, bead_3)
+        t_3s4s = _create_turn_operators(side_bead_3, side_bead_4)
         assert t_23 == 0.25 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
                 I) - 0.25 * (

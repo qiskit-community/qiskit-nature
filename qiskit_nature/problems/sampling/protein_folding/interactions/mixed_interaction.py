@@ -9,6 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import List
+
 import numpy as np
 
 from problems.sampling.protein_folding.residue_validator import _validate_residue_sequence
@@ -22,14 +24,24 @@ class MixedInteraction(Interaction):
     def __init__(self, additional_energies=None):
         self.additional_energies = additional_energies
 
-    def calc_energy_matrix(self, chain_len: int, sequence):
-        _validate_residue_sequence(sequence)
+    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]):
+        """
+        Calculates an energy matrix for a mixed interaction based on the Miyazawa-Jernigan
+        potential file.
+        Args:
+            chain_len: Length of a protein chain.
+            residue_sequence: A list that contains characters defining residues for a chain of proteins.
+
+        Returns:
+            pair_energies: Numpy array of pair energies for amino acids.
+        """
+        _validate_residue_sequence(residue_sequence)
         mj, list_aa = _load_energy_matrix_file()
         pair_energies = np.zeros((chain_len + 1, 2, chain_len + 1, 2))
         for i in range(1, chain_len + 1):
             for j in range(i + 1, chain_len + 1):
-                aa_i = list_aa.index(sequence[i - 1])
-                aa_j = list_aa.index(sequence[j - 1])
+                aa_i = list_aa.index(residue_sequence[i - 1])
+                aa_j = list_aa.index(residue_sequence[j - 1])
                 pair_energies[i, 0, j, 0] = mj[min(aa_i, aa_j), max(aa_i, aa_j)]
             if self.additional_energies is not None:
                 for interaction in self.additional_energies:
