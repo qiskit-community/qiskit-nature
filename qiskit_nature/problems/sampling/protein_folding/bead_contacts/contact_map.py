@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores contacts between beads of a peptide as qubit operators."""
+from collections import defaultdict
+
 from problems.sampling.protein_folding.bead_contacts.contact_map_builder import (
     _create_contact_qubits,
 )
@@ -25,27 +27,62 @@ class ContactMap:
             self._lower_side_upper_main,
             self._lower_main_upper_side,
             self._lower_side_upper_side,
-            self.r_contact,
+            self.num_contacts,
         ) = _create_contact_qubits(peptide)
 
+        """
+
+       Args:
+           peptide: A Peptide object that includes all information about a protein.
+            lower_main_upper_main: A dictionary which is a component of a contact map that stores 
+                                    contact operators between a bead on a main chain (first 
+                                    index) and a bead in a main 
+                                    chain (second index).
+            lower_side_upper_main: A dictionary which is a component of a contact map that stores 
+                                    contact operators between a first bead in a side chain (first 
+                                    index) and a bead in a 
+                                    main chain (second index).
+            lower_main_upper_side: A dictionary which is a component of a contact map that stores 
+                                    contact operators between a bead in a main chain (first 
+                                    index) and a first bead in a 
+                                    side chain (second index).
+            lower_side_upper_side: A dictionary which is a component of a contact map that stores 
+                                    contact operators between a first bead in a side chain (first 
+                                    index) and a a first 
+                                    bead in a side chain (second index).
+            num_contacts: the total number of contacts.
+       """
+
     @property
-    def peptide(self):
+    def peptide(self) -> Peptide:
+        """Returns a peptide."""
         return self._peptide
 
     @property
-    def lower_main_upper_main(self):
+    def lower_main_upper_main(self) -> defaultdict[int, dict]:
+        """Returns a dictionary which is a component of a contact map that stores contact operators
+        between a bead on a main chain (first index) and a bead in a main chain (second index)."""
         return self._lower_main_upper_main
 
     @property
-    def lower_side_upper_main(self):
+    def lower_side_upper_main(self) -> defaultdict[int, dict]:
+        """Returns a dictionary which is a component of a contact map that stores contact operators
+        between a first bead in a side chain (first index) and a bead in a main chain (second
+        index)."""
         return self._lower_side_upper_main
 
     @property
-    def lower_main_upper_side(self):
+    def lower_main_upper_side(self) -> defaultdict[int, dict]:
+        """Returns a dictionary which is a component of a contact map that stores contact operators
+        between a bead in a main chain (first index) and a first bead in a side chain (second
+        index)."""
         return self._lower_main_upper_side
 
     @property
-    def lower_side_upper_side(self):
+    def lower_side_upper_side(self) -> defaultdict[int, dict]:
+        """Returns a dictionary which is a component of a contact map that stores contact operators
+        between a first bead in a side chain (first index) and a a first bead in a side chain (
+        second index)."""
         return self._lower_side_upper_side
 
     def create_peptide_qubit_list(self):

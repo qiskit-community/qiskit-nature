@@ -15,6 +15,8 @@ from typing import List
 
 
 class Interaction(ABC):
+    """An abstract class defining an interaction between beads of a peptide."""
+
     @abstractmethod
     def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]):
         """

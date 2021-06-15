@@ -12,6 +12,7 @@
 """Builds a contact map that stores contacts between beads in a peptide."""
 import collections
 import logging
+from typing import Tuple
 
 from qiskit.opflow import PauliSumOp, OperatorBase
 
@@ -24,7 +25,15 @@ from problems.sampling.protein_folding.peptide.peptide import Peptide
 logger = logging.getLogger(__name__)
 
 
-def _create_contact_qubits(peptide: Peptide):
+def _create_contact_qubits(
+    peptide: Peptide,
+) -> Tuple[
+    collections.defaultdict[int, dict],
+    collections.defaultdict[int, dict],
+    collections.defaultdict[int, dict],
+    collections.defaultdict[int, dict],
+    int,
+]:
     """
     Creates Pauli operators for 1st nearest neighbor interactions
 
@@ -61,9 +70,7 @@ def _create_contact_qubits(peptide: Peptide):
                             ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1])
                         ),
                     )
-                    logger.info(
-                        "possible contact between", lower_bead_id, "0 and", upper_bead_id, "0"
-                    )
+                    _log_contact(lower_bead_id, upper_bead_id, "main_chain", "main_chain")
                     num_contacts += 1
                 if side_chain[lower_bead_id - 1] and side_chain[upper_bead_id - 1]:
                     lower_side_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
@@ -73,16 +80,12 @@ def _create_contact_qubits(peptide: Peptide):
                             ^ full_id
                         ),
                     )
-                    logger.info(
-                        "possible contact between", lower_bead_id, "1 and", upper_bead_id, "1"
-                    )
+                    _log_contact(lower_bead_id, upper_bead_id, "side_chain", "side_chain")
                     num_contacts += 1
             else:
                 if (upper_bead_id - lower_bead_id) >= 4:
                     if side_chain[upper_bead_id - 1]:
-                        logger.info(
-                            "possible contact between", lower_bead_id, "0 and", upper_bead_id, "1"
-                        )
+                        _log_contact(lower_bead_id, upper_bead_id, "main_chain", "side_chain")
                         main_op = full_id ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1])
                         side_op = _build_pauli_z_op(num_qubits, [upper_bead_id - 1]) ^ full_id
                         lower_side_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
@@ -91,22 +94,27 @@ def _create_contact_qubits(peptide: Peptide):
                         num_contacts += 1
 
                     if side_chain[lower_bead_id - 1]:
-                        logger.info(
-                            "possible contact between", lower_bead_id, "1 and", upper_bead_id, "0"
-                        )
+                        _log_contact(lower_bead_id, upper_bead_id, "side_chain", "main_chain")
                         main_op = full_id ^ _build_pauli_z_op(num_qubits, [upper_bead_id - 1])
                         side_op = _build_pauli_z_op(num_qubits, [lower_bead_id - 1]) ^ full_id
                         lower_main_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                             main_chain_len, (side_op @ main_op)
                         )
                         num_contacts += 1
-    logger.info("number of qubits required for contact : ", num_contacts)
+    logger.info(f"number of qubits required for contact : {num_contacts}")
     return (
         lower_main_upper_main,
         lower_side_upper_main,
         lower_main_upper_side,
         lower_side_upper_side,
         num_contacts,
+    )
+
+
+def _log_contact(lower_bead_id, upper_bead_id, lower_chain_type, upper_chain_type):
+    logger.info(
+        f"possible contact between a bead {lower_bead_id} on the {lower_chain_type} and a bead "
+        f"{upper_bead_id} on the {upper_chain_type}"
     )
 
 

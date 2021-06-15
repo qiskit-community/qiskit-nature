@@ -22,6 +22,8 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.interaction im
 
 
 class MixedInteraction(Interaction):
+    """A class defining a mixed interaction between beads of a peptide."""
+
     def __init__(self, additional_energies=None):
         self.additional_energies = additional_energies
 
@@ -31,7 +33,8 @@ class MixedInteraction(Interaction):
         potential file.
         Args:
             chain_len: Length of a protein chain.
-            residue_sequence: A list that contains characters defining residues for a chain of proteins.
+            residue_sequence: A list that contains characters defining residues for a chain of
+            proteins.
 
         Returns:
             pair_energies: Numpy array of pair energies for amino acids.

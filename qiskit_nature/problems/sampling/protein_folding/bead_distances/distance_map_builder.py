@@ -35,7 +35,8 @@ def _create_distance_qubits(peptide: Peptide):
         peptide: A Peptide object that includes all information about a protein.
 
     Returns:
-        distance_map: # TODO
+        distance_map: A beads-indexed dictionary that stores distances between beads of a
+                        peptide as qubit operators.
         num_distances: number of distances calculated.
     """
     delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
@@ -122,6 +123,7 @@ def _calc_distances_main_chain(peptide: Peptide):
     delta_na = summation (k = lower_bead_ind to upper_bead_ind - 1) of (-1)^k*indica(k)
     Args:
         peptide: A Peptide object that includes all information about a protein.
+
     Returns:
         delta_n0, delta_n1, delta_n2, delta_n3: Tuple corresponding to
                                                 the number of occurrences
@@ -339,7 +341,8 @@ def _first_neighbor(
         lambda_1: Constraint to penalize local overlap between
                  beads within a nearest neighbor contact.
         pair_energies: Numpy array of pair energies for amino acids.
-        distance_map: #TODO
+        distance_map: A beads-indexed dictionary that stores distances between beads of a
+                        peptide as qubit operators.
         pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
     Returns:
@@ -386,7 +389,8 @@ def _second_neighbor(
         lambda_1: Constraint to penalize local overlap between
                  beads within a nearest neighbor contact.
         pair_energies: Numpy array of pair energies for amino acids.
-        distance_map: # TODO
+        distance_map: A beads-indexed dictionary that stores distances between beads of a
+                        peptide as qubit operators.
         pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
     Returns:

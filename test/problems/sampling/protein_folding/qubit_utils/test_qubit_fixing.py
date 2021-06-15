@@ -19,24 +19,28 @@ class TestQubitFixing(QiskitNatureTestCase):
     """Tests QubitFixing."""
 
     def test_fix_qubits_small(self):
+        """Tests if qubits are fixed correctly for an operator on a small number of qubits."""
         operator = (I ^ I ^ Z ^ Z) + (Z ^ I ^ I ^ I)
         fixed = _fix_qubits(operator)
         expected = PauliSumOp.from_list([("IIII", 0)])
         assert fixed == expected
 
     def test_fix_qubits_small_2(self):
+        """Tests if qubits are fixed correctly for an operator on a small number of qubits."""
         operator = (Z ^ Z) + (I ^ I)
         fixed = _fix_qubits(operator)
         expected = PauliSumOp.from_list([("II", 0)])
         assert fixed == expected
 
     def test_fix_qubits_large(self):
+        """Tests if qubits are fixed correctly for an operator on a large number of qubits."""
         operator = (Z ^ I ^ I ^ I ^ I ^ Z ^ Z) + (I ^ I ^ I ^ Z ^ I ^ I ^ I)
         fixed = _fix_qubits(operator)
         expected = (I ^ I ^ I ^ I ^ I ^ I ^ I) - (Z ^ I ^ I ^ I ^ I ^ I ^ I)
         assert fixed == expected
 
     def test_fix_qubits_pauli_op(self):
+        """Tests if qubits are fixed correctly for an operator which is a PauliOp."""
         operator = Z ^ I ^ I ^ I ^ I ^ Z ^ Z
         fixed = _fix_qubits(operator)
         expected = Z ^ I ^ I ^ I ^ I ^ I ^ I

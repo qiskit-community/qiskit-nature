@@ -24,6 +24,7 @@ def _load_energy_matrix_file():
 
 
 def _parse_energy_matrix(matrix):
+    """Parses a matrix loaded from the MJ potential file."""
     energy_matrix = np.zeros((np.shape(matrix)[0], np.shape(matrix)[1]))
     for row in range(1, np.shape(matrix)[0]):
         for col in range(row - 1, np.shape(matrix)[1]):

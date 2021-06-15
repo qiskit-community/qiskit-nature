@@ -98,6 +98,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
     # TODO
     def test_build_qubit_op(self):
+        """Tests if a total Hamiltonian qubit operator is built correctly."""
         n_contacts = 0
         lambda_back = 10
         lambda_chiral = 10
@@ -1234,6 +1235,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         assert h_chiral == expected
 
     def test_create_h_bbbb(self):
+        """Tests if H_BBBB Hamiltonian qubit operator is built correctly."""
         lambda_1 = 10
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A"]
         main_chain_len = 8
@@ -4011,6 +4013,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         assert h_bbbb == expected
 
     def test_create_h_bbsc_and_h_scbb(self):
+        """Tests if H_BBSC and H_SCBB Hamiltonians qubit operators are built correctly."""
         lambda_1 = 10
         main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A"]
         main_chain_len = 7
@@ -6882,6 +6885,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         )
 
     def test_create_h_bbsc_and_h_scbb_2(self):
+        """Tests if H_BBSC and H_SCBB Hamiltonians qubit operators are built correctly."""
         lambda_1 = 10
         main_chain_residue_seq = ["A", "P", "R", "L", "A", "A"]
         main_chain_len = 6
@@ -6963,6 +6967,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         assert h_scbb == 0
 
     def test_create_h_scsc(self):
+        """Tests if a H_SCSC Hamiltonian qubit operator is built correctly."""
         lambda_1 = 10
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9

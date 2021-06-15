@@ -535,7 +535,7 @@ def _create_h_contacts(
     main_chain_len = len(peptide.get_main_chain)
     full_id = _build_full_identity(2 * (main_chain_len - 1))
     h_contacts = 0
-    for operator in new_qubits[-contact_map.r_contact :]:
+    for operator in new_qubits[-contact_map.num_contacts :]:
         h_contacts += operator
     h_contacts -= n_contacts * (full_id ^ full_id)
     h_contacts = h_contacts ** 2

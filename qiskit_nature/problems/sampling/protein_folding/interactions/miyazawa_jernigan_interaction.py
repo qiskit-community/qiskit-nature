@@ -22,6 +22,8 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.interaction im
 
 
 class MiyazawaJerniganInteraction(Interaction):
+    """A class defining a Miyazawa-Jernigan interaction between beads of a peptide."""
+
     def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]):
         """
         Calculates an energy matrix for a Miyazawa-Jernigan interaction based on the

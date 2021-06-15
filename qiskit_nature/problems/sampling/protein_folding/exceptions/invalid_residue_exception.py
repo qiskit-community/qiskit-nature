@@ -13,4 +13,6 @@
 
 
 class InvalidResidueException(Exception):
+    """An exception for an invalid residue in a peptide."""
+
     pass

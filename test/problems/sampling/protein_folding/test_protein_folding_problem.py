@@ -24,6 +24,7 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
 
     # TODO
     def test_protein_folding_problem(self):
+        """Tests if a protein folding problem is created and returns a correct qubit operator."""
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10

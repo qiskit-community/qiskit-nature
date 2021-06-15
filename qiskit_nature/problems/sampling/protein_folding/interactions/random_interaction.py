@@ -15,6 +15,8 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.interaction im
 
 
 class RandomInteraction(Interaction):
+    """A class defining a random interaction between beads of a peptide."""
+
     def calc_energy_matrix(self, chain_len: int, sequence):  # TODO unused arg
         """
         Calculates an energy matrix for a random interaction.
