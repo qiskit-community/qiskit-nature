@@ -17,7 +17,7 @@ from typing import List
 class Interaction(ABC):
 
     @abstractmethod
-    def calc_energy_matrix(self, chain_len: int, sequence: List[str]):
+    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]):
         """
         Calculates an energy matrix for a particular interaction type.
         Args:

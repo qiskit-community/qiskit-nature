@@ -35,11 +35,11 @@ class MiyazawaJerniganInteraction(Interaction):
             pair_energies: Numpy array of pair energies for amino acids.
         """
         _validate_residue_sequence(residue_sequence)
-        mj, list_aa = _load_energy_matrix_file()
+        mj_interaction, list_aa = _load_energy_matrix_file()
         pair_energies = np.zeros((chain_len + 1, 2, chain_len + 1, 2))
         for i in range(1, chain_len + 1):
             for j in range(i + 1, chain_len + 1):
                 aa_i = list_aa.index(residue_sequence[i - 1])
                 aa_j = list_aa.index(residue_sequence[j - 1])
-                pair_energies[i, 0, j, 0] = mj[min(aa_i, aa_j), max(aa_i, aa_j)]
+                pair_energies[i, 0, j, 0] = mj_interaction[min(aa_i, aa_j), max(aa_i, aa_j)]
         return pair_energies

@@ -112,14 +112,14 @@ class MainChain(BaseChain):
         return side_chain
 
     def _is_side_chain_present(self, main_bead_id: int, side_chain_lens: List[int],
-                               side_chain_residue_sequences) -> bool:
+                               side_chain_residue_sequences: List[str]) -> bool:
         """
         Returns true if a main bead of a given id hosts a side chain. Returns false otherwise.
         Args:
             main_bead_id: id of a main bead that will host a side chain.
             side_chain_lens: list of lengths of all side chains.
             side_chain_residue_sequences: list of characters that define residues for all side
-            beads.
+                                        beads.
 
         Returns:
             is_side_chain_present: a boolean indicating whether a given main bead hosts a side

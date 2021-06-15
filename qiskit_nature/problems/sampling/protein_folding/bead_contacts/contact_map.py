@@ -87,5 +87,3 @@ class ContactMap:
                     contact_qubits.append(contact_op)
                 except KeyError:
                     pass
-
-

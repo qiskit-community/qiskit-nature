@@ -34,4 +34,3 @@ __all__ = [
     "ElectronicStructureProblem",
     "VibrationalStructureProblem",
 ]
-

@@ -21,7 +21,8 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 
 class MainBead(BaseBead):
 
-    def __init__(self, main_index: int, residue_type: str, turn_qubits: List[PauliOp], side_chain: SideChain):
+    def __init__(self, main_index: int, residue_type: str, turn_qubits: List[PauliOp],
+                 side_chain: SideChain):
         super().__init__("main_chain", main_index, residue_type, turn_qubits)
         self._side_chain = side_chain
         if self._residue_type is not None and self.turn_qubits is not None:
