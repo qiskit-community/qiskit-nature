@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 from qiskit.opflow import I, Z, PauliSumOp
 
-from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
 from test import QiskitNatureTestCase
+from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
 
 
 class TestQubitFixing(QiskitNatureTestCase):
