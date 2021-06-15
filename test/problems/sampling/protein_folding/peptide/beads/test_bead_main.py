@@ -9,12 +9,13 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Tests Main Bead."""
+from test import QiskitNatureTestCase
 from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.main_bead import MainBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain import SideChain
-from test import QiskitNatureTestCase
 
 
 class TestMainBead(QiskitNatureTestCase):

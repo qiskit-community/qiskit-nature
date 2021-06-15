@@ -9,12 +9,13 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Tests ProteinFoldingProblem."""
+from test import QiskitNatureTestCase
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from problems.sampling.protein_folding.protein_folding_problem import ProteinFoldingProblem
 from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
-from test import QiskitNatureTestCase
 
 
 class TestProteinFoldingProblem(QiskitNatureTestCase):
@@ -36,8 +37,8 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
 
-        mj = MiyazawaJerniganInteraction()
+        mj_interaction = MiyazawaJerniganInteraction()
 
-        protein_folding_problem = ProteinFoldingProblem(peptide, mj, penalty_terms)
+        protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
         qubit_op = protein_folding_problem.qubit_op()
         print(qubit_op)

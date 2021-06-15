@@ -9,9 +9,9 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from problems.sampling.protein_folding.peptide.peptide import Peptide
-
+"""Tests Peptide."""
 from test import QiskitNatureTestCase
+from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
 class TestPeptide(QiskitNatureTestCase):
@@ -30,7 +30,7 @@ class TestPeptide(QiskitNatureTestCase):
         side_chain_hot_vector = peptide.get_side_chain_hot_vector()
 
         assert len(peptide.get_main_chain.beads_list) == 4
-        assert len(peptide.get_main_chain[2].side_chain.beads_list)
+        assert len(peptide.get_main_chain[2].side_chain.beads_list) == 1
         assert peptide.get_main_chain[0].side_chain is None
         assert peptide.get_main_chain[1].side_chain is None
         assert peptide.get_main_chain[3].side_chain is None

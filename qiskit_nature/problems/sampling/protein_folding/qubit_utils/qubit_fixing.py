@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Changes certain qubits to fixed values."""
 from typing import Union
 
 import numpy as np
@@ -34,11 +35,10 @@ def _fix_qubits(operator: Union[PauliSumOp, PauliOp, OperatorBase]):
         _preset_binary_vals(table_z)
         return PauliOp(Pauli((table_z, table_x)))
 
-    for i in range(len(operator)):
-        h = operator[i]
-        table_z = np.copy(h.primitive.table.Z[0])
-        table_x = np.copy(h.primitive.table.X[0])
-        coeffs = _calc_updated_coeffs(h, table_z)
+    for hamiltonian in operator:
+        table_z = np.copy(hamiltonian.primitive.table.Z[0])
+        table_x = np.copy(hamiltonian.primitive.table.X[0])
+        coeffs = _calc_updated_coeffs(hamiltonian, table_z)
         _preset_binary_vals(table_z)
         new_table = np.concatenate((table_x, table_z), axis=0)
         new_tables.append(new_table)
@@ -49,8 +49,8 @@ def _fix_qubits(operator: Union[PauliSumOp, PauliOp, OperatorBase]):
     return operator_updated
 
 
-def _calc_updated_coeffs(h: Union[PauliSumOp, PauliOp], table_z):
-    coeffs = np.copy(h.primitive.coeffs[0])
+def _calc_updated_coeffs(hamiltonian: Union[PauliSumOp, PauliOp], table_z):
+    coeffs = np.copy(hamiltonian.primitive.coeffs[0])
     if len(table_z) > 1 and table_z[1] == np.bool_(True):
         coeffs = -1 * coeffs
     if len(table_z) > 6 and table_z[5] == np.bool_(True):

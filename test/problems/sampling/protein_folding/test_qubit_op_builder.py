@@ -9,6 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Tests QubitOpBuilder."""
+from test import QiskitNatureTestCase
 from qiskit.opflow import I, Z, PauliSumOp
 
 from problems.sampling.protein_folding.qubit_op_builder import _create_h_back, \
@@ -21,7 +23,6 @@ from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interactio
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
-from test import QiskitNatureTestCase
 
 
 class TestQubitOpBuilder(QiskitNatureTestCase):
@@ -100,9 +101,9 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        mj = MiyazawaJerniganInteraction()
+        mj_interaction = MiyazawaJerniganInteraction()
         penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params, n_contacts)
         print(qubit_op)
 
@@ -265,30 +266,13 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         assert h_chiral == expected
 
     def test_create_h_bbbb(self):
-        """
-        Creates Hamiltonian term corresponding to 1st neighbor interaction between
-        main/backbone (BB) beads
-
-        Args:
-            main_chain_len: Number of total beads in peptide
-            lambda_1: Constraint to penalize local overlap between
-                     beads within a nearest neighbor contact
-            pair_energies: Numpy array of pair energies for amino acids
-            x_dist: Numpy array that tracks all distances between backbone and side chain
-                    beads for all axes: 0,1,2,3
-            pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-            contacts: Dictionary of contact qubits in symbolic notation
-
-        Returns:
-            H_BBBB: Hamiltonian term in symbolic notation
-        """
         lambda_1 = 10
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A"]
         main_chain_len = 8
         side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
-        mj = MiyazawaJerniganInteraction()
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         x_dist = DistanceMap(peptide)
@@ -608,34 +592,13 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         assert h_bbbb == expected
 
     def test_create_h_bbsc_and_h_scbb(self):
-        """
-        Creates Hamiltonian term corresponding to 1st neighbor interaction between
-        main/backbone (BB) and side chain (SC) beads. In the absence
-        of side chains, this function returns a value of 0.
-
-        Args:
-            main_chain_len: Number of total beads in peptide
-            side: List of side chains in peptide
-            lambda_1: Constraint to penalize local overlap between
-                     beads within a nearest neighbor contact
-            pair_energies: Numpy array of pair energies for amino acids
-            x_dist: Numpy array that tracks all distances between backbone and side chain
-                    beads for all axes: 0,1,2,3
-            pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-            contacts: Dictionary of contact qubits in symbolic notation
-
-        Returns:
-            h_bbsc, h_scbb: Tuple of Hamiltonian terms consisting of backbone and side chain
-            interactions
-        """
-
         lambda_1 = 10
         main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A"]
         main_chain_len = 7
         side_chain_lens = [0, 0, 1, 0, 0, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", None]
-        mj = MiyazawaJerniganInteraction()
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         x_dist = DistanceMap(peptide)
@@ -877,34 +840,13 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
                        ^ I ^ Z ^ I ^ I ^ I ^ I)
 
     def test_create_h_bbsc_and_h_scbb_2(self):
-        """
-        Creates Hamiltonian term corresponding to 1st neighbor interaction between
-        main/backbone (BB) and side chain (SC) beads. In the absence
-        of side chains, this function returns a value of 0.
-
-        Args:
-            main_chain_len: Number of total beads in peptide
-            side: List of side chains in peptide
-            lambda_1: Constraint to penalize local overlap between
-                     beads within a nearest neighbor contact
-            pair_energies: Numpy array of pair energies for amino acids
-            x_dist: Numpy array that tracks all distances between backbone and side chain
-                    beads for all axes: 0,1,2,3
-            pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-            contacts: Dictionary of contact qubits in symbolic notation
-
-        Returns:
-            h_bbsc, h_scbb: Tuple of Hamiltonian terms consisting of backbone and side chain
-            interactions
-        """
-
         lambda_1 = 10
         main_chain_residue_seq = ["A", "P", "R", "L", "A", "A"]
         main_chain_len = 6
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", None]
-        mj = MiyazawaJerniganInteraction()
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         x_dist = DistanceMap(peptide)
@@ -978,24 +920,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         assert h_scbb == 0
 
     def test_create_h_scsc(self):
-        """
-            Creates Hamiltonian term corresponding to 1st neighbor interaction between
-            side chain (SC) beads. In the absence of side chains, this function
-            returns a value of 0.
-
-            Args:
-                main_chain_len: Number of total beads in peptides
-                lambda_1: Constraint to penalize local overlap between
-                         beads within a nearest neighbor contact
-                pair_energies: Numpy array of pair energies for amino acids
-                x_dist: Numpy array that tracks all distances between backbone and side chain
-                        beads for all axes: 0,1,2,3
-                pauli_conf: Dictionary of conformation Pauli operators in symbolic notation
-                contacts: Dictionary of contact qubits in symbolic notation
-
-            Returns:
-                h_scsc: Hamiltonian term consisting of side chain pairwise interactions
-            """
         lambda_1 = 10
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9
@@ -1003,8 +927,8 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", None]
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        mj = MiyazawaJerniganInteraction()
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         x_dist = DistanceMap(peptide)
         contact_map = ContactMap(peptide)
         h_scsc = _create_h_scsc(peptide, lambda_1,
@@ -1269,14 +1193,14 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
     def test_create_h_short(self):
         """
-            Tests that the Hamiltonian to back-overlaps is created correctly.
-            """
+        Tests that the Hamiltonian to back-overlaps is created correctly.
+        """
         main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A", "A"]
         main_chain_len = 8
         side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", None]
-        mj = MiyazawaJerniganInteraction()
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
         h_short = _create_h_short(peptide, pair_energies).reduce()
@@ -1322,9 +1246,9 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
 
-        N_contacts = 0
+        n_contacts = 0
         contact_map = ContactMap(peptide)
-        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, N_contacts)
+        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
         assert h_contacts == 280.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                 ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 50.0 * (

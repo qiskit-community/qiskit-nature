@@ -9,12 +9,12 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from qiskit.opflow import I, Z
-
+"""Tests QubitNumberReducer."""
 from test import QiskitNatureTestCase
-from problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import _find_unused_qubits, \
+from problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import \
+    _find_unused_qubits, \
     _remove_unused_qubits
-
+from qiskit.opflow import I, Z
 
 
 class TestQubitNumberReducer(QiskitNatureTestCase):

@@ -9,27 +9,29 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Tests ContactQubitsBuilder."""
+from test import QiskitNatureTestCase
 import numpy as np
 from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.bead_contacts import contact_qubits_builder
 from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, \
+    _second_neighbor
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.peptide.peptide import Peptide
-from test import QiskitNatureTestCase
 
 
 class TestContactQubitsBuilder(QiskitNatureTestCase):
-    """Tests Peptide."""
+    """Tests ContactQubitsBuilder."""
 
     def test_create_pauli_for_contacts(self):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = ["S","A","A","S","S"]
+        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
         main_chain_len = 5
         side_chains = [0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", None]
@@ -48,7 +50,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = ["S","A","A","S","S","S"]
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
         main_chain_len = 6
         side_chains = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "S", None]
@@ -58,17 +60,17 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         lower_side_upper_side, r_contact = contact_qubits_builder._create_contact_qubits(peptide)
 
         assert lower_main_upper_main == {1: {6: 0.5 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                    I) - 0.5 * (
-                                                            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                                                            ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^
-                                                            Z)}}
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                I) - 0.5 * (
+                                                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+                                                        ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^
+                                                        Z)}}
         assert lower_side_upper_main == {1: {5: 0.5 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                    I) - 0.5 * (
-                                                            I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
-                                                            ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                                                            Z)}}
+                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                I) - 0.5 * (
+                                                        I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
+                                                        ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
+                                                        Z)}}
         assert lower_main_upper_side == {}
         assert lower_side_upper_side == {}
         assert r_contact == 2
@@ -78,7 +80,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = ["S","A","A","S","S","S", "S"]
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S", "S"]
         main_chain_len = 7
         side_chains = [0, 0, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "S", "A", None]
@@ -121,7 +123,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that the list of all qubits (conformation and interaction) is created correctly.
         """
-        main_chain_residue_seq = ["S","A","A","S","S"]
+        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]
@@ -154,15 +156,15 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         Tests that Pauli operators for 1st neighbour interactions are created correctly.
         """
 
-        main_chain_residue_seq = ["S","A","A","S","S","S"]
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
         main_chain_len = 6
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "S", "S", None]
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        mj = MiyazawaJerniganInteraction()
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         lambda_1 = 2
         lower_main_bead_index = 1
         upper_main_bead_index = 4
@@ -184,15 +186,15 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         Tests that Pauli operators for 1st neighbour interactions are created correctly.
         """
 
-        main_chain_residue_seq = ["S","A","A","S","S","S"]
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
         main_chain_len = 6
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "S", "S", None]
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-        mj = MiyazawaJerniganInteraction()
-        pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         lambda_1 = 2
         lower_main_bead_index = 3
         upper_main_bead_index = 5
@@ -228,7 +230,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for 2nd neighbour interactions are created correctly.
         """
-        main_chain_residue_seq = ["S","A","A","S","S"]
+        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]

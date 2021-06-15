@@ -9,10 +9,11 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Tests SideChain."""
+from test import QiskitNatureTestCase
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain import SideChain
-from test import QiskitNatureTestCase
 
 
 class TestSideChain(QiskitNatureTestCase):

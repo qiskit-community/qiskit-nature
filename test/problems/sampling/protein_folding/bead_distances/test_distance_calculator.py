@@ -9,9 +9,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Tests DistanceCalculator."""
+from test import QiskitNatureTestCase
 from qiskit.opflow import I, Z
 
-from test import QiskitNatureTestCase
 from problems.sampling.protein_folding.bead_distances import distance_map_builder
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
@@ -34,7 +35,7 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         """
         Tests that distances for all beads on the main chain are calculated correctly.
         """
-        delta_n0, delta_n1, delta_n2, delta_n3 = distance_map_builder._calc_distances_main_chain(
+        delta_n0, delta_n1, _, _ = distance_map_builder._calc_distances_main_chain(
             self.peptide)
         # checking only some of the entries
         assert delta_n0[1][0][5][0] == 1.25 * (
@@ -64,13 +65,14 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         delta_n0_main, delta_n1_main, delta_n2_main, delta_n3_main = \
             distance_map_builder._calc_distances_main_chain(
             self.peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = distance_map_builder._add_distances_side_chain(
+        delta_n0, _, _, _ = distance_map_builder._add_distances_side_chain(
             self.peptide,
             delta_n0_main,
             delta_n1_main,
             delta_n2_main,
             delta_n3_main)
 
+        # checking only some of the entries
         assert delta_n0[1][0][3][1] == 0.75 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
                        I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (

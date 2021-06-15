@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Removes qubit registers that are not relevant for the problem."""
 from typing import Union, List, Dict, Tuple
 
 import numpy as np
@@ -37,6 +38,7 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> Unio
 
     elif isinstance(total_hamiltonian, PauliSumOp):
         return _compress_pauli_sum_op(num_qubits, total_hamiltonian, unused_qubits)
+    return None
 
 
 def _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits):

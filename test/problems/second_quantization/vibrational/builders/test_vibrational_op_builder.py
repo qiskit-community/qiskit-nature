@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Tests Fermionic Operator builder."""
+"""Tests Vibrational Operator builder."""
 
 from test import QiskitNatureTestCase
 from test.problems.second_quantization.vibrational.resources.expected_labels import (

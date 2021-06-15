@@ -9,14 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from qiskit.opflow import I, Z, PauliSumOp
-
+"""Tests QubitFixing."""
 from test import QiskitNatureTestCase
+from qiskit.opflow import I, Z, PauliSumOp
 from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
 
 
 class TestQubitFixing(QiskitNatureTestCase):
-    """Tests DistanceCalculator."""
+    """Tests QubitFixing."""
 
     def test_fix_qubits_small(self):
         operator = (I ^ I ^ Z ^ Z) + (Z ^ I ^ I ^ I)

@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
+"""Tests EnergyMatrixLoader."""
 from test import QiskitNatureTestCase
 from qiskit_nature.problems.sampling.protein_folding.data_loaders.energy_matrix_loader import \
     _load_energy_matrix_file

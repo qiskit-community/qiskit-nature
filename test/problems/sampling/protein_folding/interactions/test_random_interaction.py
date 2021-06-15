@@ -9,9 +9,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Tests RandomInteraction."""
+from test import QiskitNatureTestCase
 from qiskit_nature.problems.sampling.protein_folding.interactions.random_interaction import \
     RandomInteraction
-from test import QiskitNatureTestCase
 
 
 class TestRandomInteraction(QiskitNatureTestCase):
