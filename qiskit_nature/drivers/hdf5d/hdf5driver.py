@@ -14,6 +14,7 @@
 
 import logging
 import os
+import warnings
 
 from ..qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver
@@ -22,31 +23,37 @@ logger = logging.getLogger(__name__)
 
 
 class HDF5Driver(FermionicDriver):
-    """
-    Qiskit chemistry driver reading an HDF5 file.
+    """**DEPRECATED** Qiskit Nature driver for reading an HDF5 file.
 
     The HDF5 file is as saved from
     a :class:`~qiskit_nature.drivers.QMolecule` instance.
     """
 
-    def __init__(self,
-                 hdf5_input: str = 'molecule.hdf5') -> None:
+    def __init__(self, hdf5_input: str = "molecule.hdf5") -> None:
         """
         Args:
             hdf5_input: Path to HDF5 file
         """
         super().__init__()
+        warnings.warn(
+            "This HDF5Driver is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.hdf5d "
+            "HDF5Driver as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._hdf5_input = hdf5_input
         self._work_path = None
 
     @property
     def work_path(self):
-        """ Returns work path. """
+        """Returns work path."""
         return self._work_path
 
     @work_path.setter
     def work_path(self, new_work_path):
-        """ Sets work path. """
+        """Sets work path."""
         self._work_path = new_work_path
 
     def run(self) -> QMolecule:
@@ -64,7 +71,7 @@ class HDF5Driver(FermionicDriver):
             hdf5_file = os.path.abspath(os.path.join(self.work_path, hdf5_file))
 
         if not os.path.isfile(hdf5_file):
-            raise LookupError('HDF5 file not found: {}'.format(hdf5_file))
+            raise LookupError("HDF5 file not found: {}".format(hdf5_file))
 
         molecule = QMolecule(hdf5_file)
         molecule.load()

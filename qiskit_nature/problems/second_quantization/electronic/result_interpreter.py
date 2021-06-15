@@ -15,14 +15,15 @@ from typing import cast, Union
 import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult, DipoleTuple
 
 
-def _interpret(molecule_data: QMolecule, molecule_data_transformed: QMolecule,
-               raw_result: Union[EigenstateResult, EigensolverResult,
-                                 MinimumEigensolverResult]) -> \
-        ElectronicStructureResult:
+def _interpret(
+    molecule_data: QMolecule,
+    molecule_data_transformed: QMolecule,
+    raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+) -> ElectronicStructureResult:
     """Interprets an EigenstateResult in the context of this transformation.
 
     Args:
@@ -35,8 +36,9 @@ def _interpret(molecule_data: QMolecule, molecule_data_transformed: QMolecule,
     """
     eigenstate_result = _interpret_raw_result(raw_result)
 
-    result = _interpret_electr_struct_result(eigenstate_result, molecule_data,
-                                             molecule_data_transformed)
+    result = _interpret_electr_struct_result(
+        eigenstate_result, molecule_data, molecule_data_transformed
+    )
 
     return result
 
@@ -60,8 +62,7 @@ def _interpret_raw_result(raw_result):
     return eigenstate_result
 
 
-def _interpret_electr_struct_result(eigenstate_result, molecule_data,
-                                    molecule_data_transformed):
+def _interpret_electr_struct_result(eigenstate_result, molecule_data, molecule_data_transformed):
     q_molecule = cast(QMolecule, molecule_data)
     q_molecule_transformed = cast(QMolecule, molecule_data_transformed)
     result = ElectronicStructureResult()
@@ -131,9 +132,16 @@ def _interpret_dipole_results(aux_op_eigenvalues, q_molecule_transformed, result
 
     result.reverse_dipole_sign = q_molecule_transformed.reverse_dipole_sign
     result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
-    result.extracted_transformer_dipoles.append({
-        name: cast(DipoleTuple, (q_molecule_transformed.x_dip_energy_shift[name],
-                                 q_molecule_transformed.y_dip_energy_shift[name],
-                                 q_molecule_transformed.z_dip_energy_shift[name]))
-        for name in q_molecule_transformed.x_dip_energy_shift.keys()
-    })
+    result.extracted_transformer_dipoles.append(
+        {
+            name: cast(
+                DipoleTuple,
+                (
+                    q_molecule_transformed.x_dip_energy_shift[name],
+                    q_molecule_transformed.y_dip_energy_shift[name],
+                    q_molecule_transformed.z_dip_energy_shift[name],
+                ),
+            )
+            for name in q_molecule_transformed.x_dip_energy_shift.keys()
+        }
+    )

@@ -25,10 +25,13 @@ from .minimum_eigensolver_factory import MinimumEigensolverFactory
 class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
     """A factory to construct a NumPyMinimumEigensolver."""
 
-    def __init__(self,
-                 filter_criterion: Callable[[Union[List, np.ndarray], float, Optional[List[float]]],
-                                            bool] = None,
-                 use_default_filter_criterion: bool = False) -> None:
+    def __init__(
+        self,
+        filter_criterion: Callable[
+            [Union[List, np.ndarray], float, Optional[List[float]]], bool
+        ] = None,
+        use_default_filter_criterion: bool = False,
+    ) -> None:
         """
         Args:
             filter_criterion: callable that allows to filter eigenvalues/eigenstates. The minimum
@@ -44,29 +47,33 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self._use_default_filter_criterion = use_default_filter_criterion
 
     @property
-    def filter_criterion(self) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]],
-                                           bool]:
-        """ returns filter criterion """
+    def filter_criterion(
+        self,
+    ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
+        """returns filter criterion"""
         return self._filter_criterion
 
     @filter_criterion.setter
-    def filter_criterion(self, value: Callable[[Union[List, np.ndarray], float,
-                                                Optional[List[float]]], bool]) -> None:
-        """ sets filter criterion """
+    def filter_criterion(
+        self,
+        value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
+    ) -> None:
+        """sets filter criterion"""
         self._filter_criterion = value
 
     @property
     def use_default_filter_criterion(self) -> bool:
-        """ returns whether to use the default filter criterion """
+        """returns whether to use the default filter criterion"""
         return self._use_default_filter_criterion
 
     @use_default_filter_criterion.setter
     def use_default_filter_criterion(self, value: bool) -> None:
-        """ sets whether to use the default filter criterion """
+        """sets whether to use the default filter criterion"""
         self._use_default_filter_criterion = value
 
-    def get_solver(self, problem: BaseProblem,
-                   qubit_converter: QubitConverter) -> MinimumEigensolver:
+    def get_solver(
+        self, problem: BaseProblem, qubit_converter: QubitConverter
+    ) -> MinimumEigensolver:
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``transformation``.
 

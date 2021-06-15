@@ -17,20 +17,24 @@ import unittest
 from test import QiskitNatureTestCase
 from test.mappers.second_quantization.resources.reference_direct_mapper import REFERENCE
 
-from qiskit_nature.drivers import GaussianForcesDriver
+from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
-from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import \
-        _build_vibrational_op
+from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import (
+    _build_vibrational_op,
+)
 
 
 class TestDirectMapper(QiskitNatureTestCase):
-    """ Test Direct Mapper """
+    """Test Direct Mapper"""
 
     def test_mapping(self):
-        """ Test mapping to qubit operator """
-        driver = GaussianForcesDriver(logfile=self.get_resource_path(
-            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
-        ))
+        """Test mapping to qubit operator"""
+        driver = GaussianForcesDriver(
+            logfile=self.get_resource_path(
+                "CO2_freq_B3LYP_ccpVDZ.log",
+                "problems/second_quantization/vibrational/resources",
+            )
+        )
         watson_hamiltonian = driver.run()
 
         num_modals = 2
@@ -44,10 +48,10 @@ class TestDirectMapper(QiskitNatureTestCase):
         self.assertEqual(qubit_op, REFERENCE)
 
     def test_allows_two_qubit_reduction(self):
-        """ Test this returns False for this mapper """
+        """Test this returns False for this mapper"""
         mapper = DirectMapper()
         self.assertFalse(mapper.allows_two_qubit_reduction)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

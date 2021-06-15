@@ -40,9 +40,11 @@ class GroundStateSolver(ABC):
         self._qubit_converter = qubit_converter
 
     @abstractmethod
-    def solve(self, problem: BaseProblem,
-              aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-              ) -> EigenstateResult:
+    def solve(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
@@ -66,13 +68,21 @@ class GroundStateSolver(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def evaluate_operators(self,
-                           state: Union[str, dict, Result,
-                                        list, np.ndarray, Statevector,
-                                        QuantumCircuit, Instruction,
-                                        OperatorBase],
-                           operators: Union[PauliSumOp, OperatorBase, list, dict]
-                           ) -> Union[float, List[float], Dict[str, List[float]]]:
+    def evaluate_operators(
+        self,
+        state: Union[
+            str,
+            dict,
+            Result,
+            list,
+            np.ndarray,
+            Statevector,
+            QuantumCircuit,
+            Instruction,
+            OperatorBase,
+        ],
+        operators: Union[PauliSumOp, OperatorBase, list, dict],
+    ) -> Union[float, List[float], Dict[str, List[float]]]:
         """Evaluates additional operators at the given state.
 
         Args:

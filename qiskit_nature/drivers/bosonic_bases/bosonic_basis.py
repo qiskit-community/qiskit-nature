@@ -14,12 +14,23 @@
 
 from typing import List, Tuple
 
+import warnings
+
 
 class BosonicBasis:
-    """ Basis to express a second quantization Bosonic Hamiltonian. """
+    """**DEPRECATED** Basis to express a second quantization Bosonic Hamiltonian."""
 
-    def convert(self, threshold: float = 1e-6) \
-            -> List[List[Tuple[List[List[int]], complex]]]:
+    def __init__(self):
+        warnings.warn(
+            "This BosonicBasis is deprecated as of 0.2.0, "
+            "and will be removed no earlier than 3 months after the release. "
+            "You should use the qiskit_nature.drivers.second_quantization.bosonic_bases "
+            "BosonicBasis as a direct replacement instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    def convert(self, threshold: float = 1e-6) -> List[List[Tuple[List[List[int]], complex]]]:
         """
         This prepares an array object representing a bosonic hamiltonian expressed
         in the harmonic basis. This object can directly be given to the BosonicOperator

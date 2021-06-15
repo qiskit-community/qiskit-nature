@@ -18,6 +18,7 @@ from enum import Enum
 
 
 class UnitsType(Enum):
-    """ Units Type Enum """
-    ANGSTROM = 'Angstrom'
-    BOHR = 'Bohr'
+    """Units Type Enum"""
+
+    ANGSTROM = "Angstrom"
+    BOHR = "Bohr"

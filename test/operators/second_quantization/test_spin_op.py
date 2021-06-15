@@ -86,7 +86,7 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_init_label(self, label, pre_processing):
         """Test __init__"""
         spin = SpinOp(pre_processing(label), register_length=len(label) // 3)
-        expected_label = " ".join(l for l in label.split() if l[0] != "I")
+        expected_label = " ".join(lb for lb in label.split() if lb[0] != "I")
         if not expected_label:
             expected_label = f"I_{len(label) // 3 - 1}"
         self.assertListEqual(spin.to_list(), [(expected_label, 1)])
@@ -236,25 +236,29 @@ class TestSpinOp(QiskitNatureTestCase):
         self.assertSpinEqual(actual, self.zero_op)
 
     def test_adjoint(self):
-        """Test adjoint method and dagger property"""
+        """Test adjoint method"""
         with self.subTest("heisenberg adjoint"):
             actual = self.heisenberg.adjoint()
             desired = SpinOp(
-                (self.heisenberg_spin_array, self.heisenberg_coeffs.conjugate().T), spin=1
+                (self.heisenberg_spin_array, self.heisenberg_coeffs.conjugate().T),
+                spin=1,
             )
             self.assertSpinEqual(actual, desired)
 
         with self.subTest("imag heisenberg adjoint"):
             actual = ~((3 + 2j) * self.heisenberg)
             desired = SpinOp(
-                (self.heisenberg_spin_array, ((3 + 2j) * self.heisenberg_coeffs).conjugate().T),
+                (
+                    self.heisenberg_spin_array,
+                    ((3 + 2j) * self.heisenberg_coeffs).conjugate().T,
+                ),
                 spin=1,
             )
             self.assertSpinEqual(actual, desired)
 
         # TODO: implement adjoint for same register operators.
         # with self.sub Test("adjoint same register op"):
-        #     actual = SpinOp("X_0 Y_0 Z_0").dagger
+        #     actual = SpinOp("X_0 Y_0 Z_0").adjoint()
 
         #     print(actual.to_matrix())
         #     print(SpinOp("X_0 Y_0 Z_0").to_matrix().T.conjugate())
@@ -334,6 +338,18 @@ class TestSpinOp(QiskitNatureTestCase):
             frozenset(actual),
             frozenset([("XX", 2j), ("XY", 2), ("YX", -2), ("YY", 2j)]),
         )
+
+    def test_hermiticity(self):
+        """test is_hermitian"""
+        # deliberately define test operator with X and Y which creates duplicate terms in .to_list()
+        # in case .adjoint() simplifies terms
+        with self.subTest("operator hermitian"):
+            test_op = SpinOp("+ZXY") + SpinOp("-ZXY")
+            self.assertTrue(test_op.is_hermitian())
+
+        with self.subTest("operator not hermitian"):
+            test_op = SpinOp("+ZXY") - SpinOp("-ZXY")
+            self.assertFalse(test_op.is_hermitian())
 
 
 if __name__ == "__main__":

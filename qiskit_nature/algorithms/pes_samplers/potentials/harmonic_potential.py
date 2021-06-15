@@ -17,7 +17,9 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 import qiskit_nature.constants as const
-from qiskit_nature.algorithms.pes_samplers.potentials.potential_base import PotentialBase
+from qiskit_nature.algorithms.pes_samplers.potentials.potential_base import (
+    PotentialBase,
+)
 from qiskit_nature.drivers import Molecule
 
 
@@ -27,6 +29,7 @@ class HarmonicPotential(PotentialBase):
     Input units are Angstroms (distance between the two atoms), and output units are
     Hartrees (molecular energy).
     """
+
     # Works in Angstroms (input) and Hartrees (output)
 
     def __init__(self, molecule: Molecule) -> None:
@@ -47,8 +50,7 @@ class HarmonicPotential(PotentialBase):
             self._m_a = molecule.masses[0]
             self._m_b = molecule.masses[1]
         else:
-            raise ValueError(
-                'Molecule masses need to be provided')
+            raise ValueError("Molecule masses need to be provided")
 
     @staticmethod
     def fit_function(x: float, k: float, r_0: float, m_shift: float) -> float:
@@ -78,7 +80,7 @@ class HarmonicPotential(PotentialBase):
         """
         return self.fit_function(x, self.k, self.r_0, self.m_shift)
 
-    def update_molecule(self, molecule: Molecule) -> Molecule:   # type: ignore
+    def update_molecule(self, molecule: Molecule) -> Molecule:  # type: ignore
         """Updates the underlying molecule.
 
         Args:
@@ -90,13 +92,17 @@ class HarmonicPotential(PotentialBase):
         # Check the provided molecule
         super().update_molecule(molecule)
         if len(molecule.masses) != 2:
-            raise ValueError('Harmonic potential only works for diatomic molecules!')
+            raise ValueError("Harmonic potential only works for diatomic molecules!")
         self._m_a = molecule.masses[0]
         self._m_b = molecule.masses[1]
 
-    def fit(self, xdata: List[float], ydata: List[float],
-            initial_vals: Optional[List[float]] = None,
-            bounds_list: Optional[Tuple[List[float], List[float]]] = None) -> None:
+    def fit(
+        self,
+        xdata: List[float],
+        ydata: List[float],
+        initial_vals: Optional[List[float]] = None,
+        bounds_list: Optional[Tuple[List[float], List[float]]] = None,
+    ) -> None:
         """Fits a potential to computed molecular energies.
 
         Args:
@@ -115,16 +121,20 @@ class HarmonicPotential(PotentialBase):
 
         # do the Harmonic potential fit here, the order of parameters is
         # [k (Hartrees/(Ang**2)), r_0 (Ang), energy_shift (Hartrees)]
-        h_p0 = (initial_vals if initial_vals is not None
-                else np.array([0.2, 0.735, 1.5]))
-        h_bounds = (bounds_list if bounds_list is not None
-                    else ([0, -1, -2], [2, 3.0, 2]))
+        h_p0 = initial_vals if initial_vals is not None else np.array([0.2, 0.735, 1.5])
+        h_bounds = bounds_list if bounds_list is not None else ([0, -1, -2], [2, 3.0, 2])
 
         xdata_fit = xdata
         ydata_fit = ydata
 
-        fit, _ = curve_fit(self.fit_function, xdata_fit, ydata_fit,
-                           p0=h_p0, maxfev=100000, bounds=h_bounds)
+        fit, _ = curve_fit(
+            self.fit_function,
+            xdata_fit,
+            ydata_fit,
+            p0=h_p0,
+            maxfev=100000,
+            bounds=h_bounds,
+        )
 
         self.k = fit[0]
         self.r_0 = fit[1]
@@ -175,7 +185,7 @@ class HarmonicPotential(PotentialBase):
             estimated dissociation energy
         """
         # Hartree/(Ang**2) to Hartree!! 1/Ang**2 -> 1/m**2
-        k = self.k * 1E20
+        k = self.k * 1e20
         if self.d_e is not None:
             k = self.d_e
 
@@ -191,7 +201,7 @@ class HarmonicPotential(PotentialBase):
             fundamental frequency for the current fit
         """
         # Hartree(J)/(Ang**2), need Joules per molecule!! 1/Ang**2 -> 1/m**2
-        k = self.k * const.HARTREE_TO_J * 1E20
+        k = self.k * const.HARTREE_TO_J * 1e20
         # r0 = self.r_0*1E-10  # angstrom, need meter
         m_r = (self._m_a * self._m_b) / (self._m_a + self._m_b)
 
@@ -207,7 +217,7 @@ class HarmonicPotential(PotentialBase):
         Returns:
             wave number for the current fit
         """
-        return self.fundamental_frequency() / const.C_CM_PER_S   # type: ignore
+        return self.fundamental_frequency() / const.C_CM_PER_S  # type: ignore
 
     def vibrational_energy_level(self, n: int) -> float:
         """
@@ -226,7 +236,7 @@ class HarmonicPotential(PotentialBase):
         return e_n * const.J_TO_HARTREE
 
     @classmethod
-    def process_fit_data(cls, xdata: List[float], ydata: List[float]) -> Tuple[list, list]:
+    def process_fit_data(cls, xdata: np.ndarray, ydata: np.ndarray) -> Tuple[list, list]:
         """
         Mostly for internal use. Preprocesses the data passed to fit_to_data()
             so that only the points around the minimum are fit (which gives
@@ -240,8 +250,8 @@ class HarmonicPotential(PotentialBase):
             the processed data that fit better to a harmonic potential
         """
         sort_ind = np.argsort(xdata)
-        ydata_s = ydata[sort_ind]  # type: ignore
-        xdata_s = xdata[sort_ind]  # type: ignore
+        ydata_s = ydata[sort_ind]
+        xdata_s = xdata[sort_ind]
         min_y = min(ydata_s)
 
         # array of indices for X for which Y is min
@@ -251,18 +261,15 @@ class HarmonicPotential(PotentialBase):
         # is minimum
         all_of_min = np.array([], dtype=int)
         for i in x_min:
-            all_of_min = np.concatenate(
-                (all_of_min, np.where(xdata_s == xdata_s[i])[0]))
+            all_of_min = np.concatenate((all_of_min, np.where(xdata_s == xdata_s[i])[0]))
         # array of indices where X is equal to the next smaller value
         left_of_min = []
         if min(all_of_min) > 0:
-            left_of_min = np.where(
-                xdata_s == xdata_s[min(all_of_min) - 1])[0]
+            left_of_min = np.where(xdata_s == xdata_s[min(all_of_min) - 1])[0]
         # array of indices where X is equal to the next bigger value
         right_of_min = []
         if max(all_of_min) < (xdata_s.size - 1):
-            right_of_min = np.where(
-                xdata_s == xdata_s[max(all_of_min) + 1])[0]
+            right_of_min = np.where(xdata_s == xdata_s[max(all_of_min) + 1])[0]
         # all those indices together are used for fitting a harmonic
         # potential (around the min)
         inds = np.concatenate((left_of_min, all_of_min, right_of_min))

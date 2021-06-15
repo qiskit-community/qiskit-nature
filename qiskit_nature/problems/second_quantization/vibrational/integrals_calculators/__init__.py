@@ -15,5 +15,5 @@
 from .occupied_modal_per_mode_integrals_calculator import calc_occ_modals_per_mode_ints
 
 __all__ = [
-    'calc_occ_modals_per_mode_ints',
+    "calc_occ_modals_per_mode_ints",
 ]

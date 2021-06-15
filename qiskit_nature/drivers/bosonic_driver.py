@@ -22,7 +22,7 @@ from .base_driver import BaseDriver
 
 class BosonicDriver(BaseDriver):
     """
-    Base class for Qiskit's chemistry bosonic drivers.
+    Base class for Qiskit Nature's bosonic drivers.
     """
 
     @abstractmethod

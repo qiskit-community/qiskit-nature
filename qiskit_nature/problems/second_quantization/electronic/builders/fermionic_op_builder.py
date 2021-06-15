@@ -17,7 +17,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
@@ -38,8 +38,9 @@ def _build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
     return build_ferm_op_from_ints(one_body_ints, two_body_ints)
 
 
-def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
-                            two_body_integrals: np.ndarray = None) -> FermionicOp:
+def build_ferm_op_from_ints(
+    one_body_integrals: np.ndarray, two_body_integrals: np.ndarray = None
+) -> FermionicOp:
     """
     Builds a fermionic operator based on 1- and/or 2-body integrals. Integral values are used for
     the coefficients of the second-quantized Hamiltonian that is built. If integrals are stored
@@ -51,10 +52,10 @@ def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
              h2(i,j,k,l) --> adag_i adag_j a_k a_l
     If you are using the '*physicist*' notation, you need to convert it to
     the '*chemist*' notation. E.g. h2=numpy.einsum('ikmj->ijkm', h2)
-    The :class:`~qiskit_nature.drivers.QMolecule` class has
-    :attr:`~qiskit_nature.drivers.QMolecule.one_body_integrals` and
-    :attr:`~qiskit_nature.drivers.QMolecule.two_body_integrals` properties that can be
-    directly supplied to the `h1` and `h2` parameters here respectively.
+    The :class:`~qiskit_nature.drivers.second_quantization.QMolecule` class has
+    :attr:`~qiskit_nature.drivers.second_quantization.QMolecule.one_body_integrals` and
+    :attr:`~qiskit_nature.drivers.second_quantization.QMolecule.two_body_integrals` properties that
+    can be directly supplied to the `h1` and `h2` parameters here respectively.
 
     Args:
         one_body_integrals (numpy.ndarray): One-body integrals stored in the chemist notation.
@@ -70,13 +71,15 @@ def build_ferm_op_from_ints(one_body_integrals: np.ndarray,
     return fermionic_op
 
 
-def _build_ferm_op_helper(one_body_integrals: np.ndarray,
-                          two_body_integrals: np.ndarray) -> FermionicOp:
+def _build_ferm_op_helper(
+    one_body_integrals: np.ndarray, two_body_integrals: np.ndarray
+) -> FermionicOp:
     one_body_base_ops_labels = _create_one_body_base_ops(one_body_integrals)
-    two_body_base_ops_labels = _create_two_body_base_ops(
-        two_body_integrals) if two_body_integrals is not None else []
+    two_body_base_ops_labels = (
+        _create_two_body_base_ops(two_body_integrals) if two_body_integrals is not None else []
+    )
     base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
-    initial_label_with_ceoff = ('I' * len(one_body_integrals), 0)
+    initial_label_with_ceoff = ("I" * len(one_body_integrals), 0)
     # TODO the initial label should be eliminated once QMolecule is refactored (currently
     #  has_dipole_integrals() checks for None only but zero-matrices happen instead of None and
     #  initial labels prevents from an empty labels list when building a FermionicOp)
@@ -86,18 +89,23 @@ def _build_ferm_op_helper(one_body_integrals: np.ndarray,
     return fermionic_op
 
 
-def _create_one_body_base_ops(one_body_integrals: np.ndarray) -> List[Tuple[str, complex]]:
+def _create_one_body_base_ops(
+    one_body_integrals: np.ndarray,
+) -> List[Tuple[str, complex]]:
     repeat_num = 2
     return _create_base_ops_labels(one_body_integrals, repeat_num, _calc_coeffs_with_ops_one_body)
 
 
-def _create_two_body_base_ops(two_body_integrals: np.ndarray) -> List[Tuple[str, complex]]:
+def _create_two_body_base_ops(
+    two_body_integrals: np.ndarray,
+) -> List[Tuple[str, complex]]:
     repeat_num = 4
     return _create_base_ops_labels(two_body_integrals, repeat_num, _calc_coeffs_with_ops_two_body)
 
 
-def _create_base_ops_labels(integrals: np.ndarray, repeat_num: int, calc_coeffs_with_ops) -> \
-        List[Tuple[str, complex]]:
+def _create_base_ops_labels(
+    integrals: np.ndarray, repeat_num: int, calc_coeffs_with_ops
+) -> List[Tuple[str, complex]]:
     all_base_ops_labels = []
     integrals_length = len(integrals)
     for idx in itertools.product(range(integrals_length), repeat=repeat_num):
@@ -111,18 +119,18 @@ def _create_base_ops_labels(integrals: np.ndarray, repeat_num: int, calc_coeffs_
 
 
 def _calc_coeffs_with_ops_one_body(idx) -> List[Tuple[complex, str]]:
-    return [(idx[0], '+'), (idx[1], '-')]
+    return [(idx[0], "+"), (idx[1], "-")]
 
 
 def _calc_coeffs_with_ops_two_body(idx) -> List[Tuple[complex, str]]:
-    return [(idx[0], '+'), (idx[2], '+'), (idx[3], '-'), (idx[1], '-')]
+    return [(idx[0], "+"), (idx[2], "+"), (idx[3], "-"), (idx[1], "-")]
 
 
 def _create_base_op_from_labels(coeff, length: int, coeffs_with_ops) -> FermionicOp:
-    label = ['I'] * length
-    base_op = coeff * FermionicOp(''.join(label))
+    label = ["I"] * length
+    base_op = coeff * FermionicOp("".join(label))
     for i, op in coeffs_with_ops:
         label_i = label.copy()
         label_i[i] = op
-        base_op @= FermionicOp(''.join(label_i))
+        base_op @= FermionicOp("".join(label_i))
     return base_op

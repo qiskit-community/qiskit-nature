@@ -20,5 +20,5 @@ Electronic Structure Problems (:mod:`qiskit_nature.problems.second_quantization.
 from .electronic_structure_problem import ElectronicStructureProblem
 
 __all__ = [
-    'ElectronicStructureProblem',
+    "ElectronicStructureProblem",
 ]

@@ -51,10 +51,13 @@ class EnergySurface1DSpline(EnergySurfaceBase):
 
         return result
 
-    def fit(self, xdata: List[float], ydata: List[float],
-            initial_vals: Optional[List[float]] = None,
-            bounds_list: Optional[Tuple[List[float], List[float]]] = None
-            ) -> None:
+    def fit(
+        self,
+        xdata: List[float],
+        ydata: List[float],
+        initial_vals: Optional[List[float]] = None,
+        bounds_list: Optional[Tuple[List[float], List[float]]] = None,
+    ) -> None:
         r"""Fits surface to data.
 
         Args:

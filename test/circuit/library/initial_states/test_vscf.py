@@ -22,7 +22,7 @@ from qiskit_nature.circuit.library.initial_states.vscf import vscf_bitstring
 
 
 class TestVSCF(QiskitNatureTestCase):
-    """ Initial State vscf tests """
+    """Initial State vscf tests"""
 
     def test_bitstring(self):
         """Test the vscf_bitstring method."""
@@ -48,5 +48,5 @@ class TestVSCF(QiskitNatureTestCase):
         self.assertEqual(ref, vscf)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -34,13 +34,14 @@ class Molecule:
     directly if its needed.
     """
 
-    def __init__(self,
-                 geometry: List[Tuple[str, List[float]]],
-                 multiplicity: int = 1,
-                 charge: int = 0,
-                 degrees_of_freedom: Optional[List[Callable]] = None,
-                 masses: Optional[List[float]] = None
-                 ) -> None:
+    def __init__(
+        self,
+        geometry: List[Tuple[str, List[float]]],
+        multiplicity: int = 1,
+        charge: int = 0,
+        degrees_of_freedom: Optional[List[Callable]] = None,
+        masses: Optional[List[float]] = None,
+    ) -> None:
         """
         Args:
             geometry: A list of atoms defining a given molecule where each item in the list
@@ -70,18 +71,22 @@ class Molecule:
         self._perturbations = None  # type: Optional[List[float]]
 
     @staticmethod
-    def _check_consistency(geometry: List[Tuple[str, List[float]]],
-                           masses: Optional[List[float]]):
+    def _check_consistency(geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]):
         if masses is not None and len(masses) != len(geometry):
-            raise ValueError('Length of masses {} must match length of geometries {}'.format(
-                len(masses), len(geometry)))
+            raise ValueError(
+                "Length of masses {} must match length of geometries {}".format(
+                    len(masses), len(geometry)
+                )
+            )
 
     @classmethod
-    def _distance_modifier(cls,
-                           function: Callable[[float, float], float],
-                           parameter: float,
-                           geometry: List[Tuple[str, List[float]]],
-                           atom_pair: Tuple[int, int]) -> List[Tuple[str, List[float]]]:
+    def _distance_modifier(
+        cls,
+        function: Callable[[float, float], float],
+        parameter: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_pair: Tuple[int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             function: a function of two parameters (current distance,
@@ -103,9 +108,7 @@ class Molecule:
         starting_distance_vector = starting_coord1 - coord2
         starting_l2distance = np.linalg.norm(starting_distance_vector)
         new_l2distance = function(starting_l2distance, parameter)
-        new_distance_vector = starting_distance_vector * (
-            new_l2distance / starting_l2distance
-        )
+        new_distance_vector = starting_distance_vector * (new_l2distance / starting_l2distance)
         new_coord1 = coord2 + new_distance_vector
 
         ending_geometry = copy.deepcopy(geometry)
@@ -113,10 +116,12 @@ class Molecule:
         return ending_geometry
 
     @classmethod
-    def absolute_distance(cls,
-                          distance: float,
-                          geometry: List[Tuple[str, List[float]]],
-                          atom_pair: Tuple[int, int]) -> List[Tuple[str, List[float]]]:
+    def absolute_distance(
+        cls,
+        distance: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_pair: Tuple[int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             distance: The (new) distance between the two atoms.
@@ -136,10 +141,12 @@ class Molecule:
         return cls._distance_modifier(func, distance, geometry, atom_pair)
 
     @classmethod
-    def absolute_stretching(cls,
-                            perturbation: float,
-                            geometry: List[Tuple[str, List[float]]],
-                            atom_pair: Tuple[int, int]) -> List[Tuple[str, List[float]]]:
+    def absolute_stretching(
+        cls,
+        perturbation: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_pair: Tuple[int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             perturbation: The magnitude of the stretch.
@@ -157,14 +164,15 @@ class Molecule:
         def func(curr_dist, extra):
             return curr_dist + extra
 
-        return cls._distance_modifier(func, perturbation, geometry,
-                                      atom_pair)
+        return cls._distance_modifier(func, perturbation, geometry, atom_pair)
 
     @classmethod
-    def relative_stretching(cls,
-                            perturbation: float,
-                            geometry: List[Tuple[str, List[float]]],
-                            atom_pair: Tuple[int, int]) -> List[Tuple[str, List[float]]]:
+    def relative_stretching(
+        cls,
+        perturbation: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_pair: Tuple[int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             perturbation: The magnitude of the stretch.
@@ -182,15 +190,16 @@ class Molecule:
         def func(curr_dist, extra):
             return curr_dist * extra
 
-        return cls._distance_modifier(func, perturbation, geometry,
-                                      atom_pair)
+        return cls._distance_modifier(func, perturbation, geometry, atom_pair)
 
     @classmethod
-    def _bend_modifier(cls,
-                       function: Callable[[float, float], float],
-                       parameter: float,
-                       geometry: List[Tuple[str, List[float]]],
-                       atom_trio: Tuple[int, int, int]) -> List[Tuple[str, List[float]]]:
+    def _bend_modifier(
+        cls,
+        function: Callable[[float, float], float],
+        parameter: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_trio: Tuple[int, int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             function: a function of two parameters (current angle,
@@ -220,22 +229,16 @@ class Molecule:
         # It'd be good to fix this later to remember the axis in some way.
         if np.linalg.norm(rot_axis) == 0:
             nudged_vec = copy.deepcopy(distance_vec1to2)
-            nudged_vec[0] += .01
+            nudged_vec[0] += 0.01
             rot_axis = np.cross(nudged_vec, distance_vec3to2)
         rot_unit_axis = rot_axis / np.linalg.norm(rot_axis)
         starting_angle = np.arcsin(
-            np.linalg.norm(rot_axis) / (
-                np.linalg.norm(distance_vec1to2)
-                * np.linalg.norm(distance_vec3to2)
-            )
+            np.linalg.norm(rot_axis)
+            / (np.linalg.norm(distance_vec1to2) * np.linalg.norm(distance_vec3to2))
         )
         new_angle = function(starting_angle, parameter)
         perturbation = new_angle - starting_angle
-        rot_matrix = scipy.linalg.expm(
-            np.cross(
-                np.eye(3),
-                rot_unit_axis *
-                perturbation))
+        rot_matrix = scipy.linalg.expm(np.cross(np.eye(3), rot_unit_axis * perturbation))
         new_coord1 = rot_matrix @ starting_coord1
 
         ending_geometry = copy.deepcopy(geometry)
@@ -243,10 +246,12 @@ class Molecule:
         return ending_geometry
 
     @classmethod
-    def absolute_angle(cls,
-                       angle: float,
-                       geometry: List[Tuple[str, List[float]]],
-                       atom_trio: Tuple[int, int, int]) -> List[Tuple[str, List[float]]]:
+    def absolute_angle(
+        cls,
+        angle: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_trio: Tuple[int, int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             angle: The magnitude of the perturbation in **radians**.
@@ -269,10 +274,12 @@ class Molecule:
         return cls._bend_modifier(func, angle, geometry, atom_trio)
 
     @classmethod
-    def absolute_bending(cls,
-                         bend: float,
-                         geometry: List[Tuple[str, List[float]]],
-                         atom_trio: Tuple[int, int, int]) -> List[Tuple[str, List[float]]]:
+    def absolute_bending(
+        cls,
+        bend: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_trio: Tuple[int, int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             bend: The magnitude of the perturbation in **radians**.
@@ -295,10 +302,12 @@ class Molecule:
         return cls._bend_modifier(func, bend, geometry, atom_trio)
 
     @classmethod
-    def relative_bending(cls,
-                         bend: float,
-                         geometry: List[Tuple[str, List[float]]],
-                         atom_trio: Tuple[int, int, int]) -> List[Tuple[str, List[float]]]:
+    def relative_bending(
+        cls,
+        bend: float,
+        geometry: List[Tuple[str, List[float]]],
+        atom_trio: Tuple[int, int, int],
+    ) -> List[Tuple[str, List[float]]]:
         """
         Args:
             bend: The magnitude of the perturbation in **radians**.
@@ -322,7 +331,7 @@ class Molecule:
         return cls._bend_modifier(func, bend, geometry, atom_trio)
 
     def _get_perturbed_geom(self) -> List[Tuple[str, List[float]]]:
-        """ get perturbed geometry """
+        """get perturbed geometry"""
         if self.perturbations is None or self._degrees_of_freedom is None:
             return self._geometry
 
@@ -333,22 +342,22 @@ class Molecule:
 
     @property
     def units(self):
-        """ The geometry coordinate units """
+        """The geometry coordinate units"""
         return UnitsType.ANGSTROM
 
     @property
     def geometry(self) -> List[Tuple[str, List[float]]]:
-        """ Get geometry accounting for any perturbations """
+        """Get geometry accounting for any perturbations"""
         return self._get_perturbed_geom()
 
     @property
     def masses(self) -> Optional[List[float]]:
-        """ Get masses """
+        """Get masses"""
         return self._masses
 
     @masses.setter
     def masses(self, value: Optional[List[float]]) -> None:
-        """ Set masses
+        """Set masses
         Args:
             value: masses
 
@@ -360,30 +369,30 @@ class Molecule:
 
     @property
     def multiplicity(self) -> int:
-        """ Get multiplicity """
+        """Get multiplicity"""
         return self._multiplicity
 
     @multiplicity.setter
     def multiplicity(self, value: int) -> None:
-        """ Set multiplicity """
+        """Set multiplicity"""
         self._multiplicity = value
 
     @property
     def charge(self) -> int:
-        """ Get charge """
+        """Get charge"""
         return self._charge
 
     @charge.setter
     def charge(self, value: int) -> None:
-        """ Set charge """
+        """Set charge"""
         self._charge = value
 
     @property
     def perturbations(self) -> Optional[List[float]]:
-        """ Get perturbations """
+        """Get perturbations"""
         return self._perturbations
 
     @perturbations.setter
     def perturbations(self, value: Optional[List[float]]) -> None:
-        """ Set perturbations """
+        """Set perturbations"""
         self._perturbations = value

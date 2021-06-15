@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    The :class:`~qiskit_nature.operators.SecondQuantizedOp` now has a method
+    :meth:`~qiskit_nature.operators.SecondQuantizedOp.is_hermitian()` method which will
+    return ``True`` if the operator is equivalent to its adjoint and ``False`` otherwise
+
+  - |
+    :meth:`~qiskit_nature.operators.SecondQuantizedOp.to_list()` is now an abstract method of
+    :class:`~qiskit_nature.operators.SecondQuantizedOp` that is implemented by all subclasses
+

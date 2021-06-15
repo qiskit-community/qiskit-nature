@@ -7,8 +7,8 @@ excited states and dipole moments of molecule, both open and closed-shell.
 
 The code comprises chemistry drivers, which when provided with a molecular
 configuration will return one and two-body integrals as well as other data that is efficiently
-computed classically. This output data from a driver can then be used as input to the chemistry
-module that contains logic which is able to translate this into a form that is suitable
+computed classically. This output data from a driver can then be used as input in Qiskit
+Nature that contains logic which is able to translate this into a form that is suitable
 for quantum algorithms. The conversion first creates a FermionicOperator which must then be mapped,
 e.g. by a Jordan Wigner mapping, to a qubit operator in readiness for the quantum computation.
 
@@ -30,33 +30,33 @@ To do this follow the instructions in the
 
 ### Optional Installs
 
-To run chemistry experiments using Qiskit's nature module, it is recommended that you install
+To run chemistry experiments using Qiskit Nature, it is recommended that you install
 a classical computation chemistry software program/library interfaced by Qiskit.
 Several, as listed below, are supported, and while logic to interface these programs is supplied by
-the chemistry module via the above pip installation, the dependent programs/libraries themselves need
+Qiskit Nature via the above pip installation, the dependent programs/libraries themselves need
 to be installed separately.
 
-1. [Gaussian 16&trade;](https://qiskit.org/documentation/apidoc/qiskit.chemistry.drivers.gaussiand.html), a commercial chemistry program
-2. [PSI4](https://qiskit.org/documentation/apidoc/qiskit.chemistry.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
-3. [PySCF](https://qiskit.org/documentation/apidoc/qiskit.chemistry.drivers.pyscfd.html), an open-source Python chemistry program
-4. [PyQuante](https://qiskit.org/documentation/apidoc/qiskit.chemistry.drivers.pyquanted.html), a pure cross-platform open-source Python chemistry program
+1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.gaussiand.html), a commercial chemistry program
+2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
+3. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.pyscfd.html), an open-source Python chemistry program
+4. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.pyquanted.html), a pure cross-platform open-source Python chemistry program
 
 ### HDF5 Driver
 
 A useful functionality integrated into Qiskit Nature is its ability to serialize a file
 in hierarchical Data Format 5 (HDF5) format representing all the output data from a chemistry driver.
 
-The [HDF5 driver](https://qiskit.org/documentation/stubs/qiskit.chemistry.drivers.HDF5Driver.html#qiskit.chemistry.drivers.HDF5Driver)
+The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.drivers.HDF5Driver.html)
 accepts such HDF5 files as input so molecular experiments can be run, albeit on the fixed data
 as stored in the file. As such, if you have some pre-created HDF5 files created from Qiskit
-Chemistry, you can use these with the HDF5 driver even if you do not install one of the classical
+Nature, you can use these with the HDF5 driver even if you do not install one of the classical
 computation packages listed above.
 
 ### Creating Your First Chemistry Programming Experiment in Qiskit
 
-Now that Qiskit is installed, it's time to begin working with the chemistry module.
-Let's try a chemistry application experiment using the VQE (Variational Quantum Eigensolver) algorithm
-to compute the ground-state (minimum) energy of a molecule.
+Now that Qiskit Nature is installed, let's try a chemistry application experiment
+using the VQE (Variational Quantum Eigensolver) algorithm to compute
+the ground-state (minimum) energy of a molecule.
 
 ```python
 from qiskit_nature.drivers import PySCFDriver, UnitsType
@@ -105,12 +105,12 @@ from qiskit.circuit.library import TwoLocal
 ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 
 # add the initial state
-ansatz.compose(init_state, front=True)
+ansatz.compose(init_state, front=True, inplace=True)
 
 # set the backend for the quantum computation
 from qiskit import Aer
 
-backend = Aer.get_backend('statevector_simulator')
+backend = Aer.get_backend('aer_simulator_statevector')
 
 # setup and run VQE
 from qiskit.algorithms import VQE
@@ -181,7 +181,7 @@ Qiskit Nature continues to grow with the help and work of
 [many people](https://github.com/Qiskit/qiskit-nature/graphs/contributors), who contribute
 to the project at different levels.
 If you use Qiskit, please cite as per the provided
-[BibTeX file](https://github.com/Qiskit/qiskit/blob/main/Qiskit.bib).
+[BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
 
 Please note that if you do not like the way your name is cited in the BibTex file then consult
 the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/main/.mailmap)
@@ -193,7 +193,6 @@ This project uses the [Apache License 2.0](LICENSE.txt).
 
 However there is some code that is included under other licensing as follows:
 
-* The [Gaussian 16 driver](qiskit/chemistry/drivers/gaussiand) in `qiskit.chemistry`
-  contains [work](qiskit/chemistry/drivers/gaussiand/gauopen) licensed under the
-  [Gaussian Open-Source Public License](qiskit/chemistry/drivers/gaussiand/gauopen/LICENSE.txt).
-
+* The [Gaussian 16 driver](qiskit_nature/drivers/second_quantization/gaussiand) in `qiskit.chemistry`
+  contains [work](qiskit_nature/drivers/second_quantization/gaussiand/gauopen) licensed under the
+  [Gaussian Open-Source Public License](qiskit_nature/drivers/second_quantization/gaussiand/gauopen/LICENSE.txt).

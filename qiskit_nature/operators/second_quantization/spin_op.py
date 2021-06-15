@@ -150,7 +150,7 @@ class SpinOp(SecondQuantizedOp):
     **Algebra**
 
     :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
-    scalar multiplication, and dagger(adjoint).
+    scalar multiplication, and adjoint.
     For example,
 
     Raising Operator (addition and scalar multiplication)
@@ -159,7 +159,7 @@ class SpinOp(SecondQuantizedOp):
 
         x + 1j * y
 
-    Dagger
+    Adjoint
 
     .. jupyter-execute::
 
@@ -262,7 +262,7 @@ class SpinOp(SecondQuantizedOp):
                 invalid_labels = [
                     label
                     for label in labels
-                    if not all(label_pattern.match(l) for l in label.split())
+                    if not all(label_pattern.match(lb) for lb in label.split())
                 ]
                 if invalid_labels:
                     raise ValueError(

@@ -14,7 +14,7 @@
 from test import QiskitNatureTestCase
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
-from qiskit_nature.drivers import GaussianForcesDriver
+from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 
 
 class TestVibrationalProblem(QiskitNatureTestCase):
@@ -25,7 +25,8 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         provided."""
         expected_num_of_sec_quant_ops = 5
         logfile = self.get_resource_path(
-            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
+            "CO2_freq_B3LYP_ccpVDZ.log",
+            "problems/second_quantization/vibrational/resources",
         )
         driver = GaussianForcesDriver(logfile=logfile)
 

@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Chemistry test packages """
+""" Qiskit Nature test packages """
 
 from .nature_test_case import QiskitNatureTestCase
 
-__all__ = ['QiskitNatureTestCase']
+__all__ = ["QiskitNatureTestCase"]

@@ -17,7 +17,7 @@ from typing import Optional, List, Dict
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
-from qiskit_nature.drivers import BaseDriver
+from qiskit_nature.drivers.second_quantization import BaseDriver
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import BOPESSamplerResult, EigenstateResult
@@ -30,12 +30,14 @@ logger = logging.getLogger(__name__)
 class BOPESSampler:
     """Class to evaluate the Born-Oppenheimer Potential Energy Surface (BOPES)."""
 
-    def __init__(self,
-                 gss: GroundStateSolver,
-                 tolerance: float = 1e-3,
-                 bootstrap: bool = True,
-                 num_bootstrap: Optional[int] = None,
-                 extrapolator: Optional[Extrapolator] = None) -> None:
+    def __init__(
+        self,
+        gss: GroundStateSolver,
+        tolerance: float = 1e-3,
+        bootstrap: bool = True,
+        num_bootstrap: Optional[int] = None,
+        extrapolator: Optional[Extrapolator] = None,
+    ) -> None:
         """
         Args:
             gss: GroundStateSolver
@@ -74,13 +76,15 @@ class BOPESSampler:
             elif num_bootstrap >= 2:
                 if not isinstance(self._extrapolator, WindowExtrapolator):
                     raise QiskitNatureError(
-                        'If num_bootstrap >= 2 then the extrapolator must be an instance '
-                        'of WindowExtrapolator, got {} instead'.format(self._extrapolator))
+                        "If num_bootstrap >= 2 then the extrapolator must be an instance "
+                        "of WindowExtrapolator, got {} instead".format(self._extrapolator)
+                    )
                 self._num_bootstrap = num_bootstrap
                 self._extrapolator.window = num_bootstrap  # window for extrapolator
             else:
                 raise QiskitNatureError(
-                    'num_bootstrap must be None or an integer greater than or equal to 2')
+                    "num_bootstrap must be None or an integer greater than or equal to 2"
+                )
 
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             # Save initial point passed to min_eigensolver;
@@ -105,7 +109,7 @@ class BOPESSampler:
         self._driver = problem.driver
 
         if self._driver.molecule is None:
-            raise QiskitNatureError('Driver MUST be configured with a Molecule.')
+            raise QiskitNatureError("Driver MUST be configured with a Molecule.")
 
         # full dictionary of points
         self._raw_results = self._run_points(points)
@@ -129,14 +133,14 @@ class BOPESSampler:
         Returns:
             The results for all points.
         """
-        raw_results = dict()   # type: Dict[float, EigenstateResult]
+        raw_results = dict()  # type: Dict[float, EigenstateResult]
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             self._points_optparams = dict()
             self._gss.solver.initial_point = self._initial_point  # type: ignore
 
         # Iterate over the points
         for i, point in enumerate(points):
-            logger.info('Point %s of %s', i + 1, len(points))
+            logger.info("Point %s of %s", i + 1, len(points))
             raw_result = self._run_single_point(point)  # dict of results
             raw_results[point] = raw_result
 
@@ -170,16 +174,16 @@ class BOPESSampler:
             # Set initial params # if prev_points not empty
             if prev_points:
                 if n_pp <= n_boot:
-                    distances = np.array(point) - \
-                                np.array(prev_points).reshape(n_pp, -1)
+                    distances = np.array(point) - np.array(prev_points).reshape(n_pp, -1)
                     # find min 'distance' from point to previous points
                     min_index = np.argmin(np.linalg.norm(distances, axis=1))
                     # update initial point
                     self._gss.solver.initial_point = prev_params[min_index]  # type: ignore
                 else:  # extrapolate using saved parameters
                     opt_params = self._points_optparams
-                    param_sets = self._extrapolator.extrapolate(points=[point],
-                                                                param_dict=opt_params)
+                    param_sets = self._extrapolator.extrapolate(
+                        points=[point], param_dict=opt_params
+                    )
                     # update initial point, note param_set is a dictionary
                     self._gss.solver.initial_point = param_sets.get(point)  # type: ignore
 

@@ -30,11 +30,14 @@ class UCCSD(UCC):
     This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
     """
 
-    def __init__(self, qubit_converter: Optional[QubitConverter] = None,
-                 num_particles: Optional[Tuple[int, int]] = None,
-                 num_spin_orbitals: Optional[int] = None,
-                 reps: int = 1,
-                 initial_state: Optional[QuantumCircuit] = None):
+    def __init__(
+        self,
+        qubit_converter: Optional[QubitConverter] = None,
+        num_particles: Optional[Tuple[int, int]] = None,
+        num_spin_orbitals: Optional[int] = None,
+        reps: int = 1,
+        initial_state: Optional[QuantumCircuit] = None,
+    ):
         """
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
@@ -45,12 +48,14 @@ class UCCSD(UCC):
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
-        super().__init__(qubit_converter=qubit_converter,
-                         num_particles=num_particles,
-                         num_spin_orbitals=num_spin_orbitals,
-                         excitations='sd',
-                         alpha_spin=True,
-                         beta_spin=True,
-                         max_spin_excitation=None,
-                         reps=reps,
-                         initial_state=initial_state)
+        super().__init__(
+            qubit_converter=qubit_converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            excitations="sd",
+            alpha_spin=True,
+            beta_spin=True,
+            max_spin_excitation=None,
+            reps=reps,
+            initial_state=initial_state,
+        )
