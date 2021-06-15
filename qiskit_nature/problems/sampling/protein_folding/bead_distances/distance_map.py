@@ -9,7 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import _create_distance_qubits
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import \
+    _create_distance_qubits
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
@@ -30,7 +31,3 @@ class DistanceMap:
     @property
     def distance_map(self):
         return self._distance_map
-
-
-
-

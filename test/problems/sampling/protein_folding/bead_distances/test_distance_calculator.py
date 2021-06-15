@@ -12,9 +12,6 @@
 from qiskit.opflow import I, Z
 
 from test import QiskitNatureTestCase
-from problems import LatticeFoldingProblem
-from problems.sampling.folding.folding_qubit_op_builder import _create_pauli_for_conf, \
-    _create_qubits_for_conf, _create_indic_turn
 from problems.sampling.protein_folding.bead_distances import distance_map_builder
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
@@ -32,16 +29,6 @@ class TestDistanceCalculator(QiskitNatureTestCase):
 
         self.peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                                side_chain_residue_sequences)
-
-        lf = LatticeFoldingProblem('SAAAA')
-        lf.pauli_op()
-        self.N = 5
-        side_chain = [0, 0, 1, 0, 0]
-
-        self.pauli_conf = _create_pauli_for_conf(self.N)
-        qubits = _create_qubits_for_conf(self.pauli_conf)
-        self.indic_0, self.indic_1, self.indic_2, self.indic_3, self.n_conf = _create_indic_turn(
-            self.N, side_chain, qubits)
 
     def test_calc_distances_main_chain(self):
         """

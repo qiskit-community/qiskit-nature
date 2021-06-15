@@ -21,11 +21,4 @@ Sampling Problems (:mod:`qiskit_nature.problems.sampling`)
    :toctree: ../stubs/
    :nosignatures:
 
-   LatticeFoldingProblem
 """
-
-from .folding import LatticeFoldingProblem
-
-__all__ = [
-    'LatticeFoldingProblem'
-]
