@@ -17,6 +17,8 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.main_chain i
 
 
 class Peptide:
+    """A class containing information about beads and chains of a protein."""
+
     def __init__(
         self,
         main_chain_len: int,
@@ -58,4 +60,5 @@ class Peptide:
 
     @property
     def get_main_chain(self) -> MainChain:
+        """Returns the main chain."""
         return self._main_chain

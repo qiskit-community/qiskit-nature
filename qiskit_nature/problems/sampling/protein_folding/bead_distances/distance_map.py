@@ -23,8 +23,7 @@ class DistanceMap:
         self._peptide = peptide
         self._distance_map, self.num_distances = _create_distance_qubits(peptide)
 
-        """
-    
+        """    
           Args:
                 peptide: A Peptide object that includes all information about a protein.
                 distance_map: A beads-indexed dictionary that stores distances between beads of a 

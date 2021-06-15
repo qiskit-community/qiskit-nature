@@ -13,6 +13,8 @@
 
 
 class PenaltyParameters:
+    """Gathers parameters for penalty terms in a protein folding problem Hamiltonian."""
+
     def __init__(
         self,
         lambda_chiral: float = 10,

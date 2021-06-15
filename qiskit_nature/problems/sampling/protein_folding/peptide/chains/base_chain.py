@@ -23,6 +23,8 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.pauli_ops_builder i
 
 
 class BaseChain(ABC):
+    """An abstract class defining a chain of a peptide."""
+
     def __init__(self, beads_list: List[BaseBead]):
         self._beads_list = beads_list
 
@@ -34,16 +36,12 @@ class BaseChain(ABC):
 
     @property
     def beads_list(self) -> List[BaseBead]:
+        """Returns the list of all beads in the chain."""
         return self._beads_list
 
     def get_residue_sequence(self) -> List[str]:
         """
-
-        Args:
-            :
-
-        Returns:
-            :
+        Returns the list of all residue sequences in the chain.
         """
         residue_sequence = []
         for bead in self._beads_list:
@@ -55,13 +53,15 @@ class BaseChain(ABC):
         """
 
         Args:
-            :
+            chain_len: length of the chain.
+            bead_id: index of a bead in the chain.
 
         Returns:
-            :
+            turn_qubit: A Pauli operator that encodes the turn following from a given bead index.
         """
         num_turn_qubits = 2 * (chain_len - 1)
         norm_factor = 0.5
-        return norm_factor * _build_full_identity(
+        turn_qubit = norm_factor * _build_full_identity(
             num_turn_qubits
         ) - norm_factor * _build_pauli_z_op(num_turn_qubits, [bead_id])
+        return turn_qubit

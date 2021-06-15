@@ -61,4 +61,5 @@ class MainBead(BaseBead):
 
     @property
     def side_chain(self) -> SideChain:
+        """Returns a side chain."""
         return self._side_chain

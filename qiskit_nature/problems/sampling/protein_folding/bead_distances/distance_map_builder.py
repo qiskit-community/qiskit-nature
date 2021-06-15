@@ -16,6 +16,7 @@ from typing import List, Union
 
 from qiskit.opflow import PauliSumOp, PauliOp
 
+from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
@@ -27,9 +28,7 @@ logger = logging.getLogger(__name__)
 def _create_distance_qubits(peptide: Peptide):
     """
     Creates total distances between all bead pairs by summing the
-    distances over all turns with axes, a = 0,1,2,3. For bead lower_bead_ind with
-    side chain s and bead upper_bead_ind with side chain p, where upper_bead_ind > lower_bead_ind, the distance
-    can be referenced as x_dist[lower_bead_ind][p][upper_bead_ind][s]
+    distances over all turns with axes, a = 0,1,2,3.
 
     Args:
         peptide: A Peptide object that includes all information about a protein.
@@ -120,7 +119,7 @@ def _calc_distances_main_chain(peptide: Peptide):
     the main chain. Note, here we consider distances between beads
     not on side chains. For a particular axis, a, we calculate the
     distance between lower_bead_ind and upper_bead_ind bead pairs,
-    delta_na = summation (k = lower_bead_ind to upper_bead_ind - 1) of (-1)^k*indica(k)
+    delta_na = summation (k = lower_bead_ind to upper_bead_ind - 1) of (-1)^k*indica(k).
     Args:
         peptide: A Peptide object that includes all information about a protein.
 
@@ -322,7 +321,7 @@ def _first_neighbor(
     is_side_chain_lower: int,
     lambda_1: float,
     pair_energies: List[List[List[List[float]]]],
-    distance_map,
+    distance_map: DistanceMap,
     pair_energies_multiplier: float = 0.1,
 ) -> Union[PauliSumOp, PauliOp]:
     """
@@ -371,7 +370,7 @@ def _second_neighbor(
     is_side_chain_lower: int,
     lambda_1: float,
     pair_energies: List[List[List[List[float]]]],
-    distance_map,
+    distance_map: DistanceMap,
     pair_energies_multiplier: float = 0.1,
 ) -> Union[PauliSumOp, PauliOp]:
     """

@@ -14,10 +14,14 @@ from abc import ABC, abstractmethod
 
 
 class SamplingProblem(ABC):
+    """An interface for sampling problems."""
+
     @abstractmethod
     def qubit_op(self):
+        """Returns a qubit operator that represents a Hamiltonian encoding the sampling problem."""
         pass
 
     @abstractmethod
     def interpret(self):
+        """Interprets results of an optimization."""
         pass

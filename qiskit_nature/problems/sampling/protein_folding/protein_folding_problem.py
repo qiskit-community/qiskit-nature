@@ -18,8 +18,8 @@ from qiskit_nature.problems.sampling.sampling_problem import SamplingProblem
 
 
 class ProteinFoldingProblem(SamplingProblem):
+    """Defines a protein folding problem that can be passed to algorithms."""
 
-    # TODO add loader here
     def __init__(
         self, peptide: Peptide, interaction: Interaction, penalty_parameters: PenaltyParameters
     ):
