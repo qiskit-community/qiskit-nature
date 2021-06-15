@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""An abstract class defining a bead of a peptide."""
 from abc import ABC
 from typing import List, Tuple, Union
 

@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Validates protein residues provided."""
 from typing import List
 
 from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \

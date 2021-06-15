@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Defines a protein folding problem that can be passed to algorithms."""
 from problems.sampling.protein_folding.qubit_op_builder import _build_qubit_op
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction

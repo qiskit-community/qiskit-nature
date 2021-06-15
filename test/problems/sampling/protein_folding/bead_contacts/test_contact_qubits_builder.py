@@ -14,7 +14,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from qiskit.opflow import I, Z
 
-from problems.sampling.protein_folding.bead_contacts import contact_qubits_builder
+from problems.sampling.protein_folding.bead_contacts import contact_map_builder
 from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
 from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, \
     _second_neighbor
@@ -38,7 +38,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
                           side_chain_residue_sequences)
         lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-        lower_side_upper_side, r_contact = contact_qubits_builder._create_contact_qubits(peptide)
+        lower_side_upper_side, r_contact = contact_map_builder._create_contact_qubits(peptide)
 
         assert lower_main_upper_main == {}
         assert lower_side_upper_main == {}
@@ -57,7 +57,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
                           side_chain_residue_sequences)
         lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-        lower_side_upper_side, r_contact = contact_qubits_builder._create_contact_qubits(peptide)
+        lower_side_upper_side, r_contact = contact_map_builder._create_contact_qubits(peptide)
 
         assert lower_main_upper_main == {1: {6: 0.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
@@ -87,7 +87,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
                           side_chain_residue_sequences)
         lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-        lower_side_upper_side, r_contact = contact_qubits_builder._create_contact_qubits(peptide)
+        lower_side_upper_side, r_contact = contact_map_builder._create_contact_qubits(peptide)
 
         # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
         # - 0.5 * IIIIIIIIIIIIIIIIIIZIIIIZ

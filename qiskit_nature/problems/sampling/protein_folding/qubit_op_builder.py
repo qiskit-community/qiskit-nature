@@ -9,12 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Builds qubit operators for all Hamiltonian terms in the protein folding problem."""
 from typing import List, Union
 
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
 from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, \
+    _second_neighbor
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
@@ -26,6 +28,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead imp
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
+# TODO link to a SamplingQubitOpBuilder interface
 def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]],
                     penalty_parameters: PenaltyParameters, n_contacts) -> Union[
     PauliSumOp, PauliOp]:
@@ -64,13 +67,13 @@ def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]
 
     contact_map = ContactMap(peptide)
 
-    h_scsc = _create_h_scsc(peptide,  lambda_1,
+    h_scsc = _create_h_scsc(peptide, lambda_1,
                             pair_energies, distance_map, contact_map)
-    h_bbbb = _create_h_bbbb(peptide,  lambda_1, pair_energies, distance_map, contact_map)
+    h_bbbb = _create_h_bbbb(peptide, lambda_1, pair_energies, distance_map, contact_map)
 
     h_short = _create_h_short(peptide, pair_energies)
 
-    h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(peptide,  lambda_1,
+    h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(peptide, lambda_1,
                                                pair_energies, distance_map, contact_map)
     h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
 
@@ -200,7 +203,7 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
     return h_chiral
 
 
-def _create_h_bbbb(peptide: Peptide,  lambda_1: float,
+def _create_h_bbbb(peptide: Peptide, lambda_1: float,
                    pair_energies: List[List[List[List[float]]]],
                    distance_map, contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
     """
@@ -227,12 +230,14 @@ def _create_h_bbbb(peptide: Peptide,  lambda_1: float,
             if (j - i) % 2 == 0:
                 continue
             else:
-                H_BBBB += contact_map.lower_main_upper_main[i][j] @ _first_neighbor(peptide, i, 0, j, 0,
+                H_BBBB += contact_map.lower_main_upper_main[i][j] @ _first_neighbor(peptide, i, 0,
+                                                                                    j, 0,
                                                                                     lambda_1,
                                                                                     pair_energies,
                                                                                     distance_map)
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i - 1, 0,
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide,
+                                                                                         i - 1, 0,
                                                                                          j, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
@@ -240,7 +245,8 @@ def _create_h_bbbb(peptide: Peptide,  lambda_1: float,
                 except (IndexError, KeyError):
                     pass
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i + 1, 0,
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide,
+                                                                                         i + 1, 0,
                                                                                          j, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
@@ -248,7 +254,8 @@ def _create_h_bbbb(peptide: Peptide,  lambda_1: float,
                 except (IndexError, KeyError):
                     pass
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i, 0,
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i,
+                                                                                         0,
                                                                                          j - 1, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
@@ -256,7 +263,8 @@ def _create_h_bbbb(peptide: Peptide,  lambda_1: float,
                 except (IndexError, KeyError):
                     pass
                 try:
-                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i, 0,
+                    H_BBBB += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i,
+                                                                                         0,
                                                                                          j + 1, 0,
                                                                                          lambda_1,
                                                                                          pair_energies,
@@ -301,63 +309,69 @@ def _create_h_bbsc_and_h_scbb(peptide: Peptide, lambda_1: float,
                 if side_chain[j - 1] == 1:
 
                     h_bbsc += (contact_map.lower_side_upper_main[i][j] @ (
-                            _first_neighbor(peptide,i, 0, j, 1, lambda_1, pair_energies, x_dist) +
-                            _second_neighbor(peptide,i, 0, j, 0, lambda_1, pair_energies, x_dist)))
+                            _first_neighbor(peptide, i, 0, j, 1, lambda_1, pair_energies, x_dist) +
+                            _second_neighbor(peptide, i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        h_bbsc += (contact_map.lower_side_upper_side[i][j] @ _first_neighbor(peptide, i, 1,
-                                                                                             j, 1,
-                                                                                             lambda_1,
-                                                                                             pair_energies,
-                                                                                             x_dist))
+                        h_bbsc += (contact_map.lower_side_upper_side[i][j] @ _first_neighbor(
+                            peptide, i, 1,
+                            j, 1,
+                            lambda_1,
+                            pair_energies,
+                            x_dist))
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(peptide,i + 1,
-                                                                                              0, j,
-                                                                                              1,
-                                                                                              lambda_1,
-                                                                                              pair_energies,
-                                                                                              x_dist))
+                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(
+                            peptide, i + 1,
+                            0, j,
+                            1,
+                            lambda_1,
+                            pair_energies,
+                            x_dist))
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(peptide,i - 1,
-                                                                                              0, j,
-                                                                                              1,
-                                                                                              lambda_1,
-                                                                                              pair_energies,
-                                                                                              x_dist))
+                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(
+                            peptide, i - 1,
+                            0, j,
+                            1,
+                            lambda_1,
+                            pair_energies,
+                            x_dist))
                     except (IndexError, KeyError, TypeError):
                         pass
                     h_bbsc = h_bbsc.reduce()
                 if side_chain[i - 1] == 1:
                     h_scbb += (contact_map.lower_main_upper_side[i][j] @ (
-                            _first_neighbor(peptide,i, 1, j, 0, lambda_1, pair_energies, x_dist) +
-                            _second_neighbor(peptide,i, 0, j, 0, lambda_1, pair_energies, x_dist)))
+                            _first_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies, x_dist) +
+                            _second_neighbor(peptide, i, 0, j, 0, lambda_1, pair_energies, x_dist)))
                     try:
-                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(peptide,i, 1,
-                                                                                              j, 1,
-                                                                                              lambda_1,
-                                                                                              pair_energies,
-                                                                                              x_dist))
+                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
+                            peptide, i, 1,
+                            j, 1,
+                            lambda_1,
+                            pair_energies,
+                            x_dist))
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(peptide,i, 1,
-                                                                                              j + 1,
-                                                                                              0,
-                                                                                              lambda_1,
-                                                                                              pair_energies,
-                                                                                              x_dist))
+                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
+                            peptide, i, 1,
+                            j + 1,
+                            0,
+                            lambda_1,
+                            pair_energies,
+                            x_dist))
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(peptide,i, 1,
-                                                                                              j - 1,
-                                                                                              0,
-                                                                                              lambda_1,
-                                                                                              pair_energies,
-                                                                                              x_dist))
+                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
+                            peptide, i, 1,
+                            j - 1,
+                            0,
+                            lambda_1,
+                            pair_energies,
+                            x_dist))
                     except (IndexError, KeyError, TypeError):
                         pass
                     h_scbb = h_scbb.reduce()

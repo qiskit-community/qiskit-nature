@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""A class defining a random interaction between beads of a peptide."""
 import numpy as np
 from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction
 

@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""A class defining a side chain of a peptide."""
 from typing import List, Union
 
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \

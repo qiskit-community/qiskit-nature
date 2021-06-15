@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""A class containing information about beads and chains of a protein."""
 from typing import List
 
 from problems.sampling.protein_folding.peptide.chains.side_chain import SideChain

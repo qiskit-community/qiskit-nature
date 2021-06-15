@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Builds a distance map that stores distances between beads in a peptide."""
 import collections
 import logging
 from typing import List, Union

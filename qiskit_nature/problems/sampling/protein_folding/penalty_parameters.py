@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Gathers parameters for penalty terms in a protein folding problem Hamiltonian."""
 class PenaltyParameters:
 
     def __init__(self, lambda_chiral: float = 10, lambda_back: float = 10, lambda_1: float = 10,

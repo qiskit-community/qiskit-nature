@@ -29,11 +29,9 @@ Second-Quantization Problems
 
 from .second_quantization import ElectronicStructureProblem
 from .second_quantization import VibrationalStructureProblem
-from .sampling.folding import LatticeFoldingProblem
 
 __all__ = [
     "ElectronicStructureProblem",
     "VibrationalStructureProblem",
-    "LatticeFoldingProblem"
 ]
 
