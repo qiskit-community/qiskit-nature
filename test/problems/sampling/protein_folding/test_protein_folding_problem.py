@@ -20,8 +20,8 @@ from test import QiskitNatureTestCase
 class TestProteinFoldingProblem(QiskitNatureTestCase):
     """Tests ProteinFoldingProblem."""
 
+    # TODO
     def test_protein_folding_problem(self):
-
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
@@ -35,7 +35,6 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
 
         peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
                           side_chain_residue_sequences)
-
 
         mj = MiyazawaJerniganInteraction()
 

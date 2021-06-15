@@ -90,6 +90,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
                        Z ^ Z ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
                        ^ I ^ I)
 
+    # TODO
     def test_build_qubit_op(self):
         n_contacts = 0
         lambda_back = 10
@@ -296,7 +297,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
                           side_chain_residue_sequences)
         x_dist = DistanceMap(peptide)
         contact_map = ContactMap(peptide)
-        h_bbbb = _create_h_bbbb(peptide,  lambda_1, pair_energies,
+        h_bbbb = _create_h_bbbb(peptide, lambda_1, pair_energies,
                                 x_dist, contact_map)
         expected = 4342.5 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
@@ -1008,9 +1009,9 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
                           side_chain_residue_sequences)
         mj = MiyazawaJerniganInteraction()
         pair_energies = mj.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
-        x_dist =  DistanceMap(peptide)
+        x_dist = DistanceMap(peptide)
         contact_map = ContactMap(peptide)
-        h_scsc = _create_h_scsc(peptide,  lambda_1,
+        h_scsc = _create_h_scsc(peptide, lambda_1,
                                 pair_energies, x_dist, contact_map)
         assert h_scsc == 920.0 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I

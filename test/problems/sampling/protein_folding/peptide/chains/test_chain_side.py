@@ -25,7 +25,9 @@ class TestSideChain(QiskitNatureTestCase):
         side_chain_len = 1
         side_chain_residue_seq = ["A"]
         side_chain = SideChain(main_chain_len, main_bead_id, side_chain_len, side_chain_residue_seq)
-        print(side_chain.beads_list[0])
+        assert len(side_chain) == 1
+        assert side_chain[0].chain_type == "side_chain"
+        assert side_chain[0].main_index == 3
 
     def test_side_chain_constructor_too_long(self):
         """Tests that a SideChain of length greater than 1 throws an exception."""
