@@ -24,9 +24,12 @@ from qiskit.chemistry import FermionicOperator
 
 from .fermionic_mapper import FermionicMapper
 
-
 def _pauli_id(n_qubits):
+    """
+    Return an `n_qubits`-identity `SparsePauliOp`.
+    """
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
+
 
 def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
     """
@@ -60,9 +63,14 @@ def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
     qubit_op.simplify()
     return qubit_op
 
+
+## TODO: The type of interaction of the term is known before we call this function.
+## We should split this function into pieces and call them directly
 def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
     """
     Map the term a^\\dagger_p a^\\dagger_q a_r a_s + h.c. to qubit operator.
+
+    The indices `p, q, r, s` are assumed to by in physicists' order.
 
     Args:
         edge_list (numpy.ndarray): 2xE matrix, each indicates (from, to) pair
@@ -78,6 +86,7 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
     # Handle case of four unique indices.
     id_op = _pauli_id(edge_list.shape[1])
     final_coeff = 1.0
+    # qubit_op = None
 
     if len(set([p, q, r, s])) == 4:
         b_p = edge_operator_bi(edge_list, p)
@@ -123,7 +132,7 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
             qubit_op = (a_pr * b_r + b_p * a_pr) * (id_op - b_q)
             final_coeff = 1j * 0.25
         else:
-            pass
+            raise ValueError('unexpected sequence of indices')
 
     # Handle case of two unique indices.
     elif len(set([p, q, r, s])) == 2:
@@ -135,18 +144,196 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
         else:
             final_coeff = -0.25
     else:
-        pass
+        raise ValueError('unexpected sequence of indices')
 
     qubit_op = (final_coeff * h2_pqrs) * qubit_op
     qubit_op.simplify()
     return qubit_op
 
-def bravyi_kitaev_fast_edge_list(fer_op):
+
+def analyze_term(term_str):
+    """
+    Return a string recording the type of interaction represented by `term_str` and
+    a list of the factors and their indices in `term_str`.
+
+    The types of interaction are 'number', 'excitation', 'coulomb_exchange', 'number_excitation',
+    'double_excitation'.
+
+    Args:
+       `term_str`: a string of characters in `+-NI`.
+    """
+    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
+    ttype = _interaction_type(n_number, n_raise, n_lower)
+    return ttype, facs
+
+
+def _unpack_term(term_str, expand_number_op=False):
+    """
+    Return a tuple specifying the counts of kinds of operators in `term_str` and
+    a list of the factors and their indices in `term_str`.
+
+    The factors are represented by tuples of the form `(i, c)`, where `i` is and index
+    and `c` is a character.
+    Allowed characters in `term_str` are 'N+-I`.
+    The returned tuple contains counts for `N`, `+`, and `-`, in that order. Identitiy operators
+    are ignored.
+
+    Args:
+       `term_str`: a string of characters in `+-NI`.
+       `expand_number_op`: if `True`, number operators are expanded to `(i, '+')`, `(i, '-')`
+         in the returned list of factors.
+    """
+    (n_number, n_raise, n_lower) = (0, 0, 0)
+    facs = []
+    for i, c in enumerate(term_str):
+        if c == 'I':
+            continue
+        if c == '+':
+            n_raise += 1
+            facs.append((i, '+'))
+        elif c == '-':
+            n_lower += 1
+            facs.append((i, '-'))
+        elif c == 'N':
+            n_number += 1
+            if expand_number_op:
+                facs.append((i, '+'))
+                facs.append((i, '-'))
+            else:
+                facs.append((i, 'N'))
+        else:
+            raise ValueError('Unexpected operator ', c, ' in term.')
+
+    return (n_number, n_raise, n_lower), facs
+
+
+def _interaction_type(n_number, n_raise, n_lower):
+    """
+    Return a string describing the type of interaction given the number of
+    number, raising, and lowering operators.
+
+    The types of interaction returned are 'number', 'excitation', 'coulomb_exchange', 'number_excitation',
+    'double_excitation'.
+
+    Args:
+       `n_number`: the number of number operators
+       `n_raise`: the number of raising operators
+       `n_lower`: the number of lowering operators
+    """
+    if n_raise == 0 and n_lower == 0:
+        if n_number == 1:
+            return 'number'
+        elif n_number == 2:
+            return 'coulomb_exchange'
+        else:
+            raise ValueError('unexpected number of number operators')
+    elif n_raise == 1 and n_lower == 1:
+        if n_number == 1:
+            return 'number_excitation'
+        elif n_number == 0:
+            return 'excitation'
+        else:
+            raise ValueError('unexpected number of number operators')
+    elif n_raise == 2 and n_lower == 2:
+        return 'double_excitation'
+    else:
+        raise ValueError("unexpected number of operators")
+
+def number_of_modes(fer_op: FermionicOp):
+    """Return the number of modes (including identities) in each term `fer_op`"""
+    return len(fer_op.to_list()[0][0])
+
+def operator_string(term: tuple):
+    """
+    Return the string describing the operators in the term extracted from a `FermionicOp`.
+    given by `term.
+    """
+    return term[0]
+
+
+def operator_coefficient(term):
+    """
+    Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`.
+    """
+    return term[1]
+
+
+## TODO: We may want a lower-triangular matrix. This may be the cause of the minus sign error.
+def _get_adjacency_matrix(fer_op: FermionicOp):
+    """
+    Return an adjacency matrix specifying the edges in the BKSF graph for the
+    operator `fer_op`.
+
+    The graph is undirected, so we choose to return the edges in the upper triangle.
+    (There are no self edges.). The lower triangle are all `False`.
+
+    Returns:
+          numpy.ndarray(dtype=bool): edge_matrix the adjacency matrix.
+    """
+    n_modes = number_of_modes(fer_op)
+    edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
+    for term in fer_op.to_list():
+        _add_edges_for_term(edge_matrix, operator_string(term))
+    return edge_matrix
+
+
+def _add_one_edge(edge_matrix, i, j):
+    """
+    Add a edge from lesser index to greater. This maintains the upper triangular structure.
+    """
+    if i < j:
+        edge_matrix[i, j] = True
+    elif j < i:
+        edge_matrix[j, i] = True
+    else:
+        raise ValueError('expecting i != j')
+    return None
+
+
+def _add_edges_for_term(edge_matrix, term_str):
+    """
+    Add one, two, or no edges to `edge_matrix` as dictated by the operator `term_str`.
+    """
+    (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
+    ttype = _interaction_type(n_number, n_raise, n_lower)
+    # For 'excitation' and 'number_excitation', create and edge betwen the `+` and `-`.
+    if ttype == 'excitation' or ttype == 'number_excitation':
+        inds = [i for (i, c) in facs if c in '+-']
+        if len(inds) != 2:
+            raise ValueError('wrong number or raising and lowering')
+        _add_one_edge(edge_matrix, *inds)
+    # For `double_excitation` create an edge between the two `+`s and
+    # edge between the two `-`s.
+    elif ttype == 'double_excitation':
+        raise_inds = [i for (i, c) in facs if c == '+']
+        lower_inds = [i for (i, c) in facs if c == '-']
+        _add_one_edge(edge_matrix, *raise_inds)
+        _add_one_edge(edge_matrix, *lower_inds)
+
+    return None
+
+def bravyi_kitaev_fast_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     """
     Construct edge list required for the bksf algorithm.
 
     Args:
-        fer_op (FeriomicOperator): the fermionic operator in the second quantized form
+        fer_op: the fermionic operator in the second quantized form
+
+    Returns:
+        numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edge
+                        and each pair denotes (from, to)
+    """
+    edge_matrix = _get_adjacency_matrix(fer_op_qn)
+    edge_list_as_2d_array = np.asarray(np.nonzero(edge_matrix))
+    return edge_list_as_2d_array
+
+
+def bravyi_kitaev_fast_edge_list(fer_op: FermionicOperator):
+    """
+    Construct an edge list required for the bksf algorithm.
+
+    Args:
+        fer_op: the fermionic operator in the second quantized form
 
     Returns:
         numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edge
@@ -259,62 +446,149 @@ def edge_operator_bi(edge_list, i):
     qubit_position_matrix = np.asarray(np.where(edge_list == i))
     qubit_position = qubit_position_matrix[1]
     v = np.zeros(edge_list.shape[1])
-    w = np.zeros(edge_list.shape[1])
+    w = np.copy(v) # GJL
+#    w = np.zeros(edge_list.shape[1])
     v[qubit_position] = 1
     qubit_op = Pauli((v, w))
     return SparsePauliOp(qubit_op)
 
 
+## TODO: Create an issue regarding initializing a SparsePauliOp representing zero
+## and the merits of allowing having `sparse_pauli += more_op`, when `sparse_pauli` is `None`.
+def _add_sparse_pauli(qubit_op1, qubit_op2):
+    """
+    Return `qubit_op1` and `qubit_op2`, except when either one is `None`.
+    In the latter case, return the one that is not `None`. In other words, assume
+    `None` signifies the additive identity.
+    """
+    if qubit_op1 is None:
+        return qubit_op2
+    elif qubit_op2 is None:
+        return qubit_op1
+    else:
+        return qubit_op1 + qubit_op2
+
+
+def _reorder_indices(facs):
+    """
+    Reorder the factors `facs` to be two raising operators followed by two lowering operators and
+    return the new factors and the phase incurred by the reordering.
+
+    Args:
+      facs: a list of factors where each element is `(i, c)` where `i` is an integer index and
+        `c` is either `-` or `+`.
+
+    Returns:
+        facs_out: A copy of the reordered factors or the input list (not a copy) if the factors are
+          already in the desired order.
+        phase: Either `1` or `-1`.
+    """
+    ops = [fac[1] for fac in facs]
+    if ops == ['+', '+', '-', '-']:
+        facs_out = facs
+        phase = 1
+    elif ops == ['+', '-', '+', '-']:
+        facs_out = [facs[0], facs[2], facs[1], facs[3]]
+        phase = -1
+    elif ops == ['+', '-', '-', '+']:
+        facs_out = [facs[0], facs[3], facs[1], facs[2]]
+        phase = 1
+    else:
+        raise ValueError('unexpected sequence of operators', facs)
+    return facs_out, phase
+
+
 class BravyiKitaevSFMapper(FermionicMapper):
-    """The Bravyi-Kitaev super fast fermion-to-qubit mapping. """
+    """The Bravyi-Kitaev super fast fermion-to-qubit mapping.
 
+    Reference arXiv:1712.00446
+    """
     def map(self, second_q_op: FermionicOperator) -> PauliSumOp:
-        second_q_op = copy.deepcopy(second_q_op)
-        # bksf mapping works with the 'physicist' notation.
-        second_q_op.h2 = np.einsum('ijkm->ikmj', second_q_op.h2)
-        modes = second_q_op.modes
-        # Initialize qubit operator as constant.
-        qubit_op = None # SparsePauliOp.from_operator(Pauli(([False], [False])))
-        edge_list = bravyi_kitaev_fast_edge_list(second_q_op)
-        # Loop through all indices.
-        for p in range(modes):  # pylint: disable=invalid-name
-            for q in range(modes):
-                # Handle one-body terms.
-                h1_pq = second_q_op.h1[p, q]
+        if isinstance(second_q_op, FermionicOperator):
+            sparse_pauli = map_fermionic_operator(second_q_op)
+        elif isinstance(second_q_op, FermionicOp):
+            sparse_pauli =  map_fermionic_op(second_q_op)
+        else:
+            raise TypeError('Type ', type(second_q_op), ' not supported.')
 
-                if h1_pq != 0.0 and p >= q:
-                    if qubit_op is None:
-                        qubit_op = _one_body(edge_list, p, q, h1_pq)
-                    else:
-                        qubit_op += _one_body(edge_list, p, q, h1_pq)
+        sparse_pauli = sparse_pauli.simplify()
+        indices = sparse_pauli.table.argsort()
+        table = sparse_pauli.table[indices]
+        coeffs = sparse_pauli.coeffs[indices]
 
-                # Keep looping for the two-body terms.
-                for r in range(modes):
-                    for s in range(modes):  # pylint: disable=invalid-name
-                        h2_pqrs = second_q_op.h2[p, q, r, s]
+        return SparsePauliOp(table, coeffs)
+#    return PauliSumOp(SparsePauliOp(table, coeffs))  # don't forget to return this when all is debugged.
 
-                        # Skip zero terms.
-                        if (h2_pqrs == 0.0) or (p == q) or (r == s):
+
+def map_fermionic_op(fer_op_qn: FermionicOp):
+    edge_list = bravyi_kitaev_fast_edge_list_fermionic_op(fer_op_qn)
+    fer_op_list = fer_op_qn.to_list()
+    sparse_pauli = None
+    for term in fer_op_list:
+        term_type, facs = analyze_term(operator_string(term))
+        if facs[0][1] == '-': # keep only one of h.c. pair
+            continue
+        if term_type == 'excitation':
+            (p, q) = [facs[i][0] for i in range(2)] # p < q always
+            h1_pq = operator_coefficient(term)
+            sparse_pauli = _add_sparse_pauli(sparse_pauli, _one_body(edge_list, p, q, h1_pq))
+
+        ## TODO: This can be simplified along with breaking up `_two_body`
+        elif (term_type == 'number_excitation' or term_type == 'double_excitation' or
+              term_type == 'coulomb_exchange'):
+            facs_reordered, phase = _reorder_indices(facs)
+            h2_pqrs = phase * operator_coefficient(term)
+            (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]
+            if term_type == 'number_excitation':
+                        h2_pqrs /= 2
+            sparse_pauli = _add_sparse_pauli(sparse_pauli, _two_body(edge_list, p, q, r, s, h2_pqrs))
+
+    return sparse_pauli
+
+
+## TODO: Does this need the einsum transform? What is passed in, in my tests.
+## Tests are local scripts, not yet in the test suite.
+def map_fermionic_operator(second_q_op: FermionicOperator):
+    second_q_op = copy.deepcopy(second_q_op)
+    # bksf mapping works with the 'physicist' notation.
+#    second_q_op.h2 = np.einsum('ijkm->ikmj', second_q_op.h2)
+    modes = second_q_op.modes
+    # Initialize qubit operator as constant.
+    sparse_pauli = None # SparsePauliOp.from_operator(Pauli(([False], [False])))
+    edge_list = bravyi_kitaev_fast_edge_list(second_q_op)
+    # Loop through all indices.
+    for p in range(modes):  # pylint: disable=invalid-name
+        for q in range(modes):
+            # Handle one-body terms.
+            h1_pq = second_q_op.h1[p, q]
+
+            if h1_pq != 0.0 and p >= q:
+                if sparse_pauli is None:
+                    sparse_pauli = _one_body(edge_list, p, q, h1_pq)
+                else:
+                    sparse_pauli += _one_body(edge_list, p, q, h1_pq)
+
+            # Keep looping for the two-body terms.
+            for r in range(modes):
+                for s in range(modes):  # pylint: disable=invalid-name
+                    h2_pqrs = second_q_op.h2[p, q, r, s]
+
+                    # Skip zero terms.
+                    if (h2_pqrs == 0.0) or (p == q) or (r == s):
+                        continue
+
+                    # Identify and skip one of the complex conjugates.
+                    if [p, q, r, s] != [s, r, q, p]:
+                        if len(set([p, q, r, s])) == 4:
+                            if min(r, s) < min(p, q):
+                                continue
+                        # Handle case of 3 unique indices
+                        elif len(set([p, q, r, s])) == 3:
+                            sparse_pauli += _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
+                            continue
+                        elif p != r and q < p:
                             continue
 
-                        # Identify and skip one of the complex conjugates.
-                        if [p, q, r, s] != [s, r, q, p]:
-                            if len(set([p, q, r, s])) == 4:
-                                if min(r, s) < min(p, q):
-                                    continue
-                            # Handle case of 3 unique indices
-                            elif len(set([p, q, r, s])) == 3:
-                                qubit_op += _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
-                                continue
-                            elif p != r and q < p:
-                                continue
+                    sparse_pauli += _two_body(edge_list, p, q, r, s, h2_pqrs)
 
-                        qubit_op += _two_body(edge_list, p, q, r, s, h2_pqrs)
-
-        qubit_op = qubit_op.simplify()
-
-        indices = qubit_op.table.argsort()
-        table = qubit_op.table[indices]
-        coeffs = qubit_op.coeffs[indices]
-
-        return PauliSumOp(SparsePauliOp(table, coeffs))
+    return sparse_pauli
