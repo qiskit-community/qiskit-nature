@@ -23,7 +23,7 @@ from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit_nature.algorithms import GroundStateEigensolver
 from qiskit_nature.circuit.library import HartreeFock
-from qiskit_nature.drivers import HDF5Driver
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
@@ -47,8 +47,9 @@ class TestExcitationPreserving(QiskitNatureTestCase):
     def test_excitation_preserving(self):
         """Test the excitation preserving wavefunction on a chemistry example."""
 
-        driver = HDF5Driver(self.get_resource_path('test_driver_hdf5.hdf5',
-                                                   'drivers/hdf5d'))
+        driver = HDF5Driver(
+            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+        )
 
         converter = QubitConverter(ParityMapper())
 
@@ -56,8 +57,10 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         _ = problem.second_q_ops()
 
-        num_particles = (problem.molecule_data_transformed.num_alpha,
-                         problem.molecule_data_transformed.num_beta)
+        num_particles = (
+            problem.molecule_data_transformed.num_alpha,
+            problem.molecule_data_transformed.num_beta,
+        )
 
         num_spin_orbitals = problem.molecule_data_transformed.num_molecular_orbitals * 2
 
@@ -68,11 +71,15 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         wavefunction = ExcitationPreserving(num_spin_orbitals)
         wavefunction.compose(initial_state, front=True, inplace=True)
 
-        solver = VQE(ansatz=wavefunction, optimizer=optimizer,
-                     quantum_instance=QuantumInstance(
-                         BasicAer.get_backend('statevector_simulator'),
-                         seed_simulator=algorithm_globals.random_seed,
-                         seed_transpiler=algorithm_globals.random_seed))
+        solver = VQE(
+            ansatz=wavefunction,
+            optimizer=optimizer,
+            quantum_instance=QuantumInstance(
+                BasicAer.get_backend("statevector_simulator"),
+                seed_simulator=algorithm_globals.random_seed,
+                seed_transpiler=algorithm_globals.random_seed,
+            ),
+        )
 
         gsc = GroundStateEigensolver(converter, solver)
 
@@ -80,5 +87,5 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=4)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

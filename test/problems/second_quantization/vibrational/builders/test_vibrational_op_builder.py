@@ -12,15 +12,18 @@
 """Tests Fermionic Operator builder."""
 
 from test import QiskitNatureTestCase
-from test.problems.second_quantization.vibrational.resources.expected_labels import \
-    _co2_freq_b3lyp_dense_labels as expected_labels
-from test.problems.second_quantization.vibrational.resources.expected_labels import \
-    _co2_freq_b3lyp_coeffs as expected_coeffs
+from test.problems.second_quantization.vibrational.resources.expected_labels import (
+    _co2_freq_b3lyp_dense_labels as expected_labels,
+)
+from test.problems.second_quantization.vibrational.resources.expected_labels import (
+    _co2_freq_b3lyp_coeffs as expected_coeffs,
+)
 
 from qiskit_nature.operators.second_quantization.vibrational_op import VibrationalOp
-from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import \
-    _build_vibrational_op
-from qiskit_nature.drivers import GaussianForcesDriver
+from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import (
+    _build_vibrational_op,
+)
+from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 
 
 class TestVibrationalOpBuilder(QiskitNatureTestCase):
@@ -29,7 +32,8 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
     def test_vibrational_op_builder(self):
         """Tests that a VibrationalOp is created correctly from a driver."""
         logfile = self.get_resource_path(
-            'CO2_freq_B3LYP_ccpVDZ.log', 'problems/second_quantization/vibrational/resources'
+            "CO2_freq_B3LYP_ccpVDZ.log",
+            "problems/second_quantization/vibrational/resources",
         )
         driver = GaussianForcesDriver(logfile=logfile)
 

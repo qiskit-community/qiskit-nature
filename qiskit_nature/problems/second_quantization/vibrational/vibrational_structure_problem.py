@@ -19,11 +19,11 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.drivers import BosonicDriver, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import BosonicDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
-from qiskit_nature.transformers import BaseTransformer
+from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .builders.vibrational_op_builder import _build_vibrational_op
@@ -35,8 +35,13 @@ from ..base_problem import BaseProblem
 class VibrationalStructureProblem(BaseProblem):
     """Vibrational Structure Problem"""
 
-    def __init__(self, bosonic_driver: BosonicDriver, num_modals: Union[int, List[int]],
-                 truncation_order: int, transformers: Optional[List[BaseTransformer]] = None):
+    def __init__(
+        self,
+        bosonic_driver: BosonicDriver,
+        num_modals: Union[int, List[int]],
+        truncation_order: int,
+        transformers: Optional[List[BaseTransformer]] = None,
+    ):
         """
         Args:
             bosonic_driver: A bosonic driver encoding the molecule information.
@@ -56,12 +61,13 @@ class VibrationalStructureProblem(BaseProblem):
             A list of `SecondQuantizedOp` in the following order: ... .
         """
         self._molecule_data: WatsonHamiltonian = cast(WatsonHamiltonian, self.driver.run())
-        self._molecule_data_transformed: WatsonHamiltonian = \
-            cast(WatsonHamiltonian, self._transform(self._molecule_data))
+        self._molecule_data_transformed: WatsonHamiltonian = cast(
+            WatsonHamiltonian, self._transform(self._molecule_data)
+        )
 
-        vibrational_spin_op = _build_vibrational_op(self._molecule_data_transformed,
-                                                    self.num_modals,
-                                                    self.truncation_order)
+        vibrational_spin_op = _build_vibrational_op(
+            self._molecule_data_transformed, self.num_modals, self.truncation_order
+        )
 
         num_modes = self._molecule_data_transformed.num_modes
         if isinstance(self.num_modals, int):
@@ -73,14 +79,20 @@ class VibrationalStructureProblem(BaseProblem):
 
         return second_quantized_ops_list
 
-    def hopping_qeom_ops(self, qubit_converter: QubitConverter,
-                         excitations: Union[str, int, List[int],
-                                            Callable[[int, Tuple[int, int]],
-                                                     List[Tuple[
-                                                         Tuple[int, ...], Tuple[
-                                                             int, ...]]]]] = 'sd',
-                         ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
-                                    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+    def hopping_qeom_ops(
+        self,
+        qubit_converter: QubitConverter,
+        excitations: Union[
+            str,
+            int,
+            List[int],
+            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+        ] = "sd",
+    ) -> Tuple[
+        Dict[str, PauliSumOp],
+        Dict[str, List[bool]],
+        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+    ]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 
@@ -109,19 +121,22 @@ class VibrationalStructureProblem(BaseProblem):
 
         return _build_qeom_hopping_ops(num_modals, qubit_converter, excitations)
 
-    def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
-                                          MinimumEigensolverResult]) -> VibrationalStructureResult:
+    def interpret(
+        self,
+        raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+    ) -> VibrationalStructureResult:
         """Interprets an EigenstateResult in the context of this transformation.
-               Args:
-                   raw_result: an eigenstate result object.
-               Returns:
-                   An vibrational structure result.
-               """
+        Args:
+            raw_result: an eigenstate result object.
+        Returns:
+            An vibrational structure result.
+        """
 
         return _interpret(self._molecule_data.num_modes, raw_result)
 
-    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
-                                                                 Optional[List[float]]], bool]]:
+    def get_default_filter_criterion(
+        self,
+    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         aqua.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.

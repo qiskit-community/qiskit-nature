@@ -12,13 +12,14 @@
 
 """The star algebra mixin abstract base class."""
 
+import warnings
 from abc import ABC, abstractmethod
 
 from qiskit.quantum_info.operators.mixins import MultiplyMixin
 
 
 class StarAlgebraMixin(MultiplyMixin, ABC):
-    """The star algebra mixin class.
+    """**DEPRECATED** The star algebra mixin class.
 
     Star algebra is an algebra with an adjoint.
 
@@ -39,31 +40,36 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
     @abstractmethod
     def mul(self, other: complex):
-        """ Return scalar multiplication of self and other, overloaded by `*`."""
+        """Return scalar multiplication of self and other, overloaded by `*`."""
         return NotImplementedError
 
     def __mul__(self, other: complex):
+        _warn()
         return self.mul(other)
 
     def _multiply(self, other: complex):
+        _warn()
         return self.mul(other)
 
     # Addition, substitution
 
     @abstractmethod
     def add(self, other):
-        """ Return Operator addition of self and other, overloaded by `+`."""
+        """Return Operator addition of self and other, overloaded by `+`."""
         return NotImplementedError
 
     def __add__(self, other):
+        _warn()
         return self.add(other)
 
     def __radd__(self, other):
+        _warn()
         if other == 0:
             return self
         return self.add(other)
 
     def __sub__(self, other):
+        _warn()
         return self.add(-other)
 
     # Operator multiplication
@@ -78,12 +84,14 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
         raise NotImplementedError
 
     def __matmul__(self, other):
+        _warn()
         return self.compose(other)
 
     def __pow__(self, power: int):
         """Overloads the power operator `**` for applying an operator `self`, `power` number of
         times, e.g. op^{power} where `power` is a positive integer.
         """
+        _warn()
         if not isinstance(power, int):
             raise TypeError(
                 f"Unsupported operand type(s) for **: '{type(self).__name__}' and "
@@ -108,8 +116,21 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
     @property
     def dagger(self):
         """Alias of :meth:`adjoint()`"""
+        _warn()
         return self.adjoint()
 
     def __invert__(self):
-        """ Overload unary `~` to return Operator adjoint."""
+        """Overload unary `~` to return Operator adjoint."""
+        _warn()
         return self.adjoint()
+
+
+def _warn():
+    warnings.warn(
+        "This StarAlgebraMixin is deprecated as of 0.2.0, "
+        "and will be removed no earlier than 3 months after the release. "
+        "You should use the qiskit.opflow.mixins.StarAlgebraMixin "
+        "as a direct replacement instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )

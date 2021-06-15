@@ -20,55 +20,80 @@ from qiskit_nature.drivers import PyQuanteDriver, UnitsType, BasisType, HFMethod
 
 
 class TestDriverMethodsPyquante(TestDriverMethods):
-    """ Driver Methods Pyquante tests """
+    """Driver Methods Pyquante tests"""
 
     def setUp(self):
         super().setUp()
         try:
             PyQuanteDriver(atoms=self.lih)
         except QiskitNatureError:
-            self.skipTest('PyQuante driver does not appear to be installed')
+            self.skipTest("PyQuante driver does not appear to be installed")
 
     def test_lih_rhf(self):
-        """ lih rhf test """
-        driver = PyQuanteDriver(atoms=self.lih, units=UnitsType.ANGSTROM,
-                                charge=0, multiplicity=1, basis=BasisType.BSTO3G,
-                                hf_method=HFMethodType.RHF)
+        """lih rhf test"""
+        driver = PyQuanteDriver(
+            atoms=self.lih,
+            units=UnitsType.ANGSTROM,
+            charge=0,
+            multiplicity=1,
+            basis=BasisType.BSTO3G,
+            hf_method=HFMethodType.RHF,
+        )
         result = self._run_driver(driver)
-        self._assert_energy(result, 'lih')
+        self._assert_energy(result, "lih")
 
     def test_lih_rohf(self):
-        """ lijh rohf test """
-        driver = PyQuanteDriver(atoms=self.lih, units=UnitsType.ANGSTROM,
-                                charge=0, multiplicity=1, basis=BasisType.BSTO3G,
-                                hf_method=HFMethodType.ROHF)
+        """lijh rohf test"""
+        driver = PyQuanteDriver(
+            atoms=self.lih,
+            units=UnitsType.ANGSTROM,
+            charge=0,
+            multiplicity=1,
+            basis=BasisType.BSTO3G,
+            hf_method=HFMethodType.ROHF,
+        )
         result = self._run_driver(driver)
-        self._assert_energy(result, 'lih')
+        self._assert_energy(result, "lih")
 
     def test_lih_uhf(self):
-        """ lih uhf test """
-        driver = PyQuanteDriver(atoms=self.lih, units=UnitsType.ANGSTROM,
-                                charge=0, multiplicity=1, basis=BasisType.BSTO3G,
-                                hf_method=HFMethodType.UHF)
+        """lih uhf test"""
+        driver = PyQuanteDriver(
+            atoms=self.lih,
+            units=UnitsType.ANGSTROM,
+            charge=0,
+            multiplicity=1,
+            basis=BasisType.BSTO3G,
+            hf_method=HFMethodType.UHF,
+        )
         result = self._run_driver(driver)
-        self._assert_energy(result, 'lih')
+        self._assert_energy(result, "lih")
 
     def test_oh_rohf(self):
-        """ oh rohf test """
-        driver = PyQuanteDriver(atoms=self.o_h, units=UnitsType.ANGSTROM,
-                                charge=0, multiplicity=2, basis=BasisType.BSTO3G,
-                                hf_method=HFMethodType.ROHF)
+        """oh rohf test"""
+        driver = PyQuanteDriver(
+            atoms=self.o_h,
+            units=UnitsType.ANGSTROM,
+            charge=0,
+            multiplicity=2,
+            basis=BasisType.BSTO3G,
+            hf_method=HFMethodType.ROHF,
+        )
         result = self._run_driver(driver)
-        self._assert_energy(result, 'oh')
+        self._assert_energy(result, "oh")
 
     def test_oh_uhf(self):
-        """ oh uhf test """
-        driver = PyQuanteDriver(atoms=self.o_h, units=UnitsType.ANGSTROM,
-                                charge=0, multiplicity=2, basis=BasisType.BSTO3G,
-                                hf_method=HFMethodType.UHF)
+        """oh uhf test"""
+        driver = PyQuanteDriver(
+            atoms=self.o_h,
+            units=UnitsType.ANGSTROM,
+            charge=0,
+            multiplicity=2,
+            basis=BasisType.BSTO3G,
+            hf_method=HFMethodType.UHF,
+        )
         result = self._run_driver(driver)
-        self._assert_energy(result, 'oh')
+        self._assert_energy(result, "oh")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

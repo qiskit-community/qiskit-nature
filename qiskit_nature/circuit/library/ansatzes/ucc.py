@@ -96,24 +96,34 @@ class UCC(EvolvedOperatorAnsatz):
     """
 
     EXCITATION_TYPE = {
-        's': 1,
-        'd': 2,
-        't': 3,
-        'q': 4,
+        "s": 1,
+        "d": 2,
+        "t": 3,
+        "q": 4,
     }
 
-    def __init__(self, qubit_converter: Optional[QubitConverter] = None,
-                 num_particles: Optional[Tuple[int, int]] = None,
-                 num_spin_orbitals: Optional[int] = None,
-                 excitations: Optional[Union[str, int, List[int],
-                                             Callable[[int, Tuple[int, int]],
-                                                      List[Tuple[Tuple[int, ...], Tuple[int, ...]]]]
-                                             ]] = None,
-                 alpha_spin: bool = True,
-                 beta_spin: bool = True,
-                 max_spin_excitation: Optional[int] = None,
-                 reps: int = 1,
-                 initial_state: Optional[QuantumCircuit] = None):
+    def __init__(
+        self,
+        qubit_converter: Optional[QubitConverter] = None,
+        num_particles: Optional[Tuple[int, int]] = None,
+        num_spin_orbitals: Optional[int] = None,
+        excitations: Optional[
+            Union[
+                str,
+                int,
+                List[int],
+                Callable[
+                    [int, Tuple[int, int]],
+                    List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
+                ],
+            ]
+        ] = None,
+        alpha_spin: bool = True,
+        beta_spin: bool = True,
+        max_spin_excitation: Optional[int] = None,
+        reps: int = 1,
+        initial_state: Optional[QuantumCircuit] = None,
+    ):
         """
 
         Args:
@@ -213,22 +223,22 @@ class UCC(EvolvedOperatorAnsatz):
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
         if self.num_spin_orbitals < 0:
             if raise_on_failure:
-                raise ValueError('The number of spin orbitals cannot be smaller than 0.')
+                raise ValueError("The number of spin orbitals cannot be smaller than 0.")
             return False
 
         if any(n < 0 for n in self.num_particles):
             if raise_on_failure:
-                raise ValueError('The number of particles cannot be smaller than 0.')
+                raise ValueError("The number of particles cannot be smaller than 0.")
             return False
 
         if self.excitations is None:
             if raise_on_failure:
-                raise ValueError('The excitations cannot be `None`.')
+                raise ValueError("The excitations cannot be `None`.")
             return False
 
         if self.qubit_converter is None:
             if raise_on_failure:
-                raise ValueError('The qubit_converter cannot be `None`.')
+                raise ValueError("The qubit_converter cannot be `None`.")
             return False
 
         return True
@@ -244,7 +254,7 @@ class UCC(EvolvedOperatorAnsatz):
             # algorithms such as `AdaptVQE`.
             excitation_ops = self.excitation_ops()
 
-            logger.debug('Converting SecondQuantizedOps into PauliSumOps...')
+            logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
             # Convert operators according to saved state in converter from the conversion of the
             # main operator since these need to be compatible. If Z2 Symmetry tapering was done
             # it may be that one or more excitation operators do not commute with the
@@ -254,7 +264,7 @@ class UCC(EvolvedOperatorAnsatz):
             # behavior is suppressed.
             self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
 
-        logger.debug('Building QuantumCircuit...')
+        logger.debug("Building QuantumCircuit...")
         super()._build()
 
     def excitation_ops(self) -> List[SecondQuantizedOp]:
@@ -271,7 +281,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         excitations = self._get_excitation_list()
 
-        logger.debug('Converting excitations into SecondQuantizedOps...')
+        logger.debug("Converting excitations into SecondQuantizedOps...")
         excitation_ops = self._build_fermionic_excitation_ops(excitations)
 
         self._excitation_ops = excitation_ops
@@ -280,44 +290,48 @@ class UCC(EvolvedOperatorAnsatz):
     def _get_excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         generators = self._get_excitation_generators()
 
-        logger.debug('Generating excitation list...')
+        logger.debug("Generating excitation list...")
         excitations = []
         for gen in generators:
-            excitations.extend(gen(
-                num_spin_orbitals=self.num_spin_orbitals,
-                num_particles=self.num_particles
-            ))
+            excitations.extend(
+                gen(
+                    num_spin_orbitals=self.num_spin_orbitals,
+                    num_particles=self.num_particles,
+                )
+            )
 
         return excitations
 
     def _get_excitation_generators(self) -> List[Callable]:
-        logger.debug('Gathering excitation generators...')
+        logger.debug("Gathering excitation generators...")
         generators: List[Callable] = []
 
-        extra_kwargs = {'alpha_spin': self._alpha_spin,
-                        'beta_spin': self._beta_spin,
-                        'max_spin_excitation': self._max_spin_excitation}
+        extra_kwargs = {
+            "alpha_spin": self._alpha_spin,
+            "beta_spin": self._beta_spin,
+            "max_spin_excitation": self._max_spin_excitation,
+        }
 
         if isinstance(self.excitations, str):
             for exc in self.excitations:
-                generators.append(partial(
-                    generate_fermionic_excitations,
-                    num_excitations=self.EXCITATION_TYPE[exc],
-                    **extra_kwargs
-                ))
+                generators.append(
+                    partial(
+                        generate_fermionic_excitations,
+                        num_excitations=self.EXCITATION_TYPE[exc],
+                        **extra_kwargs,
+                    )
+                )
         elif isinstance(self.excitations, int):
-            generators.append(partial(
-                generate_fermionic_excitations,
-                num_excitations=self.excitations,
-                **extra_kwargs
-            ))
+            generators.append(
+                partial(
+                    generate_fermionic_excitations, num_excitations=self.excitations, **extra_kwargs
+                )
+            )
         elif isinstance(self.excitations, list):
             for exc in self.excitations:  # type: ignore
-                generators.append(partial(
-                    generate_fermionic_excitations,
-                    num_excitations=exc,
-                    **extra_kwargs
-                ))
+                generators.append(
+                    partial(generate_fermionic_excitations, num_excitations=exc, **extra_kwargs)
+                )
         elif callable(self.excitations):
             generators = [self.excitations]
         else:
@@ -338,16 +352,16 @@ class UCC(EvolvedOperatorAnsatz):
         operators = []
 
         for exc in excitations:
-            label = ['I'] * self.num_spin_orbitals
+            label = ["I"] * self.num_spin_orbitals
             for occ in exc[0]:
-                label[occ] = '+'
+                label[occ] = "+"
             for unocc in exc[1]:
-                label[unocc] = '-'
-            op = FermionicOp(''.join(label))
+                label[unocc] = "-"
+            op = FermionicOp("".join(label))
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)
-            op *= 1j
+            op *= 1j  # type: ignore
             operators.append(op)
 
         return operators

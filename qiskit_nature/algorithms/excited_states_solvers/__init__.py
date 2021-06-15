@@ -34,9 +34,10 @@ from .qeom import QEOM
 from .eigensolver_factories import EigensolverFactory, NumPyEigensolverFactory
 from .excited_states_eigensolver import ExcitedStatesEigensolver
 
-__all__ = ['ExcitedStatesSolver',
-           'ExcitedStatesEigensolver',
-           'EigensolverFactory',
-           'NumPyEigensolverFactory',
-           'QEOM'
-           ]
+__all__ = [
+    "ExcitedStatesSolver",
+    "ExcitedStatesEigensolver",
+    "EigensolverFactory",
+    "NumPyEigensolverFactory",
+    "QEOM",
+]

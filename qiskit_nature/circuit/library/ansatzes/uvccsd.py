@@ -30,10 +30,13 @@ class UVCCSD(UVCC):
     This is a convenience subclass of the UVCC Ansatz. For more information refer to :class:`UVCC`.
     """
 
-    def __init__(self, qubit_converter: Optional[QubitConverter] = None,
-                 num_modals: Optional[List[int]] = None,
-                 reps: int = 1,
-                 initial_state: Optional[QuantumCircuit] = None):
+    def __init__(
+        self,
+        qubit_converter: Optional[QubitConverter] = None,
+        num_modals: Optional[List[int]] = None,
+        reps: int = 1,
+        initial_state: Optional[QuantumCircuit] = None,
+    ):
         """
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
@@ -44,8 +47,10 @@ class UVCCSD(UVCC):
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
-        super().__init__(qubit_converter=qubit_converter,
-                         num_modals=num_modals,
-                         excitations='sd',
-                         reps=reps,
-                         initial_state=initial_state)
+        super().__init__(
+            qubit_converter=qubit_converter,
+            num_modals=num_modals,
+            excitations="sd",
+            reps=reps,
+            initial_state=initial_state,
+        )

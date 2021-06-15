@@ -34,7 +34,10 @@ class TestVibrationalOp(QiskitNatureTestCase):
             ("+_1*0 -_1*1", 1215.375 / 3),
             ("+_2*0 -_2*1 +_3*0 -_3*0", -6.385 / 3),
         ]
-        self.labels_neg = [("+_1*0 -_1*1", -1215.375), ("+_2*0 -_2*1 +_3*0 -_3*0", 6.385)]
+        self.labels_neg = [
+            ("+_1*0 -_1*1", -1215.375),
+            ("+_2*0 -_2*1 +_3*0 -_3*0", 6.385),
+        ]
         self.vibr_spin_op = VibrationalOp(self.labels, 4, 2)
 
     def assertSpinEqual(self, first: VibrationalOp, second: VibrationalOp):
@@ -46,17 +49,17 @@ class TestVibrationalOp(QiskitNatureTestCase):
         """Test __init__ with plus and minus label"""
         with self.subTest("minus plus"):
             result = VibrationalOp([("+_0*0 -_0*1", 2)], 1, 2)
-            desired = [('+-', (2 + 0j))]
+            desired = [("+-", (2 + 0j))]
             self.assertEqual(result.to_list(), desired)
 
         with self.subTest("plus minus"):
             result = VibrationalOp([("-_0*0 +_0*1", 2)], 1, 2)
-            desired = [('-+', (2 + 0j))]
+            desired = [("-+", (2 + 0j))]
             self.assertEqual(result.to_list(), desired)
 
         with self.subTest("plus minus minus plus"):
             result = VibrationalOp([("+_0*0 -_0*1 -_1*0 +_1*1", 3)], 2, 2)
-            desired = [('+--+', (3 + 0j))]
+            desired = [("+--+", (3 + 0j))]
 
             # Note: the order of list is irrelevant.
             self.assertSetEqual(frozenset(result.to_list()), frozenset(desired))
@@ -90,3 +93,23 @@ class TestVibrationalOp(QiskitNatureTestCase):
         actual = (self.vibr_spin_op + self.vibr_spin_op).reduce()
         desired = VibrationalOp(self.labels_double, 4, 2)
         self.assertSpinEqual(actual, desired)
+
+    def test_hermiticity(self):
+        """test is_hermitian"""
+        with self.subTest("operator hermitian"):
+            # deliberately define test operator with duplicate terms in case .adjoint() simplifies terms
+            test_op = (
+                1j * VibrationalOp("+-", 2, 1)
+                + 1j * VibrationalOp("+-", 2, 1)
+                - 1j * VibrationalOp("-+", 2, 1)
+                - 1j * VibrationalOp("-+", 2, 1)
+            )
+            self.assertTrue(test_op.is_hermitian())
+
+        with self.subTest("operator not hermitian"):
+            test_op = (
+                1j * VibrationalOp("+-", 2, 1)
+                + 1j * VibrationalOp("+-", 2, 1)
+                - 1j * VibrationalOp("-+", 2, 1)
+            )
+            self.assertFalse(test_op.is_hermitian())

@@ -33,5 +33,4 @@ Bosonic Basis
 from .bosonic_basis import BosonicBasis
 from .harmonic_basis import HarmonicBasis
 
-__all__ = ['BosonicBasis',
-           'HarmonicBasis']
+__all__ = ["BosonicBasis", "HarmonicBasis"]

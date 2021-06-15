@@ -21,11 +21,11 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
-from qiskit_nature.drivers import FermionicDriver, QMolecule
+from qiskit_nature.drivers.second_quantization import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
-from qiskit_nature.transformers import BaseTransformer
+from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.aux_fermionic_ops_builder import _create_all_aux_operators
 from .builders.fermionic_op_builder import _build_fermionic_op
@@ -37,8 +37,11 @@ from ..base_problem import BaseProblem
 class ElectronicStructureProblem(BaseProblem):
     """Electronic Structure Problem"""
 
-    def __init__(self, driver: FermionicDriver,
-                 q_molecule_transformers: Optional[List[BaseTransformer]] = None):
+    def __init__(
+        self,
+        driver: FermionicDriver,
+        q_molecule_transformers: Optional[List[BaseTransformer]] = None,
+    ):
         """
 
         Args:
@@ -57,8 +60,8 @@ class ElectronicStructureProblem(BaseProblem):
         provided.
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: electronic operator,
-            total magnetization operator, total angular momentum operator, total particle number
+            A list of `SecondQuantizedOp` in the following order: Hamiltonian operator,
+            total particle number operator, total angular momentum operator, total magnetization
             operator, and (if available) x, y, z dipole operators.
         """
         self._molecule_data = cast(QMolecule, self.driver.run())
@@ -66,18 +69,25 @@ class ElectronicStructureProblem(BaseProblem):
 
         electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
         second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
-            self._molecule_data_transformed)
+            self._molecule_data_transformed
+        )
 
         return second_quantized_ops_list
 
-    def hopping_qeom_ops(self, qubit_converter: QubitConverter,
-                         excitations: Union[str, int, List[int],
-                                            Callable[[int, Tuple[int, int]],
-                                                     List[Tuple[
-                                                         Tuple[int, ...], Tuple[
-                                                             int, ...]]]]] = 'sd',
-                         ) -> Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]],
-                                    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]]]:
+    def hopping_qeom_ops(
+        self,
+        qubit_converter: QubitConverter,
+        excitations: Union[
+            str,
+            int,
+            List[int],
+            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+        ] = "sd",
+    ) -> Tuple[
+        Dict[str, PauliSumOp],
+        Dict[str, List[bool]],
+        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+    ]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 
@@ -101,8 +111,10 @@ class ElectronicStructureProblem(BaseProblem):
         q_molecule = cast(QMolecule, self.molecule_data)
         return _build_qeom_hopping_ops(q_molecule, qubit_converter, excitations)
 
-    def interpret(self, raw_result: Union[EigenstateResult, EigensolverResult,
-                                          MinimumEigensolverResult]) -> ElectronicStructureResult:
+    def interpret(
+        self,
+        raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+    ) -> ElectronicStructureResult:
         """Interprets an EigenstateResult in the context of this transformation.
 
         Args:
@@ -115,8 +127,9 @@ class ElectronicStructureProblem(BaseProblem):
         q_molecule_transformed = cast(QMolecule, self.molecule_data_transformed)
         return _interpret(q_molecule, q_molecule_transformed, raw_result)
 
-    def get_default_filter_criterion(self) -> Optional[Callable[[Union[List, np.ndarray], float,
-                                                                 Optional[List[float]]], bool]]:
+    def get_default_filter_criterion(
+        self,
+    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
@@ -132,9 +145,13 @@ class ElectronicStructureProblem(BaseProblem):
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
             q_molecule_transformed = cast(QMolecule, self._molecule_data_transformed)
-            return np.isclose(
-                q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
-                num_particles_aux) and np.isclose(0., total_angular_momentum_aux)
+            return (
+                np.isclose(
+                    q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
+                    num_particles_aux,
+                )
+                and np.isclose(0.0, total_angular_momentum_aux)
+            )
 
         return partial(filter_criterion, self)
 
@@ -148,11 +165,10 @@ class ElectronicStructureProblem(BaseProblem):
         Returns:
             The sector of the tapered operators with the problem solution.
         """
-        q_molecule = cast(QMolecule, self._molecule_data_transformed)
-
         hf_bitstr = hartree_fock_bitstring(
-            num_spin_orbitals=2 * q_molecule.num_molecular_orbitals,
-            num_particles=self.num_particles)
+            num_spin_orbitals=z2_symmetries.symmetries[0].num_qubits,
+            num_particles=self.num_particles,
+        )
         sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector_locator

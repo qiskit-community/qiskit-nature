@@ -38,60 +38,62 @@ class BaseTestDriverFCIDumpDumper(ABC):
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
-        """ assert Almost Equal """
-        raise Exception('Abstract method')
+        """assert Almost Equal"""
+        raise Exception("Abstract method")
 
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
-        """ assert equal """
-        raise Exception('Abstract method')
+        """assert equal"""
+        raise Exception("Abstract method")
 
     @abstractmethod
     def assertSequenceEqual(self, seq1, seq2, msg=None, seq_type=None):
-        """ assert Sequence Equal """
-        raise Exception('Abstract method')
+        """assert Sequence Equal"""
+        raise Exception("Abstract method")
 
     def test_dumped_inactive_energy(self):
-        """ dumped inactive energy test """
-        self.log.debug('Dumped inactive energy is {:g}'.format(self.dumped['ECORE']))
-        self.assertAlmostEqual(self.dumped['ECORE'], self.core_energy, places=3)
+        """dumped inactive energy test"""
+        self.log.debug("Dumped inactive energy is {:g}".format(self.dumped["ECORE"]))
+        self.assertAlmostEqual(self.dumped["ECORE"], self.core_energy, places=3)
 
     def test_dumped_num_molecular_orbitals(self):
-        """ dumped number of orbitals test """
-        self.log.debug('Dumped number of orbitals is {:d}'.format(self.dumped['NORB']))
-        self.assertEqual(self.dumped['NORB'], self.num_molecular_orbitals)
+        """dumped number of orbitals test"""
+        self.log.debug("Dumped number of orbitals is {:d}".format(self.dumped["NORB"]))
+        self.assertEqual(self.dumped["NORB"], self.num_molecular_orbitals)
 
     def test_dumped_num_electrons(self):
-        """ dumped number of electrons test """
-        self.log.debug('Dumped number of electrons is {:d}'.format(self.dumped['NELEC']))
-        self.assertEqual(self.dumped['NELEC'], self.num_electrons)
+        """dumped number of electrons test"""
+        self.log.debug("Dumped number of electrons is {:d}".format(self.dumped["NELEC"]))
+        self.assertEqual(self.dumped["NELEC"], self.num_electrons)
 
     def test_dumped_spin_number(self):
-        """ dumped spin number test """
-        self.log.debug('Dumped spin number is {:d}'.format(self.dumped['MS2']))
-        self.assertEqual(self.dumped['MS2'], self.spin_number)
+        """dumped spin number test"""
+        self.log.debug("Dumped spin number is {:d}".format(self.dumped["MS2"]))
+        self.assertEqual(self.dumped["MS2"], self.spin_number)
 
     def test_dumped_wave_function_sym(self):
-        """ dumped wave function symmetry test """
-        self.log.debug('Dumped wave function symmetry is {:d}'.format(self.dumped['ISYM']))
-        self.assertEqual(self.dumped['ISYM'], self.wf_symmetry)
+        """dumped wave function symmetry test"""
+        self.log.debug("Dumped wave function symmetry is {:d}".format(self.dumped["ISYM"]))
+        self.assertEqual(self.dumped["ISYM"], self.wf_symmetry)
 
     def test_dumped_orbital_syms(self):
-        """ dumped orbital symmetries test """
-        self.log.debug('Dumped orbital symmetries is %s', self.dumped['ORBSYM'])
-        self.assertEqual(self.dumped['ORBSYM'], self.orb_symmetries)
+        """dumped orbital symmetries test"""
+        self.log.debug("Dumped orbital symmetries is %s", self.dumped["ORBSYM"])
+        self.assertEqual(self.dumped["ORBSYM"], self.orb_symmetries)
 
     def test_dumped_h1(self):
-        """ dumped h1 integrals test """
-        self.log.debug('Dumped h1 integrals are %s', self.dumped['H1'])
-        np.testing.assert_array_almost_equal(np.absolute(self.dumped['H1']),
-                                             np.absolute(self.mo_onee), decimal=4)
+        """dumped h1 integrals test"""
+        self.log.debug("Dumped h1 integrals are %s", self.dumped["H1"])
+        np.testing.assert_array_almost_equal(
+            np.absolute(self.dumped["H1"]), np.absolute(self.mo_onee), decimal=4
+        )
 
     def test_dumped_h2(self):
-        """ dumped h2 integrals test """
-        self.log.debug('Dumped h2 integrals are %s', self.dumped['H2'])
-        np.testing.assert_array_almost_equal(np.absolute(self.dumped['H2']),
-                                             np.absolute(self.mo_eri), decimal=4)
+        """dumped h2 integrals test"""
+        self.log.debug("Dumped h2 integrals are %s", self.dumped["H2"])
+        np.testing.assert_array_almost_equal(
+            np.absolute(self.dumped["H2"]), np.absolute(self.mo_eri), decimal=4
+        )
 
 
 class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper):
@@ -108,26 +110,26 @@ class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper)
         self.mo_onee = [[1.2563, 0.0], [0.0, 0.4719]]
         self.mo_eri = [0.6757, 0.0, 0.1809, 0.6646, 0.0, 0.6986]
         try:
-            driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                                 unit=UnitsType.ANGSTROM,
-                                 charge=0,
-                                 spin=0,
-                                 basis='sto3g')
+            driver = PySCFDriver(
+                atom="H .0 .0 .0; H .0 .0 0.735",
+                unit=UnitsType.ANGSTROM,
+                charge=0,
+                spin=0,
+                basis="sto3g",
+            )
             qmolecule = driver.run()
 
-            dump = tempfile.NamedTemporaryFile()
-            FCIDumpDriver.dump(qmolecule, dump.name)
+            with tempfile.NamedTemporaryFile() as dump:
+                FCIDumpDriver.dump(qmolecule, dump.name)
+                # pylint: disable=import-outside-toplevel
+                from pyscf.tools import fcidump as pyscf_fcidump
 
-            # pylint: disable=import-outside-toplevel
-            from pyscf.tools import fcidump as pyscf_fcidump
-            self.dumped = pyscf_fcidump.read(dump.name)
-
-            dump.close()
+                self.dumped = pyscf_fcidump.read(dump.name)
         except QiskitNatureError:
-            self.skipTest('PYSCF driver does not appear to be installed.')
+            self.skipTest("PYSCF driver does not appear to be installed.")
         except ImportError:
-            self.skipTest('PYSCF driver does not appear to be installed.')
+            self.skipTest("PYSCF driver does not appear to be installed.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

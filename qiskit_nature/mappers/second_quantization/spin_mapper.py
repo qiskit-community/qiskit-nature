@@ -21,7 +21,7 @@ from .qubit_mapper import QubitMapper
 
 
 class SpinMapper(QubitMapper):
-    """ Mapper of Spin Operator to Qubit Operator """
+    """Mapper of Spin Operator to Qubit Operator"""
 
     @abstractmethod
     def map(self, second_q_op: SpinOp) -> PauliSumOp:

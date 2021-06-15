@@ -21,7 +21,7 @@ from qiskit_nature.drivers import Molecule
 
 
 class EnergySurfaceBase(ABC):
-    """ Class to hold a potential energy surface """
+    """Class to hold a potential energy surface"""
 
     @abstractmethod
     def eval(self, x: float) -> float:
@@ -37,10 +37,13 @@ class EnergySurfaceBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fit(self, xdata: List[float], ydata: List[float],
-            initial_vals: Optional[List[float]] = None,
-            bounds_list: Optional[Tuple[List[float], List[float]]] = None
-            ) -> None:
+    def fit(
+        self,
+        xdata: List[float],
+        ydata: List[float],
+        initial_vals: Optional[List[float]] = None,
+        bounds_list: Optional[Tuple[List[float], List[float]]] = None,
+    ) -> None:
         """Fits surface to data
 
         Args:
@@ -147,7 +150,8 @@ class VibrationalStructureBase(ABC):
         """
         raise NotImplementedError
 
-    def get_maximum_trusted_level(self, n: int = 0) -> float:  # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+    def get_maximum_trusted_level(self, n: int = 0) -> float:
         """
         Returns the maximum energy level for which the particular
         implementation still provides a good approximation of reality.
@@ -166,7 +170,7 @@ class PotentialBase(EnergySurfaceBase, VibrationalStructureBase):
     """Class to hold prescribed 1D potentials (e.g. Morse/Harmonic) over a degree of freedom."""
 
     def get_num_modes(self) -> int:
-        """ This (1D) potential represents a single vibrational mode """
+        """This (1D) potential represents a single vibrational mode"""
         return 1
 
     def get_trust_region(self) -> Tuple[float, float]:

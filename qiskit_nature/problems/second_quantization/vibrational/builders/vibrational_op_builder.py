@@ -14,21 +14,23 @@ from typing import Union, List, Optional, Tuple
 
 import logging
 
-from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.drivers.bosonic_bases import BosonicBasis, HarmonicBasis
+from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization.bosonic_bases import BosonicBasis, HarmonicBasis
 
 from qiskit_nature.operators.second_quantization import VibrationalOp
-from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_label_builder \
-    import _create_labels
+from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_label_builder import (
+    _create_labels,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def _build_vibrational_op(watson_hamiltonian: WatsonHamiltonian,
-                          num_modals: Union[int, List[int]],
-                          truncation_order: int,
-                          basis: Optional[BosonicBasis] = None,
-                          ) -> VibrationalOp:
+def _build_vibrational_op(
+    watson_hamiltonian: WatsonHamiltonian,
+    num_modals: Union[int, List[int]],
+    truncation_order: int,
+    basis: Optional[BosonicBasis] = None,
+) -> VibrationalOp:
     """
     Builds a :class:`VibrationalOp` based on a :class:`WatsonHamiltonian` object.
 
@@ -45,24 +47,28 @@ def _build_vibrational_op(watson_hamiltonian: WatsonHamiltonian,
     """
     if basis is not None:
         logger.warning(
-            'The only supported `BosonicBasis` is the `HarmonicBasis`. However you specified '
-            '%s as an input, which will be ignored.', str(basis))
+            "The only supported `BosonicBasis` is the `HarmonicBasis`. However you specified "
+            "%s as an input, which will be ignored.",
+            str(basis),
+        )
 
     num_modes = watson_hamiltonian.num_modes
 
     if isinstance(num_modals, int):
         num_modals = [num_modals] * num_modes
 
-    boson_hamilt_harm_basis = HarmonicBasis(watson_hamiltonian,
-                                            num_modals, truncation_order).convert()
+    boson_hamilt_harm_basis = HarmonicBasis(
+        watson_hamiltonian, num_modals, truncation_order
+    ).convert()
 
     return build_vibrational_op_from_ints(boson_hamilt_harm_basis, num_modes, num_modals)
 
 
-def build_vibrational_op_from_ints(h_mat: List[List[Tuple[List[List[int]], complex]]],
-                                   num_modes: int,
-                                   num_modals: List[int],
-                                   ) -> VibrationalOp:
+def build_vibrational_op_from_ints(
+    h_mat: List[List[Tuple[List[List[int]], complex]]],
+    num_modes: int,
+    num_modals: List[int],
+) -> VibrationalOp:
     """
     Builds a :class:`VibrationalOp` based on an integral list as produced by
     :meth:`HarmonicBasis.convert()`.

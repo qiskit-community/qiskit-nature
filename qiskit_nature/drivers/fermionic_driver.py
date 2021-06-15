@@ -15,22 +15,22 @@ This module implements the abstract base class for fermionic driver modules.
 """
 
 from abc import abstractmethod
-from enum import Enum
 
 from .qmolecule import QMolecule
-from .base_driver import BaseDriver
+from .base_driver import BaseDriver, DeprecatedEnum, DeprecatedEnumMeta
 
 
-class HFMethodType(Enum):
-    """ HFMethodType Enum """
-    RHF = 'rhf'
-    ROHF = 'rohf'
-    UHF = 'uhf'
+class HFMethodType(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
+    """HFMethodType Enum"""
+
+    RHF = "rhf"
+    ROHF = "rohf"
+    UHF = "uhf"
 
 
 class FermionicDriver(BaseDriver):
     """
-    Base class for Qiskit's chemistry fermionic drivers.
+    Base class for Qiskit Nature's fermionic drivers.
     """
 
     @abstractmethod
