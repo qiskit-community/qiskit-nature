@@ -15,7 +15,6 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.interaction im
 
 
 class RandomInteraction(Interaction):
-
     def calc_energy_matrix(self, chain_len: int, sequence):  # TODO unused arg
         """
         Calculates an energy matrix for a random interaction.
@@ -25,5 +24,5 @@ class RandomInteraction(Interaction):
         Returns:
             pair_energies: Numpy array of pair energies for amino acids.
         """
-        pair_energies = - 1 - 4 * np.random.rand(chain_len + 1, 2, chain_len + 1, 2)
+        pair_energies = -1 - 4 * np.random.rand(chain_len + 1, 2, chain_len + 1, 2)
         return pair_energies

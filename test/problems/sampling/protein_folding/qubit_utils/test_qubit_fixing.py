@@ -25,7 +25,7 @@ class TestQubitFixing(QiskitNatureTestCase):
         assert fixed == expected
 
     def test_fix_qubits_small_2(self):
-        operator = (Z^Z) + (I^I)
+        operator = (Z ^ Z) + (I ^ I)
         fixed = _fix_qubits(operator)
         expected = PauliSumOp.from_list([("II", 0)])
         assert fixed == expected

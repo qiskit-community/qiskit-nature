@@ -11,8 +11,9 @@
 # that they have been altered from the originals.
 """Tests ProteinFoldingProblem."""
 from test import QiskitNatureTestCase
-from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
-    MiyazawaJerniganInteraction
+from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
+    MiyazawaJerniganInteraction,
+)
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from problems.sampling.protein_folding.protein_folding_problem import ProteinFoldingProblem
 from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
@@ -34,8 +35,9 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", None]
 
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
 
         mj_interaction = MiyazawaJerniganInteraction()
 

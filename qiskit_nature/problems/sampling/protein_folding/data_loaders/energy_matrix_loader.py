@@ -28,5 +28,7 @@ def _parse_energy_matrix(matrix):
     for row in range(1, np.shape(matrix)[0]):
         for col in range(row - 1, np.shape(matrix)[1]):
             energy_matrix[row, col] = float(matrix[row, col])
-    energy_matrix = energy_matrix[1:, ]
+    energy_matrix = energy_matrix[
+        1:,
+    ]
     return energy_matrix

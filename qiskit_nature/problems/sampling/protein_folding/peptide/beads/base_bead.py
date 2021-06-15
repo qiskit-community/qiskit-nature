@@ -19,8 +19,9 @@ from problems.sampling.protein_folding.residue_validator import _validate_residu
 
 
 class BaseBead(ABC):
-
-    def __init__(self, chain_type: str, main_index: int, residue_type: str, turn_qubits: List[PauliOp]):
+    def __init__(
+        self, chain_type: str, main_index: int, residue_type: str, turn_qubits: List[PauliOp]
+    ):
         self.chain_type = chain_type
         self.main_index = main_index
         self._residue_type = residue_type
@@ -36,8 +37,9 @@ class BaseBead(ABC):
         return self._residue_type
 
     # for the turn that leads from the bead
-    def get_indicator_functions(self) -> Union[None, Tuple[
-        OperatorBase, OperatorBase, OperatorBase, OperatorBase]]:
+    def get_indicator_functions(
+        self,
+    ) -> Union[None, Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase]]:
         """
         Returns all turn indicator functions for the bead.
         Returns:
@@ -47,5 +49,9 @@ class BaseBead(ABC):
         """
         if self.turn_qubits is None:
             return None
-        return self._turn_indicator_fun_0, self._turn_indicator_fun_1, \
-               self._turn_indicator_fun_2, self._turn_indicator_fun_3
+        return (
+            self._turn_indicator_fun_0,
+            self._turn_indicator_fun_1,
+            self._turn_indicator_fun_2,
+            self._turn_indicator_fun_3,
+        )

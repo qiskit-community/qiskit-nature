@@ -12,23 +12,33 @@
 """A class defining a side chain of a peptide."""
 from typing import List, Union
 
-from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
-    InvalidSideChainException
+from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
+    InvalidSideChainException,
+)
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.side_bead import SideBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain import BaseChain
 
 
 class SideChain(BaseChain):
-
-    def __init__(self, main_chain_len: int, main_bead_id: int, side_chain_len: int,
-                 side_chain_residue_sequences: List[str]):
-        beads_list = self._build_side_chain(main_chain_len, main_bead_id, side_chain_len,
-                                            side_chain_residue_sequences)
+    def __init__(
+        self,
+        main_chain_len: int,
+        main_bead_id: int,
+        side_chain_len: int,
+        side_chain_residue_sequences: List[str],
+    ):
+        beads_list = self._build_side_chain(
+            main_chain_len, main_bead_id, side_chain_len, side_chain_residue_sequences
+        )
         super().__init__(beads_list)
 
-    def _build_side_chain(self, main_chain_len: int, main_bead_id: int, side_chain_len: int,
-                          side_chain_residue_sequences: List[str]) -> \
-            Union[List[SideBead], None]:
+    def _build_side_chain(
+        self,
+        main_chain_len: int,
+        main_bead_id: int,
+        side_chain_len: int,
+        side_chain_residue_sequences: List[str],
+    ) -> Union[List[SideBead], None]:
         """
         Creates a side chain for a given main bead.
         Args:
@@ -43,15 +53,19 @@ class SideChain(BaseChain):
         """
         if side_chain_len > 1:
             raise InvalidSideChainException(
-                f"Only side chains of length 1 supported, length {side_chain_len} was given.")
+                f"Only side chains of length 1 supported, length {side_chain_len} was given."
+            )
         if side_chain_len == 0:
             return None
         side_chain = []
         for side_bead_id in range(side_chain_len):
             bead_turn_qubit_1 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id)
             bead_turn_qubit_2 = self._build_turn_qubit(main_chain_len, 2 * main_bead_id + 1)
-            side_bead = SideBead(main_bead_id, side_bead_id,
-                                 side_chain_residue_sequences[side_bead_id],
-                                 [bead_turn_qubit_1, bead_turn_qubit_2])
+            side_bead = SideBead(
+                main_bead_id,
+                side_bead_id,
+                side_chain_residue_sequences[side_bead_id],
+                [bead_turn_qubit_1, bead_turn_qubit_2],
+            )
             side_chain.append(side_bead)
         return side_chain

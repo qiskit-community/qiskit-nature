@@ -14,7 +14,6 @@ from abc import ABC, abstractmethod
 
 
 class SamplingQubitOpBuilder(ABC):
-
     @abstractmethod
     def build_qubit_op(self):
         pass

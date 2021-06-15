@@ -15,13 +15,13 @@ from typing import List
 import numpy as np
 
 from problems.sampling.protein_folding.residue_validator import _validate_residue_sequence
-from qiskit_nature.problems.sampling.protein_folding.data_loaders.energy_matrix_loader import \
-    _load_energy_matrix_file
+from qiskit_nature.problems.sampling.protein_folding.data_loaders.energy_matrix_loader import (
+    _load_energy_matrix_file,
+)
 from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction
 
 
 class MixedInteraction(Interaction):
-
     def __init__(self, additional_energies=None):
         self.additional_energies = additional_energies
 

@@ -24,8 +24,9 @@ class TestPeptide(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None]
 
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
 
         side_chain_hot_vector = peptide.get_side_chain_hot_vector()
 
@@ -43,8 +44,9 @@ class TestPeptide(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 0, 0, 1, 0, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", None, "A", None]
 
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
 
         side_chain_hot_vector = peptide.get_side_chain_hot_vector()
 

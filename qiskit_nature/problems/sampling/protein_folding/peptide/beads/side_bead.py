@@ -19,9 +19,9 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead imp
 
 
 class SideBead(BaseBead):
-
-    def __init__(self, main_index: int, side_index: int, residue_type: str,
-                 turn_qubits: List[PauliOp]):
+    def __init__(
+        self, main_index: int, side_index: int, residue_type: str, turn_qubits: List[PauliOp]
+    ):
         super().__init__("side_chain", main_index, residue_type, turn_qubits)
         self.side_index = side_index
         if self._residue_type is not None and self.turn_qubits is not None:
@@ -32,29 +32,34 @@ class SideBead(BaseBead):
             self._turn_indicator_fun_3 = self._build_turn_indicator_fun_3(full_id)
 
     def __str__(self):
-        return self.chain_type + "_" + str(self.side_index) + "_main_chain_ind_" + str(self.main_index)
+        return (
+            self.chain_type + "_" + str(self.side_index) + "_main_chain_ind_" + str(self.main_index)
+        )
 
     def __hash__(self):
         return hash(str(self))
 
     def __eq__(self, other):
-        return self.main_index == other.main_index and self.side_index == other.main_index and \
-               self.chain_type == other.chain_type
+        return (
+            self.main_index == other.main_index
+            and self.side_index == other.main_index
+            and self.chain_type == other.chain_type
+        )
 
     def _build_turn_indicator_fun_0(self, full_id):
         return (
-                ((full_id - self._turn_qubits[0]) @ (
-                        full_id - self._turn_qubits[1])) ^ full_id).reduce()
+            ((full_id - self._turn_qubits[0]) @ (full_id - self._turn_qubits[1])) ^ full_id
+        ).reduce()
 
     def _build_turn_indicator_fun_1(self, full_id):
         return (
-                (self._turn_qubits[1] @ (
-                        self._turn_qubits[1] - self._turn_qubits[0])) ^ full_id).reduce()
+            (self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0])) ^ full_id
+        ).reduce()
 
     def _build_turn_indicator_fun_2(self, full_id):
         return (
-                (self._turn_qubits[0] @ (
-                        self._turn_qubits[0] - self._turn_qubits[1])) ^ full_id).reduce()
+            (self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1])) ^ full_id
+        ).reduce()
 
     def _build_turn_indicator_fun_3(self, full_id):
         return (self._turn_qubits[0] @ self._turn_qubits[1] ^ full_id).reduce()

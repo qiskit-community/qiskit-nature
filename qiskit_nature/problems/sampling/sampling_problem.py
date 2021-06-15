@@ -14,7 +14,6 @@ from abc import ABC, abstractmethod
 
 
 class SamplingProblem(ABC):
-
     @abstractmethod
     def qubit_op(self):
         pass

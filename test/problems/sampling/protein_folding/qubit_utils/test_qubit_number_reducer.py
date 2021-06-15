@@ -11,9 +11,10 @@
 # that they have been altered from the originals.
 """Tests QubitNumberReducer."""
 from test import QiskitNatureTestCase
-from problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import \
-    _find_unused_qubits, \
-    _remove_unused_qubits
+from problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import (
+    _find_unused_qubits,
+    _remove_unused_qubits,
+)
 from qiskit.opflow import I, Z
 
 
@@ -69,7 +70,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         Tests that unused qubits are found correctly.
         """
-        operator = (I ^ I ^ I ^ Z ^ I)
+        operator = I ^ I ^ I ^ Z ^ I
         unused = _find_unused_qubits(operator)
         expected = [0, 2, 3, 4]
         assert unused == expected
@@ -103,7 +104,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         Tests that unused qubits are found correctly.
         """
-        operator = (I ^ I ^ I ^ Z ^ I)
+        operator = I ^ I ^ I ^ Z ^ I
         reduced = _remove_unused_qubits(operator)
         assert reduced == 1.0 * (Z)
 
@@ -111,6 +112,6 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         Tests that unused qubits are found correctly.
         """
-        operator = (I ^ Z ^ I ^ Z ^ I)
+        operator = I ^ Z ^ I ^ Z ^ I
         reduced = _remove_unused_qubits(operator)
         assert reduced == 1.0 * (Z ^ Z)

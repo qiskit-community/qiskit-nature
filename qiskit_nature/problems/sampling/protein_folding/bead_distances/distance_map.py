@@ -10,13 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores distances between beads of a peptide as qubit operators."""
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import \
-    _create_distance_qubits
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import (
+    _create_distance_qubits,
+)
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
 class DistanceMap:
-
     def __init__(self, peptide: Peptide):
         self._peptide = peptide
         self._distance_map, self.num_distances = _create_distance_qubits(peptide)

@@ -15,13 +15,13 @@ from typing import List
 import numpy as np
 
 from problems.sampling.protein_folding.residue_validator import _validate_residue_sequence
-from qiskit_nature.problems.sampling.protein_folding.data_loaders.energy_matrix_loader import \
-    _load_energy_matrix_file
+from qiskit_nature.problems.sampling.protein_folding.data_loaders.energy_matrix_loader import (
+    _load_energy_matrix_file,
+)
 from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction
 
 
 class MiyazawaJerniganInteraction(Interaction):
-
     def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]):
         """
         Calculates an energy matrix for a Miyazawa-Jernigan interaction based on the

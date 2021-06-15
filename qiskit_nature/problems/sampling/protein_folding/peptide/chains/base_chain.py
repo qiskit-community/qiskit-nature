@@ -16,12 +16,13 @@ from typing import List
 from qiskit.opflow import PauliOp
 
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
-from qiskit_nature.problems.sampling.protein_folding.peptide.pauli_ops_builder import \
-    _build_full_identity, _build_pauli_z_op
+from qiskit_nature.problems.sampling.protein_folding.peptide.pauli_ops_builder import (
+    _build_full_identity,
+    _build_pauli_z_op,
+)
 
 
 class BaseChain(ABC):
-
     def __init__(self, beads_list: List[BaseBead]):
         self._beads_list = beads_list
 
@@ -61,5 +62,6 @@ class BaseChain(ABC):
         """
         num_turn_qubits = 2 * (chain_len - 1)
         norm_factor = 0.5
-        return norm_factor * _build_full_identity(num_turn_qubits) - norm_factor * _build_pauli_z_op(
-            num_turn_qubits, [bead_id])
+        return norm_factor * _build_full_identity(
+            num_turn_qubits
+        ) - norm_factor * _build_pauli_z_op(num_turn_qubits, [bead_id])

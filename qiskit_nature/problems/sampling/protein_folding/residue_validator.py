@@ -12,8 +12,9 @@
 """Validates protein residues provided."""
 from typing import List
 
-from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
-    InvalidResidueException
+from problems.sampling.protein_folding.exceptions.invalid_residue_exception import (
+    InvalidResidueException,
+)
 
 
 def _validate_residue_sequence(residue_sequence: List[str]):
@@ -38,9 +39,30 @@ def _validate_residue_symbol(residue_symbol: str):
     Throws:
         InvalidResidueException: if a symbol provided is not legal.
     """
-    valid_residues = ['C', 'M', 'F', 'I', 'L', 'V', 'W', 'Y', 'A', 'G', 'T', 'S', 'N', 'Q', 'D',
-                      'E', 'H', 'R', 'K', 'P']
+    valid_residues = [
+        "C",
+        "M",
+        "F",
+        "I",
+        "L",
+        "V",
+        "W",
+        "Y",
+        "A",
+        "G",
+        "T",
+        "S",
+        "N",
+        "Q",
+        "D",
+        "E",
+        "H",
+        "R",
+        "K",
+        "P",
+    ]
     if residue_symbol is not None and residue_symbol not in valid_residues:
         raise InvalidResidueException(
             f"Provided residue type {residue_symbol} is not valid. Valid residue types are [C, "
-            f"M, F, I, L, V, W, Y, A, G, T, S, N, Q, D, E, H, R, K, P].")
+            f"M, F, I, L, V, W, Y, A, G, T, S, N, Q, D, E, H, R, K, P]."
+        )

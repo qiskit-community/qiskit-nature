@@ -16,11 +16,14 @@ from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.bead_contacts import contact_map_builder
 from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, \
-    _second_neighbor
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import (
+    _first_neighbor,
+    _second_neighbor,
+)
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
-from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
-    MiyazawaJerniganInteraction
+from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
+    MiyazawaJerniganInteraction,
+)
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
@@ -35,10 +38,16 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         main_chain_len = 5
         side_chains = [0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", None]
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
-                          side_chain_residue_sequences)
-        lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-        lower_side_upper_side, r_contact = contact_map_builder._create_contact_qubits(peptide)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chains, side_chain_residue_sequences
+        )
+        (
+            lower_main_upper_main,
+            lower_side_upper_main,
+            lower_main_upper_side,
+            lower_side_upper_side,
+            r_contact,
+        ) = contact_map_builder._create_contact_qubits(peptide)
 
         assert lower_main_upper_main == {}
         assert lower_side_upper_main == {}
@@ -54,23 +63,33 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         main_chain_len = 6
         side_chains = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "S", None]
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
-                          side_chain_residue_sequences)
-        lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-        lower_side_upper_side, r_contact = contact_map_builder._create_contact_qubits(peptide)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chains, side_chain_residue_sequences
+        )
+        (
+            lower_main_upper_main,
+            lower_side_upper_main,
+            lower_main_upper_side,
+            lower_side_upper_side,
+            r_contact,
+        ) = contact_map_builder._create_contact_qubits(peptide)
 
-        assert lower_main_upper_main == {1: {6: 0.5 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                I) - 0.5 * (
-                                                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                                                        ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^
-                                                        Z)}}
-        assert lower_side_upper_main == {1: {5: 0.5 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                I) - 0.5 * (
-                                                        I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I
-                                                        ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                                                        Z)}}
+        assert lower_main_upper_main == {
+            1: {
+                6: 0.5
+                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                - 0.5
+                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
+            }
+        }
+        assert lower_side_upper_main == {
+            1: {
+                5: 0.5
+                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                - 0.5
+                * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
+            }
+        }
         assert lower_main_upper_side == {}
         assert lower_side_upper_side == {}
         assert r_contact == 2
@@ -84,10 +103,16 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         main_chain_len = 7
         side_chains = [0, 0, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "S", "A", None]
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chains,
-                          side_chain_residue_sequences)
-        lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-        lower_side_upper_side, r_contact = contact_map_builder._create_contact_qubits(peptide)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chains, side_chain_residue_sequences
+        )
+        (
+            lower_main_upper_main,
+            lower_side_upper_main,
+            lower_main_upper_side,
+            lower_side_upper_side,
+            r_contact,
+        ) = contact_map_builder._create_contact_qubits(peptide)
 
         # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
         # - 0.5 * IIIIIIIIIIIIIIIIIIZIIIIZ
@@ -128,28 +153,29 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]
 
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
         contact_map = ContactMap(peptide)
         new_qubits = contact_map.create_peptide_qubit_list()
 
         assert len(new_qubits) == 6
         assert new_qubits[0] == 0
         assert new_qubits[1] == 0.5 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+        ) - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
         assert new_qubits[2] == 0.5 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                       I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+        ) - 0.5 * (I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
         assert new_qubits[3] == 0.5 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                       I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+        ) - 0.5 * (I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
         assert new_qubits[4] == 0.5 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+        ) - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
         assert new_qubits[5] == 0.5 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.5 * (
-                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+        ) - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
 
     def test_first_neighbor(self):
         """
@@ -161,8 +187,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "S", "S", None]
 
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
         mj_interaction = MiyazawaJerniganInteraction()
         pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         lambda_1 = 2
@@ -171,15 +198,20 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
         x_dist = DistanceMap(peptide)
-        expr = _first_neighbor(peptide, lower_main_bead_index, side_chain_upper_main_bead,
-                               upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
-                               pair_energies, x_dist)
+        expr = _first_neighbor(
+            peptide,
+            lower_main_bead_index,
+            side_chain_upper_main_bead,
+            upper_main_bead_index,
+            side_chain_lower_main_bead,
+            lambda_1,
+            pair_energies,
+            x_dist,
+        )
 
         assert expr == 168.0 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^
-                I) + 56.0 * (
-                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                       ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+        ) + 56.0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
 
     def test_first_neighbor_side(self):
         """
@@ -191,8 +223,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "S", "S", None]
 
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
         mj_interaction = MiyazawaJerniganInteraction()
         pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         lambda_1 = 2
@@ -201,9 +234,16 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_lower_main_bead = 1
         side_chain_upper_main_bead = 1
         x_dist = DistanceMap(peptide)
-        expr = _first_neighbor(peptide, lower_main_bead_index, side_chain_upper_main_bead,
-                               upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
-                               pair_energies, x_dist)
+        expr = _first_neighbor(
+            peptide,
+            lower_main_bead_index,
+            side_chain_upper_main_bead,
+            upper_main_bead_index,
+            side_chain_lower_main_bead,
+            lambda_1,
+            pair_energies,
+            x_dist,
+        )
 
         print(expr)
         # 84.0 * IIIIIIIIIIIIIIIIIIII
@@ -236,17 +276,25 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         side_chain_residue_sequences = [None, None, "A", None, None]
         pair_energies = np.zeros((main_chain_len, 2, main_chain_len, 2))
 
-        peptide = Peptide(main_chain_len, main_chain_residue_seq, side_chain_lens,
-                          side_chain_residue_sequences)
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
         lambda_1 = 2
         lower_main_bead_index = 1
         upper_main_bead_index = 4
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
         x_dist = DistanceMap(peptide)
-        expr = _second_neighbor(peptide, lower_main_bead_index, side_chain_upper_main_bead,
-                                upper_main_bead_index, side_chain_lower_main_bead, lambda_1,
-                                pair_energies, x_dist)
+        expr = _second_neighbor(
+            peptide,
+            lower_main_bead_index,
+            side_chain_upper_main_bead,
+            upper_main_bead_index,
+            side_chain_lower_main_bead,
+            lambda_1,
+            pair_energies,
+            x_dist,
+        )
         assert expr == -4.0 * (
-                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 2.0 * (
-                       I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
+        ) - 2.0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)

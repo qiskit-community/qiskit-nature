@@ -27,29 +27,36 @@ class TestMainBead(QiskitNatureTestCase):
         num_turn_qubits = 2 * (main_chain_len - 1)
         main_bead_id = 3
         residue_type = "S"
-        turn_qubits = [0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ Z ^ I ^ I ^ I ^ I),
-                       0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (Z ^ I ^ I ^ I ^ I ^ I)]
+        turn_qubits = [
+            0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ Z ^ I ^ I ^ I ^ I),
+            0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (Z ^ I ^ I ^ I ^ I ^ I),
+        ]
         side_chain_len = 1
         side_chain_residue_sequences = ["S"]
-        side_chain = SideChain(main_chain_len, main_bead_id, side_chain_len,
-                               side_chain_residue_sequences)
+        side_chain = SideChain(
+            main_chain_len, main_bead_id, side_chain_len, side_chain_residue_sequences
+        )
         main_bead = MainBead(main_bead_id, residue_type, turn_qubits, side_chain)
 
         assert main_bead.side_chain == side_chain
         indic_0, indic_1, indic_2, indic_3 = main_bead.get_indicator_functions()
         assert indic_0 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) + 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+        ) + 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) + 0.25 * (
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        )
         assert indic_1 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) - 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+        ) + 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) - 0.25 * (
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        )
         assert indic_2 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) - 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+        ) - 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) - 0.25 * (
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        )
         assert indic_3 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) + 0.25 * (
-                           I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I)
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
+        ) - 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) + 0.25 * (
+            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        )

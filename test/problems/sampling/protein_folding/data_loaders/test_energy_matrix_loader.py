@@ -11,8 +11,9 @@
 # that they have been altered from the originals.
 """Tests EnergyMatrixLoader."""
 from test import QiskitNatureTestCase
-from qiskit_nature.problems.sampling.protein_folding.data_loaders.energy_matrix_loader import \
-    _load_energy_matrix_file
+from qiskit_nature.problems.sampling.protein_folding.data_loaders.energy_matrix_loader import (
+    _load_energy_matrix_file,
+)
 
 
 class TestEnergyMatrixLoader(QiskitNatureTestCase):
@@ -23,5 +24,25 @@ class TestEnergyMatrixLoader(QiskitNatureTestCase):
         energy_matrix, list_aa = _load_energy_matrix_file()
         assert energy_matrix[0][0] == -5.44
         assert energy_matrix[2][3] == -6.84
-        assert list_aa == ['C', 'M', 'F', 'I', 'L', 'V', 'W', 'Y', 'A', 'G', 'T', 'S', 'N', 'Q',
-                           'D', 'E', 'H', 'R', 'K', 'P']
+        assert list_aa == [
+            "C",
+            "M",
+            "F",
+            "I",
+            "L",
+            "V",
+            "W",
+            "Y",
+            "A",
+            "G",
+            "T",
+            "S",
+            "N",
+            "Q",
+            "D",
+            "E",
+            "H",
+            "R",
+            "K",
+            "P",
+        ]

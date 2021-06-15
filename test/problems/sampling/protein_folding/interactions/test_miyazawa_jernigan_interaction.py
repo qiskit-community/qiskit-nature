@@ -11,11 +11,12 @@
 # that they have been altered from the originals.
 """Tests MiyazawaJerniganInteraction."""
 from test import QiskitNatureTestCase
-from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
-    InvalidResidueException
-from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction \
-    import \
-    MiyazawaJerniganInteraction
+from problems.sampling.protein_folding.exceptions.invalid_residue_exception import (
+    InvalidResidueException,
+)
+from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
+    MiyazawaJerniganInteraction,
+)
 
 
 class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
@@ -25,7 +26,7 @@ class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
         """Tests that energy matrix is calculated correctly."""
         interaction = MiyazawaJerniganInteraction()
         num_beads = 3
-        sequence = ["A","A","A"]
+        sequence = ["A", "A", "A"]
         energy_matrix = interaction.calc_energy_matrix(num_beads, sequence)
 
         assert len(energy_matrix) == num_beads + 1
@@ -35,7 +36,7 @@ class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
         """Tests that an exception is thrown when an invalid residue is provided."""
         interaction = MiyazawaJerniganInteraction()
         num_beads = 3
-        sequence = ["A","A","B"]
+        sequence = ["A", "A", "B"]
 
         with self.assertRaises(InvalidResidueException):
             _ = interaction.calc_energy_matrix(num_beads, sequence)

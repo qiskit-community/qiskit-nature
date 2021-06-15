@@ -15,11 +15,14 @@ from typing import List, Union
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
 from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, \
-    _second_neighbor
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import (
+    _first_neighbor,
+    _second_neighbor,
+)
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
-from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
-    InvalidSideChainException
+from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
+    InvalidSideChainException,
+)
 from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
 from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
@@ -29,28 +32,33 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 
 
 # TODO link to a SamplingQubitOpBuilder interface
-def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]]],
-                    penalty_parameters: PenaltyParameters, n_contacts) -> Union[
-    PauliSumOp, PauliOp]:
+def _build_qubit_op(
+    peptide: Peptide,
+    pair_energies: List[List[List[List[float]]]],
+    penalty_parameters: PenaltyParameters,
+    n_contacts,
+) -> Union[PauliSumOp, PauliOp]:
     """
-        Builds a qubit operator for a total Hamiltonian for a protein folding problem. It includes
-        8 terms responsible for chirality, geometry and nearest neighbours interactions.
+    Builds a qubit operator for a total Hamiltonian for a protein folding problem. It includes
+    8 terms responsible for chirality, geometry and nearest neighbours interactions.
 
-        Args:
-            peptide: A Peptide object that includes all information about a protein.
-            pair_energies: Numpy array of pair energies for amino acids.
-            penalty_parameters: A PenaltyParameters object storing the values of all penalty
-                                parameters.
-            n_contacts: # TODO
+    Args:
+        peptide: A Peptide object that includes all information about a protein.
+        pair_energies: Numpy array of pair energies for amino acids.
+        penalty_parameters: A PenaltyParameters object storing the values of all penalty
+                            parameters.
+        n_contacts: # TODO
 
 
-        Returns:
-            h_total: A total Hamiltonian for the protein folding problem.
-        """
-    lambda_chiral, lambda_back, lambda_1, lambda_contacts = penalty_parameters.lambda_chiral, \
-                                                            penalty_parameters.lambda_back, \
-                                                            penalty_parameters.lambda_1, \
-                                                            penalty_parameters.lambda_contacts
+    Returns:
+        h_total: A total Hamiltonian for the protein folding problem.
+    """
+    lambda_chiral, lambda_back, lambda_1, lambda_contacts = (
+        penalty_parameters.lambda_chiral,
+        penalty_parameters.lambda_back,
+        penalty_parameters.lambda_1,
+        penalty_parameters.lambda_contacts,
+    )
     side_chain = peptide.get_side_chain_hot_vector()
     main_chain_len = len(peptide.get_main_chain)
 
@@ -59,7 +67,8 @@ def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]
     if side_chain[0] == 1 or side_chain[-1] == 1 or side_chain[1] == 1:
         raise InvalidSideChainException(
             "First, second and last main beads are not allowed to have a side chain. Non-None "
-            "residue provided for an invalid side chain")
+            "residue provided for an invalid side chain"
+        )
 
     distance_map = DistanceMap(peptide)
     h_chiral = _create_h_chiral(peptide, lambda_chiral)
@@ -67,14 +76,14 @@ def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]
 
     contact_map = ContactMap(peptide)
 
-    h_scsc = _create_h_scsc(peptide, lambda_1,
-                            pair_energies, distance_map, contact_map)
+    h_scsc = _create_h_scsc(peptide, lambda_1, pair_energies, distance_map, contact_map)
     h_bbbb = _create_h_bbbb(peptide, lambda_1, pair_energies, distance_map, contact_map)
 
     h_short = _create_h_short(peptide, pair_energies)
 
-    h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(peptide, lambda_1,
-                                               pair_energies, distance_map, contact_map)
+    h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(
+        peptide, lambda_1, pair_energies, distance_map, contact_map
+    )
     h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
 
     h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
@@ -84,41 +93,52 @@ def _build_qubit_op(peptide: Peptide, pair_energies: List[List[List[List[float]]
 
 def _create_turn_operators(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
     """
-        Creates a qubit operator for consecutive turns.
+    Creates a qubit operator for consecutive turns.
 
-        Args:
-            lower_bead: A bead with a smaller index in the chain.
-            upper_bead: A bead with a bigger index in the chain.
+    Args:
+        lower_bead: A bead with a smaller index in the chain.
+        upper_bead: A bead with a bigger index in the chain.
 
-        Returns:
-            turns_operator: A qubit operator for consecutive turns.
-        """
-    lower_bead_indic_0, lower_bead_indic_1, lower_bead_indic_2, lower_bead_indic_3 = \
-        lower_bead.get_indicator_functions()
+    Returns:
+        turns_operator: A qubit operator for consecutive turns.
+    """
+    (
+        lower_bead_indic_0,
+        lower_bead_indic_1,
+        lower_bead_indic_2,
+        lower_bead_indic_3,
+    ) = lower_bead.get_indicator_functions()
 
-    upper_bead_indic_0, upper_bead_indic_1, upper_bead_indic_2, upper_bead_indic_3 = \
-        upper_bead.get_indicator_functions()
+    (
+        upper_bead_indic_0,
+        upper_bead_indic_1,
+        upper_bead_indic_2,
+        upper_bead_indic_3,
+    ) = upper_bead.get_indicator_functions()
 
     turns_operator = _fix_qubits(
-        lower_bead_indic_0 @ upper_bead_indic_0 + lower_bead_indic_1 @ upper_bead_indic_1 + \
-        lower_bead_indic_2 @ upper_bead_indic_2 + lower_bead_indic_3 @ upper_bead_indic_3)
+        lower_bead_indic_0 @ upper_bead_indic_0
+        + lower_bead_indic_1 @ upper_bead_indic_1
+        + lower_bead_indic_2 @ upper_bead_indic_2
+        + lower_bead_indic_3 @ upper_bead_indic_3
+    )
     return turns_operator
 
 
 def _create_h_back(peptide: Peptide, lambda_back: float) -> Union[PauliSumOp, PauliOp]:
     """
-        Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns
-        (N - 1) along the same axis are penalized by a factor, lambda_back. Note,
-        that the first two turns are omitted.
+    Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns
+    (N - 1) along the same axis are penalized by a factor, lambda_back. Note,
+    that the first two turns are omitted.
 
-        Args:
-            N: Number of total beads in peptide.
-            lambda_back: Constrain that penalizes turns along the same axis.
+    Args:
+        N: Number of total beads in peptide.
+        lambda_back: Constrain that penalizes turns along the same axis.
 
-        Returns:
-            H_back: Contribution to Hamiltonian in symbolic notation that penalizes
-                    consecutive turns along the same axis
-        """
+    Returns:
+        H_back: Contribution to Hamiltonian in symbolic notation that penalizes
+                consecutive turns along the same axis
+    """
 
     main_chain = peptide.get_main_chain
     h_back = 0
@@ -159,53 +179,110 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
 
         lower_main_bead = main_chain[i - 2]
 
-        lower_main_bead_indic_0, lower_main_bead_indic_1, lower_main_bead_indic_2, \
-        lower_main_bead_indic_3 = \
-            lower_main_bead.get_indicator_functions()
+        (
+            lower_main_bead_indic_0,
+            lower_main_bead_indic_1,
+            lower_main_bead_indic_2,
+            lower_main_bead_indic_3,
+        ) = lower_main_bead.get_indicator_functions()
 
-        upper_main_bead_indic_0, upper_main_bead_indic_1, upper_main_bead_indic_2, \
-        upper_main_bead_indic_3 = \
-            upper_main_bead.get_indicator_functions()
-        upper_side_bead_indic_0, upper_side_bead_indic_1, upper_side_bead_indic_2, \
-        upper_side_bead_indic_3 = \
-            upper_side_bead.get_indicator_functions()
+        (
+            upper_main_bead_indic_0,
+            upper_main_bead_indic_1,
+            upper_main_bead_indic_2,
+            upper_main_bead_indic_3,
+        ) = upper_main_bead.get_indicator_functions()
+        (
+            upper_side_bead_indic_0,
+            upper_side_bead_indic_1,
+            upper_side_bead_indic_2,
+            upper_side_bead_indic_3,
+        ) = upper_side_bead.get_indicator_functions()
 
         turn_coeff = int((1 - (-1) ** i) / 2)
-        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_0) @ ((1 - turn_coeff) * (
-                lower_main_bead_indic_1 @ upper_main_bead_indic_2 + lower_main_bead_indic_2 @
-                upper_main_bead_indic_3 +
-                lower_main_bead_indic_3 @ upper_main_bead_indic_1) + turn_coeff * (
-                                                                                   lower_main_bead_indic_2 @ upper_main_bead_indic_1 +
-                                                                                   lower_main_bead_indic_3 @ upper_main_bead_indic_2 +
-                                                                                   lower_main_bead_indic_1 @ upper_main_bead_indic_3))
-        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_1) @ ((1 - turn_coeff) * (
-                lower_main_bead_indic_0 @ upper_main_bead_indic_3 + lower_main_bead_indic_2 @
-                upper_main_bead_indic_0 +
-                lower_main_bead_indic_3 @ upper_main_bead_indic_2) + turn_coeff * (
-                                                                                   lower_main_bead_indic_3 @ upper_main_bead_indic_0 +
-                                                                                   lower_main_bead_indic_0 @ upper_main_bead_indic_2 +
-                                                                                   lower_main_bead_indic_2 @ upper_main_bead_indic_3))
-        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_2) @ ((1 - turn_coeff) * (
-                lower_main_bead_indic_0 @ upper_main_bead_indic_1 + lower_main_bead_indic_1 @
-                upper_main_bead_indic_3 +
-                lower_main_bead_indic_3 @ upper_main_bead_indic_0) + turn_coeff * (
-                                                                                   lower_main_bead_indic_1 @ upper_main_bead_indic_0 +
-                                                                                   lower_main_bead_indic_3 @ upper_main_bead_indic_1 +
-                                                                                   lower_main_bead_indic_0 @ upper_main_bead_indic_3))
-        h_chiral += lambda_chiral * (full_id - upper_side_bead_indic_3) @ ((1 - turn_coeff) * (
-                lower_main_bead_indic_0 @ upper_main_bead_indic_2 + lower_main_bead_indic_1 @
-                upper_main_bead_indic_0 +
-                lower_main_bead_indic_2 @ upper_main_bead_indic_1) + turn_coeff * (
-                                                                                   lower_main_bead_indic_2 @ upper_main_bead_indic_0 +
-                                                                                   lower_main_bead_indic_0 @ upper_main_bead_indic_1 +
-                                                                                   lower_main_bead_indic_1 @ upper_main_bead_indic_2))
+        h_chiral += (
+            lambda_chiral
+            * (full_id - upper_side_bead_indic_0)
+            @ (
+                (1 - turn_coeff)
+                * (
+                    lower_main_bead_indic_1 @ upper_main_bead_indic_2
+                    + lower_main_bead_indic_2 @ upper_main_bead_indic_3
+                    + lower_main_bead_indic_3 @ upper_main_bead_indic_1
+                )
+                + turn_coeff
+                * (
+                    lower_main_bead_indic_2 @ upper_main_bead_indic_1
+                    + lower_main_bead_indic_3 @ upper_main_bead_indic_2
+                    + lower_main_bead_indic_1 @ upper_main_bead_indic_3
+                )
+            )
+        )
+        h_chiral += (
+            lambda_chiral
+            * (full_id - upper_side_bead_indic_1)
+            @ (
+                (1 - turn_coeff)
+                * (
+                    lower_main_bead_indic_0 @ upper_main_bead_indic_3
+                    + lower_main_bead_indic_2 @ upper_main_bead_indic_0
+                    + lower_main_bead_indic_3 @ upper_main_bead_indic_2
+                )
+                + turn_coeff
+                * (
+                    lower_main_bead_indic_3 @ upper_main_bead_indic_0
+                    + lower_main_bead_indic_0 @ upper_main_bead_indic_2
+                    + lower_main_bead_indic_2 @ upper_main_bead_indic_3
+                )
+            )
+        )
+        h_chiral += (
+            lambda_chiral
+            * (full_id - upper_side_bead_indic_2)
+            @ (
+                (1 - turn_coeff)
+                * (
+                    lower_main_bead_indic_0 @ upper_main_bead_indic_1
+                    + lower_main_bead_indic_1 @ upper_main_bead_indic_3
+                    + lower_main_bead_indic_3 @ upper_main_bead_indic_0
+                )
+                + turn_coeff
+                * (
+                    lower_main_bead_indic_1 @ upper_main_bead_indic_0
+                    + lower_main_bead_indic_3 @ upper_main_bead_indic_1
+                    + lower_main_bead_indic_0 @ upper_main_bead_indic_3
+                )
+            )
+        )
+        h_chiral += (
+            lambda_chiral
+            * (full_id - upper_side_bead_indic_3)
+            @ (
+                (1 - turn_coeff)
+                * (
+                    lower_main_bead_indic_0 @ upper_main_bead_indic_2
+                    + lower_main_bead_indic_1 @ upper_main_bead_indic_0
+                    + lower_main_bead_indic_2 @ upper_main_bead_indic_1
+                )
+                + turn_coeff
+                * (
+                    lower_main_bead_indic_2 @ upper_main_bead_indic_0
+                    + lower_main_bead_indic_0 @ upper_main_bead_indic_1
+                    + lower_main_bead_indic_1 @ upper_main_bead_indic_2
+                )
+            )
+        )
         h_chiral = _fix_qubits(h_chiral).reduce()
     return h_chiral
 
 
-def _create_h_bbbb(peptide: Peptide, lambda_1: float,
-                   pair_energies: List[List[List[List[float]]]],
-                   distance_map, contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
+def _create_h_bbbb(
+    peptide: Peptide,
+    lambda_1: float,
+    pair_energies: List[List[List[List[float]]]],
+    distance_map,
+    contact_map: ContactMap,
+) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to a 1st neighbor interaction between
     main/backbone (BB) beads.
@@ -229,55 +306,44 @@ def _create_h_bbbb(peptide: Peptide, lambda_1: float,
         for j in range(i + 5, main_chain_len + 1):
             if (j - i) % 2 == 0:
                 continue
-            h_bbbb += contact_map.lower_main_upper_main[i][j] @ _first_neighbor(peptide, i, 0,
-                                                                                j, 0,
-                                                                                lambda_1,
-                                                                                pair_energies,
-                                                                                distance_map)
+            h_bbbb += contact_map.lower_main_upper_main[i][j] @ _first_neighbor(
+                peptide, i, 0, j, 0, lambda_1, pair_energies, distance_map
+            )
             try:
-                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide,
-                                                                                     i - 1, 0,
-                                                                                     j, 0,
-                                                                                     lambda_1,
-                                                                                     pair_energies,
-                                                                                     distance_map)
+                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(
+                    peptide, i - 1, 0, j, 0, lambda_1, pair_energies, distance_map
+                )
             except (IndexError, KeyError):
                 pass
             try:
-                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide,
-                                                                                     i + 1, 0,
-                                                                                     j, 0,
-                                                                                     lambda_1,
-                                                                                     pair_energies,
-                                                                                     distance_map)
+                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(
+                    peptide, i + 1, 0, j, 0, lambda_1, pair_energies, distance_map
+                )
             except (IndexError, KeyError):
                 pass
             try:
-                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i,
-                                                                                     0,
-                                                                                     j - 1, 0,
-                                                                                     lambda_1,
-                                                                                     pair_energies,
-                                                                                     distance_map)
+                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(
+                    peptide, i, 0, j - 1, 0, lambda_1, pair_energies, distance_map
+                )
             except (IndexError, KeyError):
                 pass
             try:
-                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(peptide, i,
-                                                                                     0,
-                                                                                     j + 1, 0,
-                                                                                     lambda_1,
-                                                                                     pair_energies,
-                                                                                     distance_map)
+                h_bbbb += contact_map.lower_main_upper_main[i][j] @ _second_neighbor(
+                    peptide, i, 0, j + 1, 0, lambda_1, pair_energies, distance_map
+                )
             except (IndexError, KeyError):
                 pass
             h_bbbb = _fix_qubits(h_bbbb).reduce()
     return h_bbbb
 
 
-def _create_h_bbsc_and_h_scbb(peptide: Peptide, lambda_1: float,
-                              pair_energies: List[List[List[List[float]]]],
-                              distance_map: DistanceMap,
-                              contact_map: ContactMap) -> Union[PauliSumOp, PauliOp]:
+def _create_h_bbsc_and_h_scbb(
+    peptide: Peptide,
+    lambda_1: float,
+    pair_energies: List[List[List[List[float]]]],
+    distance_map: DistanceMap,
+    contact_map: ContactMap,
+) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
     main/backbone (BB) and side chain (SC) beads. In the absence
@@ -307,74 +373,54 @@ def _create_h_bbsc_and_h_scbb(peptide: Peptide, lambda_1: float,
             else:
                 if side_chain[j - 1] == 1:
 
-                    h_bbsc += (contact_map.lower_side_upper_main[i][j] @ (
-                            _first_neighbor(peptide, i, 0, j, 1, lambda_1, pair_energies,
-                                            distance_map) +
-                            _second_neighbor(peptide, i, 0, j, 0, lambda_1, pair_energies,
-                                             distance_map)))
+                    h_bbsc += contact_map.lower_side_upper_main[i][j] @ (
+                        _first_neighbor(peptide, i, 0, j, 1, lambda_1, pair_energies, distance_map)
+                        + _second_neighbor(
+                            peptide, i, 0, j, 0, lambda_1, pair_energies, distance_map
+                        )
+                    )
                     try:
-                        h_bbsc += (contact_map.lower_side_upper_side[i][j] @ _first_neighbor(
-                            peptide, i, 1,
-                            j, 1,
-                            lambda_1,
-                            pair_energies,
-                            distance_map))
+                        h_bbsc += contact_map.lower_side_upper_side[i][j] @ _first_neighbor(
+                            peptide, i, 1, j, 1, lambda_1, pair_energies, distance_map
+                        )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(
-                            peptide, i + 1,
-                            0, j,
-                            1,
-                            lambda_1,
-                            pair_energies,
-                            distance_map))
+                        h_bbsc += contact_map.lower_side_upper_main[i][j] @ _second_neighbor(
+                            peptide, i + 1, 0, j, 1, lambda_1, pair_energies, distance_map
+                        )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_bbsc += (contact_map.lower_side_upper_main[i][j] @ _second_neighbor(
-                            peptide, i - 1,
-                            0, j,
-                            1,
-                            lambda_1,
-                            pair_energies,
-                            distance_map))
+                        h_bbsc += contact_map.lower_side_upper_main[i][j] @ _second_neighbor(
+                            peptide, i - 1, 0, j, 1, lambda_1, pair_energies, distance_map
+                        )
                     except (IndexError, KeyError, TypeError):
                         pass
                     h_bbsc = h_bbsc.reduce()
                 if side_chain[i - 1] == 1:
-                    h_scbb += (contact_map.lower_main_upper_side[i][j] @ (
-                            _first_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies,
-                                            distance_map) +
-                            _second_neighbor(peptide, i, 0, j, 0, lambda_1, pair_energies,
-                                             distance_map)))
+                    h_scbb += contact_map.lower_main_upper_side[i][j] @ (
+                        _first_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies, distance_map)
+                        + _second_neighbor(
+                            peptide, i, 0, j, 0, lambda_1, pair_energies, distance_map
+                        )
+                    )
                     try:
-                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
-                            peptide, i, 1,
-                            j, 1,
-                            lambda_1,
-                            pair_energies,
-                            distance_map))
+                        h_scbb += contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
+                            peptide, i, 1, j, 1, lambda_1, pair_energies, distance_map
+                        )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
-                            peptide, i, 1,
-                            j + 1,
-                            0,
-                            lambda_1,
-                            pair_energies,
-                            distance_map))
+                        h_scbb += contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
+                            peptide, i, 1, j + 1, 0, lambda_1, pair_energies, distance_map
+                        )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
-                        h_scbb += (contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
-                            peptide, i, 1,
-                            j - 1,
-                            0,
-                            lambda_1,
-                            pair_energies,
-                            distance_map))
+                        h_scbb += contact_map.lower_main_upper_side[i][j] @ _second_neighbor(
+                            peptide, i, 1, j - 1, 0, lambda_1, pair_energies, distance_map
+                        )
                     except (IndexError, KeyError, TypeError):
                         pass
                     h_scbb = h_scbb.reduce()
@@ -386,9 +432,13 @@ def _create_h_bbsc_and_h_scbb(peptide: Peptide, lambda_1: float,
     return h_bbsc, h_scbb
 
 
-def _create_h_scsc(peptide: Peptide, lambda_1: float,
-                   pair_energies: List[List[List[List[float]]]], x_dist, contact_map: ContactMap) \
-        -> Union[PauliSumOp, PauliOp]:
+def _create_h_scsc(
+    peptide: Peptide,
+    lambda_1: float,
+    pair_energies: List[List[List[List[float]]]],
+    x_dist,
+    contact_map: ContactMap,
+) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian term corresponding to 1st neighbor interaction between
     side chain (SC) beads. In the absence of side chains, this function
@@ -416,16 +466,17 @@ def _create_h_scsc(peptide: Peptide, lambda_1: float,
             if side_chain[i - 1] == 0 or side_chain[j - 1] == 0:
                 continue
             h_scsc += contact_map.lower_side_upper_side[i][j] @ (
-                    _first_neighbor(peptide, i, 1, j, 1, lambda_1, pair_energies, x_dist) +
-                    _second_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies, x_dist)
-                    +
-                    _second_neighbor(peptide, i, 0, j, 1, lambda_1, pair_energies, x_dist))
+                _first_neighbor(peptide, i, 1, j, 1, lambda_1, pair_energies, x_dist)
+                + _second_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies, x_dist)
+                + _second_neighbor(peptide, i, 0, j, 1, lambda_1, pair_energies, x_dist)
+            )
             h_scsc = h_scsc.reduce()
     return _fix_qubits(h_scsc).reduce()
 
 
-def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]]]) -> Union[
-    PauliSumOp, PauliOp]:
+def _create_h_short(
+    peptide: Peptide, pair_energies: List[List[List[List[float]]]]
+) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian constituting interactions between beads that are no more than
     4 beads apart. If no side chains are present, this function returns 0.
@@ -444,12 +495,16 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
     for i in range(1, main_chain_len - 2):
         # checks interactions between beads no more than 4 beads apart
         if side_chain[i - 1] == 1 and side_chain[i + 2] == 1:
-            op1 = _create_turn_operators(peptide.get_main_chain[i + 1],
-                                         peptide.get_main_chain[i - 1].side_chain[0])
-            op2 = _create_turn_operators(peptide.get_main_chain[i - 1],
-                                         peptide.get_main_chain[i + 2].side_chain[0])
-            coeff = float(pair_energies[i, 1, i + 3, 1] + 0.1 * (
-                    pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1]))
+            op1 = _create_turn_operators(
+                peptide.get_main_chain[i + 1], peptide.get_main_chain[i - 1].side_chain[0]
+            )
+            op2 = _create_turn_operators(
+                peptide.get_main_chain[i - 1], peptide.get_main_chain[i + 2].side_chain[0]
+            )
+            coeff = float(
+                pair_energies[i, 1, i + 3, 1]
+                + 0.1 * (pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1])
+            )
             composed = op1 @ op2
             h_short += (coeff * composed).reduce()
     h_short = _fix_qubits(h_short).reduce()
@@ -458,8 +513,9 @@ def _create_h_short(peptide: Peptide, pair_energies: List[List[List[List[float]]
 
 
 # TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
-def _create_h_contacts(peptide: Peptide, contact_map: ContactMap, lambda_contacts: float,
-                       n_contacts: int = 0) -> Union[PauliSumOp, PauliOp]:
+def _create_h_contacts(
+    peptide: Peptide, contact_map: ContactMap, lambda_contacts: float, n_contacts: int = 0
+) -> Union[PauliSumOp, PauliOp]:
     """
     Creates a Hamiltonian term approximating nearest neighbor interactions and includes energy of
     contacts that are present in system (energy shift). # TODO better description?
@@ -479,7 +535,7 @@ def _create_h_contacts(peptide: Peptide, contact_map: ContactMap, lambda_contact
     main_chain_len = len(peptide.get_main_chain)
     full_id = _build_full_identity(2 * (main_chain_len - 1))
     h_contacts = 0
-    for operator in new_qubits[-contact_map.r_contact:]:
+    for operator in new_qubits[-contact_map.r_contact :]:
         h_contacts += operator
     h_contacts -= n_contacts * (full_id ^ full_id)
     h_contacts = h_contacts ** 2

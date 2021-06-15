@@ -17,8 +17,9 @@ from qiskit.opflow import PauliSumOp, PauliOp
 from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
-def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> Union[
-    PauliSumOp, PauliOp]:
+def _remove_unused_qubits(
+    total_hamiltonian: Union[PauliSumOp, PauliOp]
+) -> Union[PauliSumOp, PauliOp]:
     """
     Removes qubits these from a total Hamiltonian that are equal to an identity operator across
     all terms, i.e. they are irrelevant for the problem. It makes the number of qubits required
@@ -44,8 +45,9 @@ def _remove_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> Unio
 def _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits):
     table_z = total_hamiltonian.primitive.z
     table_x = total_hamiltonian.primitive.x
-    new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
-                                                          unused_qubits)
+    new_table_z, new_table_x = _calc_reduced_pauli_tables(
+        num_qubits, table_x, table_z, unused_qubits
+    )
     total_hamiltonian_compressed = PauliOp(Pauli((new_table_z, new_table_x)))
     return total_hamiltonian_compressed
 
@@ -57,19 +59,22 @@ def _compress_pauli_sum_op(num_qubits, total_hamiltonian, unused_qubits):
         table_z = term.primitive.table.Z[0]
         table_x = term.primitive.table.X[0]
         coeffs = term.primitive.coeffs[0]
-        new_table_z, new_table_x = _calc_reduced_pauli_tables(num_qubits, table_x, table_z,
-                                                              unused_qubits)
+        new_table_z, new_table_x = _calc_reduced_pauli_tables(
+            num_qubits, table_x, table_z, unused_qubits
+        )
         new_table = np.concatenate((new_table_x, new_table_z), axis=0)
         new_tables.append(new_table)
         new_coeffs.append(coeffs)
     new_pauli_table = PauliTable(data=new_tables)
     total_hamiltonian_compressed = PauliSumOp(
-        SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs)).reduce()
+        SparsePauliOp(data=new_pauli_table, coeffs=new_coeffs)
+    ).reduce()
     return total_hamiltonian_compressed
 
 
-def _calc_reduced_pauli_tables(num_qubits: int, table_x, table_z, unused_qubits) -> Tuple[
-    List[bool], List[bool]]:
+def _calc_reduced_pauli_tables(
+    num_qubits: int, table_x, table_z, unused_qubits
+) -> Tuple[List[bool], List[bool]]:
     new_table_z = []
     new_table_x = []
     for ind in range(num_qubits):

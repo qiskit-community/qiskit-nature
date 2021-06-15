@@ -11,8 +11,9 @@
 # that they have been altered from the originals.
 """Tests RandomInteraction."""
 from test import QiskitNatureTestCase
-from qiskit_nature.problems.sampling.protein_folding.interactions.random_interaction import \
-    RandomInteraction
+from qiskit_nature.problems.sampling.protein_folding.interactions.random_interaction import (
+    RandomInteraction,
+)
 
 
 class TestRandomInteraction(QiskitNatureTestCase):

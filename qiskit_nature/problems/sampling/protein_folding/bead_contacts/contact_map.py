@@ -10,18 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores contacts between beads of a peptide as qubit operators."""
-from problems.sampling.protein_folding.bead_contacts.contact_map_builder import \
-    _create_contact_qubits
+from problems.sampling.protein_folding.bead_contacts.contact_map_builder import (
+    _create_contact_qubits,
+)
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
 class ContactMap:
-
     def __init__(self, peptide: Peptide):
         self._peptide = peptide
-        self._lower_main_upper_main, self._lower_side_upper_main, self._lower_main_upper_side, \
-        self._lower_side_upper_side, self.r_contact = _create_contact_qubits(peptide)
+        (
+            self._lower_main_upper_main,
+            self._lower_side_upper_main,
+            self._lower_main_upper_side,
+            self._lower_side_upper_side,
+            self.r_contact,
+        ) = _create_contact_qubits(peptide)
 
     @property
     def peptide(self):
@@ -66,9 +71,11 @@ class ContactMap:
                 old_qubits_conf.append(full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[0])
             if side_chain[q - 1]:
                 old_qubits_conf.append(
-                    self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0] ^ full_id)
+                    self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0] ^ full_id
+                )
                 old_qubits_conf.append(
-                    self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[1] ^ full_id)
+                    self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[1] ^ full_id
+                )
 
         self._add_qubits(main_chain_len, old_qubits_contact, self._lower_main_upper_main)
         self._add_qubits(main_chain_len, old_qubits_contact, self._lower_side_upper_main)

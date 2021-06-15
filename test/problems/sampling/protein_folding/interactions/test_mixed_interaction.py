@@ -11,10 +11,12 @@
 # that they have been altered from the originals.
 """Tests MixedInteraction."""
 from test import QiskitNatureTestCase
-from problems.sampling.protein_folding.exceptions.invalid_residue_exception import \
-    InvalidResidueException
-from qiskit_nature.problems.sampling.protein_folding.interactions.mixed_interaction import \
-    MixedInteraction
+from problems.sampling.protein_folding.exceptions.invalid_residue_exception import (
+    InvalidResidueException,
+)
+from qiskit_nature.problems.sampling.protein_folding.interactions.mixed_interaction import (
+    MixedInteraction,
+)
 
 
 class TestMixedInteraction(QiskitNatureTestCase):
@@ -25,7 +27,7 @@ class TestMixedInteraction(QiskitNatureTestCase):
         additional_energies = None
         interaction = MixedInteraction(additional_energies)
         num_beads = 3
-        sequence = ["A","A","S"]
+        sequence = ["A", "A", "S"]
         energy_matrix = interaction.calc_energy_matrix(num_beads, sequence)
 
         assert len(energy_matrix) == num_beads + 1

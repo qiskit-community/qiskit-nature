@@ -13,9 +13,13 @@
 
 
 class PenaltyParameters:
-
-    def __init__(self, lambda_chiral: float = 10, lambda_back: float = 10, lambda_1: float = 10,
-                 lambda_contacts: float = 10):
+    def __init__(
+        self,
+        lambda_chiral: float = 10,
+        lambda_back: float = 10,
+        lambda_1: float = 10,
+        lambda_contacts: float = 10,
+    ):
         self._lambda_chiral = lambda_chiral
         self._lambda_back = lambda_back
         self._lambda_1 = lambda_1
