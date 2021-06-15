@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import collections
+import logging
 
 from qiskit.opflow import PauliSumOp, OperatorBase
 
@@ -17,6 +18,7 @@ from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_p
     _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 
+logger = logging.getLogger(__name__)
 
 def _create_contact_qubits(peptide: Peptide):
     """
@@ -52,19 +54,19 @@ def _create_contact_qubits(peptide: Peptide):
                         main_chain_len, (
                                 full_id ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1,
                                                                          upper_bead_id - 1])))
-                    print('possible contact between', lower_bead_id, '0 and', upper_bead_id, '0')
+                    logger.info('possible contact between', lower_bead_id, '0 and', upper_bead_id, '0')
                     num_contacts += 1
                 if side_chain[lower_bead_id - 1] and side_chain[upper_bead_id - 1]:
                     lower_side_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                         main_chain_len, (
                                 _build_pauli_z_op(num_qubits, [lower_bead_id - 1,
                                                                upper_bead_id - 1]) ^ full_id))
-                    print('possible contact between', lower_bead_id, '1 and', upper_bead_id, '1')
+                    logger.info('possible contact between', lower_bead_id, '1 and', upper_bead_id, '1')
                     num_contacts += 1
             else:
                 if (upper_bead_id - lower_bead_id) >= 4:
                     if side_chain[upper_bead_id - 1]:
-                        print('possible contact between', lower_bead_id, '0 and', upper_bead_id,
+                        logger.info('possible contact between', lower_bead_id, '0 and', upper_bead_id,
                               '1')
                         main_op = full_id ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1])
                         side_op = _build_pauli_z_op(num_qubits, [upper_bead_id - 1]) ^ full_id
@@ -73,14 +75,14 @@ def _create_contact_qubits(peptide: Peptide):
                         num_contacts += 1
 
                     if side_chain[lower_bead_id - 1]:
-                        print('possible contact between', lower_bead_id, '1 and', upper_bead_id,
+                        logger.info('possible contact between', lower_bead_id, '1 and', upper_bead_id,
                               '0')
                         main_op = full_id ^ _build_pauli_z_op(num_qubits, [upper_bead_id - 1])
                         side_op = _build_pauli_z_op(num_qubits, [lower_bead_id - 1]) ^ full_id
                         lower_main_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                             main_chain_len, (side_op @ main_op))
                         num_contacts += 1
-    print('number of qubits required for contact : ', num_contacts)
+    logger.info('number of qubits required for contact : ', num_contacts)
     return lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
            lower_side_upper_side, num_contacts
 

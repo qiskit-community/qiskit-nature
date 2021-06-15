@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import collections
+import logging
 from typing import List, Union
 
 from qiskit.opflow import PauliSumOp, PauliOp
@@ -18,6 +19,7 @@ from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_f
 from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
+logger = logging.getLogger(__name__)
 
 # TODO refactor the data structure storing distances
 def _create_distance_qubits(peptide: Peptide):
@@ -88,7 +90,7 @@ def _create_distance_qubits(peptide: Peptide):
             except KeyError:
                 pass
 
-    print(num_distances, ' distances created')
+    logger.info(num_distances, ' distances created')
     return distance_map, num_distances
 
 

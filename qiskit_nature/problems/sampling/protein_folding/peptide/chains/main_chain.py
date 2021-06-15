@@ -62,7 +62,7 @@ class MainChain(BaseChain):
                                  [bead_turn_qubit_1, bead_turn_qubit_2],
                                  side_chain)
             main_chain.append(main_bead)
-        main_bead = MainBead(None, None, None, None)
+        main_bead = MainBead(main_chain_len - 1, None, None, None)
         main_chain.append(main_bead)
         return main_chain
 
