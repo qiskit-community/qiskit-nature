@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 from qiskit.opflow import I, Z
 
-from problems.sampling.protein_folding.builders.qubit_number_reducer import _find_unused_qubits, \
+from problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import _find_unused_qubits, \
     _remove_unused_qubits
 from test import QiskitNatureTestCase
 

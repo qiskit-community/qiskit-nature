@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from problems.sampling.protein_folding.builders.contact_qubits_builder import \
+from problems.sampling.protein_folding.bead_contacts.contact_qubits_builder import \
     _create_contact_qubits
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide

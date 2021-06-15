@@ -12,14 +12,10 @@
 import numpy as np
 from qiskit.opflow import I, Z
 
-from problems import LatticeFoldingProblem
-from problems.sampling.folding import folding_qubit_op_builder
-from problems.sampling.folding.folding_qubit_op_builder import _create_pauli_for_conf, \
-    _create_qubits_for_conf, _create_indic_turn, _create_delta_BB, _add_delta_SC, _create_x_dist
-from problems.sampling.protein_folding.builders import contact_qubits_builder
-from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _first_neighbor, _second_neighbor
-from problems.sampling.protein_folding.distance_map import DistanceMap
+from problems.sampling.protein_folding.bead_contacts import contact_qubits_builder
+from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.peptide.peptide import Peptide

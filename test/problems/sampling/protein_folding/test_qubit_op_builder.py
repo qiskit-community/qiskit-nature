@@ -11,16 +11,12 @@
 # that they have been altered from the originals.
 from qiskit.opflow import I, Z, PauliSumOp
 
-from problems import LatticeFoldingProblem
-from problems.sampling.folding.folding_qubit_op_builder import _create_x_dist, _create_H_short, \
-    _create_qubits_for_conf, _create_indic_turn, _create_delta_BB, _add_delta_SC, \
-    _create_pauli_for_conf
-from problems.sampling.protein_folding.builders.qubit_op_builder import _create_h_back, \
+from problems.sampling.protein_folding.qubit_op_builder import _create_h_back, \
     _create_h_chiral, _create_h_bbbb, _create_h_bbsc_and_h_scbb, _create_h_scsc, \
     _create_h_contacts, \
     _build_qubit_op, _create_h_short, _create_turn_operators
-from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_map import DistanceMap
+from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
+from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters

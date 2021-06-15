@@ -13,15 +13,15 @@ from typing import List, Union
 
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
-from problems.sampling.protein_folding.contact_map import ContactMap
-from problems.sampling.protein_folding.distance_calculator import _first_neighbor, _second_neighbor
-from problems.sampling.protein_folding.distance_map import DistanceMap
+from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import _first_neighbor, _second_neighbor
+from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import \
     InvalidSideChainException
 from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
 from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
-from problems.sampling.protein_folding.qubit_fixing import _fix_qubits
+from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 

@@ -14,8 +14,8 @@ from qiskit.opflow import I, Z
 from problems import LatticeFoldingProblem
 from problems.sampling.folding.folding_qubit_op_builder import _create_pauli_for_conf, \
     _create_qubits_for_conf, _create_indic_turn
-from problems.sampling.protein_folding import distance_calculator
-from problems.sampling.protein_folding.distance_map import DistanceMap
+from problems.sampling.protein_folding.bead_distances import distance_map_builder
+from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from test import QiskitNatureTestCase
 
@@ -47,7 +47,7 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         """
         Tests that distances for all beads on the main chain are calculated correctly.
         """
-        delta_n0, delta_n1, delta_n2, delta_n3 = distance_calculator._calc_distances_main_chain(self.peptide)
+        delta_n0, delta_n1, delta_n2, delta_n3 = distance_map_builder._calc_distances_main_chain(self.peptide)
         # checking only some of the entries
         assert delta_n0[1][0][5][0] == 1.25 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
@@ -73,13 +73,13 @@ class TestDistanceCalculator(QiskitNatureTestCase):
         """
         Tests that distances for all beads on side chains are calculated correctly.
         """
-        delta_n0_main, delta_n1_main, delta_n2_main, delta_n3_main = distance_calculator._calc_distances_main_chain(
+        delta_n0_main, delta_n1_main, delta_n2_main, delta_n3_main = distance_map_builder._calc_distances_main_chain(
             self.peptide)
-        delta_n0, delta_n1, delta_n2, delta_n3 = distance_calculator._add_distances_side_chain(self.peptide,
-                                                                           delta_n0_main,
-                                                                           delta_n1_main,
-                                                                           delta_n2_main,
-                                                                           delta_n3_main)
+        delta_n0, delta_n1, delta_n2, delta_n3 = distance_map_builder._add_distances_side_chain(self.peptide,
+                                                                                                delta_n0_main,
+                                                                                                delta_n1_main,
+                                                                                                delta_n2_main,
+                                                                                                delta_n3_main)
 
         assert delta_n0[1][0][3][1] == 0.75 * (
                 I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
