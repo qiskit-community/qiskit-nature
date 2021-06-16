@@ -12,7 +12,7 @@
 
 """FCIDump parser."""
 
-from typing import Any, Dict, Set, Tuple
+from typing import Any, Dict, Set, Tuple, Iterator
 import itertools
 import re
 import numpy as np
@@ -231,6 +231,7 @@ def _permute_2e_ints(
         # then look at permutations of indices within the bra and ket respectively
         bra_perms = set(itertools.permutations(elem[:2]))
         ket_perms = set(itertools.permutations(elem[2:]))
+        permutations: Iterator[Any]
         if beta == 1:
             # generally (ij|ab) != (ab|ij)
             # thus, the possible permutations are much less when the spins differ
