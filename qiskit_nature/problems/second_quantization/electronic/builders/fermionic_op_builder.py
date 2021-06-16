@@ -79,14 +79,11 @@ def _build_ferm_op_helper(
         _create_two_body_base_ops(two_body_integrals) if two_body_integrals is not None else []
     )
     base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
-    initial_label_with_ceoff = ("I" * len(one_body_integrals), 0)
-    # TODO the initial label should be eliminated once QMolecule is refactored (currently
-    #  has_dipole_integrals() checks for None only but zero-matrices happen instead of None and
-    #  initial labels prevents from an empty labels list when building a FermionicOp)
-    base_ops_labels.append(initial_label_with_ceoff)
-    fermionic_op = FermionicOp(base_ops_labels)
 
-    return fermionic_op
+    if base_ops_labels:
+        return FermionicOp(base_ops_labels)
+    else:
+        return FermionicOp(("", 0), register_length=len(one_body_integrals))
 
 
 def _create_one_body_base_ops(
