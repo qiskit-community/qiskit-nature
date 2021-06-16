@@ -15,6 +15,9 @@ from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.side_bead import SideBead
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
+
+PATH = "problems/sampling/protein_folding/resources/test_bead_side"
 
 
 class TestSideBead(QiskitNatureTestCase):
@@ -34,27 +37,34 @@ class TestSideBead(QiskitNatureTestCase):
         side_bead = SideBead(main_chain_id, side_bead_id, residue_type, turn_qubits)
 
         indic_0, indic_1, indic_2, indic_3 = side_bead.get_indicator_functions()
+        expected_path_indic_0 = self.get_resource_path(
+            "test_side_bead_constructor_expected_indic_0",
+            PATH,
+        )
+        expected_indic_0 = read_expected_file(expected_path_indic_0)
 
-        assert indic_0 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) + 0.25 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+        expected_path_indic_1 = self.get_resource_path(
+            "test_side_bead_constructor_expected_indic_1",
+            PATH,
         )
-        assert indic_1 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) + 0.25 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+        expected_indic_1 = read_expected_file(expected_path_indic_1)
+
+        expected_path_indic_2 = self.get_resource_path(
+            "test_side_bead_constructor_expected_indic_2",
+            PATH,
         )
-        assert indic_2 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 0.25 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
+        expected_indic_2 = read_expected_file(expected_path_indic_2)
+
+        expected_path_indic_3 = self.get_resource_path(
+            "test_side_bead_constructor_expected_indic_3",
+            PATH,
         )
-        assert indic_3 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 0.25 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I ^ I ^ I
-        )
+        expected_indic_3 = read_expected_file(expected_path_indic_3)
+
+        assert indic_0 == expected_indic_0
+        assert indic_1 == expected_indic_1
+        assert indic_2 == expected_indic_2
+        assert indic_3 == expected_indic_3
 
     def test_side_bead_constructor_none(self):
         """Tests that a SideBead is created."""

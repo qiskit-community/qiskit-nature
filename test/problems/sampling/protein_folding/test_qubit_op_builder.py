@@ -63,7 +63,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         t_2s3 = _create_turn_operators(side_bead_2, bead_3)
         t_3s4s = _create_turn_operators(side_bead_3, side_bead_4)
 
-        test_files_path = PATH
+        
         expected_path_t23 = self.get_resource_path(
             "test_check_turns_expected_t23",
             PATH,

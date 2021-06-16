@@ -16,6 +16,9 @@ from qiskit.opflow import I, Z
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from qiskit_nature.problems.sampling.protein_folding.peptide.beads.main_bead import MainBead
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain import SideChain
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
+
+PATH = "problems/sampling/protein_folding/resources/test_bead_main"
 
 
 class TestMainBead(QiskitNatureTestCase):
@@ -40,23 +43,31 @@ class TestMainBead(QiskitNatureTestCase):
 
         assert main_bead.side_chain == side_chain
         indic_0, indic_1, indic_2, indic_3 = main_bead.get_indicator_functions()
-        assert indic_0 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-        ) + 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        expected_path_indic_0 = self.get_resource_path(
+            "test_main_bead_constructor_expected_indic_0",
+            PATH,
         )
-        assert indic_1 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-        ) + 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        expected_indic_0 = read_expected_file(expected_path_indic_0)
+
+        expected_path_indic_1 = self.get_resource_path(
+            "test_main_bead_constructor_expected_indic_1",
+            PATH,
         )
-        assert indic_2 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-        ) - 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        expected_indic_1 = read_expected_file(expected_path_indic_1)
+
+        expected_path_indic_2 = self.get_resource_path(
+            "test_main_bead_constructor_expected_indic_2",
+            PATH,
         )
-        assert indic_3 == 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) - 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I
-        ) - 0.25 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I) + 0.25 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ Z ^ Z ^ I ^ I ^ I ^ I
+        expected_indic_2 = read_expected_file(expected_path_indic_2)
+
+        expected_path_indic_3 = self.get_resource_path(
+            "test_main_bead_constructor_expected_indic_3",
+            PATH,
         )
+        expected_indic_3 = read_expected_file(expected_path_indic_3)
+
+        assert indic_0 == expected_indic_0
+        assert indic_1 == expected_indic_1
+        assert indic_2 == expected_indic_2
+        assert indic_3 == expected_indic_3
