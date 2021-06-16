@@ -239,9 +239,11 @@ def _interaction_type(n_number, n_raise, n_lower):
     else:
         raise ValueError("unexpected number of operators")
 
+
 def number_of_modes(fer_op: FermionicOp):
     """Return the number of modes (including identities) in each term `fer_op`"""
     return len(fer_op.to_list()[0][0])
+
 
 def operator_string(term: tuple):
     """
@@ -279,7 +281,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp):
 
 def _add_one_edge(edge_matrix, i, j):
     """
-    Add a edge from lesser index to greater. This maintains the upper triangular structure.
+    Add an edge from lesser index to greater. This maintains the upper triangular structure.
     """
     if i < j:
         edge_matrix[i, j] = True
@@ -528,19 +530,21 @@ def map_fermionic_op(fer_op_qn: FermionicOp):
         term_type, facs = analyze_term(operator_string(term))
         if facs[0][1] == '-': # keep only one of h.c. pair
             continue
-        if term_type == 'excitation':
-            (p, q) = [facs[i][0] for i in range(2)] # p < q always
+        if term_type == 'excitation' or term_type == 'number':
+            (p, q) = [facs[i][0] for i in range(2)] # p <= q always
             h1_pq = operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(sparse_pauli, _one_body(edge_list, p, q, h1_pq))
 
         ## TODO: This can be simplified along with breaking up `_two_body`
         elif (term_type == 'number_excitation' or term_type == 'double_excitation' or
               term_type == 'coulomb_exchange'):
+
             facs_reordered, phase = _reorder_indices(facs)
             h2_pqrs = phase * operator_coefficient(term)
             (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]
+            # dividing by two follows previous code. But, result differs in more terms if we divide by 2
             if term_type == 'number_excitation':
-                        h2_pqrs /= 2
+                h2_pqrs /= 1
             sparse_pauli = _add_sparse_pauli(sparse_pauli, _two_body(edge_list, p, q, r, s, h2_pqrs))
 
     return sparse_pauli
@@ -551,7 +555,7 @@ def map_fermionic_op(fer_op_qn: FermionicOp):
 def map_fermionic_operator(second_q_op: FermionicOperator):
     second_q_op = copy.deepcopy(second_q_op)
     # bksf mapping works with the 'physicist' notation.
-#    second_q_op.h2 = np.einsum('ijkm->ikmj', second_q_op.h2)
+    second_q_op.h2 = np.einsum('ijkm->ikmj', second_q_op.h2)
     modes = second_q_op.modes
     # Initialize qubit operator as constant.
     sparse_pauli = None # SparsePauliOp.from_operator(Pauli(([False], [False])))
