@@ -10,15 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Vibrational Integrals (:mod:`qiskit_nature.properties.Vibrational.integrals`)
-=============================================================================
+Vibrational Bases (:mod:`qiskit_nature.properties.vibrational_structure.bases`)
+===============================================================================
 
-.. currentmodule:: qiskit_nature.properties.vibrational.integrals
+.. currentmodule:: qiskit_nature.properties.vibrational_structure.bases
 
 """
 
-from .vibrational_integrals import VibrationalIntegrals
+from .harmonic_basis import HarmonicBasis
+from .vibrational_basis import VibrationalBasis
 
 __all__ = [
-    "VibrationalIntegrals",
+    "HarmonicBasis",
+    "VibrationalBasis",
 ]

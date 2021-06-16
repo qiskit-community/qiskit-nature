@@ -32,8 +32,8 @@ they desire to evaluate.
 .. autosummary::
    :toctree:
 
-   electronic
-   vibrational
+   electronic_structure
+   vibrational_structure
 """
 
 from .property import Property

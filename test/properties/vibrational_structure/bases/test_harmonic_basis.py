@@ -17,8 +17,8 @@ from ddt import ddt, data, unpack
 
 import numpy as np
 
-from qiskit_nature.properties.vibrational.bases import HarmonicBasis
-from qiskit_nature.properties.vibrational.integrals import VibrationalIntegrals
+from qiskit_nature.properties.vibrational_structure.bases import HarmonicBasis
+from qiskit_nature.properties.vibrational_structure.integrals import VibrationalIntegrals
 
 
 @ddt

@@ -10,10 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Electronic Integrals (:mod:`qiskit_nature.properties.electronic.integrals`)
-===========================================================================
+Electronic Integrals (:mod:`qiskit_nature.properties.electronic_structure.integrals`)
+=====================================================================================
 
-.. currentmodule:: qiskit_nature.properties.electronic.integrals
+.. currentmodule:: qiskit_nature.properties.electronic_structure.integrals
 
 """
 

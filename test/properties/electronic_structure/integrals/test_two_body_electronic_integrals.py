@@ -17,8 +17,11 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.properties.electronic.bases import ElectronicBasis, ElectronicBasisTransform
-from qiskit_nature.properties.electronic.integrals import TwoBodyElectronicIntegrals
+from qiskit_nature.properties.electronic_structure.bases import (
+    ElectronicBasis,
+    ElectronicBasisTransform,
+)
+from qiskit_nature.properties.electronic_structure.integrals import TwoBodyElectronicIntegrals
 
 
 class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):

@@ -10,10 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Electronic Properties (:mod:`qiskit_nature.properties.electronic`)
-==================================================================
+Electronic Properties (:mod:`qiskit_nature.properties.electronic_structure`)
+============================================================================
 
-.. currentmodule:: qiskit_nature.properties.electronic
+.. currentmodule:: qiskit_nature.properties.electronic_structure
 
 This module provides commonly evaluated properties for *electronic* problems.
 

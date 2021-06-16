@@ -20,7 +20,7 @@ from qiskit.opflow import X, Z, I
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.properties.electronic import ElectronicEnergy
+from qiskit_nature.properties.electronic_structure import ElectronicEnergy
 
 
 class TestParityMapper(QiskitNatureTestCase):
