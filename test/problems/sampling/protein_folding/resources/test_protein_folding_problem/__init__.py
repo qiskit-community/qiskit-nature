@@ -9,14 +9,3 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""An interface for sampling qubit operator builders."""
-from abc import ABC, abstractmethod
-
-
-class SamplingQubitOpBuilder(ABC):
-    """An interface for sampling qubit operator builders."""
-
-    @abstractmethod
-    def build_qubit_op(self):
-        """Builds a qubit operator that represents a Hamiltonian encoding the sampling problem."""
-        pass

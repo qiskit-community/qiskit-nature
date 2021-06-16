@@ -21,6 +21,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain i
 
 class SideChain(BaseChain):
     """A class defining a side chain of a peptide."""
+
     def __init__(
         self,
         main_chain_len: int,

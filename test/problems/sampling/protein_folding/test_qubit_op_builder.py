@@ -38,7 +38,7 @@ PATH = "problems/sampling/protein_folding/resources/test_qubit_op_builder"
 
 class TestQubitOpBuilder(QiskitNatureTestCase):
     """Tests QubitOpBuilder."""
-    
+
     def test_check_turns(self):
         """
         Tests that check turns operators are generate correctly.
@@ -63,7 +63,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         t_2s3 = _create_turn_operators(side_bead_2, bead_3)
         t_3s4s = _create_turn_operators(side_bead_3, side_bead_4)
 
-        
         expected_path_t23 = self.get_resource_path(
             "test_check_turns_expected_t23",
             PATH,

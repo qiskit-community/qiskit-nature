@@ -58,10 +58,10 @@ def _create_distance_qubits(peptide: Peptide):
             try:
                 distance_map[lower_main_bead][upper_main_bead] = _fix_qubits(
                     (
-                            delta_n0[lower_bead_ind][0][upper_bead_ind][0] ** 2
-                            + delta_n1[lower_bead_ind][0][upper_bead_ind][0] ** 2
-                            + delta_n2[lower_bead_ind][0][upper_bead_ind][0] ** 2
-                            + delta_n3[lower_bead_ind][0][upper_bead_ind][0] ** 2
+                        delta_n0[lower_bead_ind][0][upper_bead_ind][0] ** 2
+                        + delta_n1[lower_bead_ind][0][upper_bead_ind][0] ** 2
+                        + delta_n2[lower_bead_ind][0][upper_bead_ind][0] ** 2
+                        + delta_n3[lower_bead_ind][0][upper_bead_ind][0] ** 2
                     )
                 ).reduce()
                 num_distances += 1
@@ -70,10 +70,10 @@ def _create_distance_qubits(peptide: Peptide):
             try:
                 distance_map[lower_side_bead][upper_main_bead] = _fix_qubits(
                     (
-                            delta_n0[lower_bead_ind][1][upper_bead_ind][0] ** 2
-                            + delta_n1[lower_bead_ind][1][upper_bead_ind][0] ** 2
-                            + delta_n2[lower_bead_ind][1][upper_bead_ind][0] ** 2
-                            + delta_n3[lower_bead_ind][1][upper_bead_ind][0] ** 2
+                        delta_n0[lower_bead_ind][1][upper_bead_ind][0] ** 2
+                        + delta_n1[lower_bead_ind][1][upper_bead_ind][0] ** 2
+                        + delta_n2[lower_bead_ind][1][upper_bead_ind][0] ** 2
+                        + delta_n3[lower_bead_ind][1][upper_bead_ind][0] ** 2
                     )
                 ).reduce()
                 num_distances += 1
@@ -82,10 +82,10 @@ def _create_distance_qubits(peptide: Peptide):
             try:
                 distance_map[lower_main_bead][upper_side_bead] = _fix_qubits(
                     (
-                            delta_n0[lower_bead_ind][0][upper_bead_ind][1] ** 2
-                            + delta_n1[lower_bead_ind][0][upper_bead_ind][1] ** 2
-                            + delta_n2[lower_bead_ind][0][upper_bead_ind][1] ** 2
-                            + delta_n3[lower_bead_ind][0][upper_bead_ind][1] ** 2
+                        delta_n0[lower_bead_ind][0][upper_bead_ind][1] ** 2
+                        + delta_n1[lower_bead_ind][0][upper_bead_ind][1] ** 2
+                        + delta_n2[lower_bead_ind][0][upper_bead_ind][1] ** 2
+                        + delta_n3[lower_bead_ind][0][upper_bead_ind][1] ** 2
                     )
                 ).reduce()
                 num_distances += 1
@@ -94,10 +94,10 @@ def _create_distance_qubits(peptide: Peptide):
             try:
                 distance_map[lower_side_bead][upper_side_bead] = _fix_qubits(
                     (
-                            delta_n0[lower_bead_ind][1][upper_bead_ind][1] ** 2
-                            + delta_n1[lower_bead_ind][1][upper_bead_ind][1] ** 2
-                            + delta_n2[lower_bead_ind][1][upper_bead_ind][1] ** 2
-                            + delta_n3[lower_bead_ind][1][upper_bead_ind][1] ** 2
+                        delta_n0[lower_bead_ind][1][upper_bead_ind][1] ** 2
+                        + delta_n1[lower_bead_ind][1][upper_bead_ind][1] ** 2
+                        + delta_n2[lower_bead_ind][1][upper_bead_ind][1] ** 2
+                        + delta_n3[lower_bead_ind][1][upper_bead_ind][1] ** 2
                     )
                 ).reduce()
                 num_distances += 1
@@ -139,7 +139,7 @@ def _calc_distances_main_chain(peptide: Peptide):
             for k in range(lower_bead_ind, upper_bead_ind):
                 indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
                     k - 1
-                    ].get_indicator_functions()
+                ].get_indicator_functions()
                 delta_n0[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_0
                 delta_n1[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_1
                 delta_n2[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_2
@@ -195,31 +195,31 @@ def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2, de
                     # TODO generalize to side chains longer than 1
                     indic_0, indic_1, indic_2, indic_3 = (
                         peptide.get_main_chain[upper_bead_ind - 1]
-                            .side_chain[0]
-                            .get_indicator_functions()
+                        .side_chain[0]
+                        .get_indicator_functions()
                     )
                     delta_n0[lower_bead_ind][0][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n0[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * indic_0
+                            delta_n0[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * indic_0
                         )
                     ).reduce()
                     delta_n1[lower_bead_ind][0][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n1[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * indic_1
+                            delta_n1[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * indic_1
                         )
                     ).reduce()
                     delta_n2[lower_bead_ind][0][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n2[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * indic_2
+                            delta_n2[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * indic_2
                         )
                     ).reduce()
                     delta_n3[lower_bead_ind][0][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n3[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * indic_3
+                            delta_n3[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * indic_3
                         )
                     ).reduce()
                 except KeyError:
@@ -230,31 +230,31 @@ def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2, de
                     # TODO generalize to side chains longer than 1
                     indic_0, indic_1, indic_2, indic_3 = (
                         peptide.get_main_chain[lower_bead_ind - 1]
-                            .side_chain[0]
-                            .get_indicator_functions()
+                        .side_chain[0]
+                        .get_indicator_functions()
                     )
                     delta_n0[lower_bead_ind][1][upper_bead_ind][0] = _fix_qubits(
                         (
-                                delta_n0[lower_bead_ind][0][upper_bead_ind][0]
-                                - (-1) ** lower_bead_ind * indic_0
+                            delta_n0[lower_bead_ind][0][upper_bead_ind][0]
+                            - (-1) ** lower_bead_ind * indic_0
                         )
                     ).reduce()
                     delta_n1[lower_bead_ind][1][upper_bead_ind][0] = _fix_qubits(
                         (
-                                delta_n1[lower_bead_ind][0][upper_bead_ind][0]
-                                - (-1) ** lower_bead_ind * indic_1
+                            delta_n1[lower_bead_ind][0][upper_bead_ind][0]
+                            - (-1) ** lower_bead_ind * indic_1
                         )
                     ).reduce()
                     delta_n2[lower_bead_ind][1][upper_bead_ind][0] = _fix_qubits(
                         (
-                                delta_n2[lower_bead_ind][0][upper_bead_ind][0]
-                                - (-1) ** lower_bead_ind * indic_2
+                            delta_n2[lower_bead_ind][0][upper_bead_ind][0]
+                            - (-1) ** lower_bead_ind * indic_2
                         )
                     ).reduce()
                     delta_n3[lower_bead_ind][1][upper_bead_ind][0] = _fix_qubits(
                         (
-                                delta_n3[lower_bead_ind][0][upper_bead_ind][0]
-                                - (-1) ** lower_bead_ind * indic_3
+                            delta_n3[lower_bead_ind][0][upper_bead_ind][0]
+                            - (-1) ** lower_bead_ind * indic_3
                         )
                     ).reduce()
                 except KeyError:
@@ -265,42 +265,42 @@ def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2, de
                     # TODO generalize to side chains longer than 1
                     higher_indic_0, higher_indic_1, higher_indic_2, higher_indic_3 = (
                         peptide.get_main_chain[upper_bead_ind - 1]
-                            .side_chain[0]
-                            .get_indicator_functions()
+                        .side_chain[0]
+                        .get_indicator_functions()
                     )
                     # TODO generalize to side chains longer than 1
                     lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = (
                         peptide.get_main_chain[lower_bead_ind - 1]
-                            .side_chain[0]
-                            .get_indicator_functions()
+                        .side_chain[0]
+                        .get_indicator_functions()
                     )
 
                     delta_n0[lower_bead_ind][1][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n0[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * higher_indic_0
-                                - (-1) ** lower_bead_ind * lower_indic_0
+                            delta_n0[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * higher_indic_0
+                            - (-1) ** lower_bead_ind * lower_indic_0
                         )
                     ).reduce()
                     delta_n1[lower_bead_ind][1][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n1[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * higher_indic_1
-                                - (-1) ** lower_bead_ind * lower_indic_1
+                            delta_n1[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * higher_indic_1
+                            - (-1) ** lower_bead_ind * lower_indic_1
                         )
                     ).reduce()
                     delta_n2[lower_bead_ind][1][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n2[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * higher_indic_2
-                                - (-1) ** lower_bead_ind * lower_indic_2
+                            delta_n2[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * higher_indic_2
+                            - (-1) ** lower_bead_ind * lower_indic_2
                         )
                     ).reduce()
                     delta_n3[lower_bead_ind][1][upper_bead_ind][1] = _fix_qubits(
                         (
-                                delta_n3[lower_bead_ind][0][upper_bead_ind][0]
-                                + (-1) ** upper_bead_ind * higher_indic_3
-                                - (-1) ** lower_bead_ind * lower_indic_3
+                            delta_n3[lower_bead_ind][0][upper_bead_ind][0]
+                            + (-1) ** upper_bead_ind * higher_indic_3
+                            - (-1) ** lower_bead_ind * lower_indic_3
                         )
                     ).reduce()
                 except KeyError:

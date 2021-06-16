@@ -22,6 +22,7 @@ from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 class ContactMap:
     """A class that stores contacts between beads of a peptide as qubit operators."""
+
     def __init__(self, peptide: Peptide):
         self._peptide = peptide
         (

@@ -23,7 +23,8 @@ def read_expected_file(path: str):
         for line in file:
             pattern = re.compile(
                 r"""(?P<sign>[+,-]?)\s?(?P<coefficient>\d*.\d*)\s\*\s(?P<operator>[I, Z]*)""",
-                re.VERBOSE)
+                re.VERBOSE,
+            )
             match = pattern.match(line)
             sign = match.group("sign")
             coefficient = float(match.group("coefficient"))

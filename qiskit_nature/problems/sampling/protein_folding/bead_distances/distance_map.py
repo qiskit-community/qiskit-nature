@@ -14,8 +14,9 @@ from typing import List, Union
 
 from qiskit.opflow import PauliSumOp, PauliOp
 
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import \
-    _create_distance_qubits
+from problems.sampling.protein_folding.bead_distances.distance_map_builder import (
+    _create_distance_qubits,
+)
 from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
@@ -50,16 +51,17 @@ class DistanceMap:
         """Returns a distance map."""
         return self._distance_map
 
-    def _first_neighbor(self,
-                        peptide: Peptide,
-                        lower_bead_ind: int,
-                        is_side_chain_upper: int,
-                        upper_bead_ind: int,
-                        is_side_chain_lower: int,
-                        lambda_1: float,
-                        pair_energies: List[List[List[List[float]]]],
-                        pair_energies_multiplier: float = 0.1,
-                        ) -> Union[PauliSumOp, PauliOp]:
+    def _first_neighbor(
+        self,
+        peptide: Peptide,
+        lower_bead_ind: int,
+        is_side_chain_upper: int,
+        upper_bead_ind: int,
+        is_side_chain_lower: int,
+        lambda_1: float,
+        pair_energies: List[List[List[List[float]]]],
+        pair_energies_multiplier: float = 0.1,
+    ) -> Union[PauliSumOp, PauliOp]:
         """
         Creates first nearest neighbor interaction if beads are in contact
         and at a distance of 1 unit from each other. Otherwise, a large positive
@@ -90,22 +92,25 @@ class DistanceMap:
         if is_side_chain_lower == 1:
             upper_bead = upper_bead.side_chain[0]
         energy = pair_energies[
-            lower_bead_ind, is_side_chain_upper, upper_bead_ind, is_side_chain_lower]
+            lower_bead_ind, is_side_chain_upper, upper_bead_ind, is_side_chain_lower
+        ]
         x = self.distance_map[lower_bead][upper_bead]
-        expr = lambda_0 * (x - _build_full_identity(
-            x.num_qubits)) + pair_energies_multiplier * energy * _build_full_identity(x.num_qubits)
+        expr = lambda_0 * (
+            x - _build_full_identity(x.num_qubits)
+        ) + pair_energies_multiplier * energy * _build_full_identity(x.num_qubits)
         return _fix_qubits(expr).reduce()
 
-    def _second_neighbor(self,
-                         peptide: Peptide,
-                         lower_bead_ind: int,
-                         is_side_chain_upper: int,
-                         upper_bead_ind: int,
-                         is_side_chain_lower: int,
-                         lambda_1: float,
-                         pair_energies: List[List[List[List[float]]]],
-                         pair_energies_multiplier: float = 0.1,
-                         ) -> Union[PauliSumOp, PauliOp]:
+    def _second_neighbor(
+        self,
+        peptide: Peptide,
+        lower_bead_ind: int,
+        is_side_chain_upper: int,
+        upper_bead_ind: int,
+        is_side_chain_lower: int,
+        lambda_1: float,
+        pair_energies: List[List[List[List[float]]]],
+        pair_energies_multiplier: float = 0.1,
+    ) -> Union[PauliSumOp, PauliOp]:
         """
         Creates energetic interaction that penalizes local overlap between
         beads that correspond to a nearest neighbor contact or adds no net
@@ -127,7 +132,8 @@ class DistanceMap:
             expr: Contribution to an energetic Hamiltonian.
         """
         energy = pair_energies[
-            lower_bead_ind, is_side_chain_upper, upper_bead_ind, is_side_chain_lower]
+            lower_bead_ind, is_side_chain_upper, upper_bead_ind, is_side_chain_lower
+        ]
         lower_bead = peptide.get_main_chain[lower_bead_ind - 1]
         upper_bead = peptide.get_main_chain[upper_bead_ind - 1]
         if is_side_chain_upper == 1:
@@ -136,6 +142,6 @@ class DistanceMap:
             upper_bead = upper_bead.side_chain[0]
         x = self.distance_map[lower_bead][upper_bead]
         expr = lambda_1 * (
-                2 * (_build_full_identity(x.num_qubits)) - x
+            2 * (_build_full_identity(x.num_qubits)) - x
         ) + pair_energies_multiplier * energy * _build_full_identity(x.num_qubits)
         return _fix_qubits(expr).reduce()

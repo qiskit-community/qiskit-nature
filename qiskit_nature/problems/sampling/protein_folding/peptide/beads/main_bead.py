@@ -21,6 +21,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 
 class MainBead(BaseBead):
     """A class defining a main bead of a peptide."""
+
     def __init__(
         self, main_index: int, residue_type: str, turn_qubits: List[PauliOp], side_chain: SideChain
     ):

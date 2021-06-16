@@ -17,6 +17,9 @@ from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interactio
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from problems.sampling.protein_folding.protein_folding_problem import ProteinFoldingProblem
 from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
+
+PATH = "problems/sampling/protein_folding/resources/test_protein_folding_problem"
 
 
 class TestProteinFoldingProblem(QiskitNatureTestCase):
@@ -44,4 +47,10 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
 
         protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
         qubit_op = protein_folding_problem.qubit_op()
-        print(qubit_op)
+
+        expected_path = self.get_resource_path(
+            "test_protein_folding_problem",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        assert qubit_op == expected

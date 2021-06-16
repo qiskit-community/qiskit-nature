@@ -374,19 +374,23 @@ def _create_h_bbsc_and_h_scbb(
                     + distance_map._second_neighbor(peptide, i, 0, j, 0, lambda_1, pair_energies)
                 )
                 try:
-                    h_bbsc += contact_map.lower_side_upper_side[i][j] @ distance_map._first_neighbor(
-                        peptide, i, 1, j, 1, lambda_1, pair_energies
-                    )
+                    h_bbsc += contact_map.lower_side_upper_side[i][
+                        j
+                    ] @ distance_map._first_neighbor(peptide, i, 1, j, 1, lambda_1, pair_energies)
                 except (IndexError, KeyError, TypeError):
                     pass
                 try:
-                    h_bbsc += contact_map.lower_side_upper_main[i][j] @ distance_map._second_neighbor(
+                    h_bbsc += contact_map.lower_side_upper_main[i][
+                        j
+                    ] @ distance_map._second_neighbor(
                         peptide, i + 1, 0, j, 1, lambda_1, pair_energies
                     )
                 except (IndexError, KeyError, TypeError):
                     pass
                 try:
-                    h_bbsc += contact_map.lower_side_upper_main[i][j] @ distance_map._second_neighbor(
+                    h_bbsc += contact_map.lower_side_upper_main[i][
+                        j
+                    ] @ distance_map._second_neighbor(
                         peptide, i - 1, 0, j, 1, lambda_1, pair_energies
                     )
                 except (IndexError, KeyError, TypeError):
@@ -398,19 +402,23 @@ def _create_h_bbsc_and_h_scbb(
                     + distance_map._second_neighbor(peptide, i, 0, j, 0, lambda_1, pair_energies)
                 )
                 try:
-                    h_scbb += contact_map.lower_main_upper_side[i][j] @ distance_map._second_neighbor(
-                        peptide, i, 1, j, 1, lambda_1, pair_energies
-                    )
+                    h_scbb += contact_map.lower_main_upper_side[i][
+                        j
+                    ] @ distance_map._second_neighbor(peptide, i, 1, j, 1, lambda_1, pair_energies)
                 except (IndexError, KeyError, TypeError):
                     pass
                 try:
-                    h_scbb += contact_map.lower_main_upper_side[i][j] @ distance_map._second_neighbor(
+                    h_scbb += contact_map.lower_main_upper_side[i][
+                        j
+                    ] @ distance_map._second_neighbor(
                         peptide, i, 1, j + 1, 0, lambda_1, pair_energies
                     )
                 except (IndexError, KeyError, TypeError):
                     pass
                 try:
-                    h_scbb += contact_map.lower_main_upper_side[i][j] @ distance_map._second_neighbor(
+                    h_scbb += contact_map.lower_main_upper_side[i][
+                        j
+                    ] @ distance_map._second_neighbor(
                         peptide, i, 1, j - 1, 0, lambda_1, pair_energies
                     )
                 except (IndexError, KeyError, TypeError):
