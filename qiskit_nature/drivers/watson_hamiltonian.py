@@ -14,7 +14,7 @@
 
 from typing import Union, List
 
-import warnings
+from ..deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class WatsonHamiltonian:
@@ -28,13 +28,11 @@ class WatsonHamiltonian:
             data: Hamiltonian matrix elements
             num_modes: number of modes
         """
-        warnings.warn(
-            "This WatsonHamiltonian is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization "
-            "WatsonHamiltonian as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "WatsonHamiltonian",
+            "from qiskit_nature.drivers.second_quantization as a direct replacement",
         )
         self._data = data
         self._num_modes = num_modes

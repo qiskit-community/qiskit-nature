@@ -14,7 +14,6 @@
 
 from typing import List, Optional, Tuple, Union
 import copy
-import logging
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -25,8 +24,6 @@ from .base_transformer import BaseTransformer
 ACTIVE_INTS_SUBSCRIPT = "pqrs,pi,qj,rk,sl->ijkl"
 
 INACTIVE_ENERGY_SUBSCRIPT = "ij,ji"
-
-logger = logging.getLogger(__name__)
 
 
 class ActiveSpaceTransformer(BaseTransformer):

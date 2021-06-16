@@ -14,12 +14,12 @@
 
 from typing import Union, List
 import logging
-import warnings
 
 from ..base_driver import BaseDriver
 from ...exceptions import QiskitNatureError
 from .gaussian_utils import check_valid, run_g16
 from .gaussian_log_result import GaussianLogResult
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 logger = logging.getLogger(__name__)
 
@@ -47,13 +47,11 @@ class GaussianLogDriver(BaseDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        warnings.warn(
-            "This GaussianLogDriver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.bosonic_bases "
-            "GaussianLogDriver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "GaussianLogDriver",
+            "from qiskit_nature.drivers.second_quantization.gaussiand as a direct replacement",
         )
         GaussianLogDriver._check_valid()
 

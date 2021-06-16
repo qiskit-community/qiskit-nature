@@ -17,61 +17,9 @@ This module implements the abstract base class for driver modules.
 from typing import Optional
 from abc import ABC, abstractmethod
 
-from enum import Enum, EnumMeta
-import warnings
-
 from .molecule import Molecule
 from ..exceptions import QiskitNatureError
-
-
-class DeprecatedEnum(Enum):
-    """
-    Shows deprecate message whenever member is accessed
-    """
-
-    def __new__(cls, value, *args):
-        member = object.__new__(cls)
-        member._value_ = value
-        member._args = args
-        member._show_deprecate = member._deprecate
-        return member
-
-    def _deprecate(self):
-        warnings.warn(
-            f"This {self.__class__.__name__} is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            f"You should use the qiskit_nature.drivers.second_quantization "
-            f"{self.__class__.__name__} as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-
-class DeprecatedEnumMeta(EnumMeta):
-    """
-    Shows deprecate message whenever member is accessed
-    """
-
-    def __getattribute__(cls, name):
-        obj = super().__getattribute__(name)
-        if isinstance(obj, DeprecatedEnum) and obj._show_deprecate:
-            obj._show_deprecate()
-        return obj
-
-    def __getitem__(cls, name):
-        member = super().__getitem__(name)
-        if member._show_deprecate:
-            member._show_deprecate()
-        return member
-
-    # pylint: disable=redefined-builtin
-    def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1):
-        obj = super().__call__(
-            value, names, module=module, qualname=qualname, type=type, start=start
-        )
-        if isinstance(obj, DeprecatedEnum) and obj._show_deprecate:
-            obj._show_deprecate()
-        return obj
+from ..deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class BaseDriver(ABC):
@@ -95,13 +43,12 @@ class BaseDriver(ABC):
         Raises:
             QiskitNatureError: Molecule passed but driver doesn't support it.
         """
-        warnings.warn(
-            "This BaseDriver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization "
-            "BaseDriver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "BaseDriver",
+            "from qiskit_nature.drivers.second_quantization as a direct replacement",
+            3,
         )
 
         if molecule is not None and not supports_molecule:
