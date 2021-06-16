@@ -19,6 +19,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead imp
 
 
 class SideBead(BaseBead):
+    """A class defining a side bead of a peptide."""
     def __init__(
         self, main_index: int, side_index: int, residue_type: str, turn_qubits: List[PauliOp]
     ):

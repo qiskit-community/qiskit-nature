@@ -19,6 +19,7 @@ from problems.sampling.protein_folding.residue_validator import _validate_residu
 
 
 class BaseBead(ABC):
+    """An abstract class defining a bead of a peptide."""
     def __init__(
         self, chain_type: str, main_index: int, residue_type: str, turn_qubits: List[PauliOp]
     ):

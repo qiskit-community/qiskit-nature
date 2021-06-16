@@ -22,6 +22,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 
 
 class MainChain(BaseChain):
+    """A class defining a main chain of a peptide."""
     def __init__(
         self,
         main_chain_len: int,
@@ -37,6 +38,7 @@ class MainChain(BaseChain):
 
     @property
     def main_chain_residue_sequence(self):
+        """Returns a residue sequence for the main chain."""
         return self._main_chain_residue_sequence
 
     def _build_main_chain(

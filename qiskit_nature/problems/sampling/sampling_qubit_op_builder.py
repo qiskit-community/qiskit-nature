@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 
 
 class SamplingQubitOpBuilder(ABC):
+    """An interface for sampling qubit operator builders."""
     @abstractmethod
     def build_qubit_op(self):
         """Builds a qubit operator that represents a Hamiltonian encoding the sampling problem."""

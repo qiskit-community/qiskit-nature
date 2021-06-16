@@ -20,6 +20,7 @@ from problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
 class ContactMap:
+    """A class that stores contacts between beads of a peptide as qubit operators."""
     def __init__(self, peptide: Peptide):
         self._peptide = peptide
         (
@@ -34,21 +35,21 @@ class ContactMap:
 
        Args:
            peptide: A Peptide object that includes all information about a protein.
-            lower_main_upper_main: A dictionary which is a component of a contact map that stores 
-                                    contact operators between a bead on a main chain (first 
-                                    index) and a bead in a main 
+            lower_main_upper_main: A dictionary which is a component of a contact map that stores
+                                    contact operators between a bead on a main chain (first
+                                    index) and a bead in a main
                                     chain (second index).
-            lower_side_upper_main: A dictionary which is a component of a contact map that stores 
-                                    contact operators between a first bead in a side chain (first 
-                                    index) and a bead in a 
+            lower_side_upper_main: A dictionary which is a component of a contact map that stores
+                                    contact operators between a first bead in a side chain (first
+                                    index) and a bead in a
                                     main chain (second index).
-            lower_main_upper_side: A dictionary which is a component of a contact map that stores 
-                                    contact operators between a bead in a main chain (first 
-                                    index) and a first bead in a 
+            lower_main_upper_side: A dictionary which is a component of a contact map that stores
+                                    contact operators between a bead in a main chain (first
+                                    index) and a first bead in a
                                     side chain (second index).
-            lower_side_upper_side: A dictionary which is a component of a contact map that stores 
-                                    contact operators between a first bead in a side chain (first 
-                                    index) and a a first 
+            lower_side_upper_side: A dictionary which is a component of a contact map that stores
+                                    contact operators between a first bead in a side chain (first
+                                    index) and a a first
                                     bead in a side chain (second index).
             num_contacts: the total number of contacts.
        """
