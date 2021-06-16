@@ -12,7 +12,9 @@
 
 """ Test GroundStateEigensolver """
 
+import contextlib
 import copy
+import io
 import unittest
 
 from test import QiskitNatureTestCase
@@ -429,6 +431,39 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_dipole_moment_in_debye[0], 0.0, places=1)
+
+    def test_print_result(self):
+        """Regression test against #198 and general issues with printing results."""
+        solver = NumPyMinimumEigensolverFactory()
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            print(res)
+        # do NOT change the below! Lines have been truncated as to not force exact numerical matches
+        expected = """\
+            === GROUND STATE ENERGY ===
+
+            * Electronic ground state energy (Hartree): -1.857
+              - computed part:      -1.857
+            ~ Nuclear repulsion energy (Hartree): 0.719
+            > Total ground state energy (Hartree): -1.137
+
+            === MEASURED OBSERVABLES ===
+
+              0:  # Particles: 2.000 S: 0.000 S^2: 0.000 M: 0.000
+
+            === DIPOLE MOMENTS ===
+
+            ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.38
+
+              0:
+              * Electronic dipole moment (a.u.): [0.0  0.0  -1.38
+                - computed part:      [0.0  0.0  -1.38
+              > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.
+                             (debye): [0.0  0.0  0.0]  Total: 0.
+        """
+        for truth, expected in zip(out.getvalue().split("\n"), expected.split("\n")):
+            assert truth.strip().startswith(expected.strip())
 
 
 if __name__ == "__main__":
