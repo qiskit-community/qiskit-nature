@@ -28,6 +28,8 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
+    ERI_TRUNCATION_LEVEL = 1e-12
+
     # TODO: provide symmetry testing functionality?
 
     def __init__(
@@ -50,7 +52,8 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 However, the final matrix will be replaced by the transpose of the second one, if
                 and only if that happens to differ from ``None``.
         """
-        super().__init__(2, basis, matrices)
+        num_body_terms = 2
+        super().__init__(num_body_terms, basis, matrices)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
@@ -105,14 +108,15 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         so_matrix = np.zeros([2 * s for s in self._matrices[0].shape])
         one_indices = (
-            (0, 0, 0, 0),
-            (0, 1, 1, 0),
-            (1, 1, 1, 1),
-            (1, 0, 0, 1),
+            (0, 0, 0, 0),  # alpha-alpha-spin
+            (0, 1, 1, 0),  # beta-alpha-spin
+            (1, 1, 1, 1),  # beta-beta-spin
+            (1, 0, 0, 1),  # alpha-beta-spin
         )
+        alpha_beta_spin_idx = 3
         for idx, (ao_mat, one_idx) in enumerate(zip(self._matrices, one_indices)):
             if ao_mat is None:
-                if idx == 3:
+                if idx == alpha_beta_spin_idx:
                     ao_mat = self._matrices[0] if self._matrices[1] is None else self._matrices[1].T
                 else:
                     ao_mat = self._matrices[0]
@@ -121,7 +125,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             kron[one_idx] = 1
             so_matrix -= 0.5 * np.kron(kron, phys_matrix)
 
-        return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
+        return np.where(np.abs(so_matrix) > self.ERI_TRUNCATION_LEVEL, so_matrix, 0.0)
 
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[2], "+"), (indices[3], "-"), (indices[1], "-")]

@@ -41,7 +41,8 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
                 required) and the second one being an optional beta-spin matrix. If the latter is
                 ``None``, the alpha-spin matrix is used in its place.
         """
-        super().__init__(1, basis, matrices)
+        num_body_terms = 1
+        super().__init__(num_body_terms, basis, matrices)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
