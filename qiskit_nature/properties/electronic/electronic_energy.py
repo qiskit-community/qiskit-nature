@@ -15,7 +15,7 @@
 from typing import cast, Dict, List, Optional, Union
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
@@ -70,11 +70,7 @@ class ElectronicEnergy(Property):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        if isinstance(result, WatsonHamiltonian):
-            raise QiskitNatureError(
-                "You cannot construct an ElectronicEnergy from a WatsonHamiltonian. Please provide "
-                "a QMolecule object instead."
-            )
+        cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
 

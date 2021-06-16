@@ -15,7 +15,7 @@
 from typing import cast, Dict, List, Optional, Union
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
@@ -86,11 +86,7 @@ class VibrationalEnergy(Property):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        if isinstance(result, QMolecule):
-            raise QiskitNatureError(
-                "You cannot construct an VibrationalEnergy from a QMolecule. Please provide a "
-                "WatsonHamiltonian object instead."
-            )
+        cls._validate_input_type(result, WatsonHamiltonian)
 
         w_h = cast(WatsonHamiltonian, result)
 

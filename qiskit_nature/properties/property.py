@@ -13,9 +13,10 @@
 """The Property base class."""
 
 from abc import ABC, abstractmethod, abstractclassmethod
-from typing import List, Union
+from typing import List, Union, Type
 
-from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult
 
@@ -66,6 +67,18 @@ class Property(ABC):
         Raises:
             QiskitNatureError: if an invalid driver result type is passed.
         """
+
+    @classmethod
+    def _validate_input_type(
+        cls,
+        result: Union[QMolecule, WatsonHamiltonian],
+        valid_type: Type[Union[QMolecule, WatsonHamiltonian]],
+    ) -> None:
+        if not isinstance(result, valid_type):
+            raise QiskitNatureError(
+                f"You cannot construct an {cls.__name__} from a {result.__class__.__name__}. "
+                f"Please provide a {valid_type.__name__} object instead."
+            )
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:
