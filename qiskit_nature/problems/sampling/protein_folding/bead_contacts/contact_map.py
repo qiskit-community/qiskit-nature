@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 """A class that stores contacts between beads of a peptide as qubit operators."""
 from collections import defaultdict
+from typing import DefaultDict
 
 from problems.sampling.protein_folding.bead_contacts.contact_map_builder import (
     _create_contact_qubits,
@@ -60,27 +61,27 @@ class ContactMap:
         return self._peptide
 
     @property
-    def lower_main_upper_main(self) -> defaultdict[int, dict]:
+    def lower_main_upper_main(self) -> DefaultDict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a bead on a main chain (first index) and a bead in a main chain (second index)."""
         return self._lower_main_upper_main
 
     @property
-    def lower_side_upper_main(self) -> defaultdict[int, dict]:
+    def lower_side_upper_main(self) -> DefaultDict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a first bead in a side chain (first index) and a bead in a main chain (second
         index)."""
         return self._lower_side_upper_main
 
     @property
-    def lower_main_upper_side(self) -> defaultdict[int, dict]:
+    def lower_main_upper_side(self) -> DefaultDict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a bead in a main chain (first index) and a first bead in a side chain (second
         index)."""
         return self._lower_main_upper_side
 
     @property
-    def lower_side_upper_side(self) -> defaultdict[int, dict]:
+    def lower_side_upper_side(self) -> DefaultDict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a first bead in a side chain (first index) and a a first bead in a side chain (
         second index)."""

@@ -12,7 +12,7 @@
 """Builds a contact map that stores contacts between beads in a peptide."""
 import collections
 import logging
-from typing import Tuple
+from typing import Tuple, DefaultDict
 
 from qiskit.opflow import PauliSumOp, OperatorBase
 
@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 def _create_contact_qubits(
     peptide: Peptide,
 ) -> Tuple[
-    collections.defaultdict[int, dict],
-    collections.defaultdict[int, dict],
-    collections.defaultdict[int, dict],
-    collections.defaultdict[int, dict],
+    DefaultDict[int, dict],
+    DefaultDict[int, dict],
+    DefaultDict[int, dict],
+    DefaultDict[int, dict],
     int,
 ]:
     """

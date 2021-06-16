@@ -16,10 +16,6 @@ from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.bead_contacts import contact_map_builder
 from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import (
-    _first_neighbor,
-    _second_neighbor,
-)
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
     MiyazawaJerniganInteraction,
@@ -197,8 +193,8 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         upper_main_bead_index = 4
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
-        x_dist = DistanceMap(peptide)
-        expr = _first_neighbor(
+        distance_map = DistanceMap(peptide)
+        expr = distance_map._first_neighbor(
             peptide,
             lower_main_bead_index,
             side_chain_upper_main_bead,
@@ -206,7 +202,6 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             side_chain_lower_main_bead,
             lambda_1,
             pair_energies,
-            x_dist,
         )
 
         assert expr == 168.0 * (
@@ -233,8 +228,8 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         upper_main_bead_index = 5
         side_chain_lower_main_bead = 1
         side_chain_upper_main_bead = 1
-        x_dist = DistanceMap(peptide)
-        expr = _first_neighbor(
+        distance_map = DistanceMap(peptide)
+        expr = distance_map._first_neighbor(
             peptide,
             lower_main_bead_index,
             side_chain_upper_main_bead,
@@ -242,7 +237,6 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             side_chain_lower_main_bead,
             lambda_1,
             pair_energies,
-            x_dist,
         )
 
         print(expr)
@@ -284,8 +278,8 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         upper_main_bead_index = 4
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
-        x_dist = DistanceMap(peptide)
-        expr = _second_neighbor(
+        distance_map = DistanceMap(peptide)
+        expr = distance_map._second_neighbor(
             peptide,
             lower_main_bead_index,
             side_chain_upper_main_bead,
@@ -293,7 +287,6 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             side_chain_lower_main_bead,
             lambda_1,
             pair_energies,
-            x_dist,
         )
         assert expr == -4.0 * (
             I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
