@@ -25,7 +25,6 @@ PATH = "problems/sampling/protein_folding/resources/test_protein_folding_problem
 class TestProteinFoldingProblem(QiskitNatureTestCase):
     """Tests ProteinFoldingProblem."""
 
-    # TODO
     def test_protein_folding_problem(self):
         """Tests if a protein folding problem is created and returns a correct qubit operator."""
         lambda_back = 10

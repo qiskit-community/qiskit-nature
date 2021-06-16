@@ -21,6 +21,9 @@ from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interactio
     MiyazawaJerniganInteraction,
 )
 from problems.sampling.protein_folding.peptide.peptide import Peptide
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
+
+PATH = "problems/sampling/protein_folding/resources/test_contact_qubits_builder"
 
 
 class TestContactQubitsBuilder(QiskitNatureTestCase):
@@ -73,17 +76,17 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         assert lower_main_upper_main == {
             1: {
                 6: 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                - 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
+                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                   - 0.5
+                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
             }
         }
         assert lower_side_upper_main == {
             1: {
                 5: 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                - 0.5
-                * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
+                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                   - 0.5
+                   * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
             }
         }
         assert lower_main_upper_side == {}
@@ -140,7 +143,7 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         #     7: {0: PauliOp(Pauli('IIIIIIIIIZIIIIIIIZIIIIII'), coeff=1.0)}}}}
         assert r_contact == 6
 
-    def test_create_new_qubit_list(self):
+    def test_create_qubit_list(self):
         """
         Tests that the list of all qubits (conformation and interaction) is created correctly.
         """
@@ -155,24 +158,46 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
         contact_map = ContactMap(peptide)
         new_qubits = contact_map.create_peptide_qubit_list()
 
+        expected_path = self.get_resource_path(
+            "test_create_new_qubit_list_1",
+            PATH,
+        )
+
+        expected_1 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_new_qubit_list_2",
+            PATH,
+        )
+
+        expected_2 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_new_qubit_list_3",
+            PATH,
+        )
+
+        expected_3 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_new_qubit_list_4",
+            PATH,
+        )
+
+        expected_4 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_new_qubit_list_5",
+            PATH,
+        )
+
+        expected_5 = read_expected_file(expected_path)
+
         assert len(new_qubits) == 6
         assert new_qubits[0] == 0
-        assert new_qubits[1] == 0.5 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
-        assert new_qubits[2] == 0.5 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 0.5 * (I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-        assert new_qubits[3] == 0.5 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 0.5 * (I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-        assert new_qubits[4] == 0.5 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I)
-        assert new_qubits[5] == 0.5 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+        assert new_qubits[1] == expected_1
+        assert new_qubits[2] == expected_2
+        assert new_qubits[3] == expected_3
+        assert new_qubits[4] == expected_4
+        assert new_qubits[5] == expected_5
 
+    # TODO compare again with the original code after uncommenting energy terms
     def test_first_neighbor(self):
         """
         Tests that Pauli operators for 1st neighbour interactions are created correctly.
@@ -204,10 +229,14 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             pair_energies,
         )
 
-        assert expr == 168.0 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) + 56.0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
+        expected_path = self.get_resource_path(
+            "test_first_neighbour",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        assert expr == expected
 
+    # TODO compare again with the original code after uncommenting energy terms
     def test_first_neighbor_side(self):
         """
         Tests that Pauli operators for 1st neighbour interactions are created correctly.
@@ -239,27 +268,14 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             pair_energies,
         )
 
-        print(expr)
-        # 84.0 * IIIIIIIIIIIIIIIIIIII
-        # - 21.0 * ZIIIIIIIIIIIIIIIIIII
-        # + 21.0 * IIIIZIIIIIIIIIIIIIII
-        # - 21.0 * ZIIIZIIIIIIIIIIIIIII
-        # - 21.0 * IZIIIZIIIIIIIIIIIIII
-        # - 21.0 * ZZIIZZIIIIIIIIIIIIII
-        # + 21.0 * IIIIIIIIIIIIZIIIIIII
-        # - 21.0 * ZIIIIIIIIIIIZIIIIIII
-        # + 21.0 * IIIIZIIIIIIIZIIIIIII
-        # - 21.0 * IZIIIIIIIIIIIZIIIIII
-        # + 21.0 * IIIIIZIIIIIIIZIIIIII
-        # - 21.0 * ZZIIIIIIIIIIZZIIIIII
-        # + 21.0 * IIIIZZIIIIIIZZIIIIII
-        # + 21.0 * IZIIIIIIIIIIIIIZIIII
-        # - 21.0 * ZZIIIIIIIIIIIIIZIIII
-        # - 21.0 * IIIIIZIIIIIIIIIZIIII
-        # + 21.0 * IIIIZZIIIIIIIIIZIIII
-        # - 21.0 * IIIIIIIIIIIIIZIZIIII
-        # + 21.0 * IIIIIIIIIIIIZZIZIIII
+        expected_path = self.get_resource_path(
+            "test_first_neighbour_side",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        assert expr == expected
 
+    # TODO compare again with the original code after uncommenting energy terms
     def test_second_neighbor(self):
         """
         Tests that Pauli operators for 2nd neighbour interactions are created correctly.
@@ -288,6 +304,9 @@ class TestContactQubitsBuilder(QiskitNatureTestCase):
             lambda_1,
             pair_energies,
         )
-        assert expr == -4.0 * (
-            I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-        ) - 2.0 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I)
+        expected_path = self.get_resource_path(
+            "test_second_neighbour",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        assert expr == expected
