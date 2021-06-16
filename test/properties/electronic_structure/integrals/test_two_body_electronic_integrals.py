@@ -12,6 +12,7 @@
 
 """Test TwoBodyElectronicIntegrals."""
 
+import json
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -124,114 +125,12 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
         with self.subTest("Only alpha"):
             ints = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (mat_aa, None, None, None))
             mat_so = ints.to_spin()
-            expected = (
-                [
-                    [
-                        [
-                            [0.0, -1.0, 0.0, 0.0],
-                            [-4.0, -5.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [-2.0, -3.0, 0.0, 0.0],
-                            [-6.0, -7.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, -1.0, 0.0, 0.0],
-                            [-4.0, -5.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-2.0, -3.0, 0.0, 0.0],
-                            [-6.0, -7.0, 0.0, 0.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [-0.5, -1.5, 0.0, 0.0],
-                            [-4.5, -5.5, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [-2.5, -3.5, 0.0, 0.0],
-                            [-6.5, -7.5, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-0.5, -1.5, 0.0, 0.0],
-                            [-4.5, -5.5, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-2.5, -3.5, 0.0, 0.0],
-                            [-6.5, -7.5, 0.0, 0.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [0.0, 0.0, 0.0, -1.0],
-                            [0.0, 0.0, -4.0, -5.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, -2.0, -3.0],
-                            [0.0, 0.0, -6.0, -7.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, -1.0],
-                            [0.0, 0.0, -4.0, -5.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, -2.0, -3.0],
-                            [0.0, 0.0, -6.0, -7.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [0.0, 0.0, -0.5, -1.5],
-                            [0.0, 0.0, -4.5, -5.5],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, -2.5, -3.5],
-                            [0.0, 0.0, -6.5, -7.5],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, -0.5, -1.5],
-                            [0.0, 0.0, -4.5, -5.5],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, -2.5, -3.5],
-                            [0.0, 0.0, -6.5, -7.5],
-                        ],
-                    ],
-                ],
-            )
+            expected = np.fromfile(
+                self.get_resource_path(
+                    "two_body_test_to_spin_only_alpha_expected.numpy.bin",
+                    "properties/electronic_structure/integrals/resources",
+                )
+            ).reshape((4, 4, 4, 4))
             assert np.allclose(mat_so, expected)
 
         with self.subTest("Alpha and beta"):
@@ -239,114 +138,12 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
                 ElectronicBasis.MO, (mat_aa, mat_ba, mat_bb, mat_ba.T)
             )
             mat_so = ints.to_spin()
-            expected = (
-                [
-                    [
-                        [
-                            [0.0, -1.0, 0.0, 0.0],
-                            [-4.0, -5.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [-2.0, -3.0, 0.0, 0.0],
-                            [-6.0, -7.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-8.0, -9.0, 0.0, 0.0],
-                            [-12.0, -13.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-10.0, -11.0, 0.0, 0.0],
-                            [-14.0, -15.0, 0.0, 0.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [-0.5, -1.5, 0.0, 0.0],
-                            [-4.5, -5.5, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [-2.5, -3.5, 0.0, 0.0],
-                            [-6.5, -7.5, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-8.5, -9.5, 0.0, 0.0],
-                            [-12.5, -13.5, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-10.5, -11.5, 0.0, 0.0],
-                            [-14.5, -15.5, 0.0, 0.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [0.0, 0.0, -8.0, -10.0],
-                            [0.0, 0.0, -8.5, -10.5],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, -9.0, -11.0],
-                            [0.0, 0.0, -9.5, -11.5],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 8.0, 7.0],
-                            [0.0, 0.0, 4.0, 3.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 6.0, 5.0],
-                            [0.0, 0.0, 2.0, 1.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [0.0, 0.0, -12.0, -14.0],
-                            [0.0, 0.0, -12.5, -14.5],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, -13.0, -15.0],
-                            [0.0, 0.0, -13.5, -15.5],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 7.5, 6.5],
-                            [0.0, 0.0, 3.5, 2.5],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 5.5, 4.5],
-                            [0.0, 0.0, 1.5, 0.5],
-                        ],
-                    ],
-                ],
-            )
+            expected = np.fromfile(
+                self.get_resource_path(
+                    "two_body_test_to_spin_alpha_and_beta_expected.numpy.bin",
+                    "properties/electronic_structure/integrals/resources",
+                )
+            ).reshape((4, 4, 4, 4))
             assert np.allclose(mat_so, expected)
 
     def test_to_second_q_op(self):
@@ -358,49 +155,15 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
         with self.subTest("Only alpha"):
             ints = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (mat_aa, None, None, None))
             op = ints.to_second_q_op()
-            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(
-                op.to_list(),
-                [
-                    ("NNII", -5),
-                    ("NNII", 6),
-                    ("+-NI", 1),
-                    ("NI-+", -4),
-                    ("+--+", -5),
-                    ("NI+-", 2),
-                    ("+-+-", 3),
-                    ("NIIN", 6),
-                    ("+-IN", 7),
-                    ("NNII", 1.5),
-                    ("NNII", -2.5),
-                    ("-+NI", -0.5),
-                    ("INNI", 1.5),
-                    ("-+-+", 4.5),
-                    ("IN-+", -5.5),
-                    ("-++-", -2.5),
-                    ("IN+-", 3.5),
-                    ("-+IN", -6.5),
-                    ("ININ", 7.5),
-                    ("NI+-", 1),
-                    ("-+NI", -4),
-                    ("-++-", -5),
-                    ("+-NI", 2),
-                    ("+-+-", 3),
-                    ("INNI", 6),
-                    ("IN+-", 7),
-                    ("IINN", -5),
-                    ("IINN", 6),
-                    ("NI-+", -0.5),
-                    ("NIIN", 1.5),
-                    ("-+-+", 4.5),
-                    ("-+IN", -5.5),
-                    ("+--+", -2.5),
-                    ("+-IN", 3.5),
-                    ("IN-+", -6.5),
-                    ("ININ", 7.5),
-                    ("IINN", 1.5),
-                    ("IINN", -2.5),
-                ],
-            ):
+            with open(
+                self.get_resource_path(
+                    "two_body_test_to_second_q_op_only_alpha_expected.json",
+                    "properties/electronic_structure/integrals/resources",
+                ),
+                "r",
+            ) as file:
+                expected = json.load(file)
+            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), expected):
                 assert real_label == exp_label
                 assert np.isclose(real_coeff, exp_coeff)
 
@@ -409,50 +172,14 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
                 ElectronicBasis.MO, (mat_aa, mat_ba, mat_bb, mat_ba.T)
             )
             op = ints.to_second_q_op()
-            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(
-                op.to_list(),
-                [
-                    ("NNII", -5),
-                    ("NNII", 6),
-                    ("NINI", 8),
-                    ("+-NI", 9),
-                    ("NI-+", -12),
-                    ("+--+", -13),
-                    ("NI+-", 10),
-                    ("+-+-", 11),
-                    ("NIIN", 14),
-                    ("+-IN", 15),
-                    ("NNII", 1.5),
-                    ("NNII", -2.5),
-                    ("-+NI", -8.5),
-                    ("INNI", 9.5),
-                    ("-+-+", 12.5),
-                    ("IN-+", -13.5),
-                    ("-++-", -10.5),
-                    ("IN+-", 11.5),
-                    ("-+IN", -14.5),
-                    ("ININ", 15.5),
-                    ("NINI", 8),
-                    ("NI+-", 10),
-                    ("-+NI", -8.5),
-                    ("-++-", -10.5),
-                    ("+-NI", 9),
-                    ("+-+-", 11),
-                    ("INNI", 9.5),
-                    ("IN+-", 11.5),
-                    ("IINN", 3),
-                    ("IINN", -2),
-                    ("NI-+", -12),
-                    ("NIIN", 14),
-                    ("-+-+", 12.5),
-                    ("-+IN", -14.5),
-                    ("+--+", -13),
-                    ("+-IN", 15),
-                    ("IN-+", -13.5),
-                    ("ININ", 15.5),
-                    ("IINN", -6.5),
-                    ("IINN", 5.5),
-                ],
-            ):
+            with open(
+                self.get_resource_path(
+                    "two_body_test_to_second_q_op_alpha_and_beta_expected.json",
+                    "properties/electronic_structure/integrals/resources",
+                ),
+                "r",
+            ) as file:
+                expected = json.load(file)
+            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), expected):
                 assert real_label == exp_label
                 assert np.isclose(real_coeff, exp_coeff)
