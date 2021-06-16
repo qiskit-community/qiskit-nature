@@ -123,46 +123,26 @@ class TotalDipoleMoment(Property):
         if not qmol.has_dipole_integrals():
             return None
 
+        def dipole_along_axis(axis, mo_ints, energy_shift):
+            return DipoleMoment(
+                axis,
+                ElectronicEnergy(
+                    ElectronicBasis.MO,
+                    {1: OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints)},
+                    energy_shift=energy_shift,
+                ),
+            )
+
         return cls(
             {
-                "x": DipoleMoment(
-                    "x",
-                    ElectronicEnergy(
-                        ElectronicBasis.MO,
-                        {
-                            1: OneBodyElectronicIntegrals(
-                                ElectronicBasis.MO,
-                                (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
-                            )
-                        },
-                        energy_shift=qmol.x_dip_energy_shift,
-                    ),
+                "x": dipole_along_axis(
+                    "x", (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b), qmol.x_dip_energy_shift
                 ),
-                "y": DipoleMoment(
-                    "y",
-                    ElectronicEnergy(
-                        ElectronicBasis.MO,
-                        {
-                            1: OneBodyElectronicIntegrals(
-                                ElectronicBasis.MO,
-                                (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
-                            )
-                        },
-                        energy_shift=qmol.y_dip_energy_shift,
-                    ),
+                "y": dipole_along_axis(
+                    "y", (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b), qmol.y_dip_energy_shift
                 ),
-                "z": DipoleMoment(
-                    "z",
-                    ElectronicEnergy(
-                        ElectronicBasis.MO,
-                        {
-                            1: OneBodyElectronicIntegrals(
-                                ElectronicBasis.MO,
-                                (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
-                            )
-                        },
-                        energy_shift=qmol.z_dip_energy_shift,
-                    ),
+                "z": dipole_along_axis(
+                    "z", (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b), qmol.z_dip_energy_shift
                 ),
             },
             dipole_shift={
