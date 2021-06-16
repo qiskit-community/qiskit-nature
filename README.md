@@ -105,7 +105,7 @@ from qiskit.circuit.library import TwoLocal
 ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 
 # add the initial state
-ansatz.compose(init_state, front=True)
+ansatz.compose(init_state, front=True, inplace=True)
 
 # set the backend for the quantum computation
 from qiskit import Aer
@@ -181,7 +181,7 @@ Qiskit Nature continues to grow with the help and work of
 [many people](https://github.com/Qiskit/qiskit-nature/graphs/contributors), who contribute
 to the project at different levels.
 If you use Qiskit, please cite as per the provided
-[BibTeX file](https://github.com/Qiskit/qiskit/blob/main/Qiskit.bib).
+[BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
 
 Please note that if you do not like the way your name is cited in the BibTex file then consult
 the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/main/.mailmap)

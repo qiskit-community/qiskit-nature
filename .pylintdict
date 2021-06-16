@@ -17,6 +17,7 @@ autosummary
 avogadro
 backend
 barkoutsos
+bb
 bergholm
 berlin
 bitstring
@@ -43,6 +44,7 @@ clbit
 clbits
 cls
 cnot
+codec
 coeff
 coeffs
 commutativities
@@ -306,6 +308,7 @@ spsa
 squ
 statevector
 statevectors
+stdlib
 stdout
 sto
 stober
@@ -349,6 +352,7 @@ uncompiled
 unitaries
 untransforms
 uvcc
+vals
 variational
 verbatim
 vibrational

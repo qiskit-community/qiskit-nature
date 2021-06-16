@@ -194,8 +194,10 @@ class FermionicOp(SecondQuantizedOp):
             if register_length
             else max(max((int(c[2:]) for c in label.split()), default=0) for label, _ in data) + 1
         )
-
-        self._data = [(self._substituted_label(label), complex(coeff)) for label, coeff in data]
+        self._data = [
+            (self._substituted_label(label), complex(coeff))  # type: ignore
+            for label, coeff in data
+        ]
 
     @staticmethod
     def _substituted_label(label):
