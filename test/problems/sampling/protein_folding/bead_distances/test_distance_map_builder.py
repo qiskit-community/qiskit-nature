@@ -9,20 +9,19 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Tests DistanceCalculator."""
+"""Tests DistanceMapBuilder."""
 from test import QiskitNatureTestCase
-from qiskit.opflow import I, Z
 
 from problems.sampling.protein_folding.bead_distances import distance_map_builder
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 
-PATH = "problems/sampling/protein_folding/resources/test_distance_calculator"
+PATH = "problems/sampling/protein_folding/resources/test_distance_map_builder"
 
 
-class TestDistanceCalculator(QiskitNatureTestCase):
-    """Tests DistanceCalculator."""
+class TestDistanceMapBuilder(QiskitNatureTestCase):
+    """Tests DistanceMapBuilder."""
 
     def setUp(self):
         super().setUp()
