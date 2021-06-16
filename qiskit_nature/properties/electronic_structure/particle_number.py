@@ -14,7 +14,6 @@
 
 from typing import cast, List, Optional, Tuple, Union
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
