@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Electronic Properties (:mod:`qiskit_nature.properties.electronic_structure`)
-============================================================================
+Electronic Structure Properties (:mod:`qiskit_nature.properties.electronic_structure`)
+======================================================================================
 
 .. currentmodule:: qiskit_nature.properties.electronic_structure
 

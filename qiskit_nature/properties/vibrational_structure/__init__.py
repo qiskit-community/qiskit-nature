@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Vibrational Properties (:mod:`qiskit_nature.properties.vibrational_structure`)
-==============================================================================
+Vibrational Structure Properties (:mod:`qiskit_nature.properties.vibrational_structure`)
+========================================================================================
 
 .. currentmodule:: qiskit_nature.properties.vibrational_structure
 
