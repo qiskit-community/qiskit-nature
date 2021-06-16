@@ -302,8 +302,7 @@ def _add_edges_for_term(edge_matrix, term_str):
         if len(inds) != 2:
             raise ValueError('wrong number or raising and lowering')
         _add_one_edge(edge_matrix, *inds)
-    # For `double_excitation` create an edge between the two `+`s and
-    # edge between the two `-`s.
+    # For `double_excitation` create an edge between the two `+`s and edge between the two `-`s.
     elif ttype == 'double_excitation':
         raise_inds = [i for (i, c) in facs if c == '+']
         lower_inds = [i for (i, c) in facs if c == '-']
@@ -311,6 +310,7 @@ def _add_edges_for_term(edge_matrix, term_str):
         _add_one_edge(edge_matrix, *lower_inds)
 
     return None
+
 
 def bravyi_kitaev_fast_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     """
