@@ -1,5 +1,6 @@
 adjoint
 aer
+aij
 al
 allclose
 ancilla
@@ -21,6 +22,7 @@ bb
 bergholm
 berlin
 bitstring
+bksf
 bohr
 boltzman
 boltzmann
@@ -101,6 +103,7 @@ excitations
 extrapolator
 extrapolator's
 extrapolators
+facs
 fcidump
 fcompiler
 fermi
@@ -349,6 +352,7 @@ ucrz
 ulimit
 unary
 uncompiled
+undirected
 unitaries
 untransforms
 uvcc

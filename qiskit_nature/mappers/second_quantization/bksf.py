@@ -60,7 +60,7 @@ def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
         final_coeff = 0.5
 
     qubit_op = (final_coeff * h1_pq) * qubit_op
-    qubit_op.simplify()
+#    qubit_op.simplify()
     return qubit_op
 
 
@@ -98,16 +98,18 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
         a_pq = -a_pq if q < p else a_pq
         a_rs = -a_rs if s < r else a_rs
 
-        qubit_op = (a_pq * a_rs) * (
+
+        qubit_op =  (
             -id_op
-            - b_p * b_q
-            + b_p * b_r
-            + b_p * b_s
-            + b_q * b_r
-            + b_q * b_s
-            - b_r * b_s
-            - b_p * b_q * b_r * b_s
-        )
+            - b_q & b_p
+            + b_r & b_p
+            + b_s & b_p
+            + b_r & b_q
+            + b_s & b_q
+            - b_s & b_r
+            - b_s & b_r & b_q & b_s
+#            - b_s * b_q * b_r * b_s
+        ) & (a_rs & a_pq)
         final_coeff = 0.125
 
     # Handle case of three unique indices.
@@ -154,7 +156,7 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
         raise ValueError("unexpected sequence of indices")
 
     qubit_op = (final_coeff * h2_pqrs) * qubit_op
-    qubit_op.simplify()
+#    qubit_op.simplify()
     return qubit_op
 
 
@@ -182,7 +184,7 @@ def _unpack_term(term_str, expand_number_op=False):
     The factors are represented by tuples of the form `(i, c)`, where `i` is and index
     and `c` is a character.
     Allowed characters in `term_str` are 'N+-I`.
-    The returned tuple contains counts for `N`, `+`, and `-`, in that order. Identitiy operators
+    The returned tuple contains counts for `N`, `+`, and `-`, in that order. Identity operators
     are ignored.
 
     Args:
@@ -305,7 +307,7 @@ def _add_edges_for_term(edge_matrix, term_str):
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
     ttype = _interaction_type(n_number, n_raise, n_lower)
-    # For 'excitation' and 'number_excitation', create and edge betwen the `+` and `-`.
+    # For 'excitation' and 'number_excitation', create and edge between the `+` and `-`.
     if ttype == "excitation" or ttype == "number_excitation":
         inds = [i for (i, c) in facs if c in "+-"]
         if len(inds) != 2:
@@ -456,8 +458,7 @@ def edge_operator_bi(edge_list, i):
     qubit_position_matrix = np.asarray(np.where(edge_list == i))
     qubit_position = qubit_position_matrix[1]
     v = np.zeros(edge_list.shape[1])
-    w = np.copy(v)  # GJL
-    #    w = np.zeros(edge_list.shape[1])
+    w = np.copy(v)
     v[qubit_position] = 1
     qubit_op = Pauli((v, w))
     return SparsePauliOp(qubit_op)
@@ -514,10 +515,9 @@ class BravyiKitaevSFMapper(FermionicMapper):
     Reference arXiv:1712.00446
     """
 
-    from qiskit.chemistry import FermionicOperator
-
-    def map(self, second_q_op: FermionicOperator) -> PauliSumOp:
-        if isinstance(second_q_op, self.FermionicOperator):
+    def map(self, second_q_op) -> PauliSumOp:
+        from qiskit.chemistry import FermionicOperator
+        if isinstance(second_q_op, FermionicOperator):
             sparse_pauli = map_fermionic_operator(second_q_op)
         elif isinstance(second_q_op, FermionicOp):
             sparse_pauli = map_fermionic_op(second_q_op)
@@ -568,8 +568,6 @@ def map_fermionic_op(fer_op_qn: FermionicOp):
     return sparse_pauli
 
 
-## TODO: Does this need the einsum transform? What is passed in, in my tests.
-## Tests are local scripts, not yet in the test suite.
 def map_fermionic_operator(second_q_op):
     second_q_op = copy.deepcopy(second_q_op)
     # bksf mapping works with the 'physicist' notation.
