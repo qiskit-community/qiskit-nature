@@ -27,6 +27,14 @@ def _fix_qubits(operator: Union[PauliSumOp, PauliOp, OperatorBase]):
     Returns:
         operator_updated: an operator with relevant qubits changed to fixed values.
     """
+    # operator might be 0 because it is initialized as operator = 0; then we should not attempt fixing qubits
+    if (
+        not isinstance(operator, PauliOp)
+        and not isinstance(operator, PauliSumOp)
+        and not isinstance(operator, OperatorBase)
+    ):
+        return operator
+    operator = operator.reduce()
     new_tables = []
     new_coeffs = []
     if isinstance(operator, PauliOp):

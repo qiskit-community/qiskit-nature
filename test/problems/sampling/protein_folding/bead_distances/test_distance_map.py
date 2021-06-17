@@ -12,7 +12,6 @@
 """Tests DistanceMap."""
 from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
-import numpy as np
 from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
     MiyazawaJerniganInteraction,
 )
@@ -20,14 +19,12 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jerni
 from qiskit_nature.problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
-
 PATH = "problems/sampling/protein_folding/resources/test_distance_map"
 
 
 class TestDistanceMap(QiskitNatureTestCase):
     """Tests DistanceMap."""
 
-    # TODO compare again with the original code after uncommenting energy terms
     def test_first_neighbor(self):
         """
         Tests that Pauli operators for 1st neighbour interactions are created correctly.
@@ -66,7 +63,6 @@ class TestDistanceMap(QiskitNatureTestCase):
         expected = read_expected_file(expected_path)
         assert expr == expected
 
-    # TODO compare again with the original code after uncommenting energy terms
     def test_first_neighbor_side(self):
         """
         Tests that Pauli operators for 1st neighbour interactions are created correctly.
@@ -105,7 +101,6 @@ class TestDistanceMap(QiskitNatureTestCase):
         expected = read_expected_file(expected_path)
         assert expr == expected
 
-    # TODO compare again with the original code after uncommenting energy terms
     def test_second_neighbor(self):
         """
         Tests that Pauli operators for 2nd neighbour interactions are created correctly.
@@ -114,7 +109,8 @@ class TestDistanceMap(QiskitNatureTestCase):
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]
-        pair_energies = np.zeros((main_chain_len, 2, main_chain_len, 2))
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
 
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
@@ -125,7 +121,7 @@ class TestDistanceMap(QiskitNatureTestCase):
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
         distance_map = DistanceMap(peptide)
-        expr = distance_map._second_neighbor(
+        second_neighbour = distance_map._second_neighbor(
             peptide,
             lower_main_bead_index,
             side_chain_upper_main_bead,
@@ -139,4 +135,40 @@ class TestDistanceMap(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert expr == expected
+        assert second_neighbour == expected
+
+    def test_second_neighbor_2(self):
+        """
+        Tests that Pauli operators for 2nd neighbour interactions are created correctly.
+        """
+        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
+        main_chain_len = 5
+        side_chain_lens = [0, 0, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", None]
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
+        lambda_1 = 2
+        lower_main_bead_index = 3
+        upper_main_bead_index = 4
+        side_chain_lower_main_bead = 1
+        side_chain_upper_main_bead = 1
+        distance_map = DistanceMap(peptide)
+        second_neighbour = distance_map._second_neighbor(
+            peptide,
+            lower_main_bead_index,
+            side_chain_upper_main_bead,
+            upper_main_bead_index,
+            side_chain_lower_main_bead,
+            lambda_1,
+            pair_energies,
+        )
+        expected_path = self.get_resource_path(
+            "test_second_neighbour_2",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        assert second_neighbour == expected

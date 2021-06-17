@@ -145,7 +145,7 @@ def _create_h_back(peptide: Peptide, lambda_back: float) -> Union[PauliSumOp, Pa
     for i in range(len(main_chain) - 2):
         h_back += lambda_back * _create_turn_operators(main_chain[i], main_chain[i + 1])
 
-    h_back = _fix_qubits(h_back).reduce()
+    h_back = _fix_qubits(h_back)
     return h_back
 
 
@@ -272,7 +272,7 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
                 )
             )
         )
-        h_chiral = _fix_qubits(h_chiral).reduce()
+        h_chiral = _fix_qubits(h_chiral)
     return h_chiral
 
 
@@ -333,7 +333,7 @@ def _create_h_bbbb(
                 )
             except (IndexError, KeyError):
                 pass
-            h_bbbb = _fix_qubits(h_bbbb).reduce()
+            h_bbbb = _fix_qubits(h_bbbb)
     return h_bbbb
 
 
@@ -399,7 +399,7 @@ def _create_h_bbsc_and_h_scbb(
                     )
                 except (IndexError, KeyError, TypeError):
                     pass
-                h_bbsc = h_bbsc.reduce()
+                h_bbsc = h_bbsc
             if side_chain[i - 1] == 1:
                 h_scbb += contact_map.lower_main_upper_side[i][j] @ (
                     distance_map._first_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies)
@@ -427,12 +427,10 @@ def _create_h_bbsc_and_h_scbb(
                     )
                 except (IndexError, KeyError, TypeError):
                     pass
-                h_scbb = h_scbb.reduce()
+                h_scbb = h_scbb
 
-    if h_bbsc != 0 and h_bbsc is not None:
-        h_bbsc = _fix_qubits(h_bbsc).reduce()
-    if h_scbb != 0 and h_scbb is not None:
-        h_scbb = _fix_qubits(h_scbb).reduce()
+    h_bbsc = _fix_qubits(h_bbsc)
+    h_scbb = _fix_qubits(h_scbb)
     return h_bbsc, h_scbb
 
 
@@ -474,8 +472,7 @@ def _create_h_scsc(
                 + distance_map._second_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies)
                 + distance_map._second_neighbor(peptide, i, 0, j, 1, lambda_1, pair_energies)
             )
-            h_scsc = h_scsc.reduce()
-    return _fix_qubits(h_scsc).reduce()
+    return _fix_qubits(h_scsc)
 
 
 def _create_h_short(
@@ -511,7 +508,7 @@ def _create_h_short(
             )
             composed = op1 @ op2
             h_short += (coeff * composed).reduce()
-    h_short = _fix_qubits(h_short).reduce()
+    h_short = _fix_qubits(h_short)
 
     return h_short
 
@@ -544,5 +541,5 @@ def _create_h_contacts(
     h_contacts -= n_contacts * (full_id ^ full_id)
     h_contacts = h_contacts ** 2
     h_contacts *= lambda_contacts
-    h_contacts = _fix_qubits(h_contacts).reduce()
+    h_contacts = _fix_qubits(h_contacts)
     return h_contacts

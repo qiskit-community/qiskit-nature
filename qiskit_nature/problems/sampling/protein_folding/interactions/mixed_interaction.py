@@ -48,6 +48,6 @@ class MixedInteraction(Interaction):
                 pair_energies[i, 0, j, 0] = mj_interaction[min(aa_i, aa_j), max(aa_i, aa_j)]
             if self.additional_energies is not None:
                 for interaction in self.additional_energies:
-                    b1, b2, ener = tuple(interaction)
-                    pair_energies[b1[0], b1[1], b2[0], b2[1]] = ener
+                    bead_1, bead_2, ener = tuple(interaction)
+                    pair_energies[bead_1[0], bead_1[1], bead_2[0], bead_2[1]] = ener
         return pair_energies
