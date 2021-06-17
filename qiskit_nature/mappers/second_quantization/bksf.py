@@ -125,7 +125,7 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
         final_coeff = 0.125
 
     # Handle case of three unique indices.
-    elif len(set([p, q, r, s])) == 3:
+    elif _count_unique_elements([p, q, r, s]) == 3:
         b_p = edge_operator_bi(edge_list, p)
         b_q = edge_operator_bi(edge_list, q)
         if p == r:
@@ -156,7 +156,7 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
             raise ValueError("unexpected sequence of indices")
 
     # Handle case of two unique indices.
-    elif len(set([p, q, r, s])) == 2:
+    elif _count_unique_elements([p, q, r, s]) == 2:
         b_p = edge_operator_bi(edge_list, p)
         b_q = edge_operator_bi(edge_list, q)
         qubit_op = (id_op - b_p) * (id_op - b_q)
@@ -378,21 +378,21 @@ def bravyi_kitaev_fast_edge_list(fer_op):
 
             # Identify and skip one of the complex conjugates.
             if [p, q, r, s] != [s, r, q, p]:
-                if len(set([p, q, r, s])) == 4:
+                if _count_unique_elements([p, q, r, s]) == 4:
                     if min(r, s) < min(p, q):
                         continue
                 elif p != r and q < p:
                     continue
 
             # Handle case of four unique indices.
-            if len(set([p, q, r, s])) == 4:
+            if _count_unique_elements([p, q, r, s]) == 4:
                 if p >= q:
                     edge_matrix[p, q] = True
                     a_i, b = sorted([r, s])
                     edge_matrix[b, a_i] = True
 
             # Handle case of three unique indices.
-            elif len(set([p, q, r, s])) == 3:
+            elif _count_unique_elements([p, q, r, s]) == 3:
                 # Identify equal tensor factors.
                 if p == r:
                     a_i, b = sorted([q, s])
@@ -611,11 +611,11 @@ def map_fermionic_operator(second_q_op):
 
                     # Identify and skip one of the complex conjugates.
                     if [p, q, r, s] != [s, r, q, p]:
-                        if len(set([p, q, r, s])) == 4:
+                        if _count_unique_elements([p, q, r, s]) == 4:
                             if min(r, s) < min(p, q):
                                 continue
                         # Handle case of 3 unique indices
-                        elif len(set([p, q, r, s])) == 3:
+                        elif _count_unique_elements([p, q, r, s]) == 3:
                             sparse_pauli += _two_body(edge_list, p, q, r, s, 0.5 * h2_pqrs)
                             continue
                         elif p != r and q < p:
