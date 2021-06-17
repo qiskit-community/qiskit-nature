@@ -35,6 +35,23 @@ def _pauli_id(n_qubits):
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 
+def _number_operator(edge_list, p, h1_pq):
+    b_p = edge_operator_bi(edge_list, p)
+    id_op = _pauli_id(edge_list.shape[1])
+    qubit_op = (0.5 * h1_pq) * (id_op - b_p)
+    return qubit_op
+
+def _excitation_operator(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
+    if p >= q:
+        raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
+    b_a = edge_operator_bi(edge_list, p)
+    b_b = edge_operator_bi(edge_list, q)
+    a_ab = edge_operator_aij(edge_list, p, q)
+    qubit_op = (-1j * 0.5 * h1_pq) * (a_ab * b_b + b_a * a_ab)
+    return qubit_op
+
+
+## This function is replaced by the two functions above.
 def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
     """
     Map the term a^\\dagger_p a_q + a^\\dagger_q a_p to qubit operator.
@@ -67,13 +84,85 @@ def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
     return qubit_op
 
 
-## TODO: The type of interaction of the term is known before we call this function.
-## We should split this function into pieces and call them directly
+def _double_excitation(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
+    b_p = edge_operator_bi(edge_list, p)
+    b_q = edge_operator_bi(edge_list, q)
+    b_r = edge_operator_bi(edge_list, r)
+    b_s = edge_operator_bi(edge_list, s)
+    a_pq = edge_operator_aij(edge_list, p, q)
+    a_rs = edge_operator_aij(edge_list, r, s)
+    a_pq = -a_pq if q < p else a_pq
+    a_rs = -a_rs if s < r else a_rs
+
+    id_op = _pauli_id(edge_list.shape[1])
+    qubit_op = (a_pq * a_rs) * (
+        -id_op
+        - b_p * b_q
+        + b_p * b_r
+        + b_p * b_s
+        + b_q * b_r
+        + b_q * b_s
+        - b_r * b_s
+        - b_p * b_q * b_r * b_s
+    )
+    final_coeff = 0.125
+    qubit_op = (final_coeff * h2_pqrs) * qubit_op
+    return qubit_op
+
+
+def _coulomb_exchange(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
+    b_p = edge_operator_bi(edge_list, p)
+    b_q = edge_operator_bi(edge_list, q)
+    id_op = _pauli_id(edge_list.shape[1])
+    qubit_op = (id_op - b_p) * (id_op - b_q)
+    if p == s:
+        final_coeff = 0.25
+    else:
+        final_coeff = -0.25
+    qubit_op = (final_coeff * h2_pqrs) * qubit_op
+    return qubit_op
+
+
+def _number_excitation(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
+    b_p = edge_operator_bi(edge_list, p)
+    b_q = edge_operator_bi(edge_list, q)
+    id_op = _pauli_id(edge_list.shape[1])
+    if p == r:
+        b_s = edge_operator_bi(edge_list, s)
+        a_qs = edge_operator_aij(edge_list, q, s)
+        a_qs = -a_qs if s < q else a_qs
+        qubit_op = (a_qs * b_s + b_q * a_qs) * (id_op - b_p)
+        final_coeff = 1j * 0.25
+    elif p == s:
+        b_r = edge_operator_bi(edge_list, r)
+        a_qr = edge_operator_aij(edge_list, q, r)
+        a_qr = -a_qr if r < q else a_qr
+        qubit_op = (a_qr * b_r + b_q * a_qr) * (id_op - b_p)
+        final_coeff = 1j * -0.25
+    elif q == r:
+        b_s = edge_operator_bi(edge_list, s)
+        a_ps = edge_operator_aij(edge_list, p, s)
+        a_ps = -a_ps if s < p else a_ps
+        qubit_op = (a_ps * b_s + b_p * a_ps) * (id_op - b_q)
+        final_coeff = 1j * -0.25
+    elif q == s:
+        b_r = edge_operator_bi(edge_list, r)
+        a_pr = edge_operator_aij(edge_list, p, r)
+        a_pr = -a_pr if r < p else a_pr
+        qubit_op = (a_pr * b_r + b_p * a_pr) * (id_op - b_q)
+        final_coeff = 1j * 0.25
+    else:
+        raise ValueError("unexpected sequence of indices")
+    qubit_op = (final_coeff * h2_pqrs) * qubit_op
+    return qubit_op
+
+
+## This function is replaced by several functions above
 def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
     """
     Map the term a^\\dagger_p a^\\dagger_q a_r a_s + h.c. to qubit operator.
 
-    The indices `p, q, r, s` are assumed to by in physicists' order.
+    The indices `p, q, r, s` are assumed to be in physicists' order.
 
     Args:
         edge_list (numpy.ndarray): 2xE matrix, each indicates (from, to) pair
@@ -335,7 +424,7 @@ def _add_edges_for_term(edge_matrix, term_str):
     return None
 
 
-def bravyi_kitaev_fast_edge_list_fermionic_op(fer_op_qn: FermionicOp):
+def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     """
     Construct edge list required for the bksf algorithm.
 
@@ -351,7 +440,7 @@ def bravyi_kitaev_fast_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     return edge_list_as_2d_array
 
 
-def bravyi_kitaev_fast_edge_list(fer_op):
+def bksf_edge_list(fer_op):
     """
     Construct an edge list required for the bksf algorithm.
 
@@ -492,10 +581,11 @@ def _add_sparse_pauli(qubit_op1, qubit_op2):
         return qubit_op1 + qubit_op2
 
 
-def _reorder_indices(facs):
+def _to_physicist_index_order(facs):
     """
     Reorder the factors `facs` to be two raising operators followed by two lowering operators and
-    return the new factors and the phase incurred by the reordering.
+    return the new factors and the phase incurred by the reordering. Note that `facs` are not in
+    chemists' order, but rather sorted by index with least index first.
 
     Args:
       facs: a list of factors where each element is `(i, c)` where `i` is an integer index and
@@ -548,34 +638,44 @@ class BravyiKitaevSFMapper(FermionicMapper):
 
 
 def map_fermionic_op(fer_op_qn: FermionicOp):
-    edge_list = bravyi_kitaev_fast_edge_list_fermionic_op(fer_op_qn)
+    edge_list = bksf_edge_list_fermionic_op(fer_op_qn)
     fer_op_list = fer_op_qn.to_list()
     sparse_pauli = None
     for term in fer_op_list:
         term_type, facs = analyze_term(operator_string(term))
         if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
-        if term_type == "excitation" or term_type == "number":
-            (p, q) = [facs[i][0] for i in range(2)]  # p <= q always
+
+        if term_type == "number":  # a^\dagger_p a_p
+            p = facs[0][0]
             h1_pq = operator_coefficient(term)
-            sparse_pauli = _add_sparse_pauli(sparse_pauli, _one_body(edge_list, p, q, h1_pq))
+            sparse_pauli = _add_sparse_pauli(sparse_pauli, _number_operator(edge_list, p, h1_pq))
 
-        ## TODO: This can be simplified along with breaking up `_two_body`
-        elif (
-            term_type == "number_excitation"
-            or term_type == "double_excitation"
-            or term_type == "coulomb_exchange"
-        ):
+        elif term_type == "excitation":
+            (p, q) = [facs[i][0] for i in range(2)]  # p < q always
+            h1_pq = operator_coefficient(term)
+            sparse_pauli = _add_sparse_pauli(sparse_pauli, _excitation_operator(edge_list, p, q, h1_pq))
 
-            facs_reordered, phase = _reorder_indices(facs)
+        else:
+            facs_reordered, phase = _to_physicist_index_order(facs)
             h2_pqrs = phase * operator_coefficient(term)
             (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]
-            # dividing by two follows previous code. But, result differs in more terms if we divide by 2
-            if term_type == "number_excitation":
-                h2_pqrs /= 1
-            sparse_pauli = _add_sparse_pauli(
-                sparse_pauli, _two_body(edge_list, p, q, r, s, h2_pqrs)
-            )
+            if term_type == "double_excitation":
+                sparse_pauli = _add_sparse_pauli(
+                    sparse_pauli, _double_excitation(edge_list, p, q, r, s, h2_pqrs)
+                )
+            elif term_type == "coulomb_exchange":
+                sparse_pauli = _add_sparse_pauli(
+                    sparse_pauli, _coulomb_exchange(edge_list, p, q, r, s, h2_pqrs)
+                )
+            elif term_type == "number_excitation":
+                # dividing by two follows previous code. But, result differs in more terms if we divide by 2
+                h2_pqrs /= 1  # aqua code has /= 2 here. But, that seems wrong
+                sparse_pauli = _add_sparse_pauli(
+                    sparse_pauli, _two_body(edge_list, p, q, r, s, h2_pqrs)
+                )
+            else:
+                raise ValueError("Unknown interaction: ", term_type)
 
     return sparse_pauli
 
@@ -587,7 +687,7 @@ def map_fermionic_operator(second_q_op):
     modes = second_q_op.modes
     # Initialize qubit operator as constant.
     sparse_pauli = None  # SparsePauliOp.from_operator(Pauli(([False], [False])))
-    edge_list = bravyi_kitaev_fast_edge_list(second_q_op)
+    edge_list = bksf_edge_list(second_q_op)
     # Loop through all indices.
     for p in range(modes):  # pylint: disable=invalid-name
         for q in range(modes):
