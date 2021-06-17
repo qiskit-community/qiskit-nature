@@ -110,7 +110,7 @@ def _double_excitation(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=inval
     return qubit_op
 
 
-def _coulomb_exchange(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
+def _coulomb_exchange(edge_list, p, q, s, h2_pqrs):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -636,7 +636,6 @@ class BravyiKitaevSFMapper(FermionicMapper):
 
 #    return PauliSumOp(SparsePauliOp(table, coeffs))  # don't forget to return this when all is debugged.
 
-
 def map_fermionic_op(fer_op_qn: FermionicOp):
     edge_list = bksf_edge_list_fermionic_op(fer_op_qn)
     fer_op_list = fer_op_qn.to_list()
@@ -666,7 +665,7 @@ def map_fermionic_op(fer_op_qn: FermionicOp):
                 )
             elif term_type == "coulomb_exchange":
                 sparse_pauli = _add_sparse_pauli(
-                    sparse_pauli, _coulomb_exchange(edge_list, p, q, r, s, h2_pqrs)
+                    sparse_pauli, _coulomb_exchange(edge_list, p, q, s, h2_pqrs)
                 )
             elif term_type == "number_excitation":
                 # dividing by two follows previous code. But, result differs in more terms if we divide by 2
