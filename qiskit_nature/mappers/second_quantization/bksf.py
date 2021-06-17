@@ -60,7 +60,6 @@ def _one_body(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
         final_coeff = 0.5
 
     qubit_op = (final_coeff * h1_pq) * qubit_op
-#    qubit_op.simplify()
     return qubit_op
 
 
@@ -86,7 +85,6 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
     # Handle case of four unique indices.
     id_op = _pauli_id(edge_list.shape[1])
     final_coeff = 1.0
-    # qubit_op = None
 
     if len(set([p, q, r, s])) == 4:
         b_p = edge_operator_bi(edge_list, p)
