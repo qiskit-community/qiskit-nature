@@ -15,20 +15,35 @@ from typing import List, Tuple, Union
 
 from qiskit.opflow import PauliOp, OperatorBase
 
-from problems.sampling.protein_folding.residue_validator import _validate_residue_symbol
+from ..pauli_ops_builder import _build_full_identity
+from ...residue_validator import _validate_residue_symbol
 
 
 class BaseBead(ABC):
     """An abstract class defining a bead of a peptide."""
 
     def __init__(
-        self, chain_type: str, main_index: int, residue_type: str, turn_qubits: List[PauliOp]
+        self,
+        chain_type: str,
+        main_index: int,
+        residue_type: str,
+        turn_qubits: List[PauliOp],
+        _build_turn_indicator_fun_0,
+        _build_turn_indicator_fun_1,
+        _build_turn_indicator_fun_2,
+        _build_turn_indicator_fun_3,
     ):
         self.chain_type = chain_type
         self.main_index = main_index
         self._residue_type = residue_type
         _validate_residue_symbol(residue_type)
         self._turn_qubits = turn_qubits
+        if self._residue_type is not None and self.turn_qubits is not None:
+            full_id = _build_full_identity(turn_qubits[0].num_qubits)
+            self._turn_indicator_fun_0 = _build_turn_indicator_fun_0(full_id)
+            self._turn_indicator_fun_1 = _build_turn_indicator_fun_1(full_id)
+            self._turn_indicator_fun_2 = _build_turn_indicator_fun_2(full_id)
+            self._turn_indicator_fun_3 = _build_turn_indicator_fun_3(full_id)
 
     @property
     def turn_qubits(self) -> List[PauliOp]:

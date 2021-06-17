@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """A class defining a random interaction between beads of a peptide."""
 import numpy as np
-from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction
+from ..interactions.interaction import Interaction
 
 
 class RandomInteraction(Interaction):

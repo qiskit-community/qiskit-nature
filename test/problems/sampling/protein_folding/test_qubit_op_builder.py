@@ -14,7 +14,7 @@ from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 
 from qiskit.opflow import PauliSumOp
-from problems.sampling.protein_folding.qubit_op_builder import (
+from qiskit_nature.problems.sampling.protein_folding.qubit_op_builder import (
     _create_h_back,
     _create_h_chiral,
     _create_h_bbbb,
@@ -24,12 +24,12 @@ from problems.sampling.protein_folding.qubit_op_builder import (
     _create_h_short,
     _create_turn_operators,
 )
-from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
-from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
+from qiskit_nature.problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
+from qiskit_nature.problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
+from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
     MiyazawaJerniganInteraction,
 )
-from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
+from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 PATH = "problems/sampling/protein_folding/resources/test_qubit_op_builder"

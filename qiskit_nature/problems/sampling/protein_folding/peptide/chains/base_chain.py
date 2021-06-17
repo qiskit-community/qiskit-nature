@@ -15,8 +15,8 @@ from typing import List
 
 from qiskit.opflow import PauliOp
 
-from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
-from qiskit_nature.problems.sampling.protein_folding.peptide.pauli_ops_builder import (
+from ...peptide.beads.base_bead import BaseBead
+from ...peptide.pauli_ops_builder import (
     _build_full_identity,
     _build_pauli_z_op,
 )

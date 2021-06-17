@@ -14,9 +14,8 @@ from typing import List
 
 from qiskit.opflow import PauliOp
 
-from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
-from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
-from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain import SideChain
+from ...peptide.beads.base_bead import BaseBead
+from ...peptide.chains.side_chain import SideChain
 
 
 class MainBead(BaseBead):
@@ -25,14 +24,18 @@ class MainBead(BaseBead):
     def __init__(
         self, main_index: int, residue_type: str, turn_qubits: List[PauliOp], side_chain: SideChain
     ):
-        super().__init__("main_chain", main_index, residue_type, turn_qubits)
+
+        super().__init__(
+            "main_chain",
+            main_index,
+            residue_type,
+            turn_qubits,
+            self._build_turn_indicator_fun_0,
+            self._build_turn_indicator_fun_1,
+            self._build_turn_indicator_fun_2,
+            self._build_turn_indicator_fun_3,
+        )
         self._side_chain = side_chain
-        if self._residue_type is not None and self.turn_qubits is not None:
-            full_id = _build_full_identity(turn_qubits[0].num_qubits)
-            self._turn_indicator_fun_0 = self._build_turn_indicator_fun_0(full_id)
-            self._turn_indicator_fun_1 = self._build_turn_indicator_fun_1(full_id)
-            self._turn_indicator_fun_2 = self._build_turn_indicator_fun_2(full_id)
-            self._turn_indicator_fun_3 = self._build_turn_indicator_fun_3(full_id)
 
     def __str__(self):
         return self.chain_type + "_" + str(self.main_index)

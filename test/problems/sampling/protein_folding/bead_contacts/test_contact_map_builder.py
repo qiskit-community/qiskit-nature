@@ -14,9 +14,9 @@ from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit.opflow import I, Z
 
-from problems.sampling.protein_folding.bead_contacts import contact_map_builder
-from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.peptide.peptide import Peptide
+from qiskit_nature.problems.sampling.protein_folding.bead_contacts import contact_map_builder
+from qiskit_nature.problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
+from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 PATH = "problems/sampling/protein_folding/resources/test_contact_map_builder"
 
@@ -71,17 +71,17 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         assert lower_main_upper_main == {
             1: {
                 6: 0.5
-                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                   - 0.5
-                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
+                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                - 0.5
+                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
             }
         }
         assert lower_side_upper_main == {
             1: {
                 5: 0.5
-                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                   - 0.5
-                   * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
+                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                - 0.5
+                * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
             }
         }
         assert lower_main_upper_side == {}

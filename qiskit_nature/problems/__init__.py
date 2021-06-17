@@ -25,12 +25,17 @@ Second-Quantization Problems
 
    second_quantization
 
-"""
+Sampling Problems
+++++++++++++++++++++++++++++
 
+.. autosummary::
+   :toctree:
+
+   sampling
+
+"""
+from .sampling import ProteinFoldingProblem
 from .second_quantization import ElectronicStructureProblem
 from .second_quantization import VibrationalStructureProblem
 
-__all__ = [
-    "ElectronicStructureProblem",
-    "VibrationalStructureProblem",
-]
+__all__ = ["ElectronicStructureProblem", "VibrationalStructureProblem", "ProteinFoldingProblem"]

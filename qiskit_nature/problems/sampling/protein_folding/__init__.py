@@ -9,3 +9,15 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""
+Protein Folding Problems (:mod:`qiskit_nature.problems.sampling.protein_folding`)
+==============================================================================================
+
+.. currentmodule:: qiskit_nature.problems.sampling.protein_folding
+"""
+
+from .protein_folding_problem import ProteinFoldingProblem
+
+__all__ = [
+    "ProteinFoldingProblem",
+]

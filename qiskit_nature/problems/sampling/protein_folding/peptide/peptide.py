@@ -12,8 +12,8 @@
 """A class containing information about beads and chains of a protein."""
 from typing import List
 
-from problems.sampling.protein_folding.peptide.chains.side_chain import SideChain
-from qiskit_nature.problems.sampling.protein_folding.peptide.chains.main_chain import MainChain
+from ..peptide.chains.side_chain import SideChain
+from ..peptide.chains.main_chain import MainChain
 
 
 class Peptide:

@@ -12,7 +12,7 @@
 """Validates protein residues provided."""
 from typing import List
 
-from problems.sampling.protein_folding.exceptions.invalid_residue_exception import (
+from .exceptions.invalid_residue_exception import (
     InvalidResidueException,
 )
 
@@ -36,7 +36,7 @@ def _validate_residue_symbol(residue_symbol: str):
     Args:
         residue_symbol: symbol of a residue.
 
-    Throws:
+    Raises:
         InvalidResidueException: if a symbol provided is not legal.
     """
     valid_residues = [

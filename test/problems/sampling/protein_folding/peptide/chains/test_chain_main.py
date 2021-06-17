@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Tests MainChain."""
 from test import QiskitNatureTestCase
-from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
+from qiskit_nature.problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
 )
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.main_chain import MainChain

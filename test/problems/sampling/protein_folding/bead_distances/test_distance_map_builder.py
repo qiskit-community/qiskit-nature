@@ -12,8 +12,8 @@
 """Tests DistanceMapBuilder."""
 from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
-from problems.sampling.protein_folding.bead_distances import distance_map_builder
-from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
+from qiskit_nature.problems.sampling.protein_folding.bead_distances import distance_map_builder
+from qiskit_nature.problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 PATH = "problems/sampling/protein_folding/resources/test_distance_map_builder"

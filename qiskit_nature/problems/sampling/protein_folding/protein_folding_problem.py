@@ -10,11 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Defines a protein folding problem that can be passed to algorithms."""
-from problems.sampling.protein_folding.qubit_op_builder import _build_qubit_op
-from problems.sampling.protein_folding.peptide.peptide import Peptide
-from qiskit_nature.problems.sampling.protein_folding.interactions.interaction import Interaction
-from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
-from qiskit_nature.problems.sampling.sampling_problem import SamplingProblem
+from .qubit_op_builder import _build_qubit_op
+from .peptide.peptide import Peptide
+from .interactions.interaction import Interaction
+from .penalty_parameters import PenaltyParameters
+from ..sampling_problem import SamplingProblem
 
 
 class ProteinFoldingProblem(SamplingProblem):

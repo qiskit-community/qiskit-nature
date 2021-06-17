@@ -12,7 +12,7 @@
 """Tests QubitNumberReducer."""
 from test import QiskitNatureTestCase
 from qiskit.opflow import I, Z
-from problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import (
+from qiskit_nature.problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import (
     _find_unused_qubits,
     _remove_unused_qubits,
 )

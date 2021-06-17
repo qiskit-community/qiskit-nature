@@ -12,11 +12,11 @@
 """A class defining a side chain of a peptide."""
 from typing import List, Union
 
-from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
+from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
 )
-from qiskit_nature.problems.sampling.protein_folding.peptide.beads.side_bead import SideBead
-from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain import BaseChain
+from ...peptide.beads.side_bead import SideBead
+from ...peptide.chains.base_chain import BaseChain
 
 
 class SideChain(BaseChain):
@@ -52,6 +52,9 @@ class SideChain(BaseChain):
 
         Returns:
             side_chain: an instance of a SideChain class.
+
+        Raises:
+            InvalidSideChainException: if side chains of length greater than 1 provided.
         """
         if side_chain_len > 1:
             raise InvalidSideChainException(

@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Tests Peptide."""
 from test import QiskitNatureTestCase
-from problems.sampling.protein_folding.peptide.peptide import Peptide
+from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
 class TestPeptide(QiskitNatureTestCase):

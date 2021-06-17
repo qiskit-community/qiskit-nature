@@ -14,17 +14,17 @@ from typing import List, Union
 
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
-from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
-from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
-from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
+from .bead_contacts.contact_map import ContactMap
+from .bead_distances.distance_map import DistanceMap
+from .exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
 )
-from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
-from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
-from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
-from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
-from qiskit_nature.problems.sampling.protein_folding.peptide.beads.base_bead import BaseBead
-from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
+from .exceptions.invalid_size_exception import InvalidSizeException
+from .penalty_parameters import PenaltyParameters
+from .peptide.pauli_ops_builder import _build_full_identity
+from .qubit_utils.qubit_fixing import _fix_qubits
+from .peptide.beads.base_bead import BaseBead
+from .peptide.peptide import Peptide
 
 
 # TODO link to a SamplingQubitOpBuilder interface
@@ -48,6 +48,10 @@ def _build_qubit_op(
 
     Returns:
         h_total: A total Hamiltonian for the protein folding problem.
+
+    Raises:
+        InvalidSizeException: if chains of onvalid/incompatible sizes provided.
+        InvalidSideChainException: if side chains on forbidden indices provided.
     """
     lambda_chiral, lambda_back, lambda_1, lambda_contacts = (
         penalty_parameters.lambda_chiral,

@@ -12,7 +12,7 @@
 """Tests QubitFixing."""
 from test import QiskitNatureTestCase
 from qiskit.opflow import I, Z, PauliSumOp
-from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
+from qiskit_nature.problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
 
 
 class TestQubitFixing(QiskitNatureTestCase):

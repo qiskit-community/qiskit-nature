@@ -12,13 +12,13 @@
 """A class defining a main chain of a peptide."""
 from typing import List
 
-from problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
+from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
 )
-from problems.sampling.protein_folding.exceptions.invalid_size_exception import InvalidSizeException
-from qiskit_nature.problems.sampling.protein_folding.peptide.beads.main_bead import MainBead
-from qiskit_nature.problems.sampling.protein_folding.peptide.chains.base_chain import BaseChain
-from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain import SideChain
+from ...exceptions.invalid_size_exception import InvalidSizeException
+from ...peptide.beads.main_bead import MainBead
+from ...peptide.chains.base_chain import BaseChain
+from ...peptide.chains.side_chain import SideChain
 
 
 class MainChain(BaseChain):

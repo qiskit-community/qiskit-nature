@@ -16,11 +16,11 @@ from typing import Tuple, DefaultDict
 
 from qiskit.opflow import PauliSumOp, OperatorBase
 
-from problems.sampling.protein_folding.peptide.pauli_ops_builder import (
+from ..peptide.pauli_ops_builder import (
     _build_pauli_z_op,
     _build_full_identity,
 )
-from problems.sampling.protein_folding.peptide.peptide import Peptide
+from ..peptide.peptide import Peptide
 
 logger = logging.getLogger(__name__)
 

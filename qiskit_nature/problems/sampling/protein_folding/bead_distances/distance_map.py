@@ -14,12 +14,12 @@ from typing import List, Union
 
 from qiskit.opflow import PauliSumOp, PauliOp
 
-from problems.sampling.protein_folding.bead_distances.distance_map_builder import (
+from ..bead_distances.distance_map_builder import (
     _create_distance_qubits,
 )
-from problems.sampling.protein_folding.peptide.pauli_ops_builder import _build_full_identity
-from problems.sampling.protein_folding.peptide.peptide import Peptide
-from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
+from ..peptide.pauli_ops_builder import _build_full_identity
+from ..peptide.peptide import Peptide
+from ..qubit_utils.qubit_fixing import _fix_qubits
 
 
 class DistanceMap:

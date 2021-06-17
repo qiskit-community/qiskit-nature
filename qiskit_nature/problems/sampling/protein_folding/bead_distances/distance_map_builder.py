@@ -13,8 +13,8 @@
 import collections
 import logging
 
-from problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
-from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
+from ..qubit_utils.qubit_fixing import _fix_qubits
+from ..peptide.peptide import Peptide
 
 logger = logging.getLogger(__name__)
 
