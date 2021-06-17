@@ -11,14 +11,14 @@
 # that they have been altered from the originals.
 """Tests QubitOpBuilder."""
 from test import QiskitNatureTestCase
-from qiskit.opflow import I, Z, PauliSumOp
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 
+from qiskit.opflow import PauliSumOp
 from problems.sampling.protein_folding.qubit_op_builder import (
     _create_h_back,
     _create_h_chiral,
     _create_h_bbbb,
     _create_h_bbsc_and_h_scbb,
-    _create_h_scsc,
     _create_h_contacts,
     _build_qubit_op,
     _create_h_short,
@@ -31,7 +31,6 @@ from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interactio
 )
 from problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
-from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 
 PATH = "problems/sampling/protein_folding/resources/test_qubit_op_builder"
 

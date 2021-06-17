@@ -11,13 +11,13 @@
 # that they have been altered from the originals.
 """Tests ProteinFoldingProblem."""
 from test import QiskitNatureTestCase
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
     MiyazawaJerniganInteraction,
 )
 from problems.sampling.protein_folding.peptide.peptide import Peptide
 from problems.sampling.protein_folding.protein_folding_problem import ProteinFoldingProblem
 from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
-from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 
 PATH = "problems/sampling/protein_folding/resources/test_protein_folding_problem"
 

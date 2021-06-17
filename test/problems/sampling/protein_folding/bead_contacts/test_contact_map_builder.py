@@ -10,13 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests ContactMapBuilder."""
+from test import QiskitNatureTestCase
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit.opflow import I, Z
 
-from test import QiskitNatureTestCase
 from problems.sampling.protein_folding.bead_contacts import contact_map_builder
 from problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
 from problems.sampling.protein_folding.peptide.peptide import Peptide
-from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 
 PATH = "problems/sampling/protein_folding/resources/test_contact_map_builder"
 
@@ -71,17 +71,17 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         assert lower_main_upper_main == {
             1: {
                 6: 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                - 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
+                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                   - 0.5
+                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
             }
         }
         assert lower_side_upper_main == {
             1: {
                 5: 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                - 0.5
-                * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
+                   * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+                   - 0.5
+                   * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
             }
         }
         assert lower_main_upper_side == {}
@@ -191,4 +191,3 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         assert new_qubits[3] == expected_3
         assert new_qubits[4] == expected_4
         assert new_qubits[5] == expected_5
-

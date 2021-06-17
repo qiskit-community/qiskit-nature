@@ -11,13 +11,14 @@
 # that they have been altered from the originals.
 """Tests DistanceMap."""
 from test import QiskitNatureTestCase
+from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 import numpy as np
 from problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import \
     MiyazawaJerniganInteraction
 
 from problems.sampling.protein_folding.bead_distances.distance_map import DistanceMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
-from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
+
 
 PATH = "problems/sampling/protein_folding/resources/test_distance_map"
 
