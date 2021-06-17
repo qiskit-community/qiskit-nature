@@ -399,7 +399,6 @@ def _create_h_bbsc_and_h_scbb(
                     )
                 except (IndexError, KeyError, TypeError):
                     pass
-                h_bbsc = h_bbsc
             if side_chain[i - 1] == 1:
                 h_scbb += contact_map.lower_main_upper_side[i][j] @ (
                     distance_map._first_neighbor(peptide, i, 1, j, 0, lambda_1, pair_energies)
@@ -427,7 +426,6 @@ def _create_h_bbsc_and_h_scbb(
                     )
                 except (IndexError, KeyError, TypeError):
                     pass
-                h_scbb = h_scbb
 
     h_bbsc = _fix_qubits(h_bbsc)
     h_scbb = _fix_qubits(h_scbb)
