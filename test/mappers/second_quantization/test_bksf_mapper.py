@@ -35,10 +35,10 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
         qterm_b2 = edge_operator_bi(edge_list, 2)
         qterm_b3 = edge_operator_bi(edge_list, 3)
 
-        ref_qterm_b0 = SparsePauliOp('IIIZZZ')
-        ref_qterm_b1 = SparsePauliOp('IZZIIZ')
-        ref_qterm_b2 = SparsePauliOp('ZIZIZI')
-        ref_qterm_b3 = SparsePauliOp('ZZIZII')
+        ref_qterm_b0 = SparsePauliOp("IIIZZZ")
+        ref_qterm_b1 = SparsePauliOp("IZZIIZ")
+        ref_qterm_b2 = SparsePauliOp("ZIZIZI")
+        ref_qterm_b3 = SparsePauliOp("ZZIZII")
 
         with self.subTest("Test 1"):
             self.assertEqual(qterm_b0, ref_qterm_b0)
@@ -60,12 +60,12 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
         qterm_a13 = edge_operator_aij(edge_list, 1, 3)
         qterm_a23 = edge_operator_aij(edge_list, 2, 3)
 
-        ref_qterm_a01 = SparsePauliOp('IIIIIX')
-        ref_qterm_a02 = SparsePauliOp('IIIIXZ')
-        ref_qterm_a03 = SparsePauliOp('IIIXZZ')
-        ref_qterm_a12 = SparsePauliOp('IIXIZZ')
-        ref_qterm_a13 = SparsePauliOp('IXZZIZ')
-        ref_qterm_a23 = SparsePauliOp('XZZZZI')
+        ref_qterm_a01 = SparsePauliOp("IIIIIX")
+        ref_qterm_a02 = SparsePauliOp("IIIIXZ")
+        ref_qterm_a03 = SparsePauliOp("IIIXZZ")
+        ref_qterm_a12 = SparsePauliOp("IIXIZZ")
+        ref_qterm_a13 = SparsePauliOp("IXZZIZ")
+        ref_qterm_a23 = SparsePauliOp("XZZZZI")
 
         with self.subTest("Test 1"):
             self.assertEqual(qterm_a01, ref_qterm_a01)

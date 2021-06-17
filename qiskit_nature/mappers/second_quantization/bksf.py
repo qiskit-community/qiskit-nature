@@ -24,6 +24,7 @@ from qiskit.chemistry import FermionicOperator
 
 from .fermionic_mapper import FermionicMapper
 
+
 def _pauli_id(n_qubits):
     """
     Return an `n_qubits`-identity `SparsePauliOp`.
@@ -98,9 +99,16 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
         a_pq = -a_pq if q < p else a_pq
         a_rs = -a_rs if s < r else a_rs
 
-        qubit_op = (a_pq * a_rs) * (-id_op - b_p * b_q + b_p * b_r
-                                    + b_p * b_s + b_q * b_r + b_q * b_s
-                                    - b_r * b_s - b_p * b_q * b_r * b_s)
+        qubit_op = (a_pq * a_rs) * (
+            -id_op
+            - b_p * b_q
+            + b_p * b_r
+            + b_p * b_s
+            + b_q * b_r
+            + b_q * b_s
+            - b_r * b_s
+            - b_p * b_q * b_r * b_s
+        )
         final_coeff = 0.125
 
     # Handle case of three unique indices.
@@ -132,7 +140,7 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
             qubit_op = (a_pr * b_r + b_p * a_pr) * (id_op - b_q)
             final_coeff = 1j * 0.25
         else:
-            raise ValueError('unexpected sequence of indices')
+            raise ValueError("unexpected sequence of indices")
 
     # Handle case of two unique indices.
     elif len(set([p, q, r, s])) == 2:
@@ -144,7 +152,7 @@ def _two_body(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
         else:
             final_coeff = -0.25
     else:
-        raise ValueError('unexpected sequence of indices')
+        raise ValueError("unexpected sequence of indices")
 
     qubit_op = (final_coeff * h2_pqrs) * qubit_op
     qubit_op.simplify()
@@ -186,23 +194,23 @@ def _unpack_term(term_str, expand_number_op=False):
     (n_number, n_raise, n_lower) = (0, 0, 0)
     facs = []
     for i, c in enumerate(term_str):
-        if c == 'I':
+        if c == "I":
             continue
-        if c == '+':
+        if c == "+":
             n_raise += 1
-            facs.append((i, '+'))
-        elif c == '-':
+            facs.append((i, "+"))
+        elif c == "-":
             n_lower += 1
-            facs.append((i, '-'))
-        elif c == 'N':
+            facs.append((i, "-"))
+        elif c == "N":
             n_number += 1
             if expand_number_op:
-                facs.append((i, '+'))
-                facs.append((i, '-'))
+                facs.append((i, "+"))
+                facs.append((i, "-"))
             else:
-                facs.append((i, 'N'))
+                facs.append((i, "N"))
         else:
-            raise ValueError('Unexpected operator ', c, ' in term.')
+            raise ValueError("Unexpected operator ", c, " in term.")
 
     return (n_number, n_raise, n_lower), facs
 
@@ -222,20 +230,20 @@ def _interaction_type(n_number, n_raise, n_lower):
     """
     if n_raise == 0 and n_lower == 0:
         if n_number == 1:
-            return 'number'
+            return "number"
         elif n_number == 2:
-            return 'coulomb_exchange'
+            return "coulomb_exchange"
         else:
-            raise ValueError('unexpected number of number operators')
+            raise ValueError("unexpected number of number operators")
     elif n_raise == 1 and n_lower == 1:
         if n_number == 1:
-            return 'number_excitation'
+            return "number_excitation"
         elif n_number == 0:
-            return 'excitation'
+            return "excitation"
         else:
-            raise ValueError('unexpected number of number operators')
+            raise ValueError("unexpected number of number operators")
     elif n_raise == 2 and n_lower == 2:
-        return 'double_excitation'
+        return "double_excitation"
     else:
         raise ValueError("unexpected number of operators")
 
@@ -288,7 +296,7 @@ def _add_one_edge(edge_matrix, i, j):
     elif j < i:
         edge_matrix[j, i] = True
     else:
-        raise ValueError('expecting i != j')
+        raise ValueError("expecting i != j")
     return None
 
 
@@ -299,15 +307,15 @@ def _add_edges_for_term(edge_matrix, term_str):
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
     ttype = _interaction_type(n_number, n_raise, n_lower)
     # For 'excitation' and 'number_excitation', create and edge betwen the `+` and `-`.
-    if ttype == 'excitation' or ttype == 'number_excitation':
-        inds = [i for (i, c) in facs if c in '+-']
+    if ttype == "excitation" or ttype == "number_excitation":
+        inds = [i for (i, c) in facs if c in "+-"]
         if len(inds) != 2:
-            raise ValueError('wrong number or raising and lowering')
+            raise ValueError("wrong number or raising and lowering")
         _add_one_edge(edge_matrix, *inds)
     # For `double_excitation` create an edge between the two `+`s and edge between the two `-`s.
-    elif ttype == 'double_excitation':
-        raise_inds = [i for (i, c) in facs if c == '+']
-        lower_inds = [i for (i, c) in facs if c == '-']
+    elif ttype == "double_excitation":
+        raise_inds = [i for (i, c) in facs if c == "+"]
+        lower_inds = [i for (i, c) in facs if c == "-"]
         _add_one_edge(edge_matrix, *raise_inds)
         _add_one_edge(edge_matrix, *lower_inds)
 
@@ -432,6 +440,7 @@ def edge_operator_aij(edge_list, i, j):
     qubit_op = Pauli((v, w))
     return SparsePauliOp(qubit_op)
 
+
 def edge_operator_bi(edge_list, i):
     """Calculate the edge operator B_i.
 
@@ -448,8 +457,8 @@ def edge_operator_bi(edge_list, i):
     qubit_position_matrix = np.asarray(np.where(edge_list == i))
     qubit_position = qubit_position_matrix[1]
     v = np.zeros(edge_list.shape[1])
-    w = np.copy(v) # GJL
-#    w = np.zeros(edge_list.shape[1])
+    w = np.copy(v)  # GJL
+    #    w = np.zeros(edge_list.shape[1])
     v[qubit_position] = 1
     qubit_op = Pauli((v, w))
     return SparsePauliOp(qubit_op)
@@ -486,17 +495,17 @@ def _reorder_indices(facs):
         phase: Either `1` or `-1`.
     """
     ops = [fac[1] for fac in facs]
-    if ops == ['+', '+', '-', '-']:
+    if ops == ["+", "+", "-", "-"]:
         facs_out = facs
         phase = 1
-    elif ops == ['+', '-', '+', '-']:
+    elif ops == ["+", "-", "+", "-"]:
         facs_out = [facs[0], facs[2], facs[1], facs[3]]
         phase = -1
-    elif ops == ['+', '-', '-', '+']:
+    elif ops == ["+", "-", "-", "+"]:
         facs_out = [facs[0], facs[3], facs[1], facs[2]]
         phase = 1
     else:
-        raise ValueError('unexpected sequence of operators', facs)
+        raise ValueError("unexpected sequence of operators", facs)
     return facs_out, phase
 
 
@@ -505,13 +514,14 @@ class BravyiKitaevSFMapper(FermionicMapper):
 
     Reference arXiv:1712.00446
     """
+
     def map(self, second_q_op: FermionicOperator) -> PauliSumOp:
         if isinstance(second_q_op, FermionicOperator):
             sparse_pauli = map_fermionic_operator(second_q_op)
         elif isinstance(second_q_op, FermionicOp):
-            sparse_pauli =  map_fermionic_op(second_q_op)
+            sparse_pauli = map_fermionic_op(second_q_op)
         else:
-            raise TypeError('Type ', type(second_q_op), ' not supported.')
+            raise TypeError("Type ", type(second_q_op), " not supported.")
 
         sparse_pauli = sparse_pauli.simplify()
         indices = sparse_pauli.table.argsort()
@@ -519,6 +529,8 @@ class BravyiKitaevSFMapper(FermionicMapper):
         coeffs = sparse_pauli.coeffs[indices]
 
         return SparsePauliOp(table, coeffs)
+
+
 #    return PauliSumOp(SparsePauliOp(table, coeffs))  # don't forget to return this when all is debugged.
 
 
@@ -528,24 +540,29 @@ def map_fermionic_op(fer_op_qn: FermionicOp):
     sparse_pauli = None
     for term in fer_op_list:
         term_type, facs = analyze_term(operator_string(term))
-        if facs[0][1] == '-': # keep only one of h.c. pair
+        if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
-        if term_type == 'excitation' or term_type == 'number':
-            (p, q) = [facs[i][0] for i in range(2)] # p <= q always
+        if term_type == "excitation" or term_type == "number":
+            (p, q) = [facs[i][0] for i in range(2)]  # p <= q always
             h1_pq = operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(sparse_pauli, _one_body(edge_list, p, q, h1_pq))
 
         ## TODO: This can be simplified along with breaking up `_two_body`
-        elif (term_type == 'number_excitation' or term_type == 'double_excitation' or
-              term_type == 'coulomb_exchange'):
+        elif (
+            term_type == "number_excitation"
+            or term_type == "double_excitation"
+            or term_type == "coulomb_exchange"
+        ):
 
             facs_reordered, phase = _reorder_indices(facs)
             h2_pqrs = phase * operator_coefficient(term)
             (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]
             # dividing by two follows previous code. But, result differs in more terms if we divide by 2
-            if term_type == 'number_excitation':
+            if term_type == "number_excitation":
                 h2_pqrs /= 1
-            sparse_pauli = _add_sparse_pauli(sparse_pauli, _two_body(edge_list, p, q, r, s, h2_pqrs))
+            sparse_pauli = _add_sparse_pauli(
+                sparse_pauli, _two_body(edge_list, p, q, r, s, h2_pqrs)
+            )
 
     return sparse_pauli
 
@@ -555,10 +572,10 @@ def map_fermionic_op(fer_op_qn: FermionicOp):
 def map_fermionic_operator(second_q_op: FermionicOperator):
     second_q_op = copy.deepcopy(second_q_op)
     # bksf mapping works with the 'physicist' notation.
-    second_q_op.h2 = np.einsum('ijkm->ikmj', second_q_op.h2)
+    second_q_op.h2 = np.einsum("ijkm->ikmj", second_q_op.h2)
     modes = second_q_op.modes
     # Initialize qubit operator as constant.
-    sparse_pauli = None # SparsePauliOp.from_operator(Pauli(([False], [False])))
+    sparse_pauli = None  # SparsePauliOp.from_operator(Pauli(([False], [False])))
     edge_list = bravyi_kitaev_fast_edge_list(second_q_op)
     # Loop through all indices.
     for p in range(modes):  # pylint: disable=invalid-name
