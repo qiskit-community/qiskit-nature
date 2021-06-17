@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add :class:`qiskit_nature.mappers.second_quantization.BravyiKitaevSFMapper` implementing the
+    Bravyi-Kitaev super-fast fermion-to-qubit mapping. For example
+
+    .. code-block:: python
+
+        from qiskit_nature.mappers.second_quantization import BravyiKitaevSFMapper
+        mapper = BravyiKitaevSFMapper()
+        mapper.map(fermionic_op)
