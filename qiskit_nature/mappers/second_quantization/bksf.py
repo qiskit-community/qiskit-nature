@@ -20,7 +20,6 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit.chemistry import FermionicOperator
 
 from .fermionic_mapper import FermionicMapper
 
@@ -338,7 +337,7 @@ def bravyi_kitaev_fast_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     return edge_list_as_2d_array
 
 
-def bravyi_kitaev_fast_edge_list(fer_op: FermionicOperator):
+def bravyi_kitaev_fast_edge_list(fer_op):
     """
     Construct an edge list required for the bksf algorithm.
 
@@ -515,8 +514,10 @@ class BravyiKitaevSFMapper(FermionicMapper):
     Reference arXiv:1712.00446
     """
 
+    from qiskit.chemistry import FermionicOperator
+
     def map(self, second_q_op: FermionicOperator) -> PauliSumOp:
-        if isinstance(second_q_op, FermionicOperator):
+        if isinstance(second_q_op, self.FermionicOperator):
             sparse_pauli = map_fermionic_operator(second_q_op)
         elif isinstance(second_q_op, FermionicOp):
             sparse_pauli = map_fermionic_op(second_q_op)
@@ -569,7 +570,7 @@ def map_fermionic_op(fer_op_qn: FermionicOp):
 
 ## TODO: Does this need the einsum transform? What is passed in, in my tests.
 ## Tests are local scripts, not yet in the test suite.
-def map_fermionic_operator(second_q_op: FermionicOperator):
+def map_fermionic_operator(second_q_op):
     second_q_op = copy.deepcopy(second_q_op)
     # bksf mapping works with the 'physicist' notation.
     second_q_op.h2 = np.einsum("ijkm->ikmj", second_q_op.h2)
