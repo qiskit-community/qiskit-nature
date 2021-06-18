@@ -23,7 +23,7 @@ class TestRandomInteraction(QiskitNatureTestCase):
         """Tests that energy matrix is calculated correctly."""
         interaction = RandomInteraction()
         num_beads = 3
-        energy_matrix = interaction.calc_energy_matrix(num_beads, None)
+        energy_matrix = interaction.calc_energy_matrix(num_beads)
 
         assert len(energy_matrix) == num_beads + 1
         assert len(energy_matrix[0]) == 2

@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a random interaction between beads of a peptide."""
+from typing import List
+
 import numpy as np
 from ..interactions.interaction import Interaction
 
@@ -17,11 +19,12 @@ from ..interactions.interaction import Interaction
 class RandomInteraction(Interaction):
     """A class defining a random interaction between beads of a peptide."""
 
-    def calc_energy_matrix(self, chain_len: int, sequence):  # TODO unused argument
+    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str] = None):
         """
         Calculates an energy matrix for a random interaction.
         Args:
             chain_len: Length of a protein chain.
+            residue_sequence: None
 
         Returns:
             pair_energies: Numpy array of pair energies for amino acids.

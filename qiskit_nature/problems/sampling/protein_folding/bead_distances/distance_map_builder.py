@@ -12,7 +12,7 @@
 """Builds a distance map that stores distances between beads in a peptide."""
 import collections
 import logging
-from typing import Dict, DefaultDict, Tuple
+from typing import Dict, DefaultDict, Tuple, Any
 
 from qiskit.opflow import OperatorBase
 
@@ -117,7 +117,12 @@ def _create_distance_qubits(
 
 def _calc_distances_main_chain(
     peptide: Peptide,
-) -> DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]]:
+) -> Tuple[
+    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
+    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
+    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
+    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
+]:
     """
     Calculates distance between beads based on the number of turns in
     the main chain. Note, here we consider distances between beads

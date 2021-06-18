@@ -101,7 +101,7 @@ def _create_contact_qubits(
                             main_chain_len, (side_op @ main_op)
                         )
                         num_contacts += 1
-    logger.info(f"number of qubits required for contact : {num_contacts}")
+    logger.info("number of qubits required for contact %s:", num_contacts)
     return (
         lower_main_upper_main,
         lower_side_upper_main,
@@ -113,8 +113,11 @@ def _create_contact_qubits(
 
 def _log_contact(lower_bead_id, upper_bead_id, lower_chain_type, upper_chain_type):
     logger.info(
-        f"possible contact between a bead {lower_bead_id} on the {lower_chain_type} and a bead "
-        f"{upper_bead_id} on the {upper_chain_type}"
+        "possible contact between a bead %s on the %s and a bead %s on the %s",
+        lower_bead_id,
+        lower_chain_type,
+        upper_bead_id,
+        upper_chain_type,
     )
 
 
