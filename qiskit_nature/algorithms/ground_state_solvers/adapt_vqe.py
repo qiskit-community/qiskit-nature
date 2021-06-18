@@ -94,12 +94,10 @@ class AdaptVQE(GroundStateEigensolver):
             self._ansatz.operators = self._excitation_list + [exc]
             # set the current ansatz
             vqe.ansatz = self._ansatz
-            ansatz_params = vqe.ansatz._parameter_table.keys()
-            # construct the expectation operator of the VQE
-            vqe._expect_op = vqe.construct_expectation(ansatz_params, self._main_operator)
             # evaluate energies
             parameter_sets = theta + [-self._delta] + theta + [self._delta]
-            energy_results = vqe._energy_evaluation(np.asarray(parameter_sets))
+            energy_evaluation = vqe.get_energy_evaluation(self._main_operator)
+            energy_results = energy_evaluation(np.asarray(parameter_sets))
             # compute gradient
             gradient = (energy_results[0] - energy_results[1]) / (2 * self._delta)
             res.append((np.abs(gradient), exc))
