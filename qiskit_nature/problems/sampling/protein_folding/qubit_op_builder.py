@@ -501,8 +501,8 @@ def _create_h_short(
                 peptide.get_main_chain[i - 1], peptide.get_main_chain[i + 2].side_chain[0]
             )
             coeff = float(
-                pair_energies[i, 1, i + 3, 1]
-                + 0.1 * (pair_energies[i, 1, i + 3, 0] + pair_energies[i, 0, i + 3, 1])
+                pair_energies[i][1][i + 3][1]
+                + 0.1 * (pair_energies[i][1][i + 3][0] + pair_energies[i][0][i + 3][1])
             )
             composed = op1 @ op2
             h_short += (coeff * composed).reduce()
@@ -535,7 +535,7 @@ def _create_h_contacts(
     full_id = _build_full_identity(2 * (main_chain_len - 1))
     # original code treats the 0th entry (valued 0) as a qubit register
     new_qubits[0] = 0.5 * (full_id ^ full_id)
-    h_contacts = 0
+    h_contacts = 0.0
     for operator in new_qubits[-contact_map.num_contacts :]:
         h_contacts += operator
     h_contacts -= n_contacts * (full_id ^ full_id)

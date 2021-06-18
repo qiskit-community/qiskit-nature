@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a side chain of a peptide."""
-from typing import List, Union
+from typing import List, Union, Sequence
 
 from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
@@ -40,7 +40,7 @@ class SideChain(BaseChain):
         main_bead_id: int,
         side_chain_len: int,
         side_chain_residue_sequences: List[str],
-    ) -> Union[List[SideBead], None]:
+    ) -> Union[Sequence[SideBead], None]:
         """
         Creates a side chain for a given main bead.
         Args:

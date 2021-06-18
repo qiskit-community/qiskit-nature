@@ -10,8 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class containing information about beads and chains of a protein."""
-from typing import List
+from typing import List, Sequence
 
+from .beads.main_bead import MainBead
 from ..peptide.chains.side_chain import SideChain
 from ..peptide.chains.main_chain import MainChain
 
@@ -20,17 +21,17 @@ class Peptide:
     """A class containing information about beads and chains of a protein."""
 
     def __init__(
-        self,
-        main_chain_len: int,
-        main_chain_residue_seq: List[str],
-        side_chain_lens: List[int],
-        side_chain_residue_sequences: List[str],
+            self,
+            main_chain_len: int,
+            main_chain_residue_seq: List[str],
+            side_chain_lens: List[int],
+            side_chain_residue_sequences: List[str],
     ):
         self._main_chain = MainChain(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
 
-    def get_side_chains(self) -> List[SideChain]:
+    def get_side_chains(self) -> Sequence[SideChain]:
         """
         Returns the list of all side chains in a peptide.
 
@@ -39,7 +40,7 @@ class Peptide:
         """
         side_chains = []
         for main_bead in self._main_chain.beads_list:
-            side_chains.append(main_bead.side_chain)
+            side_chains.append(main_bead.side_chain)  # type: ignore
         return side_chains
 
     def get_side_chain_hot_vector(self) -> List[bool]:
@@ -52,7 +53,7 @@ class Peptide:
         """
         side_chain_hot_vector = []
         for main_bead in self._main_chain.beads_list:
-            if main_bead.side_chain is not None:
+            if main_bead.side_chain is not None:  # type: ignore
                 side_chain_hot_vector.append(True)
             else:
                 side_chain_hot_vector.append(False)

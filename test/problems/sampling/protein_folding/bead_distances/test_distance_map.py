@@ -27,7 +27,7 @@ class TestDistanceMap(QiskitNatureTestCase):
 
     def test_first_neighbor(self):
         """
-        Tests that Pauli operators for 1st neighbour interactions are created correctly.
+        Tests that Pauli operators for 1st neighbor interactions are created correctly.
         """
 
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
@@ -57,7 +57,7 @@ class TestDistanceMap(QiskitNatureTestCase):
         )
 
         expected_path = self.get_resource_path(
-            "test_first_neighbour",
+            "test_first_neighbor",
             PATH,
         )
         expected = read_expected_file(expected_path)
@@ -65,7 +65,7 @@ class TestDistanceMap(QiskitNatureTestCase):
 
     def test_first_neighbor_side(self):
         """
-        Tests that Pauli operators for 1st neighbour interactions are created correctly.
+        Tests that Pauli operators for 1st neighbor interactions are created correctly.
         """
 
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
@@ -95,7 +95,7 @@ class TestDistanceMap(QiskitNatureTestCase):
         )
 
         expected_path = self.get_resource_path(
-            "test_first_neighbour_side",
+            "test_first_neighbor_side",
             PATH,
         )
         expected = read_expected_file(expected_path)
@@ -103,7 +103,7 @@ class TestDistanceMap(QiskitNatureTestCase):
 
     def test_second_neighbor(self):
         """
-        Tests that Pauli operators for 2nd neighbour interactions are created correctly.
+        Tests that Pauli operators for 2nd neighbor interactions are created correctly.
         """
         main_chain_residue_seq = ["S", "A", "A", "S", "S"]
         main_chain_len = 5
@@ -121,7 +121,7 @@ class TestDistanceMap(QiskitNatureTestCase):
         side_chain_lower_main_bead = 0
         side_chain_upper_main_bead = 0
         distance_map = DistanceMap(peptide)
-        second_neighbour = distance_map._second_neighbor(
+        second_neighbor = distance_map._second_neighbor(
             peptide,
             lower_main_bead_index,
             side_chain_upper_main_bead,
@@ -131,15 +131,15 @@ class TestDistanceMap(QiskitNatureTestCase):
             pair_energies,
         )
         expected_path = self.get_resource_path(
-            "test_second_neighbour",
+            "test_second_neighbor",
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert second_neighbour == expected
+        assert second_neighbor == expected
 
     def test_second_neighbor_2(self):
         """
-        Tests that Pauli operators for 2nd neighbour interactions are created correctly.
+        Tests that Pauli operators for 2nd neighbor interactions are created correctly.
         """
         main_chain_residue_seq = ["S", "A", "A", "C", "S"]
         main_chain_len = 5
@@ -157,7 +157,7 @@ class TestDistanceMap(QiskitNatureTestCase):
         side_chain_lower_main_bead = 1
         side_chain_upper_main_bead = 1
         distance_map = DistanceMap(peptide)
-        second_neighbour = distance_map._second_neighbor(
+        second_neighbor = distance_map._second_neighbor(
             peptide,
             lower_main_bead_index,
             side_chain_upper_main_bead,
@@ -167,8 +167,8 @@ class TestDistanceMap(QiskitNatureTestCase):
             pair_energies,
         )
         expected_path = self.get_resource_path(
-            "test_second_neighbour_2",
+            "test_second_neighbor_2",
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert second_neighbour == expected
+        assert second_neighbor == expected

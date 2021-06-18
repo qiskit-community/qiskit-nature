@@ -20,7 +20,7 @@ class TestEnergyMatrixLoader(QiskitNatureTestCase):
     """Tests EnergyMatrixLoader."""
 
     def test_load_energy_matrix_file(self):
-        """Test that the energy matrix is loaded from the MJ potential file"""
+        """Test that the energy matrix is loaded from the Miyazawa-Jernigan potential file"""
         energy_matrix, list_aa = _load_energy_matrix_file()
         assert energy_matrix[0][0] == -5.44
         assert energy_matrix[2][3] == -6.84

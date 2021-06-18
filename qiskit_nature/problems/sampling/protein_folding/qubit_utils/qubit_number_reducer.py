@@ -86,7 +86,7 @@ def _calc_reduced_pauli_tables(
 
 
 def _find_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> List[int]:
-    used_map = {}
+    used_map: Dict[int, bool] = {}
     unused = []
     num_qubits = total_hamiltonian.num_qubits
     if isinstance(total_hamiltonian, PauliOp):

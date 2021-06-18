@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """An abstract class defining a chain of a peptide."""
 from abc import ABC
-from typing import List
+from typing import List, Sequence
 
 from qiskit.opflow import PauliOp
 
@@ -25,7 +25,7 @@ from ...peptide.pauli_ops_builder import (
 class BaseChain(ABC):
     """An abstract class defining a chain of a peptide."""
 
-    def __init__(self, beads_list: List[BaseBead]):
+    def __init__(self, beads_list: Sequence[BaseBead]):
         self._beads_list = beads_list
 
     def __getitem__(self, item):
@@ -35,7 +35,7 @@ class BaseChain(ABC):
         return len(self._beads_list)
 
     @property
-    def beads_list(self) -> List[BaseBead]:
+    def beads_list(self) -> Sequence[BaseBead]:
         """Returns the list of all beads in the chain."""
         return self._beads_list
 

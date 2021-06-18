@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a main chain of a peptide."""
-from typing import List
+from typing import List, Sequence
 
 from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
@@ -48,7 +48,7 @@ class MainChain(BaseChain):
         main_chain_residue_sequences: List[str],
         side_chain_lens: List[int],
         side_chain_residue_sequences: List[str],
-    ) -> List[MainBead]:
+    ) -> Sequence[MainBead]:
         """
         Creates a main chain for a given main chain length and side chain data.
         Args:
@@ -155,10 +155,10 @@ class MainChain(BaseChain):
             is_side_chain_present: a boolean indicating whether a given main bead hosts a side
             chain.
         """
-        is_side_chain_present = (
+        is_side_chain_present = True if (
             side_chain_lens
             and side_chain_lens[main_bead_id] != 0
             and side_chain_residue_sequences
             and side_chain_residue_sequences[main_bead_id] is not None
-        )
+        ) else False
         return is_side_chain_present

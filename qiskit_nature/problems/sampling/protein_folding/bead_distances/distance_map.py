@@ -81,7 +81,7 @@ class DistanceMap:
             pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
         Returns:
-            expr: Contribution to an energetic Hamiltonian.
+            expression: Contribution to an energetic Hamiltonian.
         """
         bounding_constant = 7
         lambda_0 = bounding_constant * (upper_bead_ind - lower_bead_ind + 1) * lambda_1
@@ -92,13 +92,13 @@ class DistanceMap:
         if is_side_chain_lower == 1:
             upper_bead = upper_bead.side_chain[0]
         energy = pair_energies[
-            lower_bead_ind, is_side_chain_upper, upper_bead_ind, is_side_chain_lower
+            lower_bead_ind][is_side_chain_upper][upper_bead_ind][is_side_chain_lower
         ]
         x = self.distance_map[lower_bead][upper_bead]
-        expr = lambda_0 * (
+        expression = lambda_0 * (
             x - _build_full_identity(x.num_qubits)
         ) + pair_energies_multiplier * energy * _build_full_identity(x.num_qubits)
-        return _fix_qubits(expr).reduce()
+        return _fix_qubits(expression).reduce()
 
     def _second_neighbor(
         self,
@@ -132,7 +132,7 @@ class DistanceMap:
             expression: Contribution to an energetic Hamiltonian.
         """
         energy = pair_energies[
-            lower_bead_ind, is_side_chain_upper, upper_bead_ind, is_side_chain_lower
+            lower_bead_ind][is_side_chain_upper][upper_bead_ind][is_side_chain_lower
         ]
         lower_bead = peptide.get_main_chain[lower_bead_ind - 1]
         upper_bead = peptide.get_main_chain[upper_bead_ind - 1]
