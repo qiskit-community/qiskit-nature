@@ -17,7 +17,6 @@ import logging
 import os
 import sys
 import tempfile
-import warnings
 from typing import Union, List, Optional
 
 import numpy as np
@@ -28,6 +27,7 @@ from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
 from ...exceptions import QiskitNatureError
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 logger = logging.getLogger(__name__)
 
@@ -69,13 +69,11 @@ class GaussianDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        warnings.warn(
-            "This GaussianDriver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.gaussiand "
-            "GaussianDriver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "GaussianDriver",
+            "from qiskit_nature.drivers.second_quantization.gaussiand as a direct replacement",
         )
         GaussianDriver._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):

@@ -12,14 +12,11 @@
 
 """ HDF5 Driver """
 
-import logging
 import os
-import warnings
 
 from ..qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver
-
-logger = logging.getLogger(__name__)
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class HDF5Driver(FermionicDriver):
@@ -35,13 +32,11 @@ class HDF5Driver(FermionicDriver):
             hdf5_input: Path to HDF5 file
         """
         super().__init__()
-        warnings.warn(
-            "This HDF5Driver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.hdf5d "
-            "HDF5Driver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "HDF5Driver",
+            "from qiskit_nature.drivers.second_quantization.hdf5d as a direct replacement",
         )
         self._hdf5_input = hdf5_input
         self._work_path = None
