@@ -155,10 +155,14 @@ class MainChain(BaseChain):
             is_side_chain_present: a boolean indicating whether a given main bead hosts a side
             chain.
         """
-        is_side_chain_present = True if (
-            side_chain_lens
-            and side_chain_lens[main_bead_id] != 0
-            and side_chain_residue_sequences
-            and side_chain_residue_sequences[main_bead_id] is not None
-        ) else False
+        is_side_chain_present = (
+            True
+            if (
+                side_chain_lens
+                and side_chain_lens[main_bead_id] != 0
+                and side_chain_residue_sequences
+                and side_chain_residue_sequences[main_bead_id] is not None
+            )
+            else False
+        )
         return is_side_chain_present

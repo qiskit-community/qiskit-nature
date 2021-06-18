@@ -21,11 +21,11 @@ class Peptide:
     """A class containing information about beads and chains of a protein."""
 
     def __init__(
-            self,
-            main_chain_len: int,
-            main_chain_residue_seq: List[str],
-            side_chain_lens: List[int],
-            side_chain_residue_sequences: List[str],
+        self,
+        main_chain_len: int,
+        main_chain_residue_seq: List[str],
+        side_chain_lens: List[int],
+        side_chain_residue_sequences: List[str],
     ):
         self._main_chain = MainChain(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences

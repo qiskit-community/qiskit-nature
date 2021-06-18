@@ -91,8 +91,8 @@ class DistanceMap:
             lower_bead = lower_bead.side_chain[0]
         if is_side_chain_lower == 1:
             upper_bead = upper_bead.side_chain[0]
-        energy = pair_energies[
-            lower_bead_ind][is_side_chain_upper][upper_bead_ind][is_side_chain_lower
+        energy = pair_energies[lower_bead_ind][is_side_chain_upper][upper_bead_ind][
+            is_side_chain_lower
         ]
         x = self.distance_map[lower_bead][upper_bead]
         expression = lambda_0 * (
@@ -131,8 +131,8 @@ class DistanceMap:
         Returns:
             expression: Contribution to an energetic Hamiltonian.
         """
-        energy = pair_energies[
-            lower_bead_ind][is_side_chain_upper][upper_bead_ind][is_side_chain_lower
+        energy = pair_energies[lower_bead_ind][is_side_chain_upper][upper_bead_ind][
+            is_side_chain_lower
         ]
         lower_bead = peptide.get_main_chain[lower_bead_ind - 1]
         upper_bead = peptide.get_main_chain[upper_bead_ind - 1]

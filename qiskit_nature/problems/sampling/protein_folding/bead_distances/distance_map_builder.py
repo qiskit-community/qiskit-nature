@@ -45,7 +45,9 @@ def _create_distance_qubits(peptide: Peptide):
 
     num_distances = 0
 
-    distance_map: DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]] = collections.defaultdict(dict)
+    distance_map: DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]] = collections.defaultdict(
+        dict
+    )
 
     for lower_bead_ind in range(1, main_chain_len):  # upper_bead_ind>lower_bead_ind
         for upper_bead_ind in range(lower_bead_ind + 1, main_chain_len + 1):
