@@ -12,7 +12,7 @@
 """Builds a distance map that stores distances between beads in a peptide."""
 import collections
 import logging
-from typing import Dict, DefaultDict
+from typing import Dict, DefaultDict, Tuple
 
 from qiskit.opflow import OperatorBase
 
@@ -23,8 +23,9 @@ from ..peptide.peptide import Peptide
 logger = logging.getLogger(__name__)
 
 
-# TODO refactor the data structure storing distances
-def _create_distance_qubits(peptide: Peptide):
+def _create_distance_qubits(
+    peptide: Peptide,
+) -> Tuple[DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]], int]:
     """
     Creates total distances between all bead pairs by summing the
     distances over all turns with axes, a = 0,1,2,3.
@@ -114,7 +115,9 @@ def _create_distance_qubits(peptide: Peptide):
     return distance_map, num_distances
 
 
-def _calc_distances_main_chain(peptide: Peptide):
+def _calc_distances_main_chain(
+    peptide: Peptide,
+) -> DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]]:
     """
     Calculates distance between beads based on the number of turns in
     the main chain. Note, here we consider distances between beads
@@ -172,7 +175,18 @@ def _init_distance_dict():
     )
 
 
-def _add_distances_side_chain(peptide: Peptide, delta_n0, delta_n1, delta_n2, delta_n3):
+def _add_distances_side_chain(
+    peptide: Peptide,
+    delta_n0: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    delta_n1: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    delta_n2: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    delta_n3: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+) -> Tuple[
+    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+]:
     """
     Calculates distances between beads located on side chains and adds the contribution to the
     distance calculated between beads (lower_bead_ind and upper_bead_ind) on the main chain. In

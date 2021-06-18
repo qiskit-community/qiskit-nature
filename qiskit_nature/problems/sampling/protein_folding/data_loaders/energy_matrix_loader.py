@@ -9,12 +9,12 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Loads the energy matrix from the MJ potential file."""
+"""Loads the energy matrix from the Miyazawa-Jernigan potential file."""
 import numpy as np
 
 
 def _load_energy_matrix_file():
-    """Returns the energy matrix from the MJ potential file."""
+    """Returns the energy matrix from the Miyazawa-Jernigan potential file."""
 
     path = "qiskit_nature/problems/sampling/protein_folding/resources/mj_matrix.txt"
     matrix = np.loadtxt(fname=path, dtype=str)
@@ -24,7 +24,7 @@ def _load_energy_matrix_file():
 
 
 def _parse_energy_matrix(matrix):
-    """Parses a matrix loaded from the MJ potential file."""
+    """Parses a matrix loaded from the Miyazawa-Jernigan potential file."""
     energy_matrix = np.zeros((np.shape(matrix)[0], np.shape(matrix)[1]))
     for row in range(1, np.shape(matrix)[0]):
         for col in range(row - 1, np.shape(matrix)[1]):
