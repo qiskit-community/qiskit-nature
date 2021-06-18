@@ -88,7 +88,6 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         assert lower_side_upper_side == {}
         assert r_contact == 2
 
-    # TODO
     def test_create_pauli_for_contacts_3(self):
         """
         Tests that Pauli operators for contact qubits are created correctly.
@@ -107,35 +106,49 @@ class TestContactMapBuilder(QiskitNatureTestCase):
             lower_side_upper_side,
             r_contact,
         ) = contact_map_builder._create_contact_qubits(peptide)
+        expected_path = self.get_resource_path(
+            "test_create_pauli_for_contacts_3_expected_1",
+            PATH,
+        )
 
-        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
-        # - 0.5 * IIIIIIIIIIIIIIIIIIZIIIIZ
-        # ########
-        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
-        # - 0.5 * IIIIIIIIIIIIIIIIIZIIIIZI
-        # ########
-        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
-        # - 0.5 * IIIIIIIZIIIIIIIIIIIIIIIZ
-        # ########
-        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
-        # - 0.5 * IIIIIIZIIIIIIIIIIIIIIIZI
-        # ########
-        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
-        # - 0.5 * IIIIIIIIIZIIIIIIIZIIIIII
-        # ########
-        # 0.5 * IIIIIIIIIIIIIIIIIIIIIIII
-        # - 0.5 * IIIIIIZIIZIIIIIIIIIIIIII
-        # ########
+        expected_1 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_pauli_for_contacts_3_expected_2",
+            PATH,
+        )
 
-        # assert pauli_contacts == {1: {
-        #     0: {4: {}, 5: {1: PauliOp(Pauli('IIIIIIIZIIIIIIIIIIIIIIIZ'), coeff=1.0)},
-        #         6: {0: PauliOp(Pauli('IIIIIIIIIIIIIIIIIIZIIIIZ'), coeff=1.0)}, 7: {}},
-        #     1: {4: {}, 5: {}, 6: {}, 7: {}}}, 2: {
-        #     0: {5: {}, 6: {1: PauliOp(Pauli('IIIIIIZIIIIIIIIIIIIIIIZI'), coeff=1.0)},
-        #         7: {0: PauliOp(Pauli('IIIIIIIIIIIIIIIIIZIIIIZI'), coeff=1.0)}},
-        #     1: {5: {}, 6: {}, 7: {}}}, 3: {0: {6: {}, 7: {}}, 1: {
-        #     6: {1: PauliOp(Pauli('IIIIIIZIIZIIIIIIIIIIIIII'), coeff=1.0)},
-        #     7: {0: PauliOp(Pauli('IIIIIIIIIZIIIIIIIZIIIIII'), coeff=1.0)}}}}
+        expected_2 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_pauli_for_contacts_3_expected_3",
+            PATH,
+        )
+
+        expected_3 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_pauli_for_contacts_3_expected_4",
+            PATH,
+        )
+
+        expected_4 = read_expected_file(expected_path)
+        expected_path = self.get_resource_path(
+            "test_create_pauli_for_contacts_3_expected_5",
+            PATH,
+        )
+
+        expected_5 = read_expected_file(expected_path)
+
+        expected_path = self.get_resource_path(
+            "test_create_pauli_for_contacts_3_expected_6",
+            PATH,
+        )
+
+        expected_6 = read_expected_file(expected_path)
+        assert lower_main_upper_main[1][6] == expected_1
+        assert lower_main_upper_main[2][7] == expected_2
+        assert lower_side_upper_main[1][5] == expected_3
+        assert lower_side_upper_main[2][6] == expected_4
+        assert lower_main_upper_side[3][7] == expected_5
+        assert lower_side_upper_side[3][6] == expected_6
         assert r_contact == 6
 
     def test_create_qubit_list(self):
