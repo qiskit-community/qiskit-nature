@@ -12,15 +12,12 @@
 
 """The vibrational structure result."""
 
-import logging
 from typing import List, Optional
 
 import numpy as np
 
 from qiskit.algorithms import AlgorithmResult
 from .eigenstate_result import EigenstateResult
-
-logger = logging.getLogger(__name__)
 
 
 class VibrationalStructureResult(EigenstateResult):
