@@ -12,10 +12,10 @@
 
 """General Property base class tests."""
 
-from ddt import data, ddt, unpack
 from typing import Any
 
 from test import QiskitNatureTestCase
+from ddt import data, ddt, unpack
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule as LegacyQMolecule
@@ -31,6 +31,7 @@ from qiskit_nature.properties.property import (
 
 @ddt
 class TestProperty(QiskitNatureTestCase):
+    """General Property base class tests."""
 
     @unpack
     @data(
@@ -43,12 +44,12 @@ class TestProperty(QiskitNatureTestCase):
         (LegacyWatsonHamiltonian([], -1), ElectronicDriverResult, True),
         (LegacyWatsonHamiltonian([], -1), VibrationalDriverResult, False),
     )
-    def test_validate_input_type(self, result: DriverResult, type: Any, raises: bool):
+    def test_validate_input_type(self, result: DriverResult, type_: Any, raises_: bool) -> None:
         """Test input type validation."""
         raised = False
         try:
-            Property._validate_input_type(result, type)
+            Property._validate_input_type(result, type_)
         except QiskitNatureError:
             raised = True
         finally:
-            assert raised == raises
+            assert raised == raises_

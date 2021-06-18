@@ -13,9 +13,9 @@
 """Test VibrationalEnergy Property"""
 
 import json
-import numpy as np
-
 from test import QiskitNatureTestCase
+
+import numpy as np
 
 from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.properties.vibrational_structure import VibrationalEnergy
@@ -23,6 +23,8 @@ from qiskit_nature.properties.vibrational_structure.bases import HarmonicBasis
 
 
 class TestVibrationalEnergy(QiskitNatureTestCase):
+    """Test VibrationalEnergy Property"""
+
     def setUp(self):
         """Setup basis."""
         super().setUp()
@@ -69,8 +71,8 @@ class TestVibrationalEnergy(QiskitNatureTestCase):
                 "vibrational_energy_op.json", "properties/vibrational_structure/resources"
             ),
             "r",
-        ) as f:
-            expected = json.load(f)
+        ) as file:
+            expected = json.load(file)
         for op, expected_op in zip(ops[0].to_list(), expected):
             assert op[0] == expected_op[0]
             assert np.isclose(op[1], expected_op[1])

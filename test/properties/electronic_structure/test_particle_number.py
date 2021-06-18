@@ -19,6 +19,8 @@ from qiskit_nature.properties.electronic_structure import ParticleNumber
 
 
 class TestParticleNumber(QiskitNatureTestCase):
+    """Test ParticleNumber Property"""
+
     def setUp(self):
         """Setup."""
         super().setUp()

@@ -14,7 +14,6 @@
 
 from typing import List, Optional, Tuple
 
-from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 

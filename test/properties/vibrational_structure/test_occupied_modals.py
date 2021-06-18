@@ -20,6 +20,7 @@ from qiskit_nature.properties.vibrational_structure.bases import HarmonicBasis
 
 
 class TestOccupiedModals(QiskitNatureTestCase):
+    """Test OccupiedModals Property"""
 
     def setUp(self):
         """Setup basis."""

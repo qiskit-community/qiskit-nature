@@ -13,15 +13,17 @@
 """Test ElectronicEnergy Property"""
 
 import json
-import numpy as np
-
 from test import QiskitNatureTestCase
 
-from qiskit_nature.drivers.second_quantization import HDF5Driver, QMolecule
+import numpy as np
+
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.properties.electronic_structure import ElectronicEnergy
 
 
 class TestElectronicEnergy(QiskitNatureTestCase):
+    """Test ElectronicEnergy Property"""
+
     def setUp(self):
         """Setup."""
         super().setUp()
@@ -42,8 +44,8 @@ class TestElectronicEnergy(QiskitNatureTestCase):
                 "electronic_energy_op.json", "properties/electronic_structure/resources"
             ),
             "r",
-        ) as f:
-            expected = json.load(f)
+        ) as file:
+            expected = json.load(file)
         for op, expected_op in zip(ops[0].to_list(), expected):
             assert op[0] == expected_op[0]
             assert np.isclose(op[1], expected_op[1])

@@ -13,15 +13,17 @@
 """Test DipoleMoment Property"""
 
 import json
-import numpy as np
-
 from test import QiskitNatureTestCase
 
-from qiskit_nature.drivers.second_quantization import HDF5Driver, QMolecule
+import numpy as np
+
+from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.properties.electronic_structure import TotalDipoleMoment
 
 
 class TestDipoleMoment(QiskitNatureTestCase):
+    """Test DipoleMoment Property"""
+
     def setUp(self):
         """Setup."""
         super().setUp()
@@ -42,10 +44,9 @@ class TestDipoleMoment(QiskitNatureTestCase):
                 "dipole_moment_ops.json", "properties/electronic_structure/resources"
             ),
             "r",
-        ) as f:
-            expected = json.load(f)
+        ) as file:
+            expected = json.load(file)
         for op, expected_op in zip(ops, expected):
-            op_list = op.to_list()
-            for idx in range(len(op_list)):
-                assert op_list[idx][0] == expected_op[idx][0]
-                assert np.isclose(op_list[idx][1], expected_op[idx][1])
+            for truth, exp in zip(op.to_list(), expected_op):
+                assert truth[0] == exp[0]
+                assert np.isclose(truth[1], exp[1])

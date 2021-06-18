@@ -19,6 +19,8 @@ from qiskit_nature.properties.electronic_structure import Magnetization
 
 
 class TestMagnetization(QiskitNatureTestCase):
+    """Test Magnetization Property"""
+
     def setUp(self):
         """Setup."""
         super().setUp()
