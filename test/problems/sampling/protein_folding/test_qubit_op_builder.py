@@ -219,7 +219,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             "test_create_h_chiral_2_expected",
             PATH,
         )
-        print(h_chiral)
         expected = read_expected_file(expected_path)
         assert h_chiral == expected
 

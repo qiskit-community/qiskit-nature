@@ -41,7 +41,7 @@ def _build_pauli_z_op(num_qubits: int, pauli_z_indices: List[int]) -> PauliOp:
 
     Returns:
         operator: a Pauli operator of a given size with Pauli Z operators on indicated positions
-                andidentity operators on other positions.
+                and identity operators on other positions.
     """
     if 0 in pauli_z_indices:
         operator = Z

@@ -17,7 +17,7 @@ from ..interactions.interaction import Interaction
 class RandomInteraction(Interaction):
     """A class defining a random interaction between beads of a peptide."""
 
-    def calc_energy_matrix(self, chain_len: int, sequence):  # TODO unused arg
+    def calc_energy_matrix(self, chain_len: int, sequence):  # TODO unused argument
         """
         Calculates an energy matrix for a random interaction.
         Args:

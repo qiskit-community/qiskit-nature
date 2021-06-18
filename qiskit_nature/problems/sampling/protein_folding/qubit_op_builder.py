@@ -36,7 +36,7 @@ def _build_qubit_op(
 ) -> Union[PauliSumOp, PauliOp]:
     """
     Builds a qubit operator for a total Hamiltonian for a protein folding problem. It includes
-    8 terms responsible for chirality, geometry and nearest neighbours interactions.
+    8 terms responsible for chirality, geometry and nearest neighbors interactions.
 
     Args:
         peptide: A Peptide object that includes all information about a protein.
@@ -50,7 +50,7 @@ def _build_qubit_op(
         h_total: A total Hamiltonian for the protein folding problem.
 
     Raises:
-        InvalidSizeException: if chains of onvalid/incompatible sizes provided.
+        InvalidSizeException: if chains of invalid/incompatible sizes provided.
         InvalidSideChainException: if side chains on forbidden indices provided.
     """
     lambda_chiral, lambda_back, lambda_1, lambda_contacts = (

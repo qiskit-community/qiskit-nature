@@ -89,7 +89,7 @@ class ContactMap:
 
     def create_peptide_qubit_list(self):
         """
-        Creates new set of contact qubits for second nearest neighbour
+        Creates new set of contact qubits for second nearest neighbor
         interactions. Note, the need of multiple interaction qubits
         for each i,j pair.
 

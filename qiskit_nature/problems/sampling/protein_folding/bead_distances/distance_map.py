@@ -115,7 +115,7 @@ class DistanceMap:
         Creates energetic interaction that penalizes local overlap between
         beads that correspond to a nearest neighbor contact or adds no net
         interaction (zero) if beads are at a distance of 2 units from each other.
-        Ensure second NN does not overlap with reference point
+        Ensure second nearest neighbor does not overlap with reference point
 
         Args:
             peptide: A Peptide object that includes all information about a protein.
@@ -129,7 +129,7 @@ class DistanceMap:
             pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
         Returns:
-            expr: Contribution to an energetic Hamiltonian.
+            expression: Contribution to an energetic Hamiltonian.
         """
         energy = pair_energies[
             lower_bead_ind, is_side_chain_upper, upper_bead_ind, is_side_chain_lower
@@ -141,7 +141,7 @@ class DistanceMap:
         if is_side_chain_lower == 1:
             upper_bead = upper_bead.side_chain[0]
         x = self.distance_map[lower_bead][upper_bead]
-        expr = lambda_1 * (
+        expression = lambda_1 * (
             2 * (_build_full_identity(x.num_qubits)) - x
         ) + pair_energies_multiplier * energy * _build_full_identity(x.num_qubits)
-        return _fix_qubits(expr).reduce()
+        return _fix_qubits(expression).reduce()
