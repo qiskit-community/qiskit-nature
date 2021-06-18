@@ -14,11 +14,11 @@
 
 from typing import cast, List, Optional, Tuple, Union
 
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ..property import Property
+from ..property import DriverResult, ElectronicDriverResult, Property
 
 
 class ParticleNumber(Property):
@@ -62,7 +62,7 @@ class ParticleNumber(Property):
             self._occupation_beta = occupation_beta
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "ParticleNumber":
+    def from_driver_result(cls, result: DriverResult) -> "ParticleNumber":
         """Construct a ParticleNumber instance from a QMolecule.
 
         Args:
@@ -75,7 +75,7 @@ class ParticleNumber(Property):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, QMolecule)
+        cls._validate_input_type(result, ElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 

@@ -12,13 +12,13 @@
 
 """The Magnetization property."""
 
-from typing import cast, List, Union
+from typing import cast, List
 
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ..property import Property
+from ..property import DriverResult, ElectronicDriverResult, Property
 
 
 class Magnetization(Property):
@@ -33,7 +33,7 @@ class Magnetization(Property):
         self._num_spin_orbitals = num_spin_orbitals
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "Magnetization":
+    def from_driver_result(cls, result: DriverResult) -> "Magnetization":
         """Construct a Magnetization instance from a QMolecule.
 
         Args:
@@ -46,7 +46,7 @@ class Magnetization(Property):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, QMolecule)
+        cls._validate_input_type(result, ElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 

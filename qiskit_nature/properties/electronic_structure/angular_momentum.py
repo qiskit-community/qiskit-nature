@@ -12,13 +12,13 @@
 
 """The AngularMomentum property."""
 
-from typing import cast, List, Tuple, Union
+from typing import cast, List, Tuple
 
 import itertools
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
@@ -27,7 +27,7 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from ..property import Property
+from ..property import DriverResult, ElectronicDriverResult, Property
 
 
 class AngularMomentum(Property):
@@ -42,7 +42,7 @@ class AngularMomentum(Property):
         self._num_spin_orbitals = num_spin_orbitals
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "AngularMomentum":
+    def from_driver_result(cls, result: DriverResult) -> "AngularMomentum":
         """Construct an AngularMomentum instance from a QMolecule.
 
         Args:
@@ -55,7 +55,7 @@ class AngularMomentum(Property):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, QMolecule)
+        cls._validate_input_type(result, ElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 

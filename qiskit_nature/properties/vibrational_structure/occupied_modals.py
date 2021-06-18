@@ -12,14 +12,14 @@
 
 """The OccupiedModals property."""
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
-from ..property import Property
+from ..property import DriverResult, Property, VibrationalDriverResult
 
 
 class OccupiedModals(Property):
@@ -49,7 +49,7 @@ class OccupiedModals(Property):
         self._basis = basis
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "OccupiedModals":
+    def from_driver_result(cls, result: DriverResult) -> "OccupiedModals":
         """Construct an OccupiedModals instance from a WatsonHamiltonian.
 
         Args:
@@ -62,7 +62,7 @@ class OccupiedModals(Property):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, WatsonHamiltonian)
+        cls._validate_input_type(result, VibrationalDriverResult)
 
         return cls()
 

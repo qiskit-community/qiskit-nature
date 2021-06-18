@@ -13,12 +13,18 @@
 """The Property base class."""
 
 from abc import ABC, abstractmethod, abstractclassmethod
-from typing import List, Union, Type
+from typing import Any, List, Union
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import QMolecule as LegacyQMolecule
+from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult
+
+ElectronicDriverResult = Union[QMolecule, LegacyQMolecule]
+VibrationalDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
+DriverResult = Union[ElectronicDriverResult, VibrationalDriverResult]
 
 
 class Property(ABC):
@@ -52,7 +58,7 @@ class Property(ABC):
         self._name = name
 
     @abstractclassmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> "Property":
+    def from_driver_result(cls, result: DriverResult) -> "Property":
         """Construct a Property instance from a driver result.
 
         This method should implement the logic which is required to extract the raw data for a
@@ -69,15 +75,17 @@ class Property(ABC):
         """
 
     @classmethod
-    def _validate_input_type(
-        cls,
-        result: Union[QMolecule, WatsonHamiltonian],
-        valid_type: Type[Union[QMolecule, WatsonHamiltonian]],
-    ) -> None:
-        if not isinstance(result, valid_type):
+    def _validate_input_type(cls, result: DriverResult, valid_type: Any) -> None:
+        # The type hint of `valid_type` is not easy to determine because we are passing a typing
+        # alias which is a type hint itself. So what is the type hint for a type hint...
+        # For the time being this should be fine because the logic around `from_driver_result` will
+        # need to slightly adapted *before* the next release anyways when we continue with the
+        # integration of the `Property` objects.
+        if not isinstance(result, valid_type.__args__):
             raise QiskitNatureError(
                 f"You cannot construct an {cls.__name__} from a {result.__class__.__name__}. "
-                f"Please provide a {valid_type.__name__} object instead."
+                "Please provide an object of any of these types instead: "
+                f"{typ.__name__ for typ in valid_type.__args__}"
             )
 
     @abstractmethod

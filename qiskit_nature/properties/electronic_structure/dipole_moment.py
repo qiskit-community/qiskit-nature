@@ -12,16 +12,16 @@
 
 """The TotalDipoleMoment property."""
 
-from typing import cast, Dict, List, Optional, Tuple, Union
+from typing import cast, Dict, List, Optional, Tuple
 
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from .bases import ElectronicBasis
 from .electronic_energy import ElectronicEnergy
 from .integrals import OneBodyElectronicIntegrals
-from ..property import Property
+from ..property import DriverResult, ElectronicDriverResult, Property
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -52,7 +52,7 @@ class DipoleMoment(Property):
         self._dipole = dipole
 
     @classmethod
-    def from_driver_result(cls, result: Union[QMolecule, WatsonHamiltonian]) -> None:
+    def from_driver_result(cls, result: DriverResult) -> None:
         """This property does not support construction from a driver result (yet).
 
         Args:
@@ -96,9 +96,7 @@ class TotalDipoleMoment(Property):
         self._dipole_shift = dipole_shift
 
     @classmethod
-    def from_driver_result(
-        cls, result: Union[QMolecule, WatsonHamiltonian]
-    ) -> Optional["TotalDipoleMoment"]:
+    def from_driver_result(cls, result: DriverResult) -> Optional["TotalDipoleMoment"]:
         """Construct a TotalDipoleMoment instance from a QMolecule.
 
         Args:
@@ -111,7 +109,7 @@ class TotalDipoleMoment(Property):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, QMolecule)
+        cls._validate_input_type(result, ElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 
