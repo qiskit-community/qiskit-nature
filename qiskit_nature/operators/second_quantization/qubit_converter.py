@@ -14,7 +14,6 @@
 
 import copy
 import logging
-import warnings
 from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
@@ -27,6 +26,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.mappers.second_quantization import QubitMapper
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 logger = logging.getLogger(__name__)
 
@@ -75,13 +75,11 @@ class QubitConverter:
                 sector can be provided (a list of int of values -1, and 1). The default is None
                 meaning no symmetry reduction is done.
         """
-        warnings.warn(
-            "This QubitConverter is deprecated as of 0.1.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.converters.second_quantization "
-            "QubitConverter as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.1.0",
+            DeprecatedType.CLASS,
+            "QubitConverter",
+            "from qiskit_nature.drivers.second_quantization as a direct replacement",
         )
 
         self._mapper: QubitMapper = mapper
