@@ -19,14 +19,14 @@ import unittest
 from test import QiskitNatureTestCase
 from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit_nature.algorithms import GroundStateEigensolver
-from qiskit_nature.drivers import FermionicDriver
+from qiskit_nature.drivers.second_quantization import FermionicDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 
-class TestDriverProblem(QiskitNatureTestCase):
+class TestDriverMethods(QiskitNatureTestCase):
     """Common driver tests. For H2 @ 0.735, sto3g"""
 
     def setUp(self):
@@ -43,7 +43,7 @@ class TestDriverProblem(QiskitNatureTestCase):
         transformers: Optional[List[BaseTransformer]] = None,
     ):
 
-        problem = ElectronicStructureProblem(driver, transformers)  # type: ignore
+        problem = ElectronicStructureProblem(driver, transformers)
 
         solver = NumPyMinimumEigensolver()
 

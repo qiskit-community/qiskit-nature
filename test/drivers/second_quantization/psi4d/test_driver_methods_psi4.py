@@ -10,18 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Problem PSI4 """
+""" Test Driver Methods PSI4 """
 
 import unittest
 
-from test.drivers.second_quantization.test_driver_problem import TestDriverProblem
+from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers.second_quantization import PSI4Driver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
-class TestDriverProblemPSI4(TestDriverProblem):
-    """Driver Problem PSI4 tests"""
+class TestDriverMethodsPSI4(TestDriverMethods):
+    """Driver Methods PSI4 tests"""
 
     psi4_lih_config = """
 molecule mol {{

@@ -10,18 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Problem Pyquante """
+""" Test Driver Methods Pyquante """
 
 import unittest
 
-from test.drivers.second_quantization.test_driver_problem import TestDriverProblem
+from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
-from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType, MethodType
+from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType, HFMethodType
 
 
-class TestDriverProblemPyquante(TestDriverProblem):
-    """Driver Problem Pyquante tests"""
+class TestDriverMethodsPyquante(TestDriverMethods):
+    """Driver Methods Pyquante tests"""
 
     def setUp(self):
         super().setUp()
@@ -38,7 +38,7 @@ class TestDriverProblemPyquante(TestDriverProblem):
             charge=0,
             multiplicity=1,
             basis=BasisType.BSTO3G,
-            method=MethodType.RHF,
+            hf_method=HFMethodType.RHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "lih")
@@ -51,7 +51,7 @@ class TestDriverProblemPyquante(TestDriverProblem):
             charge=0,
             multiplicity=1,
             basis=BasisType.BSTO3G,
-            method=MethodType.ROHF,
+            hf_method=HFMethodType.ROHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "lih")
@@ -64,7 +64,7 @@ class TestDriverProblemPyquante(TestDriverProblem):
             charge=0,
             multiplicity=1,
             basis=BasisType.BSTO3G,
-            method=MethodType.UHF,
+            hf_method=HFMethodType.UHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "lih")
@@ -77,7 +77,7 @@ class TestDriverProblemPyquante(TestDriverProblem):
             charge=0,
             multiplicity=2,
             basis=BasisType.BSTO3G,
-            method=MethodType.ROHF,
+            hf_method=HFMethodType.ROHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "oh")
@@ -90,7 +90,7 @@ class TestDriverProblemPyquante(TestDriverProblem):
             charge=0,
             multiplicity=2,
             basis=BasisType.BSTO3G,
-            method=MethodType.UHF,
+            hf_method=HFMethodType.UHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "oh")

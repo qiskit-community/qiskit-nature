@@ -10,11 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Problem PySCF """
+""" Test Driver Methods PySCF """
 
 import unittest
 
-from test.drivers.second_quantization.test_driver_problem import TestDriverProblem
+from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver, MethodType
 from qiskit_nature import QiskitNatureError
@@ -23,8 +23,8 @@ from qiskit_nature.converters.second_quantization.qubit_converter import QubitCo
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
-class TestDriverProblemPySCF(TestDriverProblem):
-    """Driver Problem PySCF tests"""
+class TestDriverMethodsPySCF(TestDriverMethods):
+    """Driver Methods PySCF tests"""
 
     def setUp(self):
         super().setUp()
