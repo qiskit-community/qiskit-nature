@@ -13,7 +13,6 @@
 """ Gaussian Forces Driver """
 
 from typing import Union, List, Optional
-import logging
 
 from qiskit_nature import QiskitNatureError
 
@@ -25,7 +24,6 @@ from .gaussian_utils import check_valid
 from .gaussian_log_driver import GaussianLogDriver
 from .gaussian_log_result import GaussianLogResult
 
-logger = logging.getLogger(__name__)
 
 B3YLP_JCF_DEFAULT = """
 #p B3LYP/cc-pVTZ Freq=(Anharm) Int=Ultrafine SCF=VeryTight

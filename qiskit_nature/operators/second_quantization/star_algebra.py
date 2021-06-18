@@ -12,10 +12,10 @@
 
 """The star algebra mixin abstract base class."""
 
-import warnings
 from abc import ABC, abstractmethod
 
 from qiskit.quantum_info.operators.mixins import MultiplyMixin
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class StarAlgebraMixin(MultiplyMixin, ABC):
@@ -126,11 +126,9 @@ class StarAlgebraMixin(MultiplyMixin, ABC):
 
 
 def _warn():
-    warnings.warn(
-        "This StarAlgebraMixin is deprecated as of 0.2.0, "
-        "and will be removed no earlier than 3 months after the release. "
-        "You should use the qiskit.opflow.mixins.StarAlgebraMixin "
-        "as a direct replacement instead.",
-        DeprecationWarning,
-        stacklevel=2,
+    warn_deprecated_same_type_name(
+        "0.2.0",
+        DeprecatedType.CLASS,
+        "StarAlgebraMixin",
+        "from qiskit.opflow.mixins as a direct replacement",
     )

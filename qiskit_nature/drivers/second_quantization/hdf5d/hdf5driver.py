@@ -12,13 +12,10 @@
 
 """ HDF5 Driver """
 
-import logging
 import os
 
 from ..qmolecule import QMolecule
 from ..fermionic_driver import FermionicDriver
-
-logger = logging.getLogger(__name__)
 
 
 class HDF5Driver(FermionicDriver):
