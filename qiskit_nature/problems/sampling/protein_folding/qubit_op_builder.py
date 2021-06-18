@@ -533,6 +533,8 @@ def _create_h_contacts(
     new_qubits = contact_map.create_peptide_qubit_list()
     main_chain_len = len(peptide.get_main_chain)
     full_id = _build_full_identity(2 * (main_chain_len - 1))
+    # original code treats the 0th entry (valued 0) as a qubit register
+    new_qubits[0] = 0.5 * (full_id ^ full_id)
     h_contacts = 0
     for operator in new_qubits[-contact_map.num_contacts :]:
         h_contacts += operator

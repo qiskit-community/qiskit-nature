@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests QubitOpBuilder."""
+from qiskit.opflow import PauliSumOp
 from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit_nature.problems.sampling.protein_folding.qubit_op_builder import (
@@ -381,6 +382,28 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
         expected_path_h_contacts = self.get_resource_path(
             "test_create_h_contacts_expected",
+            PATH,
+        )
+        expected = read_expected_file(expected_path_h_contacts)
+        assert h_contacts == expected
+
+    def test_create_h_contacts_2(self):
+        """
+        Tests that the Hamiltonian to back-overlaps is created correctly.
+        """
+        lambda_contacts = 10
+        n_contacts = 0
+        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
+        main_chain_len = 5
+        side_chain_lens = [0, 0, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", None]
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
+        contact_map = ContactMap(peptide)
+        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
+        expected_path_h_contacts = self.get_resource_path(
+            "test_create_h_contacts_2_expected",
             PATH,
         )
         expected = read_expected_file(expected_path_h_contacts)
