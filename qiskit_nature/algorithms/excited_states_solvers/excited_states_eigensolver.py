@@ -12,7 +12,6 @@
 
 """The calculation of excited states via an Eigensolver algorithm"""
 
-import logging
 from typing import List, Union, Optional
 
 from qiskit.algorithms import Eigensolver
@@ -25,8 +24,6 @@ from qiskit_nature.results import EigenstateResult
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
-
-logger = logging.getLogger(__name__)
 
 
 class ExcitedStatesEigensolver(ExcitedStatesSolver):

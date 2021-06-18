@@ -17,7 +17,6 @@ import os
 import subprocess
 import sys
 import tempfile
-import warnings
 from shutil import which
 from typing import Union, List, Optional
 
@@ -26,6 +25,7 @@ from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
 from ...exceptions import QiskitNatureError
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 logger = logging.getLogger(__name__)
 
@@ -67,13 +67,11 @@ class PSI4Driver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        warnings.warn(
-            "This PSI4Driver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.psi4d "
-            "PSI4Driver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "PSI4Driver",
+            "from qiskit_nature.drivers.second_quantization.psi4d as a direct replacement",
         )
         self._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
