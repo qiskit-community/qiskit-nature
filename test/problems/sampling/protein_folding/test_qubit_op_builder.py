@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests QubitOpBuilder."""
-from qiskit.opflow import PauliSumOp
 from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
+from qiskit.opflow import PauliSumOp
 from qiskit_nature.problems.sampling.protein_folding.qubit_op_builder import (
     _create_h_back,
     _create_h_chiral,
@@ -108,6 +108,32 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params, n_contacts)
         expected_path = self.get_resource_path(
             "test_build_qubit_op_expected",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        assert qubit_op == expected
+
+    def test_build_qubit_op_2(self):
+        """Tests if a total Hamiltonian qubit operator is built correctly."""
+        n_contacts = 0
+        lambda_back = 10
+        lambda_chiral = 10
+        lambda_1 = 10
+        lambda_contacts = 10
+        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
+        main_chain_len = 5
+        side_chain_lens = [0, 0, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", None]
+
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
+        mj_interaction = MiyazawaJerniganInteraction()
+        penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
+        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params, n_contacts)
+        expected_path = self.get_resource_path(
+            "test_build_qubit_op_2_expected",
             PATH,
         )
         expected = read_expected_file(expected_path)
@@ -336,33 +362,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         h_short = _create_h_short(peptide, pair_energies).reduce()
         expected = PauliSumOp.from_list([("IIIIIIIIIIIIIIIIIIIIIIIIIIII", 0)])
         assert h_short == expected
-
-    #
-    # def test_create_h_short_old(self):
-    #     """
-    #         Tests that the Hamiltonian to back-overlaps is created correctly.
-    #         """
-    #     lf = LatticeFoldingProblem(residue_sequence=["A", "P", "R", "L", "A", "A", "A"])
-    #     lf.pauli_op()
-    #     N = 8
-    #     side_chain = [0, 0, 1, 1, 1, 1, 1, 0]
-    #     pair_energies = lf._pair_energies
-    #
-    #     pauli_conf = _create_pauli_for_conf(N)
-    #     qubits = _create_qubits_for_conf(pauli_conf)
-    #     indic_0, indic_1, indic_2, indic_3, n_conf = _create_indic_turn(N, side_chain, qubits)
-    #     delta_n0, delta_n1, delta_n2, delta_n3 = _create_delta_BB(N, indic_0, indic_1, indic_2,
-    #                                                               indic_3, pauli_conf)
-    #     delta_n0, delta_n1, delta_n2, delta_n3 = _add_delta_SC(N, delta_n0, delta_n1, delta_n2,
-    #                                                            delta_n3, indic_0, indic_1,
-    #                                                            indic_2,
-    #                                                            indic_3, pauli_conf)
-    #     x_dist = _create_x_dist(N, delta_n0, delta_n1, delta_n2, delta_n3, pauli_conf)
-    #
-    #     h_short = _create_H_short(N, side_chain, pair_energies,
-    #                               x_dist, pauli_conf, indic_0,
-    #                               indic_1, indic_2, indic_3)
-    #     print(h_short)
 
     def test_create_h_contacts(self):
         """
