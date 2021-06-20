@@ -102,7 +102,7 @@ def warn_deprecated(
         version: Version to be used
         old_type: Old type to be used
         old_name: Old name to be used
-        new_type: New type to be used
+        new_type: New type to be used, if None, old_type is used instead.
         new_name: New name to be used
         additional_msg: any additional message
         stack_level: stack level
@@ -118,8 +118,9 @@ def warn_deprecated(
         f"The {old_name} {old_type.value} is deprecated as of version {version} "
         "and will be removed no sooner than 3 months after the release"
     )
-    if new_type is not None and new_name:
-        msg += f". Instead use the {new_name} {new_type.value}"
+    if new_name:
+        type_str = new_type.value if new_type is not None else old_type.value
+        msg += f". Instead use the {new_name} {type_str}"
     if additional_msg:
         msg += f" {additional_msg}"
     msg += "."
@@ -200,10 +201,57 @@ def deprecate_arguments(
     return decorator
 
 
-def deprecate_method(
+def _deprecate_object(
     version: str,
+    old_type: DeprecatedType,
     new_type: DeprecatedType,
     new_name: str,
+    additional_msg: str,
+    stack_level: int,
+) -> Callable:
+    """Decorator that prints deprecated message
+    Args:
+        version: Version to be used
+        old_type: New type to be used
+        new_type: New type to be used, if None, old_type is used instead.
+        new_name: New name to be used
+        additional_msg: any additional message
+        stack_level: stack level
+
+    Returns:
+        The decorated method
+    """
+
+    def decorator(func):
+        msg = (
+            f"The {func.__name__} {old_type.value} is deprecated as of version {version} "
+            "and will be removed no sooner than 3 months after the release"
+        )
+        if new_name:
+            type_str = new_type.value if new_type is not None else old_type.value
+            msg += f". Instead use the {new_name} {type_str}"
+        if additional_msg:
+            msg += f" {additional_msg}"
+        msg += "."
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # warn only once
+            if not wrapper._warned:
+                warnings.warn(msg, DeprecationWarning, stacklevel=stack_level)
+                wrapper._warned = True
+            return func(*args, **kwargs)
+
+        wrapper._warned = False
+        return wrapper
+
+    return decorator
+
+
+def deprecate_method(
+    version: str,
+    new_type: Optional[DeprecatedType] = None,
+    new_name: Optional[str] = None,
     additional_msg: Optional[str] = None,
     stack_level: int = 2,
 ) -> Callable:
@@ -218,36 +266,41 @@ def deprecate_method(
     Returns:
         The decorated method
     """
+    return _deprecate_object(
+        version, DeprecatedType.METHOD, new_type, new_name, additional_msg, stack_level
+    )
 
-    def decorator(method):
-        msg = (
-            f"The {method.__name__} {DeprecatedType.METHOD.value} is deprecated "
-            f"as of version {version} and will be removed no sooner "
-            "than 3 months after the release. Instead use the "
-            f"{new_name} {new_type.value}"
-        )
-        if additional_msg:
-            msg += f" {additional_msg}"
-        msg += "."
 
-        @functools.wraps(method)
-        def wrapper(self, *method_args, **method_kwargs):
-            # warn only once
-            if not wrapper._warned:
-                warnings.warn(msg, DeprecationWarning, stacklevel=stack_level)
-                wrapper._warned = True
-            return method(self, *method_args, **method_kwargs)
+def deprecate_property(
+    version: str,
+    new_type: Optional[DeprecatedType] = None,
+    new_name: Optional[str] = None,
+    additional_msg: Optional[str] = None,
+    stack_level: int = 2,
+) -> Callable:
+    """Decorator that prints deprecated message for a property
 
-        wrapper._warned = False
-        return wrapper
+    *** This decorator must be placed below the property decorator ***
 
-    return decorator
+    Args:
+        version: Version to be used
+        new_type: New type to be used
+        new_name: New name to be used
+        additional_msg: any additional message
+        stack_level: stack level
+
+    Returns:
+        The decorated property
+    """
+    return _deprecate_object(
+        version, DeprecatedType.PROPERTY, new_type, new_name, additional_msg, stack_level
+    )
 
 
 def deprecate_function(
     version: str,
-    new_type: DeprecatedType,
-    new_name: str,
+    new_type: Optional[DeprecatedType] = None,
+    new_name: Optional[str] = None,
     additional_msg: Optional[str] = None,
     stack_level: int = 2,
 ) -> Callable:
@@ -262,27 +315,6 @@ def deprecate_function(
     Returns:
         The decorated function
     """
-
-    def decorator(func):
-        msg = (
-            f"The {func.__name__} {DeprecatedType.FUNCTION.value} is deprecated "
-            f"as of version {version} and will be removed no sooner "
-            "than 3 months after the release. Instead use the "
-            f"{new_name} {new_type.value}"
-        )
-        if additional_msg:
-            msg += f" {additional_msg}"
-        msg += "."
-
-        @functools.wraps(func)
-        def wrapper(*method_args, **method_kwargs):
-            # warn only once
-            if not wrapper._warned:
-                warnings.warn(msg, DeprecationWarning, stacklevel=stack_level)
-                wrapper._warned = True
-            return func(*method_args, **method_kwargs)
-
-        wrapper._warned = False
-        return wrapper
-
-    return decorator
+    return _deprecate_object(
+        version, DeprecatedType.FUNCTION, new_type, new_name, additional_msg, stack_level
+    )
