@@ -22,7 +22,7 @@ def _fix_qubits(
 ) -> Union[PauliSumOp, PauliOp, OperatorBase]:
     """
     Assigns predefined values for qubits on positions 0, 1, 2, 3, 5 in the main chain. Qubits on
-    these position considered fixed and not subject to optimization.
+    these position are considered fixed and not subject to optimization.
     Args:
         operator: an operator whose qubits shall be fixed.
 
