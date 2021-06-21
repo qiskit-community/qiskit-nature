@@ -19,7 +19,7 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from .bases import ElectronicBasis
-from .electronic_energy import ElectronicEnergy
+from .electronic_energy import _IntegralProperty
 from .integrals import OneBodyElectronicIntegrals
 from ..property import DriverResult, ElectronicDriverResult, Property
 
@@ -39,13 +39,12 @@ class DipoleMoment(Property):
     def __init__(
         self,
         axis: str,
-        dipole: ElectronicEnergy,
+        dipole: _IntegralProperty,
     ):
         """
         Args:
             axis: the name of the Cartesian axis.
-            dipole: an ElectronicEnergy property exploited to represent the dipole moment operator
-                rather than an electronic energy.
+            dipole: an _IntegralProperty property representin the dipole moment operator.
         """
         super().__init__(self.__class__.__name__)
         self._axis = axis
@@ -66,16 +65,6 @@ class DipoleMoment(Property):
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the dipole moment operator."""
         return self._dipole.second_q_ops()
-
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
-
-        This is currently a method stub which may be used in the future.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        raise NotImplementedError()
 
 
 class TotalDipoleMoment(Property):
@@ -119,10 +108,11 @@ class TotalDipoleMoment(Property):
         def dipole_along_axis(axis, mo_ints, energy_shift):
             return DipoleMoment(
                 axis,
-                ElectronicEnergy(
+                _IntegralProperty(
+                    "DipoleMoment",
                     ElectronicBasis.MO,
                     {1: OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints)},
-                    energy_shift=energy_shift,
+                    shift=energy_shift,
                 ),
             )
 

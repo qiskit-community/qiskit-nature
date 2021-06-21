@@ -27,7 +27,51 @@ from .integrals import (
 from ..property import DriverResult, ElectronicDriverResult, Property
 
 
-class ElectronicEnergy(Property):
+# TODO: extract into separate file?
+class _IntegralProperty(Property):
+    """TODO."""
+
+    def __init__(
+        self,
+        name: str,
+        basis: ElectronicBasis,
+        electronic_integrals: Dict[int, ElectronicIntegrals],
+        shift: Optional[Dict[str, float]] = None,
+    ):
+        """
+        Args:
+            basis: the basis which the integrals in ``electronic_integrals`` are stored in.
+            electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
+                ``ElectronicIntegrals``.
+            shift: an optional dictionary of value shifts.
+        """
+        super().__init__(name)
+        self._basis = basis
+        self._electronic_integrals = electronic_integrals
+        self._shift = shift
+
+    def second_q_ops(self) -> List[FermionicOp]:
+        """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
+        return [
+            sum(  # type: ignore
+                ints.to_second_q_op() for ints in self._electronic_integrals.values()
+            ).reduce()
+        ]
+
+    @classmethod
+    def from_driver_result(cls, result: DriverResult) -> None:
+        """This property does not support construction from a driver result (yet).
+
+        Args:
+            result: ignored.
+
+        Raises:
+            NotImplemented
+        """
+        raise NotImplementedError()
+
+
+class ElectronicEnergy(_IntegralProperty):
     """The ElectronicEnergy property.
 
     This is the main property of any electronic structure problem. It constructs the Hamiltonian
@@ -38,8 +82,8 @@ class ElectronicEnergy(Property):
         self,
         basis: ElectronicBasis,
         electronic_integrals: Dict[int, ElectronicIntegrals],
-        reference_energy: Optional[float] = None,
         energy_shift: Optional[Dict[str, float]] = None,
+        reference_energy: Optional[float] = None,
     ):
         """
         Args:
@@ -49,10 +93,7 @@ class ElectronicEnergy(Property):
             reference_energy: an optional reference energy (such as the HF energy).
             energy_shift: an optional dictionary of energy shifts.
         """
-        super().__init__(self.__class__.__name__)
-        self._basis = basis
-        self._electronic_integrals = electronic_integrals
-        self._energy_shift = energy_shift
+        super().__init__(self.__class__.__name__, basis, electronic_integrals, shift=energy_shift)
         self._reference_energy = reference_energy
 
     @classmethod
@@ -92,14 +133,6 @@ class ElectronicEnergy(Property):
                     ),
                 ),
             },
-            reference_energy=qmol.hf_energy,
             energy_shift=energy_shift,
+            reference_energy=qmol.hf_energy,
         )
-
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
-        return [
-            sum(  # type: ignore
-                ints.to_second_q_op() for ints in self._electronic_integrals.values()
-            ).reduce()
-        ]
