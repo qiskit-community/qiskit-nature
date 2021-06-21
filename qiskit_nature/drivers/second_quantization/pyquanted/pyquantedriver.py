@@ -23,7 +23,7 @@ from qiskit_nature import QiskitNatureError
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals
-from ..fermionic_driver import FermionicDriver, HFMethodType
+from ..fermionic_driver import FermionicDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
 
@@ -52,7 +52,7 @@ class PyQuanteDriver(FermionicDriver):
         charge: int = 0,
         multiplicity: int = 1,
         basis: BasisType = BasisType.BSTO3G,
-        hf_method: HFMethodType = HFMethodType.RHF,
+        method: MethodType = MethodType.RHF,
         tol: float = 1e-8,
         maxiters: int = 100,
         molecule: Optional[Molecule] = None,
@@ -66,7 +66,7 @@ class PyQuanteDriver(FermionicDriver):
             charge: Charge on the molecule.
             multiplicity: Spin multiplicity (2S+1)
             basis: Basis set; sto3g, 6-31g or 6-31g**
-            hf_method: Hartree-Fock Method type.
+            method: Hartree-Fock Method type.
             tol: Convergence tolerance see pyquante2.scf hamiltonians and iterators
             maxiters: Convergence max iterations see pyquante2.scf hamiltonians and iterators,
                 has a min. value of 1.
@@ -93,7 +93,7 @@ class PyQuanteDriver(FermionicDriver):
         super().__init__(
             molecule=molecule,
             basis=basis.value,
-            hf_method=hf_method.value,
+            method=method.value,
             supports_molecule=True,
         )
         self._atoms = atoms
@@ -131,7 +131,7 @@ class PyQuanteDriver(FermionicDriver):
             units = self._units
 
         basis = self.basis
-        hf_method = self.hf_method
+        method = self.method
 
         q_mol = compute_integrals(
             atoms=atoms,
@@ -139,7 +139,7 @@ class PyQuanteDriver(FermionicDriver):
             charge=charge,
             multiplicity=multiplicity,
             basis=basis,
-            hf_method=hf_method,
+            method=method,
             tol=self._tol,
             maxiters=self._maxiters,
         )
@@ -151,7 +151,7 @@ class PyQuanteDriver(FermionicDriver):
             "charge={}".format(charge),
             "multiplicity={}".format(multiplicity),
             "basis={}".format(basis),
-            "hf_method={}".format(hf_method),
+            "method={}".format(method),
             "tol={}".format(self._tol),
             "maxiters={}".format(self._maxiters),
             "",

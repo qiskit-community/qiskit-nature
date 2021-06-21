@@ -68,7 +68,7 @@ class GaussianForcesDriver(BosonicDriver):
             QiskitNatureError: If `jcf` or `molecule` given and Gaussian™ 16 executable
                 cannot be located.
         """
-        super().__init__(molecule=molecule, basis=basis, hf_method="", supports_molecule=True)
+        super().__init__(molecule=molecule, basis=basis, method="", supports_molecule=True)
         self._jcf = jcf
         self._logfile = None
         self._normalize = normalize
