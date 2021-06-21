@@ -59,24 +59,22 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             QiskitNatureError: if the integrals do not match
                 ``ElectronicBasisTransform.initial_basis``.
         """
-        if self._basis == transform._final_basis:
+        if self._basis == transform.final_basis:
             return self
 
-        if self._basis != transform._initial_basis:
+        if self._basis != transform.initial_basis:
             raise QiskitNatureError(
                 f"The integrals' basis, {self._basis}, does not match the initial basis of the "
-                f"transform, {transform._initial_basis}."
+                f"transform, {transform.initial_basis}."
             )
 
-        matrix_a = np.dot(
-            np.dot(transform._coeff_alpha.T, self._matrices[0]), transform._coeff_alpha
-        )
+        matrix_a = np.dot(np.dot(transform.coeff_alpha.T, self._matrices[0]), transform.coeff_alpha)
         matrix_b = None
         if self._matrices[1] is not None:
             matrix_b = np.dot(
-                np.dot(transform._coeff_beta.T, self._matrices[1]), transform._coeff_beta
+                np.dot(transform.coeff_beta.T, self._matrices[1]), transform.coeff_beta
             )
-        return OneBodyElectronicIntegrals(transform._final_basis, (matrix_a, matrix_b))
+        return OneBodyElectronicIntegrals(transform.final_basis, (matrix_a, matrix_b))
 
     def to_spin(self) -> np.ndarray:
         """Transforms the integrals into the special ``ElectronicBasis.SO`` basis.

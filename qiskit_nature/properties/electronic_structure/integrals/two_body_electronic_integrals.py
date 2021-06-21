@@ -70,17 +70,17 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             QiskitNatureError: if the integrals do not match
                 ``ElectronicBasisTransform.initial_basis``.
         """
-        if self._basis == transform._final_basis:
+        if self._basis == transform.final_basis:
             return self
 
-        if self._basis != transform._initial_basis:
+        if self._basis != transform.initial_basis:
             raise QiskitNatureError(
                 f"The integrals' basis, {self._basis}, does not match the initial basis of the "
-                f"transform, {transform._initial_basis}."
+                f"transform, {transform.initial_basis}."
             )
 
-        coeff_alpha = transform._coeff_alpha
-        coeff_beta = transform._coeff_beta
+        coeff_alpha = transform.coeff_alpha
+        coeff_beta = transform.coeff_beta
 
         coeff_list = [
             (coeff_alpha, coeff_alpha, coeff_alpha, coeff_alpha),
@@ -95,7 +95,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 continue
             matrices.append(np.einsum(self.EINSUM_AO_TO_MO, mat, *coeffs))
 
-        return TwoBodyElectronicIntegrals(transform._final_basis, tuple(matrices))
+        return TwoBodyElectronicIntegrals(transform.final_basis, tuple(matrices))
 
     def to_spin(self) -> np.ndarray:
         """Transforms the integrals into the special ``ElectronicBasis.SO`` basis.

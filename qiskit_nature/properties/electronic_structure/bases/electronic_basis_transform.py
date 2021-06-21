@@ -39,7 +39,7 @@ class ElectronicBasisTransform:
                 dimension of ``coeff_alpha``. If it is left as ``None``, ``coeff_alpha`` will be
                 used for the beta-spin orbitals too.
         """
-        self._initial_basis = initial_basis
-        self._final_basis = final_basis
-        self._coeff_alpha = coeff_alpha
-        self._coeff_beta = coeff_alpha if coeff_beta is None else coeff_beta
+        self.initial_basis = initial_basis
+        self.final_basis = final_basis
+        self.coeff_alpha = coeff_alpha
+        self.coeff_beta = coeff_alpha if coeff_beta is None else coeff_beta
