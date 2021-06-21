@@ -148,13 +148,3 @@ class TotalDipoleMoment(Property):
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list of dipole moment operators along all Cartesian axes."""
         return [dip.second_q_ops()[0] for dip in self._dipole_axes.values()]
-
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
-
-        This is currently a method stub which may be used in the future.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        raise NotImplementedError()

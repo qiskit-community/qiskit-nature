@@ -93,13 +93,3 @@ class ParticleNumber(Property):
             register_length=self._num_spin_orbitals,
         )
         return [op]
-
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
-
-        This is currently a method stub which may be used in the future.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        raise NotImplementedError()

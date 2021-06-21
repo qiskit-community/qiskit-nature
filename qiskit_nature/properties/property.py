@@ -97,7 +97,7 @@ class Property(ABC):
     # which is stored inside of the ElectronicStructureProblem instead of the currently stored
     # QMolecule (vibrational case accordingly).
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
 
         This is currently a method stub which may be used in the future.
 

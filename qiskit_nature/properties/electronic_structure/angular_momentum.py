@@ -75,16 +75,6 @@ class AngularMomentum(Property):
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
-
-        This is currently a method stub which may be used in the future.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        raise NotImplementedError()
-
 
 def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
     return _calc_squared_ints(num_modes, _modify_s_x_squared_ints_neq, _modify_s_x_squared_ints_eq)

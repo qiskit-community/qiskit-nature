@@ -110,13 +110,3 @@ class VibrationalEnergy(Property):
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
         return [sum(ops)]  # type: ignore
-
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
-
-        This is currently a method stub which may be used in the future.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        raise NotImplementedError()

@@ -93,13 +93,3 @@ class OccupiedModals(Property):
             labels.append((f"+_{mode}*{modal} -_{mode}*{modal}", 1.0))
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
-
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an `qiskit_nature.result.EigenstateResult` in the context of this Property.
-
-        This is currently a method stub which may be used in the future.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        raise NotImplementedError()
