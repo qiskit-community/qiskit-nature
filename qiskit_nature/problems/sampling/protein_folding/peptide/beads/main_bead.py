@@ -30,7 +30,7 @@ class MainBead(BaseBead):
             residue_type: A character representing the type of a residue for the bead.
             turn_qubits: A list of Pauli operators that encodes the turn following from a
                             given bead index.
-            side_chain: An object represting a side chain attached to this main bead.
+            side_chain: An object representing a side chain attached to this main bead.
         """
         super().__init__(
             "main_chain",
