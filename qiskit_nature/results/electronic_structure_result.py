@@ -14,14 +14,11 @@
 
 from functools import reduce
 from typing import Dict, List, Optional, Tuple, cast
-import logging
 
 import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from .eigenstate_result import EigenstateResult
-
-logger = logging.getLogger(__name__)
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all
 # the components. However when using Z2Symmetries, if the dipole component operator does not

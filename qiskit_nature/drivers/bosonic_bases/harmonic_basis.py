@@ -14,12 +14,11 @@
 
 from typing import Dict, List, Tuple, cast
 
-import warnings
-
 import numpy as np
 
 from qiskit_nature.drivers import WatsonHamiltonian
 from .bosonic_basis import BosonicBasis
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class HarmonicBasis(BosonicBasis):
@@ -49,13 +48,11 @@ class HarmonicBasis(BosonicBasis):
             truncation_order: where is the Hamiltonian expansion truncation (1 for having only
                 1-body terms, 2 for having on 1- and 2-body terms...)
         """
-        warnings.warn(
-            "This HarmonicBasis is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.bosonic_bases "
-            "HarmonicBasis as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "HarmonicBasis",
+            "from qiskit_nature.drivers.second_quantization.bosonic_bases as a direct replacement",
         )
         super().__init__()
 

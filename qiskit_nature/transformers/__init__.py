@@ -24,7 +24,7 @@ Transformers (:mod:`qiskit_nature.transformers`)
 """
 
 from importlib import import_module
-from warnings import warn
+from ..deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 deprecated_names = [
     "ActiveSpaceTransformer",
@@ -35,10 +35,11 @@ deprecated_names = [
 
 def __getattr__(name):
     if name in deprecated_names:
-        warn(
-            f"{name} has been moved to {__name__}.second_quantization.{name}",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.PROPERTY,
+            name,
+            f"from {__name__}.second_quantization as a direct replacement",
         )
         module = import_module(".second_quantization", __name__)
         return getattr(module, name)
