@@ -21,7 +21,7 @@ def _remove_unused_qubits(
     total_hamiltonian: Union[PauliSumOp, PauliOp]
 ) -> Union[PauliSumOp, PauliOp]:
     """
-    Removes qubits these from a total Hamiltonian that are equal to an identity operator across
+    Removes those qubits from a total Hamiltonian that are equal to an identity operator across
     all terms, i.e. they are irrelevant for the problem. It makes the number of qubits required
     for encoding the problem smaller or equal.
 
