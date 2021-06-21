@@ -44,7 +44,7 @@ class DipoleMoment(Property):
         """
         Args:
             axis: the name of the Cartesian axis.
-            dipole: an _IntegralProperty property representin the dipole moment operator.
+            dipole: an _IntegralProperty property representing the dipole moment operator.
         """
         super().__init__(self.__class__.__name__)
         self._axis = axis
