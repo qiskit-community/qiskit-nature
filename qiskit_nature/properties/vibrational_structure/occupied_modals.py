@@ -15,7 +15,6 @@
 from typing import List, Optional, Tuple
 
 from qiskit_nature.operators.second_quantization import VibrationalOp
-from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from ..property import DriverResult, Property, VibrationalDriverResult

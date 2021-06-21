@@ -20,7 +20,6 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.results import EigenstateResult
 
 from .bases import ElectronicBasis
 from .integrals import (

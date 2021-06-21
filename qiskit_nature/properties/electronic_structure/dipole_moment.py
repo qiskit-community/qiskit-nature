@@ -16,7 +16,6 @@ from typing import cast, Dict, List, Optional, Tuple
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.results import EigenstateResult
 
 from .bases import ElectronicBasis
 from .electronic_energy import _IntegralProperty

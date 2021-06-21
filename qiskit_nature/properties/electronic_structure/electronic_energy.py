@@ -59,7 +59,7 @@ class _IntegralProperty(Property):
         ]
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> None:
+    def from_driver_result(cls, result: DriverResult) -> "_IntegralProperty":
         """This property does not support construction from a driver result (yet).
 
         Args:

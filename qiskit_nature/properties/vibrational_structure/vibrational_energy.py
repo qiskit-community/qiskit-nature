@@ -16,7 +16,6 @@ from typing import cast, Dict, List, Optional
 
 from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
-from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
