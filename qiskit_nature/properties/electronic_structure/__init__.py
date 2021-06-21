@@ -37,8 +37,10 @@ solution:
    AngularMomentum
    Magnetization
 
-These properties are required if you want to ensure that the number of particles in your system is
-being conserved.
+With these properties you can measure the number of particles, spin, etc. of your system during your
+simulation. This allows you to perform checks of your solution with regards to (e.g.) particle
+conservation. This is especially important when using an Ansatz which is not particle-conserving by
+itself.
 
 Finally, if the driver which you used provided dipole moment integrals, this property will also be
 evaluated:
