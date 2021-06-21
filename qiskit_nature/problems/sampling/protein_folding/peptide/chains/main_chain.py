@@ -97,7 +97,10 @@ class MainChain(BaseChain):
     @staticmethod
     def _validate_chain_lengths(main_chain_len: int, side_chain_lens):
         if side_chain_lens is not None and main_chain_len != len(side_chain_lens):
-            raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
+            raise InvalidSizeException(
+                f"The length of list of side chain lengths provided: {len(side_chain_lens)}, "
+                f"does not equal the length of the main chain: {main_chain_len}"
+            )
 
     @staticmethod
     def _validate_side_chain_index_by_lengths(side_chain_lens: List[int]):
