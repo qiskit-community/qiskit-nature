@@ -17,7 +17,7 @@ import unittest
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
-from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType, HFMethodType
+from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType, MethodType
 
 
 class TestDriverMethodsPyquante(TestDriverMethods):
@@ -38,7 +38,7 @@ class TestDriverMethodsPyquante(TestDriverMethods):
             charge=0,
             multiplicity=1,
             basis=BasisType.BSTO3G,
-            hf_method=HFMethodType.RHF,
+            method=MethodType.RHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "lih")
@@ -51,7 +51,7 @@ class TestDriverMethodsPyquante(TestDriverMethods):
             charge=0,
             multiplicity=1,
             basis=BasisType.BSTO3G,
-            hf_method=HFMethodType.ROHF,
+            method=MethodType.ROHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "lih")
@@ -64,7 +64,7 @@ class TestDriverMethodsPyquante(TestDriverMethods):
             charge=0,
             multiplicity=1,
             basis=BasisType.BSTO3G,
-            hf_method=HFMethodType.UHF,
+            method=MethodType.UHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "lih")
@@ -77,7 +77,7 @@ class TestDriverMethodsPyquante(TestDriverMethods):
             charge=0,
             multiplicity=2,
             basis=BasisType.BSTO3G,
-            hf_method=HFMethodType.ROHF,
+            method=MethodType.ROHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "oh")
@@ -90,7 +90,7 @@ class TestDriverMethodsPyquante(TestDriverMethods):
             charge=0,
             multiplicity=2,
             basis=BasisType.BSTO3G,
-            hf_method=HFMethodType.UHF,
+            method=MethodType.UHF,
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "oh")
