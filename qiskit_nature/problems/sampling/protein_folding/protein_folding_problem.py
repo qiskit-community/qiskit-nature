@@ -27,6 +27,13 @@ class ProteinFoldingProblem(SamplingProblem):
     def __init__(
         self, peptide: Peptide, interaction: Interaction, penalty_parameters: PenaltyParameters
     ):
+        """
+        Args:
+            peptide: A peptide object that defines the protein subject to the folding problem.
+            interaction: A type of interaction between the beads of the peptide.
+            penalty_parameters: Parameters that define the strength of constraints enforcing in
+                                the problem.
+        """
         self._peptide = peptide
         self._interaction = interaction
         self._penalty_parameters = penalty_parameters

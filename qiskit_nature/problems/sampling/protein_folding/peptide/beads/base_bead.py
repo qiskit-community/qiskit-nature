@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """An abstract class defining a bead of a peptide."""
 from abc import ABC
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Callable
 
 from qiskit.opflow import PauliOp, OperatorBase
 
@@ -28,11 +28,23 @@ class BaseBead(ABC):
         main_index: int,
         residue_type: str,
         turn_qubits: List[PauliOp],
-        _build_turn_indicator_fun_0,
-        _build_turn_indicator_fun_1,
-        _build_turn_indicator_fun_2,
-        _build_turn_indicator_fun_3,
+        build_turn_indicator_fun_0: Callable,
+        build_turn_indicator_fun_1: Callable,
+        build_turn_indicator_fun_2: Callable,
+        build_turn_indicator_fun_3: Callable,
     ):
+        """
+        Args:
+            chain_type: Type of the chain, either "main_chain" or "side_chain".
+            main_index: index of the bead on the main chain in a peptide.
+            residue_type: A character representing the type of a residue for the bead.
+            turn_qubits: A list of Pauli operators that encodes the turn following from a
+                            given bead index.
+            build_turn_indicator_fun_0: method that build turn indicator functions for the bead.
+            build_turn_indicator_fun_1: method that build turn indicator functions for the bead.
+            build_turn_indicator_fun_2: method that build turn indicator functions for the bead.
+            build_turn_indicator_fun_3: method that build turn indicator functions for the bead.
+        """
         self.chain_type = chain_type
         self.main_index = main_index
         self._residue_type = residue_type
@@ -40,10 +52,10 @@ class BaseBead(ABC):
         self._turn_qubits = turn_qubits
         if self._residue_type is not None and self.turn_qubits is not None:
             full_id = _build_full_identity(turn_qubits[0].num_qubits)
-            self._turn_indicator_fun_0 = _build_turn_indicator_fun_0(full_id)
-            self._turn_indicator_fun_1 = _build_turn_indicator_fun_1(full_id)
-            self._turn_indicator_fun_2 = _build_turn_indicator_fun_2(full_id)
-            self._turn_indicator_fun_3 = _build_turn_indicator_fun_3(full_id)
+            self._turn_indicator_fun_0 = build_turn_indicator_fun_0(full_id)
+            self._turn_indicator_fun_1 = build_turn_indicator_fun_1(full_id)
+            self._turn_indicator_fun_2 = build_turn_indicator_fun_2(full_id)
+            self._turn_indicator_fun_3 = build_turn_indicator_fun_3(full_id)
 
     @property
     def turn_qubits(self) -> List[PauliOp]:

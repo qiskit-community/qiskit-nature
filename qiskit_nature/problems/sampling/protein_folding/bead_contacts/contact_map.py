@@ -38,23 +38,6 @@ class ContactMap:
 
        Args:
            peptide: A Peptide object that includes all information about a protein.
-            lower_main_upper_main: A dictionary which is a component of a contact map that stores
-                                    contact operators between a bead on a main chain (first
-                                    index) and a bead in a main
-                                    chain (second index).
-            lower_side_upper_main: A dictionary which is a component of a contact map that stores
-                                    contact operators between a first bead in a side chain (first
-                                    index) and a bead in a
-                                    main chain (second index).
-            lower_main_upper_side: A dictionary which is a component of a contact map that stores
-                                    contact operators between a bead in a main chain (first
-                                    index) and a first bead in a
-                                    side chain (second index).
-            lower_side_upper_side: A dictionary which is a component of a contact map that stores
-                                    contact operators between a first bead in a side chain (first
-                                    index) and a a first
-                                    bead in a side chain (second index).
-            num_contacts: the total number of contacts.
        """
 
     @property

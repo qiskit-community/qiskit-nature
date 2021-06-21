@@ -23,8 +23,14 @@ from ..data_loaders.energy_matrix_loader import (
 class MixedInteraction(Interaction):
     """A class defining a mixed interaction between beads of a peptide."""
 
-    def __init__(self, additional_energies=None):
+    def __init__(self, additional_energies: np.ndarray = None):
         self.additional_energies = additional_energies
+
+        """
+        Args:
+            additional_energies: additional energies to be used in the construction of an energy
+                                    matrix for the MixedInteraction.
+        """
 
     def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
         """

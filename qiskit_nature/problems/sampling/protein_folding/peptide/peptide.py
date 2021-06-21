@@ -22,13 +22,25 @@ class Peptide:
     def __init__(
         self,
         main_chain_len: int,
-        main_chain_residue_seq: List[str],
+        main_chain_residue_sequences: List[str],
         side_chain_lens: List[int],
         side_chain_residue_sequences: List[str],
     ):
         self._main_chain = MainChain(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+            main_chain_len,
+            main_chain_residue_sequences,
+            side_chain_lens,
+            side_chain_residue_sequences,
         )
+
+        """
+        Args:
+            main_chain_len: Length of the main chain of a peptide.
+            main_chain_residue_sequences: List of characters that define residues for a main chain.
+            side_chain_lens: List of lengths of all side chains.
+            side_chain_residue_sequences: List of characters that define residues for all side
+            beads.
+        """
 
     def get_side_chains(self) -> Sequence[SideChain]:
         """

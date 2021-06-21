@@ -28,14 +28,11 @@ class DistanceMap:
 
     def __init__(self, peptide: Peptide):
         self._peptide = peptide
-        self._distance_map, self.num_distances = _create_distance_qubits(peptide)
+        self._distance_map, self._num_distances = _create_distance_qubits(peptide)
 
         """
-          Args:
-                peptide: A Peptide object that includes all information about a protein.
-                distance_map: A beads-indexed dictionary that stores distances between beads of a
-                                peptide as qubit operators.
-                num_distances: the total number of distances.
+        Args:
+            peptide: A Peptide object that includes all information about a protein.
         """
 
     def __getitem__(self, position: Tuple[BaseBead, BaseBead]) -> OperatorBase:
@@ -51,6 +48,11 @@ class DistanceMap:
     def distance_map(self):
         """Returns a distance map."""
         return self._distance_map
+
+    @property
+    def num_distances(self):
+        """Returns the number of distances calculated."""
+        return self._num_distances
 
     def _first_neighbor(
         self,

@@ -28,6 +28,11 @@ class BaseChain(ABC):
     def __init__(self, beads_list: Sequence[BaseBead]):
         self._beads_list = beads_list
 
+        """
+        Args:
+            beads_list: A list of beads that define the chain.
+        """
+
     def __getitem__(self, item):
         return self._beads_list[item]
 

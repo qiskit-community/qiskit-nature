@@ -23,6 +23,15 @@ class SideBead(BaseBead):
     def __init__(
         self, main_index: int, side_index: int, residue_type: str, turn_qubits: List[PauliOp]
     ):
+        """
+        Args:
+            main_index: Index of the bead on the main chain in a peptide to which the side
+                            chain of this side bead is attached.
+            side_index: Index of the bead on the related side chain in a peptide.
+            residue_type: A character representing the type of a residue for the bead.
+            turn_qubits: A list of Pauli operators that encodes the turn following from a
+            given bead index.
+        """
         super().__init__(
             "side_chain",
             main_index,
