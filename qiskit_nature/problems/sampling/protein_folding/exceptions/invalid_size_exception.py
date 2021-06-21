@@ -10,9 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """An exception for an invalid size of chains in a peptide."""
+from qiskit_nature import QiskitNatureError
 
 
-class InvalidSizeException(Exception):
+class InvalidSizeException(QiskitNatureError):
     """An exception for an invalid size of chains in a peptide."""
 
     pass

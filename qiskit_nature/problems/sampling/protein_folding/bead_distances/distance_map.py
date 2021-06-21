@@ -10,13 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores distances between beads of a peptide as qubit operators."""
-from typing import List, Union
+from typing import List, Union, Tuple
 
-from qiskit.opflow import PauliSumOp, PauliOp
+from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
 
 from ..bead_distances.distance_map_builder import (
     _create_distance_qubits,
 )
+from ..peptide.beads.base_bead import BaseBead
 from ..peptide.pauli_ops_builder import _build_full_identity
 from ..peptide.peptide import Peptide
 from ..qubit_utils.qubit_fixing import _fix_qubits
@@ -37,12 +38,12 @@ class DistanceMap:
                 num_distances: the total number of distances.
         """
 
-    def __getitem__(self, position):
+    def __getitem__(self, position: Tuple[BaseBead, BaseBead]) -> OperatorBase:
         item1, item2 = position
         return self._distance_map[item1][item2]
 
     @property
-    def peptide(self):
+    def peptide(self) -> Peptide:
         """Returns a peptide."""
         return self._peptide
 

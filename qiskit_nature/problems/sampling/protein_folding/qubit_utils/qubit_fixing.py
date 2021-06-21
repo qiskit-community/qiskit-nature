@@ -17,7 +17,9 @@ from qiskit.opflow import PauliSumOp, OperatorBase, PauliOp
 from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
-def _fix_qubits(operator: Union[PauliSumOp, PauliOp, OperatorBase]):
+def _fix_qubits(
+    operator: Union[PauliSumOp, PauliOp, OperatorBase]
+) -> Union[PauliSumOp, PauliOp, OperatorBase]:
     """
     Assigns predefined values for qubits on positions 0, 1, 2, 3, 5 in the main chain. Qubits on
     these position considered fixed and not subject to optimization.
@@ -58,7 +60,7 @@ def _fix_qubits(operator: Union[PauliSumOp, PauliOp, OperatorBase]):
     return operator_updated
 
 
-def _calc_updated_coeffs(hamiltonian: Union[PauliSumOp, PauliOp], table_z):
+def _calc_updated_coeffs(hamiltonian: Union[PauliSumOp, PauliOp], table_z) -> np.ndarray:
     coeffs = np.copy(hamiltonian.primitive.coeffs[0])
     if len(table_z) > 1 and table_z[1] == np.bool_(True):
         coeffs = -1 * coeffs

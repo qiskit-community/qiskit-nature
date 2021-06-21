@@ -28,23 +28,23 @@ class PenaltyParameters:
         self._lambda_contacts = lambda_contacts
 
     @property
-    def lambda_chiral(self):
+    def lambda_chiral(self) -> float:
         """Returns a penalty parameter used to impose the right chirality."""
         return self._lambda_chiral
 
     @property
-    def lambda_back(self):
+    def lambda_back(self) -> float:
         """Returns a penalty parameter used to penalize turns along the same axis."""
         return self._lambda_back
 
     @property
-    def lambda_1(self):
+    def lambda_1(self) -> float:
         """Returns a penalty parameter used to penalize local overlap between beads within a
         nearest neighbor contact."""
         return self._lambda_1
 
     @property
-    def lambda_contacts(self):
+    def lambda_contacts(self) -> float:
         """Returns a penalty parameter used to penalize local overlap between beads within a
         nearest neighbor contact."""
         return self._lambda_contacts

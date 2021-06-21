@@ -10,6 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Defines a protein folding problem that can be passed to algorithms."""
+from typing import Union
+
+from qiskit.opflow import PauliSumOp, PauliOp
+
 from .qubit_op_builder import _build_qubit_op
 from .peptide.peptide import Peptide
 from .interactions.interaction import Interaction
@@ -31,7 +35,7 @@ class ProteinFoldingProblem(SamplingProblem):
         )
         self._n_contacts = 0  # TODO what is the meaning of this param?
 
-    def qubit_op(self):
+    def qubit_op(self) -> Union[PauliOp, PauliSumOp]:
         """
         Builds a qubit operator for the Hamiltonian encoding a protein folding problem.
 
@@ -43,5 +47,6 @@ class ProteinFoldingProblem(SamplingProblem):
         )
         return qubit_operator
 
+    # TODO will be implemented in another issue
     def interpret(self):
         pass

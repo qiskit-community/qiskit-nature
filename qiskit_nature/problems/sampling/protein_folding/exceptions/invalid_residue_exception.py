@@ -10,9 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """An exception for an invalid residue in a peptide."""
+from qiskit_nature import QiskitNatureError
 
 
-class InvalidResidueException(Exception):
+class InvalidResidueException(QiskitNatureError):
     """An exception for an invalid residue in a peptide."""
 
     pass

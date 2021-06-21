@@ -530,7 +530,7 @@ def _create_h_contacts(
         interactions.
 
     """
-    new_qubits = contact_map.create_peptide_qubit_list()
+    new_qubits = contact_map._create_peptide_qubit_list()
     main_chain_len = len(peptide.get_main_chain)
     full_id = _build_full_identity(2 * (main_chain_len - 1))
     # original code treats the 0th entry (valued 0) as a qubit register

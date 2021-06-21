@@ -11,13 +11,16 @@
 # that they have been altered from the originals.
 """An interface for sampling problems."""
 from abc import ABC, abstractmethod
+from typing import Union
+
+from qiskit.opflow import PauliSumOp, PauliOp
 
 
 class SamplingProblem(ABC):
     """An interface for sampling problems."""
 
     @abstractmethod
-    def qubit_op(self):
+    def qubit_op(self) -> Union[PauliOp, PauliSumOp]:
         """Returns a qubit operator that represents a Hamiltonian encoding the sampling problem."""
         pass
 

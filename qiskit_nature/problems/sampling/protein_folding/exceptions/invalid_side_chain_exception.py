@@ -10,9 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """An exception for an invalid side chain in a peptide."""
+from qiskit_nature import QiskitNatureError
 
 
-class InvalidSideChainException(Exception):
+class InvalidSideChainException(QiskitNatureError):
     """An exception for an invalid side chain in a peptide."""
 
     pass

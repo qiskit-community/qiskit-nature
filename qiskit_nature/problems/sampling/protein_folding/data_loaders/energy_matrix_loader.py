@@ -10,10 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Loads the energy matrix from the Miyazawa-Jernigan potential file."""
+from typing import Tuple, List
+
 import numpy as np
 
 
-def _load_energy_matrix_file():
+def _load_energy_matrix_file() -> Tuple[np.ndarray, List[str]]:
     """Returns the energy matrix from the Miyazawa-Jernigan potential file."""
 
     path = "qiskit_nature/problems/sampling/protein_folding/resources/mj_matrix.txt"
@@ -23,7 +25,7 @@ def _load_energy_matrix_file():
     return energy_matrix, symbols
 
 
-def _parse_energy_matrix(matrix):
+def _parse_energy_matrix(matrix: np.ndarray) -> np.ndarray:
     """Parses a matrix loaded from the Miyazawa-Jernigan potential file."""
     energy_matrix = np.zeros((np.shape(matrix)[0], np.shape(matrix)[1]))
     for row in range(1, np.shape(matrix)[0]):

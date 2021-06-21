@@ -12,13 +12,14 @@
 """An abstract class defining an interaction between beads of a peptide."""
 from abc import ABC, abstractmethod
 from typing import List
+import numpy as np
 
 
 class Interaction(ABC):
     """An abstract class defining an interaction between beads of a peptide."""
 
     @abstractmethod
-    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]):
+    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
         """
         Calculates an energy matrix for a particular interaction type.
         Args:

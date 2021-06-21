@@ -26,7 +26,7 @@ class MixedInteraction(Interaction):
     def __init__(self, additional_energies=None):
         self.additional_energies = additional_energies
 
-    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]):
+    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
         """
         Calculates an energy matrix for a mixed interaction based on the Miyazawa-Jernigan
         potential file.

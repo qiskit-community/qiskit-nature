@@ -13,7 +13,7 @@
 from typing import Union, List, Dict, Tuple
 
 import numpy as np
-from qiskit.opflow import PauliSumOp, PauliOp
+from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
 from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
@@ -42,7 +42,11 @@ def _remove_unused_qubits(
     return None
 
 
-def _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits):
+def _compress_pauli_op(
+    num_qubits: int,
+    total_hamiltonian: Union[PauliSumOp, PauliOp, OperatorBase],
+    unused_qubits: List[int],
+):
     table_z = total_hamiltonian.primitive.z
     table_x = total_hamiltonian.primitive.x
     new_table_z, new_table_x = _calc_reduced_pauli_tables(
@@ -52,7 +56,11 @@ def _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits):
     return total_hamiltonian_compressed
 
 
-def _compress_pauli_sum_op(num_qubits, total_hamiltonian, unused_qubits):
+def _compress_pauli_sum_op(
+    num_qubits: int,
+    total_hamiltonian: Union[PauliSumOp, PauliOp, OperatorBase],
+    unused_qubits: List[int],
+) -> Union[PauliSumOp, PauliOp, OperatorBase]:
     new_tables = []
     new_coeffs = []
     for term in total_hamiltonian:

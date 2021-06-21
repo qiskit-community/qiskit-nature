@@ -10,7 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores contacts between beads of a peptide as qubit operators."""
-from typing import DefaultDict
+from typing import DefaultDict, List, Union
+
+from qiskit.opflow import PauliSumOp, PauliOp
 
 from ..bead_contacts.contact_map_builder import (
     _create_contact_qubits,
@@ -87,7 +89,7 @@ class ContactMap:
         second index)."""
         return self._lower_side_upper_side
 
-    def create_peptide_qubit_list(self):
+    def _create_peptide_qubit_list(self):
         """
         Creates new set of contact qubits for second nearest neighbor
         interactions. Note, the need of multiple interaction qubits
@@ -125,7 +127,11 @@ class ContactMap:
         return new_qubits
 
     @staticmethod
-    def _add_qubits(main_chain_len: int, contact_qubits, contact_map_component):
+    def _add_qubits(
+        main_chain_len: int,
+        contact_qubits: List[Union[PauliSumOp, PauliOp]],
+        contact_map_component: DefaultDict[int, dict],
+    ):
         for lower_bead_id in range(1, main_chain_len - 3):
             for upper_bead_id in range(lower_bead_id + 4, main_chain_len + 1):
                 try:

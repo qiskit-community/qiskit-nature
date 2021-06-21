@@ -164,7 +164,7 @@ class TestContactMapBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         contact_map = ContactMap(peptide)
-        new_qubits = contact_map.create_peptide_qubit_list()
+        new_qubits = contact_map._create_peptide_qubit_list()
 
         expected_path = self.get_resource_path(
             "test_create_new_qubit_list_1",

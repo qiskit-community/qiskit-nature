@@ -19,7 +19,7 @@ from ..interactions.interaction import Interaction
 class RandomInteraction(Interaction):
     """A class defining a random interaction between beads of a peptide."""
 
-    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str] = None):
+    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str] = None) -> np.ndarray:
         """
         Calculates an energy matrix for a random interaction.
         Args:
