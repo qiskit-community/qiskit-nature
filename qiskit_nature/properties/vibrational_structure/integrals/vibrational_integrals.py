@@ -41,8 +41,14 @@ class VibrationalIntegrals(ABC):
                 integers of length ``num_body_terms``. These integers are the indices of the modes
                 associated with the integral. If the indices are negative, the integral is treated
                 as a kinetic term of the vibrational hamiltonian.
+
+        Raises:
+            ValueError if the number of body terms is less than 1.
         """
-        assert num_body_terms >= 1
+        if num_body_terms < 1:
+            raise ValueError(
+                "The number of body terms must be greater than 0, not '%s'.", num_body_terms
+            )
         self._num_body_terms = num_body_terms
         self._integrals = integrals
         self._basis: VibrationalBasis = None
@@ -75,6 +81,7 @@ class VibrationalIntegrals(ABC):
 
         Raises:
             QiskitNatureError: if no basis has been set yet.
+            ValueError: if a mis-matching integral set and number of body terms is encountered.
         """
         if self._basis is None:
             raise QiskitNatureError("You must set a basis first!")
@@ -90,7 +97,13 @@ class VibrationalIntegrals(ABC):
         coeff_cache: Dict[Tuple[int, int, int, int, bool], Optional[float]] = {}
 
         for coeff0, indices in self._integrals:
-            assert len(set(indices)) == self._num_body_terms
+            if len(set(indices)) != self._num_body_terms:
+                raise ValueError(
+                    "The number of body terms, %s, does not match the number of different indices "
+                    "in your integral, %s.",
+                    self._num_body_terms,
+                    len(set(indices)),
+                )
 
             # NOTE: negative indices may be treated specially by a basis
             kinetic_term = any(index < 0 for index in indices)

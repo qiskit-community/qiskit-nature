@@ -41,15 +41,15 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             OneBodyElectronicIntegrals(ElectronicBasis.SO, random)
 
         with self.subTest("Mismatching basis and number of matrices"):
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(TypeError):
                 OneBodyElectronicIntegrals(ElectronicBasis.MO, random)
 
         with self.subTest("Mismatching basis and number of matrices 2"):
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(TypeError):
                 OneBodyElectronicIntegrals(ElectronicBasis.SO, (random, random))
 
         with self.subTest("Missing alpha"):
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(TypeError):
                 OneBodyElectronicIntegrals(ElectronicBasis.MO, (None, random))
 
     def test_transform_basis(self):

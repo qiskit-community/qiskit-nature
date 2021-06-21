@@ -45,15 +45,15 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             TwoBodyElectronicIntegrals(ElectronicBasis.SO, random)
 
         with self.subTest("Mismatching basis and number of matrices"):
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(TypeError):
                 TwoBodyElectronicIntegrals(ElectronicBasis.MO, random)
 
         with self.subTest("Mismatching basis and number of matrices 2"):
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(TypeError):
                 TwoBodyElectronicIntegrals(ElectronicBasis.SO, (random, None, None, None))
 
         with self.subTest("Missing alpha"):
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(TypeError):
                 TwoBodyElectronicIntegrals(ElectronicBasis.MO, (None, random, random, random))
 
     def test_transform_basis(self):

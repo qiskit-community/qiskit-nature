@@ -51,18 +51,44 @@ class ElectronicIntegrals(ABC):
                 a single matrix, ``basis`` must be set to ``ElectronicBasis.SO``. Refer to the
                 documentation of the specific ``n-body`` integral types for the requirements in case
                 of multiple matrices.
+
+        Raises:
+            ValueError if the number of body terms is less than 1 or if the integral matrix is
+                mis-formatted.
+            TypeError: if the provided matrix type does not match with the basis or if the first
+                matrix is `None`.
         """
+        if num_body_terms < 1:
+            raise ValueError(
+                "The number of body terms must be greater than 0, not '%s'.", num_body_terms
+            )
         self._basis = basis
-        assert num_body_terms >= 1
         self._num_body_terms = num_body_terms
         self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
         if basis == ElectronicBasis.SO:
-            assert isinstance(matrices, np.ndarray)
+            if not isinstance(matrices, np.ndarray):
+                raise TypeError(
+                    "Initializing integrals in the SO basis requires a single `np.ndarray` for the "
+                    "integrals, not an object of type `%s`.",
+                    type(matrices),
+                )
             self._matrices = matrices
         else:
-            assert isinstance(matrices, tuple)
-            assert len(matrices) == 2 ** num_body_terms
-            assert matrices[0] is not None
+            if not isinstance(matrices, tuple):
+                raise TypeError(
+                    "Initializing integrals in a basis other than SO requires a tuple of "
+                    "`np.ndarray`s for the integrals, not an object of type `%s`.",
+                    type(matrices),
+                )
+            if matrices[0] is None:
+                raise TypeError("The first matrix in your list of matrices cannot be `None`!")
+            if len(matrices) != 2 ** num_body_terms:
+                raise ValueError(
+                    "2 to the power of the number of body terms, %s, does not match the number of "
+                    "provided matrices, %s.",
+                    2 ** num_body_terms,
+                    len(matrices),
+                )
             self._matrices = matrices
 
     @abstractmethod
