@@ -36,6 +36,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         self,
         basis: ElectronicBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        threshold: float = ERI_TRUNCATION_LEVEL,
     ) -> None:
         """
         Args:
@@ -51,9 +52,12 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 matrices are ``None``, the alpha-alpha-spin matrix will be used in their place.
                 However, the final matrix will be replaced by the transpose of the second one, if
                 and only if that happens to differ from ``None``.
+            threshold: the truncation level below which to treat the integral in the SO matrix as
+                zero-valued.
         """
         num_body_terms = 2
         super().__init__(num_body_terms, basis, matrices)
+        self._threshold = threshold
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
@@ -125,7 +129,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             kron[one_idx] = 1
             so_matrix -= 0.5 * np.kron(kron, phys_matrix)
 
-        return np.where(np.abs(so_matrix) > self.ERI_TRUNCATION_LEVEL, so_matrix, 0.0)
+        return np.where(np.abs(so_matrix) > self._threshold, so_matrix, 0.0)
 
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[2], "+"), (indices[3], "-"), (indices[1], "-")]
