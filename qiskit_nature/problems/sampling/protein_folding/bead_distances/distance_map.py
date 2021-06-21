@@ -10,7 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores distances between beads of a peptide as qubit operators."""
-from typing import List, Union, Tuple
+from typing import Union, Tuple
+import numpy as np
 
 from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
 
@@ -62,7 +63,7 @@ class DistanceMap:
         upper_bead_ind: int,
         is_side_chain_lower: int,
         lambda_1: float,
-        pair_energies: List[List[List[List[float]]]],
+        pair_energies: np.ndarray,
         pair_energies_multiplier: float = 0.1,
     ) -> Union[PauliSumOp, PauliOp]:
         """
@@ -111,7 +112,7 @@ class DistanceMap:
         upper_bead_ind: int,
         is_side_chain_lower: int,
         lambda_1: float,
-        pair_energies: List[List[List[List[float]]]],
+        pair_energies: np.ndarray,
         pair_energies_multiplier: float = 0.1,
     ) -> Union[PauliSumOp, PauliOp]:
         """

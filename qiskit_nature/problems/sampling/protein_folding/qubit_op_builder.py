@@ -10,8 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Builds qubit operators for all Hamiltonian terms in the protein folding problem."""
-from typing import List, Union
+from typing import Union
 
+import numpy as np
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
 
 from .bead_contacts.contact_map import ContactMap
@@ -30,7 +31,7 @@ from .peptide.peptide import Peptide
 # TODO link to a SamplingQubitOpBuilder interface
 def _build_qubit_op(
     peptide: Peptide,
-    pair_energies: List[List[List[List[float]]]],
+    pair_energies: np.ndarray,
     penalty_parameters: PenaltyParameters,
     n_contacts: int,
 ) -> Union[PauliSumOp, PauliOp]:
@@ -279,7 +280,7 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
 def _create_h_bbbb(
     peptide: Peptide,
     lambda_1: float,
-    pair_energies: List[List[List[List[float]]]],
+    pair_energies: np.ndarray,
     distance_map: DistanceMap,
     contact_map: ContactMap,
 ) -> Union[PauliSumOp, PauliOp]:
@@ -340,7 +341,7 @@ def _create_h_bbbb(
 def _create_h_bbsc_and_h_scbb(
     peptide: Peptide,
     lambda_1: float,
-    pair_energies: List[List[List[List[float]]]],
+    pair_energies: np.ndarray,
     distance_map: DistanceMap,
     contact_map: ContactMap,
 ) -> Union[PauliSumOp, PauliOp]:
@@ -435,7 +436,7 @@ def _create_h_bbsc_and_h_scbb(
 def _create_h_scsc(
     peptide: Peptide,
     lambda_1: float,
-    pair_energies: List[List[List[List[float]]]],
+    pair_energies: np.ndarray,
     distance_map: DistanceMap,
     contact_map: ContactMap,
 ) -> Union[PauliSumOp, PauliOp]:
@@ -473,9 +474,7 @@ def _create_h_scsc(
     return _fix_qubits(h_scsc)
 
 
-def _create_h_short(
-    peptide: Peptide, pair_energies: List[List[List[List[float]]]]
-) -> Union[PauliSumOp, PauliOp]:
+def _create_h_short(peptide: Peptide, pair_energies: np.ndarray) -> Union[PauliSumOp, PauliOp]:
     """
     Creates Hamiltonian constituting interactions between beads that are no more than
     4 beads apart. If no side chains are present, this function returns 0.
