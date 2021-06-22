@@ -30,11 +30,11 @@ class TestMainChain(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
 
-        assert len(main_chain.beads_list) == 4
+        self.assertEqual(len(main_chain.beads_list), 4)
         assert main_chain[0].side_chain is None
         assert main_chain[1].side_chain is None
         assert main_chain[3].side_chain is None
-        assert len(main_chain[2].side_chain) == 1
+        self.assertEqual(len(main_chain[2].side_chain), 1)
 
     def test_main_chain_illegal_side_chain_first(self):
         """Tests that an exception is thrown in case of illegal side chain."""

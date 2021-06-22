@@ -81,10 +81,10 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected_t_3s4s = read_expected_file(expected_path_t3s4s)
-        assert t_23 == expected_t23
-        assert t_34 == expected_t34
-        assert t_2s3 == expected_t_2s3
-        assert t_3s4s == expected_t_3s4s
+        self.assertEqual(t_23, expected_t23)
+        self.assertEqual(t_34, expected_t34)
+        self.assertEqual(t_2s3, expected_t_2s3)
+        self.assertEqual(t_3s4s, expected_t_3s4s)
 
     # TODO
     def test_build_qubit_op(self):
@@ -111,7 +111,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert qubit_op == expected
+        self.assertEqual(qubit_op, expected)
 
     def test_build_qubit_op_2(self):
         """Tests if a total Hamiltonian qubit operator is built correctly."""
@@ -137,7 +137,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert qubit_op == expected
+        self.assertEqual(qubit_op, expected)
 
     def test_create_h_back(self):
         """
@@ -158,7 +158,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert h_back == expected
+        self.assertEqual(h_back, expected)
 
     def test_create_h_back_side_chains(self):
         """
@@ -180,7 +180,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert h_back == expected
+        self.assertEqual(h_back, expected)
 
     def test_create_h_chiral(self):
         """
@@ -200,7 +200,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert h_chiral == expected
+        self.assertEqual(h_chiral, expected)
 
     def test_create_h_chiral_2(self):
         """
@@ -220,7 +220,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert h_chiral == expected
+        self.assertEqual(h_chiral, expected)
 
     def test_create_h_bbbb(self):
         """Tests if H_BBBB Hamiltonian qubit operator is built correctly."""
@@ -242,7 +242,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert h_bbbb == expected
+        self.assertEqual(h_bbbb, expected)
 
     def test_create_h_bbbb_2(self):
         """
@@ -262,7 +262,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         contact_map = ContactMap(peptide)
         h_bbbb = _create_h_bbbb(peptide, lambda_1, pair_energies, x_dist, contact_map)
         expected = 0
-        assert h_bbbb == expected
+        self.assertEqual(h_bbbb, expected)
 
     def test_create_h_bbsc_and_h_scbb(self):
         """Tests if H_BBSC and H_SCBB Hamiltonians qubit operators are built correctly."""
@@ -293,8 +293,8 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         )
         expected_h_bbsc = read_expected_file(expected_path_h_bbsc)
         expected_h_scbb = read_expected_file(expected_path_h_scbb)
-        assert h_bbsc == expected_h_bbsc
-        assert h_scbb == expected_h_scbb
+        self.assertEqual(h_bbsc, expected_h_bbsc)
+        self.assertEqual(h_scbb, expected_h_scbb)
 
     def test_create_h_bbsc_and_h_scbb_2(self):
         """Tests if H_BBSC and H_SCBB Hamiltonians qubit operators are built correctly."""
@@ -320,8 +320,8 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected_h_bbsc = read_expected_file(expected_path_h_bbsc)
-        assert h_bbsc == expected_h_bbsc
-        assert h_scbb == 0
+        self.assertEqual(h_bbsc, expected_h_bbsc)
+        self.assertEqual(h_scbb, 0)
 
     def test_create_h_bbsc_and_h_scbb_3(self):
         """
@@ -342,8 +342,8 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(
             peptide, lambda_1, pair_energies, x_dist, contact_map
         )
-        assert h_bbsc == 0
-        assert h_scbb == 0
+        self.assertEqual(h_bbsc, 0)
+        self.assertEqual(h_scbb, 0)
 
     def test_create_h_short(self):
         """
@@ -360,7 +360,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         )
         h_short = _create_h_short(peptide, pair_energies).reduce()
         expected = PauliSumOp.from_list([("IIIIIIIIIIIIIIIIIIIIIIIIIIII", 0)])
-        assert h_short == expected
+        self.assertEqual(h_short, expected)
 
     def test_create_h_contacts(self):
         """
@@ -383,7 +383,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path_h_contacts)
-        assert h_contacts == expected
+        self.assertEqual(h_contacts, expected)
 
     def test_create_h_contacts_2(self):
         """
@@ -405,4 +405,4 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path_h_contacts)
-        assert h_contacts == expected
+        self.assertEqual(h_contacts, expected)

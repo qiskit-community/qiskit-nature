@@ -63,10 +63,10 @@ class TestDistanceMapBuilder(QiskitNatureTestCase):
 
         expected_4 = read_expected_file(expected_path)
         # checking only some of the entries
-        assert delta_n0[1][0][5][0] == expected_1
-        assert delta_n0[2][0][5][0] == expected_2
-        assert delta_n1[1][0][4][0] == expected_3
-        assert delta_n1[1][0][5][0] == expected_4
+        self.assertEqual(delta_n0[1][0][5][0], expected_1)
+        self.assertEqual(delta_n0[2][0][5][0], expected_2)
+        self.assertEqual(delta_n1[1][0][4][0], expected_3)
+        self.assertEqual(delta_n1[1][0][5][0], expected_4)
 
     def test_add_distances_side_chain(self):
         """
@@ -87,7 +87,7 @@ class TestDistanceMapBuilder(QiskitNatureTestCase):
         )
         expected = read_expected_file(expected_path)
         # checking only some of the entries
-        assert delta_n0[1][0][3][1] == expected
+        self.assertEqual(delta_n0[1][0][3][1], expected)
 
     def test_calc_total_distances(self):
         """
@@ -112,5 +112,5 @@ class TestDistanceMapBuilder(QiskitNatureTestCase):
 
         expected_2 = read_expected_file(expected_path)
 
-        assert distance_map[lower_bead_1, upper_bead_1] == expected_1
-        assert distance_map[lower_bead_2, upper_bead_2] == expected_2
+        self.assertEqual(distance_map[lower_bead_1, upper_bead_1], expected_1)
+        self.assertEqual(distance_map[lower_bead_2, upper_bead_2], expected_2)

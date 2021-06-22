@@ -43,11 +43,11 @@ class TestContactMapBuilder(QiskitNatureTestCase):
             r_contact,
         ) = contact_map_builder._create_contact_qubits(peptide)
 
-        assert lower_main_upper_main == {}
-        assert lower_side_upper_main == {}
-        assert lower_main_upper_side == {}
-        assert lower_side_upper_side == {}
-        assert r_contact == 0
+        self.assertEqual(lower_main_upper_main, {})
+        self.assertEqual(lower_side_upper_main, {})
+        self.assertEqual(lower_main_upper_side, {})
+        self.assertEqual(lower_side_upper_side, {})
+        self.assertEqual(r_contact, 0)
 
     def test_create_pauli_for_contacts_2(self):
         """
@@ -68,25 +68,115 @@ class TestContactMapBuilder(QiskitNatureTestCase):
             r_contact,
         ) = contact_map_builder._create_contact_qubits(peptide)
 
-        assert lower_main_upper_main == {
-            1: {
-                6: 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                - 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
-            }
-        }
-        assert lower_side_upper_main == {
-            1: {
-                5: 0.5
-                * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-                - 0.5
-                * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
-            }
-        }
-        assert lower_main_upper_side == {}
-        assert lower_side_upper_side == {}
-        assert r_contact == 2
+        self.assertEqual(
+            lower_main_upper_main,
+            {
+                1: {
+                    6: 0.5
+                    * (
+                        I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                    )
+                    - 0.5
+                    * (
+                        I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ Z
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ Z
+                    )
+                }
+            },
+        )
+        self.assertEqual(
+            lower_side_upper_main,
+            {
+                1: {
+                    5: 0.5
+                    * (
+                        I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                    )
+                    - 0.5
+                    * (
+                        I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ Z
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ I
+                        ^ Z
+                    )
+                }
+            },
+        )
+        self.assertEqual(lower_main_upper_side, {})
+        self.assertEqual(lower_side_upper_side, {})
+        self.assertEqual(r_contact, 2)
 
     def test_create_pauli_for_contacts_3(self):
         """
@@ -143,13 +233,13 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         )
 
         expected_6 = read_expected_file(expected_path)
-        assert lower_main_upper_main[1][6] == expected_1
-        assert lower_main_upper_main[2][7] == expected_2
-        assert lower_side_upper_main[1][5] == expected_3
-        assert lower_side_upper_main[2][6] == expected_4
-        assert lower_main_upper_side[3][7] == expected_5
-        assert lower_side_upper_side[3][6] == expected_6
-        assert r_contact == 6
+        self.assertEqual(lower_main_upper_main[1][6], expected_1)
+        self.assertEqual(lower_main_upper_main[2][7], expected_2)
+        self.assertEqual(lower_side_upper_main[1][5], expected_3)
+        self.assertEqual(lower_side_upper_main[2][6], expected_4)
+        self.assertEqual(lower_main_upper_side[3][7], expected_5)
+        self.assertEqual(lower_side_upper_side[3][6], expected_6)
+        self.assertEqual(r_contact, 6)
 
     def test_create_qubit_list(self):
         """
@@ -197,10 +287,10 @@ class TestContactMapBuilder(QiskitNatureTestCase):
 
         expected_5 = read_expected_file(expected_path)
 
-        assert len(new_qubits) == 6
-        assert new_qubits[0] == PauliSumOp.from_list([("I" * 8, 0)])
-        assert new_qubits[1] == expected_1
-        assert new_qubits[2] == expected_2
-        assert new_qubits[3] == expected_3
-        assert new_qubits[4] == expected_4
-        assert new_qubits[5] == expected_5
+        self.assertEqual(len(new_qubits), 6)
+        self.assertEqual(new_qubits[0], PauliSumOp.from_list([("I" * 8, 0)]))
+        self.assertEqual(new_qubits[1], expected_1)
+        self.assertEqual(new_qubits[2], expected_2)
+        self.assertEqual(new_qubits[3], expected_3)
+        self.assertEqual(new_qubits[4], expected_4)
+        self.assertEqual(new_qubits[5], expected_5)

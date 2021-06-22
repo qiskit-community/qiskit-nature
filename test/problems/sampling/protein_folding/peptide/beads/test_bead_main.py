@@ -43,7 +43,7 @@ class TestMainBead(QiskitNatureTestCase):
         )
         main_bead = MainBead(main_bead_id, residue_type, turn_qubits, side_chain)
 
-        assert main_bead.side_chain == side_chain
+        self.assertEqual(main_bead.side_chain, side_chain)
         indic_0, indic_1, indic_2, indic_3 = main_bead.get_indicator_functions()
         expected_path_indic_0 = self.get_resource_path(
             "test_main_bead_constructor_expected_indic_0",
@@ -69,7 +69,7 @@ class TestMainBead(QiskitNatureTestCase):
         )
         expected_indic_3 = read_expected_file(expected_path_indic_3)
 
-        assert indic_0 == expected_indic_0
-        assert indic_1 == expected_indic_1
-        assert indic_2 == expected_indic_2
-        assert indic_3 == expected_indic_3
+        self.assertEqual(indic_0, expected_indic_0)
+        self.assertEqual(indic_1, expected_indic_1)
+        self.assertEqual(indic_2, expected_indic_2)
+        self.assertEqual(indic_3, expected_indic_3)

@@ -63,10 +63,10 @@ class TestSideBead(QiskitNatureTestCase):
         )
         expected_indic_3 = read_expected_file(expected_path_indic_3)
 
-        assert indic_0 == expected_indic_0
-        assert indic_1 == expected_indic_1
-        assert indic_2 == expected_indic_2
-        assert indic_3 == expected_indic_3
+        self.assertEqual(indic_0, expected_indic_0)
+        self.assertEqual(indic_1, expected_indic_1)
+        self.assertEqual(indic_2, expected_indic_2)
+        self.assertEqual(indic_3, expected_indic_3)
 
     def test_side_bead_constructor_none(self):
         """Tests that a SideBead is created."""

@@ -25,5 +25,5 @@ class TestRandomInteraction(QiskitNatureTestCase):
         num_beads = 3
         energy_matrix = interaction.calc_energy_matrix(num_beads)
 
-        assert len(energy_matrix) == num_beads + 1
-        assert len(energy_matrix[0]) == 2
+        self.assertEqual(len(energy_matrix), num_beads + 1)
+        self.assertEqual(len(energy_matrix[0]), 2)

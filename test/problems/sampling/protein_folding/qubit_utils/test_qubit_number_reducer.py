@@ -28,7 +28,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         operator = (I ^ I ^ I) + (Z ^ I ^ Z)
         unused = _find_unused_qubits(operator)
         expected = [1]
-        assert unused == expected
+        self.assertEqual(unused, expected)
 
     def test_find_unused_qubits_2(self):
         """
@@ -37,7 +37,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         operator = (I ^ I ^ I) + (Z ^ Z ^ Z)
         unused = _find_unused_qubits(operator)
         expected = []
-        assert unused == expected
+        self.assertEqual(unused, expected)
 
     def test_find_unused_qubits_3(self):
         """
@@ -46,7 +46,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         operator = (Z ^ I ^ Z) + (I ^ Z ^ I)
         unused = _find_unused_qubits(operator)
         expected = []
-        assert unused == expected
+        self.assertEqual(unused, expected)
 
     def test_find_unused_qubits_4(self):
         """
@@ -55,7 +55,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         operator = (I ^ I ^ I ^ I ^ I) + (Z ^ I ^ I ^ I ^ I) + (I ^ I ^ I ^ I ^ Z)
         unused = _find_unused_qubits(operator)
         expected = [1, 2, 3]
-        assert unused == expected
+        self.assertEqual(unused, expected)
 
     def test_find_unused_qubits_5(self):
         """
@@ -64,7 +64,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         operator = (I ^ I ^ I ^ Z ^ I) + (I ^ I ^ Z ^ I ^ I)
         unused = _find_unused_qubits(operator)
         expected = [0, 3, 4]
-        assert unused == expected
+        self.assertEqual(unused, expected)
 
     def test_find_unused_qubits_pauli_op(self):
         """
@@ -73,7 +73,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         operator = I ^ I ^ I ^ Z ^ I
         unused = _find_unused_qubits(operator)
         expected = [0, 2, 3, 4]
-        assert unused == expected
+        self.assertEqual(unused, expected)
 
     def test_remove_unused_qubits(self):
         """
@@ -82,7 +82,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         operator = (I ^ I ^ I ^ I ^ I) + (Z ^ I ^ I ^ I ^ I) + (I ^ I ^ I ^ I ^ Z)
 
         reduced = _remove_unused_qubits(operator)
-        assert reduced == 1.0 * (I ^ I) + 1.0 * (Z ^ I) + 1.0 * (I ^ Z)
+        self.assertEqual(reduced, 1.0 * (I ^ I) + 1.0 * (Z ^ I) + 1.0 * (I ^ Z))
 
     def test_remove_unused_qubits_2(self):
         """
@@ -90,7 +90,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         operator = (I ^ I ^ I ^ Z ^ I) + (I ^ I ^ Z ^ I ^ I)
         reduced = _remove_unused_qubits(operator)
-        assert reduced == 1.0 * (I ^ Z) + 1.0 * (Z ^ I)
+        self.assertEqual(reduced, 1.0 * (I ^ Z) + 1.0 * (Z ^ I))
 
     def test_remove_unused_qubits_keep_all(self):
         """
@@ -98,7 +98,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         operator = (Z ^ I ^ Z) + (I ^ Z ^ I)
         reduced = _remove_unused_qubits(operator)
-        assert reduced == 1.0 * (I ^ Z ^ I) + 1.0 * (Z ^ I ^ Z)
+        self.assertEqual(reduced, 1.0 * (I ^ Z ^ I) + 1.0 * (Z ^ I ^ Z))
 
     def test_remove_unused_qubits_pauli_op(self):
         """
@@ -106,7 +106,7 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         operator = I ^ I ^ I ^ Z ^ I
         reduced = _remove_unused_qubits(operator)
-        assert reduced == 1.0 * (Z)
+        self.assertEqual(reduced, 1.0 * (Z))
 
     def test_remove_unused_qubits_pauli_op_2(self):
         """
@@ -114,4 +114,4 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         operator = I ^ Z ^ I ^ Z ^ I
         reduced = _remove_unused_qubits(operator)
-        assert reduced == 1.0 * (Z ^ Z)
+        self.assertEqual(reduced, 1.0 * (Z ^ Z))

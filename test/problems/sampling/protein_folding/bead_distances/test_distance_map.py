@@ -61,7 +61,7 @@ class TestDistanceMap(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert expr == expected
+        self.assertEqual(expr, expected)
 
     def test_first_neighbor_side(self):
         """
@@ -99,7 +99,7 @@ class TestDistanceMap(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert expr == expected
+        self.assertEqual(expr, expected)
 
     def test_second_neighbor(self):
         """
@@ -135,7 +135,7 @@ class TestDistanceMap(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert second_neighbor == expected
+        self.assertEqual(second_neighbor, expected)
 
     def test_second_neighbor_2(self):
         """
@@ -171,4 +171,4 @@ class TestDistanceMap(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert second_neighbor == expected
+        self.assertEqual(second_neighbor, expected)

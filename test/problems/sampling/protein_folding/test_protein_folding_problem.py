@@ -54,4 +54,4 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
-        assert qubit_op == expected
+        self.assertEqual(qubit_op, expected)

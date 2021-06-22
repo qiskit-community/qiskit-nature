@@ -22,27 +22,30 @@ class TestEnergyMatrixLoader(QiskitNatureTestCase):
     def test_load_energy_matrix_file(self):
         """Test that the energy matrix is loaded from the Miyazawa-Jernigan potential file"""
         energy_matrix, list_aa = _load_energy_matrix_file()
-        assert energy_matrix[0][0] == -5.44
-        assert energy_matrix[2][3] == -6.84
-        assert list_aa == [
-            "C",
-            "M",
-            "F",
-            "I",
-            "L",
-            "V",
-            "W",
-            "Y",
-            "A",
-            "G",
-            "T",
-            "S",
-            "N",
-            "Q",
-            "D",
-            "E",
-            "H",
-            "R",
-            "K",
-            "P",
-        ]
+        self.assertEqual(energy_matrix[0][0], -5.44)
+        self.assertEqual(energy_matrix[2][3], -6.84)
+        self.assertEqual(
+            list_aa,
+            [
+                "C",
+                "M",
+                "F",
+                "I",
+                "L",
+                "V",
+                "W",
+                "Y",
+                "A",
+                "G",
+                "T",
+                "S",
+                "N",
+                "Q",
+                "D",
+                "E",
+                "H",
+                "R",
+                "K",
+                "P",
+            ],
+        )

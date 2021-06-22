@@ -84,7 +84,7 @@ class ContactMap:
         main_chain_len = len(self.peptide.get_main_chain)
         side_chain = self.peptide.get_side_chain_hot_vector()
         old_qubits_conf = []
-        old_qubits_contact = []
+        old_qubits_contact: List[PauliSumOp] = []
         num_qubits = 2 * (main_chain_len - 1)
         full_id = _build_full_identity(num_qubits)
         for q in range(3, main_chain_len):
