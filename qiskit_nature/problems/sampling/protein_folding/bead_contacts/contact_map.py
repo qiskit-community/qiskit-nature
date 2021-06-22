@@ -72,7 +72,7 @@ class ContactMap:
         second index)."""
         return self._lower_side_upper_side
 
-    def _create_peptide_qubit_list(self):
+    def _create_peptide_qubit_list(self) -> List[PauliSumOp]:
         """
         Creates new set of contact qubits for second nearest neighbor
         interactions. Note, the need of multiple interaction qubits
@@ -106,7 +106,8 @@ class ContactMap:
         self._add_qubits(main_chain_len, old_qubits_contact, self._lower_main_upper_side)
         self._add_qubits(main_chain_len, old_qubits_contact, self._lower_side_upper_side)
 
-        new_qubits = [0] + old_qubits_conf + old_qubits_contact
+        empty_op = PauliSumOp.from_list([("I" * num_qubits, 0)])
+        new_qubits = [empty_op] + old_qubits_conf + old_qubits_contact
         return new_qubits
 
     @staticmethod

@@ -12,7 +12,7 @@
 """Tests ContactMapBuilder."""
 from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
-from qiskit.opflow import I, Z
+from qiskit.opflow import I, Z, PauliSumOp
 
 from qiskit_nature.problems.sampling.protein_folding.bead_contacts import contact_map_builder
 from qiskit_nature.problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
@@ -198,7 +198,7 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         expected_5 = read_expected_file(expected_path)
 
         assert len(new_qubits) == 6
-        assert new_qubits[0] == 0
+        assert new_qubits[0] == PauliSumOp.from_list([("I" * 8, 0)])
         assert new_qubits[1] == expected_1
         assert new_qubits[2] == expected_2
         assert new_qubits[3] == expected_3

@@ -271,15 +271,15 @@ def _build_chiral_term(
         @ (
             (1 - turn_coeff)
             * (
-                    lower_main_bead_indic_b @ upper_main_bead_indic_c
-                    + lower_main_bead_indic_c @ upper_main_bead_indic_d
-                    + lower_main_bead_indic_d @ upper_main_bead_indic_b
+                lower_main_bead_indic_b @ upper_main_bead_indic_c
+                + lower_main_bead_indic_c @ upper_main_bead_indic_d
+                + lower_main_bead_indic_d @ upper_main_bead_indic_b
             )
             + turn_coeff
             * (
-                    lower_main_bead_indic_c @ upper_main_bead_indic_b
-                    + lower_main_bead_indic_d @ upper_main_bead_indic_c
-                    + lower_main_bead_indic_b @ upper_main_bead_indic_d
+                lower_main_bead_indic_c @ upper_main_bead_indic_b
+                + lower_main_bead_indic_d @ upper_main_bead_indic_c
+                + lower_main_bead_indic_b @ upper_main_bead_indic_d
             )
         )
     )
