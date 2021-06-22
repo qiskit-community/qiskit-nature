@@ -19,9 +19,19 @@ from qiskit.quantum_info import SparsePauliOp
 
 from test import QiskitNatureTestCase
 
+from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.mappers.second_quantization import BravyiKitaevSFMapper
 from qiskit_nature.mappers.second_quantization.bksf import edge_operator_aij, edge_operator_bi
+import qiskit_nature.mappers.second_quantization.bksf as bksf
 
+
+def _sort_simplify(sparse_pauli):
+    sparse_pauli = sparse_pauli.simplify()
+    indices = sparse_pauli.table.argsort()
+    table = sparse_pauli.table[indices]
+    coeffs = sparse_pauli.coeffs[indices]
+    sparse_pauli = SparsePauliOp(table, coeffs)
+    return sparse_pauli
 
 class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
     """Test Bravyi-Kitaev Super-Fast Mapper"""
@@ -79,6 +89,59 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
             self.assertEqual(qterm_a13, ref_qterm_a13)
         with self.subTest("Test 6"):
             self.assertEqual(qterm_a23, ref_qterm_a23)
+
+    def test_h2(self):
+        """Test H2 molecule"""
+        with self.subTest("Excitation edges 1"):
+            assert np.alltrue(bksf.bksf_edge_list_fermionic_op(FermionicOp('+-+-')) ==
+                             np.array([[0, 1], [2, 3]]))
+
+        with self.subTest("Excitation edges 2"):
+            assert np.alltrue(bksf.bksf_edge_list_fermionic_op(FermionicOp('+--+')) ==
+                             np.array([[0, 1], [3, 2]]))
+
+        ## H2 from pyscf with sto-3g basis
+        h2_fop = FermionicOp(
+            [('+-+-', (0.18128880821149607+0j)),
+             ('+--+', (-0.18128880821149607+0j)),
+             ('-++-', (-0.18128880821149607+0j)),
+             ('-+-+', (0.18128880821149604+0j)),
+             ('IIIN', (-0.4759487152209648+0j)),
+             ('IINI', (-1.2524635735648986+0j)),
+             ('IINN', (0.48217928821207245+0j)),
+             ('INII', (-0.4759487152209648+0j)),
+             ('ININ', (0.697393767423027+0j)),
+             ('INNI', (0.6634680964235684+0j)),
+             ('NIII', (-1.2524635735648986+0j)),
+             ('NIIN', (0.6634680964235684+0j)),
+             ('NINI', (0.6744887663568382+0j)),
+             ('NNII', (0.48217928821207245+0j))]
+            )
+
+        expected_pauli_op = SparsePauliOp.from_list(
+            [('IIII', (-0.8126179630230767+0j)),
+             ('ZZII', (-0.22278593040418454+0j)),
+             ('ZIZI', (-0.22278593040418454+0j)),
+             ('IZZI', (0.34297063344496626+0j)),
+             ('ZIIZ', (0.3317340482117842+0j)),
+             ('IZIZ', (0.17119774903432955+0j)),
+             ('IIZZ', (0.17119774903432952+0j)),
+             ('ZZZZ', (0.24108964410603623+0j)),
+             ('IXXI', (0.04532220205287402+0j)),
+             ('IYYI', (0.04532220205287402+0j)),
+             ('ZXXZ', (0.04532220205287402+0j)),
+             ('ZYYZ', (0.04532220205287402+0j)),
+             ('XIIX', (0.04532220205287402+0j)),
+             ('XZZX', (0.04532220205287402+0j)),
+             ('YIIY', (0.04532220205287402+0j)),
+             ('YZZY', (0.04532220205287402+0j))]
+        )
+
+        pauli_sum_op = BravyiKitaevSFMapper().map(h2_fop)
+
+        with self.subTest("Map H2 frome sto3g basis"):
+            assert _sort_simplify(expected_pauli_op) == _sort_simplify(pauli_sum_op.primitive)
+
 
 
 if __name__ == "__main__":

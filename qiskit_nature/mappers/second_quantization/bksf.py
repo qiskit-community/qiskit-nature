@@ -635,21 +635,20 @@ class BravyiKitaevSFMapper(FermionicMapper):
         else:
             raise TypeError("Type ", type(second_q_op), " not supported.")
 
+        ## Simplify and sort the result
         sparse_pauli = sparse_pauli.simplify()
         indices = sparse_pauli.table.argsort()
         table = sparse_pauli.table[indices]
         coeffs = sparse_pauli.coeffs[indices]
+        sorted_sparse_pauli = SparsePauliOp(table, coeffs)
 
-        return SparsePauliOp(table, coeffs)
+        return PauliSumOp(sorted_sparse_pauli)
 
-
-#    return PauliSumOp(SparsePauliOp(table, coeffs))  # don't forget to return this when all is debugged.
 
 def map_fermionic_op(fer_op_qn: FermionicOp):
     edge_list = bksf_edge_list_fermionic_op(fer_op_qn)
     sparse_pauli = _convert_operators(fer_op_qn, edge_list)
     return sparse_pauli
-
 
 def _convert_operators(fer_op_qn: FermionicOp, edge_list):
     fer_op_list = fer_op_qn.to_list()
@@ -658,6 +657,10 @@ def _convert_operators(fer_op_qn: FermionicOp, edge_list):
         term_type, facs = analyze_term(operator_string(term))
         if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
+        ## Following only filters h.c. of some number-excitation op
+        elif facs[0][0] == facs[1][0]:  # first op is number op, which is it's own h.c.
+            if len(facs) > 2 and facs[2][1] == "-":  # So, look at next op to skip h.c.
+                continue
 
         if term_type == "number":  # a^\dagger_p a_p
             p = facs[0][0]
