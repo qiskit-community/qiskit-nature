@@ -36,7 +36,9 @@ def _number_operator(edge_list: List, p: int, h1_pq: float):  # pylint: disable=
 
 
 ## SW2018 eq 34
-def _coulomb_exchange(edge_list: List, p: int, q: int, s: int, h2_pqrs: float):  # pylint: disable=invalid-name
+def _coulomb_exchange(
+    edge_list: List, p: int, q: int, s: int, h2_pqrs: float
+):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -51,7 +53,9 @@ def _coulomb_exchange(edge_list: List, p: int, q: int, s: int, h2_pqrs: float): 
 
 ## SW2018 eq 35
 ## Includes contributions from a h.c. pair
-def _excitation_operator(edge_list: List, p: int, q: int, h1_pq: float):  # pylint: disable=invalid-name
+def _excitation_operator(
+    edge_list: List, p: int, q: int, h1_pq: float
+):  # pylint: disable=invalid-name
     if p >= q:
         raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
     b_a = edge_operator_bi(edge_list, p)
@@ -62,7 +66,9 @@ def _excitation_operator(edge_list: List, p: int, q: int, h1_pq: float):  # pyli
 
 
 ## SW2018 eq 37
-def _double_excitation(edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float):  # pylint: disable=invalid-name
+def _double_excitation(
+    edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float
+):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     b_r = edge_operator_bi(edge_list, r)
@@ -88,7 +94,9 @@ def _double_excitation(edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs:
     return qubit_op
 
 
-def _number_excitation(edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float):  # pylint: disable=invalid-name
+def _number_excitation(
+    edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float
+):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -142,7 +150,7 @@ def _analyze_term(term_str: str):
     return ttype, facs
 
 
-def _unpack_term(term_str:str, expand_number_op: bool=False):
+def _unpack_term(term_str: str, expand_number_op: bool = False):
     """
     Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
