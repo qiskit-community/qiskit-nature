@@ -256,30 +256,30 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
 def _build_chiral_term(
     full_id,
     lambda_chiral,
-    lower_main_bead_indic_1,
-    lower_main_bead_indic_2,
-    lower_main_bead_indic_3,
+    lower_main_bead_indic_b,
+    lower_main_bead_indic_c,
+    lower_main_bead_indic_d,
     turn_coeff,
-    upper_main_bead_indic_1,
-    upper_main_bead_indic_2,
-    upper_main_bead_indic_3,
-    upper_side_bead_indic_0,
+    upper_main_bead_indic_b,
+    upper_main_bead_indic_c,
+    upper_main_bead_indic_d,
+    upper_side_bead_indic_a,
 ):
     return (
         lambda_chiral
-        * (full_id - upper_side_bead_indic_0)
+        * (full_id - upper_side_bead_indic_a)
         @ (
             (1 - turn_coeff)
             * (
-                lower_main_bead_indic_1 @ upper_main_bead_indic_2
-                + lower_main_bead_indic_2 @ upper_main_bead_indic_3
-                + lower_main_bead_indic_3 @ upper_main_bead_indic_1
+                    lower_main_bead_indic_b @ upper_main_bead_indic_c
+                    + lower_main_bead_indic_c @ upper_main_bead_indic_d
+                    + lower_main_bead_indic_d @ upper_main_bead_indic_b
             )
             + turn_coeff
             * (
-                lower_main_bead_indic_2 @ upper_main_bead_indic_1
-                + lower_main_bead_indic_3 @ upper_main_bead_indic_2
-                + lower_main_bead_indic_1 @ upper_main_bead_indic_3
+                    lower_main_bead_indic_c @ upper_main_bead_indic_b
+                    + lower_main_bead_indic_d @ upper_main_bead_indic_c
+                    + lower_main_bead_indic_b @ upper_main_bead_indic_d
             )
         )
     )
