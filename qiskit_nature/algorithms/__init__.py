@@ -91,7 +91,7 @@ Algorithms that can compute potential energy surfaces.
    :toctree: ../stubs/
    :nosignatures:
 
-   BOPESSampler
+   ~pes_samplers.BOPESSampler
 
 The samplers include extrapolators to facilitate convergence across a set of points and support
 of various potentials. More detail may be found in the sub-module linked below

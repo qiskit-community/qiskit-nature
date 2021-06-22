@@ -40,10 +40,13 @@ cbit
 ccx
 cfg
 chc
+chkfile
 chuang
 ci
 clbit
 clbits
+clifford
+cliffords
 cls
 cnot
 codec
@@ -174,7 +177,10 @@ knowles
 kwarg
 kwargs
 labelled
+lda
 len
+libor
+libxc
 lih
 lijh
 linux
@@ -363,6 +369,7 @@ vibrationalop
 vibro
 vqe
 vscf
+vwn
 vx
 vy
 vz
@@ -370,6 +377,7 @@ watson
 wavefunction
 whitespace
 wigner
+xcfun
 xdata
 xy
 xyz

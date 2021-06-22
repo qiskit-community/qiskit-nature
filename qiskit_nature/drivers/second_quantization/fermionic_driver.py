@@ -21,12 +21,20 @@ from .qmolecule import QMolecule
 from .base_driver import BaseDriver
 
 
-class HFMethodType(Enum):
-    """HFMethodType Enum"""
+class MethodType(Enum):
+    """MethodType Enum
+
+    The HF-style methods are common names which are likely available everywhere.
+    The KS-style methods are not available for all drivers. Please check the specific driver
+    documentation for details.
+    """
 
     RHF = "rhf"
     ROHF = "rohf"
     UHF = "uhf"
+    RKS = "rks"
+    ROKS = "roks"
+    UKS = "uks"
 
 
 class FermionicDriver(BaseDriver):

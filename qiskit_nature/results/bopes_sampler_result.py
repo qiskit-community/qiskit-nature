@@ -12,12 +12,9 @@
 
 """BOPES Sampler result"""
 
-import logging
 from typing import List, Dict
 
 from .eigenstate_result import EigenstateResult
-
-logger = logging.getLogger(__name__)
 
 
 class BOPESSamplerResult:

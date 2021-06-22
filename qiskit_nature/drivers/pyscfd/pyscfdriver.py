@@ -14,18 +14,22 @@
 
 import importlib
 import logging
-import warnings
 from typing import Optional, Union, List
 
 from qiskit.utils.validation import validate_min
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals
-from ..base_driver import DeprecatedEnum, DeprecatedEnumMeta
 from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
 from ...exceptions import QiskitNatureError
+from ...deprecation import (
+    DeprecatedType,
+    warn_deprecated_same_type_name,
+    DeprecatedEnum,
+    DeprecatedEnumMeta,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +41,16 @@ class InitialGuess(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
     HCORE = "1e"
     ONE_E = "1e"
     ATOM = "atom"
+
+    def deprecate(self):
+        """show deprecate message"""
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.ENUM,
+            self.__class__.__name__,
+            "from qiskit_nature.drivers.second_quantization as a direct replacement",
+            3,
+        )
 
 
 class PySCFDriver(FermionicDriver):
@@ -86,13 +100,11 @@ class PySCFDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        warnings.warn(
-            "This PySCFDriver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.pyscfd "
-            "PySCFDriver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "PySCFDriver",
+            "from qiskit_nature.drivers.second_quantization.pyscfd as a direct replacement",
         )
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):
