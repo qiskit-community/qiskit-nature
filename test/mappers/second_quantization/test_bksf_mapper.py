@@ -13,11 +13,10 @@
 """ Test Bravyi-Kitaev Super-Fast Mapper """
 
 import unittest
-import numpy as np
-
-from qiskit.quantum_info import SparsePauliOp
-
 from test import QiskitNatureTestCase
+
+import numpy as np
+from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.mappers.second_quantization import BravyiKitaevSFMapper
@@ -126,28 +125,32 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
         expected_pauli_op = SparsePauliOp.from_list(
             [
                 ("IIII", (-0.8126179630230767 + 0j)),
-                ("ZZII", (-0.22278593040418454 + 0j)),
-                ("ZIZI", (-0.22278593040418454 + 0j)),
-                ("IZZI", (0.34297063344496626 + 0j)),
-                ("ZIIZ", (0.3317340482117842 + 0j)),
-                ("IZIZ", (0.17119774903432955 + 0j)),
                 ("IIZZ", (0.17119774903432952 + 0j)),
-                ("ZZZZ", (0.24108964410603623 + 0j)),
-                ("IXXI", (0.04532220205287402 + 0j)),
                 ("IYYI", (0.04532220205287402 + 0j)),
-                ("ZXXZ", (0.04532220205287402 + 0j)),
-                ("ZYYZ", (0.04532220205287402 + 0j)),
+                ("IZIZ", (0.17119774903432955 + 0j)),
+                ("IZZI", (0.34297063344496626 + 0j)),
                 ("XIIX", (0.04532220205287402 + 0j)),
-                ("XZZX", (0.04532220205287402 + 0j)),
                 ("YIIY", (0.04532220205287402 + 0j)),
                 ("YZZY", (0.04532220205287402 + 0j)),
+                ("ZIIZ", (0.3317340482117842 + 0j)),
+                ("ZIZI", (-0.22278593040418454 + 0j)),
+                ("ZXXZ", (0.04532220205287402 + 0j)),
+                ("ZYYZ", (0.04532220205287402 + 0j)),
+                ("ZZII", (-0.22278593040418454 + 0j)),
+                ("ZZZZ", (0.24108964410603623 + 0j)),
             ]
         )
 
         pauli_sum_op = BravyiKitaevSFMapper().map(h2_fop)
 
-        with self.subTest("Map H2 frome sto3g basis"):
-            assert _sort_simplify(expected_pauli_op) == _sort_simplify(pauli_sum_op.primitive)
+        op1 = _sort_simplify(expected_pauli_op)
+        op2 = _sort_simplify(pauli_sum_op.primitive)
+
+        with self.subTest("Map H2 frome sto3g basis, number of terms"):
+            self.assertEqual(len(op1), len(op2))
+
+        with self.subTest("Map H2 frome sto3g basis result"):
+            assert op1 == op2
 
 
 if __name__ == "__main__":
