@@ -14,7 +14,7 @@ from typing import List
 
 from qiskit.opflow import PauliOp
 
-from ...peptide.beads.base_bead import BaseBead
+from .base_bead import BaseBead
 
 
 class SideBead(BaseBead):

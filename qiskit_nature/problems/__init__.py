@@ -26,7 +26,7 @@ Second-Quantization Problems
    second_quantization
 
 Sampling Problems
-++++++++++++++++++++++++++++
++++++++++++++++++
 
 .. autosummary::
    :toctree:

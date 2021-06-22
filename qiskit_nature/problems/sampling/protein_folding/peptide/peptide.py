@@ -12,8 +12,8 @@
 """A class containing information about beads and chains of a protein."""
 from typing import List, Sequence
 
-from ..peptide.chains.side_chain import SideChain
-from ..peptide.chains.main_chain import MainChain
+from .chains.side_chain import SideChain
+from .chains.main_chain import MainChain
 
 
 class Peptide:

@@ -13,7 +13,7 @@
 from typing import List
 
 import numpy as np
-from ..interactions.interaction import Interaction
+from .interaction import Interaction
 
 
 class RandomInteraction(Interaction):

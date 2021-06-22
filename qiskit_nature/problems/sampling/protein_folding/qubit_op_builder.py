@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Builds qubit operators for all Hamiltonian terms in the protein folding problem."""
-from typing import Union
+from typing import List, Union
 
 import numpy as np
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
@@ -201,80 +201,88 @@ def _create_h_chiral(peptide: Peptide, lambda_chiral: float) -> Union[PauliSumOp
         ) = upper_side_bead.get_indicator_functions()
 
         turn_coeff = int((1 - (-1) ** i) / 2)
-        h_chiral += (
-            lambda_chiral
-            * (full_id - upper_side_bead_indic_0)
-            @ (
-                (1 - turn_coeff)
-                * (
-                    lower_main_bead_indic_1 @ upper_main_bead_indic_2
-                    + lower_main_bead_indic_2 @ upper_main_bead_indic_3
-                    + lower_main_bead_indic_3 @ upper_main_bead_indic_1
-                )
-                + turn_coeff
-                * (
-                    lower_main_bead_indic_2 @ upper_main_bead_indic_1
-                    + lower_main_bead_indic_3 @ upper_main_bead_indic_2
-                    + lower_main_bead_indic_1 @ upper_main_bead_indic_3
-                )
-            )
+        h_chiral += _build_chiral_term(
+            full_id,
+            lambda_chiral,
+            lower_main_bead_indic_1,
+            lower_main_bead_indic_2,
+            lower_main_bead_indic_3,
+            turn_coeff,
+            upper_main_bead_indic_1,
+            upper_main_bead_indic_2,
+            upper_main_bead_indic_3,
+            upper_side_bead_indic_0,
         )
-        h_chiral += (
-            lambda_chiral
-            * (full_id - upper_side_bead_indic_1)
-            @ (
-                (1 - turn_coeff)
-                * (
-                    lower_main_bead_indic_0 @ upper_main_bead_indic_3
-                    + lower_main_bead_indic_2 @ upper_main_bead_indic_0
-                    + lower_main_bead_indic_3 @ upper_main_bead_indic_2
-                )
-                + turn_coeff
-                * (
-                    lower_main_bead_indic_3 @ upper_main_bead_indic_0
-                    + lower_main_bead_indic_0 @ upper_main_bead_indic_2
-                    + lower_main_bead_indic_2 @ upper_main_bead_indic_3
-                )
-            )
+        h_chiral += _build_chiral_term(
+            full_id,
+            lambda_chiral,
+            lower_main_bead_indic_0,
+            lower_main_bead_indic_3,
+            lower_main_bead_indic_2,
+            turn_coeff,
+            upper_main_bead_indic_0,
+            upper_main_bead_indic_3,
+            upper_main_bead_indic_2,
+            upper_side_bead_indic_1,
         )
-        h_chiral += (
-            lambda_chiral
-            * (full_id - upper_side_bead_indic_2)
-            @ (
-                (1 - turn_coeff)
-                * (
-                    lower_main_bead_indic_0 @ upper_main_bead_indic_1
-                    + lower_main_bead_indic_1 @ upper_main_bead_indic_3
-                    + lower_main_bead_indic_3 @ upper_main_bead_indic_0
-                )
-                + turn_coeff
-                * (
-                    lower_main_bead_indic_1 @ upper_main_bead_indic_0
-                    + lower_main_bead_indic_3 @ upper_main_bead_indic_1
-                    + lower_main_bead_indic_0 @ upper_main_bead_indic_3
-                )
-            )
+        h_chiral += _build_chiral_term(
+            full_id,
+            lambda_chiral,
+            lower_main_bead_indic_0,
+            lower_main_bead_indic_1,
+            lower_main_bead_indic_3,
+            turn_coeff,
+            upper_main_bead_indic_0,
+            upper_main_bead_indic_1,
+            upper_main_bead_indic_3,
+            upper_side_bead_indic_2,
         )
-        h_chiral += (
-            lambda_chiral
-            * (full_id - upper_side_bead_indic_3)
-            @ (
-                (1 - turn_coeff)
-                * (
-                    lower_main_bead_indic_0 @ upper_main_bead_indic_2
-                    + lower_main_bead_indic_1 @ upper_main_bead_indic_0
-                    + lower_main_bead_indic_2 @ upper_main_bead_indic_1
-                )
-                + turn_coeff
-                * (
-                    lower_main_bead_indic_2 @ upper_main_bead_indic_0
-                    + lower_main_bead_indic_0 @ upper_main_bead_indic_1
-                    + lower_main_bead_indic_1 @ upper_main_bead_indic_2
-                )
-            )
+        h_chiral += _build_chiral_term(
+            full_id,
+            lambda_chiral,
+            lower_main_bead_indic_0,
+            lower_main_bead_indic_2,
+            lower_main_bead_indic_1,
+            turn_coeff,
+            upper_main_bead_indic_0,
+            upper_main_bead_indic_2,
+            upper_main_bead_indic_1,
+            upper_side_bead_indic_3,
         )
         h_chiral = _fix_qubits(h_chiral)
     return h_chiral
+
+
+def _build_chiral_term(
+    full_id,
+    lambda_chiral,
+    lower_main_bead_indic_1,
+    lower_main_bead_indic_2,
+    lower_main_bead_indic_3,
+    turn_coeff,
+    upper_main_bead_indic_1,
+    upper_main_bead_indic_2,
+    upper_main_bead_indic_3,
+    upper_side_bead_indic_0,
+):
+    return (
+        lambda_chiral
+        * (full_id - upper_side_bead_indic_0)
+        @ (
+            (1 - turn_coeff)
+            * (
+                lower_main_bead_indic_1 @ upper_main_bead_indic_2
+                + lower_main_bead_indic_2 @ upper_main_bead_indic_3
+                + lower_main_bead_indic_3 @ upper_main_bead_indic_1
+            )
+            + turn_coeff
+            * (
+                lower_main_bead_indic_2 @ upper_main_bead_indic_1
+                + lower_main_bead_indic_3 @ upper_main_bead_indic_2
+                + lower_main_bead_indic_1 @ upper_main_bead_indic_3
+            )
+        )
+    )
 
 
 def _create_h_bbbb(

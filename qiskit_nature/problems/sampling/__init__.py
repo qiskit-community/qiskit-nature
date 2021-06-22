@@ -12,7 +12,7 @@
 
 """
 Sampling Problems (:mod:`qiskit_nature.problems.sampling`)
-================================================================================
+==========================================================
 
 .. currentmodule:: qiskit_nature.problems.sampling
 

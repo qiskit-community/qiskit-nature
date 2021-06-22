@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """
 Protein Folding Problems (:mod:`qiskit_nature.problems.sampling.protein_folding`)
-==============================================================================================
+=================================================================================
 
 .. currentmodule:: qiskit_nature.problems.sampling.protein_folding
 """

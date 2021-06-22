@@ -14,7 +14,7 @@ from typing import DefaultDict, List, Union
 
 from qiskit.opflow import PauliSumOp, PauliOp
 
-from ..bead_contacts.contact_map_builder import (
+from .contact_map_builder import (
     _create_contact_qubits,
 )
 from ..peptide.pauli_ops_builder import _build_full_identity

@@ -15,7 +15,7 @@ import numpy as np
 
 from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
 
-from ..bead_distances.distance_map_builder import (
+from .distance_map_builder import (
     _create_distance_qubits,
 )
 from ..peptide.beads.base_bead import BaseBead

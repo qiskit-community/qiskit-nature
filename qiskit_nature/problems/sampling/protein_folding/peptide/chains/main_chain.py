@@ -16,9 +16,9 @@ from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
 )
 from ...exceptions.invalid_size_exception import InvalidSizeException
-from ...peptide.beads.main_bead import MainBead
-from ...peptide.chains.base_chain import BaseChain
-from ...peptide.chains.side_chain import SideChain
+from ..beads.main_bead import MainBead
+from .base_chain import BaseChain
+from .side_chain import SideChain
 
 
 class MainChain(BaseChain):

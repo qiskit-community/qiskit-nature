@@ -15,8 +15,8 @@ from typing import List, Union, Sequence
 from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
 )
-from ...peptide.beads.side_bead import SideBead
-from ...peptide.chains.base_chain import BaseChain
+from ..beads.side_bead import SideBead
+from .base_chain import BaseChain
 
 
 class SideChain(BaseChain):

@@ -15,8 +15,8 @@ from typing import List, Sequence
 
 from qiskit.opflow import PauliOp
 
-from ...peptide.beads.base_bead import BaseBead
-from ...peptide.pauli_ops_builder import (
+from ..beads.base_bead import BaseBead
+from ..pauli_ops_builder import (
     _build_full_identity,
     _build_pauli_z_op,
 )
@@ -54,12 +54,13 @@ class BaseChain(ABC):
         return residue_sequence
 
     @staticmethod
-    def _build_turn_qubit(chain_len: int, bead_id: int) -> PauliOp:
+    def _build_turn_qubit(chain_len: int, pauli_z_index: int) -> PauliOp:
         """
-
+        Builds a PauliOp of length 2 * (chain_len - 1) (number of qubits necessary to encode all
+        turns for the chain of length chain_len) with a Pauli Z operator at a given index.
         Args:
             chain_len: length of the chain.
-            bead_id: index of a bead in the chain.
+            pauli_z_index: index of a Pauli Z operator in a turn operator.
 
         Returns:
             turn_qubit: A Pauli operator that encodes the turn following from a given bead index.
@@ -68,5 +69,5 @@ class BaseChain(ABC):
         norm_factor = 0.5
         turn_qubit = norm_factor * _build_full_identity(
             num_turn_qubits
-        ) - norm_factor * _build_pauli_z_op(num_turn_qubits, [bead_id])
+        ) - norm_factor * _build_pauli_z_op(num_turn_qubits, [pauli_z_index])
         return turn_qubit

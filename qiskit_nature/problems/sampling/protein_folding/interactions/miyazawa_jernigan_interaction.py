@@ -13,7 +13,7 @@
 from typing import List
 
 import numpy as np
-from ..interactions.interaction import Interaction
+from .interaction import Interaction
 from ..residue_validator import _validate_residue_sequence
 from ..data_loaders.energy_matrix_loader import (
     _load_energy_matrix_file,

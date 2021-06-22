@@ -10,12 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a main bead of a peptide."""
-from typing import List
+from typing import List, Union
 
-from qiskit.opflow import PauliOp
+from qiskit.opflow import PauliOp, PauliSumOp
 
-from ...peptide.beads.base_bead import BaseBead
-from ...peptide.chains.side_chain import SideChain
+from .base_bead import BaseBead
+from ..chains.side_chain import SideChain
 
 
 class MainBead(BaseBead):
@@ -53,22 +53,22 @@ class MainBead(BaseBead):
     def __eq__(self, other):
         return self.main_index == other.index and self.chain_type == other.chain_type
 
-    def _build_turn_indicator_fun_0(self, full_id):
+    def _build_turn_indicator_fun_0(self, full_id) -> Union[PauliSumOp, PauliOp]:
         return (
             full_id ^ ((full_id - self._turn_qubits[0]) @ (full_id - self._turn_qubits[1]))
         ).reduce()
 
-    def _build_turn_indicator_fun_1(self, full_id):
+    def _build_turn_indicator_fun_1(self, full_id) -> Union[PauliSumOp, PauliOp]:
         return (
             full_id ^ (self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0]))
         ).reduce()
 
-    def _build_turn_indicator_fun_2(self, full_id):
+    def _build_turn_indicator_fun_2(self, full_id) -> Union[PauliSumOp, PauliOp]:
         return (
             full_id ^ (self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1]))
         ).reduce()
 
-    def _build_turn_indicator_fun_3(self, full_id):
+    def _build_turn_indicator_fun_3(self, full_id) -> Union[PauliSumOp, PauliOp]:
         return (full_id ^ (self._turn_qubits[0] @ self._turn_qubits[1])).reduce()
 
     @property
