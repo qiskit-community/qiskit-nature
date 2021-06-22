@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Builds qubit operators for all Hamiltonian terms in the protein folding problem."""
-from typing import List, Union
+from typing import Union
 
 import numpy as np
 from qiskit.opflow import OperatorBase, PauliOp, PauliSumOp
