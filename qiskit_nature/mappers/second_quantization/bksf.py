@@ -12,7 +12,7 @@
 
 """The Bravyi-Kitaev Super Fast Mapper."""
 
-import copy
+from typing import List
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
@@ -21,14 +21,14 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
 
-def _pauli_id(n_qubits):
+def _pauli_id(n_qubits: int):
     """
     Return an `n_qubits`-identity `SparsePauliOp`.
     """
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 
-def _number_operator(edge_list, p, h1_pq):  # pylint: disable=invalid-name
+def _number_operator(edge_list: List, p: int, h1_pq: float):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     id_op = _pauli_id(edge_list.shape[1])
     qubit_op = (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
@@ -36,7 +36,7 @@ def _number_operator(edge_list, p, h1_pq):  # pylint: disable=invalid-name
 
 
 ## SW2018 eq 34
-def _coulomb_exchange(edge_list, p, q, s, h2_pqrs):  # pylint: disable=invalid-name
+def _coulomb_exchange(edge_list: List, p: int, q: int, s: int, h2_pqrs: float):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -51,7 +51,7 @@ def _coulomb_exchange(edge_list, p, q, s, h2_pqrs):  # pylint: disable=invalid-n
 
 ## SW2018 eq 35
 ## Includes contributions from a h.c. pair
-def _excitation_operator(edge_list, p, q, h1_pq):  # pylint: disable=invalid-name
+def _excitation_operator(edge_list: List, p: int, q: int, h1_pq: float):  # pylint: disable=invalid-name
     if p >= q:
         raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
     b_a = edge_operator_bi(edge_list, p)
@@ -62,7 +62,7 @@ def _excitation_operator(edge_list, p, q, h1_pq):  # pylint: disable=invalid-nam
 
 
 ## SW2018 eq 37
-def _double_excitation(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
+def _double_excitation(edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     b_r = edge_operator_bi(edge_list, r)
@@ -88,7 +88,7 @@ def _double_excitation(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=inval
     return qubit_op
 
 
-def _number_excitation(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=invalid-name
+def _number_excitation(edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -122,7 +122,7 @@ def _number_excitation(edge_list, p, q, r, s, h2_pqrs):  # pylint: disable=inval
     return qubit_op
 
 
-def analyze_term(term_str):
+def _analyze_term(term_str: str):
     """
     Return a string recording the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
@@ -132,13 +132,17 @@ def analyze_term(term_str):
 
     Args:
        `term_str`: a string of characters in `+-NI`.
+
+    Returns:
+       tuple: The first element is a string specifying the interaction type. See the method
+       `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
     ttype = _interaction_type(n_number, n_raise, n_lower)
     return ttype, facs
 
 
-def _unpack_term(term_str, expand_number_op=False):
+def _unpack_term(term_str:str, expand_number_op: bool=False):
     """
     Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
@@ -153,6 +157,15 @@ def _unpack_term(term_str, expand_number_op=False):
        `term_str`: a string of characters in `+-NI`.
        `expand_number_op`: if `True`, number operators are expanded to `(i, '+')`, `(i, '-')`
          in the returned list of factors.
+
+    Returns:
+       tuple: A tuple of two elements. First, a tuple of three integers giving the number of
+       number-, raising-, and -lowering operators. Second a list of factors represented by
+       tuples of two elements: the first is an index and the second one of "-", "+", or "N".
+       If `expand_number_op` is `True`, then factors of `N` are expanded.
+
+    Raises:
+       ValueError: if any character in `term_str` is not one of "+-IN".
     """
     (n_number, n_raise, n_lower) = (0, 0, 0)
     facs = []
@@ -178,7 +191,7 @@ def _unpack_term(term_str, expand_number_op=False):
     return (n_number, n_raise, n_lower), facs
 
 
-def _interaction_type(n_number, n_raise, n_lower):
+def _interaction_type(n_number: int, n_raise: int, n_lower: int):
     """
     Return a string describing the type of interaction given the number of
     number, raising, and lowering operators.
@@ -190,6 +203,14 @@ def _interaction_type(n_number, n_raise, n_lower):
        `n_number`: the number of number operators
        `n_raise`: the number of raising operators
        `n_lower`: the number of lowering operators
+
+    Returns:
+      str: One of 'number', 'excitation', 'coulomb_exchange',
+      'number_excitation', 'double_excitation'.
+
+    Raises:
+      ValueError: if the numbers of operators don't describe a one- or two-body term from
+      an electronic Hamiltonian.
     """
     if n_raise == 0 and n_lower == 0:
         if n_number == 1:
@@ -224,7 +245,7 @@ def operator_string(term: tuple):
     return term[0]
 
 
-def operator_coefficient(term):
+def operator_coefficient(term: tuple):
     """
     Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`.
     """
@@ -250,7 +271,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp):
     return edge_matrix
 
 
-def _add_one_edge(edge_matrix, i, j):
+def _add_one_edge(edge_matrix, i: int, j: int):
     """
     Add an edge from lesser index to greater. This maintains the upper triangular structure.
     """
@@ -260,17 +281,16 @@ def _add_one_edge(edge_matrix, i, j):
         edge_matrix[j, i] = True
     else:
         raise ValueError("expecting i != j")
-    return None
 
 
-def _add_edges_for_term(edge_matrix, term_str):
+def _add_edges_for_term(edge_matrix, term_str: str):
     """
     Add one, two, or no edges to `edge_matrix` as dictated by the operator `term_str`.
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
     ttype = _interaction_type(n_number, n_raise, n_lower)
     # For 'excitation' and 'number_excitation', create and edge between the `+` and `-`.
-    if ttype == "excitation" or ttype == "number_excitation":
+    if ttype in ("excitation", "number_excitation"):
         inds = [i for (i, c) in facs if c in "+-"]
         if len(inds) != 2:
             raise ValueError("wrong number or raising and lowering")
@@ -282,15 +302,13 @@ def _add_edges_for_term(edge_matrix, term_str):
         _add_one_edge(edge_matrix, *raise_inds)
         _add_one_edge(edge_matrix, *lower_inds)
 
-    return None
-
 
 def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     """
     Construct edge list required for the bksf algorithm.
 
     Args:
-        fer_op: the fermionic operator in the second quantized form
+        fer_op_qn: the fermionic operator in the second quantized form
 
     Returns:
         numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edge
@@ -301,7 +319,7 @@ def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     return edge_list_as_2d_array
 
 
-def edge_operator_aij(edge_list, i, j):
+def edge_operator_aij(edge_list: List, i: int, j: int):
     """Calculate the edge operator A_ij.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -345,7 +363,7 @@ def edge_operator_aij(edge_list, i, j):
     return SparsePauliOp(qubit_op)
 
 
-def edge_operator_bi(edge_list, i):
+def edge_operator_bi(edge_list: List, i: int):
     """Calculate the edge operator B_i.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -367,9 +385,7 @@ def edge_operator_bi(edge_list, i):
     return SparsePauliOp(qubit_op)
 
 
-## TODO: Create an issue regarding initializing a SparsePauliOp representing zero
-## and the merits of allowing having `sparse_pauli += more_op`, when `sparse_pauli` is `None`.
-def _add_sparse_pauli(qubit_op1, qubit_op2):
+def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp):
     """
     Return `qubit_op1` and `qubit_op2`, except when either one is `None`.
     In the latter case, return the one that is not `None`. In other words, assume
@@ -383,7 +399,7 @@ def _add_sparse_pauli(qubit_op1, qubit_op2):
         return qubit_op1 + qubit_op2
 
 
-def _to_physicist_index_order(facs):
+def _to_physicist_index_order(facs: List):
     """
     Reorder the factors `facs` to be two raising operators followed by two lowering operators and
     return the new factors and the phase incurred by the reordering. Note that `facs` are not in
@@ -397,6 +413,9 @@ def _to_physicist_index_order(facs):
         facs_out: A copy of the reordered factors or the input list (not a copy) if the factors are
           already in the desired order.
         phase: Either `1` or `-1`.
+
+    Raises:
+        ValueError: if `facs` does not represent a two-body interaction.
     """
     ops = [fac[1] for fac in facs]
     if ops == ["+", "+", "-", "-"]:
@@ -419,11 +438,12 @@ class BravyiKitaevSFMapper(FermionicMapper):
     Reference arXiv:1712.00446
     """
 
-    def map(self, second_q_op) -> PauliSumOp:
-        if isinstance(second_q_op, FermionicOp):
-            sparse_pauli = map_fermionic_op(second_q_op)
-        else:
+    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+        if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")
+
+        edge_list = bksf_edge_list_fermionic_op(second_q_op)
+        sparse_pauli = _convert_operators(second_q_op, edge_list)
 
         ## Simplify and sort the result
         sparse_pauli = sparse_pauli.simplify()
@@ -435,32 +455,26 @@ class BravyiKitaevSFMapper(FermionicMapper):
         return PauliSumOp(sorted_sparse_pauli)
 
 
-def map_fermionic_op(fer_op_qn: FermionicOp):
-    edge_list = bksf_edge_list_fermionic_op(fer_op_qn)
-    sparse_pauli = _convert_operators(fer_op_qn, edge_list)
-    return sparse_pauli
-
-
-def _convert_operators(fer_op_qn: FermionicOp, edge_list):
+def _convert_operators(fer_op_qn: FermionicOp, edge_list: List):
     fer_op_list = fer_op_qn.to_list()
     sparse_pauli = None
     for term in fer_op_list:
-        term_type, facs = analyze_term(operator_string(term))
+        term_type, facs = _analyze_term(operator_string(term))
         if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
         ## Following only filters h.c. of some number-excitation op
-        elif facs[0][0] == facs[1][0]:  # first op is number op, which is it's own h.c.
+        if facs[0][0] == facs[1][0]:  # first op is number op, which is it's own h.c.
             if len(facs) > 2 and facs[2][1] == "-":  # So, look at next op to skip h.c.
                 continue
 
         if term_type == "number":  # a^\dagger_p a_p
-            p = facs[0][0]
+            p = facs[0][0]  # pylint: disable=invalid-name
             h1_pq = operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(sparse_pauli, _number_operator(edge_list, p, h1_pq))
             continue
 
         if term_type == "excitation":
-            (p, q) = [facs[i][0] for i in range(2)]  # p < q always
+            (p, q) = [facs[i][0] for i in range(2)]  # p < q always   # pylint: disable=invalid-name
             h1_pq = operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(
                 sparse_pauli, _excitation_operator(edge_list, p, q, h1_pq)
@@ -469,7 +483,7 @@ def _convert_operators(fer_op_qn: FermionicOp, edge_list):
         else:
             facs_reordered, phase = _to_physicist_index_order(facs)
             h2_pqrs = phase * operator_coefficient(term)
-            (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]
+            (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]  # pylint: disable=invalid-name
             if term_type == "double_excitation":
                 sparse_pauli = _add_sparse_pauli(
                     sparse_pauli, _double_excitation(edge_list, p, q, r, s, h2_pqrs)
