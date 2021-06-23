@@ -62,7 +62,7 @@ def _create_contact_qubits(
     for lower_bead_id in range(1, main_chain_len - 3):  # first qubit is number 1
         for upper_bead_id in range(
             lower_bead_id + 3, main_chain_len + 1
-        ):  # interactions between beads that are nearest or second nearest neighbour do not help
+        ):  # interactions between beads that are nearest or second nearest neighbor do not help
             # discriminating the folds, see https://arxiv.org/pdf/1908.02163.pdf section C
             if _are_beads_in_different_sets(upper_bead_id, lower_bead_id):
                 if _are_beads_k_plus_steps_apart(upper_bead_id, lower_bead_id, k=5):
