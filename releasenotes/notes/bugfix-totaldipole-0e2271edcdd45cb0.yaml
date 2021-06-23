@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the issue #198 where total dipole moment was not calculated correctly in the
+    `ElectronicStructureResult`.
