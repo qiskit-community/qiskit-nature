@@ -23,10 +23,59 @@ attached to one and only one main bead. Currently, only side chains of length 1 
 bead) are supported. For more details consult the paper https://arxiv.org/pdf/1908.02163.pdf.
 
 .. currentmodule:: qiskit_nature.problems.sampling.protein_folding
-"""
 
+Protein Folding Problem Class
+=============================
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   ProteinFoldingProblem
+
+Peptide Class
+=============
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   Peptide
+
+Penalty Parameters Class
+========================
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   PenaltyParameters
+
+Interactions Class
+==================
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MixedInteraction
+   MiyazawaJerniganInteraction
+   RandomInteraction
+
+
+"""
+from .interactions.mixed_interaction import MixedInteraction
+from .interactions.miyazawa_jernigan_interaction import MiyazawaJerniganInteraction
+from .interactions.random_interaction import RandomInteraction
+from .penalty_parameters import PenaltyParameters
+from .peptide.peptide import Peptide
 from .protein_folding_problem import ProteinFoldingProblem
 
 __all__ = [
     "ProteinFoldingProblem",
+    "Peptide",
+    "PenaltyParameters",
+    "MixedInteraction",
+    "MiyazawaJerniganInteraction",
+    "RandomInteraction",
 ]
