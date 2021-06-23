@@ -111,7 +111,7 @@ class VibrationalIntegrals(ABC):
                 indices_np = np.absolute(indices_np)
 
             # the number of times which an index occurs corresponds to the power of the operator
-            powers = Counter(indices_np)
+            powers: Dict[int, int] = Counter(indices_np)
 
             index_list = []
 
