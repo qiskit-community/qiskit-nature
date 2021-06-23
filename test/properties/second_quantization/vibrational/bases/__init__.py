@@ -9,29 +9,3 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-r"""
-Properties (:mod:`qiskit_nature.properties`)
-============================================
-
-.. currentmodule:: qiskit_nature.properties
-
-
-Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (or _observables_).
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   Property
-
-.. autosummary::
-   :toctree:
-
-   second_quantization
-"""
-
-from .property import Property
-
-__all__ = [
-    "Property",
-]

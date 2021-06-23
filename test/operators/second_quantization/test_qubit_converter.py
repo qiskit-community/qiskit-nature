@@ -24,7 +24,7 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.properties.electronic_structure import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 
 
 class TestQubitConverter(QiskitNatureTestCase):

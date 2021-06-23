@@ -24,7 +24,7 @@ from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fo
 from qiskit_nature.drivers.second_quantization import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.properties.electronic_structure import (
+from qiskit_nature.properties.second_quantization.electronic import (
     AngularMomentum,
     TotalDipoleMoment,
     ElectronicEnergy,
