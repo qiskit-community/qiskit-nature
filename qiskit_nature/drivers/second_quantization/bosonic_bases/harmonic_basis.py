@@ -157,7 +157,7 @@ class HarmonicBasis(BosonicBasis):
 
         for entry in self._watson.data:  # Entry is coeff (float) followed by indices (ints)
             coeff0 = cast(float, entry[0])
-            indices = cast(List[int], entry[1:])
+            indices = np.asarray(entry[1:], dtype=int)
 
             kinetic_term = False
 
