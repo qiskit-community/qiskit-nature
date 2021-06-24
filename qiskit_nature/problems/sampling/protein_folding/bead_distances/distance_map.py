@@ -108,9 +108,9 @@ class DistanceMap:
         self,
         peptide: Peptide,
         lower_bead_ind: int,
-        is_side_chain_upper: int,
-        upper_bead_ind: int,
         is_side_chain_lower: int,
+        upper_bead_ind: int,
+        is_side_chain_upper: int,
         lambda_1: float,
         pair_energies: np.ndarray,
         pair_energies_multiplier: float = 0.1,
@@ -140,9 +140,9 @@ class DistanceMap:
         ]
         lower_bead = peptide.get_main_chain[lower_bead_ind - 1]
         upper_bead = peptide.get_main_chain[upper_bead_ind - 1]
-        if is_side_chain_upper == 1:
-            lower_bead = lower_bead.side_chain[0]
         if is_side_chain_lower == 1:
+            lower_bead = lower_bead.side_chain[0]
+        if is_side_chain_upper == 1:
             upper_bead = upper_bead.side_chain[0]
         x = self.distance_map[lower_bead][upper_bead]
         expression = lambda_1 * (
