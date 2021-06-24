@@ -28,7 +28,7 @@ def _pauli_id(n_qubits: int):
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 
-def _number_operator(edge_list: List, p: int, h1_pq: float):  # pylint: disable=invalid-name
+def _number_operator(edge_list: np.ndarray, p: int, h1_pq: float):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     id_op = _pauli_id(edge_list.shape[1])
     qubit_op = (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
@@ -37,7 +37,7 @@ def _number_operator(edge_list: List, p: int, h1_pq: float):  # pylint: disable=
 
 ## SW2018 eq 34
 def _coulomb_exchange(
-    edge_list: List, p: int, q: int, s: int, h2_pqrs: float
+    edge_list: np.ndarray, p: int, q: int, s: int, h2_pqrs: float
 ):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
@@ -54,7 +54,7 @@ def _coulomb_exchange(
 ## SW2018 eq 35
 ## Includes contributions from a h.c. pair
 def _excitation_operator(
-    edge_list: List, p: int, q: int, h1_pq: float
+    edge_list: np.ndarray, p: int, q: int, h1_pq: float
 ):  # pylint: disable=invalid-name
     if p >= q:
         raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
@@ -67,7 +67,7 @@ def _excitation_operator(
 
 ## SW2018 eq 37
 def _double_excitation(
-    edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float
+    edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
 ):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
@@ -95,7 +95,7 @@ def _double_excitation(
 
 
 def _number_excitation(
-    edge_list: List, p: int, q: int, r: int, s: int, h2_pqrs: float
+    edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
 ):  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
@@ -327,7 +327,7 @@ def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     return edge_list_as_2d_array
 
 
-def edge_operator_aij(edge_list: List, i: int, j: int):
+def edge_operator_aij(edge_list: np.ndarray, i: int, j: int):
     """Calculate the edge operator A_ij.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -371,7 +371,7 @@ def edge_operator_aij(edge_list: List, i: int, j: int):
     return SparsePauliOp(qubit_op)
 
 
-def edge_operator_bi(edge_list: List, i: int):
+def edge_operator_bi(edge_list: np.ndarray, i: int):
     """Calculate the edge operator B_i.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -463,7 +463,7 @@ class BravyiKitaevSFMapper(FermionicMapper):
         return PauliSumOp(sorted_sparse_pauli)
 
 
-def _convert_operators(fer_op_qn: FermionicOp, edge_list: List):
+def _convert_operators(fer_op_qn: FermionicOp, edge_list: np.ndarray):
     fer_op_list = fer_op_qn.to_list()
     sparse_pauli = None
     for term in fer_op_list:
