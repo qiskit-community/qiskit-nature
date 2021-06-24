@@ -22,7 +22,9 @@ Moreover, each bead is characterized by a letter which encodes its residue seque
 energy of interactions with other beads (unless interactions are random). Each side chain is
 attached to one and only one main bead. Currently, only side chains of length 1 (i.e. with 1
 bead) are supported which is a simplifying assumption. The generalized version is planned for the
-later stage. For more details consult the paper https://arxiv.org/pdf/1908.02163.pdf.
+later stage. Constraints on feasible folds are incorporated in the objective function using
+penalty terms whose importance is regulated by parameters in the PenaltyParameters class. For
+more details consult the paper https://arxiv.org/pdf/1908.02163.pdf.
 
 .. currentmodule:: qiskit_nature.problems.sampling.protein_folding
 
