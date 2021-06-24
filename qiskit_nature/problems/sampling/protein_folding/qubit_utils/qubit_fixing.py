@@ -18,23 +18,24 @@ from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
 def _fix_qubits(
-    operator: Union[PauliSumOp, PauliOp, OperatorBase]
+        operator: Union[PauliSumOp, PauliOp, OperatorBase]
 ) -> Union[PauliSumOp, PauliOp, OperatorBase]:
     """
-    Assigns predefined values for qubits on positions 0, 1, 2, 3, 5 in the main chain. Qubits on
-    these position are considered fixed and not subject to optimization.
+    Assigns predefined values for turns qubits on positions 0, 1, 2, 3, 5 in the main chain
+    without the loss of generality (see the paper https://arxiv.org/pdf/1908.02163.pdf). Qubits
+    on these position are considered fixed and not subject to optimization.
     Args:
         operator: an operator whose qubits shall be fixed.
 
     Returns:
         operator_updated: an operator with relevant qubits changed to fixed values.
     """
-    # operator might be 0 because it is initialized as operator = 0; then we should not attempt
-    # fixing qubits
+    # operator might be 0 (int) because it is initialized as operator = 0; then we should not
+    # attempt fixing qubits
     if (
-        not isinstance(operator, PauliOp)
-        and not isinstance(operator, PauliSumOp)
-        and not isinstance(operator, OperatorBase)
+            not isinstance(operator, PauliOp)
+            and not isinstance(operator, PauliSumOp)
+            and not isinstance(operator, OperatorBase)
     ):
         return operator
     operator = operator.reduce()
