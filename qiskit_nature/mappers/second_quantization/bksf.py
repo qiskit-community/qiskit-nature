@@ -28,7 +28,9 @@ def _pauli_id(n_qubits: int) -> SparsePauliOp:
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 
-def _number_operator(edge_list: np.ndarray, p: int, h1_pq: float) -> SparsePauliOp:  # pylint: disable=invalid-name
+def _number_operator(
+    edge_list: np.ndarray, p: int, h1_pq: float
+) -> SparsePauliOp:  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     id_op = _pauli_id(edge_list.shape[1])
     qubit_op = (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
@@ -125,12 +127,14 @@ def _number_excitation(
         qubit_op = (a_pr * b_r + b_p * a_pr) * (id_op - b_q)
         final_coeff = 1j * 0.25
     else:
-        raise ValueError("unexpected sequence of indices")
+        raise ValueError(f"unexpected sequence of indices: {p}, {q}, {r}, {s}")
     qubit_op = (final_coeff * h2_pqrs) * qubit_op
     return qubit_op
 
 
-def _unpack_term(term_str: str, expand_number_op: bool = False) -> Tuple[Tuple[int, int, int], List]:
+def _unpack_term(
+    term_str: str, expand_number_op: bool = False
+) -> Tuple[Tuple[int, int, int], List]:
     """
     Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
