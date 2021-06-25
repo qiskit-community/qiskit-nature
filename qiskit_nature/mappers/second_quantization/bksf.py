@@ -12,7 +12,7 @@
 
 """The Bravyi-Kitaev Super Fast Mapper."""
 
-from typing import List
+from typing import List, Tuple
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
@@ -21,14 +21,14 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
 
-def _pauli_id(n_qubits: int):
+def _pauli_id(n_qubits: int) -> SparsePauliOp:
     """
     Return an `n_qubits`-identity `SparsePauliOp`.
     """
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 
-def _number_operator(edge_list: np.ndarray, p: int, h1_pq: float):  # pylint: disable=invalid-name
+def _number_operator(edge_list: np.ndarray, p: int, h1_pq: float) -> SparsePauliOp:  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     id_op = _pauli_id(edge_list.shape[1])
     qubit_op = (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
@@ -38,7 +38,7 @@ def _number_operator(edge_list: np.ndarray, p: int, h1_pq: float):  # pylint: di
 ## SW2018 eq 34
 def _coulomb_exchange(
     edge_list: np.ndarray, p: int, q: int, s: int, h2_pqrs: float
-):  # pylint: disable=invalid-name
+) -> SparsePauliOp:  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -55,7 +55,7 @@ def _coulomb_exchange(
 ## Includes contributions from a h.c. pair
 def _excitation_operator(
     edge_list: np.ndarray, p: int, q: int, h1_pq: float
-):  # pylint: disable=invalid-name
+) -> SparsePauliOp:  # pylint: disable=invalid-name
     if p >= q:
         raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
     b_a = edge_operator_bi(edge_list, p)
@@ -68,7 +68,7 @@ def _excitation_operator(
 ## SW2018 eq 37
 def _double_excitation(
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
-):  # pylint: disable=invalid-name
+) -> SparsePauliOp:  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     b_r = edge_operator_bi(edge_list, r)
@@ -96,7 +96,7 @@ def _double_excitation(
 
 def _number_excitation(
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
-):  # pylint: disable=invalid-name
+) -> SparsePauliOp:  # pylint: disable=invalid-name
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -130,27 +130,7 @@ def _number_excitation(
     return qubit_op
 
 
-def _analyze_term(term_str: str):
-    """
-    Return a string recording the type of interaction represented by `term_str` and
-    a list of the factors and their indices in `term_str`.
-
-    The types of interaction are 'number', 'excitation', 'coulomb_exchange', 'number_excitation',
-    'double_excitation'.
-
-    Args:
-       `term_str`: a string of characters in `+-NI`.
-
-    Returns:
-       tuple: The first element is a string specifying the interaction type. See the method
-       `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
-    """
-    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
-    ttype = _interaction_type(n_number, n_raise, n_lower)
-    return ttype, facs
-
-
-def _unpack_term(term_str: str, expand_number_op: bool = False):
+def _unpack_term(term_str: str, expand_number_op: bool = False) -> Tuple[Tuple[int, int, int], List]:
     """
     Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
@@ -199,7 +179,7 @@ def _unpack_term(term_str: str, expand_number_op: bool = False):
     return (n_number, n_raise, n_lower), facs
 
 
-def _interaction_type(n_number: int, n_raise: int, n_lower: int):
+def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
     """
     Return a string describing the type of interaction given the number of
     number, raising, and lowering operators.
@@ -240,12 +220,12 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int):
         raise ValueError("unexpected number of operators")
 
 
-def number_of_modes(fer_op: FermionicOp):
+def number_of_modes(fer_op: FermionicOp) -> int:
     """Return the number of modes (including identities) in each term `fer_op`"""
     return len(fer_op.to_list()[0][0])
 
 
-def operator_string(term: tuple):
+def operator_string(term: tuple) -> str:
     """
     Return the string describing the operators in the term extracted from a `FermionicOp`.
     given by `term.
@@ -253,7 +233,7 @@ def operator_string(term: tuple):
     return term[0]
 
 
-def operator_coefficient(term: tuple):
+def operator_coefficient(term: tuple) -> float:
     """
     Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`.
     """
@@ -261,7 +241,7 @@ def operator_coefficient(term: tuple):
 
 
 ## TODO: We may want a lower-triangular matrix. This may be the cause of the minus sign error.
-def _get_adjacency_matrix(fer_op: FermionicOp):
+def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     """
     Return an adjacency matrix specifying the edges in the BKSF graph for the
     operator `fer_op`.
@@ -279,7 +259,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp):
     return edge_matrix
 
 
-def _add_one_edge(edge_matrix, i: int, j: int):
+def _add_one_edge(edge_matrix, i: int, j: int) -> None:
     """
     Add an edge from lesser index to greater. This maintains the upper triangular structure.
     """
@@ -291,7 +271,7 @@ def _add_one_edge(edge_matrix, i: int, j: int):
         raise ValueError("expecting i != j")
 
 
-def _add_edges_for_term(edge_matrix, term_str: str):
+def _add_edges_for_term(edge_matrix, term_str: str) -> None:
     """
     Add one, two, or no edges to `edge_matrix` as dictated by the operator `term_str`.
     """
@@ -311,7 +291,7 @@ def _add_edges_for_term(edge_matrix, term_str: str):
         _add_one_edge(edge_matrix, *lower_inds)
 
 
-def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp):
+def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp) -> np.ndarray:
     """
     Construct edge list required for the bksf algorithm.
 
@@ -327,7 +307,7 @@ def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp):
     return edge_list_as_2d_array
 
 
-def edge_operator_aij(edge_list: np.ndarray, i: int, j: int):
+def edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
     """Calculate the edge operator A_ij.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -371,7 +351,7 @@ def edge_operator_aij(edge_list: np.ndarray, i: int, j: int):
     return SparsePauliOp(qubit_op)
 
 
-def edge_operator_bi(edge_list: np.ndarray, i: int):
+def edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
     """Calculate the edge operator B_i.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -393,7 +373,7 @@ def edge_operator_bi(edge_list: np.ndarray, i: int):
     return SparsePauliOp(qubit_op)
 
 
-def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp):
+def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> SparsePauliOp:
     """
     Return `qubit_op1` and `qubit_op2`, except when either one is `None`.
     In the latter case, return the one that is not `None`. In other words, assume
@@ -407,7 +387,7 @@ def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp):
         return qubit_op1 + qubit_op2
 
 
-def _to_physicist_index_order(facs: List):
+def _to_physicist_index_order(facs: List) -> Tuple[List, int]:
     """
     Reorder the factors `facs` to be two raising operators followed by two lowering operators and
     return the new factors and the phase incurred by the reordering. Note that `facs` are not in
@@ -463,7 +443,27 @@ class BravyiKitaevSFMapper(FermionicMapper):
         return PauliSumOp(sorted_sparse_pauli)
 
 
-def _convert_operators(fer_op_qn: FermionicOp, edge_list: np.ndarray):
+def _analyze_term(term_str: str) -> Tuple[str, List]:
+    """
+    Return a string recording the type of interaction represented by `term_str` and
+    a list of the factors and their indices in `term_str`.
+
+    The types of interaction are 'number', 'excitation', 'coulomb_exchange', 'number_excitation',
+    'double_excitation'.
+
+    Args:
+       `term_str`: a string of characters in `+-NI`.
+
+    Returns:
+       tuple: The first element is a string specifying the interaction type. See the method
+       `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
+    """
+    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
+    ttype = _interaction_type(n_number, n_raise, n_lower)
+    return ttype, facs
+
+
+def _convert_operators(fer_op_qn: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
     fer_op_list = fer_op_qn.to_list()
     sparse_pauli = None
     for term in fer_op_list:
