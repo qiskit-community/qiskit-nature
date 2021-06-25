@@ -32,7 +32,12 @@ from ..second_quantized_property import (
 
 # TODO: extract into separate file?
 class _IntegralProperty(SecondQuantizedProperty):
-    """TODO."""
+    """A common Property object based on `ElectronicIntegrals` as its raw data.
+
+    This is a common base class, extracted to be used by (at the time of writing) the
+    `ElectronicEnergy` and the `DipoleMoment` properties. More subclasses may be added in the
+    future.
+    """
 
     def __init__(
         self,
