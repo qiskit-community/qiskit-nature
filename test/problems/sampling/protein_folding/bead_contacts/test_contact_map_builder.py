@@ -73,7 +73,7 @@ class TestContactMapBuilder(QiskitNatureTestCase):
             # fmt: off
             {1: {6:
             0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-            - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I^ I ^ Z)
+            - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ Z)
                  }
              },
             # fmt: on
@@ -83,7 +83,7 @@ class TestContactMapBuilder(QiskitNatureTestCase):
             # fmt: off
             {1: {5:
             0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
-            - 0.5 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I^ I ^ Z)
+            - 0.5 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z)
                  }
              },
             # fmt: on
