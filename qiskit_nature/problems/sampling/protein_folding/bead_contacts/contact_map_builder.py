@@ -12,7 +12,7 @@
 """Builds a contact map that stores contacts between beads in a peptide."""
 import collections
 import logging
-from typing import Tuple, DefaultDict, Dict
+from typing import Tuple, Dict
 
 from qiskit.opflow import PauliSumOp, OperatorBase
 
@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 def _create_contact_qubits(
     peptide: Peptide,
 ) -> Tuple[
-    DefaultDict[int, dict],
-    DefaultDict[int, dict],
-    DefaultDict[int, dict],
-    DefaultDict[int, dict],
+    Dict[int, dict],
+    Dict[int, dict],
+    Dict[int, dict],
+    Dict[int, dict],
     int,
 ]:
     """
@@ -51,10 +51,10 @@ def _create_contact_qubits(
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()
 
-    lower_main_upper_main: DefaultDict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
-    lower_side_upper_main: DefaultDict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
-    lower_main_upper_side: DefaultDict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
-    lower_side_upper_side: DefaultDict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
+    lower_main_upper_main: Dict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
+    lower_side_upper_main: Dict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
+    lower_main_upper_side: Dict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
+    lower_side_upper_side: Dict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
 
     num_contacts = 0
     num_qubits = 2 * (main_chain_len - 1)

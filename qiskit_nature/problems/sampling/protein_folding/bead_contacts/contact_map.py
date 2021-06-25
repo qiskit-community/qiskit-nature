@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores contacts between beads of a peptide as qubit operators."""
-from typing import DefaultDict, List, Union
+from typing import List, Union, Dict
 
 from qiskit.opflow import PauliSumOp, PauliOp
 
@@ -46,27 +46,27 @@ class ContactMap:
         return self._peptide
 
     @property
-    def lower_main_upper_main(self) -> DefaultDict[int, dict]:
+    def lower_main_upper_main(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a bead on a main chain (first index) and a bead in a main chain (second index)."""
         return self._lower_main_upper_main
 
     @property
-    def lower_side_upper_main(self) -> DefaultDict[int, dict]:
+    def lower_side_upper_main(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a first bead in a side chain (first index) and a bead in a main chain (second
         index)."""
         return self._lower_side_upper_main
 
     @property
-    def lower_main_upper_side(self) -> DefaultDict[int, dict]:
+    def lower_main_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a bead in a main chain (first index) and a first bead in a side chain (second
         index)."""
         return self._lower_main_upper_side
 
     @property
-    def lower_side_upper_side(self) -> DefaultDict[int, dict]:
+    def lower_side_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a first bead in a side chain (first index) and a a first bead in a side chain (
         second index)."""
@@ -114,7 +114,7 @@ class ContactMap:
     def _add_qubits(
         main_chain_len: int,
         contact_qubits: List[Union[PauliSumOp, PauliOp]],
-        contact_map_component: DefaultDict[int, dict],
+        contact_map_component: Dict[int, dict],
     ):
         for lower_bead_id in range(1, main_chain_len - 3):
             for upper_bead_id in range(lower_bead_id + 4, main_chain_len + 1):
