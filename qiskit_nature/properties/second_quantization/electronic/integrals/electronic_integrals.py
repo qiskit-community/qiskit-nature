@@ -12,10 +12,9 @@
 
 """A base class for raw electronic integrals."""
 
+import itertools
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Union
-
-import itertools
 
 import numpy as np
 
@@ -58,20 +57,33 @@ class ElectronicIntegrals(ABC):
             TypeError: if the provided matrix type does not match with the basis or if the first
                 matrix is `None`.
         """
+        self._validate_num_body_terms(num_body_terms)
+        self._validate_matrices(matrices, basis, num_body_terms)
+        self._basis = basis
+        self._num_body_terms = num_body_terms
+        self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]] = matrices
+
+    @staticmethod
+    def _validate_num_body_terms(num_body_terms: int) -> None:
+        """Validates the `num_body_terms` setting."""
         if num_body_terms < 1:
             raise ValueError(
                 f"The number of body terms must be greater than 0, not '{num_body_terms}'."
             )
-        self._basis = basis
-        self._num_body_terms = num_body_terms
-        self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
+
+    @staticmethod
+    def _validate_matrices(
+        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        basis: ElectronicBasis,
+        num_body_terms: int,
+    ) -> None:
+        """Validates the `matrices` for a given `basis`."""
         if basis == ElectronicBasis.SO:
             if not isinstance(matrices, np.ndarray):
                 raise TypeError(
                     "Initializing integrals in the SO basis requires a single `np.ndarray` for the "
                     f"integrals, not an object of type `{type(matrices)}`."
                 )
-            self._matrices = matrices
         else:
             if not isinstance(matrices, tuple):
                 raise TypeError(
@@ -85,7 +97,6 @@ class ElectronicIntegrals(ABC):
                     f"2 to the power of the number of body terms, {2 ** num_body_terms}, does not "
                     f"match the number of provided matrices, {len(matrices)}."
                 )
-            self._matrices = matrices
 
     @abstractmethod
     def transform_basis(self, transform: ElectronicBasisTransform) -> "ElectronicIntegrals":
