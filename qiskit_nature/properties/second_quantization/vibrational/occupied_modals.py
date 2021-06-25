@@ -73,10 +73,7 @@ class OccupiedModals(SecondQuantizedProperty):
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 
-        ops = []
-        for mode in range(num_modes):
-            ops.append(self._get_mode_op(mode))
-
+        ops = [self._get_mode_op(mode) for mode in range(num_modes)]
         return ops
 
     def _get_mode_op(self, mode: int) -> VibrationalOp:
