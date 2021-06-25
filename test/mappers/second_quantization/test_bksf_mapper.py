@@ -150,7 +150,7 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
             self.assertEqual(len(op1), len(op2))
 
         with self.subTest("Map H2 frome sto3g basis result"):
-            assert op1 == op2
+            self.assertEqual(op1, op2)
 
 
 if __name__ == "__main__":
