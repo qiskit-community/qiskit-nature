@@ -34,12 +34,15 @@ class ElectronicIntegrals(ABC):
     ``qiskit_nature.operators.second_quantization.SecondQuantizedOp``.
     """
 
+    INTEGRAL_TRUNCATION_LEVEL = 1e-12
+
     def __init__(
         self,
         num_body_terms: int,
         basis: ElectronicBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
-    ) -> None:
+        threshold: float = INTEGRAL_TRUNCATION_LEVEL,
+    ):
         """
         Args:
             num_body_terms: ``n``, as in the ``n-body`` terms stored in these integrals.
@@ -50,6 +53,8 @@ class ElectronicIntegrals(ABC):
                 a single matrix, ``basis`` must be set to ``ElectronicBasis.SO``. Refer to the
                 documentation of the specific ``n-body`` integral types for the requirements in case
                 of multiple matrices.
+            threshold: the truncation level below which to treat the integral in the SO matrix as
+                zero-valued.
 
         Raises:
             ValueError: if the number of body terms is less than 1 or if the number of provided
@@ -62,6 +67,7 @@ class ElectronicIntegrals(ABC):
         self._basis = basis
         self._num_body_terms = num_body_terms
         self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]] = matrices
+        self._threshold = threshold
 
     @staticmethod
     def _validate_num_body_terms(num_body_terms: int) -> None:

@@ -29,7 +29,8 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         self,
         basis: ElectronicBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
-    ) -> None:
+        threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
+    ):
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
@@ -40,9 +41,11 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
                 must be a pair of matrices, the first one being the alpha-spin matrix (which is
                 required) and the second one being an optional beta-spin matrix. If the latter is
                 ``None``, the alpha-spin matrix is used in its place.
+            threshold: the truncation level below which to treat the integral in the SO matrix as
+                zero-valued.
         """
         num_body_terms = 1
-        super().__init__(num_body_terms, basis, matrices)
+        super().__init__(num_body_terms, basis, matrices, threshold)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
@@ -93,7 +96,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         zeros = np.zeros(matrix_a.shape)
         so_matrix = np.block([[matrix_a, zeros], [zeros, matrix_b]])
 
-        return np.where(np.abs(so_matrix) > 1e-12, so_matrix, 0.0)
+        return np.where(np.abs(so_matrix) > self._threshold, so_matrix, 0.0)
 
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[1], "-")]

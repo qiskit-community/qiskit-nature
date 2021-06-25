@@ -28,16 +28,14 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
-    ERI_TRUNCATION_LEVEL = 1e-12
-
     # TODO: provide symmetry testing functionality?
 
     def __init__(
         self,
         basis: ElectronicBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
-        threshold: float = ERI_TRUNCATION_LEVEL,
-    ) -> None:
+        threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
+    ):
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
@@ -56,8 +54,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 zero-valued.
         """
         num_body_terms = 2
-        super().__init__(num_body_terms, basis, matrices)
-        self._threshold = threshold
+        super().__init__(num_body_terms, basis, matrices, threshold)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
