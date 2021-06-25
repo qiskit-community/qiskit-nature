@@ -71,21 +71,21 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         self.assertEqual(
             lower_main_upper_main,
             # fmt: off
-            {1: {6: 0.5 * (
-                        I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                        ^ I) - 0.5 * (
-                                I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I
-                                ^ I ^ I ^ Z)}},
+            {1: {6:
+            0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+            - 0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I^ I ^ Z)
+                 }
+             },
             # fmt: on
         )
         self.assertEqual(
             lower_side_upper_main,
             # fmt: off
-            {1: {5: 0.5 * (
-                    I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                    ^ I) - 0.5 * (
-                            I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I
-                            ^ I ^ I ^ Z)}},
+            {1: {5:
+            0.5 * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
+            - 0.5 * (I ^ I ^ I ^ I ^ I ^ Z ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I ^ I^ I ^ Z)
+                 }
+             },
             # fmt: on
         )
         self.assertEqual(lower_main_upper_side, {})
