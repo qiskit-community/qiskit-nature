@@ -38,7 +38,7 @@ class TestDipoleMoment(QiskitNatureTestCase):
     def test_second_q_ops(self):
         """Test second_q_ops."""
         ops = self.prop.second_q_ops()
-        assert len(ops) == 3
+        self.assertEqual(len(ops), 3)
         with open(
             self.get_resource_path(
                 "dipole_moment_ops.json", "properties/second_quantization/electronic/resources"
@@ -48,5 +48,5 @@ class TestDipoleMoment(QiskitNatureTestCase):
             expected = json.load(file)
         for op, expected_op in zip(ops, expected):
             for truth, exp in zip(op.to_list(), expected_op):
-                assert truth[0] == exp[0]
-                assert np.isclose(truth[1], exp[1])
+                self.assertEqual(truth[0], exp[0])
+                self.assertTrue(np.isclose(truth[1], exp[1]))

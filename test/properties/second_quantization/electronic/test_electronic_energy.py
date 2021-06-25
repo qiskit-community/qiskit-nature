@@ -38,7 +38,7 @@ class TestElectronicEnergy(QiskitNatureTestCase):
     def test_second_q_ops(self):
         """Test second_q_ops."""
         ops = self.prop.second_q_ops()
-        assert len(ops) == 1
+        self.assertEqual(len(ops), 1)
         with open(
             self.get_resource_path(
                 "electronic_energy_op.json", "properties/second_quantization/electronic/resources"
@@ -47,5 +47,5 @@ class TestElectronicEnergy(QiskitNatureTestCase):
         ) as file:
             expected = json.load(file)
         for op, expected_op in zip(ops[0].to_list(), expected):
-            assert op[0] == expected_op[0]
-            assert np.isclose(op[1], expected_op[1])
+            self.assertEqual(op[0], expected_op[0])
+            self.assertTrue(np.isclose(op[1], expected_op[1]))

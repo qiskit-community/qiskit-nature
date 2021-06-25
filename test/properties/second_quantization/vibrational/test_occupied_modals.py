@@ -43,4 +43,4 @@ class TestOccupiedModals(QiskitNatureTestCase):
             ],
         ]
         for op, expected_op_list in zip(ops, expected):
-            assert op.to_list() == expected_op_list
+            self.assertEqual(op.to_list(), expected_op_list)

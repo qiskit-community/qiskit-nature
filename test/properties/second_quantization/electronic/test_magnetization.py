@@ -31,7 +31,7 @@ class TestMagnetization(QiskitNatureTestCase):
     def test_second_q_ops(self):
         """Test second_q_ops."""
         ops = self.prop.second_q_ops()
-        assert len(ops) == 1
+        self.assertEqual(len(ops), 1)
         expected = [
             ("NIIIIIII", 0.5),
             ("INIIIIII", 0.5),
@@ -42,4 +42,4 @@ class TestMagnetization(QiskitNatureTestCase):
             ("IIIIIINI", -0.5),
             ("IIIIIIIN", -0.5),
         ]
-        assert ops[0].to_list() == expected
+        self.assertEqual(ops[0].to_list(), expected)

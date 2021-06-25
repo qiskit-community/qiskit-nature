@@ -64,14 +64,14 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
         with self.subTest("Pure Alpha"):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, None))
             ints_mo = ints_ao.transform_basis(transform)
-            assert np.allclose(ints_mo._matrices[0], 4 * mat_a)
-            assert ints_mo._matrices[1] is None
+            self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
+            self.assertIsNone(ints_mo._matrices[1])
 
         with self.subTest("Alpha and Beta"):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, mat_b))
             ints_mo = ints_ao.transform_basis(transform)
-            assert np.allclose(ints_mo._matrices[0], 4 * mat_a)
-            assert np.allclose(ints_mo._matrices[1], 4 * mat_b)
+            self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 4 * mat_b))
 
         with self.subTest("Beta custom coeff with only alpha"):
             transform_beta = ElectronicBasisTransform(
@@ -79,8 +79,8 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             )
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, None))
             ints_mo = ints_ao.transform_basis(transform_beta)
-            assert np.allclose(ints_mo._matrices[0], 4 * mat_a)
-            assert ints_mo._matrices[1] is None
+            self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
+            self.assertIsNone(ints_mo._matrices[1])
 
         with self.subTest("Beta custom coeff"):
             transform_beta = ElectronicBasisTransform(
@@ -88,13 +88,13 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             )
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, mat_b))
             ints_mo = ints_ao.transform_basis(transform_beta)
-            assert np.allclose(ints_mo._matrices[0], 4 * mat_a)
-            assert np.allclose(ints_mo._matrices[1], 9 * mat_b)
+            self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 9 * mat_b))
 
         with self.subTest("Final basis match"):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, None))
             ints_mo = ints_ao.transform_basis(transform)
-            assert ints_ao == ints_mo
+            self.assertEqual(ints_ao, ints_mo)
 
         with self.subTest("Inital basis mismatch"):
             with self.assertRaises(QiskitNatureError):
@@ -109,15 +109,19 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
         with self.subTest("Only alpha"):
             ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, None))
             mat_so = ints.to_spin()
-            assert np.allclose(
-                mat_so, np.asarray([[1, 2, 0, 0], [3, 4, 0, 0], [0, 0, 1, 2], [0, 0, 3, 4]])
+            self.assertTrue(
+                np.allclose(
+                    mat_so, np.asarray([[1, 2, 0, 0], [3, 4, 0, 0], [0, 0, 1, 2], [0, 0, 3, 4]])
+                )
             )
 
         with self.subTest("Alpha and beta"):
             ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, mat_b))
             mat_so = ints.to_spin()
-            assert np.allclose(
-                mat_so, np.asarray([[1, 2, 0, 0], [3, 4, 0, 0], [0, 0, -4, -3], [0, 0, -2, -1]])
+            self.assertTrue(
+                np.allclose(
+                    mat_so, np.asarray([[1, 2, 0, 0], [3, 4, 0, 0], [0, 0, -4, -3], [0, 0, -2, -1]])
+                )
             )
 
     def test_to_second_q_op(self):
@@ -141,8 +145,8 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
                     ("IIIN", 4),
                 ],
             ):
-                assert real_label == exp_label
-                assert np.isclose(real_coeff, exp_coeff)
+                self.assertEqual(real_label, exp_label)
+                self.assertTrue(np.isclose(real_coeff, exp_coeff))
 
         with self.subTest("Alpha and beta"):
             ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, mat_b))
@@ -160,5 +164,5 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
                     ("IIIN", -1),
                 ],
             ):
-                assert real_label == exp_label
-                assert np.isclose(real_coeff, exp_coeff)
+                self.assertEqual(real_label, exp_label)
+                self.assertTrue(np.isclose(real_coeff, exp_coeff))

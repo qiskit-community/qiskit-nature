@@ -94,8 +94,8 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             ) as file:
                 exp_nonzero, exp_values = json.load(file)
 
-            assert np.allclose(np.asarray(nonzero), np.asarray(exp_nonzero))
-            assert np.allclose(matrix[nonzero], np.asarray(exp_values))
+            self.assertTrue(np.allclose(np.asarray(nonzero), np.asarray(exp_nonzero)))
+            self.assertTrue(np.allclose(matrix[nonzero], np.asarray(exp_values)))
 
         with self.subTest("Test to_second_q_op"):
             op = integrals.to_second_q_op()
@@ -110,5 +110,5 @@ class TestHarmonicBasis(QiskitNatureTestCase):
                 operator = json.load(file)
 
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), operator):
-                assert real_label == exp_label
-                assert np.isclose(real_coeff, exp_coeff)
+                self.assertEqual(real_label, exp_label)
+                self.assertTrue(np.isclose(real_coeff, exp_coeff))

@@ -52,4 +52,4 @@ class TestSecondQuantizedProperty(QiskitNatureTestCase):
         except QiskitNatureError:
             raised = True
         finally:
-            assert raised == raises_
+            self.assertEqual(raised, raises_)

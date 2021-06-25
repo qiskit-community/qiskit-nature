@@ -33,7 +33,7 @@ class TestParticleNumber(QiskitNatureTestCase):
     def test_second_q_ops(self):
         """Test second_q_ops."""
         ops = self.prop.second_q_ops()
-        assert len(ops) == 1
+        self.assertEqual(len(ops), 1)
         expected = [
             "NIIIIIII",
             "INIIIIII",
@@ -44,4 +44,4 @@ class TestParticleNumber(QiskitNatureTestCase):
             "IIIIIINI",
             "IIIIIIIN",
         ]
-        assert [l for l, _ in ops[0].to_list()] == expected
+        self.assertEqual([l for l, _ in ops[0].to_list()], expected)
