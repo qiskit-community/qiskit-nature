@@ -91,6 +91,7 @@ eigensolution
 eigensolver
 eigensolvers
 eigenstate
+eigenstateresult
 eigenstates
 einact
 endian
@@ -360,6 +361,7 @@ untransforms
 uvcc
 vals
 variational
+verbatim
 vibrational
 vibrationalop
 vibro
