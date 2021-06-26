@@ -23,7 +23,7 @@ from .fermionic_mapper import FermionicMapper
 
 def _pauli_id(n_qubits: int) -> SparsePauliOp:
     """
-    Return an `n_qubits`-identity `SparsePauliOp`.
+    Return the identity for `SparsePauliOp` on `n_qubits` qubits.
     """
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
