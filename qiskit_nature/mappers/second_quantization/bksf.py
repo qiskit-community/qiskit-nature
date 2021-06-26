@@ -427,7 +427,13 @@ def _to_physicist_index_order(facs: List) -> Tuple[List, int]:
 class BravyiKitaevSFMapper(FermionicMapper):
     """The Bravyi-Kitaev super fast fermion-to-qubit mapping.
 
-    Reference arXiv:1712.00446
+    This implementation follows closely Reference [1].
+
+       References:
+           [1]: Bravyi-Kitaev Superfast simulation of electronic structure on a quantum computer
+                Kanav Setia and James D Whitfield
+                JCP Volume 148, Issue 16 - Published April 2018
+                arXiv:1712.00446
     """
 
     def map(self, second_q_op: FermionicOp) -> PauliSumOp:
