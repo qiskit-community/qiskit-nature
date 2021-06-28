@@ -262,6 +262,7 @@ ps
 py
 pyquante
 pyscf
+pxd
 qarg
 qargs
 qasm
