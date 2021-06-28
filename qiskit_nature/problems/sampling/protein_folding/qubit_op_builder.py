@@ -28,7 +28,6 @@ from .peptide.beads.base_bead import BaseBead
 from .peptide.peptide import Peptide
 
 
-# TODO link to a SamplingQubitOpBuilder interface
 def _build_qubit_op(
     peptide: Peptide,
     pair_energies: np.ndarray,
