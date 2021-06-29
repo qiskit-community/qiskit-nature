@@ -26,14 +26,8 @@ logger = logging.getLogger(__name__)
 
 
 def _create_contact_qubits(
-        peptide: Peptide,
-) -> Tuple[
-    Dict[int, dict],
-    Dict[int, dict],
-    Dict[int, dict],
-    Dict[int, dict],
-    int,
-]:
+    peptide: Peptide,
+) -> Tuple[Dict[int, dict], Dict[int, dict], Dict[int, dict], Dict[int, dict], int,]:
     """
     Creates Pauli operators for 3rd+ nearest neighbor interactions. The type of operator depends
     on whether beads belong to the same set (see see https://arxiv.org/pdf/1908.02163.pdf), how
@@ -63,7 +57,7 @@ def _create_contact_qubits(
     full_id = _build_full_identity(num_qubits)
     for lower_bead_id in range(1, main_chain_len - 3):  # first qubit is number 1
         for upper_bead_id in range(
-                lower_bead_id + 3, main_chain_len + 1
+            lower_bead_id + 3, main_chain_len + 1
         ):  # interactions between beads that are nearest or second nearest neighbor do not help
             # discriminating the folds, see https://arxiv.org/pdf/1908.02163.pdf section C
             if _are_beads_in_different_sets(upper_bead_id, lower_bead_id):
@@ -71,9 +65,8 @@ def _create_contact_qubits(
                     lower_main_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                         main_chain_len,
                         (
-                                full_id
-                                ^ _build_pauli_z_op(num_qubits,
-                                                    [lower_bead_id - 1, upper_bead_id - 1])
+                            full_id
+                            ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1])
                         ),
                     )
                     _log_contact(lower_bead_id, upper_bead_id, "main_chain", "main_chain")
@@ -82,9 +75,8 @@ def _create_contact_qubits(
                     lower_side_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                         main_chain_len,
                         (
-                                _build_pauli_z_op(num_qubits,
-                                                  [lower_bead_id - 1, upper_bead_id - 1])
-                                ^ full_id
+                            _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1])
+                            ^ full_id
                         ),
                     )
                     _log_contact(lower_bead_id, upper_bead_id, "side_chain", "side_chain")

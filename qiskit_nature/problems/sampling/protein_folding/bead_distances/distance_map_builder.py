@@ -12,7 +12,7 @@
 """Builds a distance map that stores distances between beads in a peptide."""
 import collections
 import logging
-from typing import Dict, DefaultDict, Tuple, Any
+from typing import Dict, DefaultDict, Tuple, Any, Union
 
 from qiskit.opflow import OperatorBase
 
@@ -38,9 +38,19 @@ def _create_distance_qubits(
                         peptide as qubit operators.
         num_distances: number of distances calculated.
     """
-    delta_n0, delta_n1, delta_n2, delta_n3 = _calc_distances_main_chain(peptide)
-    delta_n0, delta_n1, delta_n2, delta_n3 = _add_distances_side_chain(
-        peptide, delta_n0, delta_n1, delta_n2, delta_n3
+    (
+        distance_map_axis_0,
+        distance_map_axis_1,
+        distance_map_axis_2,
+        distance_map_axis_3,
+    ) = _calc_distances_main_chain(peptide)
+    (
+        distance_map_axis_0,
+        distance_map_axis_1,
+        distance_map_axis_2,
+        distance_map_axis_3,
+    ) = _add_distances_side_chain(
+        peptide, distance_map_axis_0, distance_map_axis_1, distance_map_axis_2, distance_map_axis_3
     )
     main_chain_len = len(peptide.get_main_chain)
 
@@ -65,10 +75,10 @@ def _create_distance_qubits(
             try:
                 distance_map[lower_main_bead][upper_main_bead] = _fix_qubits(
                     (
-                        delta_n0[lower_bead_ind][0][upper_bead_ind][0] ** 2
-                        + delta_n1[lower_bead_ind][0][upper_bead_ind][0] ** 2
-                        + delta_n2[lower_bead_ind][0][upper_bead_ind][0] ** 2
-                        + delta_n3[lower_bead_ind][0][upper_bead_ind][0] ** 2
+                        distance_map_axis_0[lower_main_bead][upper_main_bead] ** 2
+                        + distance_map_axis_1[lower_main_bead][upper_main_bead] ** 2
+                        + distance_map_axis_2[lower_main_bead][upper_main_bead] ** 2
+                        + distance_map_axis_3[lower_main_bead][upper_main_bead] ** 2
                     )
                 )
                 num_distances += 1
@@ -77,10 +87,10 @@ def _create_distance_qubits(
             try:
                 distance_map[lower_side_bead][upper_main_bead] = _fix_qubits(
                     (
-                        delta_n0[lower_bead_ind][1][upper_bead_ind][0] ** 2
-                        + delta_n1[lower_bead_ind][1][upper_bead_ind][0] ** 2
-                        + delta_n2[lower_bead_ind][1][upper_bead_ind][0] ** 2
-                        + delta_n3[lower_bead_ind][1][upper_bead_ind][0] ** 2
+                        distance_map_axis_0[lower_side_bead][upper_main_bead] ** 2
+                        + distance_map_axis_1[lower_side_bead][upper_main_bead] ** 2
+                        + distance_map_axis_2[lower_side_bead][upper_main_bead] ** 2
+                        + distance_map_axis_3[lower_side_bead][upper_main_bead] ** 2
                     )
                 )
                 num_distances += 1
@@ -89,10 +99,10 @@ def _create_distance_qubits(
             try:
                 distance_map[lower_main_bead][upper_side_bead] = _fix_qubits(
                     (
-                        delta_n0[lower_bead_ind][0][upper_bead_ind][1] ** 2
-                        + delta_n1[lower_bead_ind][0][upper_bead_ind][1] ** 2
-                        + delta_n2[lower_bead_ind][0][upper_bead_ind][1] ** 2
-                        + delta_n3[lower_bead_ind][0][upper_bead_ind][1] ** 2
+                        distance_map_axis_0[lower_main_bead][upper_side_bead] ** 2
+                        + distance_map_axis_1[lower_main_bead][upper_side_bead] ** 2
+                        + distance_map_axis_2[lower_main_bead][upper_side_bead] ** 2
+                        + distance_map_axis_3[lower_main_bead][upper_side_bead] ** 2
                     )
                 )
                 num_distances += 1
@@ -101,10 +111,10 @@ def _create_distance_qubits(
             try:
                 distance_map[lower_side_bead][upper_side_bead] = _fix_qubits(
                     (
-                        delta_n0[lower_bead_ind][1][upper_bead_ind][1] ** 2
-                        + delta_n1[lower_bead_ind][1][upper_bead_ind][1] ** 2
-                        + delta_n2[lower_bead_ind][1][upper_bead_ind][1] ** 2
-                        + delta_n3[lower_bead_ind][1][upper_bead_ind][1] ** 2
+                        distance_map_axis_0[lower_side_bead][upper_side_bead] ** 2
+                        + distance_map_axis_1[lower_side_bead][upper_side_bead] ** 2
+                        + distance_map_axis_2[lower_side_bead][upper_side_bead] ** 2
+                        + distance_map_axis_3[lower_side_bead][upper_side_bead] ** 2
                     )
                 )
                 num_distances += 1
@@ -118,79 +128,78 @@ def _create_distance_qubits(
 def _calc_distances_main_chain(
     peptide: Peptide,
 ) -> Tuple[
-    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
-    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
-    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
-    DefaultDict[Any, DefaultDict[Any, DefaultDict[Any, dict]]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
 ]:
     """
     Calculates distance between beads based on the number of turns in
     the main chain. Note, here we consider distances between beads
     not on side chains. For a particular axis, a, we calculate the
     distance between lower_bead_ind and upper_bead_ind bead pairs,
-    delta_na = summation (k = lower_bead_ind to upper_bead_ind - 1) of (-1)^k*indica(k).
+    distance_map_axis_a = summation (k = lower_bead_ind to upper_bead_ind - 1) of (-1)^k*indica(k).
     Args:
         peptide: A Peptide object that includes all information about a protein.
 
     Returns:
-        delta_n0, delta_n1, delta_n2, delta_n3: Tuple corresponding to
+        distance_map_axis_0, distance_map_axis_1, distance_map_axis_2, distance_map_axis_3: Tuple corresponding to
                                                 the number of occurrences
                                                 of turns at axes 0,1,2,3.
     """
     main_chain_len = len(peptide.get_main_chain)
-    delta_n0, delta_n1, delta_n2, delta_n3 = (
-        _init_distance_dict(),
-        _init_distance_dict(),
-        _init_distance_dict(),
-        _init_distance_dict(),
-    )
+    distance_map_axis_0: DefaultDict[
+        BaseBead, Dict[BaseBead, Union[OperatorBase, int]]
+    ] = collections.defaultdict(lambda: collections.defaultdict(int))
+    distance_map_axis_1: DefaultDict[
+        BaseBead, Dict[BaseBead, Union[OperatorBase, int]]
+    ] = collections.defaultdict(lambda: collections.defaultdict(int))
+    distance_map_axis_2: DefaultDict[
+        BaseBead, Dict[BaseBead, Union[OperatorBase, int]]
+    ] = collections.defaultdict(lambda: collections.defaultdict(int))
+    distance_map_axis_3: DefaultDict[
+        BaseBead, Dict[BaseBead, Union[OperatorBase, int]]
+    ] = collections.defaultdict(lambda: collections.defaultdict(int))
     for lower_bead_ind in range(1, main_chain_len):
         for upper_bead_ind in range(lower_bead_ind + 1, main_chain_len + 1):
-            delta_n0[lower_bead_ind][0][upper_bead_ind][0] = 0
-            delta_n1[lower_bead_ind][0][upper_bead_ind][0] = 0
-            delta_n2[lower_bead_ind][0][upper_bead_ind][0] = 0
-            delta_n3[lower_bead_ind][0][upper_bead_ind][0] = 0
+            lower_main_bead = peptide.get_main_chain[lower_bead_ind - 1]
+            upper_main_bead = peptide.get_main_chain[upper_bead_ind - 1]
+
             for k in range(lower_bead_ind, upper_bead_ind):
                 indic_0, indic_1, indic_2, indic_3 = peptide.get_main_chain[
                     k - 1
                 ].get_indicator_functions()
-                delta_n0[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_0
-                delta_n1[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_1
-                delta_n2[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_2
-                delta_n3[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_3
-            delta_n0[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
-                delta_n0[lower_bead_ind][0][upper_bead_ind][0]
+                distance_map_axis_0[lower_main_bead][upper_main_bead] += (-1) ** k * indic_0
+                distance_map_axis_1[lower_main_bead][upper_main_bead] += (-1) ** k * indic_1
+                distance_map_axis_2[lower_main_bead][upper_main_bead] += (-1) ** k * indic_2
+                distance_map_axis_3[lower_main_bead][upper_main_bead] += (-1) ** k * indic_3
+            distance_map_axis_0[lower_main_bead][upper_main_bead] = _fix_qubits(
+                distance_map_axis_0[lower_main_bead][upper_main_bead]
             )
-            delta_n1[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
-                delta_n1[lower_bead_ind][0][upper_bead_ind][0]
+            distance_map_axis_1[lower_main_bead][upper_main_bead] = _fix_qubits(
+                distance_map_axis_1[lower_main_bead][upper_main_bead]
             )
-            delta_n2[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
-                delta_n2[lower_bead_ind][0][upper_bead_ind][0]
+            distance_map_axis_2[lower_main_bead][upper_main_bead] = _fix_qubits(
+                distance_map_axis_2[lower_main_bead][upper_main_bead]
             )
-            delta_n3[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
-                delta_n3[lower_bead_ind][0][upper_bead_ind][0]
+            distance_map_axis_3[lower_main_bead][upper_main_bead] = _fix_qubits(
+                distance_map_axis_3[lower_main_bead][upper_main_bead]
             )
 
-    return delta_n0, delta_n1, delta_n2, delta_n3
-
-
-def _init_distance_dict():
-    return collections.defaultdict(
-        lambda: collections.defaultdict(lambda: collections.defaultdict(dict))
-    )
+    return distance_map_axis_0, distance_map_axis_1, distance_map_axis_2, distance_map_axis_3
 
 
 def _add_distances_side_chain(
     peptide: Peptide,
-    delta_n0: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
-    delta_n1: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
-    delta_n2: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
-    delta_n3: DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    distance_map_axis_0: DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    distance_map_axis_1: DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    distance_map_axis_2: DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    distance_map_axis_3: DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
 ) -> Tuple[
-    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
-    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
-    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
-    DefaultDict[int, DefaultDict[int, DefaultDict[int, dict]]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
+    DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]],
 ]:
     """
     Calculates distances between beads located on side chains and adds the contribution to the
@@ -200,13 +209,13 @@ def _add_distances_side_chain(
 
     Args:
         peptide: A Peptide object that includes all information about a protein.
-        delta_n0: Number of occurrences of axis 0 between beads.
-        delta_n1: Number of occurrences of axis 1 between beads.
-        delta_n2: Number of occurrences of axis 2 between beads.
-        delta_n3: Number of occurrences of axis 3 between beads.
+        distance_map_axis_0: Number of occurrences of axis 0 between beads.
+        distance_map_axis_1: Number of occurrences of axis 1 between beads.
+        distance_map_axis_2: Number of occurrences of axis 2 between beads.
+        distance_map_axis_3: Number of occurrences of axis 3 between beads.
 
     Returns:
-        delta_n0, delta_n1, delta_n2, delta_n3: Updated tuple (with added side chain
+        distance_map_axis_0, distance_map_axis_1, distance_map_axis_2, distance_map_axis_3: Updated tuple (with added side chain
                                                 contributions) that track the number
                                                 of occurrences of turns at axes 0,1,2,3.
     """
@@ -214,104 +223,196 @@ def _add_distances_side_chain(
     side_chain = peptide.get_side_chain_hot_vector()
     for lower_bead_ind in range(1, main_chain_len):  # upper_bead_ind>lower_bead_ind
         for upper_bead_ind in range(lower_bead_ind + 1, main_chain_len + 1):
+            lower_main_bead, lower_side_bead = _get_main_and_side_beads(lower_bead_ind, peptide)
+            upper_main_bead, upper_side_bead = _get_main_and_side_beads(upper_bead_ind, peptide)
 
-            if side_chain[upper_bead_ind - 1]:
-                try:
-                    # TODO generalize to side chains longer than 1
-                    indic_0, indic_1, indic_2, indic_3 = (
-                        peptide.get_main_chain[upper_bead_ind - 1]
-                        .side_chain[0]
-                        .get_indicator_functions()
-                    )
-                    delta_n0[lower_bead_ind][0][upper_bead_ind][1] = _calc_distance_term_main_side(
-                        delta_n0, indic_0, lower_bead_ind, upper_bead_ind
-                    )
-                    delta_n1[lower_bead_ind][0][upper_bead_ind][1] = _calc_distance_term_main_side(
-                        delta_n1, indic_1, lower_bead_ind, upper_bead_ind
-                    )
-                    delta_n2[lower_bead_ind][0][upper_bead_ind][1] = _calc_distance_term_main_side(
-                        delta_n2, indic_2, lower_bead_ind, upper_bead_ind
-                    )
-                    delta_n3[lower_bead_ind][0][upper_bead_ind][1] = _calc_distance_term_main_side(
-                        delta_n3, indic_3, lower_bead_ind, upper_bead_ind
-                    )
-                except KeyError:
-                    pass
+            upper_indic_funs = _get_indicator_funs(
+                peptide, side_chain, upper_bead_ind
+            )
+            lower_indic_funs = _get_indicator_funs(
+                peptide, side_chain, lower_bead_ind
+            )
 
-            if side_chain[lower_bead_ind - 1]:
-                try:
-                    # TODO generalize to side chains longer than 1
-                    indic_0, indic_1, indic_2, indic_3 = (
-                        peptide.get_main_chain[lower_bead_ind - 1]
-                        .side_chain[0]
-                        .get_indicator_functions()
-                    )
-                    delta_n0[lower_bead_ind][1][upper_bead_ind][0] = _calc_distance_term_side_main(
-                        delta_n0, indic_0, lower_bead_ind, upper_bead_ind
-                    )
-                    delta_n1[lower_bead_ind][1][upper_bead_ind][0] = _calc_distance_term_side_main(
-                        delta_n1, indic_1, lower_bead_ind, upper_bead_ind
-                    )
-                    delta_n2[lower_bead_ind][1][upper_bead_ind][0] = _calc_distance_term_side_main(
-                        delta_n2, indic_2, lower_bead_ind, upper_bead_ind
-                    )
-                    delta_n3[lower_bead_ind][1][upper_bead_ind][0] = _calc_distance_term_side_main(
-                        delta_n3, indic_3, lower_bead_ind, upper_bead_ind
-                    )
-                except KeyError:
-                    pass
+            _calc_distances_main_side_all_axes(
+                distance_map_axis_0,
+                distance_map_axis_1,
+                distance_map_axis_2,
+                distance_map_axis_3,
+                upper_indic_funs,
+                lower_bead_ind,
+                lower_main_bead,
+                peptide,
+                upper_bead_ind,
+                upper_side_bead,
+            )
 
-            if side_chain[lower_bead_ind - 1] and side_chain[upper_bead_ind - 1]:
-                try:
-                    # TODO generalize to side chains longer than 1
-                    higher_indic_0, higher_indic_1, higher_indic_2, higher_indic_3 = (
-                        peptide.get_main_chain[upper_bead_ind - 1]
-                        .side_chain[0]
-                        .get_indicator_functions()
-                    )
-                    # TODO generalize to side chains longer than 1
-                    lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = (
-                        peptide.get_main_chain[lower_bead_ind - 1]
-                        .side_chain[0]
-                        .get_indicator_functions()
-                    )
+            _calc_distances_side_main_all_axes(
+                distance_map_axis_0,
+                distance_map_axis_1,
+                distance_map_axis_2,
+                distance_map_axis_3,
+                lower_bead_ind,
+                lower_indic_funs,
+                lower_side_bead,
+                peptide,
+                upper_bead_ind,
+                upper_main_bead,
+            )
 
-                    delta_n0[lower_bead_ind][1][upper_bead_ind][1] = _calc_distance_term_side_side(
-                        delta_n0, higher_indic_0, lower_bead_ind, lower_indic_0, upper_bead_ind
-                    )
-                    delta_n1[lower_bead_ind][1][upper_bead_ind][1] = _calc_distance_term_side_side(
-                        delta_n1, higher_indic_1, lower_bead_ind, lower_indic_1, upper_bead_ind
-                    )
-                    delta_n2[lower_bead_ind][1][upper_bead_ind][1] = _calc_distance_term_side_side(
-                        delta_n2, higher_indic_2, lower_bead_ind, lower_indic_2, upper_bead_ind
-                    )
-                    delta_n3[lower_bead_ind][1][upper_bead_ind][1] = _calc_distance_term_side_side(
-                        delta_n3, higher_indic_3, lower_bead_ind, lower_indic_3, upper_bead_ind
-                    )
-                except KeyError:
-                    pass
-    return delta_n0, delta_n1, delta_n2, delta_n3
+            _calc_distances_side_side_all_axes(
+                distance_map_axis_0,
+                distance_map_axis_1,
+                distance_map_axis_2,
+                distance_map_axis_3,
+                upper_indic_funs,
+                lower_bead_ind,
+                lower_indic_funs,
+                lower_side_bead,
+                peptide,
+                upper_bead_ind,
+                upper_side_bead,
+            )
+
+    return distance_map_axis_0, distance_map_axis_1, distance_map_axis_2, distance_map_axis_3
 
 
-def _calc_distance_term_side_side(
-    delta_n0, higher_indic_fun, lower_bead_ind, lower_indic_fun, upper_bead_ind
-):
-    return _fix_qubits(
-        (
-            delta_n0[lower_bead_ind][0][upper_bead_ind][0]
-            + (-1) ** upper_bead_ind * higher_indic_fun
-            - (-1) ** lower_bead_ind * lower_indic_fun
+def _get_main_and_side_beads(lower_bead_ind, peptide):
+    lower_main_bead = peptide.get_main_chain[lower_bead_ind - 1]
+    if lower_main_bead.side_chain:
+        lower_side_bead = lower_main_bead.side_chain[0]
+    else:
+        lower_side_bead = None
+    return lower_main_bead, lower_side_bead
+
+
+def _get_indicator_funs(peptide, side_chain, bead_ind):
+    if side_chain[bead_ind - 1]:
+        indic_0, indic_1, indic_2, indic_3 = (
+            peptide.get_main_chain[bead_ind - 1].side_chain[0].get_indicator_functions()
         )
+    else:
+        indic_0, indic_1, indic_2, indic_3 = None, None, None, None
+    return indic_0, indic_1, indic_2, indic_3
+
+
+def _calc_distances_side_side_all_axes(
+    distance_map_axis_0,
+    distance_map_axis_1,
+    distance_map_axis_2,
+    distance_map_axis_3,
+    upper_indic_funs,
+    lower_bead_ind,
+    lower_indic_funs,
+    lower_side_bead,
+    peptide,
+    upper_bead_ind,
+    upper_side_bead,
+):
+    lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = lower_indic_funs
+    upper_indic_0, upper_indic_1, upper_indic_2, upper_indic_3 = upper_indic_funs
+    
+    distance_map_axis_0[lower_side_bead][upper_side_bead] = _calc_distance_term(
+        peptide, distance_map_axis_0, lower_bead_ind, upper_bead_ind, lower_indic_0, upper_indic_0
+    )
+    distance_map_axis_1[lower_side_bead][upper_side_bead] = _calc_distance_term(
+        peptide,
+        distance_map_axis_1,
+        lower_bead_ind,
+        upper_bead_ind,
+        lower_indic_1,
+        upper_indic_1,
+    )
+    distance_map_axis_2[lower_side_bead][upper_side_bead] = _calc_distance_term(
+        peptide,
+        distance_map_axis_2,
+        lower_bead_ind,
+        upper_bead_ind,
+        lower_indic_2,
+        upper_indic_2,
+    )
+    distance_map_axis_3[lower_side_bead][upper_side_bead] = _calc_distance_term(
+        peptide,
+        distance_map_axis_3,
+        lower_bead_ind,
+        upper_bead_ind,
+        lower_indic_3,
+        upper_indic_3,
     )
 
 
-def _calc_distance_term_main_side(delta_n0, indic_fun, lower_bead_ind, upper_bead_ind):
-    return _fix_qubits(
-        (delta_n0[lower_bead_ind][0][upper_bead_ind][0] + (-1) ** upper_bead_ind * indic_fun)
+def _calc_distances_side_main_all_axes(
+    distance_map_axis_0,
+    distance_map_axis_1,
+    distance_map_axis_2,
+    distance_map_axis_3,
+    lower_bead_ind,
+    indic_funs,
+    lower_side_bead,
+    peptide,
+    upper_bead_ind,
+    upper_main_bead,
+):
+    lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = indic_funs
+
+    distance_map_axis_0[lower_side_bead][upper_main_bead] = _calc_distance_term(
+        peptide, distance_map_axis_0, lower_bead_ind, upper_bead_ind, lower_indic_0, None
+    )
+    distance_map_axis_1[lower_side_bead][upper_main_bead] = _calc_distance_term(
+        peptide, distance_map_axis_1, lower_bead_ind, upper_bead_ind, lower_indic_1, None
+    )
+    distance_map_axis_2[lower_side_bead][upper_main_bead] = _calc_distance_term(
+        peptide, distance_map_axis_2, lower_bead_ind, upper_bead_ind, lower_indic_2, None
+    )
+    distance_map_axis_3[lower_side_bead][upper_main_bead] = _calc_distance_term(
+        peptide, distance_map_axis_3, lower_bead_ind, upper_bead_ind, lower_indic_3, None
     )
 
 
-def _calc_distance_term_side_main(delta_n0, indic_fun, lower_bead_ind, upper_bead_ind):
-    return _fix_qubits(
-        (delta_n0[lower_bead_ind][0][upper_bead_ind][0] - (-1) ** lower_bead_ind * indic_fun)
+def _calc_distances_main_side_all_axes(
+    distance_map_axis_0,
+    distance_map_axis_1,
+    distance_map_axis_2,
+    distance_map_axis_3,
+    indic_funs,
+    lower_bead_ind,
+    lower_bead,
+    peptide,
+    upper_bead_ind,
+    upper_bead,
+):
+    indic_0, indic_1, indic_2, indic_3 =indic_funs
+
+
+
+    distance_map_axis_0[lower_bead][upper_bead] = _calc_distance_term(
+        peptide, distance_map_axis_0, lower_bead_ind, upper_bead_ind, None, indic_0
     )
+    distance_map_axis_1[lower_bead][upper_bead] = _calc_distance_term(
+        peptide, distance_map_axis_1, lower_bead_ind, upper_bead_ind, None, indic_1
+    )
+    distance_map_axis_2[lower_bead][upper_bead] = _calc_distance_term(
+        peptide, distance_map_axis_2, lower_bead_ind, upper_bead_ind, None, indic_2
+    )
+    distance_map_axis_3[lower_bead][upper_bead] = _calc_distance_term(
+        peptide, distance_map_axis_3, lower_bead_ind, upper_bead_ind, None, indic_3
+    )
+
+
+def _calc_distance_term(
+    peptide: Peptide,
+    distance_map_axis_x,
+    lower_bead_ind,
+    upper_bead_ind,
+    lower_indic_fun,
+    upper_indic_fun,
+):
+
+    lower_main_bead = peptide.get_main_chain[lower_bead_ind - 1]
+    upper_main_bead = peptide.get_main_chain[upper_bead_ind - 1]
+    result = distance_map_axis_x[lower_main_bead][upper_main_bead]
+    if lower_indic_fun is not None:
+        result -= (-1) ** lower_bead_ind * lower_indic_fun
+    if upper_indic_fun is not None:
+        result += (-1) ** upper_bead_ind * upper_indic_fun
+
+    return _fix_qubits(result)

@@ -62,11 +62,18 @@ class TestDistanceMapBuilder(QiskitNatureTestCase):
         )
 
         expected_4 = read_expected_file(expected_path)
+
+        lower_main_bead_0 = self.peptide.get_main_chain[0]
+        upper_main_bead_4 = self.peptide.get_main_chain[4]
+
+        lower_main_bead_1 = self.peptide.get_main_chain[1]
+        upper_main_bead_3 = self.peptide.get_main_chain[3]
+
         # checking only some of the entries
-        self.assertEqual(delta_n0[1][0][5][0], expected_1)
-        self.assertEqual(delta_n0[2][0][5][0], expected_2)
-        self.assertEqual(delta_n1[1][0][4][0], expected_3)
-        self.assertEqual(delta_n1[1][0][5][0], expected_4)
+        self.assertEqual(delta_n0[lower_main_bead_0][upper_main_bead_4], expected_1)
+        self.assertEqual(delta_n0[lower_main_bead_1][upper_main_bead_4], expected_2)
+        self.assertEqual(delta_n1[lower_main_bead_0][upper_main_bead_3], expected_3)
+        self.assertEqual(delta_n1[lower_main_bead_0][upper_main_bead_4], expected_4)
 
     def test_add_distances_side_chain(self):
         """
@@ -86,8 +93,10 @@ class TestDistanceMapBuilder(QiskitNatureTestCase):
             PATH,
         )
         expected = read_expected_file(expected_path)
+        lower_main_bead = self.peptide.get_main_chain[0]
+        upper_side_bead = self.peptide.get_main_chain[2].side_chain[0]
         # checking only some of the entries
-        self.assertEqual(delta_n0[1][0][3][1], expected)
+        self.assertEqual(delta_n0[lower_main_bead][upper_side_bead], expected)
 
     def test_calc_total_distances(self):
         """
