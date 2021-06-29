@@ -50,13 +50,13 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
         ref_qterm_b2 = SparsePauliOp("ZIZIZI")
         ref_qterm_b3 = SparsePauliOp("ZZIZII")
 
-        with self.subTest("Test 1"):
+        with self.subTest("Test edge operator b0"):
             self.assertEqual(qterm_b0, ref_qterm_b0)
-        with self.subTest("Test 2"):
+        with self.subTest("Test edge operator b1"):
             self.assertEqual(qterm_b1, ref_qterm_b1)
-        with self.subTest("Test 3"):
+        with self.subTest("Test edge operator b2"):
             self.assertEqual(qterm_b2, ref_qterm_b2)
-        with self.subTest("Test 4"):
+        with self.subTest("Test edge operator b3"):
             self.assertEqual(qterm_b3, ref_qterm_b3)
 
     def test_bksf_edge_op_aij(self):
@@ -77,17 +77,17 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
         ref_qterm_a13 = SparsePauliOp("IXZZIZ")
         ref_qterm_a23 = SparsePauliOp("XZZZZI")
 
-        with self.subTest("Test 1"):
+        with self.subTest("Test edge operator a01"):
             self.assertEqual(qterm_a01, ref_qterm_a01)
-        with self.subTest("Test 2"):
+        with self.subTest("Test edge operator a02"):
             self.assertEqual(qterm_a02, ref_qterm_a02)
-        with self.subTest("Test 3"):
+        with self.subTest("Test edge operator a03"):
             self.assertEqual(qterm_a03, ref_qterm_a03)
-        with self.subTest("Test 4"):
+        with self.subTest("Test edge operator a12"):
             self.assertEqual(qterm_a12, ref_qterm_a12)
-        with self.subTest("Test 5"):
+        with self.subTest("Test edge operator a13"):
             self.assertEqual(qterm_a13, ref_qterm_a13)
-        with self.subTest("Test 6"):
+        with self.subTest("Test edge operator a23"):
             self.assertEqual(qterm_a23, ref_qterm_a23)
 
     def test_h2(self):
