@@ -70,7 +70,7 @@ def _create_distance_qubits(
                         + delta_n2[lower_bead_ind][0][upper_bead_ind][0] ** 2
                         + delta_n3[lower_bead_ind][0][upper_bead_ind][0] ** 2
                     )
-                ).reduce()
+                )
                 num_distances += 1
             except KeyError:
                 pass
@@ -82,7 +82,7 @@ def _create_distance_qubits(
                         + delta_n2[lower_bead_ind][1][upper_bead_ind][0] ** 2
                         + delta_n3[lower_bead_ind][1][upper_bead_ind][0] ** 2
                     )
-                ).reduce()
+                )
                 num_distances += 1
             except KeyError:
                 pass
@@ -94,7 +94,7 @@ def _create_distance_qubits(
                         + delta_n2[lower_bead_ind][0][upper_bead_ind][1] ** 2
                         + delta_n3[lower_bead_ind][0][upper_bead_ind][1] ** 2
                     )
-                ).reduce()
+                )
                 num_distances += 1
             except KeyError:
                 pass
@@ -106,7 +106,7 @@ def _create_distance_qubits(
                         + delta_n2[lower_bead_ind][1][upper_bead_ind][1] ** 2
                         + delta_n3[lower_bead_ind][1][upper_bead_ind][1] ** 2
                     )
-                ).reduce()
+                )
                 num_distances += 1
             except KeyError:
                 pass
@@ -160,16 +160,16 @@ def _calc_distances_main_chain(
                 delta_n3[lower_bead_ind][0][upper_bead_ind][0] += (-1) ** k * indic_3
             delta_n0[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
                 delta_n0[lower_bead_ind][0][upper_bead_ind][0]
-            ).reduce()
+            )
             delta_n1[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
                 delta_n1[lower_bead_ind][0][upper_bead_ind][0]
-            ).reduce()
+            )
             delta_n2[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
                 delta_n2[lower_bead_ind][0][upper_bead_ind][0]
-            ).reduce()
+            )
             delta_n3[lower_bead_ind][0][upper_bead_ind][0] = _fix_qubits(
                 delta_n3[lower_bead_ind][0][upper_bead_ind][0]
-            ).reduce()
+            )
 
     return delta_n0, delta_n1, delta_n2, delta_n3
 
@@ -302,16 +302,16 @@ def _calc_distance_term_side_side(
             + (-1) ** upper_bead_ind * higher_indic_fun
             - (-1) ** lower_bead_ind * lower_indic_fun
         )
-    ).reduce()
+    )
 
 
 def _calc_distance_term_main_side(delta_n0, indic_fun, lower_bead_ind, upper_bead_ind):
     return _fix_qubits(
         (delta_n0[lower_bead_ind][0][upper_bead_ind][0] + (-1) ** upper_bead_ind * indic_fun)
-    ).reduce()
+    )
 
 
 def _calc_distance_term_side_main(delta_n0, indic_fun, lower_bead_ind, upper_bead_ind):
     return _fix_qubits(
         (delta_n0[lower_bead_ind][0][upper_bead_ind][0] - (-1) ** lower_bead_ind * indic_fun)
-    ).reduce()
+    )
