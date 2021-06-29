@@ -12,19 +12,16 @@
 
 """The TotalDipoleMoment property."""
 
-from typing import cast, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
+from ..second_quantized_property import (DriverResult, ElectronicDriverResult,
+                                         SecondQuantizedProperty)
 from .bases import ElectronicBasis
-from .electronic_energy import _IntegralProperty
-from .integrals import ElectronicIntegrals, OneBodyElectronicIntegrals
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from .integrals import (ElectronicIntegrals, IntegralProperty,
+                        OneBodyElectronicIntegrals)
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -33,7 +30,7 @@ from ..second_quantized_property import (
 DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
 
 
-class DipoleMoment(_IntegralProperty):
+class DipoleMoment(IntegralProperty):
     """The DipoleMoment property.
 
     This contains the dipole moment along a single Cartesian axis.
@@ -49,7 +46,7 @@ class DipoleMoment(_IntegralProperty):
         """
         Args:
             axis: the name of the Cartesian axis.
-            dipole: an _IntegralProperty property representing the dipole moment operator.
+            dipole: an IntegralProperty property representing the dipole moment operator.
         """
         super().__init__(self.__class__.__name__, basis, electronic_integrals, shift=shift)
         self._axis = axis

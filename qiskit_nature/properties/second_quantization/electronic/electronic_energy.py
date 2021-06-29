@@ -12,74 +12,19 @@
 
 """The ElectronicEnergy property."""
 
-from typing import cast, Dict, List, Optional
+from typing import Dict, List, Optional, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from .bases import ElectronicBasis
-from .integrals import (
-    ElectronicIntegrals,
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from ..second_quantized_property import (DriverResult, ElectronicDriverResult,
+                                         SecondQuantizedProperty)
+from .bases import ElectronicBasis, ElectronicBasisTransform
+from .integrals import (ElectronicIntegrals, IntegralProperty,
+                        OneBodyElectronicIntegrals, TwoBodyElectronicIntegrals)
 
 
-# TODO: extract into separate file?
-class _IntegralProperty(SecondQuantizedProperty):
-    """A common Property object based on `ElectronicIntegrals` as its raw data.
-
-    This is a common base class, extracted to be used by (at the time of writing) the
-    `ElectronicEnergy` and the `DipoleMoment` properties. More subclasses may be added in the
-    future.
-    """
-
-    def __init__(
-        self,
-        name: str,
-        basis: ElectronicBasis,
-        electronic_integrals: Dict[int, ElectronicIntegrals],
-        shift: Optional[Dict[str, float]] = None,
-    ):
-        """
-        Args:
-            basis: the basis which the integrals in ``electronic_integrals`` are stored in.
-            electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                ``ElectronicIntegrals``.
-            shift: an optional dictionary of value shifts.
-        """
-        super().__init__(name)
-        self._basis = basis
-        self._electronic_integrals = electronic_integrals
-        self._shift = shift
-
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
-        return [
-            sum(  # type: ignore
-                ints.to_second_q_op() for ints in self._electronic_integrals.values()
-            ).reduce()
-        ]
-
-    @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "_IntegralProperty":
-        """This property does not support construction from a driver result (yet).
-
-        Args:
-            result: ignored.
-
-        Raises:
-            NotImplemented
-        """
-        raise NotImplementedError()
-
-
-class ElectronicEnergy(_IntegralProperty):
+class ElectronicEnergy(IntegralProperty):
     """The ElectronicEnergy property.
 
     This is the main property of any electronic structure problem. It constructs the Hamiltonian
