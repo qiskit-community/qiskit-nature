@@ -30,8 +30,8 @@ class ParticleNumber(SecondQuantizedProperty):
         self,
         num_spin_orbitals: int,
         num_particles: Union[int, Tuple[int, int]],
-        occupation: Optional[List[float]] = None,
-        occupation_beta: Optional[List[float]] = None,
+        occupation: Optional[List[int]] = None,
+        occupation_beta: Optional[List[int]] = None,
     ):
         """
         Args:
@@ -63,6 +63,16 @@ class ParticleNumber(SecondQuantizedProperty):
             self._occupation_alpha = occupation
             self._occupation_beta = occupation_beta
 
+    @property
+    def occupation_alpha(self) -> np.ndarray:
+        """Returns the occupation_alpha."""
+        return np.asarray(self._occupation_alpha, dtype=int)
+
+    @property
+    def occupation_beta(self) -> np.ndarray:
+        """Returns the occupation_beta."""
+        return np.asarray(self._occupation_beta, dtype=int)
+
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> "ParticleNumber":
         """Construct a ParticleNumber instance from a QMolecule.
@@ -90,8 +100,8 @@ class ParticleNumber(SecondQuantizedProperty):
 
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "ParticleNumber":
         """TODO."""
-        active_occ_alpha = np.asarray(self._occupation_alpha, dtype=int)[active_orbital_indices]
-        active_occ_beta = np.asarray(self._occupation_beta, dtype=int)[active_orbital_indices]
+        active_occ_alpha = self.occupation_alpha[active_orbital_indices]
+        active_occ_beta = self.occupation_beta[active_orbital_indices]
         num_alpha = sum(active_occ_alpha)
         num_beta = sum(active_occ_beta)
         return ParticleNumber(

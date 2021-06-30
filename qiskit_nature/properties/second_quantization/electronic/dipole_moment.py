@@ -50,6 +50,13 @@ class DipoleMoment(IntegralProperty):
         super().__init__(self.__class__.__name__, electronic_integrals, shift=shift)
         self._axis = axis
 
+    def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
+        """TODO."""
+        if ElectronicBasis.AO not in self._electronic_integrals.keys():
+            raise NotImplementedError()
+
+        return self._electronic_integrals[ElectronicBasis.AO][1]
+
 
 class TotalDipoleMoment(SecondQuantizedProperty):
     """The TotalDipoleMoment property."""
@@ -127,6 +134,8 @@ class TotalDipoleMoment(SecondQuantizedProperty):
             },
         )
 
+    # TODO: here we actually need to forward the matrix_operator method. But this only exists on
+    # IntegralProperty objects, which this one is not... ? 🤔
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "TotalDipoleMoment":
         """TODO."""
         return TotalDipoleMoment(

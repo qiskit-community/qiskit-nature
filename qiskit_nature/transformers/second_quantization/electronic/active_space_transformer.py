@@ -13,7 +13,7 @@
 """The Active-Space Reduction interface."""
 
 from copy import deepcopy
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
@@ -113,7 +113,6 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._active_orbitals = active_orbitals
 
         self._mo_occ_total: np.ndarray = None
-        self._num_particles: Tuple[int, int] = None
 
     def transform(self, molecule_data: ElectronicDriverResult) -> ElectronicDriverResult:
         """Reduces the given `QMolecule` to a given active space.
@@ -135,19 +134,21 @@ class ActiveSpaceTransformer(BaseTransformer):
         except QiskitNatureError as exc:
             raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
+        particle_number = molecule_data.get_property(ParticleNumber)
+        if particle_number is None:
+            raise QiskitNatureError()
+        particle_number = cast(ParticleNumber, particle_number)
+
         # get molecular orbital coefficients
         mo_coeff_full = (
             molecule_data.electronic_basis_transform.coeff_alpha,
             molecule_data.electronic_basis_transform.coeff_beta,
         )
         # get molecular orbital occupation numbers
-        mo_occ_full = (
-            np.asarray(molecule_data._properties["ParticleNumber"]._occupation_alpha),
-            np.asarray(molecule_data._properties["ParticleNumber"]._occupation_beta),
-        )
+        mo_occ_full = (particle_number.occupation_alpha, particle_number.occupation_beta)
         self._mo_occ_total = mo_occ_full[0] + mo_occ_full[1]
 
-        active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(molecule_data)
+        active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(particle_number)
 
         # split molecular orbitals coefficients into active and inactive parts
 
@@ -169,7 +170,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             ElectronicBasis.AO, (density_inactive_a, density_inactive_b)
         )
 
-        transform = ElectronicBasisTransform(
+        transform_active = ElectronicBasisTransform(
             ElectronicBasis.AO,
             ElectronicBasis.MO,
             mo_coeff_full[0][:, active_orbs_idxs],
@@ -186,7 +187,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 e_inactive = 0.5 * total_op.compose(density_inactive)
                 reduced_prop = deepcopy(prop)
                 reduced_prop.add_electronic_integral(fock_operator)
-                reduced_prop.transform_basis(transform)
+                reduced_prop.transform_basis(transform_active)
                 reduced_prop._shift["ActiveSpaceTransformer"] = e_inactive
             else:
                 try:
@@ -236,23 +237,20 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-    def _determine_active_space(self, molecule_data: QMolecule):
+    def _determine_active_space(
+        self, particle_number: ParticleNumber
+    ) -> Tuple[List[int], List[int]]:
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, int):
             num_alpha = num_beta = self._num_electrons // 2
 
         # compute number of inactive electrons
-        nelec_total = (
-            molecule_data._properties["ParticleNumber"]._num_alpha
-            + molecule_data._properties["ParticleNumber"]._num_beta
-        )
+        nelec_total = particle_number._num_alpha + particle_number._num_beta
         nelec_inactive = nelec_total - num_alpha - num_beta
 
-        self._num_particles = (num_alpha, num_beta)
-
         self._validate_num_electrons(nelec_inactive)
-        self._validate_num_orbitals(nelec_inactive, molecule_data)
+        self._validate_num_orbitals(nelec_inactive, particle_number)
 
         # determine active and inactive orbital indices
         if self._active_orbitals is None:
@@ -271,7 +269,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         return (active_orbs_idxs, inactive_orbs_idxs)
 
-    def _validate_num_electrons(self, nelec_inactive: int):
+    def _validate_num_electrons(self, nelec_inactive: int) -> None:
         """Validates the number of electrons.
 
         Args:
@@ -285,7 +283,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         if nelec_inactive % 2 != 0:
             raise QiskitNatureError("The number of inactive electrons must be even.")
 
-    def _validate_num_orbitals(self, nelec_inactive: int, molecule_data: QMolecule):
+    def _validate_num_orbitals(self, nelec_inactive: int, particle_number: ParticleNumber) -> None:
         """Validates the number of orbitals.
 
         Args:
@@ -301,7 +299,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             norbs_inactive = nelec_inactive // 2
             if (
                 norbs_inactive + self._num_molecular_orbitals
-                > molecule_data._properties["ParticleNumber"]._num_spin_orbitals // 2
+                > particle_number._num_spin_orbitals // 2
             ):
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
@@ -310,10 +308,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                     "The number of selected active orbital indices does not "
                     "match the specified number of active orbitals."
                 )
-            if (
-                max(self._active_orbitals)
-                >= molecule_data._properties["ParticleNumber"]._num_spin_orbitals // 2
-            ):
+            if max(self._active_orbitals) >= particle_number._num_spin_orbitals // 2:
                 raise QiskitNatureError("More orbitals requested than available.")
             if sum(self._mo_occ_total[self._active_orbitals]) != self._num_electrons:
                 raise QiskitNatureError(

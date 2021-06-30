@@ -12,7 +12,7 @@
 
 """The ElectronicDriverResult class."""
 
-from typing import Dict, List, cast
+from typing import Dict, List, Optional, Type, Union, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -47,6 +47,17 @@ class ElectronicDriverResult(SecondQuantizedProperty):
         """TODO."""
         self._properties[prop.name] = prop
 
+    def get_property(
+        self, prop: Union[str, Type[SecondQuantizedProperty]]
+    ) -> Optional[SecondQuantizedProperty]:
+        """TODO."""
+        name: str
+        if isinstance(prop, str):
+            name = prop
+        else:
+            name = prop.__name__
+        return self._properties.get(name, None)
+
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "ElectronicDriverResult":
         """TODO."""
         raise NotADirectoryError()
@@ -75,9 +86,9 @@ class ElectronicDriverResult(SecondQuantizedProperty):
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
         ops: List[FermionicOp] = []
-        ops.extend(self.electronic_energy_mo.second_q_ops())
-        ops.extend(self.particle_number.second_q_ops())
-        ops.extend(self.angular_momentum.second_q_ops())
-        ops.extend(self.magnetization.second_q_ops())
-        ops.extend(self.total_dipole_moment.second_q_ops())
+        ops.extend(self.get_property(ElectronicEnergy).second_q_ops())
+        ops.extend(self.get_property(ParticleNumber).second_q_ops())
+        ops.extend(self.get_property(AngularMomentum).second_q_ops())
+        ops.extend(self.get_property(Magnetization).second_q_ops())
+        ops.extend(self.get_property(TotalDipoleMoment).second_q_ops())
         return ops
