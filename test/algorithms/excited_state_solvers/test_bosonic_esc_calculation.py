@@ -87,12 +87,8 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)
 
-        for idx in enumerate(self.reference_energies):
-            self.assertAlmostEqual(
-                results.computed_vibrational_energies[idx],
-                self.reference_energies[idx],
-                places=4,
-            )
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=4)
 
     def test_numpy_factory(self):
         """Test with NumPyEigensolver"""
@@ -100,12 +96,8 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
         results = esc.solve(self.vibrational_problem)
 
-        for idx in enumerate(self.reference_energies):
-            self.assertAlmostEqual(
-                results.computed_vibrational_energies[idx],
-                self.reference_energies[idx],
-                places=4,
-            )
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=4)
 
     def test_vqe_uvccsd_factory(self):
         """Test with VQE plus UVCCSD"""
@@ -117,12 +109,8 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)
-        for idx in enumerate(self.reference_energies):
-            self.assertAlmostEqual(
-                results.computed_vibrational_energies[idx],
-                self.reference_energies[idx],
-                places=1,
-            )
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
 
 
 if __name__ == "__main__":

@@ -75,9 +75,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
-        for idx in enumerate(self.reference_energies):
+        for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(
-                results.computed_energies[idx], self.reference_energies[idx], places=4
+                results.computed_energies[idx], energy, places=4
             )
 
     def test_vqe_mes(self):
@@ -87,9 +87,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
-        for idx in enumerate(self.reference_energies):
+        for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(
-                results.computed_energies[idx], self.reference_energies[idx], places=4
+                results.computed_energies[idx], energy, places=4
             )
 
     def test_numpy_factory(self):
@@ -109,8 +109,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             if not np.isclose(comp_energy, computed_energies[-1]):
                 computed_energies.append(comp_energy)
 
-        for idx in enumerate(self.reference_energies):
-            self.assertAlmostEqual(computed_energies[idx], self.reference_energies[idx], places=4)
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(computed_energies[idx], energy, places=4)
 
 
 if __name__ == "__main__":
