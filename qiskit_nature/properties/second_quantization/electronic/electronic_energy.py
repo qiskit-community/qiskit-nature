@@ -36,7 +36,7 @@ class ElectronicEnergy(IntegralProperty):
 
     def __init__(
         self,
-        electronic_integrals: Dict[ElectronicBasis, List[ElectronicIntegrals]],
+        electronic_integrals: List[ElectronicIntegrals],
         energy_shift: Optional[Dict[str, float]] = None,
         reference_energy: Optional[float] = None,
     ):
@@ -73,34 +73,28 @@ class ElectronicEnergy(IntegralProperty):
         energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
         return cls(
-            {
-                ElectronicBasis.AO: [
-                    OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b)),
-                    TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None)),
-                ],
-                ElectronicBasis.MO: [
-                    OneBodyElectronicIntegrals(
-                        ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
-                    ),
-                    TwoBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (qmol.mo_eri_ints, qmol.mo_eri_ints_ba, qmol.mo_eri_ints_bb, None),
-                    ),
-                ],
-            },
+            [
+                OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b)),
+                TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None)),
+                OneBodyElectronicIntegrals(
+                    ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
+                ),
+                TwoBodyElectronicIntegrals(
+                    ElectronicBasis.MO,
+                    (qmol.mo_eri_ints, qmol.mo_eri_ints_ba, qmol.mo_eri_ints_bb, None),
+                ),
+            ],
             energy_shift=energy_shift,
             reference_energy=qmol.hf_energy,
         )
 
-    def matrix_operator(
-        self, density: OneBodyElectronicIntegrals
-    ) -> OneBodyElectronicIntegrals:
+    def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """TODO."""
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
             raise NotImplementedError()
 
-        one_e_ints = self._electronic_integrals[ElectronicBasis.AO][0]
-        two_e_ints = self._electronic_integrals[ElectronicBasis.AO][1]
+        one_e_ints = self._electronic_integrals[ElectronicBasis.AO][1]
+        two_e_ints = self._electronic_integrals[ElectronicBasis.AO][2]
 
         op = one_e_ints
         if one_e_ints._matrices[1] is None:

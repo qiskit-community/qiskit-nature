@@ -39,7 +39,7 @@ class DipoleMoment(IntegralProperty):
     def __init__(
         self,
         axis: str,
-        electronic_integrals: Dict[ElectronicBasis, List[ElectronicIntegrals]],
+        electronic_integrals: List[ElectronicIntegrals],
         shift: Optional[Dict[str, float]] = None,
     ):
         """
@@ -92,10 +92,10 @@ class TotalDipoleMoment(SecondQuantizedProperty):
         def dipole_along_axis(axis, ao_ints, mo_ints, energy_shift):
             return DipoleMoment(
                 axis,
-                {
-                    ElectronicBasis.AO: [OneBodyElectronicIntegrals(ElectronicBasis.AO, ao_ints)],
-                    ElectronicBasis.MO: [OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints)],
-                },
+                [
+                    OneBodyElectronicIntegrals(ElectronicBasis.AO, ao_ints),
+                    OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints),
+                ],
                 shift=energy_shift,
             )
 

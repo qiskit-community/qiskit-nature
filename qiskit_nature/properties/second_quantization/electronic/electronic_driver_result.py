@@ -36,7 +36,7 @@ class ElectronicDriverResult(SecondQuantizedProperty):
     def __init__(self) -> None:
         """TODO."""
         super().__init__(self.__class__.__name__)
-        self.properties: Dict[str, SecondQuantizedProperty] = {}
+        self._properties: Dict[str, SecondQuantizedProperty] = {}
         self.electronic_basis_transform: ElectronicBasisTransform = None
         # TODO: add origin driver metadata
         # TODO: where to put orbital_energies?
@@ -45,7 +45,7 @@ class ElectronicDriverResult(SecondQuantizedProperty):
 
     def add_property(self, prop: SecondQuantizedProperty) -> None:
         """TODO."""
-        self.properties[prop.name] = prop
+        self._properties[prop.name] = prop
 
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> "ElectronicDriverResult":

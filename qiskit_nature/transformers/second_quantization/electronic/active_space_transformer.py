@@ -142,8 +142,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         )
         # get molecular orbital occupation numbers
         mo_occ_full = (
-            np.asarray(molecule_data.properties["ParticleNumber"]._occupation_alpha),
-            np.asarray(molecule_data.properties["ParticleNumber"]._occupation_beta),
+            np.asarray(molecule_data._properties["ParticleNumber"]._occupation_alpha),
+            np.asarray(molecule_data._properties["ParticleNumber"]._occupation_beta),
         )
         self._mo_occ_total = mo_occ_full[0] + mo_occ_full[1]
 
@@ -179,17 +179,14 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new QMolecule
         molecule_data_reduced = ElectronicDriverResult()
 
-        for prop in molecule_data.properties.values():
+        for prop in molecule_data._properties.values():
             if isinstance(prop, IntegralProperty):
                 fock_operator = prop.matrix_operator(density_inactive)
-                total_op = prop._electronic_integrals[ElectronicBasis.AO][0] + fock_operator
+                total_op = prop._electronic_integrals[ElectronicBasis.AO][1] + fock_operator
                 e_inactive = 0.5 * total_op.compose(density_inactive)
                 reduced_prop = deepcopy(prop)
-                reduced_prop._electronic_integrals[ElectronicBasis.AO][0] = fock_operator
-                reduced_prop._electronic_integrals[ElectronicBasis.MO] = [
-                    ints.transform_basis(transform)
-                    for ints in reduced_prop._electronic_integrals[ElectronicBasis.AO]
-                ]
+                reduced_prop.add_electronic_integral(fock_operator)
+                reduced_prop.transform_basis(transform)
                 reduced_prop._shift["ActiveSpaceTransformer"] = e_inactive
             else:
                 try:
@@ -199,7 +196,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
             molecule_data_reduced.add_property(reduced_prop)
 
-        molecule_data_reduced.properties["ParticleNumber"] = ParticleNumber(
+        molecule_data_reduced._properties["ParticleNumber"] = ParticleNumber(
             self._num_molecular_orbitals // 2,
             self._num_particles,
             mo_occ_full[0][active_orbs_idxs],
@@ -254,8 +251,8 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         # compute number of inactive electrons
         nelec_total = (
-            molecule_data.properties["ParticleNumber"]._num_alpha
-            + molecule_data.properties["ParticleNumber"]._num_beta
+            molecule_data._properties["ParticleNumber"]._num_alpha
+            + molecule_data._properties["ParticleNumber"]._num_beta
         )
         nelec_inactive = nelec_total - num_alpha - num_beta
 
@@ -311,7 +308,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             norbs_inactive = nelec_inactive // 2
             if (
                 norbs_inactive + self._num_molecular_orbitals
-                > molecule_data.properties["ParticleNumber"]._num_spin_orbitals // 2
+                > molecule_data._properties["ParticleNumber"]._num_spin_orbitals // 2
             ):
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
@@ -322,7 +319,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 )
             if (
                 max(self._active_orbitals)
-                >= molecule_data.properties["ParticleNumber"]._num_spin_orbitals // 2
+                >= molecule_data._properties["ParticleNumber"]._num_spin_orbitals // 2
             ):
                 raise QiskitNatureError("More orbitals requested than available.")
             if sum(self._mo_occ_total[self._active_orbitals]) != self._num_electrons:

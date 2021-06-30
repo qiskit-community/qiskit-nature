@@ -35,7 +35,7 @@ class IntegralProperty(SecondQuantizedProperty):
     def __init__(
         self,
         name: str,
-        electronic_integrals: Dict[ElectronicBasis, List[ElectronicIntegrals]],
+        electronic_integrals: List[ElectronicIntegrals],
         shift: Optional[Dict[str, float]] = None,
     ):
         """
@@ -46,8 +46,21 @@ class IntegralProperty(SecondQuantizedProperty):
             shift: an optional dictionary of value shifts.
         """
         super().__init__(name)
-        self._electronic_integrals = electronic_integrals
+        self._electronic_integrals = {}
+        for int in electronic_integrals:
+            self.add_electronic_integral(int)
         self._shift = shift or {}
+
+    def add_electronic_integral(self, integral: ElectronicIntegrals) -> None:
+        """TODO."""
+        if integral._basis not in self._electronic_integrals.keys():
+            self._electronic_integrals[integral._basis] = {}
+        self._electronic_integrals[integral._basis][integral._num_body_terms] = integral
+
+    def transform_basis(self, transform: ElectronicBasisTransform) -> None:
+        """TODO."""
+        for int in self._electronic_integrals[transform.initial_basis].values():
+            self.add_electronic_integral(int.transform_basis(transform))
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
