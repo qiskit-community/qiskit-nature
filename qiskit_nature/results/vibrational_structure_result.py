@@ -78,7 +78,7 @@ class VibrationalStructureResult(EigenstateResult):
         )
         if len(self.num_occupied_modals_per_mode) > 0:
             lines.append("The number of occupied modals is")
-        for i in range(len(self.num_occupied_modals_per_mode)):
+        for i in enumerate(self.num_occupied_modals_per_mode):
             lines.append("- Mode {}: {}".format(i, self.num_occupied_modals_per_mode[i]))
 
         return lines

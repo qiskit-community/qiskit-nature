@@ -12,7 +12,7 @@
 
 """The SecondQuantizedProperty base class."""
 
-from abc import abstractclassmethod, abstractmethod
+from abc import abstractmethod
 from typing import Any, List, Union
 
 from qiskit_nature import QiskitNatureError
@@ -40,7 +40,8 @@ class SecondQuantizedProperty(Property):
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns the (list of) second quantized operators associated with this Property."""
 
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def from_driver_result(cls, result: DriverResult) -> "Property":
         """Construct a Property instance from a driver result.
 

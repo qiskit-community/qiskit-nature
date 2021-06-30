@@ -75,7 +75,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
-        for idx in range(len(self.reference_energies)):
+        for idx in enumerate(self.reference_energies):
             self.assertAlmostEqual(
                 results.computed_energies[idx], self.reference_energies[idx], places=4
             )
@@ -87,7 +87,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
-        for idx in range(len(self.reference_energies)):
+        for idx in enumerate(self.reference_energies):
             self.assertAlmostEqual(
                 results.computed_energies[idx], self.reference_energies[idx], places=4
             )
@@ -109,7 +109,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             if not np.isclose(comp_energy, computed_energies[-1]):
                 computed_energies.append(comp_energy)
 
-        for idx in range(len(self.reference_energies)):
+        for idx in enumerate(self.reference_energies):
             self.assertAlmostEqual(computed_energies[idx], self.reference_energies[idx], places=4)
 
 
