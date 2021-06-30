@@ -546,3 +546,43 @@ class VibrationalOp(SecondQuantizedOp):
         op, mode_index, modal_index = re.split("[*_]", label)
         index = partial_sum_modals[int(mode_index)] + int(modal_index)
         return (op, index)
+
+    @classmethod
+    def zero(cls, num_modes: int, num_modals: Union[int, List[int]]) -> "VibrationalOp":
+        """Constructs a zero-operator.
+
+        Args:
+            num_modes : number of modes.
+            num_modals: number of modals - described by a list of integers where each integer
+                        describes the number of modals in a corresponding mode; in case of the
+                        same number of modals in each mode it is enough to provide an integer
+                        that describes the number of them; the total number of modals defines a
+                        `register_length`
+
+        Returns:
+            The zero-operator of the given length.
+        """
+        if isinstance(num_modals, int):
+            num_modals = [num_modals] * num_modes
+
+        return VibrationalOp(("I" * sum(num_modals), 0.0), num_modes, num_modals)
+
+    @classmethod
+    def one(cls, num_modes: int, num_modals: Union[int, List[int]]) -> "VibrationalOp":
+        """Constructs a unity-operator.
+
+        Args:
+            num_modes : number of modes.
+            num_modals: number of modals - described by a list of integers where each integer
+                        describes the number of modals in a corresponding mode; in case of the
+                        same number of modals in each mode it is enough to provide an integer
+                        that describes the number of them; the total number of modals defines a
+                        `register_length`
+
+        Returns:
+            The unity-operator of the given length.
+        """
+        if isinstance(num_modals, int):
+            num_modals = [num_modals] * num_modes
+
+        return VibrationalOp(("I" * sum(num_modals), 1.0), num_modes, num_modals)

@@ -32,14 +32,14 @@ class BaseDriver(ABC):
         self,
         molecule: Optional[Molecule] = None,
         basis: str = "sto3g",
-        hf_method: str = "rhf",
+        method: str = "rhf",
         supports_molecule: bool = False,
     ) -> None:
         """
         Args:
             molecule: molecule
             basis: basis set
-            hf_method: Hartree-Fock Method type
+            method: Hartree-Fock Method type
             supports_molecule: Indicates if driver supports molecule
 
         Raises:
@@ -50,7 +50,7 @@ class BaseDriver(ABC):
 
         self._molecule = molecule
         self._basis = basis
-        self._hf_method = hf_method
+        self._method = method
         self._supports_molecule = supports_molecule
 
     @abstractmethod
@@ -93,11 +93,11 @@ class BaseDriver(ABC):
         self._basis = value
 
     @property
-    def hf_method(self) -> str:
+    def method(self) -> str:
         """return Hartree-Fock method"""
-        return self._hf_method
+        return self._method
 
-    @hf_method.setter
-    def hf_method(self, value: str) -> None:
+    @method.setter
+    def method(self, value: str) -> None:
         """set Hartree-Fock method"""
-        self._hf_method = value
+        self._method = value

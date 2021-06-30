@@ -12,7 +12,9 @@
 
 """ Test GroundStateEigensolver """
 
+import contextlib
 import copy
+import io
 import unittest
 
 from test import QiskitNatureTestCase
@@ -36,8 +38,11 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
-    build_ferm_op_from_ints,
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
 )
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
@@ -101,7 +106,13 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = [build_ferm_op_from_ints(h_1, h_2)]
+        aux_ops = ElectronicEnergy(
+            ElectronicBasis.MO,
+            {
+                1: OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
+                2: TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
+            },
+        ).second_q_ops()
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.electronic_structure_problem)
@@ -316,6 +327,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
 
+    @slow_test
     def test_uccsd_hf_aer_statevector(self):
         """uccsd hf test with Aer statevector"""
         try:
@@ -341,6 +353,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
+    @slow_test
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
         try:
@@ -419,6 +432,49 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         result = gsc.solve(problem)
         self.assertAlmostEqual(result.total_energies[0], -7.882, places=2)
+
+    def test_total_dipole(self):
+        """Regression test against #198.
+
+        An issue with calculating the dipole moment that had division None/float.
+        """
+        solver = NumPyMinimumEigensolverFactory()
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        self.assertAlmostEqual(res.total_dipole_moment_in_debye[0], 0.0, places=1)
+
+    def test_print_result(self):
+        """Regression test against #198 and general issues with printing results."""
+        solver = NumPyMinimumEigensolverFactory()
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            print(res)
+        # do NOT change the below! Lines have been truncated as to not force exact numerical matches
+        expected = """\
+            === GROUND STATE ENERGY ===
+
+            * Electronic ground state energy (Hartree): -1.857
+              - computed part:      -1.857
+            ~ Nuclear repulsion energy (Hartree): 0.719
+            > Total ground state energy (Hartree): -1.137
+
+            === MEASURED OBSERVABLES ===
+
+              0:  # Particles: 2.000 S: 0.000 S^2: 0.000 M: 0.000
+
+            === DIPOLE MOMENTS ===
+
+            ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.38
+
+              0:
+              * Electronic dipole moment (a.u.): [0.0  0.0  -1.38
+                - computed part:      [0.0  0.0  -1.38
+              > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.
+                             (debye): [0.0  0.0  0.0]  Total: 0.
+        """
+        for truth, expected in zip(out.getvalue().split("\n"), expected.split("\n")):
+            assert truth.strip().startswith(expected.strip())
 
 
 if __name__ == "__main__":

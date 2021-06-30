@@ -13,13 +13,10 @@
 """The Freeze-Core Reduction interface."""
 
 from typing import List, Optional
-import logging
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 
 from .active_space_transformer import ActiveSpaceTransformer
-
-logger = logging.getLogger(__name__)
 
 
 class FreezeCoreTransformer(ActiveSpaceTransformer):

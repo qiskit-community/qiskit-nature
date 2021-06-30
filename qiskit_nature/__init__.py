@@ -41,6 +41,7 @@ Submodules
    mappers
    operators
    problems
+   properties
    results
    runtime
    transformers
