@@ -12,6 +12,7 @@
 
 """The ElectronicEnergy property."""
 
+from copy import deepcopy
 from typing import Dict, List, Optional, Tuple, cast
 
 import numpy as np
@@ -90,3 +91,26 @@ class ElectronicEnergy(IntegralProperty):
             energy_shift=energy_shift,
             reference_energy=qmol.hf_energy,
         )
+
+    def matrix_operator(
+        self, density: OneBodyElectronicIntegrals
+    ) -> OneBodyElectronicIntegrals:
+        """TODO."""
+        if ElectronicBasis.AO not in self._electronic_integrals.keys():
+            raise NotImplementedError()
+
+        one_e_ints = self._electronic_integrals[ElectronicBasis.AO][0]
+        two_e_ints = self._electronic_integrals[ElectronicBasis.AO][1]
+
+        op = one_e_ints
+        if one_e_ints._matrices[1] is None:
+            op = OneBodyElectronicIntegrals(
+                ElectronicBasis.AO, (one_e_ints._matrices[0], one_e_ints._matrices[0])
+            )
+
+        coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
+        coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])
+        exchange = two_e_ints.compose(density, "ijkl,jk->il")
+        op += coulomb + coulomb_inv - exchange
+
+        return op

@@ -19,6 +19,7 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 
 from .electronic_integrals import ElectronicIntegrals
+from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 
 
@@ -54,7 +55,21 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 zero-valued.
         """
         num_body_terms = 2
-        super().__init__(num_body_terms, basis, matrices, threshold)
+
+        filled_matrices = []
+        alpha_beta_spin_idx = 3
+        for idx, mat in enumerate(matrices):
+            if mat is not None:
+                filled_matrices.append(mat)
+            elif idx == alpha_beta_spin_idx:
+                if matrices[1] is None:
+                    filled_matrices.append(matrices[0])
+                else:
+                    filled_matrices.append(matrices[1].T)
+            else:
+                filled_matrices.append(matrices[0])
+
+        super().__init__(num_body_terms, basis, tuple(filled_matrices), threshold)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
@@ -130,3 +145,23 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[2], "+"), (indices[3], "-"), (indices[1], "-")]
+
+    def compose(self, other: OneBodyElectronicIntegrals, einsum: str) -> OneBodyElectronicIntegrals:
+        """TODO."""
+        if not isinstance(other, OneBodyElectronicIntegrals):
+            raise TypeError()
+
+        if self._basis != other._basis:
+            raise ValueError()
+
+        if self._basis != ElectronicBasis.AO:
+            raise NotImplementedError()
+
+        eri = self._matrices[0]
+
+        alpha = np.einsum(einsum, eri, other._matrices[0])
+        beta = None
+        if other._matrices[1] is not None:
+            beta = np.einsum(einsum, eri, other._matrices[1])
+
+        return OneBodyElectronicIntegrals(self._basis, (alpha, beta), self._threshold)

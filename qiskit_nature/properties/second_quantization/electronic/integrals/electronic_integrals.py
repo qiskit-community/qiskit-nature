@@ -14,6 +14,7 @@
 
 import itertools
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -178,3 +179,35 @@ class ElectronicIntegrals(ABC):
         Returns:
             A list of tuples associating each index with a creation/annihilation operator symbol.
         """
+
+    def add(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+        """TODO."""
+        ret = deepcopy(self)
+        if isinstance(self._matrices, np.ndarray):
+            ret._matrices = self._matrices + other._matrices
+        else:
+            ret._matrices = [a + b for a, b in zip(self._matrices, other._matrices)]
+        return ret
+
+    def compose(self, other: "ElectronicIntegrals", einsum: str) -> "ElectronicIntegrals":
+        """TODO."""
+        raise NotImplementedError()
+
+    def __rmul__(self, other: complex) -> "ElectronicIntegrals":
+        """TODO."""
+        ret = deepcopy(self)
+        if isinstance(self._matrices, np.ndarray):
+            ret._matrices = other * self._matrices
+        else:
+            ret._matrices = [other * mat for mat in self._matrices]
+        return ret
+
+    def __add__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+        """TODO."""
+        if self._basis != other._basis:
+            raise TypeError()
+        return self.add(other)
+
+    def __sub__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+        """TODO."""
+        return self + (-1.0) * other

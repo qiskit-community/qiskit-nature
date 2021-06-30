@@ -45,7 +45,15 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
                 zero-valued.
         """
         num_body_terms = 1
-        super().__init__(num_body_terms, basis, matrices, threshold)
+
+        filled_matrices = []
+        for idx, mat in enumerate(matrices):
+            if mat is not None:
+                filled_matrices.append(mat)
+            else:
+                filled_matrices.append(matrices[0])
+
+        super().__init__(num_body_terms, basis, tuple(filled_matrices), threshold)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
@@ -100,3 +108,17 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[1], "-")]
+
+    def compose(self, other: "OneBodyElectronicIntegrals") -> complex:
+        """TODO."""
+        if not isinstance(other, OneBodyElectronicIntegrals):
+            raise TypeError()
+
+        if self._basis != other._basis:
+            raise ValueError()
+
+        product = 0.0
+        for front, back in zip(self._matrices, other._matrices):
+            product += np.einsum("ij,ji", front, back)
+
+        return product

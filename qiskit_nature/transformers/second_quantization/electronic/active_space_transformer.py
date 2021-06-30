@@ -12,7 +12,7 @@
 
 """The Active-Space Reduction interface."""
 
-import copy
+from copy import deepcopy
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -25,8 +25,8 @@ from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis, ElectronicBasisTransform)
 from qiskit_nature.properties.second_quantization.electronic.electronic_driver_result import \
     ElectronicDriverResult
-from qiskit_nature.properties.second_quantization.electronic.integrals import \
-    IntegralProperty
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    IntegralProperty, OneBodyElectronicIntegrals)
 
 from ..base_transformer import BaseTransformer
 
@@ -140,7 +140,6 @@ class ActiveSpaceTransformer(BaseTransformer):
             molecule_data.electronic_basis_transform.coeff_alpha,
             molecule_data.electronic_basis_transform.coeff_beta,
         )
-        beta_spin = np.allclose(mo_coeff_full[0], mo_coeff_full[1])
         # get molecular orbital occupation numbers
         mo_occ_full = (
             np.asarray(molecule_data.properties["ParticleNumber"]._occupation_alpha),
@@ -159,33 +158,44 @@ class ActiveSpaceTransformer(BaseTransformer):
             np.transpose(mo_coeff_inactive_a),
         )
 
-        density_inactive_b = None
+        mo_occ_inactive_b = mo_occ_full[1][inactive_orbs_idxs]
+        mo_coeff_inactive_b = mo_coeff_full[1][:, inactive_orbs_idxs]
+        density_inactive_b = np.dot(
+            mo_coeff_inactive_b * mo_occ_inactive_b,
+            np.transpose(mo_coeff_inactive_b),
+        )
 
-        if beta_spin:
-            mo_occ_inactive_b = mo_occ_full[1][inactive_orbs_idxs]
-            mo_coeff_inactive_b = mo_coeff_full[1][:, inactive_orbs_idxs]
-            density_inactive_b = np.dot(
-                mo_coeff_inactive_b * mo_occ_inactive_b,
-                np.transpose(mo_coeff_inactive_b),
-            )
-
-        density_inactive = (density_inactive_a, density_inactive_b)
+        density_inactive = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (density_inactive_a, density_inactive_b)
+        )
 
         transform = ElectronicBasisTransform(
             ElectronicBasis.AO,
             ElectronicBasis.MO,
             mo_coeff_full[0][:, active_orbs_idxs],
-            mo_coeff_full[1][:, active_orbs_idxs] if beta_spin else None,
+            mo_coeff_full[1][:, active_orbs_idxs],
         )
 
         # construct new QMolecule
         molecule_data_reduced = ElectronicDriverResult()
 
         for prop in molecule_data.properties.values():
-            try:
-                reduced_prop = prop.reduce_system_size(density_inactive, transform)
-            except NotImplementedError:
-                continue
+            if isinstance(prop, IntegralProperty):
+                fock_operator = prop.matrix_operator(density_inactive)
+                total_op = prop._electronic_integrals[ElectronicBasis.AO][0] + fock_operator
+                e_inactive = 0.5 * total_op.compose(density_inactive)
+                reduced_prop = deepcopy(prop)
+                reduced_prop._electronic_integrals[ElectronicBasis.AO][0] = fock_operator
+                reduced_prop._electronic_integrals[ElectronicBasis.MO] = [
+                    ints.transform_basis(transform)
+                    for ints in reduced_prop._electronic_integrals[ElectronicBasis.AO]
+                ]
+                reduced_prop._shift["ActiveSpaceTransformer"] = e_inactive
+            else:
+                try:
+                    reduced_prop = prop.reduce_system_size(density_inactive, transform)
+                except NotImplementedError:
+                    continue
 
             molecule_data_reduced.add_property(reduced_prop)
 
