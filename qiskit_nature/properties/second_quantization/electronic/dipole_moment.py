@@ -127,11 +127,11 @@ class TotalDipoleMoment(SecondQuantizedProperty):
             },
         )
 
-    def reduce_system_size(self, electronic_density, transform) -> "TotalDipoleMoment":
+    def reduce_system_size(self, active_orbital_indices: List[int]) -> "TotalDipoleMoment":
         """TODO."""
         return TotalDipoleMoment(
             {
-                axis: dipole.reduce_system_size(electronic_density, transform)
+                axis: dipole.reduce_system_size(active_orbital_indices)
                 for axis, dipole in self._dipole_axes.items()
             },
             dipole_shift=self._dipole_shift,

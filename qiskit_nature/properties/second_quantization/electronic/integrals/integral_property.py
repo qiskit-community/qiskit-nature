@@ -62,6 +62,10 @@ class IntegralProperty(SecondQuantizedProperty):
         for int in self._electronic_integrals[transform.initial_basis].values():
             self.add_electronic_integral(int.transform_basis(transform))
 
+    def reduce_system_size(self, active_orbital_indices: List[int]) -> "IntegralProperty":
+        """TODO."""
+        raise NotImplementedError()
+
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
         ints = None

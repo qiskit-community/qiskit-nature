@@ -66,9 +66,9 @@ class AngularMomentum(SecondQuantizedProperty):
             qmol.num_molecular_orbitals * 2,
         )
 
-    def reduce_system_size(self, electronic_density, transform) -> "AngularMomentum":
+    def reduce_system_size(self, active_orbital_indices: List[int]) -> "AngularMomentum":
         """TODO."""
-        return AngularMomentum(transform.coeff_alpha.shape[1])
+        return AngularMomentum(len(active_orbital_indices) * 2)
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the angular momentum operator."""

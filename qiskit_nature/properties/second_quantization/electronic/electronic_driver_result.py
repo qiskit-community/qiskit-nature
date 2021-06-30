@@ -47,6 +47,10 @@ class ElectronicDriverResult(SecondQuantizedProperty):
         """TODO."""
         self._properties[prop.name] = prop
 
+    def reduce_system_size(self, active_orbital_indices: List[int]) -> "ElectronicDriverResult":
+        """TODO."""
+        raise NotADirectoryError()
+
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> "ElectronicDriverResult":
         """TODO."""

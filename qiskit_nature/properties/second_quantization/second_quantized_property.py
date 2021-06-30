@@ -40,9 +40,9 @@ class SecondQuantizedProperty(Property):
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns the (list of) second quantized operators associated with this Property."""
 
-    def reduce_system_size(self, electronic_density, transform) -> "SecondQuantizedProperty":
+    @abstractmethod
+    def reduce_system_size(self, active_orbital_indices: List[int]) -> "SecondQuantizedProperty":
         """TODO."""
-        raise NotImplementedError()
 
     @classmethod
     @abstractmethod

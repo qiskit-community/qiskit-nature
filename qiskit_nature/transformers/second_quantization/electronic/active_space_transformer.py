@@ -190,18 +190,11 @@ class ActiveSpaceTransformer(BaseTransformer):
                 reduced_prop._shift["ActiveSpaceTransformer"] = e_inactive
             else:
                 try:
-                    reduced_prop = prop.reduce_system_size(density_inactive, transform)
+                    reduced_prop = prop.reduce_system_size(active_orbs_idxs)
                 except NotImplementedError:
                     continue
 
             molecule_data_reduced.add_property(reduced_prop)
-
-        molecule_data_reduced._properties["ParticleNumber"] = ParticleNumber(
-            self._num_molecular_orbitals // 2,
-            self._num_particles,
-            mo_occ_full[0][active_orbs_idxs],
-            mo_occ_full[1][active_orbs_idxs],
-        )
 
         return molecule_data_reduced
 

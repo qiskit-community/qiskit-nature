@@ -12,16 +12,15 @@
 
 """The ParticleNumber property."""
 
-from typing import cast, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
+
+import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from ..second_quantized_property import (DriverResult, ElectronicDriverResult,
+                                         SecondQuantizedProperty)
 
 
 class ParticleNumber(SecondQuantizedProperty):
@@ -53,13 +52,13 @@ class ParticleNumber(SecondQuantizedProperty):
             self._num_alpha, self._num_beta = num_particles
 
         if occupation is None:
-            self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
+            self._occupation_alpha = [1 for _ in range(self._num_alpha)]
             self._occupation_alpha += [0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
-            self._occupation_beta = [1.0 for _ in range(self._num_beta)]
+            self._occupation_beta = [1 for _ in range(self._num_beta)]
             self._occupation_beta += [0] * (num_spin_orbitals // 2 - len(self._occupation_beta))
         elif occupation_beta is None:
-            self._occupation_alpha = [o / 2.0 for o in occupation]
-            self._occupation_beta = [o / 2.0 for o in occupation]
+            self._occupation_alpha = [np.ceil(o / 2) for o in occupation]
+            self._occupation_beta = [np.floor(o / 2) for o in occupation]
         else:
             self._occupation_alpha = occupation
             self._occupation_beta = occupation_beta
@@ -87,6 +86,19 @@ class ParticleNumber(SecondQuantizedProperty):
             (qmol.num_alpha, qmol.num_beta),
             qmol.mo_occ,
             qmol.mo_occ_b,
+        )
+
+    def reduce_system_size(self, active_orbital_indices: List[int]) -> "ParticleNumber":
+        """TODO."""
+        active_occ_alpha = np.asarray(self._occupation_alpha, dtype=int)[active_orbital_indices]
+        active_occ_beta = np.asarray(self._occupation_beta, dtype=int)[active_orbital_indices]
+        num_alpha = sum(active_occ_alpha)
+        num_beta = sum(active_occ_beta)
+        return ParticleNumber(
+            len(active_orbital_indices) // 2,
+            (num_alpha, num_beta),
+            active_occ_alpha,
+            active_occ_beta,
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
