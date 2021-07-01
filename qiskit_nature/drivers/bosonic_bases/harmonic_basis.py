@@ -152,7 +152,7 @@ class HarmonicBasis(BosonicBasis):
             # _compute_modes for other potential uses. They are not wanted by this logic.
             if any(index < 0 for index in indices):
                 kinetic_term = True
-                indices = np.absolute(indices)
+                indices = np.absolute(indices)  # type: ignore
             index_dict = {}  # type: Dict[int, int]
             for i in indices:
                 if index_dict.get(i) is None:
