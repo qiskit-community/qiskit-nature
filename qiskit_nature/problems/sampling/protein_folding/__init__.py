@@ -15,7 +15,7 @@ Protein Folding Problems (:mod:`qiskit_nature.problems.sampling.protein_folding`
 
 The protein to be folded is defined in a Peptide class. Each peptide consists of one and only one
 main chain and optionally several side chains. Side chains cannot be attached to first, second or
-last main beads which is an assumption of the algorithm without loss of generality (see the paper
+last main bead which is an assumption of the algorithm without loss of generality (see the paper
 cited below). Each chain consists of beads that encode information about the turn that follows
 to another main bead (in case of main beads) or into a side bead (in case of side beads).
 Moreover, each bead is characterized by a letter which encodes its residue sequence that defines
@@ -24,7 +24,7 @@ attached to one and only one main bead. Currently, only side chains of length 1 
 bead) are supported which is a simplifying assumption. The generalized version is planned for the
 later stage. Constraints on feasible folds are incorporated in the objective function using
 penalty terms whose importance is regulated by parameters in the PenaltyParameters class. For
-more details consult the paper https://arxiv.org/pdf/1908.02163.pdf.
+more details consult the paper Robert et al., npj quantum information 7, 38, 2021 (https://www.nature.com/articles/s41534-021-00368-4).
 
 .. currentmodule:: qiskit_nature.problems.sampling.protein_folding
 

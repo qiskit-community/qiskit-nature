@@ -19,7 +19,7 @@ from .exceptions.invalid_residue_exception import (
 
 def _validate_residue_sequence(residue_sequence: List[str]):
     """
-    Checks if the provided residue sequence contains legal characters.
+    Checks if the provided residue sequence contains allowed characters.
     Args:
         residue_sequence: A list that contains characters defining residues for a chain of proteins.
 
