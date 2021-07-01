@@ -26,9 +26,9 @@ class ContactMap:
 
     def __init__(self, peptide: Peptide):
         """
-       Args:
-           peptide: A Peptide object that includes all information about a protein.
-       """
+        Args:
+            peptide: A Peptide object that includes all information about a protein.
+        """
         self._peptide = peptide
         (
             self._lower_main_upper_main,
