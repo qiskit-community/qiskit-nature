@@ -47,7 +47,7 @@ jobs:
         run: |
           make html SPHINXOPTS=-W
           tools/deploy_documentation.sh
-       shell: bash
+        shell: bash
   deploy-translatable-strings:
     if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["manoelmarques","mtreinish","stefan-woerner","woodsp-ibm"]', github.actor) }}
     runs-on: ubuntu-latest
