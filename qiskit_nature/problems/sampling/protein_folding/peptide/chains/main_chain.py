@@ -34,7 +34,7 @@ class MainChain(BaseChain):
         """
         Args:
             main_chain_len: Length of the main chain of a peptide.
-            main_chain_residue_sequences: List of characters that define residues for a main chain.
+            main_chain_residue_sequences: List of characters that define residues for the main chain.
             side_chain_lens: List of lengths of all side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
             beads.
