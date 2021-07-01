@@ -15,7 +15,7 @@ Protein Folding Problems (:mod:`qiskit_nature.problems.sampling.protein_folding`
 
 The protein to be folded is defined in a Peptide class. Each peptide consists of one and only one
 main chain and optionally several side chains. Side chains cannot be attached to first, second or
-last main beads which is an assumption of the algorithm without loss of generality (see the paper
+last main bead which is an assumption of the algorithm without loss of generality (see the paper
 cited below). Each chain consists of beads that encode information about the turn that follows
 to another main bead (in case of main beads) or into a side bead (in case of side beads).
 Moreover, each bead is characterized by a letter which encodes its residue sequence that defines
