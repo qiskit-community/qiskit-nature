@@ -13,7 +13,9 @@
 """The ElectronicEnergy property."""
 
 from copy import deepcopy
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 
@@ -33,8 +35,7 @@ class IntegralProperty(SecondQuantizedProperty):
     def __init__(
         self,
         name: str,
-        basis: ElectronicBasis,
-        electronic_integrals: Dict[int, ElectronicIntegrals],
+        electronic_integrals: Dict[ElectronicBasis, List[ElectronicIntegrals]],
         shift: Optional[Dict[str, float]] = None,
     ):
         """
@@ -44,29 +45,71 @@ class IntegralProperty(SecondQuantizedProperty):
                 ``ElectronicIntegrals``.
             shift: an optional dictionary of value shifts.
         """
-        name = name + basis.name
         super().__init__(name)
-        self._basis = basis
         self._electronic_integrals = electronic_integrals
         self._shift = shift or {}
 
-    def transform_basis(self, transform: ElectronicBasisTransform) -> "IntegralProperty":
+    def reduce_system_size(
+        self, electronic_density: Tuple[np.ndarray, np.ndarray], transform: ElectronicBasisTransform
+    ) -> "IntegralProperty":
         """TODO."""
-        transformed_integrals = {
-            n_body: ints.transform_basis(transform)
-            for n_body, ints in self._electronic_integrals.items()
-        }
-        return IntegralProperty(
-            self.name, transform.final_basis, transformed_integrals, deepcopy(self._shift)
-        )
+        ao_integrals = self._electronic_integrals[ElectronicBasis.AO]
+
+        beta_spin = electronic_density[1] is not None
+
+        hcore = ao_integrals[0]._matrices
+        if beta_spin and hcore[1] is None:
+            hcore = (hcore[0], hcore[0])
+
+        fock_operator = deepcopy(hcore)
+
+        if len(ao_integrals) > 1:
+            eri = ao_integrals[1]._matrices[0]
+            coulomb_inactive = np.einsum("ijkl,ji->kl", eri, electronic_density[0])
+            exchange_inactive = np.einsum("ijkl,jk->il", eri, electronic_density[0])
+
+            if not beta_spin:
+                fock_operator = (
+                    fock_operator[0] + coulomb_inactive - 0.5 * exchange_inactive,
+                    None,
+                )
+            else:
+                coulomb_inactive_b = np.einsum("ijkl,ji->kl", eri, electronic_density[1])
+                exchange_inactive_b = np.einsum("ijkl,jk->il", eri, electronic_density[1])
+                fock_operator = (
+                    fock_operator[0] + coulomb_inactive + coulomb_inactive_b - exchange_inactive,
+                    fock_operator[1] + coulomb_inactive + coulomb_inactive_b - exchange_inactive_b,
+                )
+
+        e_inactive = 0.0
+        if not beta_spin and electronic_density[0][0].size > 0:
+            e_inactive += 0.5 * np.einsum(
+                "ij,ji", electronic_density[0], hcore[0] + fock_operator[0]
+            )
+        elif beta_spin and electronic_density[1][0].size > 0:
+            e_inactive += 0.5 * (
+                np.einsum("ij,ji", electronic_density[0], hcore[0] + fock_operator[0])
+                + np.einsum("ij,ji", electronic_density[1], hcore[1] + fock_operator[1])
+            )
+
+        ret = deepcopy(self)
+        ret._electronic_integrals[ElectronicBasis.AO][0]._matrices = fock_operator
+        ret._electronic_integrals[ElectronicBasis.MO] = [
+            ints.transform_basis(transform)
+            for ints in ret._electronic_integrals[ElectronicBasis.AO]
+        ]
+        ret._shift["Inactive Energy"] = e_inactive
+
+        return ret
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
-        return [
-            sum(  # type: ignore
-                ints.to_second_q_op() for ints in self._electronic_integrals.values()
-            ).reduce()
-        ]
+        ints = None
+        if ElectronicBasis.SO in self._electronic_integrals.keys():
+            ints = self._electronic_integrals[ElectronicBasis.SO]
+        elif ElectronicBasis.MO in self._electronic_integrals.keys():
+            ints = self._electronic_integrals[ElectronicBasis.MO]
+        return [sum(int.to_second_q_op() for int in ints).reduce()]  # type: ignore
 
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> "IntegralProperty":

@@ -40,6 +40,10 @@ class SecondQuantizedProperty(Property):
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns the (list of) second quantized operators associated with this Property."""
 
+    def reduce_system_size(self, electronic_density, transform) -> "SecondQuantizedProperty":
+        """TODO."""
+        raise NotImplementedError()
+
     @classmethod
     @abstractmethod
     def from_driver_result(cls, result: DriverResult) -> "Property":

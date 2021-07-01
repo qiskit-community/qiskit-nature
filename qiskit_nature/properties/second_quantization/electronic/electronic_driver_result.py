@@ -17,8 +17,10 @@ from typing import Dict, List, cast
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ..second_quantized_property import DriverResult, SecondQuantizedProperty
-from ..second_quantized_property import ElectronicDriverResult as LegacyElectronicDriverResult
+from ..second_quantized_property import DriverResult
+from ..second_quantized_property import \
+    ElectronicDriverResult as LegacyElectronicDriverResult
+from ..second_quantized_property import SecondQuantizedProperty
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import DipoleMoment, TotalDipoleMoment
@@ -59,29 +61,6 @@ class ElectronicDriverResult(SecondQuantizedProperty):
         ret.add_property(AngularMomentum.from_driver_result(qmol))
         ret.add_property(Magnetization.from_driver_result(qmol))
         ret.add_property(TotalDipoleMoment.from_driver_result(qmol))
-
-        ret.add_property(ElectronicEnergy(
-            ElectronicBasis.AO,
-            {
-                1: OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b)),
-                2: TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None)),
-            },
-        ))
-
-        def dipole_along_axis(axis, ao_ints):
-            return DipoleMoment(
-                axis,
-                ElectronicBasis.AO,
-                {1: OneBodyElectronicIntegrals(ElectronicBasis.AO, ao_ints)},
-            )
-
-        ret.add_property(TotalDipoleMoment(
-            {
-                "x": dipole_along_axis("x", (qmol.x_dip_ints, None)),
-                "y": dipole_along_axis("y", (qmol.y_dip_ints, None)),
-                "z": dipole_along_axis("z", (qmol.z_dip_ints, None)),
-            }
-        ))
 
         ret.electronic_basis_transform = ElectronicBasisTransform(
             ElectronicBasis.AO, ElectronicBasis.MO, qmol.mo_coeff, qmol.mo_coeff_b

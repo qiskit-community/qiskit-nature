@@ -12,7 +12,9 @@
 
 """The ElectronicEnergy property."""
 
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Tuple, cast
+
+import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -33,8 +35,7 @@ class ElectronicEnergy(IntegralProperty):
 
     def __init__(
         self,
-        basis: ElectronicBasis,
-        electronic_integrals: Dict[int, ElectronicIntegrals],
+        electronic_integrals: Dict[ElectronicBasis, List[ElectronicIntegrals]],
         energy_shift: Optional[Dict[str, float]] = None,
         reference_energy: Optional[float] = None,
     ):
@@ -46,7 +47,7 @@ class ElectronicEnergy(IntegralProperty):
             reference_energy: an optional reference energy (such as the HF energy).
             energy_shift: an optional dictionary of energy shifts.
         """
-        super().__init__(self.__class__.__name__, basis, electronic_integrals, shift=energy_shift)
+        super().__init__(self.__class__.__name__, electronic_integrals, shift=energy_shift)
         self._reference_energy = reference_energy
 
     @classmethod
@@ -71,20 +72,20 @@ class ElectronicEnergy(IntegralProperty):
         energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
         return cls(
-            ElectronicBasis.MO,
             {
-                1: OneBodyElectronicIntegrals(
-                    ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
-                ),
-                2: TwoBodyElectronicIntegrals(
-                    ElectronicBasis.MO,
-                    (
-                        qmol.mo_eri_ints,
-                        qmol.mo_eri_ints_ba,
-                        qmol.mo_eri_ints_bb,
-                        None,
+                ElectronicBasis.AO: [
+                    OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b)),
+                    TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None)),
+                ],
+                ElectronicBasis.MO: [
+                    OneBodyElectronicIntegrals(
+                        ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
                     ),
-                ),
+                    TwoBodyElectronicIntegrals(
+                        ElectronicBasis.MO,
+                        (qmol.mo_eri_ints, qmol.mo_eri_ints_ba, qmol.mo_eri_ints_bb, None),
+                    ),
+                ],
             },
             energy_shift=energy_shift,
             reference_energy=qmol.hf_energy,

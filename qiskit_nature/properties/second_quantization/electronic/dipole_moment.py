@@ -39,8 +39,7 @@ class DipoleMoment(IntegralProperty):
     def __init__(
         self,
         axis: str,
-        basis: ElectronicBasis,
-        electronic_integrals: Dict[int, ElectronicIntegrals],
+        electronic_integrals: Dict[ElectronicBasis, List[ElectronicIntegrals]],
         shift: Optional[Dict[str, float]] = None,
     ):
         """
@@ -48,7 +47,7 @@ class DipoleMoment(IntegralProperty):
             axis: the name of the Cartesian axis.
             dipole: an IntegralProperty property representing the dipole moment operator.
         """
-        super().__init__(self.__class__.__name__, basis, electronic_integrals, shift=shift)
+        super().__init__(self.__class__.__name__, electronic_integrals, shift=shift)
         self._axis = axis
 
 
@@ -90,24 +89,35 @@ class TotalDipoleMoment(SecondQuantizedProperty):
         if not qmol.has_dipole_integrals():
             return None
 
-        def dipole_along_axis(axis, mo_ints, energy_shift):
+        def dipole_along_axis(axis, ao_ints, mo_ints, energy_shift):
             return DipoleMoment(
                 axis,
-                ElectronicBasis.MO,
-                {1: OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints)},
+                {
+                    ElectronicBasis.AO: [OneBodyElectronicIntegrals(ElectronicBasis.AO, ao_ints)],
+                    ElectronicBasis.MO: [OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints)],
+                },
                 shift=energy_shift,
             )
 
         return cls(
             {
                 "x": dipole_along_axis(
-                    "x", (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b), qmol.x_dip_energy_shift
+                    "x",
+                    (qmol.x_dip_ints, None),
+                    (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
+                    qmol.x_dip_energy_shift,
                 ),
                 "y": dipole_along_axis(
-                    "y", (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b), qmol.y_dip_energy_shift
+                    "y",
+                    (qmol.y_dip_ints, None),
+                    (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
+                    qmol.y_dip_energy_shift,
                 ),
                 "z": dipole_along_axis(
-                    "z", (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b), qmol.z_dip_energy_shift
+                    "z",
+                    (qmol.z_dip_ints, None),
+                    (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
+                    qmol.z_dip_energy_shift,
                 ),
             },
             dipole_shift={
@@ -115,6 +125,16 @@ class TotalDipoleMoment(SecondQuantizedProperty):
                     DipoleTuple, tuple(d_m for d_m in qmol.nuclear_dipole_moment)
                 ),
             },
+        )
+
+    def reduce_system_size(self, electronic_density, transform) -> "TotalDipoleMoment":
+        """TODO."""
+        return TotalDipoleMoment(
+            {
+                axis: dipole.reduce_system_size(electronic_density, transform)
+                for axis, dipole in self._dipole_axes.items()
+            },
+            dipole_shift=self._dipole_shift,
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
