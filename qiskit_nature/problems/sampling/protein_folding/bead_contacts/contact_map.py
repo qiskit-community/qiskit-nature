@@ -25,6 +25,10 @@ class ContactMap:
     """A class that stores contacts between beads of a peptide as qubit operators."""
 
     def __init__(self, peptide: Peptide):
+        """
+       Args:
+           peptide: A Peptide object that includes all information about a protein.
+       """
         self._peptide = peptide
         (
             self._lower_main_upper_main,
@@ -33,12 +37,6 @@ class ContactMap:
             self._lower_side_upper_side,
             self.num_contacts,
         ) = _create_contact_qubits(peptide)
-
-        """
-
-       Args:
-           peptide: A Peptide object that includes all information about a protein.
-       """
 
     @property
     def peptide(self) -> Peptide:

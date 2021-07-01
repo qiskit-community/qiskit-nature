@@ -28,13 +28,12 @@ class DistanceMap:
     """Stores distances between beads of a peptide as qubit operators."""
 
     def __init__(self, peptide: Peptide):
-        self._peptide = peptide
-        self._distance_map, self._num_distances = _create_distance_qubits(peptide)
-
         """
         Args:
             peptide: A Peptide object that includes all information about a protein.
         """
+        self._peptide = peptide
+        self._distance_map, self._num_distances = _create_distance_qubits(peptide)
 
     def __getitem__(self, position: Tuple[BaseBead, BaseBead]) -> OperatorBase:
         item1, item2 = position

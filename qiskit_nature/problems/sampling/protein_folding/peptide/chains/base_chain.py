@@ -26,12 +26,12 @@ class BaseChain(ABC):
     """An abstract class defining a chain of a peptide."""
 
     def __init__(self, beads_list: Sequence[BaseBead]):
-        self._beads_list = beads_list
-
         """
         Args:
             beads_list: A list of beads that define the chain.
         """
+
+        self._beads_list = beads_list
 
     def __getitem__(self, item):
         return self._beads_list[item]
