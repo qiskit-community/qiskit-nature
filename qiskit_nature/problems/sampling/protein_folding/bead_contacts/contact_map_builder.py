@@ -30,7 +30,7 @@ def _create_contact_qubits(
 ) -> Tuple[Dict[int, dict], Dict[int, dict], Dict[int, dict], Dict[int, dict], int,]:
     """
     Creates Pauli operators for 3rd+ nearest neighbor interactions. The type of operator depends
-    on whether beads belong to the same set (see see https://arxiv.org/pdf/1908.02163.pdf), how
+    on whether beads belong to the same set (see also https://arxiv.org/pdf/1908.02163.pdf), how
     far they are from each other and whether they host a side chain.
 
     Args:
