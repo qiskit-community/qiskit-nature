@@ -81,7 +81,7 @@ class VibrationalStructureProblem(BaseProblem):
         # VibrationalDriverResult?
         properties = []
         for cls in [VibrationalEnergy, OccupiedModals]:
-            prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
+            prop = cls.from_legacy_driver_result(self._molecule_data_transformed)  # type: ignore
             if prop is not None:
                 prop.basis = basis  # type: ignore
                 properties.append(prop)

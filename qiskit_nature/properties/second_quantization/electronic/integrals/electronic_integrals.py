@@ -69,6 +69,25 @@ class ElectronicIntegrals(ABC):
         self._num_body_terms = num_body_terms
         self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]] = matrices
         self._threshold = threshold
+        self._matrix_representations: List[str] = [""] * len(matrices)
+
+    def __repr__(self) -> str:
+        string = f"({self._basis.name}) {self._num_body_terms}-Body Terms:\n"
+        if self._basis == ElectronicBasis.SO:
+            string += self._render_matrix_as_sparse_list(self._matrices)
+        else:
+            for title, mat in zip(self._matrix_representations, self._matrices):
+                string += f"\t{title}\n"
+                string += self._render_matrix_as_sparse_list(mat)
+        return string
+
+    @staticmethod
+    def _render_matrix_as_sparse_list(matrix) -> str:
+        string = ""
+        nonzero = matrix.nonzero()
+        for value, *indices in zip(matrix[nonzero], *nonzero):
+            string += f"\t{indices} = {value}\n"
+        return string
 
     @staticmethod
     def _validate_num_body_terms(num_body_terms: int) -> None:

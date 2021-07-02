@@ -76,8 +76,15 @@ class ParticleNumber(SecondQuantizedProperty):
         """Returns the occupation_beta."""
         return np.asarray(self._occupation_beta, dtype=int)
 
+    def __repr__(self) -> str:
+        string = super().__repr__() + ":"
+        string += f"\n\t{self._num_spin_orbitals} SOs"
+        string += f"\n\t{self._num_alpha} alpha electrons: {self.occupation_alpha}"
+        string += f"\n\t{self._num_beta} beta electrons: {self.occupation_beta}"
+        return string
+
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "ParticleNumber":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "ParticleNumber":
         """Construct a ParticleNumber instance from a QMolecule.
 
         Args:
@@ -102,13 +109,20 @@ class ParticleNumber(SecondQuantizedProperty):
         )
 
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "ParticleNumber":
-        """TODO."""
+        """Reduces the system size to a subset of active orbitals.
+
+        Args:
+            active_orbital_indices: the list of active orbital indices.
+
+        Returns:
+            A new ParticleNumber property instance of the reduced size.
+        """
         active_occ_alpha = self.occupation_alpha[active_orbital_indices]
         active_occ_beta = self.occupation_beta[active_orbital_indices]
         num_alpha = sum(active_occ_alpha)
         num_beta = sum(active_occ_beta)
         return ParticleNumber(
-            len(active_orbital_indices) // 2,
+            len(active_orbital_indices) * 2,
             (num_alpha, num_beta),
             active_occ_alpha,
             active_occ_beta,

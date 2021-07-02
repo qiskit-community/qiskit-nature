@@ -53,8 +53,27 @@ class IntegralProperty(SecondQuantizedProperty):
             self.add_electronic_integral(int)
         self._shift = shift or {}
 
+    def __repr__(self) -> str:
+        string = super().__repr__()
+        for basis_ints in self._electronic_integrals.values():
+            for ints in basis_ints.values():
+                string += f"\n\t{ints}"
+        if self._shift:
+            string += "\n\tEnergy Shifts:"
+            for name, shift in self._shift.items():
+                string += f"\n\t\t{name} = {shift}"
+        return string
+
     def add_electronic_integral(self, integral: ElectronicIntegrals) -> None:
-        """TODO."""
+        """Adds an ElectronicIntegrals instance to the internal storage.
+
+        Internally, the ElectronicIntegrals are stored in a nested dictionary sorted by their basis
+        and number of body terms. This simplifies access based on these properties (see
+        `get_electronic_integral`) and avoids duplicate, inconsistent entries.
+
+        Args:
+            integral: the ElectronicIntegrals to add.
+        """
         if integral._basis not in self._electronic_integrals.keys():
             self._electronic_integrals[integral._basis] = {}
         self._electronic_integrals[integral._basis][integral._num_body_terms] = integral
@@ -62,20 +81,28 @@ class IntegralProperty(SecondQuantizedProperty):
     def get_electronic_integral(
         self, basis: ElectronicBasis, num_body_terms: int
     ) -> Optional[ElectronicIntegrals]:
-        """TODO."""
+        """Gets an ElectronicIntegrals given the basis and number of body terms.
+
+        Args:
+            basis: the ElectronicBasis of the queried integrals.
+            num_body_terms: the number of body terms of the queried integrals.
+
+        Returns:
+            The queried integrals object (or None if unavailable).
+        """
         ints_basis = self._electronic_integrals.get(basis, None)
         if ints_basis is None:
             return None
         return ints_basis.get(num_body_terms, None)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> None:
-        """TODO."""
+        """Applies an ElectronicBasisTransform to the internal integrals.
+
+        Args:
+            transform: the ElectronicBasisTransform to apply.
+        """
         for int in self._electronic_integrals[transform.initial_basis].values():
             self.add_electronic_integral(int.transform_basis(transform))
-
-    def reduce_system_size(self, active_orbital_indices: List[int]) -> "IntegralProperty":
-        """TODO."""
-        raise NotImplementedError()
 
     @abstractmethod
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
@@ -91,7 +118,7 @@ class IntegralProperty(SecondQuantizedProperty):
         return [sum(int.to_second_q_op() for int in ints).reduce()]  # type: ignore
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "IntegralProperty":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "IntegralProperty":
         """This property does not support construction from a driver result (yet).
 
         Args:

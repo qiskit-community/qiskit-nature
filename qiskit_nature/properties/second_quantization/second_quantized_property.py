@@ -40,13 +40,23 @@ class SecondQuantizedProperty(Property):
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns the (list of) second quantized operators associated with this Property."""
 
-    @abstractmethod
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "SecondQuantizedProperty":
-        """TODO."""
+        """Reduces the system size to a subset of active orbitals.
+
+        Args:
+            active_orbital_indices: the list of active orbital indices.
+
+        Returns:
+            A new SecondQuantizedProperty of the reduced size.
+
+        Raises:
+            A NotImplementedError if this property does not implement this kind-of reduction.
+        """
+        raise NotImplementedError()
 
     @classmethod
     @abstractmethod
-    def from_driver_result(cls, result: DriverResult) -> "Property":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "Property":
         """Construct a Property instance from a driver result.
 
         This method should implement the logic which is required to extract the raw data for a
@@ -66,8 +76,8 @@ class SecondQuantizedProperty(Property):
     def _validate_input_type(cls, result: DriverResult, valid_type: Any) -> None:
         # The type hint of `valid_type` is not easy to determine because we are passing a typing
         # alias which is a type hint itself. So what is the type hint for a type hint...
-        # For the time being this should be fine because the logic around `from_driver_result` will
-        # need to slightly adapted *before* the next release anyways when we continue with the
+        # For the time being this should be fine because the logic around from_legacy_driver_result
+        # will need to slightly adapted *before* the next release anyways when we continue with the
         # integration of the `Property` objects.
         if not isinstance(result, valid_type.__args__):
             raise QiskitNatureError(

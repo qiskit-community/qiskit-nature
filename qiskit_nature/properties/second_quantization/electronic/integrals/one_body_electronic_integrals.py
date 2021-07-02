@@ -54,6 +54,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
                 filled_matrices.append(matrices[0])
 
         super().__init__(num_body_terms, basis, tuple(filled_matrices), threshold)
+        self._matrix_representations = ["Alpha", "Beta"]
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.

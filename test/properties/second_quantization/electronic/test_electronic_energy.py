@@ -33,7 +33,7 @@ class TestElectronicEnergy(QiskitNatureTestCase):
             )
         )
         qmol = driver.run()
-        self.prop = ElectronicEnergy.from_driver_result(qmol)
+        self.prop = ElectronicEnergy.from_legacy_driver_result(qmol)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

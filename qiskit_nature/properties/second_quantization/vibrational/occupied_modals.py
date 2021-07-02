@@ -51,7 +51,7 @@ class OccupiedModals(SecondQuantizedProperty):
         self._basis = basis
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "OccupiedModals":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "OccupiedModals":
         """Construct an OccupiedModals instance from a WatsonHamiltonian.
 
         Args:

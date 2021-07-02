@@ -59,7 +59,7 @@ class ElectronicEnergy(IntegralProperty):
         self._reference_energy = reference_energy
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "ElectronicEnergy":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "ElectronicEnergy":
         """Construct an ElectronicEnergy instance from a QMolecule.
 
         Args:

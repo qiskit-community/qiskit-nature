@@ -81,7 +81,7 @@ class TotalDipoleMoment(CompositeProperty, SecondQuantizedProperty):
             self.add_property(dipole)
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> Optional["TotalDipoleMoment"]:
+    def from_legacy_driver_result(cls, result: DriverResult) -> Optional["TotalDipoleMoment"]:
         """Construct a TotalDipoleMoment instance from a QMolecule.
 
         Args:
@@ -138,10 +138,6 @@ class TotalDipoleMoment(CompositeProperty, SecondQuantizedProperty):
                 ),
             },
         )
-
-    def reduce_system_size(self, active_orbital_indices: List[int]) -> "TotalDipoleMoment":
-        """TODO."""
-        raise NotImplementedError()
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list of dipole moment operators along all Cartesian axes."""

@@ -44,6 +44,9 @@ class Property(ABC):
         """Sets the name."""
         self._name = name
 
+    def __repr__(self) -> str:
+        return self.name
+
     # TODO: use this to replace the result interpreter utilities of the structure problems?
     # This requires that a property-gathering super-object (e.g. ElectronicDriverResult) exists
     # which is stored inside of the ElectronicStructureProblem instead of the currently stored

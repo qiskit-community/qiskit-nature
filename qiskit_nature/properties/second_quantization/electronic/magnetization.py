@@ -35,8 +35,13 @@ class Magnetization(SecondQuantizedProperty):
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
 
+    def __repr__(self) -> str:
+        string = super().__repr__() + ":"
+        string += f"\n\t{self._num_spin_orbitals} SOs"
+        return string
+
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "Magnetization":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "Magnetization":
         """Construct a Magnetization instance from a QMolecule.
 
         Args:
@@ -58,7 +63,14 @@ class Magnetization(SecondQuantizedProperty):
         )
 
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "Magnetization":
-        """TODO."""
+        """Reduces the system size to a subset of active orbitals.
+
+        Args:
+            active_orbital_indices: the list of active orbital indices.
+
+        Returns:
+            A new Magnetization property instance of the reduced size.
+        """
         return Magnetization(len(active_orbital_indices) * 2)
 
     def second_q_ops(self) -> List[FermionicOp]:

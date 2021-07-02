@@ -89,7 +89,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         )
         self.molecule = driver.run()
         self.num_particles = (self.molecule.num_alpha, self.molecule.num_beta)
-        self.h2_op = ElectronicEnergy.from_driver_result(self.molecule).second_q_ops()[0]
+        self.h2_op = ElectronicEnergy.from_legacy_driver_result(self.molecule).second_q_ops()[0]
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""

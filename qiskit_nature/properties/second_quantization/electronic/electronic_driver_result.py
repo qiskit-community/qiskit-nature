@@ -42,12 +42,8 @@ class ElectronicDriverResult(CompositeProperty, SecondQuantizedProperty):
         # TODO: add molecule geometry metadata
         # TODO: where to put kinetic, overlap matrices? Do we want explicit Fock matrix?
 
-    def reduce_system_size(self, active_orbital_indices: List[int]) -> "ElectronicDriverResult":
-        """TODO."""
-        raise NotImplementedError()
-
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "ElectronicDriverResult":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "ElectronicDriverResult":
         """TODO."""
         cls._validate_input_type(result, LegacyElectronicDriverResult)
 
@@ -55,11 +51,11 @@ class ElectronicDriverResult(CompositeProperty, SecondQuantizedProperty):
 
         qmol = cast(QMolecule, result)
 
-        ret.add_property(ElectronicEnergy.from_driver_result(qmol))
-        ret.add_property(ParticleNumber.from_driver_result(qmol))
-        ret.add_property(AngularMomentum.from_driver_result(qmol))
-        ret.add_property(Magnetization.from_driver_result(qmol))
-        ret.add_property(TotalDipoleMoment.from_driver_result(qmol))
+        ret.add_property(ElectronicEnergy.from_legacy_driver_result(qmol))
+        ret.add_property(ParticleNumber.from_legacy_driver_result(qmol))
+        ret.add_property(AngularMomentum.from_legacy_driver_result(qmol))
+        ret.add_property(Magnetization.from_legacy_driver_result(qmol))
+        ret.add_property(TotalDipoleMoment.from_legacy_driver_result(qmol))
 
         ret.electronic_basis_transform = ElectronicBasisTransform(
             ElectronicBasis.AO, ElectronicBasis.MO, qmol.mo_coeff, qmol.mo_coeff_b

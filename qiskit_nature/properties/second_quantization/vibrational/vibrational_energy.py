@@ -75,7 +75,7 @@ class VibrationalEnergy(SecondQuantizedProperty):
         self._basis = basis
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "VibrationalEnergy":
+    def from_legacy_driver_result(cls, result: DriverResult) -> "VibrationalEnergy":
         """Construct a VibrationalEnergy instance from a WatsonHamiltonian.
 
         Args:

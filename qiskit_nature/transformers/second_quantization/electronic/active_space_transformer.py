@@ -316,6 +316,8 @@ class ActiveSpaceTransformer(BaseTransformer):
                     "does not match the specified number of active electrons."
                 )
 
+    # TODO: can we efficiently extract this into the base class? At least the logic dealing with
+    # recursion is general and we should avoid having to duplicate it.
     def _transform_property(self, property: Property) -> Property:
         """Transforms a Property object.
 
@@ -330,20 +332,25 @@ class ActiveSpaceTransformer(BaseTransformer):
         if isinstance(property, CompositeProperty):
             transformed_property = deepcopy(property)
 
-            # The iterator of a CompositeProperty is a generator function. We must store it
-            # separately in order to get access to its `save` method (see below).
+            # get the iterator of the Composite's properties.
             iterator = iter(transformed_property)
 
-            for internal_property in iterator:
+            transformed_internal_property = None
+            while True:
+                try:
+                    # Send the transformed internal property to the CompositeProperty generator.
+                    # NOTE: in the first iteration, this variable is None, which is equivalent to
+                    # starting the iterator.
+                    # NOTE: a Generator's send method returns the iterator's next value [2].
+                    # [2]: https://docs.python.org/3/reference/expressions.html#generator.send
+                    internal_property = iterator.send(transformed_internal_property)
+                except StopIteration:
+                    break
+
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
                 except NotImplementedError:
-                    continue
-
-                try:
-                    # send the transformed internal property to the CompositeProperty generator
-                    iterator.send(transformed_internal_property)
-                except StopIteration:
+                    # TODO: log transformation failure
                     continue
 
         elif isinstance(property, IntegralProperty):

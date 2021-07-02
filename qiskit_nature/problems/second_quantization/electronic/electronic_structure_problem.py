@@ -82,7 +82,7 @@ class ElectronicStructureProblem(BaseProblem):
             Magnetization,
             TotalDipoleMoment,
         ]:
-            prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
+            prop = cls.from_legacy_driver_result(self._molecule_data_transformed)  # type: ignore
             if prop is not None:
                 properties.append(prop)
 

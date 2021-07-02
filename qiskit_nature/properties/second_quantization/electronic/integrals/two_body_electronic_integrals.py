@@ -70,6 +70,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 filled_matrices.append(matrices[0])
 
         super().__init__(num_body_terms, basis, tuple(filled_matrices), threshold)
+        self._matrix_representations = ["Alpha-Alpha", "Alpha-Beta", "Beta-Beta", "Beta-Alpha"]
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
