@@ -171,6 +171,11 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         Returns:
             The resulting OneBodyElectronicIntegrals.
+
+        Raises:
+            TypeError: TODO.
+            ValueError: TODO.
+            NotImplementedError: TODO.
         """
         if einsum is None:
             raise ValueError()

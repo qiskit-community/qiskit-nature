@@ -23,9 +23,8 @@ from ..second_quantized_property import ElectronicDriverResult as LegacyElectron
 from ..second_quantized_property import SecondQuantizedProperty
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
-from .dipole_moment import DipoleMoment, TotalDipoleMoment
+from .dipole_moment import TotalDipoleMoment
 from .electronic_energy import ElectronicEnergy
-from .integrals import OneBodyElectronicIntegrals, TwoBodyElectronicIntegrals
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 

@@ -31,33 +31,33 @@ class CompositeProperty(Property, Iterable):
 
     def __repr__(self) -> str:
         string = super().__repr__() + ":"
-        for property in self._properties.values():
-            for line in str(property).split("\n"):
+        for prop in self._properties.values():
+            for line in str(prop).split("\n"):
                 string += f"\n\t{line}"
         return string
 
-    def add_property(self, property: Property) -> None:
+    def add_property(self, prop: Property) -> None:
         """Adds a property to the composite.
 
         Args:
-            property: the property to be added.
+            prop: the property to be added.
         """
-        self._properties[property.name] = property
+        self._properties[prop.name] = prop
 
-    def get_property(self, property: Union[str, Type[Property]]) -> Optional[Property]:
+    def get_property(self, prop: Union[str, Type[Property]]) -> Optional[Property]:
         """Gets a property from the Composite.
 
         Args:
-            property: the name or type of the property to get from the Composite.
+            prop: the name or type of the property to get from the Composite.
 
         Returns:
             The queried property (or None).
         """
         name: str
-        if isinstance(property, str):
-            name = property
+        if isinstance(prop, str):
+            name = prop
         else:
-            name = property.__name__
+            name = prop.__name__
         return self._properties.get(name, None)
 
     def __iter__(self):
@@ -69,7 +69,7 @@ class CompositeProperty(Property, Iterable):
 
         [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
         """
-        for property in self._properties.values():
-            new_property = (yield property)
+        for prop in self._properties.values():
+            new_property = yield prop
             if new_property is not None:
                 self.add_property(new_property)

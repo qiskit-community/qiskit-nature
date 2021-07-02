@@ -18,7 +18,6 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.properties import CompositeProperty, Property
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -193,7 +192,9 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._mo_occ_total = occupation_alpha + occupation_beta
 
         # determine the active space
-        self._active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(particle_number)
+        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(
+            particle_number
+        )
 
         # get molecular orbital coefficients
         coeff_alpha = molecule_data.electronic_basis_transform.coeff_alpha
@@ -203,8 +204,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._transform_active = ElectronicBasisTransform(
             ElectronicBasis.AO,
             ElectronicBasis.MO,
-            coeff_alpha[:, self._active_orbs_idxs],
-            coeff_beta[:, self._active_orbs_idxs],
+            coeff_alpha[:, self._active_orbs_indices],
+            coeff_beta[:, self._active_orbs_indices],
         )
 
         # compute inactive density matrix
@@ -318,7 +319,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     # TODO: can we efficiently extract this into the base class? At least the logic dealing with
     # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(self, property: Property) -> Property:
+    def _transform_property(self, prop: Property) -> Property:
         """Transforms a Property object.
 
         This is a recursive reduction, iterating CompositeProperty objects when encountering one.
@@ -329,8 +330,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         Returns:
             The transformed property object.
         """
-        if isinstance(property, CompositeProperty):
-            transformed_property = deepcopy(property)
+        if isinstance(prop, CompositeProperty):
+            transformed_property = deepcopy(prop)
 
             # get the iterator of the Composite's properties.
             iterator = iter(transformed_property)
@@ -353,15 +354,15 @@ class ActiveSpaceTransformer(BaseTransformer):
                     # TODO: log transformation failure
                     continue
 
-        elif isinstance(property, IntegralProperty):
+        elif isinstance(prop, IntegralProperty):
             # get matrix operator of IntegralProperty
-            fock_operator = property.matrix_operator(self._density_inactive)
+            fock_operator = prop.matrix_operator(self._density_inactive)
             # the total operator equals the AO-1-body-term + the inactive matrix operator
-            total_op = property.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
+            total_op = prop.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
             # compute the energy shift introduced by the ActiveSpaceTransformer
             e_inactive = 0.5 * total_op.compose(self._density_inactive)
 
-            transformed_property = deepcopy(property)
+            transformed_property = deepcopy(prop)
             # insert the AO-basis inactive operator
             transformed_property.add_electronic_integral(fock_operator)
             # actually reduce the system size
@@ -370,6 +371,6 @@ class ActiveSpaceTransformer(BaseTransformer):
             transformed_property._shift["ActiveSpaceTransformer"] = e_inactive
 
         else:
-            transformed_property = property.reduce_system_size(self._active_orbs_idxs)
+            transformed_property = prop.reduce_system_size(self._active_orbs_indices)
 
         return transformed_property

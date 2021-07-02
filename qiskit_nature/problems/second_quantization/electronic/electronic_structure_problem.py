@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """The Electronic Structure Problem class."""
-from functools import partial, reduce
+from functools import partial
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np

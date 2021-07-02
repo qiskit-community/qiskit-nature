@@ -23,7 +23,7 @@ from ..second_quantized_property import (
     ElectronicDriverResult,
     SecondQuantizedProperty,
 )
-from .bases import ElectronicBasis, ElectronicBasisTransform
+from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the

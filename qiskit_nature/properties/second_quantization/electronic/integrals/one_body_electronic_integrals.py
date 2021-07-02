@@ -111,6 +111,10 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         Returns:
             The resulting complex.
+
+        Raises:
+            TypeError: TODO.
+            ValueError: TODO.
         """
         if not isinstance(other, OneBodyElectronicIntegrals):
             raise TypeError()

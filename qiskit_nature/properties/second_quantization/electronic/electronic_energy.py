@@ -12,20 +12,15 @@
 
 """The ElectronicEnergy property."""
 
-from copy import deepcopy
 from typing import Dict, List, Optional, Tuple, cast
 
-import numpy as np
-
 from qiskit_nature.drivers.second_quantization import QMolecule
-from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..second_quantized_property import (
     DriverResult,
     ElectronicDriverResult,
-    SecondQuantizedProperty,
 )
-from .bases import ElectronicBasis, ElectronicBasisTransform
+from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
     IntegralProperty,

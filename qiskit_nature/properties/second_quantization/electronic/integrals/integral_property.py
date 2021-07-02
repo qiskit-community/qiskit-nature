@@ -13,10 +13,7 @@
 """The ElectronicEnergy property."""
 
 from abc import abstractmethod
-from copy import deepcopy
 from typing import Dict, List, Optional, Tuple
-
-import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 
@@ -49,8 +46,8 @@ class IntegralProperty(SecondQuantizedProperty):
         """
         super().__init__(name)
         self._electronic_integrals = {}
-        for int in electronic_integrals:
-            self.add_electronic_integral(int)
+        for integral in electronic_integrals:
+            self.add_electronic_integral(integral)
         self._shift = shift or {}
 
     def __repr__(self) -> str:
@@ -101,8 +98,8 @@ class IntegralProperty(SecondQuantizedProperty):
         Args:
             transform: the ElectronicBasisTransform to apply.
         """
-        for int in self._electronic_integrals[transform.initial_basis].values():
-            self.add_electronic_integral(int.transform_basis(transform))
+        for integral in self._electronic_integrals[transform.initial_basis].values():
+            self.add_electronic_integral(integral.transform_basis(transform))
 
     @abstractmethod
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
