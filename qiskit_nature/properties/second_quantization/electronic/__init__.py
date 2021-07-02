@@ -65,6 +65,7 @@ Utilities
 
 from .angular_momentum import AngularMomentum
 from .dipole_moment import TotalDipoleMoment
+from .electronic_driver_result import ElectronicDriverResult
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
@@ -72,6 +73,7 @@ from .particle_number import ParticleNumber
 __all__ = [
     "AngularMomentum",
     "TotalDipoleMoment",
+    "ElectronicDriverResult",
     "ElectronicEnergy",
     "Magnetization",
     "ParticleNumber",
