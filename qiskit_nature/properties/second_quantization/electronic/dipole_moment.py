@@ -19,7 +19,7 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..second_quantized_property import (DriverResult, ElectronicDriverResult,
                                          SecondQuantizedProperty)
-from .bases import ElectronicBasis
+from .bases import ElectronicBasis, ElectronicBasisTransform
 from .integrals import (ElectronicIntegrals, IntegralProperty,
                         OneBodyElectronicIntegrals)
 
@@ -47,23 +47,23 @@ class DipoleMoment(IntegralProperty):
             axis: the name of the Cartesian axis.
             dipole: an IntegralProperty property representing the dipole moment operator.
         """
-        super().__init__(self.__class__.__name__, electronic_integrals, shift=shift)
         self._axis = axis
+        super().__init__(self.__class__.__name__, electronic_integrals, shift=shift)
 
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """TODO."""
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
             raise NotImplementedError()
 
-        return self._electronic_integrals[ElectronicBasis.AO][1]
+        return self.get_electronic_integral(ElectronicBasis.AO, 1)
 
 
-class TotalDipoleMoment(SecondQuantizedProperty):
+class TotalDipoleMoment(IntegralProperty):
     """The TotalDipoleMoment property."""
 
     def __init__(
         self,
-        dipole_axes: Dict[str, DipoleMoment],
+        dipole_axes: List[DipoleMoment],
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
     ):
         """
@@ -71,9 +71,9 @@ class TotalDipoleMoment(SecondQuantizedProperty):
             dipole_axes: a dictionary mapping Cartesian axes to DipoleMoment properties.
             dipole_shift: an optional dictionary of named dipole shifts.
         """
-        super().__init__(self.__class__.__name__)
-        self._dipole_axes = dipole_axes
-        self._dipole_shift = dipole_shift
+        super().__init__(self.__class__.__name__, [], dipole_shift)
+        for dipole in dipole_axes:
+            self.add_electronic_integral(dipole)
 
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> Optional["TotalDipoleMoment"]:
@@ -107,26 +107,26 @@ class TotalDipoleMoment(SecondQuantizedProperty):
             )
 
         return cls(
-            {
-                "x": dipole_along_axis(
+            [
+                dipole_along_axis(
                     "x",
                     (qmol.x_dip_ints, None),
                     (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
                     qmol.x_dip_energy_shift,
                 ),
-                "y": dipole_along_axis(
+                dipole_along_axis(
                     "y",
                     (qmol.y_dip_ints, None),
                     (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
                     qmol.y_dip_energy_shift,
                 ),
-                "z": dipole_along_axis(
+                dipole_along_axis(
                     "z",
                     (qmol.z_dip_ints, None),
                     (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
                     qmol.z_dip_energy_shift,
                 ),
-            },
+            ],
             dipole_shift={
                 "nuclear dipole moment": cast(
                     DipoleTuple, tuple(d_m for d_m in qmol.nuclear_dipole_moment)
@@ -134,18 +134,32 @@ class TotalDipoleMoment(SecondQuantizedProperty):
             },
         )
 
-    # TODO: here we actually need to forward the matrix_operator method. But this only exists on
-    # IntegralProperty objects, which this one is not... ? 🤔
-    def reduce_system_size(self, active_orbital_indices: List[int]) -> "TotalDipoleMoment":
-        """TODO."""
-        return TotalDipoleMoment(
-            {
-                axis: dipole.reduce_system_size(active_orbital_indices)
-                for axis, dipole in self._dipole_axes.items()
-            },
-            dipole_shift=self._dipole_shift,
-        )
-
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list of dipole moment operators along all Cartesian axes."""
-        return [dip.second_q_ops()[0] for dip in self._dipole_axes.values()]
+        return [dip.second_q_ops()[0] for dip in self._electronic_integrals.values()]
+
+    def add_electronic_integral(self, dipole: DipoleMoment) -> None:
+        """TODO."""
+        self._electronic_integrals[dipole._axis] = dipole
+
+    def get_electronic_integral(
+        self, axis: str, basis: ElectronicBasis, num_body_terms: int
+    ) -> Optional[ElectronicIntegrals]:
+        """TODO."""
+        dipole = self._electronic_integrals.get(axis, None)
+        if dipole is None:
+            return None
+        return dipole.get_electronic_integral(basis, num_body_terms)
+
+    def transform_basis(self, transform: ElectronicBasisTransform) -> None:
+        """TODO."""
+        for dipole in self._electronic_integrals.values():
+            for int in dipole[transform.initial_basis].values():
+                dipole.add_electronic_integral(int.transform_basis(transform))
+
+    def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
+        """TODO."""
+        return TotalDipoleMoment(
+            [dipole.matrix_operator(density) for dipole in self._electronic_integrals.values()],
+            dipole_shift=self._shift,
+        )

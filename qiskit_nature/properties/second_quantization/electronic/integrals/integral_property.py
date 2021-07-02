@@ -59,6 +59,15 @@ class IntegralProperty(SecondQuantizedProperty):
             self._electronic_integrals[integral._basis] = {}
         self._electronic_integrals[integral._basis][integral._num_body_terms] = integral
 
+    def get_electronic_integral(
+        self, basis: ElectronicBasis, num_body_terms: int
+    ) -> Optional[ElectronicIntegrals]:
+        """TODO."""
+        ints_basis = self._electronic_integrals.get(basis, None)
+        if ints_basis is None:
+            return None
+        return ints_basis.get(num_body_terms, None)
+
     def transform_basis(self, transform: ElectronicBasisTransform) -> None:
         """TODO."""
         for int in self._electronic_integrals[transform.initial_basis].values():

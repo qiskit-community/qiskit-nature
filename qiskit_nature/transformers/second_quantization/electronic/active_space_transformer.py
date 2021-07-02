@@ -183,7 +183,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         for prop in molecule_data._properties.values():
             if isinstance(prop, IntegralProperty):
                 fock_operator = prop.matrix_operator(density_inactive)
-                total_op = prop._electronic_integrals[ElectronicBasis.AO][1] + fock_operator
+                total_op = prop.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
                 e_inactive = 0.5 * total_op.compose(density_inactive)
                 reduced_prop = deepcopy(prop)
                 reduced_prop.add_electronic_integral(fock_operator)

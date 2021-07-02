@@ -93,8 +93,8 @@ class ElectronicEnergy(IntegralProperty):
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
             raise NotImplementedError()
 
-        one_e_ints = self._electronic_integrals[ElectronicBasis.AO][1]
-        two_e_ints = self._electronic_integrals[ElectronicBasis.AO][2]
+        one_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 1)
+        two_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 2)
 
         op = one_e_ints
         if one_e_ints._matrices[1] is None:
