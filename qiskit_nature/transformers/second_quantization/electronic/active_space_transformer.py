@@ -20,14 +20,18 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.properties import CompositeProperty, Property
-from qiskit_nature.properties.second_quantization.electronic import \
-    ParticleNumber
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
-    ElectronicBasis, ElectronicBasisTransform)
-from qiskit_nature.properties.second_quantization.electronic.electronic_driver_result import \
-    ElectronicDriverResult
+    ElectronicBasis,
+    ElectronicBasisTransform,
+)
+from qiskit_nature.properties.second_quantization.electronic.electronic_driver_result import (
+    ElectronicDriverResult,
+)
 from qiskit_nature.properties.second_quantization.electronic.integrals import (
-    IntegralProperty, OneBodyElectronicIntegrals)
+    IntegralProperty,
+    OneBodyElectronicIntegrals,
+)
 
 from ..base_transformer import BaseTransformer
 

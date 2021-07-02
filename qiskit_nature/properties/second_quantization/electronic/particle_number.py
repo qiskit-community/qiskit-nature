@@ -19,8 +19,11 @@ import numpy as np
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ..second_quantized_property import (DriverResult, ElectronicDriverResult,
-                                         SecondQuantizedProperty)
+from ..second_quantized_property import (
+    DriverResult,
+    ElectronicDriverResult,
+    SecondQuantizedProperty,
+)
 
 
 class ParticleNumber(SecondQuantizedProperty):

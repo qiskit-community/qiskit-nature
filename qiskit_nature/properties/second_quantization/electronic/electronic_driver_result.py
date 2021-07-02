@@ -19,8 +19,7 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ...composite_property import CompositeProperty
 from ..second_quantized_property import DriverResult
-from ..second_quantized_property import \
-    ElectronicDriverResult as LegacyElectronicDriverResult
+from ..second_quantized_property import ElectronicDriverResult as LegacyElectronicDriverResult
 from ..second_quantized_property import SecondQuantizedProperty
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform

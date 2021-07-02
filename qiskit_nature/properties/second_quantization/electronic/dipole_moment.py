@@ -18,11 +18,13 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ...composite_property import CompositeProperty
-from ..second_quantized_property import (DriverResult, ElectronicDriverResult,
-                                         SecondQuantizedProperty)
+from ..second_quantized_property import (
+    DriverResult,
+    ElectronicDriverResult,
+    SecondQuantizedProperty,
+)
 from .bases import ElectronicBasis, ElectronicBasisTransform
-from .integrals import (ElectronicIntegrals, IntegralProperty,
-                        OneBodyElectronicIntegrals)
+from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute

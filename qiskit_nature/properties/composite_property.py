@@ -37,9 +37,7 @@ class CompositeProperty(Property, Iterable):
         """
         self._properties[property.name] = property
 
-    def get_property(
-        self, prop: Union[str, Type[Property]]
-    ) -> Optional[Property]:
+    def get_property(self, prop: Union[str, Type[Property]]) -> Optional[Property]:
         """TODO."""
         name: str
         if isinstance(prop, str):
@@ -58,6 +56,6 @@ class CompositeProperty(Property, Iterable):
     def generator(self):
         """The generator function iterating over all internal properties."""
         for property in self._properties.values():
-            new_property = (yield property)
+            new_property = yield property
             if new_property is not None:
                 self.add_property(new_property)
