@@ -19,7 +19,7 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import QMolecule
-from qiskit_nature.properties import CompositeProperty
+from qiskit_nature.properties import CompositeProperty, Property
 from qiskit_nature.properties.second_quantization.electronic import \
     ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -30,10 +30,6 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     IntegralProperty, OneBodyElectronicIntegrals)
 
 from ..base_transformer import BaseTransformer
-
-ACTIVE_INTS_SUBSCRIPT = "pqrs,pi,qj,rk,sl->ijkl"
-
-INACTIVE_ENERGY_SUBSCRIPT = "ij,ji"
 
 
 class ActiveSpaceTransformer(BaseTransformer):
@@ -108,108 +104,23 @@ class ActiveSpaceTransformer(BaseTransformer):
                              space. This argument must match with the remaining arguments and should
                              only be used to enforce an active space that is not chosen purely
                              around the Fermi level.
+
+        Raises:
+            QiskitNatureError: if an invalid configuration is provided.
         """
         self._num_electrons = num_electrons
         self._num_molecular_orbitals = num_molecular_orbitals
         self._active_orbitals = active_orbitals
 
-        self._mo_occ_total: np.ndarray = None
-
-    def transform(self, molecule_data: ElectronicDriverResult) -> ElectronicDriverResult:
-        """Reduces the given `QMolecule` to a given active space.
-
-        Args:
-            molecule_data: the `QMolecule` to be transformed.
-
-        Returns:
-            A new `QMolecule` instance.
-
-        Raises:
-            QiskitNatureError: If more electrons or orbitals are requested than are available, if an
-                               uneven number of inactive electrons remains, or if the number of
-                               selected active orbital indices does not match
-                               `num_molecular_orbitals`.
-        """
         try:
             self._check_configuration()
         except QiskitNatureError as exc:
             raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
-        particle_number = molecule_data.get_property(ParticleNumber)
-        if particle_number is None:
-            raise QiskitNatureError()
-        particle_number = cast(ParticleNumber, particle_number)
-
-        # get molecular orbital coefficients
-        mo_coeff_full = (
-            molecule_data.electronic_basis_transform.coeff_alpha,
-            molecule_data.electronic_basis_transform.coeff_beta,
-        )
-        # get molecular orbital occupation numbers
-        mo_occ_full = (particle_number.occupation_alpha, particle_number.occupation_beta)
-        self._mo_occ_total = mo_occ_full[0] + mo_occ_full[1]
-
-        active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(particle_number)
-
-        # split molecular orbitals coefficients into active and inactive parts
-
-        mo_occ_inactive_a = mo_occ_full[0][inactive_orbs_idxs]
-        mo_coeff_inactive_a = mo_coeff_full[0][:, inactive_orbs_idxs]
-        density_inactive_a = np.dot(
-            mo_coeff_inactive_a * mo_occ_inactive_a,
-            np.transpose(mo_coeff_inactive_a),
-        )
-
-        mo_occ_inactive_b = mo_occ_full[1][inactive_orbs_idxs]
-        mo_coeff_inactive_b = mo_coeff_full[1][:, inactive_orbs_idxs]
-        density_inactive_b = np.dot(
-            mo_coeff_inactive_b * mo_occ_inactive_b,
-            np.transpose(mo_coeff_inactive_b),
-        )
-
-        density_inactive = OneBodyElectronicIntegrals(
-            ElectronicBasis.AO, (density_inactive_a, density_inactive_b)
-        )
-
-        transform_active = ElectronicBasisTransform(
-            ElectronicBasis.AO,
-            ElectronicBasis.MO,
-            mo_coeff_full[0][:, active_orbs_idxs],
-            mo_coeff_full[1][:, active_orbs_idxs],
-        )
-
-        # construct new QMolecule
-        molecule_data_reduced = ElectronicDriverResult()
-
-        def reduce_property(prop):
-            if isinstance(prop, CompositeProperty):
-                reduced_prop = deepcopy(prop)
-                iterator = iter(reduced_prop)
-                for internal_prop in iterator:
-                    try:
-                        reduced_internal_prop = reduce_property(internal_prop)
-                    except NotImplementedError:
-                        continue
-                    try:
-                        iterator.send(reduced_internal_prop)
-                    except StopIteration:
-                        continue
-            elif isinstance(prop, IntegralProperty):
-                fock_operator = prop.matrix_operator(density_inactive)
-                total_op = prop.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
-                e_inactive = 0.5 * total_op.compose(density_inactive)
-                reduced_prop = deepcopy(prop)
-                reduced_prop.add_electronic_integral(fock_operator)
-                reduced_prop.transform_basis(transform_active)
-                reduced_prop._shift["ActiveSpaceTransformer"] = e_inactive
-            else:
-                reduced_prop = prop.reduce_system_size(active_orbs_idxs)
-
-            return reduced_prop
-
-        molecule_data_reduced = reduce_property(molecule_data)
-
-        return molecule_data_reduced
+        self._mo_occ_total: np.ndarray = None
+        self._active_orbs_indices: List[int] = None
+        self._transform_active: ElectronicBasisTransform = None
+        self._density_inactive: OneBodyElectronicIntegrals = None
 
     def _check_configuration(self):
         if isinstance(self._num_electrons, int):
@@ -249,9 +160,82 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
+    def transform(self, molecule_data: ElectronicDriverResult) -> ElectronicDriverResult:
+        """Reduces the given `QMolecule` to a given active space.
+
+        Args:
+            molecule_data: the `QMolecule` to be transformed.
+
+        Returns:
+            A new `QMolecule` instance.
+
+        Raises:
+            QiskitNatureError: If the provided `ElectronicDriverResult` does not contain a
+                               `ParticleNumber` instance, if more electrons or orbitals are
+                               requested than are available, or if the number of selected active
+                               orbital indices does not match `num_molecular_orbitals`.
+        """
+        particle_number = molecule_data.get_property(ParticleNumber)
+        if particle_number is None:
+            raise QiskitNatureError(
+                "The provided `ElectronicDriverResult` result does not contain a `ParticleNumber` "
+                "property, which is required by this transformer!"
+            )
+        particle_number = cast(ParticleNumber, particle_number)
+
+        # get molecular orbital occupation numbers
+        occupation_alpha = particle_number.occupation_alpha
+        occupation_beta = particle_number.occupation_beta
+        self._mo_occ_total = occupation_alpha + occupation_beta
+
+        # determine the active space
+        self._active_orbs_idxs, inactive_orbs_idxs = self._determine_active_space(particle_number)
+
+        # get molecular orbital coefficients
+        coeff_alpha = molecule_data.electronic_basis_transform.coeff_alpha
+        coeff_beta = molecule_data.electronic_basis_transform.coeff_beta
+
+        # initialize size-reducing basis transformation
+        self._transform_active = ElectronicBasisTransform(
+            ElectronicBasis.AO,
+            ElectronicBasis.MO,
+            coeff_alpha[:, self._active_orbs_idxs],
+            coeff_beta[:, self._active_orbs_idxs],
+        )
+
+        # compute inactive density matrix
+        def _inactive_density(mo_occ, mo_coeff):
+            return np.dot(
+                mo_coeff[:, inactive_orbs_idxs] * mo_occ[inactive_orbs_idxs],
+                np.transpose(mo_coeff[:, inactive_orbs_idxs]),
+            )
+
+        self._density_inactive = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO,
+            (
+                _inactive_density(occupation_alpha, coeff_alpha),
+                _inactive_density(occupation_beta, coeff_beta),
+            ),
+        )
+
+        # construct new QMolecule
+        molecule_data_reduced = ElectronicDriverResult()
+        molecule_data_reduced.electronic_basis_transform = self._transform_active
+        molecule_data_reduced = self._transform_property(molecule_data)
+
+        return molecule_data_reduced
+
     def _determine_active_space(
         self, particle_number: ParticleNumber
     ) -> Tuple[List[int], List[int]]:
+        """Determines the active and inactive orbital indices.
+
+        Args:
+            particle_number: the property storing the MO occupation information.
+
+        Returns:
+            The list of active and inactive orbital indices.
+        """
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, int):
@@ -327,3 +311,54 @@ class ActiveSpaceTransformer(BaseTransformer):
                     "The number of electrons in the selected active orbitals "
                     "does not match the specified number of active electrons."
                 )
+
+    def _transform_property(self, property: Property) -> Property:
+        """Transforms a Property object.
+
+        This is a recursive reduction, iterating CompositeProperty objects when encountering one.
+
+        Args:
+            property: the property object to transform.
+
+        Returns:
+            The transformed property object.
+        """
+        if isinstance(property, CompositeProperty):
+            transformed_property = deepcopy(property)
+
+            # The iterator of a CompositeProperty is a generator function. We must store it
+            # separately in order to get access to its `save` method (see below).
+            iterator = iter(transformed_property)
+
+            for internal_property in iterator:
+                try:
+                    transformed_internal_property = self._transform_property(internal_property)
+                except NotImplementedError:
+                    continue
+
+                try:
+                    # send the transformed internal property to the CompositeProperty generator
+                    iterator.send(transformed_internal_property)
+                except StopIteration:
+                    continue
+
+        elif isinstance(property, IntegralProperty):
+            # get matrix operator of IntegralProperty
+            fock_operator = property.matrix_operator(self._density_inactive)
+            # the total operator equals the AO-1-body-term + the inactive matrix operator
+            total_op = property.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
+            # compute the energy shift introduced by the ActiveSpaceTransformer
+            e_inactive = 0.5 * total_op.compose(self._density_inactive)
+
+            transformed_property = deepcopy(property)
+            # insert the AO-basis inactive operator
+            transformed_property.add_electronic_integral(fock_operator)
+            # actually reduce the system size
+            transformed_property.transform_basis(self._transform_active)
+            # insert the energy shift
+            transformed_property._shift["ActiveSpaceTransformer"] = e_inactive
+
+        else:
+            transformed_property = property.reduce_system_size(self._active_orbs_idxs)
+
+        return transformed_property
