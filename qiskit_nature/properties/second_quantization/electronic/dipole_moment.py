@@ -12,12 +12,12 @@
 
 """The TotalDipoleMoment property."""
 
-from collections import Iterable
 from typing import Dict, List, Optional, Tuple, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
+from ...composite_property import CompositeProperty
 from ..second_quantized_property import (DriverResult, ElectronicDriverResult,
                                          SecondQuantizedProperty)
 from .bases import ElectronicBasis, ElectronicBasisTransform
@@ -49,7 +49,8 @@ class DipoleMoment(IntegralProperty):
             dipole: an IntegralProperty property representing the dipole moment operator.
         """
         self._axis = axis
-        super().__init__(self.__class__.__name__, electronic_integrals, shift=shift)
+        name = self.__class__.__name__ + axis.upper()
+        super().__init__(name, electronic_integrals, shift=shift)
 
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """TODO."""
@@ -59,7 +60,7 @@ class DipoleMoment(IntegralProperty):
         return self.get_electronic_integral(ElectronicBasis.AO, 1)
 
 
-class TotalDipoleMoment(SecondQuantizedProperty, Iterable):
+class TotalDipoleMoment(CompositeProperty, SecondQuantizedProperty):
     """The TotalDipoleMoment property."""
 
     def __init__(
@@ -74,9 +75,8 @@ class TotalDipoleMoment(SecondQuantizedProperty, Iterable):
         """
         super().__init__(self.__class__.__name__)
         self._dipole_shift = dipole_shift
-        self._dipoles = {}
         for dipole in dipole_axes:
-            self.add_dipole(dipole)
+            self.add_property(dipole)
 
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> Optional["TotalDipoleMoment"]:
@@ -137,24 +137,10 @@ class TotalDipoleMoment(SecondQuantizedProperty, Iterable):
             },
         )
 
-    def add_dipole(self, dipole: DipoleMoment) -> None:
-        """TODO."""
-        self._dipoles[dipole._axis] = dipole
-
-    def __iter__(self):
-        """TODO."""
-        return self.generator()
-
-    def generator(self):
-        for dipole in self._dipoles.values():
-            new_dipole = (yield dipole)
-            if new_dipole is not None:
-                self.add_dipole(new_dipole)
-
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "TotalDipoleMoment":
         """TODO."""
         raise NotImplementedError()
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list of dipole moment operators along all Cartesian axes."""
-        return [dip.second_q_ops()[0] for dip in self._dipole_axes]
+        return [dip.second_q_ops()[0] for dip in self._properties]

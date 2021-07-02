@@ -12,7 +12,6 @@
 
 """The Active-Space Reduction interface."""
 
-from collections import Iterable
 from copy import deepcopy
 from typing import List, Optional, Tuple, Union, cast
 
@@ -20,6 +19,7 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.properties import CompositeProperty
 from qiskit_nature.properties.second_quantization.electronic import \
     ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -182,11 +182,14 @@ class ActiveSpaceTransformer(BaseTransformer):
         molecule_data_reduced = ElectronicDriverResult()
 
         def reduce_property(prop):
-            if isinstance(prop, Iterable):
+            if isinstance(prop, CompositeProperty):
                 reduced_prop = deepcopy(prop)
-                iterator = iter(prop)
+                iterator = iter(reduced_prop)
                 for internal_prop in iterator:
-                    reduced_internal_prop = reduce_property(internal_prop)
+                    try:
+                        reduced_internal_prop = reduce_property(internal_prop)
+                    except NotImplementedError:
+                        continue
                     try:
                         iterator.send(reduced_internal_prop)
                     except StopIteration:
@@ -199,19 +202,12 @@ class ActiveSpaceTransformer(BaseTransformer):
                 reduced_prop.add_electronic_integral(fock_operator)
                 reduced_prop.transform_basis(transform_active)
                 reduced_prop._shift["ActiveSpaceTransformer"] = e_inactive
-                print(reduced_prop._shift)
             else:
                 reduced_prop = prop.reduce_system_size(active_orbs_idxs)
 
             return reduced_prop
 
-        for prop in molecule_data._properties.values():
-            try:
-                reduced_prop = reduce_property(prop)
-            except NotImplementedError:
-                continue
-
-            molecule_data_reduced.add_property(reduced_prop)
+        molecule_data_reduced = reduce_property(molecule_data)
 
         return molecule_data_reduced
 

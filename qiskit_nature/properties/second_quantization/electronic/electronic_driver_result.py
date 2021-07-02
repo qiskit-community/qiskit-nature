@@ -12,11 +12,12 @@
 
 """The ElectronicDriverResult class."""
 
-from typing import Dict, List, Optional, Type, Union, cast
+from typing import List, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
+from ...composite_property import CompositeProperty
 from ..second_quantized_property import DriverResult
 from ..second_quantized_property import \
     ElectronicDriverResult as LegacyElectronicDriverResult
@@ -30,33 +31,17 @@ from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 
 
-class ElectronicDriverResult(SecondQuantizedProperty):
+class ElectronicDriverResult(CompositeProperty, SecondQuantizedProperty):
     """TODO."""
 
     def __init__(self) -> None:
         """TODO."""
         super().__init__(self.__class__.__name__)
-        self._properties: Dict[str, SecondQuantizedProperty] = {}
         self.electronic_basis_transform: ElectronicBasisTransform = None
         # TODO: add origin driver metadata
         # TODO: where to put orbital_energies?
         # TODO: add molecule geometry metadata
         # TODO: where to put kinetic, overlap matrices? Do we want explicit Fock matrix?
-
-    def add_property(self, prop: SecondQuantizedProperty) -> None:
-        """TODO."""
-        self._properties[prop.name] = prop
-
-    def get_property(
-        self, prop: Union[str, Type[SecondQuantizedProperty]]
-    ) -> Optional[SecondQuantizedProperty]:
-        """TODO."""
-        name: str
-        if isinstance(prop, str):
-            name = prop
-        else:
-            name = prop.__name__
-        return self._properties.get(name, None)
 
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "ElectronicDriverResult":
         """TODO."""
