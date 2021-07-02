@@ -157,8 +157,24 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[2], "+"), (indices[3], "-"), (indices[1], "-")]
 
-    def compose(self, other: OneBodyElectronicIntegrals, einsum: str) -> OneBodyElectronicIntegrals:
-        """TODO."""
+    def compose(
+        self, other: OneBodyElectronicIntegrals, einsum: Optional[str] = None
+    ) -> OneBodyElectronicIntegrals:
+        """Composes these TwoBodyElectronicIntegrals with an instance of OneBodyElectronicIntegrals.
+
+        This method requires an einsum subscript and produces a new instance of
+        OneBodyElectronicIntegrals.
+
+        Args:
+            other: an instance of OneBodyElectronicIntegrals.
+            einsum: an additional `np.einsum` subscript.
+
+        Returns:
+            The resulting OneBodyElectronicIntegrals.
+        """
+        if einsum is None:
+            raise ValueError()
+
         if not isinstance(other, OneBodyElectronicIntegrals):
             raise TypeError()
 

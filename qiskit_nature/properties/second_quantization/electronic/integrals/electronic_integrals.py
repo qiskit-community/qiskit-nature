@@ -218,7 +218,14 @@ class ElectronicIntegrals(ABC):
         """
 
     def add(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
-        """TODO."""
+        """Adds two ElectronicIntegrals instances.
+
+        Args:
+            other: another instance of ElectronicIntegrals.
+
+        Returns:
+            The added ElectronicIntegrals.
+        """
         ret = deepcopy(self)
         if isinstance(self._matrices, np.ndarray):
             ret._matrices = self._matrices + other._matrices
@@ -226,12 +233,21 @@ class ElectronicIntegrals(ABC):
             ret._matrices = [a + b for a, b in zip(self._matrices, other._matrices)]
         return ret
 
-    def compose(self, other: "ElectronicIntegrals", einsum: str) -> "ElectronicIntegrals":
-        """TODO."""
+    def compose(
+        self, other: "ElectronicIntegrals", einsum: Optional[str] = None
+    ) -> Union[complex, "ElectronicIntegrals"]:
+        """Composes two ElectronicIntegrals instances.
+
+        Args:
+            other: another instance of ElectronicIntegrals.
+            einsum: an additional `np.einsum` subscript.
+
+        Returns:
+            Either a single number or a new instance of ElectronicIntegrals.
+        """
         raise NotImplementedError()
 
     def __rmul__(self, other: complex) -> "ElectronicIntegrals":
-        """TODO."""
         ret = deepcopy(self)
         if isinstance(self._matrices, np.ndarray):
             ret._matrices = other * self._matrices
@@ -240,11 +256,9 @@ class ElectronicIntegrals(ABC):
         return ret
 
     def __add__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
-        """TODO."""
         if self._basis != other._basis:
             raise TypeError()
         return self.add(other)
 
     def __sub__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
-        """TODO."""
         return self + (-1.0) * other
