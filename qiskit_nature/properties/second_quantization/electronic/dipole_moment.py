@@ -102,14 +102,13 @@ class TotalDipoleMoment(CompositeProperty, SecondQuantizedProperty):
             return None
 
         def dipole_along_axis(axis, ao_ints, mo_ints, energy_shift):
-            return DipoleMoment(
-                axis,
-                [
-                    OneBodyElectronicIntegrals(ElectronicBasis.AO, ao_ints),
-                    OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints),
-                ],
-                shift=energy_shift,
-            )
+            integrals = []
+            if ao_ints[0] is not None:
+                integrals.append(OneBodyElectronicIntegrals(ElectronicBasis.AO, ao_ints))
+            if mo_ints[0] is not None:
+                integrals.append(OneBodyElectronicIntegrals(ElectronicBasis.MO, mo_ints))
+
+            return DipoleMoment(axis, integrals, shift=energy_shift)
 
         return cls(
             [
@@ -141,4 +140,4 @@ class TotalDipoleMoment(CompositeProperty, SecondQuantizedProperty):
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list of dipole moment operators along all Cartesian axes."""
-        return [dip.second_q_ops()[0] for dip in self._properties]
+        return [dip.second_q_ops()[0] for dip in self._properties.values()]

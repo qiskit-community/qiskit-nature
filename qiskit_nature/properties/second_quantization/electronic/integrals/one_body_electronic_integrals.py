@@ -45,15 +45,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
                 zero-valued.
         """
         num_body_terms = 1
-
-        filled_matrices = []
-        for idx, mat in enumerate(matrices):
-            if mat is not None:
-                filled_matrices.append(mat)
-            else:
-                filled_matrices.append(matrices[0])
-
-        super().__init__(num_body_terms, basis, tuple(filled_matrices), threshold)
+        super().__init__(num_body_terms, basis, matrices, threshold)
         self._matrix_representations = ["Alpha", "Beta"]
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":

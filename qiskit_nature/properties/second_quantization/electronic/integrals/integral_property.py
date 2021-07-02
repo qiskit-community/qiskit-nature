@@ -115,7 +115,7 @@ class IntegralProperty(SecondQuantizedProperty):
             ints = self._electronic_integrals[ElectronicBasis.SO]
         elif ElectronicBasis.MO in self._electronic_integrals.keys():
             ints = self._electronic_integrals[ElectronicBasis.MO]
-        return [sum(int.to_second_q_op() for int in ints).reduce()]  # type: ignore
+        return [sum(int.to_second_q_op() for int in ints.values()).reduce()]  # type: ignore
 
     @classmethod
     def from_legacy_driver_result(cls, result: DriverResult) -> "IntegralProperty":

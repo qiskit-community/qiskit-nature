@@ -71,6 +71,9 @@ class ElectronicIntegrals(ABC):
         self._threshold = threshold
         self._matrix_representations: List[str] = [""] * len(matrices)
 
+        if basis != ElectronicBasis.SO:
+            self._fill_matrices()
+
     def __repr__(self) -> str:
         string = f"({self._basis.name}) {self._num_body_terms}-Body Terms:\n"
         if self._basis == ElectronicBasis.SO:
@@ -123,6 +126,21 @@ class ElectronicIntegrals(ABC):
                     f"2 to the power of the number of body terms, {2 ** num_body_terms}, does not "
                     f"match the number of provided matrices, {len(matrices)}."
                 )
+
+    def _fill_matrices(self) -> None:
+        """Fills the internal matrices where `None` placeholders were inserted.
+
+        This method iterates the internal list of matrices and replaces any occurences of `None`
+        with the first matrix of the list. In case, more symmetry arguments need to be considered a
+        subclass should overwrite this method.
+        """
+        filled_matrices = []
+        for mat in self._matrices:
+            if mat is not None:
+                filled_matrices.append(mat)
+            else:
+                filled_matrices.append(self._matrices[0])
+        self._matrices = tuple(filled_matrices)
 
     @abstractmethod
     def transform_basis(self, transform: ElectronicBasisTransform) -> "ElectronicIntegrals":

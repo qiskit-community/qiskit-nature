@@ -70,9 +70,9 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 16 * mat_aa))
-            self.assertIsNone(ints_mo._matrices[1])
-            self.assertIsNone(ints_mo._matrices[2])
-            self.assertIsNone(ints_mo._matrices[3])
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 16 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[2], 16 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[3], 16 * mat_aa))
 
         with self.subTest("Alpha and Beta"):
             ints_ao = TwoBodyElectronicIntegrals(
@@ -91,9 +91,9 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
             ints_mo = ints_ao.transform_basis(transform_beta)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 16 * mat_aa))
-            self.assertIsNone(ints_mo._matrices[1])
-            self.assertIsNone(ints_mo._matrices[2])
-            self.assertIsNone(ints_mo._matrices[3])
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 36 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[2], 81 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[3], 36 * mat_aa))
 
         with self.subTest("Beta custom coeff"):
             transform_beta = ElectronicBasisTransform(

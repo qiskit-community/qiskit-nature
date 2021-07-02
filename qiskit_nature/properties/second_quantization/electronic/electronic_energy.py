@@ -79,21 +79,30 @@ class ElectronicEnergy(IntegralProperty):
         energy_shift = qmol.energy_shift.copy()
         energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
-        return cls(
-            [
-                OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b)),
-                TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None)),
+        integrals = []
+        if qmol.hcore is not None:
+            integrals.append(
+                OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b))
+            )
+        if qmol.eri is not None:
+            integrals.append(
+                TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None))
+            )
+        if qmol.mo_onee_ints is not None:
+            integrals.append(
                 OneBodyElectronicIntegrals(
                     ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
-                ),
+                )
+            )
+        if qmol.mo_eri_ints is not None:
+            integrals.append(
                 TwoBodyElectronicIntegrals(
                     ElectronicBasis.MO,
                     (qmol.mo_eri_ints, qmol.mo_eri_ints_ba, qmol.mo_eri_ints_bb, None),
-                ),
-            ],
-            energy_shift=energy_shift,
-            reference_energy=qmol.hf_energy,
-        )
+                )
+            )
+
+        return cls(integrals, energy_shift=energy_shift, reference_energy=qmol.hf_energy)
 
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """TODO."""
@@ -104,10 +113,6 @@ class ElectronicEnergy(IntegralProperty):
         two_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 2)
 
         op = one_e_ints
-        if one_e_ints._matrices[1] is None:
-            op = OneBodyElectronicIntegrals(
-                ElectronicBasis.AO, (one_e_ints._matrices[0], one_e_ints._matrices[0])
-            )
 
         coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
         coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])

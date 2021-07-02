@@ -55,22 +55,32 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 zero-valued.
         """
         num_body_terms = 2
+        super().__init__(num_body_terms, basis, matrices, threshold)
+        self._matrix_representations = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
 
+    def _fill_matrices(self) -> None:
+        """Fills the internal matrices where `None` placeholders were inserted.
+
+        This method iterates the internal list of matrices and replaces any occurences of `None`
+        according to the following rules:
+            1. If the Alpha-Beta matrix (third index) is `None` and the Beta-Alpha matrix was not
+               `None`, its transpose will be used.
+            2. If the Beta-Alpha matrix was `None`, the Alpha-Alpha matrix is used as is.
+            3. Any other missing matrix gets replaced by the Alpha-Alpha matrix.
+        """
         filled_matrices = []
         alpha_beta_spin_idx = 3
-        for idx, mat in enumerate(matrices):
+        for idx, mat in enumerate(self._matrices):
             if mat is not None:
                 filled_matrices.append(mat)
             elif idx == alpha_beta_spin_idx:
-                if matrices[1] is None:
-                    filled_matrices.append(matrices[0])
+                if self._matrices[1] is None:
+                    filled_matrices.append(self._matrices[0])
                 else:
-                    filled_matrices.append(matrices[1].T)
+                    filled_matrices.append(self._matrices[1].T)
             else:
-                filled_matrices.append(matrices[0])
-
-        super().__init__(num_body_terms, basis, tuple(filled_matrices), threshold)
-        self._matrix_representations = ["Alpha-Alpha", "Alpha-Beta", "Beta-Beta", "Beta-Alpha"]
+                filled_matrices.append(self._matrices[0])
+        self._matrices = tuple(filled_matrices)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
