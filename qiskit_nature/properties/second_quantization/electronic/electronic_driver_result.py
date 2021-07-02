@@ -60,7 +60,7 @@ class ElectronicDriverResult(SecondQuantizedProperty):
 
     def reduce_system_size(self, active_orbital_indices: List[int]) -> "ElectronicDriverResult":
         """TODO."""
-        raise NotADirectoryError()
+        raise NotImplementedError()
 
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> "ElectronicDriverResult":

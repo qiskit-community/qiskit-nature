@@ -12,6 +12,7 @@
 
 """The Active-Space Reduction interface."""
 
+from collections import Iterable
 from copy import deepcopy
 from typing import List, Optional, Tuple, Union, cast
 
@@ -180,8 +181,17 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new QMolecule
         molecule_data_reduced = ElectronicDriverResult()
 
-        for prop in molecule_data._properties.values():
-            if isinstance(prop, IntegralProperty):
+        def reduce_property(prop):
+            if isinstance(prop, Iterable):
+                reduced_prop = deepcopy(prop)
+                iterator = iter(prop)
+                for internal_prop in iterator:
+                    reduced_internal_prop = reduce_property(internal_prop)
+                    try:
+                        iterator.send(reduced_internal_prop)
+                    except StopIteration:
+                        continue
+            elif isinstance(prop, IntegralProperty):
                 fock_operator = prop.matrix_operator(density_inactive)
                 total_op = prop.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
                 e_inactive = 0.5 * total_op.compose(density_inactive)
@@ -189,11 +199,17 @@ class ActiveSpaceTransformer(BaseTransformer):
                 reduced_prop.add_electronic_integral(fock_operator)
                 reduced_prop.transform_basis(transform_active)
                 reduced_prop._shift["ActiveSpaceTransformer"] = e_inactive
+                print(reduced_prop._shift)
             else:
-                try:
-                    reduced_prop = prop.reduce_system_size(active_orbs_idxs)
-                except NotImplementedError:
-                    continue
+                reduced_prop = prop.reduce_system_size(active_orbs_idxs)
+
+            return reduced_prop
+
+        for prop in molecule_data._properties.values():
+            try:
+                reduced_prop = reduce_property(prop)
+            except NotImplementedError:
+                continue
 
             molecule_data_reduced.add_property(reduced_prop)
 

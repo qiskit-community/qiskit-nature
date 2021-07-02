@@ -12,6 +12,7 @@
 
 """The TotalDipoleMoment property."""
 
+from collections import Iterable
 from typing import Dict, List, Optional, Tuple, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
@@ -58,7 +59,7 @@ class DipoleMoment(IntegralProperty):
         return self.get_electronic_integral(ElectronicBasis.AO, 1)
 
 
-class TotalDipoleMoment(IntegralProperty):
+class TotalDipoleMoment(SecondQuantizedProperty, Iterable):
     """The TotalDipoleMoment property."""
 
     def __init__(
@@ -71,9 +72,11 @@ class TotalDipoleMoment(IntegralProperty):
             dipole_axes: a dictionary mapping Cartesian axes to DipoleMoment properties.
             dipole_shift: an optional dictionary of named dipole shifts.
         """
-        super().__init__(self.__class__.__name__, [], dipole_shift)
+        super().__init__(self.__class__.__name__)
+        self._dipole_shift = dipole_shift
+        self._dipoles = {}
         for dipole in dipole_axes:
-            self.add_electronic_integral(dipole)
+            self.add_dipole(dipole)
 
     @classmethod
     def from_driver_result(cls, result: DriverResult) -> Optional["TotalDipoleMoment"]:
@@ -134,32 +137,24 @@ class TotalDipoleMoment(IntegralProperty):
             },
         )
 
+    def add_dipole(self, dipole: DipoleMoment) -> None:
+        """TODO."""
+        self._dipoles[dipole._axis] = dipole
+
+    def __iter__(self):
+        """TODO."""
+        return self.generator()
+
+    def generator(self):
+        for dipole in self._dipoles.values():
+            new_dipole = (yield dipole)
+            if new_dipole is not None:
+                self.add_dipole(new_dipole)
+
+    def reduce_system_size(self, active_orbital_indices: List[int]) -> "TotalDipoleMoment":
+        """TODO."""
+        raise NotImplementedError()
+
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list of dipole moment operators along all Cartesian axes."""
-        return [dip.second_q_ops()[0] for dip in self._electronic_integrals.values()]
-
-    def add_electronic_integral(self, dipole: DipoleMoment) -> None:
-        """TODO."""
-        self._electronic_integrals[dipole._axis] = dipole
-
-    def get_electronic_integral(
-        self, axis: str, basis: ElectronicBasis, num_body_terms: int
-    ) -> Optional[ElectronicIntegrals]:
-        """TODO."""
-        dipole = self._electronic_integrals.get(axis, None)
-        if dipole is None:
-            return None
-        return dipole.get_electronic_integral(basis, num_body_terms)
-
-    def transform_basis(self, transform: ElectronicBasisTransform) -> None:
-        """TODO."""
-        for dipole in self._electronic_integrals.values():
-            for int in dipole[transform.initial_basis].values():
-                dipole.add_electronic_integral(int.transform_basis(transform))
-
-    def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """TODO."""
-        return TotalDipoleMoment(
-            [dipole.matrix_operator(density) for dipole in self._electronic_integrals.values()],
-            dipole_shift=self._shift,
-        )
+        return [dip.second_q_ops()[0] for dip in self._dipole_axes]
