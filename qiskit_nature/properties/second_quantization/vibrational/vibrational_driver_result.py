@@ -18,7 +18,8 @@ from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from ..driver_result import DriverResult
-from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
+from ..second_quantized_property import (LegacyDriverResult,
+                                         LegacyVibrationalDriverResult)
 from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
@@ -74,6 +75,10 @@ class VibrationalDriverResult(DriverResult[VibrationalProperty]):
     def second_q_ops(self) -> List[VibrationalOp]:
         """TODO."""
         ops: List[VibrationalOp] = []
-        ops.extend(self.get_property(VibrationalEnergy).second_q_ops())
-        ops.extend(self.get_property(OccupiedModals).second_q_ops())
+        # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
+        for cls in [VibrationalEnergy, OccupiedModals]:
+            prop = self.get_property(cls)
+            if prop is None:
+                continue
+            ops.extend(prop.second_q_ops())
         return ops

@@ -19,7 +19,8 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..driver_result import DriverResult
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
+from ..second_quantized_property import (LegacyDriverResult,
+                                         LegacyElectronicDriverResult)
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import TotalDipoleMoment
@@ -70,9 +71,16 @@ class ElectronicDriverResult(DriverResult):
     def second_q_ops(self) -> List[FermionicOp]:
         """TODO."""
         ops: List[FermionicOp] = []
-        ops.extend(self.get_property(ElectronicEnergy).second_q_ops())
-        ops.extend(self.get_property(ParticleNumber).second_q_ops())
-        ops.extend(self.get_property(AngularMomentum).second_q_ops())
-        ops.extend(self.get_property(Magnetization).second_q_ops())
-        ops.extend(self.get_property(TotalDipoleMoment).second_q_ops())
+        # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
+        for cls in [
+            ElectronicEnergy,
+            ParticleNumber,
+            AngularMomentum,
+            Magnetization,
+            TotalDipoleMoment,
+        ]:
+            prop = self.get_property(cls)
+            if prop is None:
+                continue
+            ops.extend(prop.second_q_ops())
         return ops
