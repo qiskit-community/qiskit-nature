@@ -68,6 +68,11 @@ class ParticleNumber(SecondQuantizedProperty):
             self._occupation_beta = occupation_beta
 
     @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the num_spin_orbitals."""
+        return self._num_spin_orbitals
+
+    @property
     def num_alpha(self) -> int:
         """Returns the number of alpha electrons."""
         return self._num_alpha

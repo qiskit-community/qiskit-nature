@@ -32,6 +32,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
 )
+from qiskit_nature.results import ElectronicStructureResult
 
 from ..base_transformer import BaseTransformer
 
@@ -223,7 +224,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         )
 
         # construct new QMolecule
-        molecule_data_reduced = ElectronicDriverResult()
+        molecule_data_reduced = ElectronicStructureResult()
         molecule_data_reduced.electronic_basis_transform = self._transform_active
         molecule_data_reduced = self._transform_property(molecule_data)  # type: ignore
 

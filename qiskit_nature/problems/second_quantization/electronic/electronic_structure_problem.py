@@ -24,7 +24,10 @@ from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fo
 from qiskit_nature.drivers.second_quantization import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.properties.second_quantization.electronic import ElectronicDriverResult
+from qiskit_nature.properties.second_quantization.electronic import (
+    ElectronicDriverResult,
+    ParticleNumber,
+)
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
@@ -157,10 +160,12 @@ class ElectronicStructureProblem(BaseProblem):
             num_particles_aux = aux_values[0][0]
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
-            q_molecule_transformed = cast(QMolecule, self._molecule_data_transformed)
+            particle_number = cast(
+                ParticleNumber, self.driver_result_transformed.get_property(ParticleNumber)
+            )
             return (
                 np.isclose(
-                    q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
+                    particle_number.num_alpha + particle_number.num_beta,
                     num_particles_aux,
                 )
                 and np.isclose(0.0, total_angular_momentum_aux)

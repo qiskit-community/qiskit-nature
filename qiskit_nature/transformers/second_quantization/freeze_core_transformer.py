@@ -14,14 +14,17 @@
 
 from typing import List, Optional
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_name
+from qiskit_nature.properties.second_quantization.electronic import ElectronicDriverResult
 
 from .active_space_transformer import ActiveSpaceTransformer
+from .electronic import FreezeCoreTransformer as NewFreezeCoreTransformer
 
 
 class FreezeCoreTransformer(ActiveSpaceTransformer):
     """The Freeze-Core reduction."""
 
+    # pylint: disable=super-init-not-called
     def __init__(
         self,
         freeze_core: bool = True,
@@ -49,66 +52,16 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
                              must make sure that these are _unoccupied_ orbitals, which can be
                              removed without taking any energy shifts into account.
         """
-        self._freeze_core = freeze_core
-        self._remove_orbitals = remove_orbitals
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "FreezeCoreTransformer",
+            "from qiskit_nature.transformers.second_quantization.electronic as a direct replacement",
+        )
 
-        super().__init__()
+        self.inner = NewFreezeCoreTransformer(freeze_core, remove_orbitals)
 
-    def transform(self, molecule_data: QMolecule) -> QMolecule:
-        """Reduces the given `QMolecule` by removing the core and optionally defined unoccupied
-        molecular orbitals.
-
-        Args:
-            molecule_data: the `QMolecule` to be transformed.
-
-        Returns:
-            A new `QMolecule` instance.
-
-        Raises:
-            QiskitNatureError: If more electrons or orbitals are requested than are available, if an
-                               uneven number of inactive electrons remains, or if the number of
-                               selected active orbital indices does not match
-                               `num_molecular_orbitals`.
-        """
-        molecule_data_new = super().transform(molecule_data)
-
-        def rename_dict_key(energy_shift_dict):
-            try:
-                energy_shift_dict["FreezeCoreTransformer"] = energy_shift_dict.pop(
-                    "ActiveSpaceTransformer"
-                )
-            except KeyError:
-                pass
-
-        rename_dict_key(molecule_data_new.energy_shift)
-        rename_dict_key(molecule_data_new.x_dip_energy_shift)
-        rename_dict_key(molecule_data_new.y_dip_energy_shift)
-        rename_dict_key(molecule_data_new.z_dip_energy_shift)
-
-        return molecule_data_new
-
-    def _check_configuration(self):
-        pass
-
-    def _determine_active_space(self, molecule_data: QMolecule):
-        nelec_total = molecule_data.num_alpha + molecule_data.num_beta
-
-        inactive_orbs_idxs = molecule_data.core_orbitals
-        if self._remove_orbitals is not None:
-            inactive_orbs_idxs.extend(self._remove_orbitals)
-        active_orbs_idxs = [
-            o for o in range(molecule_data.num_molecular_orbitals) if o not in inactive_orbs_idxs
-        ]
-        self._active_orbitals = active_orbs_idxs
-        self._num_molecular_orbitals = len(active_orbs_idxs)
-
-        # compute number of active electrons
-        nelec_inactive = int(sum([self._mo_occ_total[o] for o in inactive_orbs_idxs]))
-        nelec_active = nelec_total - nelec_inactive
-
-        num_alpha = (nelec_active - (molecule_data.multiplicity - 1)) // 2
-        num_beta = nelec_active - num_alpha
-
-        self._num_particles = (num_alpha, num_beta)
-
-        return (active_orbs_idxs, inactive_orbs_idxs)
+    def transform(self, molecule_data):
+        if not isinstance(molecule_data, ElectronicDriverResult):
+            molecule_data = ElectronicDriverResult.from_legacy_driver_result(molecule_data)
+        return self.inner.transform(molecule_data)

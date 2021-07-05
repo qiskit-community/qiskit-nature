@@ -43,7 +43,13 @@ class VibrationalDriverResult(DriverResult[VibrationalProperty]):
         """Sets the num_modes."""
         self._num_modes = num_modes
 
-    def set_basis(self, basis: VibrationalBasis) -> None:
+    @property
+    def basis(self) -> VibrationalBasis:
+        """Returns the basis."""
+        return list(self._properties.values())[0].basis
+
+    @basis.setter
+    def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
         for prop in self._properties.values():
             prop.basis = basis

@@ -78,6 +78,7 @@ class TotalDipoleMoment(CompositeProperty[DipoleMoment], SecondQuantizedProperty
         self,
         dipole_axes: List[DipoleMoment],
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
+        reverse_dipole_sign: bool = False,
     ):
         """
         Args:
@@ -86,6 +87,7 @@ class TotalDipoleMoment(CompositeProperty[DipoleMoment], SecondQuantizedProperty
         """
         super().__init__(self.__class__.__name__)
         self._dipole_shift = dipole_shift
+        self._reverse_dipole_sign = reverse_dipole_sign
         for dipole in dipole_axes:
             self.add_property(dipole)
 
@@ -145,6 +147,7 @@ class TotalDipoleMoment(CompositeProperty[DipoleMoment], SecondQuantizedProperty
                     DipoleTuple, tuple(d_m for d_m in qmol.nuclear_dipole_moment)
                 ),
             },
+            reverse_dipole_sign=qmol.reverse_dipole_sign,
         )
 
     def second_q_ops(self) -> List[FermionicOp]:
@@ -158,7 +161,7 @@ class TotalDipoleMoment(CompositeProperty[DipoleMoment], SecondQuantizedProperty
             result: the result to add meaning to.
         """
         result.nuclear_dipole_moment = self._dipole_shift.pop("nuclear dipole moment", None)
-        result.reverse_dipole_sign = True
+        result.reverse_dipole_sign = self._reverse_dipole_sign
         result.computed_dipole_moment = []
         result.extracted_transformer_dipoles = []
 

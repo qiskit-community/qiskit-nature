@@ -71,7 +71,7 @@ class VibrationalStructureProblem(BaseProblem):
 
         # TODO: expose this as an argument in __init__
         basis = HarmonicBasis(num_modals)
-        self._driver_result_transformed.set_basis(basis)
+        self._driver_result_transformed.basis = basis
 
         second_quantized_ops_list = self._driver_result_transformed.second_q_ops()
 

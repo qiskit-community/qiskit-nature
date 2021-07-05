@@ -12,6 +12,8 @@
 
 """Test of ExcitationPreserving from the circuit library."""
 
+from typing import cast
+
 import unittest
 from test import QiskitNatureTestCase
 
@@ -27,6 +29,7 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
 @slow_test
@@ -57,12 +60,11 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         _ = problem.second_q_ops()
 
-        num_particles = (
-            problem.driver_result_transformed.get_property("ParticleNumber").num_alpha,
-            problem.driver_result_transformed.get_property("ParticleNumber").num_beta,
+        particle_number = cast(
+            ParticleNumber, problem.driver_result_transformed.get_property(ParticleNumber)
         )
-
-        num_spin_orbitals = problem.molecule_data_transformed.num_molecular_orbitals * 2
+        num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        num_spin_orbitals = particle_number.num_spin_orbitals
 
         optimizer = SLSQP(maxiter=100)
 

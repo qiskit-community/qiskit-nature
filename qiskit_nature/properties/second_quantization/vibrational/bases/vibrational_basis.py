@@ -37,6 +37,11 @@ class VibrationalBasis(ABC):
         self._num_modals_per_mode = num_modals_per_mode
         self._threshold = threshold
 
+    @property
+    def num_modals_per_mode(self) -> List[int]:
+        """Returns the num_modals_per_mode."""
+        return self._num_modals_per_mode
+
     @abstractmethod
     def eval_integral(
         self,
