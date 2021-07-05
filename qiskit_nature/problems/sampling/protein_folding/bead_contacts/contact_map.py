@@ -66,7 +66,7 @@ class ContactMap:
     @property
     def lower_side_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
-        between a first bead in a side chain (first index) and a a first bead in a side chain (
+        between a first bead in a side chain (first index) and a first bead in a side chain (
         second index)."""
         return self._lower_side_upper_side
 
