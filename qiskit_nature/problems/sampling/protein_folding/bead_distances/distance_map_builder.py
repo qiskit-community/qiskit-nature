@@ -220,8 +220,7 @@ def _add_distances_side_chain(
     """
     Calculates distances between beads located on side chains and adds the contribution to the
     distance calculated between beads (lower_bead_ind and upper_bead_ind) on the main chain. In
-    the absence
-    of side chains, this function returns a value of 0.
+    the absence of side chains, this function returns a value of 0.
 
     Args:
         peptide: A Peptide object that includes all information about a protein.
