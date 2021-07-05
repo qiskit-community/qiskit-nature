@@ -18,8 +18,8 @@ main chain and optionally several side chains. Side chains cannot be attached to
 last main bead which is an assumption of the algorithm without loss of generality (see the paper
 cited below). Each chain consists of beads that encode information about the turn that follows
 to another main bead (in case of main beads) or into a side bead (in case of side beads).
-Moreover, each bead is characterized by a letter which encodes its residue sequence that defines
-energy of interactions with other beads (unless interactions are random). Each side chain is
+Moreover, each bead is characterized by a letter which encodes its residue sequence which defines
+the energy of interactions with other beads (unless interactions are random). Each side chain is
 attached to one and only one main bead. Currently, only side chains of length 1 (i.e. with 1
 bead) are supported which is a simplifying assumption. The generalized version is planned for the
 later stage. Constraints on feasible folds are incorporated in the objective function using
