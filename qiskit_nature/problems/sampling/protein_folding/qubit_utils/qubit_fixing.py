@@ -18,8 +18,8 @@ from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
 def _fix_qubits(
-    operator: Union[PauliSumOp, PauliOp, OperatorBase]
-) -> Union[PauliSumOp, PauliOp, OperatorBase]:
+    operator: Union[int, PauliSumOp, PauliOp, OperatorBase]
+) -> Union[int, PauliSumOp, PauliOp, OperatorBase]:
     """
     Assigns predefined values for turns qubits on positions 0, 1, 2, 3, 5 in the main chain
     without the loss of generality (see the paper https://arxiv.org/pdf/1908.02163.pdf). Qubits

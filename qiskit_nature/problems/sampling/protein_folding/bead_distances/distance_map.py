@@ -15,9 +15,7 @@ import numpy as np
 
 from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
 
-from .distance_map_builder import (
-    _create_distance_qubits,
-)
+from .distance_map_builder import DistanceMapBuilder
 from ..peptide.beads.base_bead import BaseBead
 from ..peptide.pauli_ops_builder import _build_full_identity
 from ..peptide.peptide import Peptide
@@ -33,7 +31,9 @@ class DistanceMap:
             peptide: A Peptide object that includes all information about a protein.
         """
         self._peptide = peptide
-        self._distance_map, self._num_distances = _create_distance_qubits(peptide)
+        self._distance_map, self._num_distances = DistanceMapBuilder()._create_distance_qubits(
+            peptide
+        )
 
     def __getitem__(self, position: Tuple[BaseBead, BaseBead]) -> OperatorBase:
         item1, item2 = position
