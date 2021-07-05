@@ -38,11 +38,14 @@ cbit
 ccx
 cfg
 chc
+chkfile
 chuang
 chirality
 ci
 clbit
 clbits
+clifford
+cliffords
 cls
 cnot
 codec
@@ -89,6 +92,7 @@ eigensolution
 eigensolver
 eigensolvers
 eigenstate
+eigenstateresult
 eigenstates
 einact
 endian
@@ -174,7 +178,10 @@ knowles
 kwarg
 kwargs
 labelled
+lda
 len
+libor
+libxc
 lih
 lijh
 linux
@@ -259,6 +266,7 @@ ps
 py
 pyquante
 pyscf
+pxd
 qarg
 qargs
 qasm
@@ -358,11 +366,13 @@ untransforms
 uvcc
 vals
 variational
+verbatim
 vibrational
 vibrationalop
 vibro
 vqe
 vscf
+vwn
 vx
 vy
 vz
@@ -370,6 +380,7 @@ watson
 wavefunction
 whitespace
 wigner
+xcfun
 xdata
 xy
 xyz

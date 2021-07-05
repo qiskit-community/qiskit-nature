@@ -24,9 +24,7 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.problems.second_quantization.electronic.builders import (
-    fermionic_op_builder,
-)
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 
 
 class TestQubitConverter(QiskitNatureTestCase):
@@ -91,7 +89,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         )
         self.molecule = driver.run()
         self.num_particles = (self.molecule.num_alpha, self.molecule.num_beta)
-        self.h2_op = fermionic_op_builder._build_fermionic_op(self.molecule)
+        self.h2_op = ElectronicEnergy.from_driver_result(self.molecule).second_q_ops()[0]
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""

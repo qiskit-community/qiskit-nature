@@ -63,7 +63,7 @@ Driver Common
    :nosignatures:
 
    QMolecule
-   HFMethodType
+   MethodType
    BasisType
    InitialGuess
    WatsonHamiltonian
@@ -143,7 +143,7 @@ from .base_driver import BaseDriver
 from .qmolecule import QMolecule
 from .watson_hamiltonian import WatsonHamiltonian
 from .bosonic_driver import BosonicDriver
-from .fermionic_driver import FermionicDriver, HFMethodType
+from .fermionic_driver import FermionicDriver, MethodType
 from .fcidumpd import FCIDumpDriver
 from .gaussiand import GaussianDriver, GaussianLogDriver, GaussianLogResult, GaussianForcesDriver
 from .hdf5d import HDF5Driver
@@ -152,7 +152,7 @@ from .pyquanted import PyQuanteDriver, BasisType
 from .pyscfd import PySCFDriver, InitialGuess
 
 __all__ = [
-    "HFMethodType",
+    "MethodType",
     "QMolecule",
     "WatsonHamiltonian",
     "BaseDriver",

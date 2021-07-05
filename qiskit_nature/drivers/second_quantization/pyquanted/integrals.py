@@ -32,7 +32,7 @@ except ImportError:
 
 
 def compute_integrals(
-    atoms, units, charge, multiplicity, basis, hf_method="rhf", tol=1e-8, maxiters=100
+    atoms, units, charge, multiplicity, basis, method="rhf", tol=1e-8, maxiters=100
 ):
     """Compute integrals"""
     # Get config from input parameters
@@ -45,23 +45,23 @@ def compute_integrals(
 
     units = _check_units(units)
     mol = _parse_molecule(atoms, units, charge, multiplicity)
-    hf_method = hf_method.lower()
+    method = method.lower()
 
     try:
-        q_mol = _calculate_integrals(mol, basis, hf_method, tol, maxiters)
+        q_mol = _calculate_integrals(mol, basis, method, tol, maxiters)
     except Exception as exc:
         raise QiskitNatureError("Failed electronic structure computation") from exc
 
     return q_mol
 
 
-def _calculate_integrals(molecule, basis="sto3g", hf_method="rhf", tol=1e-8, maxiters=100):
+def _calculate_integrals(molecule, basis="sto3g", method="rhf", tol=1e-8, maxiters=100):
     """Function to calculate the one and two electron terms. Perform a Hartree-Fock calculation in
         the given basis.
     Args:
         molecule (pyQuante2.molecule): A pyquante2 molecular object.
         basis (str) : The basis set for the electronic structure computation
-        hf_method (str): rhf, uhf, rohf
+        method (str): rhf, uhf, rohf
         tol (float): tolerance
         maxiters (int): max. iterations
     Returns:
@@ -77,14 +77,14 @@ def _calculate_integrals(molecule, basis="sto3g", hf_method="rhf", tol=1e-8, max
     # convert overlap integrals to molecular basis
     # calculate the Hartree-Fock solution of the molecule
 
-    if hf_method == "rhf":
+    if method == "rhf":
         solver = rhf(molecule, bfs)
-    elif hf_method == "rohf":
+    elif method == "rohf":
         solver = rohf(molecule, bfs)
-    elif hf_method == "uhf":
+    elif method == "uhf":
         solver = uhf(molecule, bfs)
     else:
-        raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
+        raise QiskitNatureError("Invalid method type: {}".format(method))
     ehf = solver.converge(tol=tol, maxiters=maxiters)
     logger.debug("PyQuante2 processing information:\n%s", solver)
     if hasattr(solver, "orbs"):
