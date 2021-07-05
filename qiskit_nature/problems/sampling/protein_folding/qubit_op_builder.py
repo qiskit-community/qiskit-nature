@@ -129,7 +129,7 @@ def _create_h_back(peptide: Peptide, lambda_back: float) -> Union[PauliSumOp, Pa
     """
     Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns along
     the same axis are penalized by a factor, lambda_back. Note, that the first two turns are
-    omitted.
+    omitted (fixed in optimization) due to symmetry degeneracy.
 
     Args:
         peptide: A Peptide object that includes all information about a protein.

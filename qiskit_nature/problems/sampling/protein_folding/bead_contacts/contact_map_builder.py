@@ -64,20 +64,16 @@ def _create_contact_qubits(
                 if _are_beads_k_plus_steps_apart(upper_bead_id, lower_bead_id, k=5):
                     lower_main_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                         main_chain_len,
-                        (
-                            full_id
-                            ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1])
-                        ),
+                        full_id
+                        ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1]),
                     )
                     _log_contact(lower_bead_id, upper_bead_id, "main_chain", "main_chain")
                     num_contacts += 1
                 if side_chain[lower_bead_id - 1] and side_chain[upper_bead_id - 1]:
                     lower_side_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
                         main_chain_len,
-                        (
-                            _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1])
-                            ^ full_id
-                        ),
+                        _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1])
+                        ^ full_id,
                     )
                     _log_contact(lower_bead_id, upper_bead_id, "side_chain", "side_chain")
                     num_contacts += 1

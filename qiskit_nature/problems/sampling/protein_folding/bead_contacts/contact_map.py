@@ -114,8 +114,9 @@ class ContactMap:
         contact_qubits: List[Union[PauliSumOp, PauliOp]],
         contact_map_component: Dict[int, dict],
     ):
+        min_contact_dist = 4
         for lower_bead_id in range(1, main_chain_len - 3):
-            for upper_bead_id in range(lower_bead_id + 4, main_chain_len + 1):
+            for upper_bead_id in range(lower_bead_id + min_contact_dist, main_chain_len + 1):
                 try:
                     contact_op = contact_map_component[lower_bead_id][upper_bead_id]
                     contact_qubits.append(contact_op)

@@ -320,36 +320,25 @@ def _calc_dists_side_side_all_axes(
     upper_bead_ind,
     upper_side_bead,
 ):
-    lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = lower_indic_funs
-    upper_indic_0, upper_indic_1, upper_indic_2, upper_indic_3 = upper_indic_funs
 
-    distance_map_axis_0[lower_side_bead][upper_side_bead] = _calc_distance_term(
-        peptide, distance_map_axis_0, lower_bead_ind, upper_bead_ind, lower_indic_0, upper_indic_0
-    )
-    distance_map_axis_1[lower_side_bead][upper_side_bead] = _calc_distance_term(
-        peptide,
+    distance_map_axes = [
+        distance_map_axis_0,
         distance_map_axis_1,
-        lower_bead_ind,
-        upper_bead_ind,
-        lower_indic_1,
-        upper_indic_1,
-    )
-    distance_map_axis_2[lower_side_bead][upper_side_bead] = _calc_distance_term(
-        peptide,
         distance_map_axis_2,
-        lower_bead_ind,
-        upper_bead_ind,
-        lower_indic_2,
-        upper_indic_2,
-    )
-    distance_map_axis_3[lower_side_bead][upper_side_bead] = _calc_distance_term(
-        peptide,
         distance_map_axis_3,
-        lower_bead_ind,
-        upper_bead_ind,
-        lower_indic_3,
-        upper_indic_3,
-    )
+    ]
+    for dist_map_ax, lower_indic_fun_x, upper_indic_fun_x in zip(
+        distance_map_axes, lower_indic_funs, upper_indic_funs
+    ):
+
+        dist_map_ax[lower_side_bead][upper_side_bead] = _calc_distance_term(
+            peptide,
+            dist_map_ax,
+            lower_bead_ind,
+            upper_bead_ind,
+            lower_indic_fun_x,
+            upper_indic_fun_x,
+        )
 
 
 def _calc_dists_side_main_all_axes(
@@ -364,20 +353,16 @@ def _calc_dists_side_main_all_axes(
     upper_bead_ind,
     upper_main_bead,
 ):
-    lower_indic_0, lower_indic_1, lower_indic_2, lower_indic_3 = indic_funs
-
-    distance_map_axis_0[lower_side_bead][upper_main_bead] = _calc_distance_term(
-        peptide, distance_map_axis_0, lower_bead_ind, upper_bead_ind, lower_indic_0, None
-    )
-    distance_map_axis_1[lower_side_bead][upper_main_bead] = _calc_distance_term(
-        peptide, distance_map_axis_1, lower_bead_ind, upper_bead_ind, lower_indic_1, None
-    )
-    distance_map_axis_2[lower_side_bead][upper_main_bead] = _calc_distance_term(
-        peptide, distance_map_axis_2, lower_bead_ind, upper_bead_ind, lower_indic_2, None
-    )
-    distance_map_axis_3[lower_side_bead][upper_main_bead] = _calc_distance_term(
-        peptide, distance_map_axis_3, lower_bead_ind, upper_bead_ind, lower_indic_3, None
-    )
+    distance_map_axes = [
+        distance_map_axis_0,
+        distance_map_axis_1,
+        distance_map_axis_2,
+        distance_map_axis_3,
+    ]
+    for dist_map_ax, indic_fun_x in zip(distance_map_axes, indic_funs):
+        dist_map_ax[lower_side_bead][upper_main_bead] = _calc_distance_term(
+            peptide, dist_map_ax, lower_bead_ind, upper_bead_ind, indic_fun_x, None
+        )
 
 
 def _calc_dists_main_side_all_axes(
@@ -392,20 +377,17 @@ def _calc_dists_main_side_all_axes(
     upper_bead_ind,
     upper_bead,
 ):
-    indic_0, indic_1, indic_2, indic_3 = indic_funs
+    distance_map_axes = [
+        distance_map_axis_0,
+        distance_map_axis_1,
+        distance_map_axis_2,
+        distance_map_axis_3,
+    ]
+    for dist_map_ax, indic_fun_x in zip(distance_map_axes, indic_funs):
 
-    distance_map_axis_0[lower_bead][upper_bead] = _calc_distance_term(
-        peptide, distance_map_axis_0, lower_bead_ind, upper_bead_ind, None, indic_0
-    )
-    distance_map_axis_1[lower_bead][upper_bead] = _calc_distance_term(
-        peptide, distance_map_axis_1, lower_bead_ind, upper_bead_ind, None, indic_1
-    )
-    distance_map_axis_2[lower_bead][upper_bead] = _calc_distance_term(
-        peptide, distance_map_axis_2, lower_bead_ind, upper_bead_ind, None, indic_2
-    )
-    distance_map_axis_3[lower_bead][upper_bead] = _calc_distance_term(
-        peptide, distance_map_axis_3, lower_bead_ind, upper_bead_ind, None, indic_3
-    )
+        dist_map_ax[lower_bead][upper_bead] = _calc_distance_term(
+            peptide, dist_map_ax, lower_bead_ind, upper_bead_ind, None, indic_fun_x
+        )
 
 
 def _calc_distance_term(

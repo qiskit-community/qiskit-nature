@@ -40,26 +40,26 @@ def _validate_residue_symbol(residue_symbol: str):
         InvalidResidueException: if a symbol provided is not legal.
     """
     valid_residues = [
-        "C",
-        "M",
-        "F",
-        "I",
-        "L",
-        "V",
-        "W",
-        "Y",
-        "A",
-        "G",
-        "T",
-        "S",
-        "N",
-        "Q",
-        "D",
-        "E",
-        "H",
-        "R",
-        "K",
-        "P",
+        "C",  # Cysteine
+        "M",  # Methionine
+        "F",  # Phenylalanine
+        "I",  # Isoleucine
+        "L",  # Leucine
+        "V",  # Valine
+        "W",  # Tryptophan
+        "Y",  # Tyrosine
+        "A",  # Alanine
+        "G",  # Glycine
+        "T",  # Threonine
+        "S",  # Serine
+        "N",  # Asparagine
+        "Q",  # Glutamine
+        "D",  # Aspartic acid
+        "E",  # Glutamic acid
+        "H",  # Histidine
+        "R",  # Arginine
+        "K",  # Lysine
+        "P",  # Proline
     ]
     if residue_symbol is not None and residue_symbol not in valid_residues:
         raise InvalidResidueException(

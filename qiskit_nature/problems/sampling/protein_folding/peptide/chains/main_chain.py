@@ -34,10 +34,16 @@ class MainChain(BaseChain):
         """
         Args:
             main_chain_len: Length of the main chain of a peptide.
-            main_chain_residue_sequences: List of characters that define residues for the main chain.
+            main_chain_residue_sequences: List of characters that define residues for the main
+            chain.
             side_chain_lens: List of lengths of all side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
             beads.
+
+        Raises:
+            InvalidSizeException: when the length of list of side chain lengths provided does not
+                                    equal the length of the main chain.
+            InvalidSideChainException: when first, second or last main beads have a side chain.
         """
         self._main_chain_residue_sequence = main_chain_residue_sequences
         beads_list = self._build_main_chain(
@@ -71,6 +77,11 @@ class MainChain(BaseChain):
 
         Returns:
             main_chain: an instance of a MainChain class.
+
+        Raises:
+            InvalidSizeException: when the length of list of side chain lengths provided does not
+                                    equal the length of the main chain.
+            InvalidSideChainException: when first, second or last main beads have a side chain.
         """
         main_chain = []
         self._validate_chain_lengths(main_chain_len, side_chain_lens)
