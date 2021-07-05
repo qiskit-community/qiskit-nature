@@ -130,7 +130,7 @@ class ElectronicIntegrals(ABC):
     def _fill_matrices(self) -> None:
         """Fills the internal matrices where `None` placeholders were inserted.
 
-        This method iterates the internal list of matrices and replaces any occurences of `None`
+        This method iterates the internal list of matrices and replaces any occurrences of `None`
         with the first matrix of the list. In case, more symmetry arguments need to be considered a
         subclass should overwrite this method.
         """

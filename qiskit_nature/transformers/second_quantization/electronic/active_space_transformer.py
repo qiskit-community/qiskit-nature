@@ -348,7 +348,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                     # Send the transformed internal property to the CompositeProperty generator.
                     # NOTE: in the first iteration, this variable is None, which is equivalent to
                     # starting the iterator.
-                    # NOTE: a Generator's send method returns the iterator's next value [2].
+                    # NOTE: a Generator's send method returns the iterators next value [2].
                     # [2]: https://docs.python.org/3/reference/expressions.html#generator.send
                     internal_property = iterator.send(transformed_internal_property)
                 except StopIteration:

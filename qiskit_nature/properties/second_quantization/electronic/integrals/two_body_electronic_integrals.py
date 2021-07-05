@@ -61,7 +61,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     def _fill_matrices(self) -> None:
         """Fills the internal matrices where `None` placeholders were inserted.
 
-        This method iterates the internal list of matrices and replaces any occurences of `None`
+        This method iterates the internal list of matrices and replaces any occurrences of `None`
         according to the following rules:
             1. If the Alpha-Beta matrix (third index) is `None` and the Beta-Alpha matrix was not
                `None`, its transpose will be used.

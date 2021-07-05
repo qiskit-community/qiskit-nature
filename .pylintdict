@@ -94,6 +94,7 @@ eigenstate
 eigenstateresult
 eigenstates
 einact
+einsum
 endian
 endif
 enum
@@ -198,6 +199,7 @@ mcrz
 mct
 mcu
 mcx
+metadata
 microsoft
 minao
 mixin
@@ -324,6 +326,7 @@ str
 subcircuits
 subclasses
 submodules
+subtype
 succ
 sudo
 sx
