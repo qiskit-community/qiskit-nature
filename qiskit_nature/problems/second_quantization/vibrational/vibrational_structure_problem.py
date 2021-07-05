@@ -28,7 +28,6 @@ from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
-from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
 
 
@@ -132,8 +131,26 @@ class VibrationalStructureProblem(BaseProblem):
         Returns:
             An vibrational structure result.
         """
-
-        return _interpret(self._molecule_data.num_modes, raw_result)
+        eigenstate_result = None
+        if isinstance(raw_result, EigenstateResult):
+            eigenstate_result = raw_result
+        elif isinstance(raw_result, EigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = raw_result.eigenvalues
+            eigenstate_result.eigenstates = raw_result.eigenstates
+            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
+        elif isinstance(raw_result, MinimumEigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
+            eigenstate_result.eigenstates = [raw_result.eigenstate]
+            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        result = VibrationalStructureResult()
+        result.combine(eigenstate_result)
+        self._driver_result_transformed.interpret(result)
+        result.computed_vibrational_energies = eigenstate_result.eigenenergies
+        return result
 
     def get_default_filter_criterion(
         self,

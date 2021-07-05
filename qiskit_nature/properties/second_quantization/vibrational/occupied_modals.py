@@ -15,6 +15,7 @@
 from typing import List, Optional, Tuple
 
 from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from .vibrational_property import VibrationalProperty
@@ -82,3 +83,27 @@ class OccupiedModals(VibrationalProperty):
             labels.append((f"+_{mode}*{modal} -_{mode}*{modal}", 1.0))
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        result.num_occupied_modals_per_mode = []
+
+        if not isinstance(result.aux_operator_eigenvalues, list):
+            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        else:
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+
+        num_modes = len(self._basis._num_modals_per_mode)
+
+        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            occ_modals = []
+            for mode in range(num_modes):
+                if aux_op_eigenvalues[mode] is not None:
+                    occ_modals.append(aux_op_eigenvalues[mode][0].real)  # type: ignore
+                else:
+                    occ_modals.append(None)
+            result.num_occupied_modals_per_mode.append(occ_modals)  # type: ignore

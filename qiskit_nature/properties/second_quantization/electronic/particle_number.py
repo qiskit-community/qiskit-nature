@@ -18,6 +18,7 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
 from ..second_quantized_property import (
     LegacyDriverResult,
@@ -145,3 +146,22 @@ class ParticleNumber(SecondQuantizedProperty):
             register_length=self._num_spin_orbitals,
         )
         return [op]
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        result.num_particles = []
+
+        if not isinstance(result.aux_operator_eigenvalues, list):
+            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        else:
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            if aux_op_eigenvalues is None:
+                continue
+
+            if aux_op_eigenvalues[0] is not None:
+                result.num_particles.append(aux_op_eigenvalues[0][0].real)  # type: ignore

@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Tuple, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
 from ...composite_property import CompositeProperty
 from ..second_quantized_property import (
@@ -61,8 +62,16 @@ class DipoleMoment(IntegralProperty):
 
         return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
 
-class TotalDipoleMoment(CompositeProperty[SecondQuantizedProperty], SecondQuantizedProperty):
+        Args:
+            result: the result to add meaning to.
+        """
+        pass
+
+
+class TotalDipoleMoment(CompositeProperty[DipoleMoment], SecondQuantizedProperty):
     """The TotalDipoleMoment property."""
 
     def __init__(
@@ -141,3 +150,45 @@ class TotalDipoleMoment(CompositeProperty[SecondQuantizedProperty], SecondQuanti
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list of dipole moment operators along all Cartesian axes."""
         return [dip.second_q_ops()[0] for dip in self._properties.values()]
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        result.nuclear_dipole_moment = self._dipole_shift.pop("nuclear dipole moment", None)
+        result.reverse_dipole_sign = True
+        result.computed_dipole_moment = []
+        result.extracted_transformer_dipoles = []
+
+        if not isinstance(result.aux_operator_eigenvalues, list):
+            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        else:
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            if aux_op_eigenvalues is None:
+                continue
+
+            if len(aux_op_eigenvalues) >= 6:
+                dipole_moment = []
+                for moment in aux_op_eigenvalues[3:6]:
+                    if moment is not None:
+                        dipole_moment += [moment[0].real]  # type: ignore
+                    else:
+                        dipole_moment += [None]
+
+                result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
+                dipole_shifts: Dict[str, Dict[str, complex]] = {}
+                for prop in self._properties.values():
+                    for name, shift in prop._shift.items():
+                        if name not in dipole_shifts.keys():
+                            dipole_shifts[name] = {}
+                        dipole_shifts[name][prop._axis] = shift
+
+                result.extracted_transformer_dipoles.append(
+                    {
+                        name: cast(DipoleTuple, (shift["x"], shift["y"], shift["z"]))
+                        for name, shift in dipole_shifts.items()
+                    }
+                )

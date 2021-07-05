@@ -15,6 +15,7 @@
 from typing import Dict, List, Optional, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.results import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .bases import ElectronicBasis
@@ -116,3 +117,13 @@ class ElectronicEnergy(IntegralProperty):
         op += coulomb + coulomb_inv - exchange
 
         return cast(OneBodyElectronicIntegrals, op)
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        result.hartree_fock_energy = self._reference_energy
+        result.nuclear_repulsion_energy = self._shift.pop("nuclear repulsion", None)
+        result.extracted_transformer_energies = self._shift.copy()

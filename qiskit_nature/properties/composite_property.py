@@ -15,6 +15,7 @@
 from collections.abc import Iterable
 from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
 
+from qiskit_nature.results import EigenstateResult
 from .property import Property
 
 # pylint: disable=invalid-name
@@ -76,3 +77,12 @@ class CompositeProperty(Property, Iterable, Generic[T]):
             new_property = yield prop
             if new_property is not None:
                 self.add_property(new_property)
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        for prop in self._properties.values():
+            prop.interpret(result)

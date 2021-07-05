@@ -16,6 +16,7 @@ from typing import List, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
 from ..driver_result import DriverResult
 from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult

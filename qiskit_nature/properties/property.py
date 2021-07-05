@@ -12,7 +12,7 @@
 
 """The Property base class."""
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from qiskit_nature.results import EigenstateResult
 
@@ -47,14 +47,9 @@ class Property(ABC):
     def __repr__(self) -> str:
         return self.name
 
-    # TODO: use this to replace the result interpreter utilities of the structure problems?
-    # This requires that a property-gathering super-object (e.g. ElectronicDriverResult) exists
-    # which is stored inside of the ElectronicStructureProblem instead of the currently stored
-    # QMolecule (vibrational case accordingly).
+    @abstractmethod
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
-
-        This is currently a method stub which may be used in the future.
 
         Args:
             result: the result to add meaning to.
