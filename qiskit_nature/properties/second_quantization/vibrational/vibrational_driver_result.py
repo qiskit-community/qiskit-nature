@@ -25,6 +25,8 @@ from .vibrational_energy import VibrationalEnergy
 from .vibrational_property import VibrationalProperty
 
 
+# Pylint<2.9.0 raises false-positive no-member errors (E1101) for abstract properties
+# pylint: disable=no-member
 class VibrationalDriverResult(DriverResult[VibrationalProperty]):
     """TODO."""
 
@@ -46,12 +48,12 @@ class VibrationalDriverResult(DriverResult[VibrationalProperty]):
     @property
     def basis(self) -> VibrationalBasis:
         """Returns the basis."""
-        return list(iter(self))[0].basis
+        return list(self._properties.values())[0].basis
 
     @basis.setter
     def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
-        for prop in self.__iter__():
+        for prop in self._properties.values():
             prop.basis = basis
 
     @classmethod
