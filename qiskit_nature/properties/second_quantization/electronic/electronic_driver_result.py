@@ -19,8 +19,7 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..driver_result import DriverResult
-from ..second_quantized_property import (LegacyDriverResult,
-                                         LegacyElectronicDriverResult)
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import TotalDipoleMoment

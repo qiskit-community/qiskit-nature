@@ -18,8 +18,7 @@ from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from ..driver_result import DriverResult
-from ..second_quantized_property import (LegacyDriverResult,
-                                         LegacyVibrationalDriverResult)
+from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
 from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
