@@ -18,8 +18,8 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
+    LegacyDriverResult,
+    LegacyElectronicDriverResult,
     SecondQuantizedProperty,
 )
 
@@ -41,7 +41,7 @@ class Magnetization(SecondQuantizedProperty):
         return string
 
     @classmethod
-    def from_legacy_driver_result(cls, result: DriverResult) -> "Magnetization":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
         """Construct a Magnetization instance from a QMolecule.
 
         Args:
@@ -54,7 +54,7 @@ class Magnetization(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 

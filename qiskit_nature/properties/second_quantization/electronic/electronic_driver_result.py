@@ -17,10 +17,8 @@ from typing import List, cast
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ...composite_property import CompositeProperty
-from ..second_quantized_property import DriverResult
-from ..second_quantized_property import ElectronicDriverResult as LegacyElectronicDriverResult
-from ..second_quantized_property import SecondQuantizedProperty
+from ..driver_result import DriverResult
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import TotalDipoleMoment
@@ -29,7 +27,7 @@ from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 
 
-class ElectronicDriverResult(CompositeProperty[SecondQuantizedProperty], SecondQuantizedProperty):
+class ElectronicDriverResult(DriverResult):
     """TODO."""
 
     def __init__(self) -> None:
@@ -42,7 +40,7 @@ class ElectronicDriverResult(CompositeProperty[SecondQuantizedProperty], SecondQ
         # TODO: where to put kinetic, overlap matrices? Do we want explicit Fock matrix?
 
     @classmethod
-    def from_legacy_driver_result(cls, result: DriverResult) -> "ElectronicDriverResult":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicDriverResult":
         """TODO."""
         cls._validate_input_type(result, LegacyElectronicDriverResult)
 

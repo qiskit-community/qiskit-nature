@@ -19,14 +19,11 @@ from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
-from ..second_quantized_property import (
-    DriverResult,
-    SecondQuantizedProperty,
-    VibrationalDriverResult,
-)
+from .vibrational_property import VibrationalProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
 
 
-class VibrationalEnergy(SecondQuantizedProperty):
+class VibrationalEnergy(VibrationalProperty):
     """The VibrationalEnergy property.
 
     This is the main property of any vibrational structure problem. It constructs the Hamiltonian
@@ -49,10 +46,9 @@ class VibrationalEnergy(SecondQuantizedProperty):
                 quantization. This property **MUST** be set before the second-quantized operator can
                 be constructed.
         """
-        super().__init__(self.__class__.__name__)
+        super().__init__(self.__class__.__name__, basis)
         self._vibrational_integrals = vibrational_integrals
         self._truncation_order = truncation_order
-        self._basis = basis
 
     @property
     def truncation_order(self) -> int:
@@ -64,18 +60,8 @@ class VibrationalEnergy(SecondQuantizedProperty):
         """Sets the truncation order."""
         self._truncation_order = truncation_order
 
-    @property
-    def basis(self) -> VibrationalBasis:
-        """Returns the basis."""
-        return self._basis
-
-    @basis.setter
-    def basis(self, basis: VibrationalBasis) -> None:
-        """Sets the basis."""
-        self._basis = basis
-
     @classmethod
-    def from_legacy_driver_result(cls, result: DriverResult) -> "VibrationalEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
         """Construct a VibrationalEnergy instance from a WatsonHamiltonian.
 
         Args:
@@ -88,7 +74,7 @@ class VibrationalEnergy(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, VibrationalDriverResult)
+        cls._validate_input_type(result, LegacyVibrationalDriverResult)
 
         w_h = cast(WatsonHamiltonian, result)
 

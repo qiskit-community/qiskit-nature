@@ -22,10 +22,10 @@ from qiskit_nature.drivers import QMolecule as LegacyQMolecule
 from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
+    LegacyDriverResult,
+    LegacyElectronicDriverResult,
     SecondQuantizedProperty,
-    VibrationalDriverResult,
+    LegacyVibrationalDriverResult,
 )
 
 
@@ -35,16 +35,18 @@ class TestSecondQuantizedProperty(QiskitNatureTestCase):
 
     @unpack
     @data(
-        (QMolecule(), ElectronicDriverResult, False),
-        (QMolecule(), VibrationalDriverResult, True),
-        (LegacyQMolecule(), ElectronicDriverResult, False),
-        (LegacyQMolecule(), VibrationalDriverResult, True),
-        (WatsonHamiltonian([], -1), ElectronicDriverResult, True),
-        (WatsonHamiltonian([], -1), VibrationalDriverResult, False),
-        (LegacyWatsonHamiltonian([], -1), ElectronicDriverResult, True),
-        (LegacyWatsonHamiltonian([], -1), VibrationalDriverResult, False),
+        (QMolecule(), LegacyElectronicDriverResult, False),
+        (QMolecule(), LegacyVibrationalDriverResult, True),
+        (LegacyQMolecule(), LegacyElectronicDriverResult, False),
+        (LegacyQMolecule(), LegacyVibrationalDriverResult, True),
+        (WatsonHamiltonian([], -1), LegacyElectronicDriverResult, True),
+        (WatsonHamiltonian([], -1), LegacyVibrationalDriverResult, False),
+        (LegacyWatsonHamiltonian([], -1), LegacyElectronicDriverResult, True),
+        (LegacyWatsonHamiltonian([], -1), LegacyVibrationalDriverResult, False),
     )
-    def test_validate_input_type(self, result: DriverResult, type_: Any, raises_: bool) -> None:
+    def test_validate_input_type(
+        self, result: LegacyDriverResult, type_: Any, raises_: bool
+    ) -> None:
         """Test input type validation."""
         raised = False
         try:

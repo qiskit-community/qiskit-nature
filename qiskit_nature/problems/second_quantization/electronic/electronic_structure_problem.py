@@ -65,9 +65,9 @@ class ElectronicStructureProblem(BaseProblem):
         """
         self._molecule_data = cast(QMolecule, self.driver.run())
         prop = ElectronicDriverResult.from_legacy_driver_result(self._molecule_data)
-        self._molecule_data_transformed = self._transform(prop)
+        self._driver_result_transformed = self._transform(prop)
 
-        second_quantized_ops_list = self._molecule_data_transformed.second_q_ops()
+        second_quantized_ops_list = self._driver_result_transformed.second_q_ops()
 
         return second_quantized_ops_list
 

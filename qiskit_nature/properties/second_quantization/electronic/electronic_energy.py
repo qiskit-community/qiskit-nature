@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Tuple, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 
-from ..second_quantized_property import DriverResult, ElectronicDriverResult
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
@@ -51,7 +51,7 @@ class ElectronicEnergy(IntegralProperty):
         self._reference_energy = reference_energy
 
     @classmethod
-    def from_legacy_driver_result(cls, result: DriverResult) -> "ElectronicEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
         """Construct an ElectronicEnergy instance from a QMolecule.
 
         Args:
@@ -64,7 +64,7 @@ class ElectronicEnergy(IntegralProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 

@@ -20,8 +20,8 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
+    LegacyDriverResult,
+    LegacyElectronicDriverResult,
     SecondQuantizedProperty,
 )
 
@@ -67,6 +67,16 @@ class ParticleNumber(SecondQuantizedProperty):
             self._occupation_beta = occupation_beta
 
     @property
+    def num_alpha(self) -> int:
+        """Returns the number of alpha electrons."""
+        return self._num_alpha
+
+    @property
+    def num_beta(self) -> int:
+        """Returns the number of beta electrons."""
+        return self._num_beta
+
+    @property
     def occupation_alpha(self) -> np.ndarray:
         """Returns the occupation_alpha."""
         return np.asarray(self._occupation_alpha, dtype=int)
@@ -84,7 +94,7 @@ class ParticleNumber(SecondQuantizedProperty):
         return string
 
     @classmethod
-    def from_legacy_driver_result(cls, result: DriverResult) -> "ParticleNumber":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
         """Construct a ParticleNumber instance from a QMolecule.
 
         Args:
@@ -97,7 +107,7 @@ class ParticleNumber(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 

@@ -17,14 +17,14 @@ from typing import List, Optional, Tuple
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from .bases import VibrationalBasis
+from .vibrational_property import VibrationalProperty
 from ..second_quantized_property import (
-    DriverResult,
-    SecondQuantizedProperty,
-    VibrationalDriverResult,
+    LegacyDriverResult,
+    LegacyVibrationalDriverResult,
 )
 
 
-class OccupiedModals(SecondQuantizedProperty):
+class OccupiedModals(VibrationalProperty):
     """The OccupiedModals property."""
 
     def __init__(
@@ -37,21 +37,10 @@ class OccupiedModals(SecondQuantizedProperty):
                 quantization. This property **MUST** be set before the second-quantized operator can
                 be constructed.
         """
-        super().__init__(self.__class__.__name__)
-        self._basis = basis
-
-    @property
-    def basis(self) -> VibrationalBasis:
-        """Returns the basis."""
-        return self._basis
-
-    @basis.setter
-    def basis(self, basis: VibrationalBasis) -> None:
-        """Sets the basis."""
-        self._basis = basis
+        super().__init__(self.__class__.__name__, basis)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: DriverResult) -> "OccupiedModals":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "OccupiedModals":
         """Construct an OccupiedModals instance from a WatsonHamiltonian.
 
         Args:
@@ -64,7 +53,7 @@ class OccupiedModals(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, VibrationalDriverResult)
+        cls._validate_input_type(result, LegacyVibrationalDriverResult)
 
         return cls()
 

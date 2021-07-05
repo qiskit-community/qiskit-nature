@@ -19,8 +19,8 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ...composite_property import CompositeProperty
 from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
+    LegacyDriverResult,
+    LegacyElectronicDriverResult,
     SecondQuantizedProperty,
 )
 from .bases import ElectronicBasis
@@ -81,7 +81,7 @@ class TotalDipoleMoment(CompositeProperty[SecondQuantizedProperty], SecondQuanti
             self.add_property(dipole)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: DriverResult) -> Optional["TotalDipoleMoment"]:
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> Optional["TotalDipoleMoment"]:
         """Construct a TotalDipoleMoment instance from a QMolecule.
 
         Args:
@@ -94,7 +94,7 @@ class TotalDipoleMoment(CompositeProperty[SecondQuantizedProperty], SecondQuanti
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicDriverResult)
 
         qmol = cast(QMolecule, result)
 
