@@ -230,7 +230,7 @@ class ElectronicIntegrals(ABC):
         if isinstance(self._matrices, np.ndarray):
             ret._matrices = self._matrices + other._matrices
         else:
-            ret._matrices = [a + b for a, b in zip(self._matrices, other._matrices)]
+            ret._matrices = [a + b for a, b in zip(self._matrices, other._matrices)]  # type: ignore
         return ret
 
     def compose(
@@ -252,7 +252,7 @@ class ElectronicIntegrals(ABC):
         if isinstance(self._matrices, np.ndarray):
             ret._matrices = other * self._matrices
         else:
-            ret._matrices = [other * mat for mat in self._matrices]
+            ret._matrices = [other * mat for mat in self._matrices]  # type: ignore
         return ret
 
     def __add__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":

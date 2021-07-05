@@ -158,7 +158,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         return [(indices[0], "+"), (indices[2], "+"), (indices[3], "-"), (indices[1], "-")]
 
     def compose(
-        self, other: OneBodyElectronicIntegrals, einsum: Optional[str] = None
+        self, other: ElectronicIntegrals, einsum: Optional[str] = None
     ) -> OneBodyElectronicIntegrals:
         """Composes these TwoBodyElectronicIntegrals with an instance of OneBodyElectronicIntegrals.
 

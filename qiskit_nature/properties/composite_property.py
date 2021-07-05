@@ -13,12 +13,15 @@
 """A Composite of multiple properties."""
 
 from collections.abc import Iterable
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
 
 from .property import Property
 
+# pylint: disable=invalid-name
+T = TypeVar("T", bound=Property)
 
-class CompositeProperty(Property, Iterable):
+
+class CompositeProperty(Property, Iterable, Generic[T]):
     """A Composite of multiple properties."""
 
     def __init__(self, name: str) -> None:
@@ -27,7 +30,7 @@ class CompositeProperty(Property, Iterable):
             name: the name of the property.
         """
         super().__init__(name)
-        self._properties: Dict[str, Property] = {}
+        self._properties: Dict[str, T] = {}
 
     def __repr__(self) -> str:
         string = super().__repr__() + ":"
@@ -36,7 +39,7 @@ class CompositeProperty(Property, Iterable):
                 string += f"\n\t{line}"
         return string
 
-    def add_property(self, prop: Property) -> None:
+    def add_property(self, prop: T) -> None:
         """Adds a property to the composite.
 
         Args:
@@ -44,7 +47,7 @@ class CompositeProperty(Property, Iterable):
         """
         self._properties[prop.name] = prop
 
-    def get_property(self, prop: Union[str, Type[Property]]) -> Optional[Property]:
+    def get_property(self, prop: Union[str, Type[Property]]) -> Optional[T]:
         """Gets a property from the Composite.
 
         Args:
@@ -60,11 +63,11 @@ class CompositeProperty(Property, Iterable):
             name = prop.__name__
         return self._properties.get(name, None)
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[T, T, None]:
         """Returns the generator-iterator method."""
         return self._generator()
 
-    def _generator(self):
+    def _generator(self) -> Generator[T, T, None]:
         """A generator-iterator method [1] iterating over all internal properties.
 
         [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods

@@ -29,7 +29,7 @@ from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 
 
-class ElectronicDriverResult(CompositeProperty, SecondQuantizedProperty):
+class ElectronicDriverResult(CompositeProperty[SecondQuantizedProperty], SecondQuantizedProperty):
     """TODO."""
 
     def __init__(self) -> None:

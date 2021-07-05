@@ -19,6 +19,7 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties import CompositeProperty, Property
+from qiskit_nature.properties.second_quantization import SecondQuantizedProperty
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
@@ -226,7 +227,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new QMolecule
         molecule_data_reduced = ElectronicDriverResult()
         molecule_data_reduced.electronic_basis_transform = self._transform_active
-        molecule_data_reduced = self._transform_property(molecule_data)
+        molecule_data_reduced = self._transform_property(molecule_data)  # type: ignore
 
         return molecule_data_reduced
 
@@ -329,12 +330,17 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         Returns:
             The transformed property object.
+
+        Raises:
+            TypeError: if an unexpected Property subtype is encountered.
         """
+        transformed_property: Property
         if isinstance(prop, CompositeProperty):
             transformed_property = deepcopy(prop)
 
-            # get the iterator of the Composite's properties.
-            iterator = iter(transformed_property)
+            # Get the iterator of the Composite's properties. We access __iter__() directly to make
+            # mypy happy :-)
+            iterator = transformed_property.__iter__()
 
             transformed_internal_property = None
             while True:
@@ -360,7 +366,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             # the total operator equals the AO-1-body-term + the inactive matrix operator
             total_op = prop.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
             # compute the energy shift introduced by the ActiveSpaceTransformer
-            e_inactive = 0.5 * total_op.compose(self._density_inactive)
+            e_inactive = 0.5 * cast(complex, total_op.compose(self._density_inactive))
 
             transformed_property = deepcopy(prop)
             # insert the AO-basis inactive operator
@@ -370,7 +376,9 @@ class ActiveSpaceTransformer(BaseTransformer):
             # insert the energy shift
             transformed_property._shift["ActiveSpaceTransformer"] = e_inactive
 
-        else:
+        elif isinstance(prop, SecondQuantizedProperty):
             transformed_property = prop.reduce_system_size(self._active_orbs_indices)
+        else:
+            raise TypeError()
 
         return transformed_property

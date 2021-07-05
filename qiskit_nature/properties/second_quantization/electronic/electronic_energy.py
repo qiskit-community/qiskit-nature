@@ -16,10 +16,7 @@ from typing import Dict, List, Optional, Tuple, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-)
+from ..second_quantized_property import DriverResult, ElectronicDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
@@ -39,8 +36,8 @@ class ElectronicEnergy(IntegralProperty):
     def __init__(
         self,
         electronic_integrals: List[ElectronicIntegrals],
-        energy_shift: Optional[Dict[str, float]] = None,
-        reference_energy: Optional[float] = None,
+        energy_shift: Optional[Dict[str, complex]] = None,
+        reference_energy: Optional[complex] = None,
     ):
         """
         Args:
@@ -74,7 +71,7 @@ class ElectronicEnergy(IntegralProperty):
         energy_shift = qmol.energy_shift.copy()
         energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
-        integrals = []
+        integrals: List[ElectronicIntegrals] = []
         if qmol.hcore is not None:
             integrals.append(
                 OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b))
@@ -105,13 +102,17 @@ class ElectronicEnergy(IntegralProperty):
             raise NotImplementedError()
 
         one_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 1)
-        two_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 2)
+        two_e_ints = cast(
+            TwoBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 2)
+        )
 
         op = one_e_ints
 
         coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
+        # by reversing the order of the matrices we can construct the (beta, alpha)-ordered Coulomb
+        # integrals
         coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])
         exchange = two_e_ints.compose(density, "ijkl,jk->il")
         op += coulomb + coulomb_inv - exchange
 
-        return op
+        return cast(OneBodyElectronicIntegrals, op)

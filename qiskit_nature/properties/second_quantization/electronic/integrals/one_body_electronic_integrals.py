@@ -102,7 +102,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[1], "-")]
 
-    def compose(self, other: "OneBodyElectronicIntegrals", einsum: str = "ij,ji") -> complex:
+    def compose(self, other: ElectronicIntegrals, einsum: str = "ij,ji") -> complex:
         """Composes these OneBodyElectronicIntegrals with another instance thereof.
 
         Args:

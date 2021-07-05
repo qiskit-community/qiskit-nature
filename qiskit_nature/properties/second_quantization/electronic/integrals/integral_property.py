@@ -35,7 +35,7 @@ class IntegralProperty(SecondQuantizedProperty):
         self,
         name: str,
         electronic_integrals: List[ElectronicIntegrals],
-        shift: Optional[Dict[str, float]] = None,
+        shift: Optional[Dict[str, complex]] = None,
     ):
         """
         Args:
@@ -45,7 +45,7 @@ class IntegralProperty(SecondQuantizedProperty):
             shift: an optional dictionary of value shifts.
         """
         super().__init__(name)
-        self._electronic_integrals = {}
+        self._electronic_integrals: Dict[ElectronicBasis, Dict[int, ElectronicIntegrals]] = {}
         for integral in electronic_integrals:
             self.add_electronic_integral(integral)
         self._shift = shift or {}

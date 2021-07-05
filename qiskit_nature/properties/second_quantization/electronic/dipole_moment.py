@@ -43,7 +43,7 @@ class DipoleMoment(IntegralProperty):
         self,
         axis: str,
         electronic_integrals: List[ElectronicIntegrals],
-        shift: Optional[Dict[str, float]] = None,
+        shift: Optional[Dict[str, complex]] = None,
     ):
         """
         Args:
@@ -59,10 +59,10 @@ class DipoleMoment(IntegralProperty):
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
             raise NotImplementedError()
 
-        return self.get_electronic_integral(ElectronicBasis.AO, 1)
+        return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 
 
-class TotalDipoleMoment(CompositeProperty, SecondQuantizedProperty):
+class TotalDipoleMoment(CompositeProperty[SecondQuantizedProperty], SecondQuantizedProperty):
     """The TotalDipoleMoment property."""
 
     def __init__(
