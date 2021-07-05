@@ -66,13 +66,13 @@ class ContactMap:
     @property
     def lower_side_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
-        between a first bead in a side chain (first index) and a a first bead in a side chain (
+        between a first bead in a side chain (first index) and a first bead in a side chain (
         second index)."""
         return self._lower_side_upper_side
 
     def _create_peptide_qubit_list(self) -> List[PauliSumOp]:
         """
-        Creates new set of contact qubits for second nearest neighbor
+        Creates a new set of contact qubits for second nearest neighbor
         interactions. Note, the need of multiple interaction qubits
         for each i,j pair.
 

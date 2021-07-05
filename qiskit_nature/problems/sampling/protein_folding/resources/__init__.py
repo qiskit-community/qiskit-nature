@@ -12,6 +12,6 @@
 """
 The mj_matrix.txt file stores knowledge-based (statistical) potentials for the description of
 inter-residue contacts for proteins derived by using quasi-chemical approximation. The potentials
-used here are introduced  by Miyazawa, S. and Jernigan, R. L. in J. Mol. Biol.256, 623–644 (1996)
+used here are introduced by Miyazawa, S. and Jernigan, R. L. in J. Mol. Biol.256, 623–644 (1996)
 in Table 3.
 """
