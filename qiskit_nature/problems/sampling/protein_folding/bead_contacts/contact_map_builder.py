@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 def _create_contact_qubits(
     peptide: Peptide,
-) -> Tuple[Dict[int, dict], Dict[int, dict], Dict[int, dict], Dict[int, dict], int,]:
+) -> Tuple[Dict[int, dict], Dict[int, dict], Dict[int, dict], Dict[int, dict], int]:
     """
     Creates Pauli operators for 3rd+ nearest neighbor interactions. The type of operator depends
     on whether beads belong to the same set (see also https://arxiv.org/pdf/1908.02163.pdf), how
