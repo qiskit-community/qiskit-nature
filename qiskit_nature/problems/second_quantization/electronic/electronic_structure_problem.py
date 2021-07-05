@@ -51,8 +51,8 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        molecule_data_transformed = cast(QMolecule, self._molecule_data_transformed)
-        return molecule_data_transformed.num_alpha, molecule_data_transformed.num_beta
+        particle_number = self._driver_result_transformed.get_property("ParticleNumber")
+        return particle_number.num_alpha, particle_number.num_beta
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations

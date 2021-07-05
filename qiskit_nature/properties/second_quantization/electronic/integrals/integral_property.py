@@ -13,7 +13,7 @@
 """The ElectronicEnergy property."""
 
 from abc import abstractmethod
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 

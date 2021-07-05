@@ -12,7 +12,7 @@
 
 """The ElectronicEnergy property."""
 
-from typing import Dict, List, Optional, Tuple, cast
+from typing import Dict, List, Optional, cast
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 
