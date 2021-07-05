@@ -72,7 +72,7 @@ class ContactMap:
 
     def _create_peptide_qubit_list(self) -> List[PauliSumOp]:
         """
-        Creates new set of contact qubits for second nearest neighbor
+        Creates a new set of contact qubits for second nearest neighbor
         interactions. Note, the need of multiple interaction qubits
         for each i,j pair.
 
