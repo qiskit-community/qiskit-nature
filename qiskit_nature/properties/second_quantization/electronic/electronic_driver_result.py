@@ -78,7 +78,7 @@ class ElectronicDriverResult(DriverResult):
             Magnetization,
             TotalDipoleMoment,
         ]:
-            prop = self.get_property(cls)
+            prop = self.get_property(cls)  # type: ignore
             if prop is None:
                 continue
             ops.extend(prop.second_q_ops())

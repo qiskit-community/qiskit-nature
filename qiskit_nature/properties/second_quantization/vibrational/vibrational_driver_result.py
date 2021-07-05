@@ -76,7 +76,7 @@ class VibrationalDriverResult(DriverResult[VibrationalProperty]):
         ops: List[VibrationalOp] = []
         # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
         for cls in [VibrationalEnergy, OccupiedModals]:
-            prop = self.get_property(cls)
+            prop = self.get_property(cls)  # type: ignore
             if prop is None:
                 continue
             ops.extend(prop.second_q_ops())
