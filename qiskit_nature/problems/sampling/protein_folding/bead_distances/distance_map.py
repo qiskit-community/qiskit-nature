@@ -101,7 +101,7 @@ class DistanceMap:
         expression = lambda_0 * (
             x - _build_full_identity(x.num_qubits)
         ) + pair_energies_multiplier * energy * _build_full_identity(x.num_qubits)
-        return _fix_qubits(expression).reduce()
+        return _fix_qubits(expression)
 
     def _second_neighbor(
         self,
@@ -147,4 +147,4 @@ class DistanceMap:
         expression = lambda_1 * (
             2 * (_build_full_identity(x.num_qubits)) - x
         ) + pair_energies_multiplier * energy * _build_full_identity(x.num_qubits)
-        return _fix_qubits(expression).reduce()
+        return _fix_qubits(expression)
