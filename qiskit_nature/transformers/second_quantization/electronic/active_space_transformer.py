@@ -193,9 +193,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._mo_occ_total = occupation_alpha + occupation_beta
 
         # determine the active space
-        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(
-            particle_number
-        )
+        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(molecule_data)
 
         # get molecular orbital coefficients
         coeff_alpha = molecule_data.electronic_basis_transform.coeff_alpha
@@ -232,16 +230,17 @@ class ActiveSpaceTransformer(BaseTransformer):
         return molecule_data_reduced
 
     def _determine_active_space(
-        self, particle_number: ParticleNumber
+        self, molecule_data: ElectronicDriverResult
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            particle_number: the property storing the MO occupation information.
+            molecule_data: the ElectronicDriverResult.
 
         Returns:
             The list of active and inactive orbital indices.
         """
+        particle_number = molecule_data.get_property(ParticleNumber)
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, int):
@@ -374,7 +373,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             # actually reduce the system size
             transformed_property.transform_basis(self._transform_active)
             # insert the energy shift
-            transformed_property._shift["ActiveSpaceTransformer"] = e_inactive
+            transformed_property._shift[self.__class__.__name__] = e_inactive
 
         elif isinstance(prop, SecondQuantizedProperty):
             transformed_property = prop.reduce_system_size(self._active_orbs_indices)

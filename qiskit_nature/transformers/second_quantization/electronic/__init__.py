@@ -26,11 +26,14 @@ would need to be included back into any ground state energy computation to get c
    :toctree: ../stubs/
 
    ActiveSpaceTransformer
+   FreezeCoreTransformer
 
 """
 
 from .active_space_transformer import ActiveSpaceTransformer
+from .freeze_core_transformer import FreezeCoreTransformer
 
 __all__ = [
     "ActiveSpaceTransformer",
+    "FreezeCoreTransformer",
 ]

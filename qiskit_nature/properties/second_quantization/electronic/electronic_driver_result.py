@@ -12,8 +12,9 @@
 
 """The ElectronicDriverResult class."""
 
-from typing import List, cast
+from typing import List, Tuple, cast
 
+from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -34,10 +35,10 @@ class ElectronicDriverResult(DriverResult):
     def __init__(self) -> None:
         """TODO."""
         super().__init__(self.__class__.__name__)
+        self.molecule: Molecule = None
         self.electronic_basis_transform: ElectronicBasisTransform = None
         # TODO: add origin driver metadata
         # TODO: where to put orbital_energies?
-        # TODO: add molecule geometry metadata
         # TODO: where to put kinetic, overlap matrices? Do we want explicit Fock matrix?
 
     @classmethod
@@ -58,6 +59,12 @@ class ElectronicDriverResult(DriverResult):
         ret.electronic_basis_transform = ElectronicBasisTransform(
             ElectronicBasis.AO, ElectronicBasis.MO, qmol.mo_coeff, qmol.mo_coeff_b
         )
+
+        geometry: List[Tuple[str, List[float]]] = []
+        for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
+            geometry.append((atom, xyz))
+
+        ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
         return ret
 
