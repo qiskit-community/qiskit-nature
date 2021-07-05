@@ -113,6 +113,8 @@ class AngularMomentum(SecondQuantizedProperty):
 
             if aux_op_eigenvalues[1] is not None:
                 result.total_angular_momentum.append(aux_op_eigenvalues[1][0].real)  # type: ignore
+            else:
+                result.total_angular_momentum.append(None)
 
 
 def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:

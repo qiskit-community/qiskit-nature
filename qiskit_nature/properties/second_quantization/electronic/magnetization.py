@@ -103,3 +103,5 @@ class Magnetization(SecondQuantizedProperty):
 
             if aux_op_eigenvalues[2] is not None:
                 result.magnetization.append(aux_op_eigenvalues[2][0].real)  # type: ignore
+            else:
+                result.magnetization.append(None)

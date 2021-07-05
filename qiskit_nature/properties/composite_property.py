@@ -40,13 +40,14 @@ class CompositeProperty(Property, Iterable, Generic[T]):
                 string += f"\n\t{line}"
         return string
 
-    def add_property(self, prop: T) -> None:
+    def add_property(self, prop: Optional[T]) -> None:
         """Adds a property to the composite.
 
         Args:
             prop: the property to be added.
         """
-        self._properties[prop.name] = prop
+        if prop is not None:
+            self._properties[prop.name] = prop
 
     def get_property(self, prop: Union[str, Type[Property]]) -> Optional[T]:
         """Gets a property from the Composite.

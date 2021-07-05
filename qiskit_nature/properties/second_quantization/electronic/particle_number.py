@@ -170,3 +170,5 @@ class ParticleNumber(SecondQuantizedProperty):
 
             if aux_op_eigenvalues[0] is not None:
                 result.num_particles.append(aux_op_eigenvalues[0][0].real)  # type: ignore
+            else:
+                result.num_particles.append(None)
