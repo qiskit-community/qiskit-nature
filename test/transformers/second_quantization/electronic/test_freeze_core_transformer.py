@@ -23,6 +23,8 @@ from qiskit_nature.transformers.second_quantization.electronic import FreezeCore
 from .test_active_space_transformer import TestActiveSpaceTransformer
 
 
+# With Python 3.6 this false positive is being raised for the ElectronicDriverResult
+# pylint: disable=abstract-class-instantiated
 @ddt
 class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
     """FreezeCoreTransformer tests."""
