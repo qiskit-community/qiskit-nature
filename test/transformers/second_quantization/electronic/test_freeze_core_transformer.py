@@ -51,7 +51,9 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
         trafo = FreezeCoreTransformer(**kwargs)
         driver_result_reduced = trafo.transform(driver_result)
 
-        self.assertDriverResult(driver_result_reduced, driver_result, dict_key="FreezeCoreTransformer")
+        self.assertDriverResult(
+            driver_result_reduced, driver_result, dict_key="FreezeCoreTransformer"
+        )
 
     def test_freeze_core(self):
         """Test the `freeze_core` convenience argument."""

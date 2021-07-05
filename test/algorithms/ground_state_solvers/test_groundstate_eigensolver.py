@@ -417,7 +417,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         reduction. This regression test ensures that this behavior remains fixed.
         """
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization")
+            hdf5_input=self.get_resource_path(
+                "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
+            )
         )
         problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
         qubit_converter = QubitConverter(

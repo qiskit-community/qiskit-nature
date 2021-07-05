@@ -46,12 +46,12 @@ class VibrationalDriverResult(DriverResult[VibrationalProperty]):
     @property
     def basis(self) -> VibrationalBasis:
         """Returns the basis."""
-        return list(self._properties.values())[0].basis
+        return list(iter(self))[0].basis
 
     @basis.setter
     def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
-        for prop in self._properties.values():
+        for prop in self.__iter__():
             prop.basis = basis
 
     @classmethod
