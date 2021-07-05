@@ -144,7 +144,8 @@ def _calc_distances_main_chain(
     the main chain. Note, here we consider distances between beads
     not on side chains. For a particular axis, a, we calculate the
     distance between lower_bead_ind and upper_bead_ind bead pairs,
-    distance_map_axis_a = summation (k = lower_bead_ind to upper_bead_ind - 1) of (-1)^k*indica(k).
+    distance_map_axis_a :math:`= \sum_k = (-1)^k*indica(k)` where :math:`k` iterates from
+    lower_bead_ind to upper_bead_ind - 1.
     Args:
         peptide: A Peptide object that includes all information about a protein.
 
@@ -319,7 +320,6 @@ def _calc_dists_side_side_all_axes(
     upper_bead_ind,
     upper_side_bead,
 ):
-
     distance_map_axes = [
         distance_map_axis_0,
         distance_map_axis_1,

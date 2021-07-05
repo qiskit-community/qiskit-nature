@@ -69,8 +69,8 @@ class DistanceMap:
         Creates first nearest neighbor interaction if beads are in contact
         and at a distance of 1 unit from each other. Otherwise, a large positive
         energetic penalty is added. Here, the penalty depends on the neighboring
-        beads of interest (i and j), that is, lambda_0 > 6*(j -i + 1)*lambda_1 + e_ij.
-        Here, we chose, lambda_0 = 7*(j- 1 + 1).
+        beads of interest (i and j), that is, :math:`lambda_0 > 6*(j -i + 1)*lambda_1 + e_{ij}`.
+        Here, we chose, :math:`lambda_0 = 7*(j- 1 + 1)`.
 
         Args:
             peptide: A Peptide object that includes all information about a protein.
