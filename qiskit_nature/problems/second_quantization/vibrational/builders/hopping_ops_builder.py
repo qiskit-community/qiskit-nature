@@ -10,8 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-# TODO: re-implement these as properties?
-
 """Utility methods to build vibrational hopping operators."""
 
 from typing import cast, Callable, Dict, List, Tuple, Union

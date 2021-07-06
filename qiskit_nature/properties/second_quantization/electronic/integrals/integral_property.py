@@ -12,10 +12,10 @@
 
 """The ElectronicEnergy property."""
 
-from abc import abstractmethod
 from typing import Dict, List, Optional
 
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
 from ...second_quantized_property import LegacyDriverResult, SecondQuantizedProperty
 from ..bases import ElectronicBasis, ElectronicBasisTransform
@@ -101,9 +101,9 @@ class IntegralProperty(SecondQuantizedProperty):
         for integral in self._electronic_integrals[transform.initial_basis].values():
             self.add_electronic_integral(integral.transform_basis(transform))
 
-    @abstractmethod
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """TODO."""
+        raise NotImplementedError()
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
@@ -124,4 +124,8 @@ class IntegralProperty(SecondQuantizedProperty):
         Raises:
             NotImplemented
         """
+        raise NotImplementedError()
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """TODO."""
         raise NotImplementedError()
