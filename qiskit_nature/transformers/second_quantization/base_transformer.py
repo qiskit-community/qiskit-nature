@@ -15,22 +15,23 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+from qiskit_nature.properties.second_quantization import DriverResult, SecondQuantizedProperty
+
 
 class BaseTransformer(ABC):
-    """The interface for implementing methods which map from one `QMolecule` or
-    'WatsonHamiltonian' to another. These methods may or may not affect the size of the Hilbert
-    space.
+    """The interface for implementing methods which map from one `DriverResult` to another.
+    These methods may or may not affect the size of the Hilbert space.
     """
 
     @abstractmethod
-    def transform(self, molecule_data: Any):
-        """Transforms one `QMolecule` or 'WatsonHamiltonian' into another one. This may or may
-        not affect the size of the Hilbert space.
+    def transform(self, molecule_data: DriverResult[SecondQuantizedProperty]):
+        """Transforms one `DriverResult` into another one. This may or may not affect the size of
+        the Hilbert space.
 
         Args:
-            molecule_data: the `QMolecule` or 'WatsonHamiltonian' to be transformed.
+            molecule_data: the `DriverResult` to be transformed.
 
         Returns:
-            A new `QMolecule` or 'WatsonHamiltonian' instance.
+            A new `DriverResult` instance.
         """
         raise NotImplementedError()

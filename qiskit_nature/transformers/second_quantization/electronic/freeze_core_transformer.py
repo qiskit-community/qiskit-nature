@@ -27,13 +27,13 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         freeze_core: bool = True,
         remove_orbitals: Optional[List[int]] = None,
     ):
-        """Initializes a transformer which reduces a `QMolecule` by removing some molecular
-        orbitals.
+        """Initializes a transformer which can reduce an `ElectronicDriverResult` to a configured
+        active space.
 
         The orbitals to be removed are specified in two ways:
             1. When `freeze_core` is enabled (the default), the `core_orbitals` listed in the
-               `QMolecule` are made inactive and removed in the same fashion as in the
-               :class:`ActiveSpaceTransformer`.
+               `Molecule` stored as part of the `ElectronicDriverResult` are made inactive and
+               removed in the same fashion as in the :class:`ActiveSpaceTransformer`.
             2. Additionally, unoccupied molecular orbitals can be removed via a list of indices
                passed to `remove_orbitals`. It is the user's responsibility to ensure that these are
                indeed unoccupied orbitals, as no checks are performed.
@@ -43,7 +43,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         Args:
             freeze_core: A boolean indicating whether to remove the molecular orbitals specified by
-                        `QMolecule.core_orbitals`.
+                        `Molecule.core_orbitals`.
             remove_orbitals: A list of indices specifying molecular orbitals which are removed.
                              No checks are performed on the nature of these orbitals, so the user
                              must make sure that these are _unoccupied_ orbitals, which can be
@@ -63,7 +63,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         """Determines the active and inactive orbital indices.
 
         Args:
-            molecule_data: the ElectronicDriverResult.
+            molecule_data: the `ElectronicDriverResult` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.

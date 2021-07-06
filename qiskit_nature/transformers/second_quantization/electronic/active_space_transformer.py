@@ -19,7 +19,7 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties import CompositeProperty, Property
-from qiskit_nature.properties.second_quantization import SecondQuantizedProperty
+from qiskit_nature.properties.second_quantization import DriverResult, SecondQuantizedProperty
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
@@ -88,15 +88,14 @@ class ActiveSpaceTransformer(BaseTransformer):
         num_molecular_orbitals: Optional[int] = None,
         active_orbitals: Optional[List[int]] = None,
     ):
-        """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
+        """Initializes a transformer which can reduce an `ElectronicDriverResult` to a configured
+        active space.
 
-        This transformer requires the AO-basis matrices `hcore` and `eri` to be available, as well
-        as the basis-transformation matrix `mo_coeff`. A `QMolecule` produced by Qiskit's drivers in
-        general satisfies these conditions unless it was read from an FCIDump file. However, those
-        integrals are likely already reduced by the code which produced the file or can be
-        transformed using this driver after copying the MO-basis integrals of the produced
-        `QMolecule` into the AO-basis containers and initializing `mo_coeff` with an identity matrix
-        of appropriate size.
+        This transformer requires a `ParticleNumber` property to be available as well as
+        `ElectronicIntegrals` in the `ElectronicBasis.AO` basis. An `ElectronicDriverResult`
+        produced by Qiskit's drivers in general satisfies these conditions unless it was read from
+        an FCIDump file. However, those integrals are likely already reduced by the code which
+        produced the file.
 
         Args:
             num_electrons: The number of active electrons. If this is a tuple, it represents the
@@ -165,14 +164,16 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-    def transform(self, molecule_data: ElectronicDriverResult) -> ElectronicDriverResult:
-        """Reduces the given `QMolecule` to a given active space.
+    def transform(
+        self, molecule_data: DriverResult[SecondQuantizedProperty]
+    ) -> ElectronicDriverResult:
+        """Reduces the given `ElectronicDriverResult` to a given active space.
 
         Args:
-            molecule_data: the `QMolecule` to be transformed.
+            molecule_data: the `ElectronicDriverResult` to be transformed.
 
         Returns:
-            A new `QMolecule` instance.
+            A new `ElectronicDriverResult` instance.
 
         Raises:
             QiskitNatureError: If the provided `ElectronicDriverResult` does not contain a
@@ -180,6 +181,12 @@ class ActiveSpaceTransformer(BaseTransformer):
                                requested than are available, or if the number of selected active
                                orbital indices does not match `num_molecular_orbitals`.
         """
+        if not isinstance(molecule_data, ElectronicDriverResult):
+            raise QiskitNatureError(
+                "Only `ElectronicDriverResult` objects can be transformed by this Transformer, not "
+                f"objects of type, {type(molecule_data)}."
+            )
+
         particle_number = molecule_data.get_property(ParticleNumber)
         if particle_number is None:
             raise QiskitNatureError(
@@ -223,7 +230,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             ),
         )
 
-        # construct new QMolecule
+        # construct new ElectronicDriverResult
         molecule_data_reduced = ElectronicStructureResult()
         molecule_data_reduced.electronic_basis_transform = self._transform_active
         molecule_data_reduced = self._transform_property(molecule_data)  # type: ignore
@@ -236,7 +243,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         """Determines the active and inactive orbital indices.
 
         Args:
-            molecule_data: the ElectronicDriverResult.
+            molecule_data: the `ElectronicDriverResult` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
@@ -290,7 +297,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         Args:
             nelec_inactive: the computed number of inactive electrons.
-            molecule_data: the `QMolecule` to be transformed.
+            particle_number: the `ParticleNumber` containing system size information.
 
         Raises:
             QiskitNatureError: if more orbitals were requested than are available in total or if the

@@ -22,7 +22,7 @@ from .electronic import FreezeCoreTransformer as NewFreezeCoreTransformer
 
 
 class FreezeCoreTransformer(ActiveSpaceTransformer):
-    """The Freeze-Core reduction."""
+    """**DEPRECATED!**"""
 
     # pylint: disable=super-init-not-called
     def __init__(

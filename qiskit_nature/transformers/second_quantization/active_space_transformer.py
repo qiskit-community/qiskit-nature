@@ -26,7 +26,7 @@ INACTIVE_ENERGY_SUBSCRIPT = "ij,ji"
 
 
 class ActiveSpaceTransformer(BaseTransformer):
-    r"""The Active-Space reduction.
+    r"""**DEPRECATED!**
 
     The reduction is done by computing the inactive Fock operator which is defined as
     :math:`F^I_{pq} = h_{pq} + \sum_i 2 g_{iipq} - g_{iqpi}` and the inactive energy which is
