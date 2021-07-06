@@ -121,7 +121,7 @@ class PSI4Driver(FermionicDriver):
 
         input_text = cfg + "\n"
         input_text += "import sys\n"
-        syspath = "['" + str(qiskit_nature_directory).replace("\\", "/") + "','" 
+        syspath = "['" + str(qiskit_nature_directory).replace("\\", "/") + "','"
         syspath += "','".join(p.replace("\\", "/") for p in sys.path) + "']"
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
