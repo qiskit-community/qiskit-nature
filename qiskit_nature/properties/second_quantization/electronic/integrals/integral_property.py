@@ -102,7 +102,18 @@ class IntegralProperty(SecondQuantizedProperty):
             self.add_electronic_integral(integral.transform_basis(transform))
 
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """TODO."""
+        """Constructs the operator of this property in matrix-format for a given density.
+
+        An IntegralProperty typically represents an observable which can be expressed in terms of a
+        matrix-formatted operator at a given electronic density. This method must be implemented by
+        a subclass to provide this functionality.
+
+        Args:
+            density: the electronic density at which to compute the matrix operator.
+
+        Returns:
+            OneBodyElectronicIntegrals: the matrix-formatted operator stored as ElectronicIntegrals.
+        """
         raise NotImplementedError()
 
     def second_q_ops(self) -> List[FermionicOp]:
@@ -127,5 +138,9 @@ class IntegralProperty(SecondQuantizedProperty):
         raise NotImplementedError()
 
     def interpret(self, result: EigenstateResult) -> None:
-        """TODO."""
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
         raise NotImplementedError()

@@ -98,7 +98,18 @@ class ElectronicEnergy(IntegralProperty):
         return cls(integrals, energy_shift=energy_shift, reference_energy=qmol.hf_energy)
 
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """TODO."""
+        """Constructs the operator of this property in matrix-format for a given density.
+
+        An IntegralProperty typically represents an observable which can be expressed in terms of a
+        matrix-formatted operator at a given electronic density. This method must be implemented by
+        a subclass to provide this functionality.
+
+        Args:
+            density: the electronic density at which to compute the matrix operator.
+
+        Returns:
+            OneBodyElectronicIntegrals: the matrix-formatted operator stored as ElectronicIntegrals.
+        """
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
             raise NotImplementedError()
 

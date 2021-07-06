@@ -113,8 +113,8 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             The resulting complex.
 
         Raises:
-            TypeError: TODO.
-            ValueError: TODO.
+            TypeError: if `other` is not an `OneBodyElectronicIntegrals` instance.
+            ValueError: if the bases of `self` and `other` do not match.
         """
         if not isinstance(other, OneBodyElectronicIntegrals):
             raise TypeError()
@@ -126,4 +126,4 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         for front, back in zip(self._matrices, other._matrices):
             product += np.einsum(einsum, front, back)
 
-        return product
+        return complex(product)

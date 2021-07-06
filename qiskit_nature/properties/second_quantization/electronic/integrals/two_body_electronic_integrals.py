@@ -173,9 +173,9 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             The resulting OneBodyElectronicIntegrals.
 
         Raises:
-            TypeError: TODO.
-            ValueError: TODO.
-            NotImplementedError: TODO.
+            TypeError: if `other` is not an `OneBodyElectronicIntegrals` instance.
+            ValueError: if the bases of `self` and `other` do not match or if `einsum` is `None`.
+            NotImplementedError: if the basis of `self` is not `ElectronicBasis.AO`.
         """
         if einsum is None:
             raise ValueError()
