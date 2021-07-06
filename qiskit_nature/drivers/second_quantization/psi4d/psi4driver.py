@@ -121,12 +121,17 @@ class PSI4Driver(FermionicDriver):
 
         input_text = cfg + "\n"
         input_text += "import sys\n"
-        syspath = "['" + str(qiskit_nature_directory).replace("\\", "/") + "','"
-        syspath += "','".join(p.replace("\\", "/") for p in sys.path) + "']"
+        syspath = (
+            "['"
+            + qiskit_nature_directory.as_posix()
+            + "','"
+            + "','".join(Path(p).as_posix() for p in sys.path)
+            + "']"
+        )
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
-        input_text += "from qiskit_nature.drivers.second_quantization.qmolecule import QMolecule\n"
-        input_text += '_q_molecule = QMolecule("{0}")\n'.format(molecule.filename.replace("\\", "/"))
+        input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"
+        input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
 
         with open(template_file, "r") as file:
             input_text += file.read()
