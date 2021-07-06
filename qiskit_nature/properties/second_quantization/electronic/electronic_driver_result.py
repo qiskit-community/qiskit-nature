@@ -29,10 +29,16 @@ from .particle_number import ParticleNumber
 
 
 class ElectronicDriverResult(DriverResult):
-    """TODO."""
+    """The ElectronicDriverResult class.
+
+    This is a :class:~qiskit_nature.properties.CompositeProperty gathering all property objects
+    previously stored in Qiskit Nature's `QMolecule` object.
+    """
 
     def __init__(self) -> None:
-        """TODO."""
+        """
+        Property objects should be added via `add_property` rather than via the initializer.
+        """
         super().__init__(self.__class__.__name__)
         self.molecule: Molecule = None
         self.electronic_basis_transform: ElectronicBasisTransform = None
@@ -42,7 +48,17 @@ class ElectronicDriverResult(DriverResult):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicDriverResult":
-        """TODO."""
+        """Converts a QMolecule into an `ElectronicDriverResult`.
+
+        Args:
+            result: the QMolecule to convert.
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a WatsonHamiltonian is provided.
+        """
         cls._validate_input_type(result, LegacyElectronicDriverResult)
 
         ret = cls()
@@ -68,9 +84,11 @@ class ElectronicDriverResult(DriverResult):
         return ret
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """TODO."""
+        """Returns the list of `FermioncOp`s given by the properties contained in this one."""
         ops: List[FermionicOp] = []
         # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
+        # NOTE: this will also get rid of the hard-coded aux_operator eigenvalue indices in the
+        # `interpret` methods of all of these properties
         for cls in [
             ElectronicEnergy,
             ParticleNumber,

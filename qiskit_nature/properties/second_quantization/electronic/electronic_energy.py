@@ -109,6 +109,9 @@ class ElectronicEnergy(IntegralProperty):
 
         Returns:
             OneBodyElectronicIntegrals: the matrix-formatted operator stored as ElectronicIntegrals.
+
+        Raises:
+            NotImplementedError: if no AO-integrals are stored within `self`.
         """
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
             raise NotImplementedError()

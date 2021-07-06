@@ -28,10 +28,16 @@ from .vibrational_property import VibrationalProperty
 # Pylint<2.9.0 raises false-positive no-member errors (E1101) for abstract properties
 # pylint: disable=no-member
 class VibrationalDriverResult(DriverResult[VibrationalProperty]):
-    """TODO."""
+    """The VibrationalDriverResult class.
+
+    This is a :class:~qiskit_nature.properties.CompositeProperty gathering all property objects
+    previously stored in Qiskit Nature's `WatsonHamiltonian` object.
+    """
 
     def __init__(self) -> None:
-        """TODO."""
+        """
+        Property objects should be added via `add_property` rather than via the initializer.
+        """
         super().__init__(self.__class__.__name__)
         self._num_modes: int = None
 
@@ -58,7 +64,17 @@ class VibrationalDriverResult(DriverResult[VibrationalProperty]):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalDriverResult":
-        """TODO."""
+        """Converts a WatsonHamiltonian into an `ElectronicDriverResult`.
+
+        Args:
+            result: the WatsonHamiltonian to convert.
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a QMolecule is provided.
+        """
         cls._validate_input_type(result, LegacyVibrationalDriverResult)
 
         ret = cls()
@@ -72,7 +88,7 @@ class VibrationalDriverResult(DriverResult[VibrationalProperty]):
         return ret
 
     def second_q_ops(self) -> List[VibrationalOp]:
-        """TODO."""
+        """Returns the list of `VibrationalOp`s given by the properties contained in this one."""
         ops: List[VibrationalOp] = []
         # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
         for cls in [VibrationalEnergy, OccupiedModals]:
