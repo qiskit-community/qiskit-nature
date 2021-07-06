@@ -12,12 +12,10 @@
 
 """Test IntegralProperty"""
 
-import json
 from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
