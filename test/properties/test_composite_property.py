@@ -15,8 +15,7 @@
 from test import QiskitNatureTestCase
 
 from qiskit_nature.properties import CompositeProperty
-from qiskit_nature.properties.second_quantization.electronic.integrals import \
-    IntegralProperty
+from qiskit_nature.properties.second_quantization.electronic.integrals import IntegralProperty
 
 
 class TestCompositeProperty(QiskitNatureTestCase):
