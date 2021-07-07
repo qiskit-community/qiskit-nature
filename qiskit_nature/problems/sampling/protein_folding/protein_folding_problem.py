@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Defines a protein folding problem that can be passed to algorithms."""
-from typing import Union
+from typing import Union, Tuple, List
 
 from qiskit.opflow import PauliSumOp, PauliOp
 
@@ -18,6 +18,7 @@ from .qubit_op_builder import _build_qubit_op
 from .peptide.peptide import Peptide
 from .interactions.interaction import Interaction
 from .penalty_parameters import PenaltyParameters
+from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
 
 
@@ -25,7 +26,7 @@ class ProteinFoldingProblem(SamplingProblem):
     """Defines a protein folding problem that can be passed to algorithms."""
 
     def __init__(
-        self, peptide: Peptide, interaction: Interaction, penalty_parameters: PenaltyParameters
+            self, peptide: Peptide, interaction: Interaction, penalty_parameters: PenaltyParameters
     ):
         """
         Args:
@@ -40,20 +41,44 @@ class ProteinFoldingProblem(SamplingProblem):
         self._pair_energies = interaction.calc_energy_matrix(
             len(peptide.get_main_chain), peptide.get_main_chain.main_chain_residue_sequence
         )
-        self._n_contacts = 0  # TODO what is the meaning of this param?
+        self._unused_qubits: List[int] = []
 
-    def qubit_op(self) -> Union[PauliOp, PauliSumOp]:
+    def qubit_op(self) -> Union[PauliSumOp, PauliOp]:
         """
-        Builds a qubit operator for the Hamiltonian encoding a protein folding problem.
+        Builds a qubit operator for the Hamiltonian encoding a protein folding problem. The
+        number of qubits needed for optimization is optimized (compressed), if possible.
+        To obtain the full qubit operator for a Hamiltonian, use the method `qubit_op_full`.
+
+        Returns:
+            qubit_operator: a qubit operator for the Hamiltonian encoding a protein folding
+                            problem on an optimized number of qubits.
+        """
+        qubit_operator, unused_qubits = qubit_number_reducer._remove_unused_qubits(
+            self.qubit_op_full()
+        )
+        self._unused_qubits = unused_qubits
+        return qubit_operator
+
+    def qubit_op_full(self) -> Union[PauliOp, PauliSumOp]:
+        """
+        Builds a full qubit operator for the Hamiltonian encoding a protein folding problem. Full
+        means that the number of qubits needed for optimization is not optimized and may be
+        larger that necessary. To ensure the optimal number of qubits, use the method `qubit_op`.
 
         Returns:
             qubit_operator: a qubit operator for the Hamiltonian encoding a protein folding problem.
         """
         qubit_operator = _build_qubit_op(
-            self._peptide, self._pair_energies, self._penalty_parameters, self._n_contacts
+            self._peptide, self._pair_energies, self._penalty_parameters
         )
         return qubit_operator
 
     # TODO will be implemented in another issue
     def interpret(self):
         pass
+
+    @property
+    def unused_qubits(self):
+        """Returns the list of indices for qubits in the original problem formulation that were
+        removed during compression."""
+        return self._unused_qubits

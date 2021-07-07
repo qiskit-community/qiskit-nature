@@ -19,7 +19,7 @@ from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 def _remove_unused_qubits(
     total_hamiltonian: Union[PauliSumOp, PauliOp]
-) -> Union[PauliSumOp, PauliOp]:
+) -> Tuple[Union[PauliSumOp, PauliOp], List[int]]:
     """
     Removes those qubits from a total Hamiltonian that are equal to an identity operator across
     all terms, i.e. they are irrelevant for the problem. It makes the number of qubits required
@@ -30,23 +30,25 @@ def _remove_unused_qubits(
 
     Returns:
         total_hamiltonian_compressed: The total_hamiltonian compressed to an equivalent
-        Hamiltonian.
+                            Hamiltonian.
+        unused_qubits: indices of qubits in the original Hamiltonian that were unused as
+                        optimization variables.
     """
     unused_qubits = _find_unused_qubits(total_hamiltonian)
     num_qubits = total_hamiltonian.num_qubits
     if isinstance(total_hamiltonian, PauliOp):
-        return _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits)
+        return _compress_pauli_op(num_qubits, total_hamiltonian, unused_qubits), unused_qubits
 
     elif isinstance(total_hamiltonian, PauliSumOp):
-        return _compress_pauli_sum_op(num_qubits, total_hamiltonian, unused_qubits)
-    return None
+        return _compress_pauli_sum_op(num_qubits, total_hamiltonian, unused_qubits), unused_qubits
+    return None, None
 
 
 def _compress_pauli_op(
     num_qubits: int,
     total_hamiltonian: Union[PauliSumOp, PauliOp, OperatorBase],
     unused_qubits: List[int],
-):
+) -> Union[PauliOp, OperatorBase]:
     table_z = total_hamiltonian.primitive.z
     table_x = total_hamiltonian.primitive.x
     new_table_z, new_table_x = _calc_reduced_pauli_tables(

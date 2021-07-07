@@ -47,7 +47,7 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         mj_interaction = MiyazawaJerniganInteraction()
 
         protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
-        qubit_op = protein_folding_problem.qubit_op()
+        qubit_op = protein_folding_problem.qubit_op_full()
 
         expected_path = self.get_resource_path(
             "test_protein_folding_problem",

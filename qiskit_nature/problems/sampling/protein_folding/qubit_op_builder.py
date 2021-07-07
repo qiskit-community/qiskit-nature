@@ -29,10 +29,7 @@ from .peptide.peptide import Peptide
 
 
 def _build_qubit_op(
-    peptide: Peptide,
-    pair_energies: np.ndarray,
-    penalty_parameters: PenaltyParameters,
-    n_contacts: int,
+    peptide: Peptide, pair_energies: np.ndarray, penalty_parameters: PenaltyParameters
 ) -> Union[PauliSumOp, PauliOp]:
     """
     Builds a qubit operator for a total Hamiltonian for a protein folding problem. It includes
@@ -43,8 +40,6 @@ def _build_qubit_op(
         pair_energies: Numpy array of pair energies for amino acids.
         penalty_parameters: A PenaltyParameters object storing the values of all penalty
                             parameters.
-        n_contacts: number of contacts between all beads.
-
 
     Returns:
         h_total: A total Hamiltonian for the protein folding problem.
@@ -84,7 +79,7 @@ def _build_qubit_op(
     h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(
         peptide, lambda_1, pair_energies, distance_map, contact_map
     )
-    h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
+    h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts)
 
     h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
 
@@ -519,7 +514,7 @@ def _create_h_short(peptide: Peptide, pair_energies: np.ndarray) -> Union[PauliS
 
 # TODO in the original code, n_contacts is always set to 0. What is the meaning of this param?
 def _create_h_contacts(
-    peptide: Peptide, contact_map: ContactMap, lambda_contacts: float, n_contacts: int = 0
+    peptide: Peptide, contact_map: ContactMap, lambda_contacts: float
 ) -> Union[PauliSumOp, PauliOp]:
     """
     Creates a Hamiltonian term approximating nearest neighbor interactions and includes energy of
@@ -530,7 +525,6 @@ def _create_h_contacts(
         contact_map: ContactMap object that stores contact qubits for all beads.
         lambda_contacts: Constraint to penalize local overlap between beads within a nearest
         neighbor contact.
-        n_contacts: # TODO
     Returns:
         h_contacts: Contribution to energetic Hamiltonian for approximate nearest neighbor
         interactions.
@@ -544,7 +538,6 @@ def _create_h_contacts(
     h_contacts = 0.0
     for operator in new_qubits[-contact_map.num_contacts :]:
         h_contacts += operator
-    h_contacts -= n_contacts * (full_id ^ full_id)
     h_contacts = h_contacts ** 2
     h_contacts *= lambda_contacts
     h_contacts = _fix_qubits(h_contacts)

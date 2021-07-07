@@ -89,7 +89,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
     # TODO
     def test_build_qubit_op(self):
         """Tests if a total Hamiltonian qubit operator is built correctly."""
-        n_contacts = 0
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
@@ -105,7 +104,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         mj_interaction = MiyazawaJerniganInteraction()
         penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
         pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
-        qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params, n_contacts)
+        qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params)
         expected_path = self.get_resource_path(
             "test_build_qubit_op_expected",
             PATH,
@@ -115,7 +114,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
     def test_build_qubit_op_2(self):
         """Tests if a total Hamiltonian qubit operator is built correctly."""
-        n_contacts = 0
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
@@ -131,7 +129,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         mj_interaction = MiyazawaJerniganInteraction()
         penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
         pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
-        qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params, n_contacts)
+        qubit_op = _build_qubit_op(peptide, pair_energies, penalty_params)
         expected_path = self.get_resource_path(
             "test_build_qubit_op_2_expected",
             PATH,
@@ -375,9 +373,8 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
 
-        n_contacts = 0
         contact_map = ContactMap(peptide)
-        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
+        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts)
         expected_path_h_contacts = self.get_resource_path(
             "test_create_h_contacts_expected",
             PATH,
@@ -390,7 +387,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         Tests that the Hamiltonian to back-overlaps is created correctly.
         """
         lambda_contacts = 10
-        n_contacts = 0
         main_chain_residue_seq = ["S", "A", "A", "C", "S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 1, 0]
@@ -399,7 +395,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         contact_map = ContactMap(peptide)
-        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts, n_contacts)
+        h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts)
         expected_path_h_contacts = self.get_resource_path(
             "test_create_h_contacts_2_expected",
             PATH,

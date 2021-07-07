@@ -81,37 +81,52 @@ class TestQubitNumberReducer(QiskitNatureTestCase):
         """
         operator = (I ^ I ^ I ^ I ^ I) + (Z ^ I ^ I ^ I ^ I) + (I ^ I ^ I ^ I ^ Z)
 
-        reduced = _remove_unused_qubits(operator)
-        self.assertEqual(reduced, 1.0 * (I ^ I) + 1.0 * (Z ^ I) + 1.0 * (I ^ Z))
+        reduced, unused = _remove_unused_qubits(operator)
+        expected_reduced = 1.0 * (I ^ I) + 1.0 * (Z ^ I) + 1.0 * (I ^ Z)
+        expected_unused = [1, 2, 3]
+        self.assertEqual(reduced, expected_reduced)
+        self.assertEqual(unused, expected_unused)
 
     def test_remove_unused_qubits_2(self):
         """
         Tests that unused qubits are found correctly.
         """
         operator = (I ^ I ^ I ^ Z ^ I) + (I ^ I ^ Z ^ I ^ I)
-        reduced = _remove_unused_qubits(operator)
-        self.assertEqual(reduced, 1.0 * (I ^ Z) + 1.0 * (Z ^ I))
+        reduced, unused = _remove_unused_qubits(operator)
+        expected_reduced = 1.0 * (I ^ Z) + 1.0 * (Z ^ I)
+        expected_unused = [0, 3, 4]
+        self.assertEqual(reduced, expected_reduced)
+        self.assertEqual(unused, expected_unused)
 
     def test_remove_unused_qubits_keep_all(self):
         """
         Tests that unused qubits are found correctly.
         """
         operator = (Z ^ I ^ Z) + (I ^ Z ^ I)
-        reduced = _remove_unused_qubits(operator)
-        self.assertEqual(reduced, 1.0 * (I ^ Z ^ I) + 1.0 * (Z ^ I ^ Z))
+        reduced, unused = _remove_unused_qubits(operator)
+        expected_reduced = 1.0 * (I ^ Z ^ I) + 1.0 * (Z ^ I ^ Z)
+        expected_unused = []
+        self.assertEqual(reduced, expected_reduced)
+        self.assertEqual(unused, expected_unused)
 
     def test_remove_unused_qubits_pauli_op(self):
         """
         Tests that unused qubits are found correctly.
         """
         operator = I ^ I ^ I ^ Z ^ I
-        reduced = _remove_unused_qubits(operator)
-        self.assertEqual(reduced, 1.0 * (Z))
+        reduced, unused = _remove_unused_qubits(operator)
+        expected_reduced = 1.0 * (Z)
+        expected_unused = [0, 2, 3, 4]
+        self.assertEqual(reduced, expected_reduced)
+        self.assertEqual(unused, expected_unused)
 
     def test_remove_unused_qubits_pauli_op_2(self):
         """
         Tests that unused qubits are found correctly.
         """
         operator = I ^ Z ^ I ^ Z ^ I
-        reduced = _remove_unused_qubits(operator)
-        self.assertEqual(reduced, 1.0 * (Z ^ Z))
+        reduced, unused = _remove_unused_qubits(operator)
+        expected_reduced = 1.0 * (Z ^ Z)
+        expected_unused = [0, 2, 4]
+        self.assertEqual(reduced, expected_reduced)
+        self.assertEqual(unused, expected_unused)
