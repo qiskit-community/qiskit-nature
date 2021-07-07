@@ -224,12 +224,7 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
         raise ValueError("unexpected number of operators")
 
 
-def number_of_modes(fer_op: FermionicOp) -> int:
-    """Return the number of modes (including identities) in each term `fer_op`"""
-    return len(fer_op.to_list()[0][0])
-
-
-def operator_string(term: tuple) -> str:
+def _operator_string(term: tuple) -> str:
     """
     Return the string describing the operators in the term extracted from a `FermionicOp`.
     given by `term.
@@ -237,14 +232,13 @@ def operator_string(term: tuple) -> str:
     return term[0]
 
 
-def operator_coefficient(term: tuple) -> float:
+def _operator_coefficient(term: tuple) -> float:
     """
     Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`.
     """
     return term[1]
 
 
-## TODO: We may want a lower-triangular matrix. This may be the cause of the minus sign error.
 def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     """
     Return an adjacency matrix specifying the edges in the BKSF graph for the
@@ -256,10 +250,10 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     Returns:
           numpy.ndarray(dtype=bool): edge_matrix the adjacency matrix.
     """
-    n_modes = number_of_modes(fer_op)
+    n_modes = fer_op.register_length
     edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
     for term in fer_op.to_list():
-        _add_edges_for_term(edge_matrix, operator_string(term))
+        _add_edges_for_term(edge_matrix, _operator_string(term))
     return edge_matrix
 
 
@@ -280,15 +274,15 @@ def _add_edges_for_term(edge_matrix, term_str: str) -> None:
     Add one, two, or no edges to `edge_matrix` as dictated by the operator `term_str`.
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
-    ttype = _interaction_type(n_number, n_raise, n_lower)
+    _type = _interaction_type(n_number, n_raise, n_lower)
     # For 'excitation' and 'number_excitation', create and edge between the `+` and `-`.
-    if ttype in ("excitation", "number_excitation"):
+    if _type in ("excitation", "number_excitation"):
         inds = [i for (i, c) in facs if c in "+-"]
         if len(inds) != 2:
             raise ValueError("wrong number or raising and lowering")
         _add_one_edge(edge_matrix, *inds)
     # For `double_excitation` create an edge between the two `+`s and edge between the two `-`s.
-    elif ttype == "double_excitation":
+    elif _type == "double_excitation":
         raise_inds = [i for (i, c) in facs if c == "+"]
         lower_inds = [i for (i, c) in facs if c == "-"]
         _add_one_edge(edge_matrix, *raise_inds)
@@ -469,15 +463,15 @@ def _analyze_term(term_str: str) -> Tuple[str, List]:
        `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
-    ttype = _interaction_type(n_number, n_raise, n_lower)
-    return ttype, facs
+    _type = _interaction_type(n_number, n_raise, n_lower)
+    return _type, facs
 
 
 def _convert_operators(fer_op_qn: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
     fer_op_list = fer_op_qn.to_list()
     sparse_pauli = None
     for term in fer_op_list:
-        term_type, facs = _analyze_term(operator_string(term))
+        term_type, facs = _analyze_term(_operator_string(term))
         if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
         ## Following only filters h.c. of some number-excitation op
@@ -487,20 +481,20 @@ def _convert_operators(fer_op_qn: FermionicOp, edge_list: np.ndarray) -> SparseP
 
         if term_type == "number":  # a^\dagger_p a_p
             p = facs[0][0]  # pylint: disable=invalid-name
-            h1_pq = operator_coefficient(term)
+            h1_pq = _operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(sparse_pauli, _number_operator(edge_list, p, h1_pq))
             continue
 
         if term_type == "excitation":
             (p, q) = [facs[i][0] for i in range(2)]  # p < q always   # pylint: disable=invalid-name
-            h1_pq = operator_coefficient(term)
+            h1_pq = _operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(
                 sparse_pauli, _excitation_operator(edge_list, p, q, h1_pq)
             )
 
         else:
             facs_reordered, phase = _to_physicist_index_order(facs)
-            h2_pqrs = phase * operator_coefficient(term)
+            h2_pqrs = phase * _operator_coefficient(term)
             (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]  # pylint: disable=invalid-name
             if term_type == "double_excitation":
                 sparse_pauli = _add_sparse_pauli(
