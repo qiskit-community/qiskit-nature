@@ -17,6 +17,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 from shutil import which
 from typing import Union, List, Optional
 
@@ -105,19 +106,25 @@ class PSI4Driver(FermionicDriver):
         else:
             cfg = self._config
 
-        psi4d_directory = os.path.dirname(os.path.realpath(__file__))
-        template_file = psi4d_directory + '/_template.txt'
-        qiskit_chemistry_directory = os.path.abspath(os.path.join(psi4d_directory, '../..'))
+        psi4d_directory = Path(__file__).resolve().parent
+        template_file = psi4d_directory.joinpath("_template.txt")
+        qiskit_nature_directory = psi4d_directory.parent.parent
 
         molecule = QMolecule()
 
-        input_text = cfg + '\n'
-        input_text += 'import sys\n'
-        syspath = '[\'' + qiskit_chemistry_directory + '\',\'' + '\',\''.join(sys.path) + '\']'
+        input_text = cfg + "\n"
+        input_text += "import sys\n"
+        syspath = (
+            "['"
+            + qiskit_nature_directory.as_posix()
+            + "','"
+            + "','".join(Path(p).as_posix() for p in sys.path)
+            + "']"
+        )
 
-        input_text += 'sys.path = ' + syspath + ' + sys.path\n'
-        input_text += 'from qiskit_nature.drivers.qmolecule import QMolecule\n'
-        input_text += '_q_molecule = QMolecule("{0}")\n'.format(molecule.filename)
+        input_text += "sys.path = " + syspath + " + sys.path\n"
+        input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"
+        input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
 
         with open(template_file, 'r') as file:
             input_text += file.read()
