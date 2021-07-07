@@ -26,7 +26,7 @@ class ProteinFoldingProblem(SamplingProblem):
     """Defines a protein folding problem that can be passed to algorithms."""
 
     def __init__(
-            self, peptide: Peptide, interaction: Interaction, penalty_parameters: PenaltyParameters
+        self, peptide: Peptide, interaction: Interaction, penalty_parameters: PenaltyParameters
     ):
         """
         Args:
