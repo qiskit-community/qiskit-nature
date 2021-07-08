@@ -30,7 +30,7 @@ class ProteinFoldingResult(EigenstateResult):
 
     @property
     def protein_folding_problem(self):
-        """Returns the protein folding probelm."""
+        """Returns the protein folding problem."""
         return self._protein_folding_problem
 
     @property
