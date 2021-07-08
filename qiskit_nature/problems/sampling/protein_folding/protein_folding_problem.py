@@ -10,14 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Defines a protein folding problem that can be passed to algorithms."""
-from typing import Union, Tuple, List
+from typing import Union, List
 
 from qiskit.opflow import PauliSumOp, PauliOp
 
-from .qubit_op_builder import _build_qubit_op
 from .peptide.peptide import Peptide
 from .interactions.interaction import Interaction
 from .penalty_parameters import PenaltyParameters
+from .qubit_op_builder import QubitOpBuilder
 from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
 
@@ -40,6 +40,9 @@ class ProteinFoldingProblem(SamplingProblem):
         self._penalty_parameters = penalty_parameters
         self._pair_energies = interaction.calc_energy_matrix(
             len(peptide.get_main_chain), peptide.get_main_chain.main_chain_residue_sequence
+        )
+        self._qubit_op_builder = QubitOpBuilder(
+            self._peptide, self._pair_energies, self._penalty_parameters
         )
         self._unused_qubits: List[int] = []
 
@@ -68,9 +71,7 @@ class ProteinFoldingProblem(SamplingProblem):
         Returns:
             qubit_operator: a qubit operator for the Hamiltonian encoding a protein folding problem.
         """
-        qubit_operator = _build_qubit_op(
-            self._peptide, self._pair_energies, self._penalty_parameters
-        )
+        qubit_operator = self._qubit_op_builder._build_qubit_op()
         return qubit_operator
 
     # TODO will be implemented in another issue
