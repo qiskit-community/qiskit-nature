@@ -71,15 +71,23 @@ def _build_qubit_op(
 
     contact_map = ContactMap(peptide)
 
-    h_scsc = _create_h_scsc(peptide, lambda_1, pair_energies, distance_map, contact_map)
-    h_bbbb = _create_h_bbbb(peptide, lambda_1, pair_energies, distance_map, contact_map)
+    h_scsc = (
+        _create_h_scsc(peptide, lambda_1, pair_energies, distance_map, contact_map)
+        if lambda_1
+        else 0
+    )
+    h_bbbb = (
+        _create_h_bbbb(peptide, lambda_1, pair_energies, distance_map, contact_map)
+        if lambda_1
+        else 0
+    )
 
     h_short = _create_h_short(peptide, pair_energies)
 
     h_bbsc, h_scbb = _create_h_bbsc_and_h_scbb(
-        peptide, lambda_1, pair_energies, distance_map, contact_map
+        peptide, lambda_1, pair_energies, distance_map, contact_map if lambda_1 else (0, 0)
     )
-    h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts)
+    h_contacts = _create_h_contacts(peptide, contact_map, lambda_contacts) if lambda_contacts else 0
 
     h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
 
