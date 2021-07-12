@@ -369,8 +369,10 @@ class ActiveSpaceTransformer(BaseTransformer):
                     transformed_internal_property = self._transform_property(internal_property)
                 except NotImplementedError:
                     logger.warning(
-                        f"The Property {prop.name} of type {type(prop)} could not be transformed! "
-                        "Thus, it will not be included in the simulation from here onwards."
+                        "The Property %s of type %s could not be transformed! Thus, it will not be "
+                        "included in the simulation from here onwards.",
+                        prop.name,
+                        type(prop),
                     )
                     continue
 

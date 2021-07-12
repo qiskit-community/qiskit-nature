@@ -12,7 +12,7 @@
 
 """The VibrationalEnergy property."""
 
-from typing import cast, Dict, List, Optional
+from typing import cast, Dict, List, Optional, Tuple
 
 from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
@@ -86,7 +86,7 @@ class VibrationalEnergy(VibrationalProperty):
 
         w_h = cast(WatsonHamiltonian, result)
 
-        sorted_integrals = {1: [], 2: [], 3: []}
+        sorted_integrals: Dict[int, List[Tuple[float, Tuple[int, ...]]]] = {1: [], 2: [], 3: []}
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]
             num_body = len(set(ints))
