@@ -257,7 +257,10 @@ class ElectronicIntegrals(ABC):
 
     def __add__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
         if self._basis != other._basis:
-            raise TypeError()
+            raise ValueError(
+                f"The basis of self, {self._basis.value}, does not match the basis of other, "
+                f"{other._basis}!"
+            )
         return self.add(other)
 
     def __sub__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":

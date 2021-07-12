@@ -12,6 +12,8 @@
 
 """The Active-Space Reduction interface."""
 
+import logging
+
 from copy import deepcopy
 from typing import List, Optional, Tuple, Union, cast
 
@@ -35,6 +37,8 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 from qiskit_nature.results import ElectronicStructureResult
 
 from ..base_transformer import BaseTransformer
+
+logger = logging.getLogger(__name__)
 
 
 class ActiveSpaceTransformer(BaseTransformer):
@@ -364,7 +368,10 @@ class ActiveSpaceTransformer(BaseTransformer):
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
                 except NotImplementedError:
-                    # TODO: log transformation failure
+                    logger.warning(
+                        f"The Property {prop.name} of type {type(prop)} could not be transformed! "
+                        "Thus, it will not be included in the simulation from here onwards."
+                    )
                     continue
 
         elif isinstance(prop, IntegralProperty):
@@ -386,6 +393,6 @@ class ActiveSpaceTransformer(BaseTransformer):
         elif isinstance(prop, SecondQuantizedProperty):
             transformed_property = prop.reduce_system_size(self._active_orbs_indices)
         else:
-            raise TypeError()
+            raise TypeError(f"{type(prop)} is an unsupported Property-type for this Transformer!")
 
         return transformed_property

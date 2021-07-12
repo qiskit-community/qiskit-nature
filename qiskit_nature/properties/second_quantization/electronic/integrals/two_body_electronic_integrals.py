@@ -178,16 +178,28 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             NotImplementedError: if the basis of `self` is not `ElectronicBasis.AO`.
         """
         if einsum is None:
-            raise ValueError()
+            raise ValueError(
+                "TwoBodyElectronicIntegrals.compose requires an Einsum summation convention "
+                "(`einsum`) in order to evaluate the composition! It may not be `None`."
+            )
 
         if not isinstance(other, OneBodyElectronicIntegrals):
-            raise TypeError()
+            raise TypeError(
+                "TwoBodyElectronicIntegrals.compose expected an `OneBodyElectronicIntegrals` object"
+                f" and not one of type {type(other)}."
+            )
 
         if self._basis != other._basis:
-            raise ValueError()
+            raise ValueError(
+                f"The basis of self, {self._basis.value}, does not match the basis of other, "
+                f"{other._basis}!"
+            )
 
         if self._basis != ElectronicBasis.AO:
-            raise NotImplementedError()
+            raise NotImplementedError(
+                "TwoBodyElectronicIntegrals.compose is not yet implemented for integrals in a basis"
+                " other than the AO basis!"
+            )
 
         eri = self._matrices[0]
 
