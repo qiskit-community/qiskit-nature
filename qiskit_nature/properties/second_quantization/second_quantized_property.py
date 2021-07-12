@@ -77,8 +77,8 @@ class SecondQuantizedProperty(Property):
         # The type hint of `valid_type` is not easy to determine because we are passing a typing
         # alias which is a type hint itself. So what is the type hint for a type hint...
         # For the time being this should be fine because the logic around from_legacy_driver_result
-        # will need to slightly adapted *before* the next release anyways when we continue with the
-        # integration of the `Property` objects.
+        # will need to be slightly adapted *before* the next release anyways when we continue with
+        # the integration of the `Property` objects.
         if not isinstance(result, valid_type.__args__):
             raise QiskitNatureError(
                 f"You cannot construct an {cls.__name__} from a {result.__class__.__name__}. "
