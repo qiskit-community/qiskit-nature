@@ -37,9 +37,9 @@ class Magnetization(SecondQuantizedProperty):
         self._num_spin_orbitals = num_spin_orbitals
 
     def __repr__(self) -> str:
-        string = super().__repr__() + ":"
-        string += f"\n\t{self._num_spin_orbitals} SOs"
-        return string
+        string = [super().__repr__() + ":"]
+        string += [f"\t{self._num_spin_orbitals} SOs"]
+        return "\n".join(string)
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":

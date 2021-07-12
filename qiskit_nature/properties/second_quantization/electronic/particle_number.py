@@ -93,11 +93,11 @@ class ParticleNumber(SecondQuantizedProperty):
         return np.asarray(self._occupation_beta, dtype=int)
 
     def __repr__(self) -> str:
-        string = super().__repr__() + ":"
-        string += f"\n\t{self._num_spin_orbitals} SOs"
-        string += f"\n\t{self._num_alpha} alpha electrons: {self.occupation_alpha}"
-        string += f"\n\t{self._num_beta} beta electrons: {self.occupation_beta}"
-        return string
+        string = [super().__repr__() + ":"]
+        string += [f"\t{self._num_spin_orbitals} SOs"]
+        string += [f"\t{self._num_alpha} alpha electrons: {self.occupation_alpha}"]
+        string += [f"\t{self._num_beta} beta electrons: {self.occupation_beta}"]
+        return "\n".join(string)
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":

@@ -75,21 +75,21 @@ class ElectronicIntegrals(ABC):
             self._fill_matrices()
 
     def __repr__(self) -> str:
-        string = f"({self._basis.name}) {self._num_body_terms}-Body Terms:\n"
+        string = [f"({self._basis.name}) {self._num_body_terms}-Body Terms:"]
         if self._basis == ElectronicBasis.SO:
             string += self._render_matrix_as_sparse_list(self._matrices)
         else:
             for title, mat in zip(self._matrix_representations, self._matrices):
-                string += f"\t{title}\n"
+                string += [f"\t{title}"]
                 string += self._render_matrix_as_sparse_list(mat)
-        return string
+        return "\n".join(string)
 
     @staticmethod
-    def _render_matrix_as_sparse_list(matrix) -> str:
-        string = ""
+    def _render_matrix_as_sparse_list(matrix) -> List[str]:
+        string = []
         nonzero = matrix.nonzero()
         for value, *indices in zip(matrix[nonzero], *nonzero):
-            string += f"\t{indices} = {value}\n"
+            string += [f"\t{indices} = {value}"]
         return string
 
     @staticmethod

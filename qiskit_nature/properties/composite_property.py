@@ -34,11 +34,11 @@ class CompositeProperty(Property, Iterable, Generic[T]):
         self._properties: Dict[str, T] = {}
 
     def __repr__(self) -> str:
-        string = super().__repr__() + ":"
+        string = [super().__repr__() + ":"]
         for prop in self._properties.values():
             for line in str(prop).split("\n"):
-                string += f"\n\t{line}"
-        return string
+                string += [f"\t{line}"]
+        return "\n".join(string)
 
     def add_property(self, prop: Optional[T]) -> None:
         """Adds a property to the composite.

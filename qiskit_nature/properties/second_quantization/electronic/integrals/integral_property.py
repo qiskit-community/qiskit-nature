@@ -51,15 +51,15 @@ class IntegralProperty(SecondQuantizedProperty):
         self._shift = shift or {}
 
     def __repr__(self) -> str:
-        string = super().__repr__()
+        string = [super().__repr__()]
         for basis_ints in self._electronic_integrals.values():
             for ints in basis_ints.values():
-                string += f"\n\t{ints}"
+                string += [f"\t{ints}"]
         if self._shift:
-            string += "\n\tEnergy Shifts:"
+            string += ["\tEnergy Shifts:"]
             for name, shift in self._shift.items():
-                string += f"\n\t\t{name} = {shift}"
-        return string
+                string += [f"\t\t{name} = {shift}"]
+        return "\n".join(string)
 
     def add_electronic_integral(self, integral: ElectronicIntegrals) -> None:
         """Adds an ElectronicIntegrals instance to the internal storage.
