@@ -36,11 +36,11 @@ class VibrationalIntegrals(ABC):
         """
         Args:
             num_body_terms: ``n``, as in the ``n-body`` terms stored in these integrals.
-            integrals: a sparse list of integrals. The data format corresponds a list of pairs, with
-                its first entry being the integral coefficient and the second entry being a tuple of
-                integers of length ``num_body_terms``. These integers are the indices of the modes
-                associated with the integral. If the indices are negative, the integral is treated
-                as a kinetic term of the vibrational hamiltonian.
+            integrals: a sparse list of integrals. The data format corresponds to a list of pairs,
+                with its first entry being the integral coefficient and the second entry being a
+                tuple of integers of length ``num_body_terms``. These integers are the indices of
+                the modes associated with the integral. If the indices are negative, the integral is
+                treated as a kinetic term of the vibrational hamiltonian.
 
         Raises:
             ValueError: if the number of body terms is less than 1.
@@ -72,6 +72,12 @@ class VibrationalIntegrals(ABC):
     def integrals(self, integrals: List[Tuple[float, Tuple[int, ...]]]) -> None:
         """Sets the integrals."""
         self._integrals = integrals
+
+    def __repr__(self) -> str:
+        string = [f"{self._num_body_terms}-Body Terms:"]
+        for value, indices in self._integrals:
+            string += [f"\t{indices} = {value}"]
+        return "\n".join(string)
 
     def to_basis(self) -> np.ndarray:
         """Maps the integrals into a basis which permits mapping into second-quantization.

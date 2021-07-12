@@ -44,3 +44,8 @@ class VibrationalProperty(SecondQuantizedProperty):
     def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
         self._basis = basis
+
+    def __repr__(self) -> str:
+        string = [super().__repr__() + ":"]
+        string += [f"\t{line}" for line in str(self._basis).split("\n")]
+        return "\n".join(string)

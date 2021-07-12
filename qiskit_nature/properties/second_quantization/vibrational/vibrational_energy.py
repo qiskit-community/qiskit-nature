@@ -33,7 +33,7 @@ class VibrationalEnergy(VibrationalProperty):
 
     def __init__(
         self,
-        vibrational_integrals: Dict[int, VibrationalIntegrals],
+        vibrational_integrals: List[VibrationalIntegrals],
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
     ):
@@ -48,7 +48,9 @@ class VibrationalEnergy(VibrationalProperty):
                 be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
-        self._vibrational_integrals = vibrational_integrals
+        self._vibrational_integrals: Dict[int, VibrationalIntegrals] = {}
+        for integral in vibrational_integrals:
+            self.add_vibrational_integral(integral)
         self._truncation_order = truncation_order
 
     @property
@@ -60,6 +62,12 @@ class VibrationalEnergy(VibrationalProperty):
     def truncation_order(self, truncation_order: int) -> None:
         """Sets the truncation order."""
         self._truncation_order = truncation_order
+
+    def __repr__(self) -> str:
+        string = [super().__repr__()]
+        for ints in self._vibrational_integrals.values():
+            string += [f"\t{ints}"]
+        return "\n".join(string)
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
@@ -79,17 +87,38 @@ class VibrationalEnergy(VibrationalProperty):
 
         w_h = cast(WatsonHamiltonian, result)
 
-        vib_ints: Dict[int, VibrationalIntegrals] = {
-            1: VibrationalIntegrals(1, []),
-            2: VibrationalIntegrals(2, []),
-            3: VibrationalIntegrals(3, []),
-        }
+        sorted_integrals = {1: [], 2: [], 3: []}
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]
             num_body = len(set(ints))
-            vib_ints[num_body].integrals.append((coeff, tuple(ints)))
+            sorted_integrals[num_body].append((coeff, tuple(ints)))
 
-        return cls(vib_ints)
+        return cls(
+            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        )
+
+    def add_vibrational_integral(self, integral: VibrationalIntegrals) -> None:
+        """Adds a VibrationalIntegrals instance to the internal storage.
+
+        Internally, the VibrationalIntegrals are stored in a dictionary sorted by their number of
+        body terms. This simplifies access based on these properties (see
+        `get_vibrational_integral`) and avoids duplicate, inconsistent entries.
+
+        Args:
+            integral: the VibrationalIntegrals to add.
+        """
+        self._vibrational_integrals[integral._num_body_terms] = integral
+
+    def get_vibrational_integral(self, num_body_terms: int) -> Optional[VibrationalIntegrals]:
+        """Gets an VibrationalIntegrals given the number of body terms.
+
+        Args:
+            num_body_terms: the number of body terms of the queried integrals.
+
+        Returns:
+            The queried integrals object (or None if unavailable).
+        """
+        return self._vibrational_integrals.get(num_body_terms, None)
 
     def second_q_ops(self) -> List[VibrationalOp]:
         """Returns a list containing the Hamiltonian constructed by the stored integrals."""
