@@ -39,8 +39,7 @@ class VibrationalEnergy(VibrationalProperty):
     ):
         """
         Args:
-            vibrational_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                ``VibrationalIntegrals``.
+            vibrational_integrals: a list of ``VibrationalIntegrals``.
             truncation_order: an optional truncation order for the highest number of body terms to
                 include in the constructed Hamiltonian.
             basis: the ``VibrationalBasis`` through which to map the integrals into second

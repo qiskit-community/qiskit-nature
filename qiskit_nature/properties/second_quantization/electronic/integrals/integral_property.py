@@ -39,9 +39,8 @@ class IntegralProperty(SecondQuantizedProperty):
     ):
         """
         Args:
-            basis: the basis which the integrals in ``electronic_integrals`` are stored in.
-            electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                ``ElectronicIntegrals``.
+            name: the name of this Property object.
+            electronic_integrals: a list of ``ElectronicIntegrals``.
             shift: an optional dictionary of value shifts.
         """
         super().__init__(name)
