@@ -28,9 +28,9 @@ def _pauli_id(n_qubits: int) -> SparsePauliOp:
     return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
 
 
-def _number_operator(
+def _number_operator(  # pylint: disable=invalid-name
     edge_list: np.ndarray, p: int, h1_pq: float
-) -> SparsePauliOp:  # pylint: disable=invalid-name
+) -> SparsePauliOp:
     b_p = edge_operator_bi(edge_list, p)
     id_op = _pauli_id(edge_list.shape[1])
     qubit_op = (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
@@ -38,9 +38,9 @@ def _number_operator(
 
 
 ## SW2018 eq 34
-def _coulomb_exchange(
+def _coulomb_exchange(  # pylint: disable=invalid-name
     edge_list: np.ndarray, p: int, q: int, s: int, h2_pqrs: float
-) -> SparsePauliOp:  # pylint: disable=invalid-name
+) -> SparsePauliOp:
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -55,9 +55,9 @@ def _coulomb_exchange(
 
 ## SW2018 eq 35
 ## Includes contributions from a h.c. pair
-def _excitation_operator(
+def _excitation_operator(  # pylint: disable=invalid-name
     edge_list: np.ndarray, p: int, q: int, h1_pq: float
-) -> SparsePauliOp:  # pylint: disable=invalid-name
+) -> SparsePauliOp:
     if p >= q:
         raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
     b_a = edge_operator_bi(edge_list, p)
@@ -68,9 +68,9 @@ def _excitation_operator(
 
 
 ## SW2018 eq 37
-def _double_excitation(
+def _double_excitation(  # pylint: disable=invalid-name
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
-) -> SparsePauliOp:  # pylint: disable=invalid-name
+) -> SparsePauliOp:
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     b_r = edge_operator_bi(edge_list, r)
@@ -96,9 +96,9 @@ def _double_excitation(
     return qubit_op
 
 
-def _number_excitation(
+def _number_excitation(  # pylint: disable=invalid-name
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
-) -> SparsePauliOp:  # pylint: disable=invalid-name
+) -> SparsePauliOp:
     b_p = edge_operator_bi(edge_list, p)
     b_q = edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
@@ -418,7 +418,7 @@ def _to_physicist_index_order(facs: List) -> Tuple[List, int]:
     return facs_out, phase
 
 
-class BravyiKitaevSFMapper(FermionicMapper):
+class BravyiKitaevSuperFastMapper(FermionicMapper):
     """The Bravyi-Kitaev super fast fermion-to-qubit mapping.
 
     This implementation follows closely Reference [1].

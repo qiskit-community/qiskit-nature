@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.mappers.second_quantization import BravyiKitaevSFMapper
+from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMapper
 from qiskit_nature.mappers.second_quantization.bksf import edge_operator_aij, edge_operator_bi
 import qiskit_nature.mappers.second_quantization.bksf as bksf
 
@@ -33,7 +33,7 @@ def _sort_simplify(sparse_pauli):
     return sparse_pauli
 
 
-class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
+class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
     """Test Bravyi-Kitaev Super-Fast Mapper"""
 
     def test_bksf_edge_op_bi(self):
@@ -141,7 +141,7 @@ class TestBravyiKitaevSFMapper(QiskitNatureTestCase):
             ]
         )
 
-        pauli_sum_op = BravyiKitaevSFMapper().map(h2_fop)
+        pauli_sum_op = BravyiKitaevSuperFastMapper().map(h2_fop)
 
         op1 = _sort_simplify(expected_pauli_op)
         op2 = _sort_simplify(pauli_sum_op.primitive)

@@ -33,7 +33,7 @@ FermionicOp Mappers
 
    FermionicMapper
    BravyiKitaevMapper
-   BravyiKitaevSFMapper
+   BravyiKitaevSuperFastMapper
    JordanWignerMapper
    ParityMapper
 
@@ -62,7 +62,7 @@ SpinOp Mappers
 """
 
 from .bravyi_kitaev_mapper import BravyiKitaevMapper
-from .bksf import BravyiKitaevSFMapper
+from .bksf import BravyiKitaevSuperFastMapper
 from .direct_mapper import DirectMapper
 from .fermionic_mapper import FermionicMapper
 from .jordan_wigner_mapper import JordanWignerMapper
@@ -74,7 +74,7 @@ from .vibrational_mapper import VibrationalMapper
 
 __all__ = [
     "BravyiKitaevMapper",
-    "BravyiKitaevSFMapper",
+    "BravyiKitaevSuperFastMapper",
     "DirectMapper",
     "FermionicMapper",
     "JordanWignerMapper",
