@@ -289,18 +289,18 @@ def _add_edges_for_term(edge_matrix, term_str: str) -> None:
         _add_one_edge(edge_matrix, *lower_inds)
 
 
-def bksf_edge_list_fermionic_op(fer_op_qn: FermionicOp) -> np.ndarray:
+def bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
     """
     Construct edge list required for the bksf algorithm.
 
     Args:
-        fer_op_qn: the fermionic operator in the second quantized form
+        ferm_op: the fermionic operator in the second quantized form
 
     Returns:
         numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edge
                         and each pair denotes (from, to)
     """
-    edge_matrix = _get_adjacency_matrix(fer_op_qn)
+    edge_matrix = _get_adjacency_matrix(ferm_op)
     edge_list_as_2d_array = np.asarray(np.nonzero(edge_matrix))
     return edge_list_as_2d_array
 
@@ -467,8 +467,24 @@ def _analyze_term(term_str: str) -> Tuple[str, List]:
     return _type, facs
 
 
-def _convert_operators(fer_op_qn: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
-    fer_op_list = fer_op_qn.to_list()
+def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
+    """
+    Convert a fermionic operator together with qubit-connectivity graph to a Pauli operator.
+
+    This is the heart of the implementation of BKSF mapping. The connectivity graph must be
+    computed before this method is called. The returned Pauli operator must be sorted and simplified.
+
+    Args:
+      `ferm_op`: The fermionic operator to convert.
+      `edge_list`: The qubit-connectivity graph expressed as an edge list.
+
+    Returns:
+      An un-simplified Pauli operator representing `ferm_op`.
+
+    Raises:
+      ValueError: if the type of interaction of any term is unknown.
+    """
+    fer_op_list = ferm_op.to_list()
     sparse_pauli = None
     for term in fer_op_list:
         term_type, facs = _analyze_term(_operator_string(term))

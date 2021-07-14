@@ -21,7 +21,7 @@ from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMapper
 from qiskit_nature.mappers.second_quantization.bksf import edge_operator_aij, edge_operator_bi
-import qiskit_nature.mappers.second_quantization.bksf as bksf
+from qiskit_nature.mappers.second_quantization import bksf
 
 
 def _sort_simplify(sparse_pauli):
