@@ -21,6 +21,148 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
 
+class BravyiKitaevSuperFastMapper(FermionicMapper):
+    """The Bravyi-Kitaev super fast fermion-to-qubit mapping.
+
+    This implementation follows closely Reference [1].
+
+       References:
+           [1]: Bravyi-Kitaev Superfast simulation of electronic structure on a quantum computer
+                Kanav Setia and James D Whitfield
+                JCP Volume 148, Issue 16 - Published April 2018
+                arXiv:1712.00446
+    """
+
+    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+        if not isinstance(second_q_op, FermionicOp):
+            raise TypeError("Type ", type(second_q_op), " not supported.")
+
+        edge_list = bksf_edge_list_fermionic_op(second_q_op)
+        sparse_pauli = _convert_operators(second_q_op, edge_list)
+
+        ## Simplify and sort the result
+        sparse_pauli = sparse_pauli.simplify()
+        indices = sparse_pauli.table.argsort()
+        table = sparse_pauli.table[indices]
+        coeffs = sparse_pauli.coeffs[indices]
+        sorted_sparse_pauli = SparsePauliOp(table, coeffs)
+
+        return PauliSumOp(sorted_sparse_pauli)
+
+
+def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
+    """
+    Convert a fermionic operator together with qubit-connectivity graph to a Pauli operator.
+
+    This is the heart of the implementation of BKSF mapping. The connectivity graph must be
+    computed before this method is called. The returned Pauli operator must be sorted and simplified.
+
+    Args:
+      `ferm_op`: The fermionic operator to convert.
+      `edge_list`: The qubit-connectivity graph expressed as an edge list.
+
+    Returns:
+      An un-simplified Pauli operator representing `ferm_op`.
+
+    Raises:
+      ValueError: if the type of interaction of any term is unknown.
+    """
+    fer_op_list = ferm_op.to_list()
+    sparse_pauli = None
+    for term in fer_op_list:
+        term_type, facs = _analyze_term(_operator_string(term))
+        if facs[0][1] == "-":  # keep only one of h.c. pair
+            continue
+        ## Following only filters h.c. of some number-excitation op
+        if facs[0][0] == facs[1][0]:  # first op is number op, which is it's own h.c.
+            if len(facs) > 2 and facs[2][1] == "-":  # So, look at next op to skip h.c.
+                continue
+
+        if term_type == "number":  # a^\dagger_p a_p
+            p = facs[0][0]  # pylint: disable=invalid-name
+            h1_pq = _operator_coefficient(term)
+            sparse_pauli = _add_sparse_pauli(sparse_pauli, _number_operator(edge_list, p, h1_pq))
+            continue
+
+        if term_type == "excitation":
+            (p, q) = [facs[i][0] for i in range(2)]  # p < q always   # pylint: disable=invalid-name
+            h1_pq = _operator_coefficient(term)
+            sparse_pauli = _add_sparse_pauli(
+                sparse_pauli, _excitation_operator(edge_list, p, q, h1_pq)
+            )
+
+        else:
+            facs_reordered, phase = _to_physicist_index_order(facs)
+            h2_pqrs = phase * _operator_coefficient(term)
+            (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]  # pylint: disable=invalid-name
+            if term_type == "double_excitation":
+                sparse_pauli = _add_sparse_pauli(
+                    sparse_pauli, _double_excitation(edge_list, p, q, r, s, h2_pqrs)
+                )
+            elif term_type == "coulomb_exchange":
+                sparse_pauli = _add_sparse_pauli(
+                    sparse_pauli, _coulomb_exchange(edge_list, p, q, s, h2_pqrs)
+                )
+            elif term_type == "number_excitation":
+                # Note that h2_pqrs is not divided by 2 here, as in the aqua code
+                sparse_pauli = _add_sparse_pauli(
+                    sparse_pauli, _number_excitation(edge_list, p, q, r, s, h2_pqrs)
+                )
+            else:
+                raise ValueError("Unknown interaction: ", term_type)
+
+    return sparse_pauli
+
+
+def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> SparsePauliOp:
+    """
+    Return `qubit_op1` and `qubit_op2`, except when either one is `None`.
+    In the latter case, return the one that is not `None`. In other words, assume
+    `None` signifies the additive identity.
+    """
+    if qubit_op1 is None:
+        return qubit_op2
+    elif qubit_op2 is None:
+        return qubit_op1
+    else:
+        return qubit_op1 + qubit_op2
+
+
+def _analyze_term(term_str: str) -> Tuple[str, List]:
+    """
+    Return a string recording the type of interaction represented by `term_str` and
+    a list of the factors and their indices in `term_str`.
+
+    The types of interaction are 'number', 'excitation', 'coulomb_exchange', 'number_excitation',
+    'double_excitation'.
+
+    Args:
+       `term_str`: a string of characters in `+-NI`.
+
+    Returns:
+       tuple: The first element is a string specifying the interaction type. See the method
+       `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
+    """
+    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
+    _type = _interaction_type(n_number, n_raise, n_lower)
+    return _type, facs
+
+
+def _operator_string(term: tuple) -> str:
+    """
+    Return the string describing the operators in the term extracted from a `FermionicOp`.
+    given by `term.
+    """
+    return term[0]
+
+
+def _operator_coefficient(term: tuple) -> float:
+    """
+    Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`.
+    """
+    return term[1]
+
+
 def _pauli_id(n_qubits: int) -> SparsePauliOp:
     """
     Return the identity for `SparsePauliOp` on `n_qubits` qubits.
@@ -224,21 +366,6 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
         raise ValueError("unexpected number of operators")
 
 
-def _operator_string(term: tuple) -> str:
-    """
-    Return the string describing the operators in the term extracted from a `FermionicOp`.
-    given by `term.
-    """
-    return term[0]
-
-
-def _operator_coefficient(term: tuple) -> float:
-    """
-    Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`.
-    """
-    return term[1]
-
-
 def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     """
     Return an adjacency matrix specifying the edges in the BKSF graph for the
@@ -371,20 +498,6 @@ def edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
     return SparsePauliOp(qubit_op)
 
 
-def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> SparsePauliOp:
-    """
-    Return `qubit_op1` and `qubit_op2`, except when either one is `None`.
-    In the latter case, return the one that is not `None`. In other words, assume
-    `None` signifies the additive identity.
-    """
-    if qubit_op1 is None:
-        return qubit_op2
-    elif qubit_op2 is None:
-        return qubit_op1
-    else:
-        return qubit_op1 + qubit_op2
-
-
 def _to_physicist_index_order(facs: List) -> Tuple[List, int]:
     """
     Reorder the factors `facs` to be two raising operators followed by two lowering operators and
@@ -416,116 +529,3 @@ def _to_physicist_index_order(facs: List) -> Tuple[List, int]:
     else:
         raise ValueError("unexpected sequence of operators", facs)
     return facs_out, phase
-
-
-class BravyiKitaevSuperFastMapper(FermionicMapper):
-    """The Bravyi-Kitaev super fast fermion-to-qubit mapping.
-
-    This implementation follows closely Reference [1].
-
-       References:
-           [1]: Bravyi-Kitaev Superfast simulation of electronic structure on a quantum computer
-                Kanav Setia and James D Whitfield
-                JCP Volume 148, Issue 16 - Published April 2018
-                arXiv:1712.00446
-    """
-
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
-        if not isinstance(second_q_op, FermionicOp):
-            raise TypeError("Type ", type(second_q_op), " not supported.")
-
-        edge_list = bksf_edge_list_fermionic_op(second_q_op)
-        sparse_pauli = _convert_operators(second_q_op, edge_list)
-
-        ## Simplify and sort the result
-        sparse_pauli = sparse_pauli.simplify()
-        indices = sparse_pauli.table.argsort()
-        table = sparse_pauli.table[indices]
-        coeffs = sparse_pauli.coeffs[indices]
-        sorted_sparse_pauli = SparsePauliOp(table, coeffs)
-
-        return PauliSumOp(sorted_sparse_pauli)
-
-
-def _analyze_term(term_str: str) -> Tuple[str, List]:
-    """
-    Return a string recording the type of interaction represented by `term_str` and
-    a list of the factors and their indices in `term_str`.
-
-    The types of interaction are 'number', 'excitation', 'coulomb_exchange', 'number_excitation',
-    'double_excitation'.
-
-    Args:
-       `term_str`: a string of characters in `+-NI`.
-
-    Returns:
-       tuple: The first element is a string specifying the interaction type. See the method
-       `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
-    """
-    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
-    _type = _interaction_type(n_number, n_raise, n_lower)
-    return _type, facs
-
-
-def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
-    """
-    Convert a fermionic operator together with qubit-connectivity graph to a Pauli operator.
-
-    This is the heart of the implementation of BKSF mapping. The connectivity graph must be
-    computed before this method is called. The returned Pauli operator must be sorted and simplified.
-
-    Args:
-      `ferm_op`: The fermionic operator to convert.
-      `edge_list`: The qubit-connectivity graph expressed as an edge list.
-
-    Returns:
-      An un-simplified Pauli operator representing `ferm_op`.
-
-    Raises:
-      ValueError: if the type of interaction of any term is unknown.
-    """
-    fer_op_list = ferm_op.to_list()
-    sparse_pauli = None
-    for term in fer_op_list:
-        term_type, facs = _analyze_term(_operator_string(term))
-        if facs[0][1] == "-":  # keep only one of h.c. pair
-            continue
-        ## Following only filters h.c. of some number-excitation op
-        if facs[0][0] == facs[1][0]:  # first op is number op, which is it's own h.c.
-            if len(facs) > 2 and facs[2][1] == "-":  # So, look at next op to skip h.c.
-                continue
-
-        if term_type == "number":  # a^\dagger_p a_p
-            p = facs[0][0]  # pylint: disable=invalid-name
-            h1_pq = _operator_coefficient(term)
-            sparse_pauli = _add_sparse_pauli(sparse_pauli, _number_operator(edge_list, p, h1_pq))
-            continue
-
-        if term_type == "excitation":
-            (p, q) = [facs[i][0] for i in range(2)]  # p < q always   # pylint: disable=invalid-name
-            h1_pq = _operator_coefficient(term)
-            sparse_pauli = _add_sparse_pauli(
-                sparse_pauli, _excitation_operator(edge_list, p, q, h1_pq)
-            )
-
-        else:
-            facs_reordered, phase = _to_physicist_index_order(facs)
-            h2_pqrs = phase * _operator_coefficient(term)
-            (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]  # pylint: disable=invalid-name
-            if term_type == "double_excitation":
-                sparse_pauli = _add_sparse_pauli(
-                    sparse_pauli, _double_excitation(edge_list, p, q, r, s, h2_pqrs)
-                )
-            elif term_type == "coulomb_exchange":
-                sparse_pauli = _add_sparse_pauli(
-                    sparse_pauli, _coulomb_exchange(edge_list, p, q, s, h2_pqrs)
-                )
-            elif term_type == "number_excitation":
-                # Note that h2_pqrs is not divided by 2 here, as in the aqua code
-                sparse_pauli = _add_sparse_pauli(
-                    sparse_pauli, _number_excitation(edge_list, p, q, r, s, h2_pqrs)
-                )
-            else:
-                raise ValueError("Unknown interaction: ", term_type)
-
-    return sparse_pauli
