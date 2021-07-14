@@ -52,3 +52,25 @@ class TestPeptide(QiskitNatureTestCase):
 
         self.assertEqual(len(peptide.get_main_chain.beads_list), 9)
         self.assertEqual(side_chain_hot_vector, [0, 0, 1, 0, 0, 1, 0, 1, 0])
+
+    def test_peptide_get_side_chains(self):
+        """Tests that a side chains are provided."""
+        main_chain_residue_seq = "SAAAAAAAA"
+        main_chain_len = 9
+        side_chain_lens = [0, 0, 1, 0, 0, 1, 0, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", None, None, "A", None, "A", None]
+
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
+
+        side_chains = peptide.get_side_chains()
+        self.assertEqual(side_chains[0], None)
+        self.assertEqual(side_chains[1], None)
+        self.assertEqual(side_chains[2].residue_sequence, ["A"])
+        self.assertEqual(side_chains[3], None)
+        self.assertEqual(side_chains[4], None)
+        self.assertEqual(side_chains[5].residue_sequence, ["A"])
+        self.assertEqual(side_chains[6], None)
+        self.assertEqual(side_chains[7].residue_sequence, ["A"])
+        self.assertEqual(side_chains[8], None)

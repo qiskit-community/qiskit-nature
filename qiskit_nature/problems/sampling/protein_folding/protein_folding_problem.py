@@ -57,12 +57,12 @@ class ProteinFoldingProblem(SamplingProblem):
                             problem on an optimized number of qubits.
         """
         qubit_operator, unused_qubits = qubit_number_reducer._remove_unused_qubits(
-            self.qubit_op_full()
+            self._qubit_op_full()
         )
         self._unused_qubits = unused_qubits
         return qubit_operator
 
-    def qubit_op_full(self) -> Union[PauliOp, PauliSumOp]:
+    def _qubit_op_full(self) -> Union[PauliOp, PauliSumOp]:
         """
         Builds a full qubit operator for the Hamiltonian encoding a protein folding problem. Full
         means that the number of qubits needed for optimization is not optimized and may be
@@ -74,12 +74,12 @@ class ProteinFoldingProblem(SamplingProblem):
         qubit_operator = self._qubit_op_builder._build_qubit_op()
         return qubit_operator
 
-    # TODO will be implemented in another issue
+    # TODO will be implemented in another issue, including the typehint
     def interpret(self):
         pass
 
     @property
-    def unused_qubits(self):
+    def unused_qubits(self) -> List[int]:
         """Returns the list of indices for qubits in the original problem formulation that were
         removed during compression."""
         return self._unused_qubits

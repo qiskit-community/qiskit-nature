@@ -55,7 +55,7 @@ class MainChain(BaseChain):
         super().__init__(beads_list)
 
     @property
-    def main_chain_residue_sequence(self):
+    def main_chain_residue_sequence(self) -> List[str]:
         """Returns a residue sequence for the main chain."""
         return self._main_chain_residue_sequence
 
@@ -106,7 +106,7 @@ class MainChain(BaseChain):
         return main_chain
 
     @staticmethod
-    def _validate_chain_lengths(main_chain_len: int, side_chain_lens):
+    def _validate_chain_lengths(main_chain_len: int, side_chain_lens: List[int]) -> None:
         if side_chain_lens is not None and main_chain_len != len(side_chain_lens):
             raise InvalidSizeException(
                 f"The length of list of side chain lengths provided: {len(side_chain_lens)}, "
@@ -114,7 +114,7 @@ class MainChain(BaseChain):
             )
 
     @staticmethod
-    def _validate_side_chain_index_by_lengths(side_chain_lens: List[int]):
+    def _validate_side_chain_index_by_lengths(side_chain_lens: List[int]) -> None:
         if side_chain_lens is not None and (
             side_chain_lens[0] != 0 or side_chain_lens[1] != 0 or side_chain_lens[-1] != 0
         ):
@@ -124,7 +124,7 @@ class MainChain(BaseChain):
             )
 
     @staticmethod
-    def _validate_side_chain_index_by_residues(side_chain_residue_sequences: List[str]):
+    def _validate_side_chain_index_by_residues(side_chain_residue_sequences: List[str]) -> None:
         if side_chain_residue_sequences is not None and (
             side_chain_residue_sequences[0] is not None
             or side_chain_residue_sequences[1] is not None

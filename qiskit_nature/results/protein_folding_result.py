@@ -11,9 +11,11 @@
 # that they have been altered from the originals.
 """The protein folding result."""
 from typing import Union
+
 from qiskit.opflow import PauliOp
-from qiskit_nature.results import EigenstateResult
+
 from qiskit_nature.problems.sampling import ProteinFoldingProblem
+from qiskit_nature.results import EigenstateResult
 
 
 class ProteinFoldingResult(EigenstateResult):
@@ -29,12 +31,12 @@ class ProteinFoldingResult(EigenstateResult):
         self._best_sequence: str = best_sequence
 
     @property
-    def protein_folding_problem(self):
+    def protein_folding_problem(self) -> ProteinFoldingProblem:
         """Returns the protein folding problem."""
         return self._protein_folding_problem
 
     @property
-    def best_sequence(self):
+    def best_sequence(self) -> str:
         """Returns the best sequence."""
         return self._best_sequence
 

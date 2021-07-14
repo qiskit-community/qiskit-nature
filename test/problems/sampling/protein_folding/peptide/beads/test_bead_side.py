@@ -38,7 +38,7 @@ class TestSideBead(QiskitNatureTestCase):
         ]
         side_bead = SideBead(main_chain_id, side_bead_id, residue_type, turn_qubits)
 
-        indic_0, indic_1, indic_2, indic_3 = side_bead.get_indicator_functions()
+        indic_0, indic_1, indic_2, indic_3 = side_bead.indicator_functions
         expected_path_indic_0 = self.get_resource_path(
             "test_side_bead_constructor_expected_indic_0",
             PATH,
@@ -77,4 +77,4 @@ class TestSideBead(QiskitNatureTestCase):
         side_bead = SideBead(main_chain_id, side_bead_id, residue_type, turn_qubits)
 
         with self.assertRaises(AttributeError):
-            _, _, _, _ = side_bead.get_indicator_functions()
+            _, _, _, _ = side_bead.indicator_functions

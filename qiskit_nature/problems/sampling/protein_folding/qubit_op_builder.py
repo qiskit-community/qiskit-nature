@@ -74,15 +74,15 @@ class QubitOpBuilder:
         h_chiral = self._create_h_chiral()
         h_back = self._create_h_back()
 
-        h_scsc = self._create_h_scsc() if self._penalty_parameters.lambda_1 else 0
-        h_bbbb = self._create_h_bbbb() if self._penalty_parameters.lambda_1 else 0
+        h_scsc = self._create_h_scsc() if self._penalty_parameters.penalty_1 else 0
+        h_bbbb = self._create_h_bbbb() if self._penalty_parameters.penalty_1 else 0
 
         h_short = self._create_h_short()
 
         h_bbsc, h_scbb = (
-            self._create_h_bbsc_and_h_scbb() if self._penalty_parameters.lambda_1 else (0, 0)
+            self._create_h_bbsc_and_h_scbb() if self._penalty_parameters.penalty_1 else (0, 0)
         )
-        h_contacts = self._create_h_contacts() if self._penalty_parameters.lambda_contacts else 0
+        h_contacts = self._create_h_contacts() if self._penalty_parameters.penalty_contacts else 0
 
         h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
 
@@ -105,14 +105,14 @@ class QubitOpBuilder:
             lower_bead_indic_1,
             lower_bead_indic_2,
             lower_bead_indic_3,
-        ) = lower_bead.get_indicator_functions()
+        ) = lower_bead.indicator_functions
 
         (
             upper_bead_indic_0,
             upper_bead_indic_1,
             upper_bead_indic_2,
             upper_bead_indic_3,
-        ) = upper_bead.get_indicator_functions()
+        ) = upper_bead.indicator_functions
 
         turns_operator = _fix_qubits(
             lower_bead_indic_0 @ upper_bead_indic_0
@@ -125,7 +125,7 @@ class QubitOpBuilder:
     def _create_h_back(self) -> Union[PauliSumOp, PauliOp]:
         """
         Creates Hamiltonian that imposes the geometrical constraint wherein consecutive turns along
-        the same axis are penalized by a factor, lambda_back. Note, that the first two turns are
+        the same axis are penalized by a factor, penalty_back. Note, that the first two turns are
         omitted (fixed in optimization) due to symmetry degeneracy.
 
         Returns:
@@ -134,10 +134,10 @@ class QubitOpBuilder:
         """
 
         main_chain = self._peptide.get_main_chain
-        lambda_back = self._penalty_parameters.lambda_back
+        penalty_back = self._penalty_parameters.penalty_back
         h_back = 0
         for i in range(len(main_chain) - 2):
-            h_back += lambda_back * self._create_turn_operators(main_chain[i], main_chain[i + 1])
+            h_back += penalty_back * self._create_turn_operators(main_chain[i], main_chain[i + 1])
 
         h_back = _fix_qubits(h_back)
         return h_back
@@ -173,20 +173,20 @@ class QubitOpBuilder:
                 lower_main_bead_indic_1,
                 lower_main_bead_indic_2,
                 lower_main_bead_indic_3,
-            ) = lower_main_bead.get_indicator_functions()
+            ) = lower_main_bead.indicator_functions
 
             (
                 upper_main_bead_indic_0,
                 upper_main_bead_indic_1,
                 upper_main_bead_indic_2,
                 upper_main_bead_indic_3,
-            ) = upper_main_bead.get_indicator_functions()
+            ) = upper_main_bead.indicator_functions
             (
                 upper_side_bead_indic_0,
                 upper_side_bead_indic_1,
                 upper_side_bead_indic_2,
                 upper_side_bead_indic_3,
-            ) = upper_side_bead.get_indicator_functions()
+            ) = upper_side_bead.indicator_functions
 
             turn_coeff = int((1 - (-1) ** i) / 2)
             h_chiral += self._build_chiral_term(
@@ -249,7 +249,7 @@ class QubitOpBuilder:
         upper_side_bead_indic_a,
     ):
         return (
-            self._penalty_parameters.lambda_chiral
+            self._penalty_parameters.penalty_chiral
             * (full_id - upper_side_bead_indic_a)
             @ (
                 (1 - turn_coeff)
@@ -276,7 +276,7 @@ class QubitOpBuilder:
             h_bbbb: Hamiltonian term corresponding to a 1st neighbor interaction between
                     main/backbone (BB) beads.
         """
-        lambda_1 = self._penalty_parameters.lambda_1
+        penalty_1 = self._penalty_parameters.penalty_1
         h_bbbb = 0
         main_chain_len = len(self._peptide.get_main_chain)
         for i in range(1, main_chain_len - 3):
@@ -286,13 +286,13 @@ class QubitOpBuilder:
                 h_bbbb += self._contact_map.lower_main_upper_main[i][
                     j
                 ] @ self._distance_map._first_neighbor(
-                    self._peptide, i, 0, j, 0, lambda_1, self._pair_energies
+                    self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
                 )
                 try:
                     h_bbbb += self._contact_map.lower_main_upper_main[i][
                         j
                     ] @ self._distance_map._second_neighbor(
-                        self._peptide, i - 1, 0, j, 0, lambda_1, self._pair_energies
+                        self._peptide, i - 1, 0, j, 0, penalty_1, self._pair_energies
                     )
                 except (IndexError, KeyError):
                     pass
@@ -300,7 +300,7 @@ class QubitOpBuilder:
                     h_bbbb += self._contact_map.lower_main_upper_main[i][
                         j
                     ] @ self._distance_map._second_neighbor(
-                        self._peptide, i + 1, 0, j, 0, lambda_1, self._pair_energies
+                        self._peptide, i + 1, 0, j, 0, penalty_1, self._pair_energies
                     )
                 except (IndexError, KeyError):
                     pass
@@ -308,7 +308,7 @@ class QubitOpBuilder:
                     h_bbbb += self._contact_map.lower_main_upper_main[i][
                         j
                     ] @ self._distance_map._second_neighbor(
-                        self._peptide, i, 0, j - 1, 0, lambda_1, self._pair_energies
+                        self._peptide, i, 0, j - 1, 0, penalty_1, self._pair_energies
                     )
                 except (IndexError, KeyError):
                     pass
@@ -316,7 +316,7 @@ class QubitOpBuilder:
                     h_bbbb += self._contact_map.lower_main_upper_main[i][
                         j
                     ] @ self._distance_map._second_neighbor(
-                        self._peptide, i, 0, j + 1, 0, lambda_1, self._pair_energies
+                        self._peptide, i, 0, j + 1, 0, penalty_1, self._pair_energies
                     )
                 except (IndexError, KeyError):
                     pass
@@ -333,7 +333,7 @@ class QubitOpBuilder:
             h_bbsc, h_scbb: Tuple of Hamiltonian terms consisting of backbone and side chain
             interactions.
         """
-        lambda_1 = self._penalty_parameters.lambda_1
+        penalty_1 = self._penalty_parameters.penalty_1
         h_bbsc = 0
         h_scbb = 0
         main_chain_len = len(self._peptide.get_main_chain)
@@ -347,17 +347,17 @@ class QubitOpBuilder:
 
                     h_bbsc += self._contact_map.lower_side_upper_main[i][j] @ (
                         self._distance_map._first_neighbor(
-                            self._peptide, i, 0, j, 1, lambda_1, self._pair_energies
+                            self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
                         )
                         + self._distance_map._second_neighbor(
-                            self._peptide, i, 0, j, 0, lambda_1, self._pair_energies
+                            self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
                         )
                     )
                     try:
                         h_bbsc += self._contact_map.lower_side_upper_side[i][
                             j
                         ] @ self._distance_map._first_neighbor(
-                            self._peptide, i, 1, j, 1, lambda_1, self._pair_energies
+                            self._peptide, i, 1, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
@@ -365,7 +365,7 @@ class QubitOpBuilder:
                         h_bbsc += self._contact_map.lower_side_upper_main[i][
                             j
                         ] @ self._distance_map._second_neighbor(
-                            self._peptide, i + 1, 0, j, 1, lambda_1, self._pair_energies
+                            self._peptide, i + 1, 0, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
@@ -373,24 +373,24 @@ class QubitOpBuilder:
                         h_bbsc += self._contact_map.lower_side_upper_main[i][
                             j
                         ] @ self._distance_map._second_neighbor(
-                            self._peptide, i - 1, 0, j, 1, lambda_1, self._pair_energies
+                            self._peptide, i - 1, 0, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
                 if side_chain[i - 1] == 1:
                     h_scbb += self._contact_map.lower_main_upper_side[i][j] @ (
                         self._distance_map._first_neighbor(
-                            self._peptide, i, 1, j, 0, lambda_1, self._pair_energies
+                            self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
                         )
                         + self._distance_map._second_neighbor(
-                            self._peptide, i, 0, j, 0, lambda_1, self._pair_energies
+                            self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
                         )
                     )
                     try:
                         h_scbb += self._contact_map.lower_main_upper_side[i][
                             j
                         ] @ self._distance_map._second_neighbor(
-                            self._peptide, i, 1, j, 1, lambda_1, self._pair_energies
+                            self._peptide, i, 1, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
@@ -398,7 +398,7 @@ class QubitOpBuilder:
                         h_scbb += self._contact_map.lower_main_upper_side[i][
                             j
                         ] @ self._distance_map._second_neighbor(
-                            self._peptide, i, 1, j + 1, 0, lambda_1, self._pair_energies
+                            self._peptide, i, 1, j + 1, 0, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
@@ -406,7 +406,7 @@ class QubitOpBuilder:
                         h_scbb += self._contact_map.lower_main_upper_side[i][
                             j
                         ] @ self._distance_map._second_neighbor(
-                            self._peptide, i, 1, j - 1, 0, lambda_1, self._pair_energies
+                            self._peptide, i, 1, j - 1, 0, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
@@ -424,7 +424,7 @@ class QubitOpBuilder:
         Returns:
             h_scsc: Hamiltonian term consisting of side chain pairwise interactions
         """
-        lambda_1 = self._penalty_parameters.lambda_1
+        penalty_1 = self._penalty_parameters.penalty_1
         h_scsc = 0
         main_chain_len = len(self._peptide.get_main_chain)
         side_chain = self._peptide.get_side_chain_hot_vector()
@@ -436,13 +436,13 @@ class QubitOpBuilder:
                     continue
                 h_scsc += self._contact_map.lower_side_upper_side[i][j] @ (
                     self._distance_map._first_neighbor(
-                        self._peptide, i, 1, j, 1, lambda_1, self._pair_energies
+                        self._peptide, i, 1, j, 1, penalty_1, self._pair_energies
                     )
                     + self._distance_map._second_neighbor(
-                        self._peptide, i, 1, j, 0, lambda_1, self._pair_energies
+                        self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
                     )
                     + self._distance_map._second_neighbor(
-                        self._peptide, i, 0, j, 1, lambda_1, self._pair_energies
+                        self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
                     )
                 )
         return _fix_qubits(h_scsc)
@@ -491,7 +491,7 @@ class QubitOpBuilder:
             interactions.
 
         """
-        lambda_contacts = self._penalty_parameters.lambda_contacts
+        penalty_contacts = self._penalty_parameters.penalty_contacts
         new_qubits = self._contact_map._create_peptide_qubit_list()
         main_chain_len = len(self._peptide.get_main_chain)
         full_id = _build_full_identity(2 * (main_chain_len - 1))
@@ -501,6 +501,6 @@ class QubitOpBuilder:
         for operator in new_qubits[-self._contact_map.num_contacts :]:
             h_contacts += operator
         h_contacts = h_contacts ** 2
-        h_contacts *= lambda_contacts
+        h_contacts *= penalty_contacts
         h_contacts = _fix_qubits(h_contacts)
         return h_contacts

@@ -68,7 +68,8 @@ class BaseBead(ABC):
         return self._residue_type
 
     # for the turn that leads from the bead
-    def get_indicator_functions(
+    @property
+    def indicator_functions(
         self,
     ) -> Union[None, Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase]]:
         """

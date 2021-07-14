@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class that stores distances between beads of a peptide as qubit operators."""
-from typing import Union, Tuple
+from typing import Union, Tuple, DefaultDict, Dict
 import numpy as np
 
 from qiskit.opflow import PauliSumOp, PauliOp, OperatorBase
@@ -45,12 +45,12 @@ class DistanceMap:
         return self._peptide
 
     @property
-    def distance_map(self):
+    def distance_map(self) -> DefaultDict[BaseBead, Dict[BaseBead, OperatorBase]]:
         """Returns a distance map."""
         return self._distance_map
 
     @property
-    def num_distances(self):
+    def num_distances(self) -> int:
         """Returns the number of distances calculated."""
         return self._num_distances
 

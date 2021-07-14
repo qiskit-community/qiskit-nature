@@ -116,7 +116,7 @@ def _are_beads_k_plus_steps_apart(upper_bead_id: int, lower_bead_id: int, k: int
     return (upper_bead_id - lower_bead_id) >= k
 
 
-def _log_contact(lower_bead_id, upper_bead_id, lower_chain_type, upper_chain_type):
+def _log_contact(lower_bead_id, upper_bead_id, lower_chain_type, upper_chain_type) -> None:
     logger.info(
         "possible contact between a bead %s on the %s and a bead %s on the %s",
         lower_bead_id,

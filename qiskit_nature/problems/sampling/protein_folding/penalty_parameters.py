@@ -17,44 +17,44 @@ class PenaltyParameters:
 
     def __init__(
         self,
-        lambda_chiral: float = 10,
-        lambda_back: float = 10,
-        lambda_1: float = 10,
-        lambda_contacts: float = 10,
+        penalty_chiral: float = 10,
+        penalty_back: float = 10,
+        penalty_1: float = 10,
+        penalty_contacts: float = 10,
     ):
         """
         Args:
-            lambda_chiral: A penalty parameter used to impose the right chirality.
-            lambda_back: A penalty parameter used to penalize turns along the same axis.
-            lambda_1: A penalty parameter used to penalize local overlap between beads within a
+            penalty_chiral: A penalty parameter used to impose the right chirality.
+            penalty_back: A penalty parameter used to penalize turns along the same axis.
+            penalty_1: A penalty parameter used to penalize local overlap between beads within a
                         nearest neighbor contact.
-            lambda_contacts: A penalty parameter used to penalize local overlap between beads within a
-                             nearest neighbor contact.
+            penalty_contacts: A penalty parameter used to penalize local overlap between beads
+            within a nearest neighbor contact.
         """
 
-        self._lambda_chiral = lambda_chiral
-        self._lambda_back = lambda_back
-        self._lambda_1 = lambda_1
-        self._lambda_contacts = lambda_contacts
+        self._penalty_chiral = penalty_chiral
+        self._penalty_back = penalty_back
+        self._penalty_1 = penalty_1
+        self._penalty_contacts = penalty_contacts
 
     @property
-    def lambda_chiral(self) -> float:
+    def penalty_chiral(self) -> float:
         """Returns a penalty parameter used to impose the right chirality."""
-        return self._lambda_chiral
+        return self._penalty_chiral
 
     @property
-    def lambda_back(self) -> float:
+    def penalty_back(self) -> float:
         """Returns a penalty parameter used to penalize turns along the same axis."""
-        return self._lambda_back
+        return self._penalty_back
 
     @property
-    def lambda_1(self) -> float:
+    def penalty_1(self) -> float:
         """Returns a penalty parameter used to penalize local overlap between beads within a
         nearest neighbor contact."""
-        return self._lambda_1
+        return self._penalty_1
 
     @property
-    def lambda_contacts(self) -> float:
+    def penalty_contacts(self) -> float:
         """Returns a penalty parameter used to penalize local overlap between beads within a
         nearest neighbor contact."""
-        return self._lambda_contacts
+        return self._penalty_contacts

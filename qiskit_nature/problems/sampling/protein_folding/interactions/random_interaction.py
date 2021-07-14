@@ -13,6 +13,7 @@
 from typing import List
 
 import numpy as np
+
 from .interaction import Interaction
 
 

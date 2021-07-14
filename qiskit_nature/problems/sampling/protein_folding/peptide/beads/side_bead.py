@@ -12,7 +12,7 @@
 """A class defining a side bead of a peptide."""
 from typing import List
 
-from qiskit.opflow import PauliOp
+from qiskit.opflow import PauliOp, OperatorBase
 
 from .base_bead import BaseBead
 
@@ -53,26 +53,28 @@ class SideBead(BaseBead):
         return hash(str(self))
 
     def __eq__(self, other):
+        if not isinstance(SideBead, other):
+            return False
         return (
             self.main_index == other.main_index
-            and self.side_index == other.main_index
+            and self.side_index == other.side_index
             and self.chain_type == other.chain_type
         )
 
-    def _build_turn_indicator_fun_0(self, full_id):
+    def _build_turn_indicator_fun_0(self, full_id: PauliOp) -> OperatorBase:
         return (
             ((full_id - self._turn_qubits[0]) @ (full_id - self._turn_qubits[1])) ^ full_id
         ).reduce()
 
-    def _build_turn_indicator_fun_1(self, full_id):
+    def _build_turn_indicator_fun_1(self, full_id: PauliOp) -> OperatorBase:
         return (
             (self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0])) ^ full_id
         ).reduce()
 
-    def _build_turn_indicator_fun_2(self, full_id):
+    def _build_turn_indicator_fun_2(self, full_id: PauliOp) -> OperatorBase:
         return (
             (self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1])) ^ full_id
         ).reduce()
 
-    def _build_turn_indicator_fun_3(self, full_id):
+    def _build_turn_indicator_fun_3(self, full_id: PauliOp) -> OperatorBase:
         return (self._turn_qubits[0] @ self._turn_qubits[1] ^ full_id).reduce()

@@ -44,7 +44,8 @@ class BaseChain(ABC):
         """Returns the list of all beads in the chain."""
         return self._beads_list
 
-    def get_residue_sequence(self) -> List[str]:
+    @property
+    def residue_sequence(self) -> List[str]:
         """
         Returns the list of all residue sequences in the chain.
         """

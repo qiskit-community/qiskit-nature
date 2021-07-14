@@ -113,7 +113,7 @@ class ContactMap:
         main_chain_len: int,
         contact_qubits: List[Union[PauliSumOp, PauliOp]],
         contact_map_component: Dict[int, dict],
-    ):
+    ) -> None:
         min_contact_dist = 4
         for lower_bead_id in range(1, main_chain_len - 3):
             for upper_bead_id in range(lower_bead_id + min_contact_dist, main_chain_len + 1):
