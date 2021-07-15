@@ -18,7 +18,6 @@ from typing import Dict, List, Optional, Tuple, cast
 import numpy as np
 
 from qiskit_nature.constants import DEBYE
-from qiskit_nature.drivers import Molecule
 from .eigenstate_result import EigenstateResult
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all
