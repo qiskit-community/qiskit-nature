@@ -363,18 +363,18 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
         elif n_number == 2:
             return TermType.COULOMB_EXCHANGE
         else:
-            raise ValueError("unexpected number of number operators")
+            raise ValueError("unexpected number of number operators: ", n_number)
     elif n_raise == 1 and n_lower == 1:
         if n_number == 1:
             return TermType.NUMBER_EXCITATION
         elif n_number == 0:
             return TermType.EXCITATION
         else:
-            raise ValueError("unexpected number of number operators")
+            raise ValueError("unexpected number of number operators: ", n_number)
     elif n_raise == 2 and n_lower == 2:
         return TermType.DOUBLE_EXCITATION
     else:
-        raise ValueError("unexpected number of operators")
+        raise ValueError("unexpected number of operators: ", n_number)
 
 
 def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
@@ -417,7 +417,7 @@ def _add_edges_for_term(edge_matrix, term_str: str) -> None:
     if _type in (TermType.EXCITATION, TermType.NUMBER_EXCITATION):
         inds = [i for (i, c) in facs if c in "+-"]
         if len(inds) != 2:
-            raise ValueError("wrong number or raising and lowering")
+            raise ValueError("wrong number or raising and lowering: ", len(inds))
         _add_one_edge(edge_matrix, *inds)
     # For `double_excitation` create an edge between the two `+`s and edge between the two `-`s.
     elif _type == TermType.DOUBLE_EXCITATION:
