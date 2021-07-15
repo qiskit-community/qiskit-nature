@@ -287,7 +287,7 @@ def _number_excitation(  # pylint: disable=invalid-name
 
 def _unpack_term(
     term_str: str, expand_number_op: bool = False
-) -> Tuple[Tuple[int, int, int], List]:
+) -> Tuple[Tuple[int, int, int], List[Tuple[int, str]]]:
     """
     Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
@@ -506,7 +506,7 @@ def edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
     return SparsePauliOp(qubit_op)
 
 
-def _to_physicist_index_order(facs: List) -> Tuple[List, int]:
+def _to_physicist_index_order(facs: List[Tuple[int, str]]) -> Tuple[List[Tuple[int, str]], int]:
     """
     Reorder the factors `facs` to be two raising operators followed by two lowering operators and
     return the new factors and the phase incurred by the reordering. Note that `facs` are not in
