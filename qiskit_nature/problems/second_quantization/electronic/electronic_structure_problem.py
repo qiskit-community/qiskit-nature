@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """The Electronic Structure Problem class."""
-from functools import partial
+from functools import partial, reduce
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -24,11 +24,16 @@ from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fo
 from qiskit_nature.drivers.second_quantization import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.properties.second_quantization.electronic import (
+    AngularMomentum,
+    TotalDipoleMoment,
+    ElectronicEnergy,
+    Magnetization,
+    ParticleNumber,
+)
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
-from .builders.aux_fermionic_ops_builder import _create_all_aux_operators
-from .builders.fermionic_op_builder import _build_fermionic_op
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
@@ -67,9 +72,22 @@ class ElectronicStructureProblem(BaseProblem):
         self._molecule_data = cast(QMolecule, self.driver.run())
         self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
 
-        electronic_fermionic_op = _build_fermionic_op(self._molecule_data_transformed)
-        second_quantized_ops_list = [electronic_fermionic_op] + _create_all_aux_operators(
-            self._molecule_data_transformed
+        # TODO: in a follow-up PR we should gather these properties in a super-object. Possibly
+        # ElectronicDriverResult?
+        properties = []
+        for cls in [
+            ElectronicEnergy,
+            ParticleNumber,
+            AngularMomentum,
+            Magnetization,
+            TotalDipoleMoment,
+        ]:
+            prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
+            if prop is not None:
+                properties.append(prop)
+
+        second_quantized_ops_list = reduce(
+            lambda a, b: a + b, [prop.second_q_ops() for prop in properties]
         )
 
         return second_quantized_ops_list

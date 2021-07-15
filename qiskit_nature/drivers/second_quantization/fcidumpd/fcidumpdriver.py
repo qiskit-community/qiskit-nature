@@ -18,7 +18,7 @@ from qiskit_nature import QiskitNatureError
 
 from ..qmolecule import QMolecule
 from .dumper import dump
-from .parser import parse
+from .parser import parse  # pylint: disable=deprecated-module
 from ..fermionic_driver import FermionicDriver
 
 

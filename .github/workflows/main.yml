@@ -25,6 +25,10 @@ on:
     # run every day at 1AM
     - cron: '0 1 * * *'
 
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   Checks:
     runs-on: ubuntu-latest
@@ -32,6 +36,13 @@ jobs:
       matrix:
         python-version: [3.7]
     steps:
+      - name: Print Concurrency Group
+        env:
+          CONCURRENCY_GROUP: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
+        run: |
+          echo -e "\033[31;1;4mConcurrency Group\033[0m"
+          echo -e "$CONCURRENCY_GROUP\n"
+        shell: bash
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -80,32 +91,6 @@ jobs:
       - run:  make doctest
         if: ${{ !cancelled() }}
         shell: bash
-  Lint:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: ./.github/actions/install-libraries
-      - uses: ./.github/actions/install-main-dependencies
-        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
-      - uses: ./.github/actions/install-nature
-      - run: make lint
-        if: ${{ !cancelled() }}
-        shell: bash
-      - run: make mypy
-        if: ${{ !cancelled() }}
-        shell: bash
-      - name: Run make lint latest version
-        run: |
-          pip install -U pylint
-          make lint
-        if: ${{ !cancelled() }}
-        shell: bash
   Nature:
     runs-on: ubuntu-latest
     strategy:
@@ -135,12 +120,39 @@ jobs:
           pip install git+https://github.com/rpmuller/pyquante2
         if: ${{ matrix.python-version < 3.9 }}
         shell: bash
+      - name: Run lint
+        run: |
+          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
+            source "$HOME/miniconda/etc/profile.d/conda.sh"
+            conda activate
+          fi
+          make lint
+        shell: bash
+      - name: Run mypy
+        run: |
+          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
+            source "$HOME/miniconda/etc/profile.d/conda.sh"
+            conda activate
+          fi
+          make mypy
+        if: ${{ !cancelled() }}
+        shell: bash
+      - name: Run lint latest version
+        run: |
+          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
+            source "$HOME/miniconda/etc/profile.d/conda.sh"
+            conda activate
+          fi
+          pip install -U pylint
+          make lint
+        shell: bash
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
         uses: ./.github/actions/run-tests
         with:
           event-name: ${{ github.event_name }}
           run-slow: ${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}
           python-version: ${{ matrix.python-version }}
+        if: ${{ !cancelled() }}
       - name: Deprecation Messages
         run: |
           mkdir ./n${{ matrix.python-version }}
@@ -225,7 +237,7 @@ jobs:
           path: docs/_build/html/artifacts/tutorials.tar.gz
         if: ${{ matrix.python-version == 3.8 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
   Deprecation_Messages_and_Coverage:
-    needs: [Checks, Lint, Nature, Tutorials]
+    needs: [Nature]
     runs-on: ubuntu-latest
     strategy:
       matrix:

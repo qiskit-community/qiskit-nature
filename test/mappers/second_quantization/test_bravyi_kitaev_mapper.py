@@ -20,9 +20,7 @@ from qiskit.opflow import X, Z, I
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper
-from qiskit_nature.problems.second_quantization.electronic.builders import (
-    fermionic_op_builder,
-)
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 
 
 class TestBravyiKitaevMapper(QiskitNatureTestCase):
@@ -54,7 +52,7 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
             )
         )
         q_molecule = driver.run()
-        fermionic_op = fermionic_op_builder._build_fermionic_op(q_molecule)
+        fermionic_op = ElectronicEnergy.from_driver_result(q_molecule).second_q_ops()[0]
         mapper = BravyiKitaevMapper()
         qubit_op = mapper.map(fermionic_op)
 

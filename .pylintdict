@@ -24,7 +24,6 @@ berlin
 bitstring
 bksf
 bohr
-boltzman
 boltzmann
 bool
 boolean
@@ -93,6 +92,7 @@ eigensolution
 eigensolver
 eigensolvers
 eigenstate
+eigenstateresult
 eigenstates
 einact
 endian
@@ -267,6 +267,7 @@ ps
 py
 pyquante
 pyscf
+pxd
 qarg
 qargs
 qasm
@@ -369,6 +370,7 @@ untransforms
 uvcc
 vals
 variational
+verbatim
 vibrational
 vibrationalop
 vibro
