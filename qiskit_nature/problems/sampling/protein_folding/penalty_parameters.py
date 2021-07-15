@@ -17,10 +17,10 @@ class PenaltyParameters:
 
     def __init__(
         self,
-        penalty_chiral: float = 10,
-        penalty_back: float = 10,
-        penalty_1: float = 10,
-        penalty_contacts: float = 10,
+        penalty_chiral: float = 10.0,
+        penalty_back: float = 10.0,
+        penalty_1: float = 10.0,
+        penalty_contacts: float = 10.0,
     ):
         """
         Args:

@@ -58,9 +58,9 @@ class DistanceMap:
         self,
         peptide: Peptide,
         lower_bead_ind: int,
-        is_side_chain_upper: int,
-        upper_bead_ind: int,
         is_side_chain_lower: int,
+        upper_bead_ind: int,
+        is_side_chain_upper: int,
         lambda_1: float,
         pair_energies: np.ndarray,
         pair_energies_multiplier: float = 0.1,
@@ -75,9 +75,9 @@ class DistanceMap:
         Args:
             peptide: A Peptide object that includes all information about a protein.
             lower_bead_ind: Backbone bead at turn i.
+            is_side_chain_lower: Side chain on backbone bead i.
             upper_bead_ind: Backbone bead at turn j (j > i).
             is_side_chain_upper: Side chain on backbone bead j.
-            is_side_chain_lower: Side chain on backbone bead i.
             lambda_1: Constraint to penalize local overlap between
                      beads within a nearest neighbor contact.
             pair_energies: Numpy array of pair energies for amino acids.
@@ -123,9 +123,9 @@ class DistanceMap:
         Args:
             peptide: A Peptide object that includes all information about a protein.
             lower_bead_ind: Backbone bead at turn i.
+            is_side_chain_lower: Side chain on backbone bead i.
             upper_bead_ind: Backbone bead at turn j (j > i).
             is_side_chain_upper: Side chain on backbone bead j.
-            is_side_chain_lower: Side chain on backbone bead i.
             lambda_1: Constraint to penalize local overlap between
                      beads within a nearest neighbor contact.
             pair_energies: Numpy array of pair energies for amino acids.

@@ -347,7 +347,7 @@ class QubitOpBuilder:
 
                     h_bbsc += self._contact_map.lower_side_upper_main[i][j] @ (
                         self._distance_map._first_neighbor(
-                            self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
+                            self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
                         )
                         + self._distance_map._second_neighbor(
                             self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
@@ -380,7 +380,7 @@ class QubitOpBuilder:
                 if side_chain[i - 1] == 1:
                     h_scbb += self._contact_map.lower_main_upper_side[i][j] @ (
                         self._distance_map._first_neighbor(
-                            self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
+                            self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
                         )
                         + self._distance_map._second_neighbor(
                             self._peptide, i, 0, j, 0, penalty_1, self._pair_energies

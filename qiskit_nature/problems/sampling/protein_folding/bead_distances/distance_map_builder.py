@@ -170,31 +170,31 @@ class DistanceMapBuilder:
                 lower_indic_funs = self._get_indicator_funs(peptide, side_chain, lower_bead_ind)
 
                 self._calc_dists_main_side_all_axes(
-                    upper_indic_funs,
+                    peptide,
                     lower_bead_ind,
                     lower_main_bead,
-                    peptide,
                     upper_bead_ind,
                     upper_side_bead,
+                    upper_indic_funs,
                 )
 
                 self._calc_dists_side_main_all_axes(
-                    lower_bead_ind,
-                    lower_indic_funs,
-                    lower_side_bead,
                     peptide,
+                    lower_bead_ind,
+                    lower_side_bead,
                     upper_bead_ind,
                     upper_main_bead,
+                    lower_indic_funs,
                 )
 
                 self._calc_dists_side_side_all_axes(
-                    upper_indic_funs,
-                    lower_bead_ind,
-                    lower_indic_funs,
-                    lower_side_bead,
                     peptide,
+                    lower_bead_ind,
+                    lower_side_bead,
+                    lower_indic_funs,
                     upper_bead_ind,
                     upper_side_bead,
+                    upper_indic_funs,
                 )
 
     @staticmethod
@@ -222,13 +222,13 @@ class DistanceMapBuilder:
 
     def _calc_dists_side_side_all_axes(
         self,
-        upper_indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
-        lower_bead_ind: int,
-        lower_indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
-        lower_side_bead: BaseBead,
         peptide: Peptide,
+        lower_bead_ind: int,
+        lower_side_bead: BaseBead,
+        lower_indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
         upper_bead_ind: int,
         upper_side_bead: BaseBead,
+        upper_indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
     ) -> None:
         for dist_map_ax, lower_indic_fun_x, upper_indic_fun_x in zip(
             self._distance_map_axes, lower_indic_funs, upper_indic_funs
@@ -238,38 +238,38 @@ class DistanceMapBuilder:
                 peptide,
                 dist_map_ax,
                 lower_bead_ind,
-                upper_bead_ind,
                 lower_indic_fun_x,
+                upper_bead_ind,
                 upper_indic_fun_x,
             )
 
     def _calc_dists_side_main_all_axes(
         self,
-        lower_bead_ind: int,
-        indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
-        lower_side_bead: BaseBead,
         peptide: Peptide,
+        lower_bead_ind: int,
+        lower_side_bead: BaseBead,
         upper_bead_ind: int,
         upper_main_bead: BaseBead,
+        indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
     ) -> None:
         for dist_map_ax, indic_fun_x in zip(self._distance_map_axes, indic_funs):
             dist_map_ax[lower_side_bead][upper_main_bead] = self._calc_distance_term(
-                peptide, dist_map_ax, lower_bead_ind, upper_bead_ind, indic_fun_x, None
+                peptide, dist_map_ax, lower_bead_ind, indic_fun_x, upper_bead_ind, None
             )
 
     def _calc_dists_main_side_all_axes(
         self,
-        indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
+        peptide: Peptide,
         lower_bead_ind: int,
         lower_bead: BaseBead,
-        peptide: Peptide,
         upper_bead_ind: int,
         upper_bead: BaseBead,
+        indic_funs: Tuple[OperatorBase, OperatorBase, OperatorBase, OperatorBase],
     ) -> None:
         for dist_map_ax, indic_fun_x in zip(self._distance_map_axes, indic_funs):
 
             dist_map_ax[lower_bead][upper_bead] = self._calc_distance_term(
-                peptide, dist_map_ax, lower_bead_ind, upper_bead_ind, None, indic_fun_x
+                peptide, dist_map_ax, lower_bead_ind, None, upper_bead_ind, indic_fun_x
             )
 
     def _calc_distance_term(
@@ -277,8 +277,8 @@ class DistanceMapBuilder:
         peptide: Peptide,
         distance_map_axis_x: Dict[BaseBead, OperatorBase],
         lower_bead_ind: int,
-        upper_bead_ind: int,
         lower_indic_fun: OperatorBase,
+        upper_bead_ind: int,
         upper_indic_fun: OperatorBase,
     ) -> Union[PauliSumOp, PauliOp]:
         lower_main_bead = peptide.get_main_chain[lower_bead_ind - 1]

@@ -49,9 +49,9 @@ class TestDistanceMap(QiskitNatureTestCase):
         expr = distance_map._first_neighbor(
             peptide,
             lower_main_bead_index,
-            side_chain_upper_main_bead,
-            upper_main_bead_index,
             side_chain_lower_main_bead,
+            upper_main_bead_index,
+            side_chain_upper_main_bead,
             lambda_1,
             pair_energies,
         )
@@ -87,9 +87,9 @@ class TestDistanceMap(QiskitNatureTestCase):
         expr = distance_map._first_neighbor(
             peptide,
             lower_main_bead_index,
-            side_chain_upper_main_bead,
-            upper_main_bead_index,
             side_chain_lower_main_bead,
+            upper_main_bead_index,
+            side_chain_upper_main_bead,
             lambda_1,
             pair_energies,
         )

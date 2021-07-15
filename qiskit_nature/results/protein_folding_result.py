@@ -41,7 +41,8 @@ class ProteinFoldingResult(EigenstateResult):
         return self._best_sequence
 
     def get_result_binary_vector(self) -> str:
-        """The ProteinFoldingProblem uses a compressed optimization problem that do not match the
+        """Returns a string that encodes a solution of the ProteinFoldingProblem.
+        The ProteinFoldingProblem uses a compressed optimization problem that does not match the
         number of qubits in the original objective function. This method calculates the original
         version of the solution vector. Bits that can take any value without changing the
         solution are denoted by '*'."""
