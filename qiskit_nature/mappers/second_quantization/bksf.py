@@ -281,7 +281,7 @@ def _unpack_term(
     Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
 
-    The factors are represented by tuples of the form `(i, c)`, where `i` is and index
+    The factors are represented by tuples of the form `(i, c)`, where `i` is an index
     and `c` is a character.
     Allowed characters in `term_str` are 'N+-I`.
     The returned tuple contains counts for `N`, `+`, and `-`, in that order. Identity operators
