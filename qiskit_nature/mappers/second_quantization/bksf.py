@@ -399,12 +399,7 @@ def _add_one_edge(edge_matrix, i: int, j: int) -> None:
     """
     Add an edge from lesser index to greater. This maintains the upper triangular structure.
     """
-    if i < j:
-        edge_matrix[i, j] = True
-    elif j < i:
-        edge_matrix[j, i] = True
-    else:
-        raise ValueError("expecting i != j")
+    edge_matrix[min(i, j), max(i, j)] = True if i != j else raise ValueError("expecting i != j")
 
 
 def _add_edges_for_term(edge_matrix, term_str: str) -> None:
