@@ -12,6 +12,7 @@
 
 """The Bravyi-Kitaev Super Fast Mapper."""
 
+from enum import Enum
 from typing import List, Tuple
 import numpy as np
 
@@ -50,6 +51,16 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         return PauliSumOp(sorted_sparse_pauli)
 
 
+class TermType(Enum):
+    """Denotes the type of interaction of a Fermionic operator"""
+
+    NUMBER = 1
+    EXCITATION = 2
+    DOUBLE_EXCITATION = 3
+    NUMBER_EXCITATION = 4
+    COULOMB_EXCHANGE = 5
+
+
 def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
     """
     Convert a fermionic operator together with qubit-connectivity graph to a Pauli operator.
@@ -78,13 +89,13 @@ def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePau
             if len(facs) > 2 and facs[2][1] == "-":  # So, look at next op to skip h.c.
                 continue
 
-        if term_type == "number":  # a^\dagger_p a_p
+        if term_type == TermType.NUMBER:  # a^\dagger_p a_p
             p = facs[0][0]  # pylint: disable=invalid-name
             h1_pq = _operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(sparse_pauli, _number_operator(edge_list, p, h1_pq))
             continue
 
-        if term_type == "excitation":
+        if term_type == TermType.EXCITATION:
             (p, q) = [facs[i][0] for i in range(2)]  # p < q always   # pylint: disable=invalid-name
             h1_pq = _operator_coefficient(term)
             sparse_pauli = _add_sparse_pauli(
@@ -95,15 +106,15 @@ def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePau
             facs_reordered, phase = _to_physicist_index_order(facs)
             h2_pqrs = phase * _operator_coefficient(term)
             (p, q, r, s) = [facs_reordered[i][0] for i in range(4)]  # pylint: disable=invalid-name
-            if term_type == "double_excitation":
+            if term_type == TermType.DOUBLE_EXCITATION:
                 sparse_pauli = _add_sparse_pauli(
                     sparse_pauli, _double_excitation(edge_list, p, q, r, s, h2_pqrs)
                 )
-            elif term_type == "coulomb_exchange":
+            elif term_type == TermType.COULOMB_EXCHANGE:
                 sparse_pauli = _add_sparse_pauli(
                     sparse_pauli, _coulomb_exchange(edge_list, p, q, s, h2_pqrs)
                 )
-            elif term_type == "number_excitation":
+            elif term_type == TermType.NUMBER_EXCITATION:
                 # Note that h2_pqrs is not divided by 2 here, as in the aqua code
                 sparse_pauli = _add_sparse_pauli(
                     sparse_pauli, _number_excitation(edge_list, p, q, r, s, h2_pqrs)
@@ -133,8 +144,8 @@ def _analyze_term(term_str: str) -> Tuple[str, List]:
     Return a string recording the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
 
-    The types of interaction are 'number', 'excitation', 'coulomb_exchange', 'number_excitation',
-    'double_excitation'.
+    The types of interaction are NUMBER, EXCITATION, COULOMB_EXCHANGE, NUMBER_EXCITATION,
+    DOUBLE_EXCITATION.
 
     Args:
        `term_str`: a string of characters in `+-NI`.
@@ -330,8 +341,8 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
     Return a string describing the type of interaction given the number of
     number, raising, and lowering operators.
 
-    The types of interaction returned are 'number', 'excitation', 'coulomb_exchange',
-    'number_excitation', 'double_excitation'.
+    The types of interaction returned are NUMBER, EXCITATION, COULOMB_EXCHANGE,
+    NUMBER_EXCITATION, DOUBLE_EXCITATION.
 
     Args:
        `n_number`: the number of number operators
@@ -339,8 +350,8 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
        `n_lower`: the number of lowering operators
 
     Returns:
-      str: One of 'number', 'excitation', 'coulomb_exchange',
-      'number_excitation', 'double_excitation'.
+      str: One of NUMBER, EXCITATION, COULOMB_EXCHANGE,
+      NUMBER_EXCITATION, DOUBLE_EXCITATION.
 
     Raises:
       ValueError: if the numbers of operators don't describe a one- or two-body term from
@@ -348,20 +359,20 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
     """
     if n_raise == 0 and n_lower == 0:
         if n_number == 1:
-            return "number"
+            return TermType.NUMBER
         elif n_number == 2:
-            return "coulomb_exchange"
+            return TermType.COULOMB_EXCHANGE
         else:
             raise ValueError("unexpected number of number operators")
     elif n_raise == 1 and n_lower == 1:
         if n_number == 1:
-            return "number_excitation"
+            return TermType.NUMBER_EXCITATION
         elif n_number == 0:
-            return "excitation"
+            return TermType.EXCITATION
         else:
             raise ValueError("unexpected number of number operators")
     elif n_raise == 2 and n_lower == 2:
-        return "double_excitation"
+        return TermType.DOUBLE_EXCITATION
     else:
         raise ValueError("unexpected number of operators")
 
@@ -402,14 +413,14 @@ def _add_edges_for_term(edge_matrix, term_str: str) -> None:
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
     _type = _interaction_type(n_number, n_raise, n_lower)
-    # For 'excitation' and 'number_excitation', create and edge between the `+` and `-`.
-    if _type in ("excitation", "number_excitation"):
+    # For EXCITATION and NUMBER_EXCITATION, create and edge between the `+` and `-`.
+    if _type in (TermType.EXCITATION, TermType.NUMBER_EXCITATION):
         inds = [i for (i, c) in facs if c in "+-"]
         if len(inds) != 2:
             raise ValueError("wrong number or raising and lowering")
         _add_one_edge(edge_matrix, *inds)
     # For `double_excitation` create an edge between the two `+`s and edge between the two `-`s.
-    elif _type == "double_excitation":
+    elif _type == TermType.DOUBLE_EXCITATION:
         raise_inds = [i for (i, c) in facs if c == "+"]
         lower_inds = [i for (i, c) in facs if c == "-"]
         _add_one_edge(edge_matrix, *raise_inds)
