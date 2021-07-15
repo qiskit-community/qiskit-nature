@@ -45,8 +45,8 @@ class AngularMomentum(SecondQuantizedProperty):
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
 
-    def __repr__(self) -> str:
-        string = [super().__repr__() + ":"]
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
         return "\n".join(string)
 

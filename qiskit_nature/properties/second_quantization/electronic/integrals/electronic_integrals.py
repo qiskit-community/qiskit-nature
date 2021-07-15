@@ -74,7 +74,7 @@ class ElectronicIntegrals(ABC):
         if basis != ElectronicBasis.SO:
             self._fill_matrices()
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         string = [f"({self._basis.name}) {self._num_body_terms}-Body Terms:"]
         if self._basis == ElectronicBasis.SO:
             string += self._render_matrix_as_sparse_list(self._matrices)

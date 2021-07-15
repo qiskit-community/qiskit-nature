@@ -62,8 +62,8 @@ class VibrationalEnergy(VibrationalProperty):
         """Sets the truncation order."""
         self._truncation_order = truncation_order
 
-    def __repr__(self) -> str:
-        string = [super().__repr__()]
+    def __str__(self) -> str:
+        string = [super().__str__()]
         for ints in self._vibrational_integrals.values():
             string += [f"\t{ints}"]
         return "\n".join(string)

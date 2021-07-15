@@ -42,7 +42,7 @@ class VibrationalBasis(ABC):
         """Returns the num_modals_per_mode."""
         return self._num_modals_per_mode
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         string = [self.__class__.__name__ + ":"]
         string += [f"\tModals: {self._num_modals_per_mode}"]
         return "\n".join(string)

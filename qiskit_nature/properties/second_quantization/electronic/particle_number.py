@@ -92,8 +92,8 @@ class ParticleNumber(SecondQuantizedProperty):
         """Returns the occupation_beta."""
         return np.asarray(self._occupation_beta, dtype=int)
 
-    def __repr__(self) -> str:
-        string = [super().__repr__() + ":"]
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
         string += [f"\t{self._num_alpha} alpha electrons: {self.occupation_alpha}"]
         string += [f"\t{self._num_beta} beta electrons: {self.occupation_beta}"]

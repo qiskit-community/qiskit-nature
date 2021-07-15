@@ -44,7 +44,7 @@ class Property(ABC):
         """Sets the name."""
         self._name = name
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return self.name
 
     @abstractmethod

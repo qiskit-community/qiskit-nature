@@ -33,8 +33,8 @@ class CompositeProperty(Property, Iterable, Generic[T]):
         super().__init__(name)
         self._properties: Dict[str, T] = {}
 
-    def __repr__(self) -> str:
-        string = [super().__repr__() + ":"]
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
         for prop in self._properties.values():
             for line in str(prop).split("\n"):
                 string += [f"\t{line}"]

@@ -49,8 +49,8 @@ class IntegralProperty(SecondQuantizedProperty):
             self.add_electronic_integral(integral)
         self._shift = shift or {}
 
-    def __repr__(self) -> str:
-        string = [super().__repr__()]
+    def __str__(self) -> str:
+        string = [super().__str__()]
         for basis_ints in self._electronic_integrals.values():
             for ints in basis_ints.values():
                 string += [f"\t{ints}"]

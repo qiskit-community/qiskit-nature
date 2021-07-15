@@ -73,7 +73,7 @@ class VibrationalIntegrals(ABC):
         """Sets the integrals."""
         self._integrals = integrals
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         string = [f"{self._num_body_terms}-Body Terms:"]
         for value, indices in self._integrals:
             string += [f"\t{indices} = {value}"]
