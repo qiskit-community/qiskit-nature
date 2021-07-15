@@ -13,6 +13,7 @@
 from typing import List
 
 import numpy as np
+from qiskit.utils import algorithm_globals
 
 from .interaction import Interaction
 
@@ -30,5 +31,7 @@ class RandomInteraction(Interaction):
         Returns:
             pair_energies: Numpy array of pair energies for amino acids.
         """
-        pair_energies = -1 - 4 * np.random.rand(chain_len + 1, 2, chain_len + 1, 2)
+        pair_energies = -1 - 4 * algorithm_globals.random.random(
+            (chain_len + 1, 2, chain_len + 1, 2)
+        )
         return pair_energies
