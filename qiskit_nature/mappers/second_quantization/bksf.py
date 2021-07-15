@@ -127,7 +127,7 @@ def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePau
 
 def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> SparsePauliOp:
     """
-    Return `qubit_op1` and `qubit_op2`, except when either one is `None`.
+    Return `qubit_op1` + `qubit_op2`, except when either one is `None`.
     In the latter case, return the one that is not `None`. In other words, assume
     `None` signifies the additive identity.
     """
