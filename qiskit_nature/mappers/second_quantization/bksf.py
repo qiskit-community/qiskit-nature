@@ -159,7 +159,7 @@ def _analyze_term(term_str: str) -> Tuple[str, List]:
     return _type, facs
 
 
-def _operator_string(term: tuple) -> str:
+def _operator_string(term: Tuple) -> str:
     """
     Return the string describing the operators in the term extracted from a `FermionicOp`.
     given by `term.
@@ -167,7 +167,7 @@ def _operator_string(term: tuple) -> str:
     return term[0]
 
 
-def _operator_coefficient(term: tuple) -> float:
+def _operator_coefficient(term: Tuple) -> float:
     """
     Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`.
     """
