@@ -18,9 +18,9 @@ main chain and optionally several side chains. Side chains cannot be attached to
 last main bead which is an assumption of the algorithm without loss of generality (see the paper
 cited below). A chain consists of beads containing information about their relative position to
 other beads:
-    * main beads reference previous main beads,
-    * _first_ side beads reference the (branching) main bead,
-    * other side beads reference previous side beads.
+* main beads reference previous main beads,
+* _first_ side beads reference the (branching) main bead,
+* other side beads reference previous side beads.
 Moreover, each bead is characterized by a letter which encodes its residue sequence which defines
 the energy of interactions with other beads (unless interactions are random). Each side chain is
 attached to one and only one main bead. Currently, only side chains of length 1 (i.e. with 1
