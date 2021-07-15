@@ -158,29 +158,30 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         return [(indices[0], "+"), (indices[2], "+"), (indices[3], "-"), (indices[1], "-")]
 
     def compose(
-        self, other: ElectronicIntegrals, einsum: Optional[str] = None
+        self, other: ElectronicIntegrals, einsum_subscript: Optional[str] = None
     ) -> OneBodyElectronicIntegrals:
         """Composes these TwoBodyElectronicIntegrals with an instance of OneBodyElectronicIntegrals.
 
-        This method requires an einsum subscript and produces a new instance of
+        This method requires an `einsum_subscript` subscript and produces a new instance of
         OneBodyElectronicIntegrals.
 
         Args:
             other: an instance of OneBodyElectronicIntegrals.
-            einsum: an additional `np.einsum` subscript.
+            einsum_subscript: an additional `np.einsum` subscript.
 
         Returns:
             The resulting OneBodyElectronicIntegrals.
 
         Raises:
             TypeError: if `other` is not an `OneBodyElectronicIntegrals` instance.
-            ValueError: if the bases of `self` and `other` do not match or if `einsum` is `None`.
+            ValueError: if the bases of `self` and `other` do not match or if `einsum_subscript` is
+                `None`.
             NotImplementedError: if the basis of `self` is not `ElectronicBasis.AO`.
         """
-        if einsum is None:
+        if einsum_subscript is None:
             raise ValueError(
                 "TwoBodyElectronicIntegrals.compose requires an Einsum summation convention "
-                "(`einsum`) in order to evaluate the composition! It may not be `None`."
+                "(`einsum_subscript`) in order to evaluate the composition! It may not be `None`."
             )
 
         if not isinstance(other, OneBodyElectronicIntegrals):
@@ -203,9 +204,9 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         eri = self._matrices[0]
 
-        alpha = np.einsum(einsum, eri, other._matrices[0])
+        alpha = np.einsum(einsum_subscript, eri, other._matrices[0])
         beta = None
         if other._matrices[1] is not None:
-            beta = np.einsum(einsum, eri, other._matrices[1])
+            beta = np.einsum(einsum_subscript, eri, other._matrices[1])
 
         return OneBodyElectronicIntegrals(self._basis, (alpha, beta), self._threshold)

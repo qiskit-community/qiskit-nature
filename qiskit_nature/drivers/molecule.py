@@ -420,12 +420,16 @@ class Molecule:
                 count += 16
         return list(range(count))
 
-    def Z(self, atom):  # pylint: disable=invalid-name
-        """Atomic Number (Z) of an atom """
-        return Molecule.symbols.index(atom.lower().capitalize())
+    def Z(self, atom: str) -> int:  # pylint: disable=invalid-name
+        """Atomic Number (Z) of an atom.
 
-    BOHR = 0.52917721092  # No of Angstroms in Bohr (from 2010 CODATA)
-    DEBYE = 0.393430307  # No ea0 in Debye. Use to convert our dipole moment numbers to Debye
+        Args:
+            atom: the atom kind (symbol) whose atomic number to return.
+
+        Returns:
+            The atomic number of the queried atom kind.
+        """
+        return Molecule.symbols.index(atom.lower().capitalize())
 
     symbols = [
         # pylint: disable=bad-option-value,bad-whitespace,line-too-long

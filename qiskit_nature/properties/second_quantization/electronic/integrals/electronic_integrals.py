@@ -234,13 +234,13 @@ class ElectronicIntegrals(ABC):
         return ret
 
     def compose(
-        self, other: "ElectronicIntegrals", einsum: Optional[str] = None
+        self, other: "ElectronicIntegrals", einsum_subscript: Optional[str] = None
     ) -> Union[complex, "ElectronicIntegrals"]:
         """Composes two ElectronicIntegrals instances.
 
         Args:
             other: another instance of ElectronicIntegrals.
-            einsum: an additional `np.einsum` subscript.
+            einsum_subscript: an additional `np.einsum` subscript.
 
         Returns:
             Either a single number or a new instance of ElectronicIntegrals.

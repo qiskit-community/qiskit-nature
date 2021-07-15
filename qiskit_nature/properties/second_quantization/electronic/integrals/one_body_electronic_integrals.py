@@ -102,12 +102,12 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[1], "-")]
 
-    def compose(self, other: ElectronicIntegrals, einsum: str = "ij,ji") -> complex:
+    def compose(self, other: ElectronicIntegrals, einsum_subscript: str = "ij,ji") -> complex:
         """Composes these OneBodyElectronicIntegrals with another instance thereof.
 
         Args:
             other: an instance of OneBodyElectronicIntegrals.
-            einsum: an additional `np.einsum` subscript.
+            einsum_subscript: an additional `np.einsum` subscript.
 
         Returns:
             The resulting complex.
@@ -130,6 +130,6 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         product = 0.0
         for front, back in zip(self._matrices, other._matrices):
-            product += np.einsum(einsum, front, back)
+            product += np.einsum(einsum_subscript, front, back)
 
         return complex(product)
