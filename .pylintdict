@@ -99,6 +99,7 @@ endian
 endif
 enum
 eom
+eq
 eri
 et
 eugene
@@ -166,11 +167,13 @@ itertools
 iz
 jb
 jcf
+jcp
 ji
 jl
 jordan
 jupyter
 jw
+kanav
 ket
 kitaev
 knowles
@@ -308,6 +311,7 @@ scipy
 sd
 sdg
 sdt
+setia
 setted
 shende
 sklearn
@@ -356,6 +360,7 @@ ucrx
 ucry
 ucrz
 ulimit
+un
 unary
 uncompiled
 undirected
