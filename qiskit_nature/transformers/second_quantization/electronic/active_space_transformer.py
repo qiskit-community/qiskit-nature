@@ -140,14 +140,14 @@ class ActiveSpaceTransformer(BaseTransformer):
                 )
             if self._num_electrons < 0:
                 raise QiskitNatureError(
-                    "The number of active electrons cannot be negative:",
+                    "The number of active electrons cannot be negative, not:",
                     str(self._num_electrons),
                 )
         elif isinstance(self._num_electrons, tuple):
             if not all(isinstance(n_elec, int) and n_elec >= 0 for n_elec in self._num_electrons):
                 raise QiskitNatureError(
                     "Neither the number of alpha, nor the number of beta electrons can be "
-                    "negative:",
+                    "negative, not:",
                     str(self._num_electrons),
                 )
         else:
@@ -159,7 +159,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         if isinstance(self._num_molecular_orbitals, int):
             if self._num_molecular_orbitals < 0:
                 raise QiskitNatureError(
-                    "The number of active orbitals cannot be negative:",
+                    "The number of active orbitals cannot be negative, not:",
                     str(self._num_molecular_orbitals),
                 )
         else:

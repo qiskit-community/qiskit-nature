@@ -421,7 +421,7 @@ class Molecule:
         return list(range(count))
 
     def Z(self, atom):  # pylint: disable=invalid-name
-        """Z"""
+        """Atomic Number (Z) of an atom """
         return Molecule.symbols.index(atom.lower().capitalize())
 
     BOHR = 0.52917721092  # No of Angstroms in Bohr (from 2010 CODATA)
