@@ -458,7 +458,6 @@ def edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
     w = np.zeros(edge_list.shape[1])
 
     position_ij = -1
-    qubit_position_i = np.asarray(np.where(edge_list == i))
 
     for edge_index in range(edge_list.shape[1]):
         if set((i, j)) == set(edge_list[:, edge_index]):
@@ -467,18 +466,16 @@ def edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
 
     w[position_ij] = 1
 
-    for edge_index in range(qubit_position_i.shape[1]):
-        i_i, j_j = qubit_position_i[:, edge_index]
-        i_i = int(not i_i)
-        if edge_list[i_i][j_j] < j:
-            v[j_j] = 1
+    def _set_edges(index1, index2):
+        qubit_position = np.asarray(np.where(edge_list == index1))
+        for edge_index in range(qubit_position.shape[1]):
+            i_i, j_j = qubit_position[:, edge_index]
+            i_i = int(not i_i)
+            if edge_list[i_i][j_j] < index2:
+                v[j_j] = 1
 
-    qubit_position_j = np.asarray(np.where(edge_list == j))
-    for edge_index in range(qubit_position_j.shape[1]):
-        i_i, j_j = qubit_position_j[:, edge_index]
-        i_i = int(not i_i)
-        if edge_list[i_i][j_j] < i:
-            v[j_j] = 1
+    _set_edges(i, j)
+    _set_edges(j, i)
 
     qubit_op = Pauli((v, w))
     return SparsePauliOp(qubit_op)
