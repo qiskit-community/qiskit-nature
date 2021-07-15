@@ -395,7 +395,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     return edge_matrix
 
 
-def _add_one_edge(edge_matrix, i: int, j: int) -> None:
+def _add_one_edge(edge_matrix: np.ndarray, i: int, j: int) -> None:
     """
     Add an edge from lesser index to greater. This maintains the upper triangular structure.
     """
@@ -404,7 +404,7 @@ def _add_one_edge(edge_matrix, i: int, j: int) -> None:
     edge_matrix[min(i, j), max(i, j)] = True
 
 
-def _add_edges_for_term(edge_matrix, term_str: str) -> None:
+def _add_edges_for_term(edge_matrix: np.ndarray, term_str: str) -> None:
     """
     Add one, two, or no edges to `edge_matrix` as dictated by the operator `term_str`.
     """
