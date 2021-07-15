@@ -61,20 +61,21 @@ class SideBead(BaseBead):
             and self.chain_type == other.chain_type
         )
 
-    def _build_turn_indicator_fun_0(self, full_id: PauliOp) -> OperatorBase:
+    def _build_turn_indicator_fun_0(self) -> OperatorBase:
         return (
-            ((full_id - self._turn_qubits[0]) @ (full_id - self._turn_qubits[1])) ^ full_id
+            ((self._full_id - self._turn_qubits[0]) @ (self._full_id - self._turn_qubits[1]))
+            ^ self._full_id
         ).reduce()
 
-    def _build_turn_indicator_fun_1(self, full_id: PauliOp) -> OperatorBase:
+    def _build_turn_indicator_fun_1(self) -> OperatorBase:
         return (
-            (self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0])) ^ full_id
+            (self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0])) ^ self._full_id
         ).reduce()
 
-    def _build_turn_indicator_fun_2(self, full_id: PauliOp) -> OperatorBase:
+    def _build_turn_indicator_fun_2(self) -> OperatorBase:
         return (
-            (self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1])) ^ full_id
+            (self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1])) ^ self._full_id
         ).reduce()
 
-    def _build_turn_indicator_fun_3(self, full_id: PauliOp) -> OperatorBase:
-        return (self._turn_qubits[0] @ self._turn_qubits[1] ^ full_id).reduce()
+    def _build_turn_indicator_fun_3(self) -> OperatorBase:
+        return (self._turn_qubits[0] @ self._turn_qubits[1] ^ self._full_id).reduce()

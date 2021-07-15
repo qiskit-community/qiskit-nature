@@ -28,10 +28,10 @@ class BaseBead(ABC):
         main_index: int,
         residue_type: str,
         turn_qubits: List[PauliOp],
-        build_turn_indicator_fun_0: Callable,
-        build_turn_indicator_fun_1: Callable,
-        build_turn_indicator_fun_2: Callable,
-        build_turn_indicator_fun_3: Callable,
+        build_turn_indicator_fun_0: Callable[[], OperatorBase],
+        build_turn_indicator_fun_1: Callable[[], OperatorBase],
+        build_turn_indicator_fun_2: Callable[[], OperatorBase],
+        build_turn_indicator_fun_3: Callable[[], OperatorBase],
     ):
         """
         Args:
@@ -51,11 +51,11 @@ class BaseBead(ABC):
         _validate_residue_symbol(residue_type)
         self._turn_qubits = turn_qubits
         if self._residue_type is not None and self.turn_qubits is not None:
-            full_id = _build_full_identity(turn_qubits[0].num_qubits)
-            self._turn_indicator_fun_0 = build_turn_indicator_fun_0(full_id)
-            self._turn_indicator_fun_1 = build_turn_indicator_fun_1(full_id)
-            self._turn_indicator_fun_2 = build_turn_indicator_fun_2(full_id)
-            self._turn_indicator_fun_3 = build_turn_indicator_fun_3(full_id)
+            self._full_id = _build_full_identity(turn_qubits[0].num_qubits)
+            self._turn_indicator_fun_0 = build_turn_indicator_fun_0()
+            self._turn_indicator_fun_1 = build_turn_indicator_fun_1()
+            self._turn_indicator_fun_2 = build_turn_indicator_fun_2()
+            self._turn_indicator_fun_3 = build_turn_indicator_fun_3()
 
     @property
     def turn_qubits(self) -> List[PauliOp]:
