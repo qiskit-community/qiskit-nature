@@ -139,9 +139,9 @@ def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> Spa
         return qubit_op1 + qubit_op2
 
 
-def _analyze_term(term_str: str) -> Tuple[str, List]:
+def _analyze_term(term_str: str) -> Tuple[TermType, List]:
     """
-    Return a string recording the type of interaction represented by `term_str` and
+    Return the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
 
     The types of interaction are NUMBER, EXCITATION, COULOMB_EXCHANGE, NUMBER_EXCITATION,
@@ -151,7 +151,7 @@ def _analyze_term(term_str: str) -> Tuple[str, List]:
        `term_str`: a string of characters in `+-NI`.
 
     Returns:
-       tuple: The first element is a string specifying the interaction type. See the method
+       tuple: The first element is a `TermType` specifying the interaction type. See the method
        `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
@@ -162,7 +162,7 @@ def _analyze_term(term_str: str) -> Tuple[str, List]:
 def _operator_string(term: Tuple) -> str:
     """
     Return the string describing the operators in the term extracted from a `FermionicOp`.
-    given by `term.
+    given by `term`.
     """
     return term[0]
 
@@ -336,9 +336,9 @@ def _unpack_term(
     return (n_number, n_raise, n_lower), facs
 
 
-def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> str:
+def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
     """
-    Return a string describing the type of interaction given the number of
+    Return a `TermType` instance describing the type of interaction given the number of
     number, raising, and lowering operators.
 
     The types of interaction returned are NUMBER, EXCITATION, COULOMB_EXCHANGE,
