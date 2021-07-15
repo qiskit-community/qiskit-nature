@@ -18,7 +18,7 @@ import numpy as np
 def _load_energy_matrix_file() -> Tuple[np.ndarray, List[str]]:
     """Returns the energy matrix from the Miyazawa-Jernigan potential file."""
 
-    path = "/qiskit-nature/problems/sampling/protein_folding/interactions/resources/mj_matrix.txt"
+    path = "qiskit_nature/problems/sampling/protein_folding/interactions/resources/mj_matrix.txt"
     matrix = np.loadtxt(fname=path, dtype=str)
     energy_matrix = _parse_energy_matrix(matrix)
     symbols = list(matrix[0, :])
