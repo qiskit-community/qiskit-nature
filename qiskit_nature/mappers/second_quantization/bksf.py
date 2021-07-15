@@ -469,14 +469,14 @@ def edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
 
     for edge_index in range(qubit_position_i.shape[1]):
         i_i, j_j = qubit_position_i[:, edge_index]
-        i_i = 1 if i_i == 0 else 0  # int(not(i_i))
+        i_i = int(not i_i)
         if edge_list[i_i][j_j] < j:
             v[j_j] = 1
 
     qubit_position_j = np.asarray(np.where(edge_list == j))
     for edge_index in range(qubit_position_j.shape[1]):
         i_i, j_j = qubit_position_j[:, edge_index]
-        i_i = 1 if i_i == 0 else 0  # int(not(i_i))
+        i_i = int(not i_i)
         if edge_list[i_i][j_j] < i:
             v[j_j] = 1
 
