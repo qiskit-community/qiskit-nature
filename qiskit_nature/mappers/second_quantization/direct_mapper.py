@@ -23,7 +23,7 @@ from .qubit_mapper import QubitMapper
 from .vibrational_mapper import VibrationalMapper
 
 
-class DirectMapper(VibrationalMapper):
+class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Direct mapper.
 

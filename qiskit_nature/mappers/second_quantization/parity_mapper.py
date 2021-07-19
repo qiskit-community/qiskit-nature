@@ -24,7 +24,7 @@ from .fermionic_mapper import FermionicMapper
 from .qubit_mapper import QubitMapper
 
 
-class ParityMapper(FermionicMapper):
+class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Parity fermion-to-qubit mapping.
 

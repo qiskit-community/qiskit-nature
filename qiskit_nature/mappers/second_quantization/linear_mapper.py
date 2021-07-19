@@ -26,7 +26,7 @@ from qiskit_nature.operators.second_quantization import SpinOp
 from .spin_mapper import SpinMapper
 
 
-class LinearMapper(SpinMapper):
+class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Linear spin-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)
