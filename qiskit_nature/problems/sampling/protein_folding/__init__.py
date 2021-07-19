@@ -32,15 +32,6 @@ more details consult the paper Robert et al., npj quantum information 7, 38, 202
 
 .. currentmodule:: qiskit_nature.problems.sampling.protein_folding
 
-Protein Folding Problem Class
-=============================
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   ProteinFoldingProblem
-
 Peptide Class
 =============
 
