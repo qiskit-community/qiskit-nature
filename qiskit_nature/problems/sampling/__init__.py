@@ -17,11 +17,13 @@ Sampling Problems (:mod:`qiskit_nature.problems.sampling`)
 .. currentmodule:: qiskit_nature.problems.sampling
 
 
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
+Protein Folding
++++++++++++++++++
 
-   ProteinFoldingProblem
+.. autosummary::
+   :toctree:
+
+   protein_folding
 """
 from .protein_folding.protein_folding_problem import ProteinFoldingProblem
 
