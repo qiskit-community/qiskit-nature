@@ -25,8 +25,3 @@ Protein Folding
 
    protein_folding
 """
-from .protein_folding.protein_folding_problem import ProteinFoldingProblem
-
-__all__ = [
-    "ProteinFoldingProblem",
-]
