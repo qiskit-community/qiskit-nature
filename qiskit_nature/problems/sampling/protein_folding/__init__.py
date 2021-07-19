@@ -12,15 +12,11 @@
 """
 Protein Folding Problems (:mod:`qiskit_nature.problems.sampling.protein_folding`)
 =================================================================================
-
 The protein to be folded is defined in a Peptide class. Each peptide consists of one and only one
 main chain and optionally several side chains. Side chains cannot be attached to first, second or
 last main bead which is an assumption of the algorithm without loss of generality (see the paper
-cited below). A chain consists of beads containing information about their relative position to
-other beads:
-* main beads reference previous main beads,
-* _first_ side beads reference the (branching) main bead,
-* other side beads reference previous side beads.
+cited below). Each chain consists of beads that encode information about the turn that follows
+to another main bead (in case of main beads) or into a side bead (in case of side beads).
 Moreover, each bead is characterized by a letter which encodes its residue sequence which defines
 the energy of interactions with other beads (unless interactions are random). Each side chain is
 attached to one and only one main bead. Currently, only side chains of length 1 (i.e. with 1
@@ -34,9 +30,32 @@ more details consult the paper Robert et al., npj quantum information 7, 38, 202
 
 Protein Folding Problem Class
 =============================
-
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+   ProteinFoldingProblem
 
+Peptide Class
+=============
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+   Peptide
+
+Penalty Parameters Class
+========================
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+   PenaltyParameters
 """
+
+from .penalty_parameters import PenaltyParameters
+from .peptide.peptide import Peptide
+from .protein_folding_problem import ProteinFoldingProblem
+
+__all__ = [
+    "ProteinFoldingProblem",
+    "Peptide",
+    "PenaltyParameters",
+]

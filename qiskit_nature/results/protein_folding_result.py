@@ -14,7 +14,9 @@ from typing import Union
 
 from qiskit.opflow import PauliOp
 
-from problems.sampling.protein_folding.protein_folding_problem import ProteinFoldingProblem
+from qiskit_nature.problems.sampling.protein_folding.protein_folding_problem import (
+    ProteinFoldingProblem,
+)
 from qiskit_nature.results import EigenstateResult
 
 
