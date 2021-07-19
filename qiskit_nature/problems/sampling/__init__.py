@@ -21,6 +21,13 @@ Sampling Problems (:mod:`qiskit_nature.problems.sampling`)
    :toctree: ../stubs/
    :nosignatures:
 
+Protein Folding Problem Class
+=============================
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
    ProteinFoldingProblem
 """
 from .protein_folding.protein_folding_problem import ProteinFoldingProblem
