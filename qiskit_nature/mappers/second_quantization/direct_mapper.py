@@ -24,7 +24,6 @@ from .vibrational_mapper import VibrationalMapper
 
 
 class DirectMapper(VibrationalMapper):
-
     def __init__(self):
         """The Direct mapper.
 

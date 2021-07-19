@@ -24,7 +24,6 @@ from .qubit_mapper import QubitMapper
 
 
 class JordanWignerMapper(FermionicMapper):
-
     def __init__(self):
         """The Jordan-Wigner fermion-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)

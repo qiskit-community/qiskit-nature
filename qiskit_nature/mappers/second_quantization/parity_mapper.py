@@ -25,12 +25,11 @@ from .qubit_mapper import QubitMapper
 
 
 class ParityMapper(FermionicMapper):
-
     def __init__(self):
         """The Parity fermion-to-qubit mapping.
 
         When using this mapper `two_qubit_reduction` can optionally be used for the qubit
-        operator that is created, see convertor class
+        operator that is created, see converter class
         :class:`~qiskit_nature.converters.second_quantization.QubitConverter`.
         """
         super().__init__(allows_two_qubit_reduction=True)

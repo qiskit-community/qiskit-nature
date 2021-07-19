@@ -27,7 +27,6 @@ from .spin_mapper import SpinMapper
 
 
 class LinearMapper(SpinMapper):
-
     def __init__(self):
         """The Linear spin-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)
