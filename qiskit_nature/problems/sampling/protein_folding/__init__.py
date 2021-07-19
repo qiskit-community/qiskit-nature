@@ -33,6 +33,7 @@ Protein Folding Problem Class
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+
    ProteinFoldingProblem
 
 Peptide Class
@@ -40,6 +41,7 @@ Peptide Class
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+
    Peptide
 
 Penalty Parameters Class
@@ -47,6 +49,7 @@ Penalty Parameters Class
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+
    PenaltyParameters
 """
 

@@ -27,9 +27,9 @@ class PenaltyParameters:
             penalty_chiral: A penalty parameter used to impose the right chirality.
             penalty_back: A penalty parameter used to penalize turns along the same axis.
             penalty_1: A penalty parameter used to penalize local overlap between beads within a
-                        nearest neighbor contact.
+                nearest neighbor contact.
             penalty_contacts: A penalty parameter used to penalize local overlap between beads
-            within a nearest neighbor contact.
+                within a nearest neighbor contact.
         """
 
         self._penalty_chiral = penalty_chiral
