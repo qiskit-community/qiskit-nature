@@ -12,6 +12,7 @@
 
 """The ParticleNumber property."""
 
+import logging
 from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -26,9 +27,17 @@ from ..second_quantized_property import (
     SecondQuantizedProperty,
 )
 
+LOGGER = logging.getLogger(__file__)
+
 
 class ParticleNumber(SecondQuantizedProperty):
-    """The ParticleNumber property."""
+    """The ParticleNumber property.
+
+    Note that this Property serves a two purposes:
+        1. it stores the expected number of electrons (`self.num_particles`)
+        2. it is used to evaluate the measured number of electrons via auxiliary operators.
+           If this measured number does not match the expected number a warning will be logged.
+    """
 
     def __init__(
         self,
@@ -81,6 +90,11 @@ class ParticleNumber(SecondQuantizedProperty):
     def num_beta(self) -> int:
         """Returns the number of beta electrons."""
         return self._num_beta
+
+    @property
+    def num_particles(self) -> Tuple[int, int]:
+        """Returns the number of electrons."""
+        return (self.num_alpha, self.num_beta)
 
     @property
     def occupation_alpha(self) -> np.ndarray:
@@ -172,3 +186,11 @@ class ParticleNumber(SecondQuantizedProperty):
                 result.num_particles.append(aux_op_eigenvalues[0][0].real)  # type: ignore
             else:
                 result.num_particles.append(None)
+
+        if result.num_particles and not np.allclose(result.num_particles, self.num_particles):
+            LOGGER.warning(
+                "The measure number of particles %s does NOT match the expected number of particles"
+                " %s!",
+                result.num_particles,
+                self.num_particles,
+            )

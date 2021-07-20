@@ -44,6 +44,7 @@ class AngularMomentum(SecondQuantizedProperty):
         """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
+        # TODO: store expected spin?
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
