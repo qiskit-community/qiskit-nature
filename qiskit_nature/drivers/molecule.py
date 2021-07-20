@@ -346,6 +346,11 @@ class Molecule:
         return UnitsType.ANGSTROM
 
     @property
+    def atoms(self) -> List[str]:
+        """Get the list of atoms"""
+        return [atom for atom, _ in self._geometry]
+
+    @property
     def geometry(self) -> List[Tuple[str, List[float]]]:
         """Get geometry accounting for any perturbations"""
         return self._get_perturbed_geom()
@@ -396,53 +401,3 @@ class Molecule:
     def perturbations(self, value: Optional[List[float]]) -> None:
         """Set perturbations"""
         self._perturbations = value
-
-    @property
-    def core_orbitals(self) -> List[int]:
-        """
-        Returns:
-            A list of core orbital indices.
-        """
-        count = 0
-        for atom, _ in self._geometry:
-            z = self.Z(atom)
-            if z > 2:
-                count += 1
-            if z > 10:
-                count += 4
-            if z > 18:
-                count += 4
-            if z > 36:
-                count += 9
-            if z > 54:
-                count += 9
-            if z > 86:
-                count += 16
-        return list(range(count))
-
-    def Z(self, atom: str) -> int:  # pylint: disable=invalid-name
-        """Atomic Number (Z) of an atom.
-
-        Args:
-            atom: the atom kind (symbol) whose atomic number to return.
-
-        Returns:
-            The atomic number of the queried atom kind.
-        """
-        return Molecule.symbols.index(atom.lower().capitalize())
-
-    symbols = [
-        # pylint: disable=bad-option-value,bad-whitespace,line-too-long
-        # fmt: off
-        "_",
-         "H", "He",
-        "Li", "Be",                                                              "B",  "C",  "N",  "O",  "F", "Ne",
-        "Na", "Mg",                                                             "Al", "Si",  "P",  "S", "Cl", "Ar",
-         "K", "Ca", "Sc", "Ti",  "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
-        "Rb", "Sr",  "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te",  "I", "Xe",
-        "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
-                          "Hf", "Ta",  "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
-        "Fr", "Ra", "Ac", "Th", "Pa",  "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
-                          "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
-        # fmt: on
-    ]

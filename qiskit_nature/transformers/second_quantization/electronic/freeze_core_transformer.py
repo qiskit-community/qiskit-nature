@@ -31,9 +31,9 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         active space.
 
         The orbitals to be removed are specified in two ways:
-            1. When `freeze_core` is enabled (the default), the `core_orbitals` listed in the
-               `Molecule` stored as part of the `ElectronicDriverResult` are made inactive and
-               removed in the same fashion as in the :class:`ActiveSpaceTransformer`.
+            1. When `freeze_core` is enabled (the default), the "core" orbitals will be determined
+               automatically according to `count_core_orbitals`. These will then be made inactive
+               and removed in the same fashion as in the :class:`ActiveSpaceTransformer`.
             2. Additionally, unoccupied molecular orbitals can be removed via a list of indices
                passed to `remove_orbitals`. It is the user's responsibility to ensure that these are
                indeed unoccupied orbitals, as no checks are performed.
@@ -42,8 +42,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         :class:`ActiveSpaceTransformer` instead.
 
         Args:
-            freeze_core: A boolean indicating whether to remove the molecular orbitals specified by
-                        `Molecule.core_orbitals`.
+            freeze_core: A boolean indicating whether to remove the "core" orbitals.
             remove_orbitals: A list of indices specifying molecular orbitals which are removed.
                              No checks are performed on the nature of these orbitals, so the user
                              must make sure that these are _unoccupied_ orbitals, which can be
@@ -71,7 +70,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         molecule = molecule_data.molecule
         particle_number = molecule_data.get_property("ParticleNumber")
 
-        inactive_orbs_idxs = molecule.core_orbitals
+        inactive_orbs_idxs = list(range(self.count_core_orbitals(molecule.atoms)))
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
@@ -81,3 +80,56 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         self._num_molecular_orbitals = len(active_orbs_idxs)
 
         return (active_orbs_idxs, inactive_orbs_idxs)
+
+    def count_core_orbitals(self, atoms: List[str]) -> int:
+        """Counts the number of core orbitals in a list of atoms.
+
+        Args:
+            atoms: the list of atoms.
+
+        Returns:
+            The number of core orbitals.
+        """
+        count = 0
+        for atom in atoms:
+            z = self.Z(atom)
+            if z > 2:
+                count += 1
+            if z > 10:
+                count += 4
+            if z > 18:
+                count += 4
+            if z > 36:
+                count += 9
+            if z > 54:
+                count += 9
+            if z > 86:
+                count += 16
+        return count
+
+    def Z(self, atom: str) -> int:  # pylint: disable=invalid-name
+        """Atomic Number (Z) of an atom.
+
+        Args:
+            atom: the atom kind (symbol) whose atomic number to return.
+
+        Returns:
+            The atomic number of the queried atom kind.
+        """
+        return self.periodic_table.index(atom.lower().capitalize())
+
+    periodic_table = [
+        # pylint: disable=bad-option-value,bad-whitespace,line-too-long
+        # fmt: off
+        "_",
+         "H", "He",
+        "Li", "Be",                                                              "B",  "C",  "N",  "O",  "F", "Ne",
+        "Na", "Mg",                                                             "Al", "Si",  "P",  "S", "Cl", "Ar",
+         "K", "Ca", "Sc", "Ti",  "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
+        "Rb", "Sr",  "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te",  "I", "Xe",
+        "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
+                          "Hf", "Ta",  "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
+        "Fr", "Ra", "Ac", "Th", "Pa",  "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
+                          "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
+        # fmt: on
+    ]
