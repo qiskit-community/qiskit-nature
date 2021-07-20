@@ -18,7 +18,7 @@ from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ..driver_result import DriverResult
+from ..driver_result import DriverMetadata, DriverResult
 from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
@@ -40,9 +40,9 @@ class ElectronicDriverResult(DriverResult):
         Property objects should be added via `add_property` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
+        self.driver_metadata: DriverMetadata = None
         self.molecule: Molecule = None
         self.electronic_basis_transform: ElectronicBasisTransform = None
-        # TODO: add origin driver metadata
         # TODO: where to put orbital_energies?
         # TODO: where to put kinetic, overlap matrices? Do we want explicit Fock matrix?
 
@@ -80,6 +80,12 @@ class ElectronicDriverResult(DriverResult):
             geometry.append((atom, xyz))
 
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
+
+        ret.driver_metadata = DriverMetadata(
+            qmol.origin_driver_name,
+            qmol.origin_driver_version,
+            qmol.origin_driver_config,
+        )
 
         return ret
 

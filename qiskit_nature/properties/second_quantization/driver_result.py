@@ -23,3 +23,18 @@ T = TypeVar("T", bound=SecondQuantizedProperty)
 
 class DriverResult(CompositeProperty[T], SecondQuantizedProperty):
     """The CompositeProperty result produced by a second quantization driver."""
+
+
+class DriverMetadata:
+    """A meta-data storage container for driver information."""
+
+    def __init__(self, name: str, version: str, config: str) -> None:
+        """
+        Args:
+            name: the name of the classical code run by the driver.
+            version: the version of the classical code.
+            config: the configuration of the classical code.
+        """
+        self.name = name
+        self.version = version
+        self.config = config
