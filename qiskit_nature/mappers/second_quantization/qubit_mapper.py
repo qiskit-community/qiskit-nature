@@ -33,7 +33,7 @@ class QubitMapper(ABC):
         """
         Args:
             allows_two_qubit_reduction: Set if mapper will create known symmetry such that the
-            number of qubits in the mapped operator can be reduced accordingly.
+                number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
 
@@ -49,7 +49,8 @@ class QubitMapper(ABC):
 
     @abstractmethod
     def map(self, second_q_op: SecondQuantizedOp) -> PauliSumOp:
-        """Maps a `SecondQuantizedOp` to a `PauliSumOp`.
+        """Maps a :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`
+        to a `PauliSumOp`.
 
         Args:
             second_q_op: the `SecondQuantizedOp` to be mapped.

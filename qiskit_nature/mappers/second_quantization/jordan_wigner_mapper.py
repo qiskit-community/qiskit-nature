@@ -23,8 +23,10 @@ from .fermionic_mapper import FermionicMapper
 from .qubit_mapper import QubitMapper
 
 
-class JordanWignerMapper(FermionicMapper):
-    """The Jordan-Wigner fermion-to-qubit mapping."""
+class JordanWignerMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
+    def __init__(self):
+        """The Jordan-Wigner fermion-to-qubit mapping."""
+        super().__init__(allows_two_qubit_reduction=False)
 
     def map(self, second_q_op: FermionicOp) -> PauliSumOp:
 
