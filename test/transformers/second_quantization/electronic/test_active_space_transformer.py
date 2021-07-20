@@ -24,7 +24,7 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicDriverResult,
     ElectronicEnergy,
-    TotalDipoleMoment,
+    ElectronicDipoleMoment,
 )
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 from qiskit_nature.properties.second_quantization.electronic.dipole_moment import DipoleMoment
@@ -62,8 +62,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             )
 
         for dipole, dipole_exp in zip(
-            iter(driver_result.get_property("TotalDipoleMoment")),
-            iter(expected.get_property("TotalDipoleMoment")),
+            iter(driver_result.get_property("ElectronicDipoleMoment")),
+            iter(expected.get_property("ElectronicDipoleMoment")),
         ):
             with self.subTest(f"MO 1-electron {dipole._axis} dipole integrals"):
                 np.testing.assert_array_almost_equal(
@@ -92,7 +92,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver_result = ElectronicDriverResult.from_legacy_driver_result(q_molecule)
 
         driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in iter(driver_result.get_property("TotalDipoleMoment")):
+        for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = ActiveSpaceTransformer(**kwargs)
@@ -146,7 +146,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             )
         )
         expected.add_property(
-            TotalDipoleMoment(
+            ElectronicDipoleMoment(
                 [
                     DipoleMoment(
                         "x",
@@ -253,7 +253,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             )
         )
         expected.add_property(
-            TotalDipoleMoment(
+            ElectronicDipoleMoment(
                 [
                     DipoleMoment(
                         "x",
@@ -320,7 +320,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver_result = ElectronicDriverResult.from_legacy_driver_result(q_molecule)
 
         driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in iter(driver_result.get_property("TotalDipoleMoment")):
+        for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)

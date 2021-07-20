@@ -47,7 +47,7 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
         # The references which we compare too were produced by the `ActiveSpaceTransformer` and,
         # thus, the key here needs to stay the same as in that test case.
         driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in iter(driver_result.get_property("TotalDipoleMoment")):
+        for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = FreezeCoreTransformer(**kwargs)

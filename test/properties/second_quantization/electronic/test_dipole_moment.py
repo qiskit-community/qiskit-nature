@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.properties.second_quantization.electronic import TotalDipoleMoment
+from qiskit_nature.properties.second_quantization.electronic import ElectronicDipoleMoment
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 from qiskit_nature.properties.second_quantization.electronic.dipole_moment import DipoleMoment
 from qiskit_nature.properties.second_quantization.electronic.integrals import (
@@ -26,8 +26,8 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestTotalDipoleMoment(QiskitNatureTestCase):
-    """Test TotalDipoleMoment Property"""
+class TestElectronicDipoleMoment(QiskitNatureTestCase):
+    """Test ElectronicDipoleMoment Property"""
 
     def setUp(self):
         """Setup."""
@@ -38,7 +38,7 @@ class TestTotalDipoleMoment(QiskitNatureTestCase):
             )
         )
         qmol = driver.run()
-        self.prop = TotalDipoleMoment.from_legacy_driver_result(qmol)
+        self.prop = ElectronicDipoleMoment.from_legacy_driver_result(qmol)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

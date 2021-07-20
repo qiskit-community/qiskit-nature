@@ -22,7 +22,7 @@ from ..driver_result import DriverMetadata, DriverResult
 from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
-from .dipole_moment import TotalDipoleMoment
+from .dipole_moment import ElectronicDipoleMoment
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
@@ -69,7 +69,7 @@ class ElectronicDriverResult(DriverResult):
         ret.add_property(ParticleNumber.from_legacy_driver_result(qmol))
         ret.add_property(AngularMomentum.from_legacy_driver_result(qmol))
         ret.add_property(Magnetization.from_legacy_driver_result(qmol))
-        ret.add_property(TotalDipoleMoment.from_legacy_driver_result(qmol))
+        ret.add_property(ElectronicDipoleMoment.from_legacy_driver_result(qmol))
 
         ret.electronic_basis_transform = ElectronicBasisTransform(
             ElectronicBasis.AO, ElectronicBasis.MO, qmol.mo_coeff, qmol.mo_coeff_b
@@ -100,7 +100,7 @@ class ElectronicDriverResult(DriverResult):
             ParticleNumber,
             AngularMomentum,
             Magnetization,
-            TotalDipoleMoment,
+            ElectronicDipoleMoment,
         ]:
             prop = self.get_property(cls)  # type: ignore
             if prop is None:

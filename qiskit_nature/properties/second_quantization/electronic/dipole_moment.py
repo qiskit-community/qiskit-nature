@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The TotalDipoleMoment property."""
+"""The ElectronicDipoleMoment property."""
 
 from typing import Dict, List, Optional, Tuple, cast
 
@@ -85,13 +85,21 @@ class DipoleMoment(IntegralProperty):
         pass
 
 
-class TotalDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
-    """The TotalDipoleMoment property."""
+class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
+    """The ElectronicDipoleMoment property.
+
+    This Property computes **purely** the electronic dipole moment (possibly minus additional shifts
+    introduced via e.g. classical transformers). However, for convenience it provides a storage
+    location for the nuclear dipole moment. If available, this information will be used during the
+    call of `interpret` to provide the electronic, nuclear and total dipole moments in the result
+    object.
+    """
 
     def __init__(
         self,
         dipole_axes: List[DipoleMoment],
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
+        nuclear_dipole_moment: Optional[DipoleTuple] = None,
         reverse_dipole_sign: bool = False,
     ):
         """
@@ -101,13 +109,16 @@ class TotalDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
         """
         super().__init__(self.__class__.__name__)
         self._dipole_shift = dipole_shift
+        self._nuclear_dipole_moment = nuclear_dipole_moment
         self._reverse_dipole_sign = reverse_dipole_sign
         for dipole in dipole_axes:
             self.add_property(dipole)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> Optional["TotalDipoleMoment"]:
-        """Construct a TotalDipoleMoment instance from a QMolecule.
+    def from_legacy_driver_result(
+        cls, result: LegacyDriverResult
+    ) -> Optional["ElectronicDipoleMoment"]:
+        """Construct a ElectronicDipoleMoment instance from a QMolecule.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
@@ -135,6 +146,12 @@ class TotalDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
 
             return DipoleMoment(axis, integrals, shift=energy_shift)
 
+        nuclear_dipole_moment: DipoleTuple = None
+        if qmol.nuclear_dipole_moment is not None:
+            nuclear_dipole_moment = cast(
+                DipoleTuple, tuple(d_m for d_m in qmol.nuclear_dipole_moment)
+            )
+
         return cls(
             [
                 dipole_along_axis(
@@ -156,11 +173,7 @@ class TotalDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
                     qmol.z_dip_energy_shift,
                 ),
             ],
-            dipole_shift={
-                "nuclear dipole moment": cast(
-                    DipoleTuple, tuple(d_m for d_m in qmol.nuclear_dipole_moment)
-                ),
-            },
+            nuclear_dipole_moment=nuclear_dipole_moment,
             reverse_dipole_sign=qmol.reverse_dipole_sign,
         )
 
@@ -174,7 +187,7 @@ class TotalDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
         Args:
             result: the result to add meaning to.
         """
-        result.nuclear_dipole_moment = self._dipole_shift.pop("nuclear dipole moment", None)
+        result.nuclear_dipole_moment = self._nuclear_dipole_moment
         result.reverse_dipole_sign = self._reverse_dipole_sign
         result.computed_dipole_moment = []
         result.extracted_transformer_dipoles = []

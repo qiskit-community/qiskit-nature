@@ -32,12 +32,19 @@ class ElectronicEnergy(IntegralProperty):
 
     This is the main property of any electronic structure problem. It constructs the Hamiltonian
     whose eigenvalue is the target of a later used Quantum algorithm.
+
+    Note that this Property computes **purely** the electronic energy (possibly minus additional
+    shifts introduced via e.g. classical transformers). However, for convenience it provides a
+    storage location for the nuclear repulsion energy. If available, this information will be used
+    during the call of `interpret` to provide the electronic, nuclear and total energy components in
+    the result object.
     """
 
     def __init__(
         self,
         electronic_integrals: List[ElectronicIntegrals],
         energy_shift: Optional[Dict[str, complex]] = None,
+        nuclear_repulsion_energy: Optional[complex] = None,
         reference_energy: Optional[complex] = None,
     ):
         """
@@ -49,6 +56,7 @@ class ElectronicEnergy(IntegralProperty):
             energy_shift: an optional dictionary of energy shifts.
         """
         super().__init__(self.__class__.__name__, electronic_integrals, shift=energy_shift)
+        self._nuclear_repulsion_energy = nuclear_repulsion_energy
         self._reference_energy = reference_energy
 
     @classmethod
@@ -70,7 +78,6 @@ class ElectronicEnergy(IntegralProperty):
         qmol = cast(QMolecule, result)
 
         energy_shift = qmol.energy_shift.copy()
-        energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
         integrals: List[ElectronicIntegrals] = []
         if qmol.hcore is not None:
@@ -95,7 +102,12 @@ class ElectronicEnergy(IntegralProperty):
                 )
             )
 
-        return cls(integrals, energy_shift=energy_shift, reference_energy=qmol.hf_energy)
+        return cls(
+            integrals,
+            energy_shift=energy_shift,
+            nuclear_repulsion_energy=qmol.nuclear_repulsion_energy,
+            reference_energy=qmol.hf_energy,
+        )
 
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Constructs the operator of this property in matrix-format for a given density.
@@ -139,5 +151,5 @@ class ElectronicEnergy(IntegralProperty):
             result: the result to add meaning to.
         """
         result.hartree_fock_energy = self._reference_energy
-        result.nuclear_repulsion_energy = self._shift.pop("nuclear repulsion", None)
+        result.nuclear_repulsion_energy = self._nuclear_repulsion_energy
         result.extracted_transformer_energies = self._shift.copy()
