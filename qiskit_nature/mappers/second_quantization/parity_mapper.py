@@ -24,10 +24,14 @@ from .fermionic_mapper import FermionicMapper
 from .qubit_mapper import QubitMapper
 
 
-class ParityMapper(FermionicMapper):
-    """The Parity fermion-to-qubit mapping."""
-
+class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
+        """The Parity fermion-to-qubit mapping.
+
+        When using this mapper `two_qubit_reduction` can optionally be used for the qubit
+        operator that is created, see converter class
+        :class:`~qiskit_nature.converters.second_quantization.QubitConverter`.
+        """
         super().__init__(allows_two_qubit_reduction=True)
 
     def map(self, second_q_op: FermionicOp) -> PauliSumOp:
