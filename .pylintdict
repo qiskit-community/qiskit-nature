@@ -210,6 +210,7 @@ prepend
 preprocesses
 pucc
 puccd
+pxd
 py
 pyquante
 pyscf
