@@ -172,6 +172,7 @@ class ParticleNumber(SecondQuantizedProperty):
         Args:
             result: the result to add meaning to.
         """
+        expected = self.num_alpha + self.num_beta
         result.num_particles = []
 
         if not isinstance(result.aux_operator_eigenvalues, list):
@@ -183,14 +184,15 @@ class ParticleNumber(SecondQuantizedProperty):
                 continue
 
             if aux_op_eigenvalues[0] is not None:
-                result.num_particles.append(aux_op_eigenvalues[0][0].real)  # type: ignore
+                n_particles = aux_op_eigenvalues[0][0].real  # type: ignore
+                result.num_particles.append(n_particles)
+
+                if not np.isclose(n_particles, expected):
+                    LOGGER.warning(
+                        "The measured number of particles %s does NOT match the expected number of "
+                        "particles %s!",
+                        n_particles,
+                        expected,
+                    )
             else:
                 result.num_particles.append(None)
-
-        if result.num_particles and not np.allclose(result.num_particles, self.num_particles):
-            LOGGER.warning(
-                "The measure number of particles %s does NOT match the expected number of particles"
-                " %s!",
-                result.num_particles,
-                self.num_particles,
-            )
