@@ -29,10 +29,8 @@ runs:
       env:
         PYTHONWARNINGS: default
       run: |
-        if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          conda activate
-        fi
+        source "$CONDA/etc/profile.d/conda.sh"
+        conda activate
         # run slow tests only on scheduled event or if input flag is set
         if [ "${{ inputs.event-name }}" == "schedule" ] || [ "${{ inputs.run-slow }}" == "true" ]; then
           export QISKIT_TESTS="run_slow"
