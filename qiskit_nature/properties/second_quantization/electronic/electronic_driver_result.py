@@ -31,7 +31,7 @@ from .particle_number import ParticleNumber
 class ElectronicDriverResult(DriverResult):
     """The ElectronicDriverResult class.
 
-    This is a :class:~qiskit_nature.properties.CompositeProperty gathering all property objects
+    This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects
     previously stored in Qiskit Nature's `QMolecule` object.
     """
 

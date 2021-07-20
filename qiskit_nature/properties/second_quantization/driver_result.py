@@ -14,15 +14,15 @@
 
 from typing import TypeVar
 
-from ..composite_property import CompositeProperty
+from ..grouped_property import GroupedProperty
 from .second_quantized_property import SecondQuantizedProperty
 
 # pylint: disable=invalid-name
 T = TypeVar("T", bound=SecondQuantizedProperty)
 
 
-class DriverResult(CompositeProperty[T], SecondQuantizedProperty):
-    """The CompositeProperty result produced by a second quantization driver."""
+class DriverResult(GroupedProperty[T], SecondQuantizedProperty):
+    """The GroupedProperty result produced by a second quantization driver."""
 
 
 class DriverMetadata:

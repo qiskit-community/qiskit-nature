@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""A Composite of multiple properties."""
+"""A group of multiple properties."""
 
 from collections.abc import Iterable
 from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
@@ -22,8 +22,8 @@ from .property import Property
 T = TypeVar("T", bound=Property)
 
 
-class CompositeProperty(Property, Iterable, Generic[T]):
-    """A Composite of multiple properties."""
+class GroupedProperty(Property, Iterable, Generic[T]):
+    """A group of multiple properties."""
 
     def __init__(self, name: str) -> None:
         """
@@ -41,7 +41,7 @@ class CompositeProperty(Property, Iterable, Generic[T]):
         return "\n".join(string)
 
     def add_property(self, prop: Optional[T]) -> None:
-        """Adds a property to the composite.
+        """Adds a property to the group.
 
         Args:
             prop: the property to be added.
@@ -50,10 +50,10 @@ class CompositeProperty(Property, Iterable, Generic[T]):
             self._properties[prop.name] = prop
 
     def get_property(self, prop: Union[str, Type[Property]]) -> Optional[T]:
-        """Gets a property from the Composite.
+        """Gets a property from the group.
 
         Args:
-            prop: the name or type of the property to get from the Composite.
+            prop: the name or type of the property to get from the group.
 
         Returns:
             The queried property (or None).

@@ -18,7 +18,7 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ...composite_property import CompositeProperty
+from ...grouped_property import GroupedProperty
 from ..second_quantized_property import (
     LegacyDriverResult,
     LegacyElectronicDriverResult,
@@ -85,7 +85,7 @@ class DipoleMoment(IntegralProperty):
         pass
 
 
-class TotalDipoleMoment(CompositeProperty[DipoleMoment], SecondQuantizedProperty):
+class TotalDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
     """The TotalDipoleMoment property."""
 
     def __init__(

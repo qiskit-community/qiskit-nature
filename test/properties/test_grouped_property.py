@@ -10,16 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""General CompositeProperty base class tests."""
+"""General GroupedProperty base class tests."""
 
 from test import QiskitNatureTestCase
 
-from qiskit_nature.properties import CompositeProperty
+from qiskit_nature.properties.grouped_property import GroupedProperty
 from qiskit_nature.properties.second_quantization.electronic.integrals import IntegralProperty
 
 
-class TestCompositeProperty(QiskitNatureTestCase):
-    """General CompositeProperty base class tests."""
+class TestGroupedProperty(QiskitNatureTestCase):
+    """General GroupedProperty base class tests."""
 
     def setUp(self):
         """Setup."""
@@ -27,7 +27,7 @@ class TestCompositeProperty(QiskitNatureTestCase):
         self.dummy_prop_1 = IntegralProperty("Dummy 1", [])
         self.dummy_prop_2 = IntegralProperty("Dummy 2", [])
 
-        self.prop = CompositeProperty("Dummy Composite")
+        self.prop = GroupedProperty("Dummy Group")
         self.prop.add_property(self.dummy_prop_1)
         self.prop.add_property(self.dummy_prop_2)
 
@@ -40,14 +40,14 @@ class TestCompositeProperty(QiskitNatureTestCase):
     def test_add_property(self):
         """Test add_property."""
         dummy_prop = IntegralProperty("IntegralProperty", [])
-        prop = CompositeProperty("Dummy Composite")
+        prop = GroupedProperty("Dummy Group")
         prop.add_property(dummy_prop)
         self.assertEqual(prop._properties, {"IntegralProperty": dummy_prop})
 
     def test_get_property(self):
         """Test get_property."""
         dummy_prop = IntegralProperty("IntegralProperty", [])
-        prop = CompositeProperty("Dummy Composite")
+        prop = GroupedProperty("Dummy Group")
         prop.add_property(dummy_prop)
         self.assertEqual(prop.get_property("IntegralProperty"), dummy_prop)
         self.assertEqual(prop.get_property(IntegralProperty), dummy_prop)

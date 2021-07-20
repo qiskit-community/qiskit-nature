@@ -30,7 +30,7 @@ from .vibrational_property import VibrationalProperty
 class VibrationalDriverResult(DriverResult[VibrationalProperty]):
     """The VibrationalDriverResult class.
 
-    This is a :class:~qiskit_nature.properties.CompositeProperty gathering all property objects
+    This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects
     previously stored in Qiskit Nature's `WatsonHamiltonian` object.
     """
 

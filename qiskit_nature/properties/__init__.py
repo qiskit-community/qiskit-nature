@@ -23,7 +23,7 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
    :nosignatures:
 
    Property
-   CompositeProperty
+   GroupedProperty
 
 .. autosummary::
    :toctree:
@@ -31,10 +31,10 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
    second_quantization
 """
 
-from .composite_property import CompositeProperty
+from .grouped_property import GroupedProperty
 from .property import Property
 
 __all__ = [
     "Property",
-    "CompositeProperty",
+    "GroupedProperty",
 ]

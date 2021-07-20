@@ -20,7 +20,7 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.properties import CompositeProperty, Property
+from qiskit_nature.properties import GroupedProperty, Property
 from qiskit_nature.properties.second_quantization import DriverResult, SecondQuantizedProperty
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -334,7 +334,7 @@ class ActiveSpaceTransformer(BaseTransformer):
     def _transform_property(self, prop: Property) -> Property:
         """Transforms a Property object.
 
-        This is a recursive reduction, iterating CompositeProperty objects when encountering one.
+        This is a recursive reduction, iterating GroupedProperty objects when encountering one.
 
         Args:
             property: the property object to transform.
@@ -346,17 +346,17 @@ class ActiveSpaceTransformer(BaseTransformer):
             TypeError: if an unexpected Property subtype is encountered.
         """
         transformed_property: Property
-        if isinstance(prop, CompositeProperty):
+        if isinstance(prop, GroupedProperty):
             transformed_property = deepcopy(prop)
 
-            # Get the iterator of the Composite's properties. We access __iter__() directly to make
+            # Get the iterator of the Group's properties. We access __iter__() directly to make
             # mypy happy :-)
             iterator = transformed_property.__iter__()
 
             transformed_internal_property = None
             while True:
                 try:
-                    # Send the transformed internal property to the CompositeProperty generator.
+                    # Send the transformed internal property to the GroupedProperty generator.
                     # NOTE: in the first iteration, this variable is None, which is equivalent to
                     # starting the iterator.
                     # NOTE: a Generator's send method returns the iterators next value [2].
