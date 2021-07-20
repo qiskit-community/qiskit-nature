@@ -14,6 +14,8 @@
 
 from typing import Dict, List, Optional, cast
 
+import numpy as np
+
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.results import EigenstateResult
 
@@ -59,6 +61,59 @@ class ElectronicEnergy(IntegralProperty):
         self._nuclear_repulsion_energy = nuclear_repulsion_energy
         self._reference_energy = reference_energy
 
+        # Additional, purely information data (i.e. currently not used by the Stack itself).
+        self._orbital_enerfies: np.ndarray = None
+        self._kinetic: ElectronicIntegrals = None
+        self._overlap: ElectronicIntegrals = None
+        self._fock: ElectronicIntegrals = None
+
+    @property
+    def orbital_energies(self) -> np.ndarray:
+        """Returns the orbital energies.
+
+        If no spin-distinction is made, this is a 1-D array, otherwise it is a 2-D array.
+        """
+        return self._orbital_energies
+
+    @orbital_energies.setter
+    def orbital_energies(self, orbital_energies: np.ndarray) -> None:
+        """Sets the orbital energies."""
+        self._orbital_energies = orbital_energies
+
+    @property
+    def kinetic(self) -> ElectronicIntegrals:
+        """Returns the AO kinetic integrals."""
+        return self._kinetic
+
+    @kinetic.setter
+    def kinetic(self, kinetic: ElectronicIntegrals) -> None:
+        """Sets the AO kinetic integrals."""
+        self._kinetic = kinetic
+
+    @property
+    def overlap(self) -> ElectronicIntegrals:
+        """Returns the AO overlap integrals."""
+        return self._overlap
+
+    @overlap.setter
+    def overlap(self, overlap: ElectronicIntegrals) -> None:
+        """Sets the AO overlap integrals."""
+        self._overlap = overlap
+
+    @property
+    def fock(self) -> ElectronicIntegrals:
+        """Returns the AO Fock operator.
+
+        In the case of DFT this canNOT be reconstructed from the 1- and
+        2-electron integrals because of the XCF-dependent term.
+        """
+        return self._fock
+
+    @fock.setter
+    def fock(self, fock: ElectronicIntegrals) -> None:
+        """Returns the AO Fock operator."""
+        self._fock = fock
+
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
         """Construct an ElectronicEnergy instance from a QMolecule.
@@ -102,12 +157,25 @@ class ElectronicEnergy(IntegralProperty):
                 )
             )
 
-        return cls(
+        ret = cls(
             integrals,
             energy_shift=energy_shift,
             nuclear_repulsion_energy=qmol.nuclear_repulsion_energy,
             reference_energy=qmol.hf_energy,
         )
+
+        orb_energies = qmol.orbital_energies
+        if qmol.orbital_energies_b is not None:
+            orb_energies = np.asarray((qmol.orbital_energies, qmol.orbital_energies_b))
+        ret.orbital_energies = orb_energies
+
+        if qmol.kinetic is not None:
+            ret.kinetic = OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.kinetic, None))
+
+        if qmol.overlap is not None:
+            ret.overlap = OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.overlap, None))
+
+        return ret
 
     def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Constructs the operator of this property in matrix-format for a given density.
