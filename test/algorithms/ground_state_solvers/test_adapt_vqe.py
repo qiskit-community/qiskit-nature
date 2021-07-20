@@ -16,7 +16,7 @@ import unittest
 
 from typing import cast
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 
 import numpy as np
 
@@ -24,7 +24,6 @@ from qiskit.providers.basicaer import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import UnitsType
@@ -46,16 +45,13 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 class TestAdaptVQE(QiskitNatureTestCase):
     """Test Adaptive VQE Ground State Calculation"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
 
-        try:
-            self.driver = PySCFDriver(
-                atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
-            )
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
-            return
+        self.driver = PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
+        )
 
         self.problem = ElectronicStructureProblem(self.driver)
 

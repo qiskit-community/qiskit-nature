@@ -14,6 +14,7 @@
 
 import unittest
 from functools import partial
+from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit_nature.algorithms.pes_samplers.potentials.harmonic_potential import (
@@ -26,7 +27,7 @@ from qiskit_nature.constants import HARTREE_TO_J_PER_MOL
 from qiskit_nature.drivers import Molecule
 
 
-class TestPotential(unittest.TestCase):
+class TestPotential(QiskitNatureTestCase):
     """Test Potential"""
 
     @staticmethod

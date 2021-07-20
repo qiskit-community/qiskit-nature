@@ -14,10 +14,10 @@
 
 import unittest
 
+from test import requires_extra_library
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver, MethodType
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, ParityMapper
 from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
@@ -26,12 +26,10 @@ from qiskit_nature.transformers.second_quantization.electronic import FreezeCore
 class TestDriverMethodsPySCF(TestDriverMethods):
     """Driver Methods PySCF tests"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            PySCFDriver(atom=self.lih)
-        except QiskitNatureError:
-            self.skipTest("PySCF driver does not appear to be installed")
+        PySCFDriver(atom=self.lih)
 
     def test_lih_rhf(self):
         """lih rhf test"""

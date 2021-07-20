@@ -17,10 +17,8 @@ runs:
   using: "composite"
   steps: 
     - run : |
-        if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          conda activate
-        fi
+        source "$CONDA/etc/profile.d/conda.sh"
+        conda activate
         pip install -e .[pyscf]
         pip install -U -c constraints.txt -r requirements-dev.txt
       shell: bash
