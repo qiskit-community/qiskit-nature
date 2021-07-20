@@ -22,6 +22,7 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from qiskit.utils.validation import validate_min
+from qiskit.exceptions import MissingOptionalLibraryError
 
 from ....exceptions import QiskitNatureError
 from ..fermionic_driver import FermionicDriver, MethodType
@@ -288,18 +289,27 @@ class PySCFDriver(FermionicDriver):
         """Checks that PySCF is actually installed.
 
         Raises:
-            QiskitNatureError: If PySCF is not installed.
+            MissingOptionalLibraryError: If PySCF is not installed.
         """
-        err_msg = "PySCF is not installed. See https://pyscf.org/install.html"
         try:
             spec = importlib.util.find_spec("pyscf")  # type: ignore
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
             logger.debug("PySCF check error %s", str(ex))
-            raise QiskitNatureError(err_msg) from ex
+            raise MissingOptionalLibraryError(
+                libname="PySCF",
+                name="PySCFDriver",
+                pip_install="pip install 'qiskit-nature[pyscf]'",
+                msg="See https://pyscf.org/install.html",
+            ) from ex
 
-        raise QiskitNatureError(err_msg)
+        raise MissingOptionalLibraryError(
+            libname="PySCF",
+            name="PySCFDriver",
+            pip_install="pip install 'qiskit-nature[pyscf]'",
+            msg="See https://pyscf.org/install.html",
+        )
 
     def run(self) -> QMolecule:
         """Runs the PySCF driver.

@@ -13,13 +13,12 @@
 """ Test Numerical qEOM excited states calculation """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
@@ -37,19 +36,17 @@ from qiskit_nature.algorithms import (
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """Test Numerical qEOM excited states calculation"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8
-        try:
-            self.driver = PySCFDriver(
-                atom="H .0 .0 .0; H .0 .0 0.75",
-                unit=UnitsType.ANGSTROM,
-                charge=0,
-                spin=0,
-                basis="sto3g",
-            )
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
+        self.driver = PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.75",
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto3g",
+        )
 
         self.reference_energies = [
             -1.8427016,
