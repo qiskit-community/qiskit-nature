@@ -13,7 +13,7 @@
 """ Test Driver PySCF """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 from qiskit_nature.drivers import PySCFDriver, UnitsType
 from qiskit_nature import QiskitNatureError
 
@@ -21,16 +21,16 @@ from qiskit_nature import QiskitNatureError
 class TestDriverPySCFExtra(QiskitNatureTestCase):
     """PySCF Driver extra tests for driver specifics, errors etc"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                        unit=UnitsType.ANGSTROM,
-                        charge=0,
-                        spin=0,
-                        basis='sto3g')
-        except QiskitNatureError:
-            self.skipTest('PYSCF driver does not appear to be installed')
+        PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.735",
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto3g",
+        )
 
     def test_h3(self):
         """ Test for H3 chain, see also issue 1148 """

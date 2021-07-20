@@ -24,12 +24,13 @@ inputs:
     required: true
 runs:
   using: "composite"
-  steps: 
-    - run: |
-        if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          conda activate
-        fi
+  steps:
+    - name: Run Unit Tests
+      env:
+        PYTHONWARNINGS: default
+      run: |
+        source "$CONDA/etc/profile.d/conda.sh"
+        conda activate
         # run slow tests only on scheduled event or if input flag is set
         if [ "${{ inputs.event-name }}" == "schedule" ] || [ "${{ inputs.run-slow }}" == "true" ]; then
           export QISKIT_TESTS="run_slow"

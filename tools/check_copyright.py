@@ -198,4 +198,4 @@ if __name__ == '__main__':
     print("{} of {} files with copyright header have wrong years.".format(
         INVALID_YEAR, HAS_HEADER))
 
-    sys.exit(os.EX_OK if INVALID_UTF8 == 0 and INVALID_YEAR == 0 else os.EX_SOFTWARE)
+    sys.exit(0 if INVALID_UTF8 == 0 and INVALID_YEAR == 0 else 1)

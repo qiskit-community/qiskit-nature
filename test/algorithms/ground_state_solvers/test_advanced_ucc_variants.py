@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
@@ -38,6 +38,7 @@ from qiskit_nature.transformers import FreezeCoreTransformer
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
     """Test for these extensions."""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
         self.driver = PySCFDriver(atom='H 0 0 0.735; H 0 0 0', basis='631g')

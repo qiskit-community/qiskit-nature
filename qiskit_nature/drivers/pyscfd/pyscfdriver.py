@@ -18,6 +18,7 @@ from enum import Enum
 from typing import Optional, Union, List
 
 from qiskit.utils.validation import validate_min
+from qiskit.exceptions import MissingOptionalLibraryError
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals
@@ -109,16 +110,30 @@ class PySCFDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = "PySCF is not installed. See https://sunqm.github.io/pyscf/install.html"
+        """Checks that PySCF is actually installed.
+
+        Raises:
+            MissingOptionalLibraryError: If PySCF is not installed.
+        """
         try:
-            spec = importlib.util.find_spec('pyscf')
+            spec = importlib.util.find_spec("pyscf")  # type: ignore
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
-            logger.debug('PySCF check error %s', str(ex))
-            raise QiskitNatureError(err_msg) from ex
+            logger.debug("PySCF check error %s", str(ex))
+            raise MissingOptionalLibraryError(
+                libname="PySCF",
+                name="PySCFDriver",
+                pip_install="pip install 'qiskit-nature[pyscf]'",
+                msg="See https://pyscf.org/install.html",
+            ) from ex
 
-        raise QiskitNatureError(err_msg)
+        raise MissingOptionalLibraryError(
+            libname="PySCF",
+            name="PySCFDriver",
+            pip_install="pip install 'qiskit-nature[pyscf]'",
+            msg="See https://pyscf.org/install.html",
+        )
 
     def run(self) -> QMolecule:
         if self.molecule is not None:

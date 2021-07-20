@@ -14,6 +14,7 @@
 
 import unittest
 from functools import partial
+from test import QiskitNatureTestCase, requires_extra_library
 
 import numpy as np
 
@@ -28,9 +29,10 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 
-class TestBOPES(unittest.TestCase):
+class TestBOPES(QiskitNatureTestCase):
     """Tests of BOPES Sampler."""
 
+    @requires_extra_library
     def test_h2_bopes_sampler(self):
         """Test BOPES Sampler on H2"""
         seed = 50
@@ -65,6 +67,7 @@ class TestBOPES(unittest.TestCase):
         np.testing.assert_array_almost_equal(energies,
                                              [-1.13618945, -1.10115033, -1.03518627], decimal=2)
 
+    @requires_extra_library
     def test_potential_interface(self):
         """Tests potential interface."""
         seed = 50
