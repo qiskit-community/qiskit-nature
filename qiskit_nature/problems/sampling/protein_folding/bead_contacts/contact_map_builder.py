@@ -151,7 +151,7 @@ def _log_contact(lower_bead_id, upper_bead_id, lower_chain_type, upper_chain_typ
 
 
 def _calc_index(chain_len: int, lower_bead_pos: int, upper_bead_pos: int) -> int:
-    # pos vars indexed from 0
+    # position variables indexed from 0
     return lower_bead_pos * chain_len + upper_bead_pos
 
 
