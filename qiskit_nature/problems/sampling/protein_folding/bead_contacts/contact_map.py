@@ -24,7 +24,7 @@ from ..peptide.peptide import Peptide
 class ContactMap:
     """A class that stores contacts between beads of a peptide as qubit operators. For technical
     details regarding the meaning of these operators as well as a convention for their indexing,
-    please see the docstring in the ContactMapBuilder class."""
+    please see the documentation in the ContactMapBuilder class."""
 
     def __init__(self, peptide: Peptide):
         """
