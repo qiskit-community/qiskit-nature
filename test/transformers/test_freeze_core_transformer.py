@@ -15,11 +15,10 @@
 import unittest
 
 from test import QiskitNatureTestCase
-
 from ddt import ddt, idata
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 @ddt
