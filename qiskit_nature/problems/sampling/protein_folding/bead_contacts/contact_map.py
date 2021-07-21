@@ -22,7 +22,9 @@ from ..peptide.peptide import Peptide
 
 
 class ContactMap:
-    """A class that stores contacts between beads of a peptide as qubit operators."""
+    """A class that stores contacts between beads of a peptide as qubit operators. For technical
+    details regarding the meaning of these operators as well as a convention for their indexing,
+    please see the docstring in the ContactMapBuilder class."""
 
     def __init__(self, peptide: Peptide):
         """
@@ -99,6 +101,7 @@ class ContactMap:
                 old_qubits_conf.append(
                     full_id_contact ^ full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[1]
                 )
+            # due to geometry arguments, we can use 1 qubit only to encode the turn here
             else:
                 old_qubits_conf.append(
                     full_id_contact ^ full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[0]

@@ -29,9 +29,28 @@ def _create_contact_qubits(
     peptide: Peptide,
 ) -> Tuple[Dict[int, dict], Dict[int, dict], Dict[int, dict], Dict[int, dict], int]:
     """
-    Creates Pauli operators for 3rd+ nearest neighbor interactions. The type of operator depends
+    Creates Pauli operators for nearest neighbor interactions. The type of operator depends
     on whether beads belong to the same set (see also https://arxiv.org/pdf/1908.02163.pdf), how
     far they are from each other and whether they host a side chain.
+    An interaction between 2 beads is encoded using 1 qubit. Given the possibility of interactions
+    between main-main, main-side, side-main, side-side beads, we need at most
+    :math:`4*N*N` qubits to encode all interactions, where :math:`N` equals main_chain_len.
+    Note that some qubits may not be necessary because of no contacts between respective beads.
+    Such qubits are deleted in the compression phase happening during the creation of a final qubit
+    operator for the problem.
+    We build contact operators according to the following indexing:
+    lower_bead_pos * chain_len + upper_bead_pos,
+    i.e. the position of a block encodes the index of a lower bead and the position in a block
+    encodes the index of an upper bead. Moreover, the operators responsible for all types of
+    interactions (in terms of types of beads involved - main or side) are tensored in
+    the following order:
+    (main-main)(side-side)(main-side)(side-main).
+    In the final operator that includes conformation qubits, operators are tensored in
+    the following order:
+    (main-main)(side-side)(main-side)(side-main)(side conf. qubits)(main conf. qubits).
+    Contact operators created in this builder can be used as blueprints for any level of nearest
+    neighbors interactions.
+
 
     Args:
         peptide: A Peptide object that includes all information about a protein.
@@ -140,6 +159,8 @@ def _create_contact_op_for_axis(
 ) -> PauliOp:
     z_op_index = _calc_index(main_chain_len - 1, lower_bead_id - 1, upper_bead_id - 1)
     contact_op = _build_pauli_z_op(num_qubits, [z_op_index])
+    # we have 4 block positions for all combinations of main and side chain beads (main-main,
+    # main-side, side-main, side-side)
     contact_op_padded = full_id if contact_op_block_position != 0 else contact_op
     for block_position in range(1, 4):
         if block_position == contact_op_block_position:
