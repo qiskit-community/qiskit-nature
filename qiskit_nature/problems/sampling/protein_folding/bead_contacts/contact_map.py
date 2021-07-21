@@ -46,28 +46,32 @@ class ContactMap:
     @property
     def lower_main_upper_main(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
-        between a bead on a main chain (first index) and a bead in a main chain (second index)."""
+        between a bead on a main chain (first index in a dictionary) and a bead in a main chain (
+        second index in a dictionary)."""
         return self._lower_main_upper_main
 
     @property
     def lower_side_upper_main(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
-        between a first bead in a side chain (first index) and a bead in a main chain (second
-        index)."""
+        between a first bead in a side chain (first index in a dictionary) and a bead in a main
+        chain (second
+        index in a dictionary)."""
         return self._lower_side_upper_main
 
     @property
     def lower_main_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
-        between a bead in a main chain (first index) and a first bead in a side chain (second
-        index)."""
+        between a bead in a main chain (first index in a dictionary) and a first bead in a side
+        chain (second
+        index in a dictionary)."""
         return self._lower_main_upper_side
 
     @property
     def lower_side_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
-        between a first bead in a side chain (first index) and a first bead in a side chain (
-        second index)."""
+        between a first bead in a side chain (first index in a dictionary) and a first bead in a
+        side chain (
+        second index in a dictionary)."""
         return self._lower_side_upper_side
 
     def _create_peptide_qubit_list(self) -> List[PauliSumOp]:
@@ -85,18 +89,30 @@ class ContactMap:
         old_qubits_contact: List[PauliSumOp] = []
         num_qubits = 2 * (main_chain_len - 1)
         full_id = _build_full_identity(num_qubits)
+        num_qubits_contact = 4 * pow(main_chain_len - 1, 2)
+        full_id_contact = _build_full_identity(num_qubits_contact)
         for q in range(3, main_chain_len):
             if q != 3:
-                old_qubits_conf.append(full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[0])
-                old_qubits_conf.append(full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[1])
-            else:
-                old_qubits_conf.append(full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[0])
-            if side_chain[q - 1]:
                 old_qubits_conf.append(
-                    self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0] ^ full_id
+                    full_id_contact ^ full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[0]
                 )
                 old_qubits_conf.append(
-                    self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[1] ^ full_id
+                    full_id_contact ^ full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[1]
+                )
+            else:
+                old_qubits_conf.append(
+                    full_id_contact ^ full_id ^ self.peptide.get_main_chain[q - 1].turn_qubits[0]
+                )
+            if side_chain[q - 1]:
+                old_qubits_conf.append(
+                    full_id_contact
+                    ^ self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[0]
+                    ^ full_id
+                )
+                old_qubits_conf.append(
+                    full_id_contact
+                    ^ self.peptide.get_main_chain[q - 1].side_chain[0].turn_qubits[1]
+                    ^ full_id
                 )
 
         self._add_qubits(main_chain_len, old_qubits_contact, self._lower_main_upper_main)
@@ -104,7 +120,7 @@ class ContactMap:
         self._add_qubits(main_chain_len, old_qubits_contact, self._lower_main_upper_side)
         self._add_qubits(main_chain_len, old_qubits_contact, self._lower_side_upper_side)
 
-        empty_op = PauliSumOp.from_list([("I" * num_qubits, 0)])
+        empty_op = PauliSumOp.from_list([("I" * (num_qubits_contact + 2 * num_qubits), 0)])
         new_qubits = [empty_op] + old_qubits_conf + old_qubits_contact
         return new_qubits
 
@@ -115,10 +131,12 @@ class ContactMap:
         contact_map_component: Dict[int, dict],
     ) -> None:
         min_contact_dist = 4
+        num_qubits = 2 * (main_chain_len - 1)
+        full_id = _build_full_identity(num_qubits)
         for lower_bead_id in range(1, main_chain_len - 3):
             for upper_bead_id in range(lower_bead_id + min_contact_dist, main_chain_len + 1):
                 try:
                     contact_op = contact_map_component[lower_bead_id][upper_bead_id]
-                    contact_qubits.append(contact_op)
+                    contact_qubits.append(contact_op ^ full_id ^ full_id)
                 except KeyError:
                     pass

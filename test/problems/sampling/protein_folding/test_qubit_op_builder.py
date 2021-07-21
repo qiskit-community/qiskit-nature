@@ -277,6 +277,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
 
         h_bbsc, h_scbb = qubit_op_builder._create_h_bbsc_and_h_scbb()
+
         expected_path_h_bbsc = self.get_resource_path(
             "test_create_h_bbsc_and_h_scbb_expected_h_bbsc",
             PATH,
@@ -305,6 +306,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
 
         h_bbsc, h_scbb = qubit_op_builder._create_h_bbsc_and_h_scbb()
+
         expected_path_h_bbsc = self.get_resource_path(
             "test_create_h_bbsc_and_h_scbb_2_expected",
             PATH,

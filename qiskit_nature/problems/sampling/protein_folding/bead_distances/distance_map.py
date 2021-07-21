@@ -90,9 +90,9 @@ class DistanceMap:
         lambda_0 = bounding_constant * (upper_bead_ind - lower_bead_ind + 1) * lambda_1
         lower_bead = peptide.get_main_chain[lower_bead_ind - 1]
         upper_bead = peptide.get_main_chain[upper_bead_ind - 1]
-        if is_side_chain_upper == 1:
-            lower_bead = lower_bead.side_chain[0]
         if is_side_chain_lower == 1:
+            lower_bead = lower_bead.side_chain[0]
+        if is_side_chain_upper == 1:
             upper_bead = upper_bead.side_chain[0]
         energy = pair_energies[lower_bead_ind][is_side_chain_upper][upper_bead_ind][
             is_side_chain_lower
@@ -118,7 +118,7 @@ class DistanceMap:
         Creates energetic interaction that penalizes local overlap between
         beads that correspond to a nearest neighbor contact or adds no net
         interaction (zero) if beads are at a distance of 2 units from each other.
-        Ensure second nearest neighbor does not overlap with reference point
+        Ensure second nearest neighbor does not overlap with reference point.
 
         Args:
             peptide: A Peptide object that includes all information about a protein.

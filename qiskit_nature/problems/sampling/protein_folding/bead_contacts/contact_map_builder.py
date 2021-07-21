@@ -53,7 +53,7 @@ def _create_contact_qubits(
     lower_side_upper_side: Dict[int, Dict[int, OperatorBase]] = collections.defaultdict(dict)
 
     num_contacts = 0
-    num_qubits = 2 * (main_chain_len - 1)
+    num_qubits = pow(main_chain_len - 1, 2)
     full_id = _build_full_identity(num_qubits)
     for lower_bead_id in range(1, main_chain_len - 3):  # first qubit is number 1
         for upper_bead_id in range(
@@ -63,17 +63,25 @@ def _create_contact_qubits(
             if _are_beads_in_different_sets(upper_bead_id, lower_bead_id):
                 if _are_beads_k_plus_steps_apart(upper_bead_id, lower_bead_id, k=5):
                     lower_main_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
-                        main_chain_len,
-                        full_id
-                        ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1]),
+                        _build_pauli_z_op(
+                            num_qubits,
+                            [_calc_index(main_chain_len - 1, lower_bead_id - 1, upper_bead_id - 1)],
+                        )
+                        ^ full_id
+                        ^ full_id
+                        ^ full_id
                     )
                     _log_contact(lower_bead_id, upper_bead_id, "main_chain", "main_chain")
                     num_contacts += 1
                 if side_chain[lower_bead_id - 1] and side_chain[upper_bead_id - 1]:
                     lower_side_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
-                        main_chain_len,
-                        _build_pauli_z_op(num_qubits, [lower_bead_id - 1, upper_bead_id - 1])
-                        ^ full_id,
+                        full_id
+                        ^ _build_pauli_z_op(
+                            num_qubits,
+                            [_calc_index(main_chain_len - 1, lower_bead_id - 1, upper_bead_id - 1)],
+                        )
+                        ^ full_id
+                        ^ full_id
                     )
                     _log_contact(lower_bead_id, upper_bead_id, "side_chain", "side_chain")
                     num_contacts += 1
@@ -81,19 +89,35 @@ def _create_contact_qubits(
                 if _are_beads_k_plus_steps_apart(upper_bead_id, lower_bead_id, k=4):
                     if side_chain[upper_bead_id - 1]:
                         _log_contact(lower_bead_id, upper_bead_id, "main_chain", "side_chain")
-                        main_op = full_id ^ _build_pauli_z_op(num_qubits, [lower_bead_id - 1])
-                        side_op = _build_pauli_z_op(num_qubits, [upper_bead_id - 1]) ^ full_id
-                        lower_side_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
-                            main_chain_len, main_op @ side_op
+                        lower_main_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
+                            full_id
+                            ^ full_id
+                            ^ _build_pauli_z_op(
+                                num_qubits,
+                                [
+                                    _calc_index(
+                                        main_chain_len - 1, lower_bead_id - 1, upper_bead_id - 1
+                                    )
+                                ],
+                            )
+                            ^ full_id
                         )
                         num_contacts += 1
 
                     if side_chain[lower_bead_id - 1]:
                         _log_contact(lower_bead_id, upper_bead_id, "side_chain", "main_chain")
-                        main_op = full_id ^ _build_pauli_z_op(num_qubits, [upper_bead_id - 1])
-                        side_op = _build_pauli_z_op(num_qubits, [lower_bead_id - 1]) ^ full_id
-                        lower_main_upper_side[lower_bead_id][upper_bead_id] = _convert_to_qubits(
-                            main_chain_len, (side_op @ main_op)
+                        lower_side_upper_main[lower_bead_id][upper_bead_id] = _convert_to_qubits(
+                            full_id
+                            ^ full_id
+                            ^ full_id
+                            ^ _build_pauli_z_op(
+                                num_qubits,
+                                [
+                                    _calc_index(
+                                        main_chain_len - 1, lower_bead_id - 1, upper_bead_id - 1
+                                    )
+                                ],
+                            )
                         )
                         num_contacts += 1
     logger.info("number of qubits required for contact %s:", num_contacts)
@@ -126,7 +150,12 @@ def _log_contact(lower_bead_id, upper_bead_id, lower_chain_type, upper_chain_typ
     )
 
 
-def _convert_to_qubits(main_chain_len: int, pauli_sum_op: PauliSumOp) -> OperatorBase:
-    num_qubits_num = 2 * (main_chain_len - 1)
+def _calc_index(chain_len: int, lower_bead_pos: int, upper_bead_pos: int) -> int:
+    # pos vars indexed from 0
+    return lower_bead_pos * chain_len + upper_bead_pos
+
+
+def _convert_to_qubits(pauli_sum_op: PauliSumOp) -> OperatorBase:
+    num_qubits_num = pauli_sum_op.num_qubits
     full_id = _build_full_identity(num_qubits_num)
-    return ((full_id ^ full_id) - pauli_sum_op) / 2
+    return (full_id - pauli_sum_op) / 2.0
