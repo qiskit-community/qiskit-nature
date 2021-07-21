@@ -41,6 +41,7 @@ all_check: spell style lint copyright mypy html doctest
 
 lint:
 	pylint -rn --ignore=gauopen qiskit_nature test tools
+	python tools/verify_headers.py qiskit_nature test tools
 
 mypy:
 	mypy qiskit_nature test tools

@@ -12,6 +12,6 @@
 
 """ Chemistry test packages """
 
-from .nature_test_case import QiskitNatureTestCase
+from .nature_test_case import QiskitNatureTestCase, requires_extra_library
 
-__all__ = ['QiskitNatureTestCase']
+__all__ = ["QiskitNatureTestCase", "requires_extra_library"]

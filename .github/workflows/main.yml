@@ -31,9 +31,10 @@ concurrency:
 
 jobs:
   Checks:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest]
         python-version: [3.7]
     steps:
       - name: Print Concurrency Group
@@ -49,32 +50,54 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-main-dependencies
+        with:
+          os: ${{ matrix.os }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
           pip install jupyter sphinx_rtd_theme 'matplotlib<3.3.0' qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
           sudo apt-get -y install python3-enchant
           sudo apt-get -y install hunspell-en-us
           pip install pyenchant
         shell: bash
-      - run:  pip check
+      - name: PIP Check
+        run:  |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          pip check
         if: ${{ !cancelled() }}
         shell: bash
-      - run:  make copyright
+      - name: Copyright Check
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          make copyright
         if: ${{ !cancelled() }}
         shell: bash
-      - run:  make spell
+      - name: Spell Check
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          make spell
         if: ${{ !cancelled() }}
         shell: bash
-      - run:  make style
+      - name: Style Check
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          make style
         if: ${{ !cancelled() }}
         shell: bash
       - name: Run make html
         run:  |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          make clean
           make html SPHINXOPTS=-W
           cd docs/_build/html
           mkdir artifacts
@@ -87,14 +110,25 @@ jobs:
           name: documentation
           path: docs/_build/html/artifacts/documentation.tar.gz
         if: ${{ !cancelled() }}
-      - run:  make doctest
+      - name: Doctest
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          make doctest
         if: ${{ !cancelled() }}
         shell: bash
   Nature:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest]
         python-version: [3.6, 3.7, 3.8, 3.9]
+        include:
+          - os: macos-latest
+            python-version: 3.8
+          - os: windows-latest
+            python-version: 3.8
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -102,45 +136,42 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: ./.github/actions/install-psi4
         with:
+          os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-        if: ${{ matrix.python-version < 3.8 }}
-      - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-main-dependencies
+        with:
+          os: ${{ matrix.os }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
-          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-            source "$HOME/miniconda/etc/profile.d/conda.sh"
-            conda activate
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            conda install -c rpmuller pyquante2_pure
+          else
+            pip install -U Cython
+            pip install git+https://github.com/rpmuller/pyquante2
           fi
-          pip install -U Cython
-          pip install git+https://github.com/rpmuller/pyquante2
         if: ${{ matrix.python-version < 3.9 }}
         shell: bash
       - name: Run lint
         run: |
-          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-            source "$HOME/miniconda/etc/profile.d/conda.sh"
-            conda activate
-          fi
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
           make lint
         shell: bash
       - name: Run mypy
         run: |
-          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-            source "$HOME/miniconda/etc/profile.d/conda.sh"
-            conda activate
-          fi
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
           make mypy
         if: ${{ !cancelled() }}
         shell: bash
       - name: Run lint latest version
         run: |
-          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-            source "$HOME/miniconda/etc/profile.d/conda.sh"
-            conda activate
-          fi
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
           pip install -U pylint
           make lint
         shell: bash
@@ -153,27 +184,28 @@ jobs:
         if: ${{ !cancelled() }}
       - name: Deprecation Messages
         run: |
-          mkdir ./n${{ matrix.python-version }}
-          python tools/extract_deprecation.py -file out.txt -output ./n${{ matrix.python-version }}/nat.dep
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
+          mkdir ./ci-artifact-data
+          python tools/extract_deprecation.py -file out.txt -output ./ci-artifact-data/nat.dep
         shell: bash
       - name: Coverage combine
         run: |
-          if [ -f "$HOME/miniconda/etc/profile.d/conda.sh" ]; then
-            source "$HOME/miniconda/etc/profile.d/conda.sh"
-            conda activate
-          fi
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
           coverage3 combine
-          mv .coverage ./n${{ matrix.python-version }}/nat.dat
+          mv .coverage ./ci-artifact-data/nat.dat
         if: ${{ matrix.python-version == 3.7 }}
         shell: bash
       - uses: actions/upload-artifact@v2
         with:
-          name: nature${{ matrix.python-version }}
-          path: ./n${{ matrix.python-version }}/*
+          name: ${{ matrix.os }}-${{ matrix.python-version }}
+          path: ./ci-artifact-data/*
   Tutorials:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest]
         python-version: [3.7, 3.8]
     steps:
       - uses: actions/checkout@v2
@@ -182,12 +214,15 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: ./.github/actions/install-libraries
       - uses: ./.github/actions/install-main-dependencies
+        with:
+          os: ${{ matrix.os }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
           pip install jupyter sphinx_rtd_theme 'matplotlib<3.3.0' qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
         shell: bash
@@ -196,6 +231,8 @@ jobs:
           QISKIT_PARALLEL: False
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate
           make html SPHINXOPTS=-W
           cd docs/_build/html
           mkdir artifacts
@@ -219,29 +256,37 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: actions/download-artifact@v2
         with:
-          name: nature3.6
-          path: /tmp/n36
+          name: ubuntu-latest-3.6
+          path: /tmp/u36
       - uses: actions/download-artifact@v2
         with:
-          name: nature3.7
-          path: /tmp/n37
+          name: ubuntu-latest-3.7
+          path: /tmp/u37
       - uses: actions/download-artifact@v2
         with:
-          name: nature3.8
-          path: /tmp/n38
+          name: ubuntu-latest-3.8
+          path: /tmp/u38
       - uses: actions/download-artifact@v2
         with:
-          name: nature3.9
-          path: /tmp/n39
+          name: ubuntu-latest-3.9
+          path: /tmp/u39
+      - uses: actions/download-artifact@v2
+        with:
+          name: macos-latest-3.8
+          path: /tmp/m38
+      - uses: actions/download-artifact@v2
+        with:
+          name: windows-latest-3.8
+          path: /tmp/w38
       - name: Install Dependencies
         run: pip install -U coverage coveralls diff-cover
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/n36/nat.dep /tmp/n37/nat.dep /tmp/n38/nat.dep /tmp/n39/nat.dep || true
+          sort -f -u /tmp/u36/nat.dep /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/m38/nat.dep /tmp/w38/nat.dep || true
         shell: bash
       - name: Coverage combine
-        run: coverage3 combine /tmp/n37/nat.dat
+        run: coverage3 combine /tmp/u37/nat.dat
         shell: bash
       - name: Upload to Coveralls
         env:
