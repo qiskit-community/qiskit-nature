@@ -39,7 +39,7 @@ def _create_contact_qubits(
     Such qubits are deleted in the compression phase happening during the creation of a final qubit
     operator for the problem.
     We build contact operators according to the following indexing:
-    lower_bead_pos * chain_len + upper_bead_pos,
+    lower_bead_position * chain_len + upper_bead_position,
     i.e. the position of a block encodes the index of a lower bead and the position in a block
     encodes the index of an upper bead. Moreover, the operators responsible for all types of
     interactions (in terms of types of beads involved - main or side) are tensored in
