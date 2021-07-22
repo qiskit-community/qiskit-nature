@@ -21,7 +21,7 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import HDF5Driver, QMolecule
-from qiskit_nature.transformers.second_quantization import ActiveSpaceTransformer
+from qiskit_nature.transformers import ActiveSpaceTransformer
 
 
 @ddt
