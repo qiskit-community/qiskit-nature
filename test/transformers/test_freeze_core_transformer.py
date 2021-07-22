@@ -13,6 +13,7 @@
 """Tests for the FreezeCoreTransformer."""
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 from ddt import ddt, idata
@@ -31,6 +32,12 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
     )
 
     assertQMolecule = TestActiveSpaceTransformer.assertQMolecule
+
+    def setUp(self):
+        super().setUp()
+        warnings.filterwarnings(
+            action="ignore", category=DeprecationWarning, module=".*transformers.*"
+        )
 
     @idata(
         [

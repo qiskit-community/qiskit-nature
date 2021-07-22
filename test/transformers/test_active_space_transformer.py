@@ -13,6 +13,7 @@
 """Tests for the ActiveSpaceTransformer."""
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -27,6 +28,12 @@ from qiskit_nature.transformers import ActiveSpaceTransformer
 @ddt
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""
+
+    def setUp(self):
+        super().setUp()
+        warnings.filterwarnings(
+            action="ignore", category=DeprecationWarning, module=".*transformers.*"
+        )
 
     def assertQMolecule(self, q_molecule, expected, dict_key="ActiveSpaceTransformer"):
         """Asserts that the two `QMolecule object's relevant fields are equivalent."""
