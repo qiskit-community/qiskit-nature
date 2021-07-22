@@ -51,6 +51,7 @@ class VQEProgram(MinimumEigensolver):
             backend: The backend to run the circuits on.
             initial_point: An optional initial point (i.e. initial parameter values)
                 for the optimizer. If ``None`` a random vector is used.
+            provider: Provider that supports the runtime feature.
             shots: The number of shots to be used
             measurement_error_mitigation: Whether or not to use measurement error mitigation.
             callback: a callback that can access the intermediate data during the optimization.
