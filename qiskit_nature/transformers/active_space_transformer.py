@@ -19,9 +19,13 @@ from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_
 from .second_quantization import ActiveSpaceTransformer as NewActiveSpaceTransformer
 
 
-# inherited from super-class
-# pylint: disable=missing-class-docstring
 class ActiveSpaceTransformer(NewActiveSpaceTransformer):
+    """**DEPRECATED**: Please use the `second_quantization` module instead!
+
+    Please use :class:`~qiskit_nature.transformers.second_quantization.ActiveSpaceTransformer`
+    instead.
+    """
+
     def __init__(
         self,
         num_electrons: Optional[Union[int, Tuple[int, int]]] = None,

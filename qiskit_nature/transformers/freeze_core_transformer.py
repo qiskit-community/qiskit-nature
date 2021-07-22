@@ -19,9 +19,13 @@ from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_
 from .second_quantization import FreezeCoreTransformer as NewFreezeCoreTransformer
 
 
-# inherited from super-class
-# pylint: disable=missing-class-docstring
 class FreezeCoreTransformer(NewFreezeCoreTransformer):
+    """**DEPRECATED**: Please use the `second_quantization` module instead!
+
+    Please use :class:`~qiskit_nature.transformers.second_quantization.FreezeCoreTransformer`
+    instead.
+    """
+
     def __init__(
         self,
         freeze_core: bool = True,
