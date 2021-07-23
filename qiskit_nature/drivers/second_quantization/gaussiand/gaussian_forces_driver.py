@@ -12,8 +12,7 @@
 
 """ Gaussian Forces Driver """
 
-from typing import Union, List, Optional
-
+from typing import Union, List, Optional, Dict, Any
 from qiskit_nature import QiskitNatureError
 
 from ..watson_hamiltonian import WatsonHamiltonian
@@ -45,8 +44,6 @@ class GaussianForcesDriver(BosonicDriver):
         self,
         jcf: Union[str, List[str]] = B3YLP_JCF_DEFAULT,
         logfile: Optional[str] = None,
-        molecule: Optional[Molecule] = None,
-        basis: str = "sto-3g",
         normalize: bool = True,
     ) -> None:
         r"""
@@ -56,32 +53,65 @@ class GaussianForcesDriver(BosonicDriver):
                 strings.
             logfile: Instead of a job control file a log as output from running such a file
                 can optionally be given.
-            molecule: If a molecule is supplied then an appropriate job control file will be
-                built from this, and the `basis`, and will be used in precedence of either the
-                `logfile` or the `jcf` params.
-            basis: The basis set to be used in the resultant job control file when a
-                 molecule is provided.
             normalize: Whether to normalize the factors used in creation of the WatsonHamiltonian
                  as returned when this driver is run.
 
         Raises:
-            QiskitNatureError: If `jcf` or `molecule` given and Gaussian™ 16 executable
+            QiskitNatureError: If `jcf` given and Gaussian™ 16 executable
                 cannot be located.
         """
-        super().__init__(molecule=molecule, basis=basis, method="", supports_molecule=True)
+        super().__init__()
         self._jcf = jcf
         self._logfile = None
         self._normalize = normalize
 
-        # Molecule has precedence if supplied, then an existing logfile
-        if self.molecule is None and logfile is not None:
+        # Logfile has precedence if supplied
+        if logfile is not None:
             self._jcf = None
             self._logfile = logfile
 
-        # If running from a jcf or a molecule we need Gaussian™ 16 so check if we have a
+        # If running from a jcf we need Gaussian™ 16 so check if we have a
         # valid install.
         if self._logfile is None:
             check_valid()
+
+    @staticmethod
+    def from_molecule(
+        molecule: Molecule,
+        basis: str = "sto-3g",
+        driver_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> "GaussianForcesDriver":
+        """
+        Args:
+            molecule: If a molecule is supplied then an appropriate job control file will be
+                       built from this, and the `basis`, and will be used in precedence of either the
+                       `logfile` or the `jcf` params.
+            basis: The basis set to be used in the resultant job control file when a
+                    molecule is provided.
+            driver_kwargs: kwargs to be passed to driver
+        Returns:
+            driver
+        """
+        # Ignore kwargs parameter for this driver
+        del driver_kwargs
+        GaussianForcesDriver.check_installed()
+        basis = GaussianForcesDriver.to_driver_basis(basis)
+        driver = GaussianForcesDriver()
+        driver.molecule = molecule
+        driver.basis = basis
+        return driver
+
+    @staticmethod
+    def to_driver_basis(basis: str) -> Any:
+        """convert basis to a driver acceptable basis"""
+        if basis == "sto3g":
+            return "sto-3g"
+        return basis
+
+    @staticmethod
+    def check_installed():
+        """check if installed"""
+        check_valid()
 
     def run(self) -> WatsonHamiltonian:
         if self._logfile is not None:

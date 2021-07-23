@@ -15,6 +15,7 @@ This module implements the abstract base class for fermionic driver modules.
 """
 
 from abc import abstractmethod
+from typing import Optional
 from enum import Enum
 
 from .qmolecule import QMolecule
@@ -41,6 +42,30 @@ class FermionicDriver(BaseDriver):
     """
     Base class for Qiskit Nature's fermionic drivers.
     """
+
+    @abstractmethod
+    def __init__(
+        self,
+        basis: str = "sto3g",
+        method: MethodType = MethodType.RHF,
+    ) -> None:
+        """
+        Args:
+            basis: basis set
+            method: Hartree-Fock Method type
+        """
+        self._method = method
+        super().__init__(basis=basis)
+
+    @property
+    def method(self) -> MethodType:
+        """return Hartree-Fock method"""
+        return self._method
+
+    @method.setter
+    def method(self, value: MethodType) -> None:
+        """set Hartree-Fock method"""
+        self._method = value
 
     @abstractmethod
     def run(self) -> QMolecule:

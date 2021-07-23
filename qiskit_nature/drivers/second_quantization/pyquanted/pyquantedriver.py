@@ -13,10 +13,12 @@
 """ PyQuante Driver """
 
 import importlib
+import inspect
 import logging
 from enum import Enum
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Any, Dict
 
+from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
@@ -37,6 +39,14 @@ class BasisType(Enum):
     B631G = "6-31g"
     B631GSS = "6-31g**"
 
+    @staticmethod
+    def type_from_string(basis: str):
+        """get basis type from string"""
+        for item in BasisType:
+            if basis == item.value:
+                return item
+        raise QiskitNatureError(f"Invalid Basis type basis {basis}.")
+
 
 class PyQuanteDriver(FermionicDriver):
     """
@@ -55,7 +65,6 @@ class PyQuanteDriver(FermionicDriver):
         method: MethodType = MethodType.RHF,
         tol: float = 1e-8,
         maxiters: int = 100,
-        molecule: Optional[Molecule] = None,
     ) -> None:
         """
         Args:
@@ -70,18 +79,12 @@ class PyQuanteDriver(FermionicDriver):
             tol: Convergence tolerance see pyquante2.scf hamiltonians and iterators
             maxiters: Convergence max iterations see pyquante2.scf hamiltonians and iterators,
                 has a min. value of 1.
-            molecule: A driver independent Molecule definition instance may be provided. When a
-                molecule is supplied the ``atoms``, ``units``, ``charge`` and ``multiplicity``
-                parameters are all ignored as the Molecule instance now defines these instead. The
-                Molecule object is read when the driver is run and converted to the driver dependent
-                configuration for the computation. This allows, for example, the Molecule geometry
-                to be updated to compute different points.
 
         Raises:
             QiskitNatureError: Invalid Input
         """
         validate_min("maxiters", maxiters, 1)
-        self._check_valid()
+        self.check_installed()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
             raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
 
@@ -91,10 +94,8 @@ class PyQuanteDriver(FermionicDriver):
             atoms = atoms.replace("\n", ";")
 
         super().__init__(
-            molecule=molecule,
             basis=basis.value,
-            method=method.value,
-            supports_molecule=True,
+            method=method,
         )
         self._atoms = atoms
         self._units = units.value
@@ -104,17 +105,60 @@ class PyQuanteDriver(FermionicDriver):
         self._maxiters = maxiters
 
     @staticmethod
-    def _check_valid():
-        err_msg = "PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2"
+    def from_molecule(
+        molecule: Molecule,
+        basis: str = "sto3g",
+        method: MethodType = MethodType.RHF,
+        driver_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> "PyQuanteDriver":
+        """
+        Args:
+            molecule: molecule
+            basis: basis set
+            method: Hartree-Fock Method type
+            driver_kwargs: kwargs to be passed to driver
+        Returns:
+            driver
+        """
+        PyQuanteDriver.check_installed()
+        kwargs = {}
+        if driver_kwargs:
+            args = inspect.getfullargspec(PyQuanteDriver.__init__).args
+            for key, value in driver_kwargs.items():
+                if key not in ["self", "molecule", "basis", "method"] and key in args:
+                    kwargs[key] = value
+
+        driver = PyQuanteDriver(**kwargs)
+        driver.molecule = molecule
+        driver.basis = PyQuanteDriver.to_driver_basis(basis).value
+        driver.method = method
+        return driver
+
+    @staticmethod
+    def to_driver_basis(basis: str) -> Any:
+        """convert basis to a driver acceptable basis"""
+        return BasisType.type_from_string(basis)
+
+    @staticmethod
+    def check_installed():
+        """Check if PyQuante is installed"""
         try:
             spec = importlib.util.find_spec("pyquante2")
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
             logger.debug("PyQuante2 check error %s", str(ex))
-            raise QiskitNatureError(err_msg) from ex
+            raise MissingOptionalLibraryError(
+                libname="PyQuante2",
+                name="PyQuanteDriver",
+                msg="See https://github.com/rpmuller/pyquante2",
+            ) from ex
 
-        raise QiskitNatureError(err_msg)
+        raise MissingOptionalLibraryError(
+            libname="PyQuante2",
+            name="PyQuanteDriver",
+            msg="See https://github.com/rpmuller/pyquante2",
+        )
 
     def run(self) -> QMolecule:
         if self.molecule is not None:
@@ -139,7 +183,7 @@ class PyQuanteDriver(FermionicDriver):
             charge=charge,
             multiplicity=multiplicity,
             basis=basis,
-            method=method,
+            method=method.value,
             tol=self._tol,
             maxiters=self._maxiters,
         )
@@ -151,7 +195,7 @@ class PyQuanteDriver(FermionicDriver):
             "charge={}".format(charge),
             "multiplicity={}".format(multiplicity),
             "basis={}".format(basis),
-            "method={}".format(method),
+            "method={}".format(method.value),
             "tol={}".format(self._tol),
             "maxiters={}".format(self._maxiters),
             "",

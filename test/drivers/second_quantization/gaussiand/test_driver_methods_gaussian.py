@@ -14,9 +14,9 @@
 
 import unittest
 
+from test import requires_extra_library
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers.second_quantization import GaussianDriver
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
@@ -45,12 +45,10 @@ H   0.0  0.0    0.9697
 
 """
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            GaussianDriver(config=self.g16_lih_config.format("rhf"))
-        except QiskitNatureError:
-            self.skipTest("GAUSSIAN driver does not appear to be installed")
+        GaussianDriver(config=self.g16_lih_config.format("rhf"))
 
     def test_lih_rhf(self):
         """lih rhf test"""

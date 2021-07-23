@@ -13,12 +13,13 @@
 """The PySCF Driver."""
 
 import importlib
+import inspect
 import logging
 import os
 import tempfile
 import warnings
 from enum import Enum
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Any, Dict
 
 import numpy as np
 from qiskit.utils.validation import validate_min
@@ -76,7 +77,6 @@ class PySCFDriver(FermionicDriver):
         init_guess: InitialGuess = InitialGuess.MINAO,
         max_memory: Optional[int] = None,
         chkfile: Optional[str] = None,
-        molecule: Optional[Molecule] = None,
     ) -> None:
         """
         Args:
@@ -113,12 +113,6 @@ class PySCFDriver(FermionicDriver):
             chkfile: The path to a PySCF checkpoint file from which to load a previously run
                 calculation. The data stored in this file is assumed to be already converged.
                 Refer to 6_ and 7_ for more details.
-            molecule: A driver independent ``Molecule`` definition instance may be provided. When
-                a molecule is supplied the ``atom``, ``unit``, ``charge`` and ``spin`` parameters
-                are all ignored as the Molecule instance now defines these instead. The Molecule
-                object is read when the driver is run and converted to the driver dependent
-                configuration for the computation. This allows, for example, the Molecule geometry
-                to be updated to compute different points.
 
         Raises:
             QiskitNatureError: An invalid input was supplied.
@@ -132,7 +126,7 @@ class PySCFDriver(FermionicDriver):
         .. _7: https://pyscf.org/pyscf_api_docs/pyscf.lib.html#module-pyscf.lib.chkfile
         """
         # First, ensure that PySCF is actually installed
-        self._check_installed()
+        self.check_installed()
 
         if isinstance(atom, list):
             atom = ";".join(atom)
@@ -145,10 +139,8 @@ class PySCFDriver(FermionicDriver):
 
         validate_min("max_cycle", max_cycle, 1)
         super().__init__(
-            molecule=molecule,
             basis=basis,
-            method=method.value,
-            supports_molecule=True,
+            method=method,
         )
 
         # we use the property-setter to deal with conversion
@@ -285,7 +277,43 @@ class PySCFDriver(FermionicDriver):
         self._chkfile = chkfile
 
     @staticmethod
-    def _check_installed() -> None:
+    def from_molecule(
+        molecule: Molecule,
+        basis: str = "sto3g",
+        method: MethodType = MethodType.RHF,
+        driver_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> "PySCFDriver":
+        """
+        Args:
+            molecule: molecule
+            basis: basis set
+            method: Hartree-Fock Method type
+            driver_kwargs: kwargs to be passed to driver
+        Returns:
+            driver
+        """
+        PySCFDriver.check_installed()
+        basis = PySCFDriver.to_driver_basis(basis)
+        kwargs = {}
+        if driver_kwargs:
+            args = inspect.getfullargspec(PySCFDriver.__init__).args
+            for key, value in driver_kwargs.items():
+                if key not in ["self", "molecule", "basis", "method"] and key in args:
+                    kwargs[key] = value
+
+        driver = PySCFDriver(**kwargs)
+        driver.molecule = molecule
+        driver.basis = basis
+        driver.method = method
+        return driver
+
+    @staticmethod
+    def to_driver_basis(basis: str) -> Any:
+        """convert basis to a driver acceptable basis"""
+        return basis
+
+    @staticmethod
+    def check_installed() -> None:
         """Checks that PySCF is actually installed.
 
         Raises:
@@ -424,9 +452,11 @@ class PySCFDriver(FermionicDriver):
         Raises:
             QiskitNatureError: If an invalid HF method type was supplied.
         """
+        method_name = None
+        method_cls = None
         try:
             # attempt to gather the SCF-method class specified by the MethodType
-            method_name = self._method.upper()
+            method_name = self.method.value.upper()
             method_cls = getattr(scf, method_name)
         except AttributeError as exc:
             raise QiskitNatureError("Failed to load {} HF object.".format(method_name)) from exc
@@ -485,13 +515,13 @@ class PySCFDriver(FermionicDriver):
             "charge={}".format(self._charge),
             "spin={}".format(self._spin),
             "basis={}".format(self._basis),
-            "method={}".format(self._method),
+            "method={}".format(self.method.value),
             "conv_tol={}".format(self._conv_tol),
             "max_cycle={}".format(self._max_cycle),
             "init_guess={}".format(self._init_guess),
             "max_memory={}".format(self._max_memory),
         ]
-        if self._method.lower() in ("rks", "roks", "uks"):
+        if self.method.value.lower() in ("rks", "roks", "uks"):
             cfg.extend(
                 [
                     "xc_functional={}".format(self._xc_functional),

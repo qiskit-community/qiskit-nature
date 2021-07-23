@@ -99,6 +99,8 @@ Fermionic Drivers
    :toctree: ../stubs/
    :nosignatures:
 
+   FermionicMoleculeDriver
+   FermionicDriverType
    GaussianDriver
    PSI4Driver
    PyQuanteDriver
@@ -113,6 +115,8 @@ Bosonic Drivers
    :toctree: ../stubs/
    :nosignatures:
 
+   BosonicMoleculeDriver
+   BosonicDriverType
    GaussianForcesDriver
 
 General Driver
@@ -139,6 +143,8 @@ Submodules
 
 """
 
+from .fermionic_molecule_driver import FermionicMoleculeDriver, FermionicDriverType
+from .bosonic_molecule_driver import BosonicMoleculeDriver, BosonicDriverType
 from .base_driver import BaseDriver
 from .qmolecule import QMolecule
 from .watson_hamiltonian import WatsonHamiltonian
@@ -152,6 +158,10 @@ from .pyquanted import PyQuanteDriver, BasisType
 from .pyscfd import PySCFDriver, InitialGuess
 
 __all__ = [
+    "FermionicMoleculeDriver",
+    "FermionicDriverType",
+    "BosonicMoleculeDriver",
+    "BosonicDriverType",
     "MethodType",
     "QMolecule",
     "WatsonHamiltonian",

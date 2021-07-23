@@ -17,8 +17,6 @@ This module implements the abstract base class for driver modules.
 from typing import Optional
 from abc import ABC, abstractmethod
 
-from qiskit_nature import QiskitNatureError
-
 from ..molecule import Molecule
 
 
@@ -30,28 +28,15 @@ class BaseDriver(ABC):
     @abstractmethod
     def __init__(
         self,
-        molecule: Optional[Molecule] = None,
         basis: str = "sto3g",
-        method: str = "rhf",
-        supports_molecule: bool = False,
     ) -> None:
         """
         Args:
-            molecule: molecule
             basis: basis set
-            method: Hartree-Fock Method type
-            supports_molecule: Indicates if driver supports molecule
-
-        Raises:
-            QiskitNatureError: Molecule passed but driver doesn't support it.
         """
-        if molecule is not None and not supports_molecule:
-            raise QiskitNatureError("Driver doesn't support molecule.")
-
-        self._molecule = molecule
+        self._molecule: Optional[Molecule] = None
         self._basis = basis
-        self._method = method
-        self._supports_molecule = supports_molecule
+        self._supports_molecule = False
 
     @abstractmethod
     def run(self):
@@ -78,9 +63,8 @@ class BaseDriver(ABC):
     @molecule.setter
     def molecule(self, value: Molecule) -> None:
         """set molecule"""
-        if not self.supports_molecule:
-            raise QiskitNatureError("Driver doesn't support molecule.")
         self._molecule = value
+        self._supports_molecule = self.molecule is not None
 
     @property
     def basis(self) -> str:
@@ -91,13 +75,3 @@ class BaseDriver(ABC):
     def basis(self, value: str) -> None:
         """set basis"""
         self._basis = value
-
-    @property
-    def method(self) -> str:
-        """return Hartree-Fock method"""
-        return self._method
-
-    @method.setter
-    def method(self, value: str) -> None:
-        """set Hartree-Fock method"""
-        self._method = value

@@ -14,9 +14,9 @@
 
 import unittest
 
+from test import requires_extra_library
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers.second_quantization import PSI4Driver
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
@@ -51,12 +51,10 @@ set {{
 }}
 """
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            PSI4Driver(config=self.psi4_lih_config.format("rhf"))
-        except QiskitNatureError:
-            self.skipTest("PSI4 driver does not appear to be installed")
+        PSI4Driver(config=self.psi4_lih_config.format("rhf"))
 
     def test_lih_rhf(self):
         """lih rhf test"""
