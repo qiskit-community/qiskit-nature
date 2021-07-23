@@ -285,6 +285,13 @@ class QubitConverter:
     ) -> PauliSumOp:
         reduced_op = qubit_op
 
+        if qubit_op.num_qubits <= 2:
+            logger.warning(
+                f"The original qubit operator only contains {qubit_op.num_qubits} qubits! Skipping "
+                "the requested two-qubit reduction!"
+            )
+            return reduced_op
+
         if num_particles is not None:
             if self._two_qubit_reduction and self._mapper.allows_two_qubit_reduction:
                 two_q_reducer = TwoQubitReduction(num_particles)
