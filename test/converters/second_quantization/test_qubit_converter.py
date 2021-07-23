@@ -170,18 +170,18 @@ class TestQubitConverter(QiskitNatureTestCase):
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
         with self.subTest("Two qubit reduction skipped when operator too small"):
             small_op = FermionicOp([("N_0", 1.0), ("E_1", 1.0)], register_length=2)
-            expected_op = (
-                1.0 * (I ^ I)
-                - 0.5 * (I ^ Z)
-                + 0.5 * (Z ^ Z)
-            )
+            expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op)
             self.assertEqual(qubit_op, expected_op)
-            self.assertTrue(out.getvalue().strip().startswith(
-                "The original qubit operator only contains 2 qubits! "
-                "Skipping the requested two-qubit reduction!"
-            ))
+            self.assertTrue(
+                out.getvalue()
+                .strip()
+                .startswith(
+                    "The original qubit operator only contains 2 qubits! "
+                    "Skipping the requested two-qubit reduction!"
+                )
+            )
 
     def test_z2_symmetry(self):
         """Test mapping to qubit operator with z2 symmetry tapering"""

@@ -287,8 +287,9 @@ class QubitConverter:
 
         if qubit_op.num_qubits <= 2:
             logger.warning(
-                f"The original qubit operator only contains {qubit_op.num_qubits} qubits! Skipping "
-                "the requested two-qubit reduction!"
+                "The original qubit operator only contains %s qubits! Skipping the requested "
+                "two-qubit reduction!",
+                qubit_op.num_qubits,
             )
             return reduced_op
 
