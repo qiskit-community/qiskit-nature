@@ -63,17 +63,18 @@ rst_prolog = """
 nbsphinx_prolog = """
 {% set docname = env.doc2path(env.docname, base=None) %}
 .. only:: html
-
+    
     .. role:: raw-html(raw)
         :format: html
-
-    .. raw:: html
-
-        <br><br><br>
-
+    
     .. note::
-        Run interactively in jupyter notebook.
-"""
+        This page was generated from `docs/{{ docname }}`__.
+        
+        __"""
+
+vers = version.split(".")
+link_str = f" https://github.com/Qiskit/qiskit-nature/blob/stable/{vers[0]}.{vers[1]}/docs/"
+nbsphinx_prolog += link_str + "{{ docname }}"
 
 # -- General configuration ---------------------------------------------------
 
