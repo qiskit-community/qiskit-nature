@@ -76,7 +76,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         num_electrons: Optional[Union[int, Tuple[int, int]]] = None,
         num_molecular_orbitals: Optional[int] = None,
         active_orbitals: Optional[List[int]] = None,
-    ):
+    ) -> None:
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
 
         This transformer requires the AO-basis matrices `hcore` and `eri` to be available, as well
