@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    The two-qubit reduction needs to be skipped when a qubit operator only has 2
+    (or even fewer) qubits.
