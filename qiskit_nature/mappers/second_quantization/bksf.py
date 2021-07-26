@@ -52,7 +52,10 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
 
 
 class TermType(Enum):
-    """Denotes the type of interaction of a Fermionic operator"""
+    """Denotes the type of interaction of a Fermionic operator.
+    Allowed types of interaction are: NUMBER, EXCITATION, COULOMB_EXCHANGE, NUMBER_EXCITATION,
+    DOUBLE_EXCITATION.
+    """
 
     NUMBER = 1
     EXCITATION = 2
@@ -143,9 +146,6 @@ def _analyze_term(term_str: str) -> Tuple[TermType, List]:
     """
     Return the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
-
-    The types of interaction are NUMBER, EXCITATION, COULOMB_EXCHANGE, NUMBER_EXCITATION,
-    DOUBLE_EXCITATION.
 
     Args:
        `term_str`: a string of characters in `+-NI`.
@@ -341,17 +341,13 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
     Return a `TermType` instance describing the type of interaction given the number of
     number, raising, and lowering operators.
 
-    The types of interaction returned are NUMBER, EXCITATION, COULOMB_EXCHANGE,
-    NUMBER_EXCITATION, DOUBLE_EXCITATION.
-
     Args:
        `n_number`: the number of number operators
        `n_raise`: the number of raising operators
        `n_lower`: the number of lowering operators
 
     Returns:
-      str: One of NUMBER, EXCITATION, COULOMB_EXCHANGE,
-      NUMBER_EXCITATION, DOUBLE_EXCITATION.
+      TermType: The type of interaction.
 
     Raises:
       ValueError: if the numbers of operators don't describe a one- or two-body term from
