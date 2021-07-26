@@ -25,6 +25,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.vibrational import VibrationalDriverResult
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
+from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
@@ -39,7 +40,7 @@ class VibrationalStructureProblem(BaseProblem):
         bosonic_driver: BosonicDriver,
         num_modals: Union[int, List[int]],
         truncation_order: int,
-        transformers: Optional[List[BaseTransformer]] = None,
+        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
     ):
         """
         Args:

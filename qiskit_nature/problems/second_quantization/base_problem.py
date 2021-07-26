@@ -19,26 +19,47 @@ import numpy as np
 
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import BaseDriver, QMolecule, WatsonHamiltonian
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.driver_result import DriverResult
 from qiskit_nature.results import EigenstateResult
+from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 
 class BaseProblem(ABC):
     """Base Problem"""
 
-    def __init__(self, driver: BaseDriver, transformers: Optional[List[BaseTransformer]] = None):
+    def __init__(
+        self,
+        driver: BaseDriver,
+        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
+    ):
         """
 
         Args:
             driver: A driver encoding the molecule information.
             transformers: A list of transformations to be applied to the molecule.
+
+        Raises:
+            QiskitNatureError: if new and legacy transformer instances are mixed.
         """
 
         self.driver = driver
         self.transformers = transformers or []
+
+        self._legacy_transform = False
+        new_transformers = False
+        for trafo in self.transformers:
+            if trafo is None:
+                continue
+            if isinstance(trafo, LegacyBaseTransformer):
+                self._legacy_transform = True
+            elif isinstance(trafo, BaseTransformer):
+                new_transformers = True
+        if self._legacy_transform and new_transformers:
+            raise QiskitNatureError("You cannot mix transformers of the legacy and the new type!")
 
         self._molecule_data: Union[QMolecule, WatsonHamiltonian] = None
         self._molecule_data_transformed: Union[QMolecule, WatsonHamiltonian] = None

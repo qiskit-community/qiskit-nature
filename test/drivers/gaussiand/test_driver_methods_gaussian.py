@@ -17,7 +17,7 @@ import unittest
 from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import GaussianDriver
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestDriverMethodsGaussian(TestDriverMethods):

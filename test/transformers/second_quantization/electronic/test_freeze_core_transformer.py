@@ -14,20 +14,26 @@
 
 import unittest
 
+from test import QiskitNatureTestCase
 from ddt import ddt, idata
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.properties.second_quantization.electronic import ElectronicDriverResult
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 
-from .test_active_space_transformer import TestActiveSpaceTransformer
-
 
 # With Python 3.6 this false positive is being raised for the ElectronicDriverResult
 # pylint: disable=abstract-class-instantiated
 @ddt
-class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
+class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
+
+    # pylint: disable=import-outside-toplevel
+    from test.transformers.second_quantization.electronic.test_active_space_transformer import (
+        TestActiveSpaceTransformer,
+    )
+
+    assertDriverResult = TestActiveSpaceTransformer.assertDriverResult
 
     @idata(
         [

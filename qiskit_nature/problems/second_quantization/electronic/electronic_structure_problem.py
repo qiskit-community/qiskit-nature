@@ -29,6 +29,7 @@ from qiskit_nature.properties.second_quantization.electronic import (
     ParticleNumber,
 )
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
+from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
@@ -41,7 +42,9 @@ class ElectronicStructureProblem(BaseProblem):
     def __init__(
         self,
         driver: FermionicDriver,
-        q_molecule_transformers: Optional[List[BaseTransformer]] = None,
+        q_molecule_transformers: Optional[
+            List[Union[LegacyBaseTransformer, BaseTransformer]]
+        ] = None,
     ):
         """
 
@@ -65,8 +68,14 @@ class ElectronicStructureProblem(BaseProblem):
             operator, and (if available) x, y, z dipole operators.
         """
         self._molecule_data = cast(QMolecule, self.driver.run())
-        prop = ElectronicDriverResult.from_legacy_driver_result(self._molecule_data)
-        self._driver_result_transformed = self._transform(prop)
+        if self._legacy_transform:
+            qmol_transformed = self._transform(self._molecule_data)
+            self._driver_result_transformed = ElectronicDriverResult.from_legacy_driver_result(
+                qmol_transformed
+            )
+        else:
+            prop = ElectronicDriverResult.from_legacy_driver_result(self._molecule_data)
+            self._driver_result_transformed = self._transform(prop)
 
         second_quantized_ops_list = self._driver_result_transformed.second_q_ops()
 
