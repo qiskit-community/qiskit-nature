@@ -83,6 +83,7 @@ class PyQuanteDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        super().__init__()
         validate_min("maxiters", maxiters, 1)
         self.check_installed()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
@@ -93,13 +94,34 @@ class PyQuanteDriver(FermionicDriver):
         elif isinstance(atoms, str):
             atoms = atoms.replace("\n", ";")
 
-        super().__init__(basis=basis.value, method=method, supports_molecule=True)
         self._atoms = atoms
-        self._units = units.value
+        self._units = units
         self._charge = charge
         self._multiplicity = multiplicity
+        self._basis = basis
+        self._method = method
         self._tol = tol
         self._maxiters = maxiters
+
+    @property
+    def basis(self) -> BasisType:
+        """return basis"""
+        return self._basis
+
+    @basis.setter
+    def basis(self, value: BasisType) -> None:
+        """set basis"""
+        self._basis = value
+
+    @property
+    def method(self) -> MethodType:
+        """return Hartree-Fock method"""
+        return self._method
+
+    @method.setter
+    def method(self, value: MethodType) -> None:
+        """set Hartree-Fock method"""
+        self._method = value
 
     @staticmethod
     def from_molecule(
@@ -122,14 +144,18 @@ class PyQuanteDriver(FermionicDriver):
         if driver_kwargs:
             args = inspect.getfullargspec(PyQuanteDriver.__init__).args
             for key, value in driver_kwargs.items():
-                if key not in ["self", "molecule", "basis", "method"] and key in args:
+                if key not in ["self"] and key in args:
                     kwargs[key] = value
 
-        driver = PyQuanteDriver(**kwargs)
-        driver.molecule = molecule
-        driver.basis = PyQuanteDriver.to_driver_basis(basis).value
-        driver.method = method
-        return driver
+        kwargs["atoms"] = ";".join(
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+        )
+        kwargs["charge"] = molecule.charge
+        kwargs["multiplicity"] = molecule.multiplicity
+        kwargs["units"] = molecule.units
+        kwargs["basis"] = PyQuanteDriver.to_driver_basis(basis)
+        kwargs["method"] = method
+        return PyQuanteDriver(**kwargs)
 
     @staticmethod
     def to_driver_basis(basis: str) -> Any:
@@ -158,28 +184,19 @@ class PyQuanteDriver(FermionicDriver):
         )
 
     def run(self) -> QMolecule:
-        if self.molecule is not None:
-            atoms = ";".join(
-                [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
-            )
-            charge = self.molecule.charge
-            multiplicity = self.molecule.multiplicity
-            units = self.molecule.units.value
-        else:
-            atoms = self._atoms
-            charge = self._charge
-            multiplicity = self._multiplicity
-            units = self._units
-
+        atoms = self._atoms
+        charge = self._charge
+        multiplicity = self._multiplicity
+        units = self._units
         basis = self.basis
         method = self.method
 
         q_mol = compute_integrals(
             atoms=atoms,
-            units=units,
+            units=units.value,
             charge=charge,
             multiplicity=multiplicity,
-            basis=basis,
+            basis=basis.value,
             method=method.value,
             tol=self._tol,
             maxiters=self._maxiters,
@@ -188,10 +205,10 @@ class PyQuanteDriver(FermionicDriver):
         q_mol.origin_driver_name = "PYQUANTE"
         cfg = [
             "atoms={}".format(atoms),
-            "units={}".format(units),
+            "units={}".format(units.value),
             "charge={}".format(charge),
             "multiplicity={}".format(multiplicity),
-            "basis={}".format(basis),
+            "basis={}".format(basis.value),
             "method={}".format(method.value),
             "tol={}".format(self._tol),
             "maxiters={}".format(self._maxiters),

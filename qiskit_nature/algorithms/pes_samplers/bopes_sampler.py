@@ -17,7 +17,13 @@ from typing import Optional, List, Dict
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
-from qiskit_nature.drivers.second_quantization import BaseDriver
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
+from qiskit_nature.drivers.base_driver import BaseDriver as DeprecatedBaseDriver
+from qiskit_nature.drivers.second_quantization import (
+    BaseDriver,
+    FermionicMoleculeDriver,
+    BosonicMoleculeDriver,
+)
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import BOPESSamplerResult, EigenstateResult
@@ -108,6 +114,19 @@ class BOPESSampler:
         self._problem = problem
         self._driver = problem.driver
 
+        if isinstance(self._driver, DeprecatedBaseDriver):
+            warn_deprecated(
+                "0.2.0",
+                DeprecatedType.CLASS,
+                f"{self._driver.__class__.__module__}.{self._driver.__class__.__qualname__}",
+                new_name="FermionicMoleculeDriver or BosonicMoleculeDriver",
+                additional_msg="from qiskit_nature.drivers.second_quantization",
+            )
+        elif not isinstance(self._driver, (FermionicMoleculeDriver, BosonicMoleculeDriver)):
+            raise QiskitNatureError(
+                "Driver must be FermionicMoleculeDriver or BosonicMoleculeDriver."
+            )
+
         if self._driver.molecule is None:
             raise QiskitNatureError("Driver MUST be configured with a Molecule.")
 
@@ -154,9 +173,25 @@ class BOPESSampler:
 
         Returns:
             Results for a single point.
+        Raises:
+            QiskitNatureError: Invalid Driver
         """
 
         # update molecule geometry and thus resulting Hamiltonian based on specified point
+
+        if isinstance(self._driver, DeprecatedBaseDriver):
+            warn_deprecated(
+                "0.2.0",
+                DeprecatedType.CLASS,
+                f"{self._driver.__class__.__module__}.{self._driver.__class__.__qualname__}",
+                new_name="FermionicMoleculeDriver or BosonicMoleculeDriver",
+                additional_msg="from qiskit_nature.drivers.second_quantization",
+            )
+        elif not isinstance(self._driver, (FermionicMoleculeDriver, BosonicMoleculeDriver)):
+            raise QiskitNatureError(
+                "Driver must be FermionicMoleculeDriver or BosonicMoleculeDriver."
+            )
+
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters

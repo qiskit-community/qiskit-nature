@@ -64,6 +64,8 @@ class BosonicDriverType(Enum):
         elif driver_type == BosonicDriverType.GAUSSIAN_FORCES:
             GaussianForcesDriver.check_installed()
             driver_class = GaussianForcesDriver
+        else:
+            MissingOptionalLibraryError(libname=driver_type, name="BosonicDriverType")
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
@@ -93,10 +95,31 @@ class BosonicMoleculeDriver(BosonicDriver):
         Raises:
             MissingOptionalLibraryError: Driver not installed.
         """
+        super().__init__()
         self._driver_class = BosonicDriverType.driver_class_from_type(driver_type)
         self._driver_kwargs = driver_kwargs
-        super().__init__(basis=basis, supports_molecule=True)
-        self.molecule = molecule
+        self._molecule = molecule
+        self._basis = basis
+
+    @property
+    def molecule(self) -> Optional[Molecule]:
+        """return molecule"""
+        return self._molecule
+
+    @molecule.setter
+    def molecule(self, value: Molecule) -> None:
+        """set molecule"""
+        self._molecule = value
+
+    @property
+    def basis(self) -> str:
+        """return basis"""
+        return self._basis
+
+    @basis.setter
+    def basis(self, value: str) -> None:
+        """set basis"""
+        self._basis = value
 
     @property
     def driver_kwargs(self) -> Optional[Dict[str, Any]]:

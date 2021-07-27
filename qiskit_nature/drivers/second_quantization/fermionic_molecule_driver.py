@@ -19,7 +19,7 @@ import logging
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from .fermionic_driver import FermionicDriver
+from .fermionic_driver import FermionicDriver, MethodType
 from ..molecule import Molecule
 from .pyscfd import PySCFDriver
 from .psi4d import PSI4Driver
@@ -79,6 +79,8 @@ class FermionicDriverType(Enum):
         elif driver_type == FermionicDriverType.GAUSSIAN:
             GaussianDriver.check_installed()
             driver_class = GaussianDriver
+        else:
+            MissingOptionalLibraryError(libname=driver_type, name="FermionicDriverType")
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
@@ -93,6 +95,7 @@ class FermionicMoleculeDriver(FermionicDriver):
         self,
         molecule: Molecule,
         basis: str = "sto3g",
+        method: MethodType = MethodType.RHF,
         driver_type: FermionicDriverType = FermionicDriverType.AUTO,
         driver_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
@@ -100,6 +103,7 @@ class FermionicMoleculeDriver(FermionicDriver):
         Args:
             molecule: molecule
             basis: basis set
+            method: The method type to be used for the calculation.
             driver_type:type of driver to be used. If `AUTO` is selected, it will use
                         the first driver installed in the following order:
                         `PYSCF`, `PSI4`, `PYQUANTE`, `GAUSSIAN`
@@ -108,10 +112,42 @@ class FermionicMoleculeDriver(FermionicDriver):
         Raises:
             MissingOptionalLibraryError: Driver not installed.
         """
+        super().__init__()
         self._driver_class = FermionicDriverType.driver_class_from_type(driver_type)
         self._driver_kwargs = driver_kwargs
-        super().__init__(basis=basis, supports_molecule=True)
-        self.molecule = molecule
+        self._molecule = molecule
+        self._basis = basis
+        self._method = method
+
+    @property
+    def molecule(self) -> Optional[Molecule]:
+        """return molecule"""
+        return self._molecule
+
+    @molecule.setter
+    def molecule(self, value: Molecule) -> None:
+        """set molecule"""
+        self._molecule = value
+
+    @property
+    def basis(self) -> str:
+        """return basis"""
+        return self._basis
+
+    @basis.setter
+    def basis(self, value: str) -> None:
+        """set basis"""
+        self._basis = value
+
+    @property
+    def method(self) -> MethodType:
+        """return Hartree-Fock method"""
+        return self._method
+
+    @method.setter
+    def method(self, value: MethodType) -> None:
+        """set Hartree-Fock method"""
+        self._method = value
 
     @property
     def driver_kwargs(self) -> Optional[Dict[str, Any]]:

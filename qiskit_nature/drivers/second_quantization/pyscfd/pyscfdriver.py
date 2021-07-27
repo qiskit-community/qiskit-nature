@@ -125,6 +125,7 @@ class PySCFDriver(FermionicDriver):
         .. _6: https://pyscf.org/pyscf_api_docs/pyscf.scf.html#module-pyscf.scf.hf
         .. _7: https://pyscf.org/pyscf_api_docs/pyscf.lib.html#module-pyscf.lib.chkfile
         """
+        super().__init__()
         # First, ensure that PySCF is actually installed
         self.check_installed()
 
@@ -138,13 +139,14 @@ class PySCFDriver(FermionicDriver):
             )
 
         validate_min("max_cycle", max_cycle, 1)
-        super().__init__(basis=basis, method=method, supports_molecule=True)
 
         # we use the property-setter to deal with conversion
         self.atom = atom  # type: ignore
-        self._unit = unit.value
+        self._unit = unit
         self._charge = charge
         self._spin = spin
+        self._basis = basis
+        self._method = method
         self._xc_functional = xc_functional
         self.xcf_library = xcf_library  # validate choice in property setter
         self._conv_tol = conv_tol
@@ -169,12 +171,12 @@ class PySCFDriver(FermionicDriver):
         self._atom = atom.replace("\n", ";")
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> UnitsType:
         """Returns the unit."""
         return self._unit
 
     @unit.setter
-    def unit(self, unit: str) -> None:
+    def unit(self, unit: UnitsType) -> None:
         """Sets the unit."""
         self._unit = unit
 
@@ -197,6 +199,26 @@ class PySCFDriver(FermionicDriver):
     def spin(self, spin: int) -> None:
         """Sets the spin."""
         self._spin = spin
+
+    @property
+    def basis(self) -> str:
+        """return basis"""
+        return self._basis
+
+    @basis.setter
+    def basis(self, value: str) -> None:
+        """set basis"""
+        self._basis = value
+
+    @property
+    def method(self) -> MethodType:
+        """return Hartree-Fock method"""
+        return self._method
+
+    @method.setter
+    def method(self, value: MethodType) -> None:
+        """set Hartree-Fock method"""
+        self._method = value
 
     @property
     def xc_functional(self) -> str:
@@ -290,19 +312,23 @@ class PySCFDriver(FermionicDriver):
             driver
         """
         PySCFDriver.check_installed()
-        basis = PySCFDriver.to_driver_basis(basis)
         kwargs = {}
         if driver_kwargs:
             args = inspect.getfullargspec(PySCFDriver.__init__).args
             for key, value in driver_kwargs.items():
-                if key not in ["self", "molecule", "basis", "method"] and key in args:
+                if key not in ["self"] and key in args:
                     kwargs[key] = value
 
-        driver = PySCFDriver(**kwargs)
-        driver.molecule = molecule
-        driver.basis = basis
-        driver.method = method
-        return driver
+        kwargs["atom"] = [  # type: ignore
+            " ".join(map(str, (name, *coord)))  # type: ignore
+            for (name, coord) in molecule.geometry
+        ]
+        kwargs["charge"] = molecule.charge
+        kwargs["spin"] = molecule.multiplicity - 1
+        kwargs["unit"] = molecule.units
+        kwargs["basis"] = PySCFDriver.to_driver_basis(basis)
+        kwargs["method"] = method
+        return PySCFDriver(**kwargs)
 
     @staticmethod
     def to_driver_basis(basis: str) -> Any:
@@ -345,15 +371,6 @@ class PySCFDriver(FermionicDriver):
         Returns:
             A QMolecule object containing the raw driver results.
         """
-        if self.molecule is not None:
-            self.atom = [  # type: ignore
-                " ".join(map(str, (name, *coord)))  # type: ignore
-                for (name, coord) in self.molecule.geometry
-            ]
-            self._charge = self.molecule.charge
-            self._spin = self.molecule.multiplicity - 1
-            self._unit = self.molecule.units.value
-
         self._build_molecule()
         self.run_pyscf()
 
@@ -385,7 +402,7 @@ class PySCFDriver(FermionicDriver):
 
             self._mol = gto.Mole(
                 atom=atom,
-                unit=self._unit,
+                unit=self._unit.value,
                 basis=self._basis,
                 max_memory=self._max_memory,
                 verbose=verbose,
@@ -508,7 +525,7 @@ class PySCFDriver(FermionicDriver):
         q_mol.origin_driver_version = pyscf_version
         cfg = [
             "atom={}".format(self._atom),
-            "unit={}".format(self._unit),
+            "unit={}".format(self._unit.value),
             "charge={}".format(self._charge),
             "spin={}".format(self._spin),
             "basis={}".format(self._basis),

@@ -57,6 +57,7 @@ class PSI4Driver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        super().__init__()
         self.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
@@ -65,7 +66,6 @@ class PSI4Driver(FermionicDriver):
             config = "\n".join(config)
 
         self._config = config
-        super().__init__(supports_molecule=True)
 
     @staticmethod
     def from_molecule(
@@ -82,16 +82,30 @@ class PSI4Driver(FermionicDriver):
             driver_kwargs: kwargs to be passed to driver
         Returns:
             driver
+
+        Raises:
+            QiskitNatureError: Unknown unit
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
         PSI4Driver.check_installed()
         basis = PSI4Driver.to_driver_basis(basis)
-        driver = PSI4Driver()
-        driver.molecule = molecule
-        driver.basis = basis
-        driver.method = method
-        return driver
+
+        if molecule.units == UnitsType.ANGSTROM:
+            units = "ang"
+        elif molecule.units == UnitsType.BOHR:
+            units = "bohr"
+        else:
+            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+        name = "".join([name for (name, _) in molecule.geometry])
+        geom = "\n".join(
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+        )
+        cfg1 = f"molecule {name} {{\nunits {units}\n"
+        cfg2 = f"{molecule.charge} {molecule.multiplicity}\n"
+        cfg3 = f"{geom}\nno_com\nno_reorient\n}}\n\n"
+        cfg4 = f"set {{\n basis {basis}\n scf_type pk\n reference {method.value}\n}}"
+        return PSI4Driver(cfg1 + cfg2 + cfg3 + cfg4)
 
     @staticmethod
     def to_driver_basis(basis: str) -> Any:
@@ -106,29 +120,8 @@ class PSI4Driver(FermionicDriver):
         if PSI4_APP is None:
             raise MissingOptionalLibraryError(libname="PSI4", name="PSI4Driver")
 
-    def _from_molecule_to_str(self) -> str:
-        units = None
-        if self.molecule.units == UnitsType.ANGSTROM:
-            units = "ang"
-        elif self.molecule.units == UnitsType.BOHR:
-            units = "bohr"
-        else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
-        name = "".join([name for (name, _) in self.molecule.geometry])
-        geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
-        )
-        cfg1 = f"molecule {name} {{\nunits {units}\n"
-        cfg2 = f"{self.molecule.charge} {self.molecule.multiplicity}\n"
-        cfg3 = f"{geom}\nno_com\nno_reorient\n}}\n\n"
-        cfg4 = f"set {{\n basis {self.basis}\n scf_type pk\n reference {self.method.value}\n}}"
-        return cfg1 + cfg2 + cfg3 + cfg4
-
     def run(self) -> QMolecule:
-        if self.molecule is not None:
-            cfg = self._from_molecule_to_str()
-        else:
-            cfg = self._config
+        cfg = self._config
 
         psi4d_directory = Path(__file__).resolve().parent
         template_file = psi4d_directory.joinpath("_template.txt")

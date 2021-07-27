@@ -57,6 +57,7 @@ class GaussianDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
+        super().__init__()
         GaussianDriver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for Gaussian Driver '{}'".format(config))
@@ -65,7 +66,6 @@ class GaussianDriver(FermionicDriver):
             config = "\n".join(config)
 
         self._config = config
-        super().__init__(supports_molecule=True)
 
     @staticmethod
     def from_molecule(
@@ -82,16 +82,29 @@ class GaussianDriver(FermionicDriver):
             driver_kwargs: kwargs to be passed to driver
         Returns:
             driver
+        Raises:
+            QiskitNatureError: Unknown unit
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
         GaussianDriver.check_installed()
         basis = GaussianDriver.to_driver_basis(basis)
-        driver = GaussianDriver()
-        driver.molecule = molecule
-        driver.basis = basis
-        driver.method = method
-        return driver
+
+        if molecule.units == UnitsType.ANGSTROM:
+            units = "Angstrom"
+        elif molecule.units == UnitsType.BOHR:
+            units = "Bohr"
+        else:
+            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+        cfg1 = f"# {method.value}/{basis} UNITS={units} scf(conventional)\n\n"
+        name = "".join([name for (name, _) in molecule.geometry])
+        geom = "\n".join(
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+        )
+        cfg2 = f"{name} molecule\n\n"
+        cfg3 = f"{molecule.charge} {molecule.multiplicity}\n{geom}\n\n"
+
+        return GaussianDriver(cfg1 + cfg2 + cfg3)
 
     @staticmethod
     def to_driver_basis(basis: str) -> Any:
@@ -105,29 +118,8 @@ class GaussianDriver(FermionicDriver):
         """check if installed"""
         check_valid()
 
-    def _from_molecule_to_str(self) -> str:
-        units = None
-        if self.molecule.units == UnitsType.ANGSTROM:
-            units = "Angstrom"
-        elif self.molecule.units == UnitsType.BOHR:
-            units = "Bohr"
-        else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
-        cfg1 = f"# {self.method.value}/{self.basis} UNITS={units} scf(conventional)\n\n"
-        name = "".join([name for (name, _) in self.molecule.geometry])
-        geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
-        )
-        cfg2 = f"{name} molecule\n\n"
-        cfg3 = f"{self.molecule.charge} {self.molecule.multiplicity}\n{geom}\n\n"
-        return cfg1 + cfg2 + cfg3
-
     def run(self) -> QMolecule:
-        if self.molecule is not None:
-            cfg = self._from_molecule_to_str()
-        else:
-            cfg = self._config
-
+        cfg = self._config
         while not cfg.endswith("\n\n"):
             cfg += "\n"
 

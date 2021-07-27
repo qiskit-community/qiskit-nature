@@ -36,18 +36,30 @@ class TestFermionicMoleculeDriver(QiskitNatureTestCase):
             charge=0,
         )
 
+    @requires_extra_library
+    def test_invalid_kwarg(self):
+        """test invalid kwarg"""
+        driver = FermionicMoleculeDriver(
+            self._molecule,
+            basis="sto3g",
+            driver_type=FermionicDriverType.PYSCF,
+            driver_kwargs={"max_cycle": 0},
+        )
+        with self.assertRaises(ValueError):
+            _ = driver.run()
+
     @data(
-        (FermionicDriverType.AUTO, None, -1.1169989967540044),
-        (FermionicDriverType.PYSCF, {"spin": 1}, -1.1169989967540044),
-        (FermionicDriverType.PSI4, None, -1.1169989967389082),
-        (FermionicDriverType.PYQUANTE, None, -1.1169989925292956),
-        (FermionicDriverType.GAUSSIAN, None, -1.1169989967389082),
+        (FermionicDriverType.AUTO, -1.1169989967540044),
+        (FermionicDriverType.PYSCF, -1.1169989967540044),
+        (FermionicDriverType.PSI4, -1.1169989967389082),
+        (FermionicDriverType.PYQUANTE, -1.1169989925292956),
+        (FermionicDriverType.GAUSSIAN, -1.1169989967389082),
     )
     @requires_extra_library
     def test_driver(self, config):
         """test driver"""
-        driver_type, driver_kwargs, hf_energy = config
-        driver = FermionicMoleculeDriver(self._molecule, "sto3g", driver_type, driver_kwargs)
+        driver_type, hf_energy = config
+        driver = FermionicMoleculeDriver(self._molecule, basis="sto3g", driver_type=driver_type)
         molecule = driver.run()
         self.assertAlmostEqual(molecule.hf_energy, hf_energy, places=5)
 
@@ -102,14 +114,13 @@ class TestBosonicMoleculeDriver(QiskitNatureTestCase):
             self.assertListEqual(entry[1:], expected[i][1:], msg=msg)
 
     @data(
-        (BosonicDriverType.AUTO, None),
-        (BosonicDriverType.GAUSSIAN_FORCES, None),
+        BosonicDriverType.AUTO,
+        BosonicDriverType.GAUSSIAN_FORCES,
     )
     @requires_extra_library
-    def test_driver(self, config):
+    def test_driver(self, driver_type):
         """test driver"""
-        driver_type, driver_kwargs = config
-        driver = BosonicMoleculeDriver(self._molecule, "6-31g", driver_type, driver_kwargs)
+        driver = BosonicMoleculeDriver(self._molecule, basis="6-31g", driver_type=driver_type)
         result = driver.run()
         self._check_driver_result(TestBosonicMoleculeDriver._MOLECULE_EXPECTED, result)
 

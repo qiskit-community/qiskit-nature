@@ -60,7 +60,7 @@ class GaussianForcesDriver(BosonicDriver):
             QiskitNatureError: If `jcf` given and Gaussian™ 16 executable
                 cannot be located.
         """
-        super().__init__(supports_molecule=True)
+        super().__init__()
         self._jcf = jcf
         self._logfile = None
         self._normalize = normalize
@@ -91,15 +91,29 @@ class GaussianForcesDriver(BosonicDriver):
             driver_kwargs: kwargs to be passed to driver
         Returns:
             driver
+        Raises:
+            QiskitNatureError: Unknown unit
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
         GaussianForcesDriver.check_installed()
         basis = GaussianForcesDriver.to_driver_basis(basis)
-        driver = GaussianForcesDriver()
-        driver.molecule = molecule
-        driver.basis = basis
-        return driver
+
+        if molecule.units == UnitsType.ANGSTROM:
+            units = "Angstrom"
+        elif molecule.units == UnitsType.BOHR:
+            units = "Bohr"
+        else:
+            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+        cfg1 = f"#p B3LYP/{basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
+        name = "".join([name for (name, _) in molecule.geometry])
+        geom = "\n".join(
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+        )
+        cfg2 = f"{name} geometry optimization\n\n"
+        cfg3 = f"{molecule.charge} {molecule.multiplicity}\n{geom}\n\n"
+
+        return GaussianForcesDriver(jcf=cfg1 + cfg2 + cfg3)
 
     @staticmethod
     def to_driver_basis(basis: str) -> Any:
@@ -117,26 +131,6 @@ class GaussianForcesDriver(BosonicDriver):
         if self._logfile is not None:
             glr = GaussianLogResult(self._logfile)
         else:
-            if self._molecule is not None:
-                jcf = self._from_molecule_to_str()
-            else:
-                jcf = self._jcf  # type: ignore
-            glr = GaussianLogDriver(jcf=jcf).run()
+            glr = GaussianLogDriver(jcf=self._jcf).run()
 
         return glr.get_watson_hamiltonian(self._normalize)
-
-    def _from_molecule_to_str(self) -> str:
-        if self.molecule.units == UnitsType.ANGSTROM:
-            units = "Angstrom"
-        elif self.molecule.units == UnitsType.BOHR:
-            units = "Bohr"
-        else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
-        cfg1 = f"#p B3LYP/{self.basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
-        name = "".join([name for (name, _) in self.molecule.geometry])
-        geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
-        )
-        cfg2 = f"{name} geometry optimization\n\n"
-        cfg3 = f"{self.molecule.charge} {self.molecule.multiplicity}\n{geom}\n\n"
-        return cfg1 + cfg2 + cfg3
