@@ -39,7 +39,7 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
             raise TypeError("Type ", type(second_q_op), " not supported.")
 
         edge_list = bksf_edge_list_fermionic_op(second_q_op)
-        sparse_pauli = _convert_operators(second_q_op, edge_list)
+        sparse_pauli = _convert_operator(second_q_op, edge_list)
 
         ## Simplify and sort the result
         sparse_pauli = sparse_pauli.simplify()
@@ -64,7 +64,7 @@ class TermType(Enum):
     COULOMB_EXCHANGE = 5
 
 
-def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
+def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePauliOp:
     """
     Convert a fermionic operator together with qubit-connectivity graph to a Pauli operator.
 
@@ -81,9 +81,8 @@ def _convert_operators(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePau
     Raises:
       ValueError: if the type of interaction of any term is unknown.
     """
-    fer_op_list = ferm_op.to_list()
     sparse_pauli = None
-    for term in fer_op_list:
+    for term in ferm_op.to_list():
         term_type, facs = _analyze_term(_operator_string(term))
         if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
