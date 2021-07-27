@@ -14,7 +14,7 @@
 This module implements a common molecule fermionic based driver.
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Type
 import logging
 from enum import Enum
 
@@ -39,11 +39,24 @@ class FermionicDriverType(Enum):
     GAUSSIAN = "gaussian"
 
     @staticmethod
-    def driver_class_from_type(driver_type: "FermionicDriverType"):
-        """Get driver class from driver type"""
+    def driver_class_from_type(driver_type: "FermionicDriverType") -> Type[FermionicDriver]:
+        """
+        Get driver class from driver type
+
+        Args:
+            driver_type:type of driver to be used. If `AUTO` is selected, it will use
+                        the first driver installed in the following order:
+                        `PYSCF`, `PSI4`, `PYQUANTE`, `GAUSSIAN`
+
+        Returns:
+            driver class
+
+        Raises:
+            MissingOptionalLibraryError: Driver not installed.
+        """
         driver_class = None
-        missing_error = None
         if driver_type == FermionicDriverType.AUTO:
+            missing_error = None
             for item in FermionicDriverType:
                 if item != FermionicDriverType.AUTO:
                     try:
@@ -52,19 +65,21 @@ class FermionicDriverType(Enum):
                     except MissingOptionalLibraryError as ex:
                         if missing_error is None:
                             missing_error = ex
+            if driver_class is None:
+                raise missing_error
         elif driver_type == FermionicDriverType.PYSCF:
+            PySCFDriver.check_installed()
             driver_class = PySCFDriver
         elif driver_type == FermionicDriverType.PSI4:
+            PSI4Driver.check_installed()
             driver_class = PSI4Driver
         elif driver_type == FermionicDriverType.PYQUANTE:
+            PyQuanteDriver.check_installed()
             driver_class = PyQuanteDriver
         elif driver_type == FermionicDriverType.GAUSSIAN:
+            GaussianDriver.check_installed()
             driver_class = GaussianDriver
 
-        if driver_class is None:
-            raise missing_error
-
-        driver_class.check_installed()
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
 
@@ -91,12 +106,11 @@ class FermionicMoleculeDriver(FermionicDriver):
             driver_kwargs: kwargs to be passed to driver
 
         Raises:
-            QiskitNatureError: No Driver installed found.
             MissingOptionalLibraryError: Driver not installed.
         """
         self._driver_class = FermionicDriverType.driver_class_from_type(driver_type)
         self._driver_kwargs = driver_kwargs
-        super().__init__(basis=basis)
+        super().__init__(basis=basis, supports_molecule=True)
         self.molecule = molecule
 
     @property

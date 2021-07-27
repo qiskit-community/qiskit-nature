@@ -39,7 +39,7 @@ class HFMethodType(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
             "0.2.0",
             DeprecatedType.ENUM,
             self.__class__.__name__,
-            "from qiskit_nature.drivers.second_quantization as a direct replacement",
+            "from qiskit_nature.drivers.second_quantization",
             3,
         )
 

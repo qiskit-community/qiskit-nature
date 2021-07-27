@@ -71,7 +71,7 @@ class GaussianForcesDriver(BosonicDriver):
             "0.2.0",
             DeprecatedType.CLASS,
             "GaussianForcesDriver",
-            "from qiskit_nature.drivers.second_quantization.gaussiand as a direct replacement",
+            "from qiskit_nature.drivers.second_quantization.gaussiand",
         )
         super().__init__(molecule=molecule, basis=basis, hf_method="", supports_molecule=True)
         self._jcf = jcf

@@ -93,10 +93,7 @@ class PyQuanteDriver(FermionicDriver):
         elif isinstance(atoms, str):
             atoms = atoms.replace("\n", ";")
 
-        super().__init__(
-            basis=basis.value,
-            method=method,
-        )
+        super().__init__(basis=basis.value, method=method, supports_molecule=True)
         self._atoms = atoms
         self._units = units.value
         self._charge = charge

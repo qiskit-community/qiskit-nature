@@ -47,7 +47,7 @@ class GaussianLogDriver(BaseDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        GaussianLogDriver._check_valid()
+        GaussianLogDriver.check_installed()
 
         if not isinstance(jcf, list) and not isinstance(jcf, str):
             raise QiskitNatureError("Invalid input for Gaussian Log Driver '{}'".format(jcf))
@@ -59,7 +59,8 @@ class GaussianLogDriver(BaseDriver):
         super().__init__()
 
     @staticmethod
-    def _check_valid():
+    def check_installed():
+        """check if installed"""
         check_valid()
 
     def run(self) -> GaussianLogResult:

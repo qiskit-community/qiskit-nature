@@ -18,6 +18,7 @@ from typing import Optional
 from abc import ABC, abstractmethod
 
 from ..molecule import Molecule
+from ...exceptions import QiskitNatureError
 
 
 class BaseDriver(ABC):
@@ -29,14 +30,16 @@ class BaseDriver(ABC):
     def __init__(
         self,
         basis: str = "sto3g",
+        supports_molecule: bool = False,
     ) -> None:
         """
         Args:
             basis: basis set
+            supports_molecule: Indicates if driver supports molecule
         """
         self._molecule: Optional[Molecule] = None
         self._basis = basis
-        self._supports_molecule = False
+        self._supports_molecule = supports_molecule
 
     @abstractmethod
     def run(self):
@@ -63,8 +66,9 @@ class BaseDriver(ABC):
     @molecule.setter
     def molecule(self, value: Molecule) -> None:
         """set molecule"""
+        if not self.supports_molecule:
+            raise QiskitNatureError("Driver doesn't support molecule.")
         self._molecule = value
-        self._supports_molecule = self.molecule is not None
 
     @property
     def basis(self) -> str:

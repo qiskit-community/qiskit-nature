@@ -138,10 +138,7 @@ class PySCFDriver(FermionicDriver):
             )
 
         validate_min("max_cycle", max_cycle, 1)
-        super().__init__(
-            basis=basis,
-            method=method,
-        )
+        super().__init__(basis=basis, method=method, supports_molecule=True)
 
         # we use the property-setter to deal with conversion
         self.atom = atom  # type: ignore

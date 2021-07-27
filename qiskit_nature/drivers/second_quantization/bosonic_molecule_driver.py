@@ -14,7 +14,7 @@
 This module implements a common molecule bosonic based driver.
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Type
 import logging
 from enum import Enum
 
@@ -33,11 +33,24 @@ class BosonicDriverType(Enum):
     GAUSSIAN_FORCES = "gaussian_forces"
 
     @staticmethod
-    def driver_class_from_type(driver_type: "BosonicDriverType"):
-        """Get driver class from driver type"""
+    def driver_class_from_type(driver_type: "BosonicDriverType") -> Type[BosonicDriver]:
+        """
+        Get driver class from driver type
+
+        Args:
+            driver_type:type of driver to be used. If `AUTO` is selected, it will use
+                        the first driver installed in the following order:
+                        `GAUSSIAN_FORCES`
+
+        Returns:
+            driver class
+
+        Raises:
+            MissingOptionalLibraryError: Driver not installed.
+        """
         driver_class = None
-        missing_error = None
         if driver_type == BosonicDriverType.AUTO:
+            missing_error = None
             for item in BosonicDriverType:
                 if item != BosonicDriverType.AUTO:
                     try:
@@ -46,13 +59,12 @@ class BosonicDriverType(Enum):
                     except MissingOptionalLibraryError as ex:
                         if missing_error is None:
                             missing_error = ex
+            if driver_class is None:
+                raise missing_error
         elif driver_type == BosonicDriverType.GAUSSIAN_FORCES:
+            GaussianForcesDriver.check_installed()
             driver_class = GaussianForcesDriver
 
-        if driver_class is None:
-            raise missing_error
-
-        driver_class.check_installed()
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
 
@@ -79,12 +91,11 @@ class BosonicMoleculeDriver(BosonicDriver):
             driver_kwargs: kwargs to be passed to driver
 
         Raises:
-            QiskitNatureError: No Driver installed found.
             MissingOptionalLibraryError: Driver not installed.
         """
         self._driver_class = BosonicDriverType.driver_class_from_type(driver_type)
         self._driver_kwargs = driver_kwargs
-        super().__init__(basis=basis)
+        super().__init__(basis=basis, supports_molecule=True)
         self.molecule = molecule
 
     @property

@@ -47,7 +47,7 @@ class BaseDriver(ABC):
             "0.2.0",
             DeprecatedType.CLASS,
             "BaseDriver",
-            "from qiskit_nature.drivers.second_quantization as a direct replacement",
+            "from qiskit_nature.drivers.second_quantization",
             3,
         )
 

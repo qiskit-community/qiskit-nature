@@ -65,7 +65,7 @@ class GaussianDriver(FermionicDriver):
             config = "\n".join(config)
 
         self._config = config
-        super().__init__()
+        super().__init__(supports_molecule=True)
 
     @staticmethod
     def from_molecule(

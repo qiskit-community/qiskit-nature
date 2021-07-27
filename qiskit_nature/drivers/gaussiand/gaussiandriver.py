@@ -73,7 +73,7 @@ class GaussianDriver(FermionicDriver):
             "0.2.0",
             DeprecatedType.CLASS,
             "GaussianDriver",
-            "from qiskit_nature.drivers.second_quantization.gaussiand as a direct replacement",
+            "from qiskit_nature.drivers.second_quantization.gaussiand",
         )
         GaussianDriver._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):

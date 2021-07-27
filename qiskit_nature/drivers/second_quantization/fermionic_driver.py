@@ -43,19 +43,20 @@ class FermionicDriver(BaseDriver):
     Base class for Qiskit Nature's fermionic drivers.
     """
 
-    @abstractmethod
     def __init__(
         self,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
+        supports_molecule: bool = False,
     ) -> None:
         """
         Args:
             basis: basis set
             method: Hartree-Fock Method type
+            supports_molecule: Indicates if driver supports molecule
         """
         self._method = method
-        super().__init__(basis=basis)
+        super().__init__(basis=basis, supports_molecule=supports_molecule)
 
     @property
     def method(self) -> MethodType:
