@@ -18,8 +18,8 @@ from test import QiskitNatureTestCase, requires_extra_library
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers.second_quantization import (
     GaussianDriver,
-    FermionicDriverType,
-    FermionicMoleculeDriver,
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
 )
 
 
@@ -50,8 +50,8 @@ class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
     @requires_extra_library
     def setUp(self):
         super().setUp()
-        driver = FermionicMoleculeDriver(
-            TestDriver.MOLECULE, driver_type=FermionicDriverType.GAUSSIAN
+        driver = ElectronicStructureMoleculeDriver(
+            TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.GAUSSIAN
         )
         self.qmolecule = driver.run()
 

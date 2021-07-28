@@ -26,7 +26,7 @@ from qiskit.utils.validation import validate_min
 from qiskit.exceptions import MissingOptionalLibraryError
 
 from ....exceptions import QiskitNatureError
-from ..fermionic_driver import FermionicDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..qmolecule import QMolecule
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -55,7 +55,7 @@ class InitialGuess(Enum):
     ATOM = "atom"
 
 
-class PySCFDriver(FermionicDriver):
+class PySCFDriver(ElectronicStructureDriver):
     """A Second-Quantization driver for Qiskit Nature using the PySCF library.
 
     References:

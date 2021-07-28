@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-This module implements a common molecule fermionic based driver.
+This module implements a common molecule electronic structure based driver.
 """
 
 from typing import Optional, Dict, Any, Type
@@ -19,7 +19,7 @@ import logging
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from .fermionic_driver import FermionicDriver, MethodType
+from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..molecule import Molecule
 from .pyscfd import PySCFDriver
 from .psi4d import PSI4Driver
@@ -29,8 +29,8 @@ from .gaussiand import GaussianDriver
 logger = logging.getLogger(__name__)
 
 
-class FermionicDriverType(Enum):
-    """Fermionic Driver Type."""
+class ElectronicStructureDriverType(Enum):
+    """Electronic structure Driver Type."""
 
     AUTO = "auto"
     PYSCF = "pyscf"
@@ -39,7 +39,9 @@ class FermionicDriverType(Enum):
     GAUSSIAN = "gaussian"
 
     @staticmethod
-    def driver_class_from_type(driver_type: "FermionicDriverType") -> Type[FermionicDriver]:
+    def driver_class_from_type(
+        driver_type: "ElectronicStructureDriverType",
+    ) -> Type[ElectronicStructureDriver]:
         """
         Get driver class from driver type
 
@@ -55,40 +57,40 @@ class FermionicDriverType(Enum):
             MissingOptionalLibraryError: Driver not installed.
         """
         driver_class = None
-        if driver_type == FermionicDriverType.AUTO:
+        if driver_type == ElectronicStructureDriverType.AUTO:
             missing_error = None
-            for item in FermionicDriverType:
-                if item != FermionicDriverType.AUTO:
+            for item in ElectronicStructureDriverType:
+                if item != ElectronicStructureDriverType.AUTO:
                     try:
-                        driver_class = FermionicDriverType.driver_class_from_type(item)
+                        driver_class = ElectronicStructureDriverType.driver_class_from_type(item)
                         break
                     except MissingOptionalLibraryError as ex:
                         if missing_error is None:
                             missing_error = ex
             if driver_class is None:
                 raise missing_error
-        elif driver_type == FermionicDriverType.PYSCF:
+        elif driver_type == ElectronicStructureDriverType.PYSCF:
             PySCFDriver.check_installed()
             driver_class = PySCFDriver
-        elif driver_type == FermionicDriverType.PSI4:
+        elif driver_type == ElectronicStructureDriverType.PSI4:
             PSI4Driver.check_installed()
             driver_class = PSI4Driver
-        elif driver_type == FermionicDriverType.PYQUANTE:
+        elif driver_type == ElectronicStructureDriverType.PYQUANTE:
             PyQuanteDriver.check_installed()
             driver_class = PyQuanteDriver
-        elif driver_type == FermionicDriverType.GAUSSIAN:
+        elif driver_type == ElectronicStructureDriverType.GAUSSIAN:
             GaussianDriver.check_installed()
             driver_class = GaussianDriver
         else:
-            MissingOptionalLibraryError(libname=driver_type, name="FermionicDriverType")
+            MissingOptionalLibraryError(libname=driver_type, name="ElectronicStructureDriverType")
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
 
 
-class FermionicMoleculeDriver(FermionicDriver):
+class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
     """
-    Molecule based fermionic driver
+    Molecule based electronic structure driver
     """
 
     def __init__(
@@ -96,7 +98,7 @@ class FermionicMoleculeDriver(FermionicDriver):
         molecule: Molecule,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
-        driver_type: FermionicDriverType = FermionicDriverType.AUTO,
+        driver_type: ElectronicStructureDriverType = ElectronicStructureDriverType.AUTO,
         driver_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -113,7 +115,7 @@ class FermionicMoleculeDriver(FermionicDriver):
             MissingOptionalLibraryError: Driver not installed.
         """
         super().__init__()
-        self._driver_class = FermionicDriverType.driver_class_from_type(driver_type)
+        self._driver_class = ElectronicStructureDriverType.driver_class_from_type(driver_type)
         self._driver_kwargs = driver_kwargs
         self._molecule = molecule
         self._basis = basis

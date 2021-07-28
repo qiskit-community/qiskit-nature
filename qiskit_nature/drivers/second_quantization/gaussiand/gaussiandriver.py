@@ -25,14 +25,14 @@ from qiskit_nature import QiskitNatureError
 
 from ..qmolecule import QMolecule
 from .gaussian_utils import check_valid, run_g16
-from ..fermionic_driver import FermionicDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 
 
-class GaussianDriver(FermionicDriver):
+class GaussianDriver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the Gaussian™ 16 program.
 

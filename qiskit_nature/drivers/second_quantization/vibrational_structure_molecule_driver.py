@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-This module implements a common molecule bosonic based driver.
+This module implements a common molecule vibrational structure based driver.
 """
 
 from typing import Optional, Dict, Any, Type
@@ -19,21 +19,23 @@ import logging
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from .bosonic_driver import BosonicDriver
+from .vibrational_structure_driver import VibrationalStructureDriver
 from ..molecule import Molecule
 from .gaussiand import GaussianForcesDriver
 
 logger = logging.getLogger(__name__)
 
 
-class BosonicDriverType(Enum):
-    """Bosonic Driver Type."""
+class VibrationalStructureDriverType(Enum):
+    """Vibrational structure Driver Type."""
 
     AUTO = "auto"
     GAUSSIAN_FORCES = "gaussian_forces"
 
     @staticmethod
-    def driver_class_from_type(driver_type: "BosonicDriverType") -> Type[BosonicDriver]:
+    def driver_class_from_type(
+        driver_type: "VibrationalStructureDriverType",
+    ) -> Type[VibrationalStructureDriver]:
         """
         Get driver class from driver type
 
@@ -49,38 +51,38 @@ class BosonicDriverType(Enum):
             MissingOptionalLibraryError: Driver not installed.
         """
         driver_class = None
-        if driver_type == BosonicDriverType.AUTO:
+        if driver_type == VibrationalStructureDriverType.AUTO:
             missing_error = None
-            for item in BosonicDriverType:
-                if item != BosonicDriverType.AUTO:
+            for item in VibrationalStructureDriverType:
+                if item != VibrationalStructureDriverType.AUTO:
                     try:
-                        driver_class = BosonicDriverType.driver_class_from_type(item)
+                        driver_class = VibrationalStructureDriverType.driver_class_from_type(item)
                         break
                     except MissingOptionalLibraryError as ex:
                         if missing_error is None:
                             missing_error = ex
             if driver_class is None:
                 raise missing_error
-        elif driver_type == BosonicDriverType.GAUSSIAN_FORCES:
+        elif driver_type == VibrationalStructureDriverType.GAUSSIAN_FORCES:
             GaussianForcesDriver.check_installed()
             driver_class = GaussianForcesDriver
         else:
-            MissingOptionalLibraryError(libname=driver_type, name="BosonicDriverType")
+            MissingOptionalLibraryError(libname=driver_type, name="VibrationalStructureDriverType")
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
 
 
-class BosonicMoleculeDriver(BosonicDriver):
+class VibrationalStructureMoleculeDriver(VibrationalStructureDriver):
     """
-    Molecule based bosonic driver
+    Molecule based vibrational structure driver
     """
 
     def __init__(
         self,
         molecule: Molecule,
         basis: str = "sto3g",
-        driver_type: BosonicDriverType = BosonicDriverType.AUTO,
+        driver_type: VibrationalStructureDriverType = VibrationalStructureDriverType.AUTO,
         driver_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -96,7 +98,7 @@ class BosonicMoleculeDriver(BosonicDriver):
             MissingOptionalLibraryError: Driver not installed.
         """
         super().__init__()
-        self._driver_class = BosonicDriverType.driver_class_from_type(driver_type)
+        self._driver_class = VibrationalStructureDriverType.driver_class_from_type(driver_type)
         self._driver_kwargs = driver_kwargs
         self._molecule = molecule
         self._basis = basis

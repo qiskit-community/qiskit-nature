@@ -19,8 +19,8 @@ from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import (
     PyQuanteDriver,
     BasisType,
-    FermionicDriverType,
-    FermionicMoleculeDriver,
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
 )
 
 
@@ -46,8 +46,8 @@ class TestDriverPyQuanteMolecule(QiskitNatureTestCase, TestDriver):
     @requires_extra_library
     def setUp(self):
         super().setUp()
-        driver = FermionicMoleculeDriver(
-            TestDriver.MOLECULE, driver_type=FermionicDriverType.PYQUANTE
+        driver = ElectronicStructureMoleculeDriver(
+            TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.PYQUANTE
         )
         self.qmolecule = driver.run()
 

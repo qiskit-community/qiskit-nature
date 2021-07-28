@@ -19,8 +19,8 @@ from test import QiskitNatureTestCase, requires_extra_library
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers.second_quantization import (
     GaussianForcesDriver,
-    BosonicMoleculeDriver,
-    BosonicDriverType,
+    VibrationalStructureMoleculeDriver,
+    VibrationalStructureDriverType,
 )
 
 
@@ -114,8 +114,8 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             multiplicity=1,
             charge=0,
         )
-        driver = BosonicMoleculeDriver(
-            molecule, basis="6-31g", driver_type=BosonicDriverType.GAUSSIAN_FORCES
+        driver = VibrationalStructureMoleculeDriver(
+            molecule, basis="6-31g", driver_type=VibrationalStructureDriverType.GAUSSIAN_FORCES
         )
         result = driver.run()
         self._check_driver_result(TestDriverGaussianForces._JFC_MOLECULE_EXPECTED, result)

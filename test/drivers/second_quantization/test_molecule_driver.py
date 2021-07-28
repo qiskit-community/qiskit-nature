@@ -16,17 +16,17 @@ import unittest
 from test import QiskitNatureTestCase, requires_extra_library
 from ddt import ddt, data
 from qiskit_nature.drivers.second_quantization import (
-    FermionicDriverType,
-    FermionicMoleculeDriver,
-    BosonicDriverType,
-    BosonicMoleculeDriver,
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
+    VibrationalStructureDriverType,
+    VibrationalStructureMoleculeDriver,
 )
 from qiskit_nature.drivers import Molecule
 
 
 @ddt
-class TestFermionicMoleculeDriver(QiskitNatureTestCase):
-    """Fermionic Molecule Driver tests."""
+class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
+    """Electronic structure Molecule Driver tests."""
 
     def setUp(self):
         super().setUp()
@@ -39,34 +39,36 @@ class TestFermionicMoleculeDriver(QiskitNatureTestCase):
     @requires_extra_library
     def test_invalid_kwarg(self):
         """test invalid kwarg"""
-        driver = FermionicMoleculeDriver(
+        driver = ElectronicStructureMoleculeDriver(
             self._molecule,
             basis="sto3g",
-            driver_type=FermionicDriverType.PYSCF,
+            driver_type=ElectronicStructureDriverType.PYSCF,
             driver_kwargs={"max_cycle": 0},
         )
         with self.assertRaises(ValueError):
             _ = driver.run()
 
     @data(
-        (FermionicDriverType.AUTO, -1.1169989967540044),
-        (FermionicDriverType.PYSCF, -1.1169989967540044),
-        (FermionicDriverType.PSI4, -1.1169989967389082),
-        (FermionicDriverType.PYQUANTE, -1.1169989925292956),
-        (FermionicDriverType.GAUSSIAN, -1.1169989967389082),
+        (ElectronicStructureDriverType.AUTO, -1.1169989967540044),
+        (ElectronicStructureDriverType.PYSCF, -1.1169989967540044),
+        (ElectronicStructureDriverType.PSI4, -1.1169989967389082),
+        (ElectronicStructureDriverType.PYQUANTE, -1.1169989925292956),
+        (ElectronicStructureDriverType.GAUSSIAN, -1.1169989967389082),
     )
     @requires_extra_library
     def test_driver(self, config):
         """test driver"""
         driver_type, hf_energy = config
-        driver = FermionicMoleculeDriver(self._molecule, basis="sto3g", driver_type=driver_type)
+        driver = ElectronicStructureMoleculeDriver(
+            self._molecule, basis="sto3g", driver_type=driver_type
+        )
         molecule = driver.run()
         self.assertAlmostEqual(molecule.hf_energy, hf_energy, places=5)
 
 
 @ddt
-class TestBosonicMoleculeDriver(QiskitNatureTestCase):
-    """Bosonic Molecule Driver tests."""
+class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
+    """Vibrational structure Molecule Driver tests."""
 
     _MOLECULE_EXPECTED = [
         [352.3005875, 2, 2],
@@ -114,15 +116,17 @@ class TestBosonicMoleculeDriver(QiskitNatureTestCase):
             self.assertListEqual(entry[1:], expected[i][1:], msg=msg)
 
     @data(
-        BosonicDriverType.AUTO,
-        BosonicDriverType.GAUSSIAN_FORCES,
+        VibrationalStructureDriverType.AUTO,
+        VibrationalStructureDriverType.GAUSSIAN_FORCES,
     )
     @requires_extra_library
     def test_driver(self, driver_type):
         """test driver"""
-        driver = BosonicMoleculeDriver(self._molecule, basis="6-31g", driver_type=driver_type)
+        driver = VibrationalStructureMoleculeDriver(
+            self._molecule, basis="6-31g", driver_type=driver_type
+        )
         result = driver.run()
-        self._check_driver_result(TestBosonicMoleculeDriver._MOLECULE_EXPECTED, result)
+        self._check_driver_result(TestVibrationalStructureMoleculeDriver._MOLECULE_EXPECTED, result)
 
 
 if __name__ == "__main__":

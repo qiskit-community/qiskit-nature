@@ -18,8 +18,8 @@ from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import (
     PySCFDriver,
-    FermionicDriverType,
-    FermionicMoleculeDriver,
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
 )
 from qiskit_nature import QiskitNatureError
 
@@ -79,7 +79,9 @@ class TestDriverPySCFMolecule(QiskitNatureTestCase, TestDriver):
     @requires_extra_library
     def setUp(self):
         super().setUp()
-        driver = FermionicMoleculeDriver(TestDriver.MOLECULE, driver_type=FermionicDriverType.PYSCF)
+        driver = ElectronicStructureMoleculeDriver(
+            TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.PYSCF
+        )
         self.qmolecule = driver.run()
 
 

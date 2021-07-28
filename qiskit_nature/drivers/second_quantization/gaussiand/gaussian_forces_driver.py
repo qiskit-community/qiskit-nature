@@ -17,7 +17,7 @@ from qiskit_nature import QiskitNatureError
 
 from ..watson_hamiltonian import WatsonHamiltonian
 from ...units_type import UnitsType
-from ..bosonic_driver import BosonicDriver
+from ..vibrational_structure_driver import VibrationalStructureDriver
 from ...molecule import Molecule
 from .gaussian_utils import check_valid
 from .gaussian_log_driver import GaussianLogDriver
@@ -37,7 +37,7 @@ O        -1.796073    1.479446    0.481721
 """
 
 
-class GaussianForcesDriver(BosonicDriver):
+class GaussianForcesDriver(VibrationalStructureDriver):
     """Gaussian™ 16 forces driver."""
 
     def __init__(

@@ -21,8 +21,8 @@ from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
 from qiskit_nature.drivers.base_driver import BaseDriver as DeprecatedBaseDriver
 from qiskit_nature.drivers.second_quantization import (
     BaseDriver,
-    FermionicMoleculeDriver,
-    BosonicMoleculeDriver,
+    ElectronicStructureMoleculeDriver,
+    VibrationalStructureMoleculeDriver,
 )
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.problems.second_quantization import BaseProblem
@@ -119,12 +119,14 @@ class BOPESSampler:
                 "0.2.0",
                 DeprecatedType.CLASS,
                 f"{self._driver.__class__.__module__}.{self._driver.__class__.__qualname__}",
-                new_name="FermionicMoleculeDriver or BosonicMoleculeDriver",
+                new_name="ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver",
                 additional_msg="from qiskit_nature.drivers.second_quantization",
             )
-        elif not isinstance(self._driver, (FermionicMoleculeDriver, BosonicMoleculeDriver)):
+        elif not isinstance(
+            self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
+        ):
             raise QiskitNatureError(
-                "Driver must be FermionicMoleculeDriver or BosonicMoleculeDriver."
+                "Driver must be ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver."
             )
 
         if self._driver.molecule is None:
@@ -184,12 +186,14 @@ class BOPESSampler:
                 "0.2.0",
                 DeprecatedType.CLASS,
                 f"{self._driver.__class__.__module__}.{self._driver.__class__.__qualname__}",
-                new_name="FermionicMoleculeDriver or BosonicMoleculeDriver",
+                new_name="ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver",
                 additional_msg="from qiskit_nature.drivers.second_quantization",
             )
-        elif not isinstance(self._driver, (FermionicMoleculeDriver, BosonicMoleculeDriver)):
+        elif not isinstance(
+            self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
+        ):
             raise QiskitNatureError(
-                "Driver must be FermionicMoleculeDriver or BosonicMoleculeDriver."
+                "Driver must be ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver."
             )
 
         self._driver.molecule.perturbations = [point]
