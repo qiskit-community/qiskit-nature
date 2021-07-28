@@ -25,7 +25,7 @@ from qiskit_nature.drivers.second_quantization import FermionicDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.electronic import (
-    ElectronicDriverResult,
+    ElectronicStructureDriverResult,
     ParticleNumber,
 )
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
@@ -70,11 +70,11 @@ class ElectronicStructureProblem(BaseProblem):
         self._molecule_data = cast(QMolecule, self.driver.run())
         if self._legacy_transform:
             qmol_transformed = self._transform(self._molecule_data)
-            self._properties_transformed = ElectronicDriverResult.from_legacy_driver_result(
-                qmol_transformed
+            self._properties_transformed = (
+                ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
             )
         else:
-            prop = ElectronicDriverResult.from_legacy_driver_result(self._molecule_data)
+            prop = ElectronicStructureDriverResult.from_legacy_driver_result(self._molecule_data)
             self._properties_transformed = self._transform(prop)
 
         second_quantized_ops_list = self._properties_transformed.second_q_ops()

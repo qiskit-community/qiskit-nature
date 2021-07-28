@@ -15,7 +15,7 @@
 from typing import cast, List, Optional, Tuple
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.properties.second_quantization.electronic import ElectronicDriverResult
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
 
 from .active_space_transformer import ActiveSpaceTransformer
@@ -29,8 +29,8 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         freeze_core: bool = True,
         remove_orbitals: Optional[List[int]] = None,
     ):
-        """Initializes a transformer which can reduce an `ElectronicDriverResult` to a configured
-        active space.
+        """Initializes a transformer which can reduce an `ElectronicStructureDriverResult` to a
+        configured active space.
 
         The orbitals to be removed are specified in two ways:
             1. When `freeze_core` is enabled (the default), the "core" orbitals will be determined
@@ -64,21 +64,21 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         """Determines the active and inactive orbital indices.
 
         Args:
-            molecule_data: the `ElectronicDriverResult` to be transformed.
+            molecule_data: the `ElectronicStructureDriverResult` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
 
         Raises:
             QiskitNatureError: if a GroupedElectronicProperty is provided which is not also an
-                               ElectronicElectronicDriverResult.
+                               ElectronicElectronicStructureDriverResult.
         """
-        if not isinstance(molecule_data, ElectronicDriverResult):
+        if not isinstance(molecule_data, ElectronicStructureDriverResult):
             raise QiskitNatureError(
-                "The FreezeCoreTransformer requires an `ElectronicDriverResult`, not a property of "
-                f"type {type(molecule_data)}."
+                "The FreezeCoreTransformer requires an `ElectronicStructureDriverResult`, not a "
+                f"property of type {type(molecule_data)}."
             )
-        molecule_data = cast(ElectronicDriverResult, molecule_data)
+        molecule_data = cast(ElectronicStructureDriverResult, molecule_data)
 
         molecule = molecule_data.molecule
         particle_number = molecule_data.get_property("ParticleNumber")

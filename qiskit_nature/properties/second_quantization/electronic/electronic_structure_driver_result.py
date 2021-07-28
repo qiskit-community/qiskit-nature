@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The ElectronicDriverResult class."""
+"""The ElectronicStructureDriverResult class."""
 
 from typing import List, Tuple, cast
 
@@ -19,7 +19,7 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..driver_metadata import DriverMetadata
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import ElectronicDipoleMoment
@@ -29,8 +29,8 @@ from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
 
 
-class ElectronicDriverResult(GroupedElectronicProperty):
-    """The ElectronicDriverResult class.
+class ElectronicStructureDriverResult(GroupedElectronicProperty):
+    """The ElectronicStructureDriverResult class.
 
     This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects
     previously stored in Qiskit Nature's `QMolecule` object.
@@ -44,8 +44,10 @@ class ElectronicDriverResult(GroupedElectronicProperty):
         self.molecule: Molecule = None
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicDriverResult":
-        """Converts a QMolecule into an `ElectronicDriverResult`.
+    def from_legacy_driver_result(
+        cls, result: LegacyDriverResult
+    ) -> "ElectronicStructureDriverResult":
+        """Converts a QMolecule into an `ElectronicStructureDriverResult`.
 
         Args:
             result: the QMolecule to convert.
@@ -56,7 +58,7 @@ class ElectronicDriverResult(GroupedElectronicProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
 
         ret = cls()
 

@@ -21,7 +21,7 @@ from qiskit_nature.results import EigenstateResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
+from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalStructureDriverResult
 
 
 class VibrationalEnergy(VibrationalProperty):
@@ -82,7 +82,7 @@ class VibrationalEnergy(VibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, LegacyVibrationalDriverResult)
+        cls._validate_input_type(result, LegacyVibrationalStructureDriverResult)
 
         w_h = cast(WatsonHamiltonian, result)
 

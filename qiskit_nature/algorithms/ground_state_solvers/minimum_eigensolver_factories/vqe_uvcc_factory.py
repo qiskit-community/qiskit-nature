@@ -26,7 +26,9 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization.vibrational import (
     VibrationalStructureProblem,
 )
-from qiskit_nature.properties.second_quantization.vibrational import VibrationalDriverResult
+from qiskit_nature.properties.second_quantization.vibrational import (
+    VibrationalStructureDriverResult,
+)
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -189,7 +191,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             by ``transformation``.
         """
 
-        basis = cast(VibrationalDriverResult, problem.properties_transformed).basis
+        basis = cast(VibrationalStructureDriverResult, problem.properties_transformed).basis
         num_modals = basis.num_modals_per_mode
         num_modes = len(num_modals)
 

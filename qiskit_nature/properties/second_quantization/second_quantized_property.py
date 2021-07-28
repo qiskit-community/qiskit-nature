@@ -24,9 +24,11 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from ..grouped_property import GroupedProperty
 from ..property import Property
 
-LegacyElectronicDriverResult = Union[QMolecule, LegacyQMolecule]
-LegacyVibrationalDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
-LegacyDriverResult = Union[LegacyElectronicDriverResult, LegacyVibrationalDriverResult]
+LegacyElectronicStructureDriverResult = Union[QMolecule, LegacyQMolecule]
+LegacyVibrationalStructureDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
+LegacyDriverResult = Union[
+    LegacyElectronicStructureDriverResult, LegacyVibrationalStructureDriverResult
+]
 
 
 class SecondQuantizedProperty(Property):

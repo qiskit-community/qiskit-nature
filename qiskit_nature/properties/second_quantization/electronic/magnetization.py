@@ -19,7 +19,7 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from .types import ElectronicProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 
 
 class Magnetization(ElectronicProperty):
@@ -52,7 +52,7 @@ class Magnetization(ElectronicProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
 
         qmol = cast(QMolecule, result)
 

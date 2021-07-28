@@ -98,9 +98,9 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         This transformer requires a `ParticleNumber` property and an `ElectronicBasisTransform`
         pseudo-property to be available as well as `ElectronicIntegrals` in the `ElectronicBasis.AO`
-        basis. An `ElectronicDriverResult` produced by Qiskit's drivers in general satisfies these
-        conditions unless it was read from an FCIDump file. However, those integrals are likely
-        already reduced by the code which produced the file.
+        basis. An `ElectronicStructureDriverResult` produced by Qiskit's drivers in general
+        satisfies these conditions unless it was read from an FCIDump file. However, those integrals
+        are likely already reduced by the code which produced the file.
 
         Args:
             num_electrons: The number of active electrons. If this is a tuple, it represents the

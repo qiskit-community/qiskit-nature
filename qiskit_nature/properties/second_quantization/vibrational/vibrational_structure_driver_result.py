@@ -10,22 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The VibrationalDriverResult class."""
+"""The VibrationalStructureDriverResult class."""
 
 from typing import List, cast
 
 from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
-from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
-from .bases import VibrationalBasis
+from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalStructureDriverResult
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
 
 
-class VibrationalDriverResult(GroupedVibrationalProperty):
-    """The VibrationalDriverResult class.
+class VibrationalStructureDriverResult(GroupedVibrationalProperty):
+    """The VibrationalStructureDriverResult class.
 
     This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects
     previously stored in Qiskit Nature's `WatsonHamiltonian` object.
@@ -48,20 +47,11 @@ class VibrationalDriverResult(GroupedVibrationalProperty):
         """Sets the num_modes."""
         self._num_modes = num_modes
 
-    @property
-    def basis(self) -> VibrationalBasis:
-        """Returns the basis."""
-        return list(self._properties.values())[0].basis
-
-    @basis.setter
-    def basis(self, basis: VibrationalBasis) -> None:
-        """Sets the basis."""
-        for prop in self._properties.values():
-            prop.basis = basis
-
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalDriverResult":
-        """Converts a WatsonHamiltonian into an `ElectronicDriverResult`.
+    def from_legacy_driver_result(
+        cls, result: LegacyDriverResult
+    ) -> "VibrationalStructureDriverResult":
+        """Converts a WatsonHamiltonian into an `ElectronicStructureDriverResult`.
 
         Args:
             result: the WatsonHamiltonian to convert.
@@ -72,7 +62,7 @@ class VibrationalDriverResult(GroupedVibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, LegacyVibrationalDriverResult)
+        cls._validate_input_type(result, LegacyVibrationalStructureDriverResult)
 
         ret = cls()
 

@@ -19,7 +19,7 @@ import numpy as np
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.results import EigenstateResult
 
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
@@ -128,7 +128,7 @@ class ElectronicEnergy(IntegralProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
 
         qmol = cast(QMolecule, result)
 

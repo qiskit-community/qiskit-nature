@@ -18,11 +18,11 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.properties.second_quantization.electronic import ElectronicDriverResult
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 
 
-# With Python 3.6 this false positive is being raised for the ElectronicDriverResult
+# With Python 3.6 this false positive is being raised for the ElectronicStructureDriverResult
 # pylint: disable=abstract-class-instantiated
 @ddt
 class TestFreezeCoreTransformer(QiskitNatureTestCase):
@@ -48,7 +48,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             )
         )
         q_molecule = driver.run()
-        driver_result = ElectronicDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
 
         # The references which we compare too were produced by the `ActiveSpaceTransformer` and,
         # thus, the key here needs to stay the same as in that test case.
@@ -71,7 +71,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             )
         )
         q_molecule = driver.run()
-        driver_result = ElectronicDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
 
         trafo = FreezeCoreTransformer(freeze_core=True)
         driver_result_reduced = trafo.transform(driver_result)
@@ -82,7 +82,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             )
         ).run()
         expected_qmol.num_molecular_orbitals = 4
-        expected = ElectronicDriverResult.from_legacy_driver_result(expected_qmol)
+        expected = ElectronicStructureDriverResult.from_legacy_driver_result(expected_qmol)
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
 
@@ -94,7 +94,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             )
         )
         q_molecule = driver.run()
-        driver_result = ElectronicDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
 
         trafo = FreezeCoreTransformer(freeze_core=True, remove_orbitals=[4, 5])
         driver_result_reduced = trafo.transform(driver_result)
@@ -105,7 +105,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             )
         ).run()
         expected_qmol.num_molecular_orbitals = 3
-        expected = ElectronicDriverResult.from_legacy_driver_result(expected_qmol)
+        expected = ElectronicStructureDriverResult.from_legacy_driver_result(expected_qmol)
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
 

@@ -19,7 +19,7 @@ from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
+from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalStructureDriverResult
 
 
 class OccupiedModals(VibrationalProperty):
@@ -51,7 +51,7 @@ class OccupiedModals(VibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, LegacyVibrationalDriverResult)
+        cls._validate_input_type(result, LegacyVibrationalStructureDriverResult)
 
         return cls()
 
