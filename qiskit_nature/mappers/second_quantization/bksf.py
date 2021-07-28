@@ -242,8 +242,7 @@ def _double_excitation(  # pylint: disable=invalid-name
         + b_p * b_q * b_r * b_s  ## Agrees with SW2018 eq 37 and OpenFermion. Aqua had `-`.
     )
     final_coeff = 0.125
-    qubit_op = (final_coeff * h2_pqrs) * qubit_op
-    return qubit_op
+    return (final_coeff * h2_pqrs) * qubit_op
 
 
 def _number_excitation(  # pylint: disable=invalid-name
