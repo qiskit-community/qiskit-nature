@@ -185,8 +185,7 @@ def _number_operator(  # pylint: disable=invalid-name
 ) -> SparsePauliOp:
     b_p = edge_operator_bi(edge_list, p)
     id_op = _pauli_id(edge_list.shape[1])
-    qubit_op = (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
-    return qubit_op
+    return (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
 
 
 ## SW2018 eq 34
