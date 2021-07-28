@@ -17,7 +17,6 @@ from typing import List, cast
 from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
-from ..driver_metadata import DriverMetadata
 from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
 from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
@@ -25,8 +24,6 @@ from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
 
 
-# Pylint<2.9.0 raises false-positive no-member errors (E1101) for abstract properties
-# pylint: disable=no-member
 class VibrationalDriverResult(GroupedVibrationalProperty):
     """The VibrationalDriverResult class.
 

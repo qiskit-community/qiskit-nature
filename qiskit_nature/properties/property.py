@@ -55,3 +55,14 @@ class Property(ABC):
             result: the result to add meaning to.
         """
         raise NotImplementedError()
+
+
+class PseudoProperty(Property, ABC):
+    """The PseudoProperty type.
+
+    A pseudo-property is a type derived by auxiliary property-related meta data.
+    """
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """A PseudoProperty cannot interpret anything."""
+        pass

@@ -56,7 +56,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        return self._driver_result_transformed.get_property("ParticleNumber").num_particles
+        return self._properties_transformed.get_property("ParticleNumber").num_particles
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -70,14 +70,14 @@ class ElectronicStructureProblem(BaseProblem):
         self._molecule_data = cast(QMolecule, self.driver.run())
         if self._legacy_transform:
             qmol_transformed = self._transform(self._molecule_data)
-            self._driver_result_transformed = ElectronicDriverResult.from_legacy_driver_result(
+            self._properties_transformed = ElectronicDriverResult.from_legacy_driver_result(
                 qmol_transformed
             )
         else:
             prop = ElectronicDriverResult.from_legacy_driver_result(self._molecule_data)
-            self._driver_result_transformed = self._transform(prop)
+            self._properties_transformed = self._transform(prop)
 
-        second_quantized_ops_list = self._driver_result_transformed.second_q_ops()
+        second_quantized_ops_list = self._properties_transformed.second_q_ops()
 
         return second_quantized_ops_list
 
@@ -147,7 +147,7 @@ class ElectronicStructureProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self._driver_result_transformed.interpret(result)
+        self._properties_transformed.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         return result
 
@@ -169,7 +169,7 @@ class ElectronicStructureProblem(BaseProblem):
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
             particle_number = cast(
-                ParticleNumber, self.driver_result_transformed.get_property(ParticleNumber)
+                ParticleNumber, self.properties_transformed.get_property(ParticleNumber)
             )
             return (
                 np.isclose(

@@ -13,7 +13,7 @@
 """The SecondQuantizedProperty base class."""
 
 from abc import abstractmethod
-from typing import Any, List, Union
+from typing import Any, List, TypeVar, Union
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule as LegacyQMolecule
@@ -21,6 +21,7 @@ from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
+from ..grouped_property import GroupedProperty
 from ..property import Property
 
 LegacyElectronicDriverResult = Union[QMolecule, LegacyQMolecule]
@@ -85,3 +86,15 @@ class SecondQuantizedProperty(Property):
                 "Please provide an object of any of these types instead: "
                 f"{typ.__name__ for typ in valid_type.__args__}"
             )
+
+
+# pylint: disable=invalid-name
+T = TypeVar("T", bound=SecondQuantizedProperty, covariant=True)
+
+
+class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty):
+    """A GroupedProperty subtype containing purely second-quantized properties."""
+
+    @abstractmethod
+    def second_q_ops(self) -> List[SecondQuantizedOp]:
+        """Returns the list of `FermioncOp`s given by the properties contained in this one."""

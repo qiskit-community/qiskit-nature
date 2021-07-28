@@ -15,8 +15,8 @@
 from typing import Optional, TypeVar
 
 from qiskit_nature import QiskitNatureError
-from ...grouped_property import GroupedProperty
-from ..second_quantized_property import SecondQuantizedProperty
+from ...property import PseudoProperty
+from ..second_quantized_property import SecondQuantizedProperty, GroupedSecondQuantizedProperty
 
 
 class ElectronicProperty(SecondQuantizedProperty):
@@ -24,10 +24,10 @@ class ElectronicProperty(SecondQuantizedProperty):
 
 
 # pylint: disable=invalid-name
-T = TypeVar("T", bound=ElectronicProperty)
+T = TypeVar("T", bound=ElectronicProperty, covariant=True)
 
 
-class GroupedElectronicProperty(GroupedProperty[T], ElectronicProperty):
+class GroupedElectronicProperty(GroupedSecondQuantizedProperty[T], ElectronicProperty):
     """A GroupedProperty subtype containing purely electronic properties."""
 
     def add_property(self, prop: Optional[T]) -> None:
@@ -40,7 +40,7 @@ class GroupedElectronicProperty(GroupedProperty[T], ElectronicProperty):
             QiskitNatureError: if the added property is not an electronic one.
         """
         if prop is not None:
-            if not isinstance(prop, ElectronicProperty):
+            if not isinstance(prop, (ElectronicProperty, PseudoProperty)):
                 raise QiskitNatureError(
                     f"{prop.__class__.__name__} is not an instance of `ElectronicProperty`, which "
                     "it must be in order to be added to an `GroupedElectronicProperty`!"

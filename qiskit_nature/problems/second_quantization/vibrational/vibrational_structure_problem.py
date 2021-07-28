@@ -62,9 +62,9 @@ class VibrationalStructureProblem(BaseProblem):
         """
         self._molecule_data: WatsonHamiltonian = cast(WatsonHamiltonian, self.driver.run())
         prop = VibrationalDriverResult.from_legacy_driver_result(self._molecule_data)
-        self._driver_result_transformed = cast(VibrationalDriverResult, self._transform(prop))
+        self._properties_transformed = cast(VibrationalDriverResult, self._transform(prop))
 
-        num_modes = self._driver_result_transformed.num_modes
+        num_modes = self._properties_transformed.num_modes
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * num_modes
         else:
@@ -72,9 +72,9 @@ class VibrationalStructureProblem(BaseProblem):
 
         # TODO: expose this as an argument in __init__
         basis = HarmonicBasis(num_modals)
-        self._driver_result_transformed.basis = basis
+        self._properties_transformed.basis = basis
 
-        second_quantized_ops_list = self._driver_result_transformed.second_q_ops()
+        second_quantized_ops_list = self._properties_transformed.second_q_ops()
 
         return second_quantized_ops_list
 
@@ -115,7 +115,7 @@ class VibrationalStructureProblem(BaseProblem):
 
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * cast(
-                VibrationalDriverResult, self._driver_result_transformed
+                VibrationalDriverResult, self._properties_transformed
             ).num_modes
         else:
             num_modals = self.num_modals
@@ -149,7 +149,7 @@ class VibrationalStructureProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = VibrationalStructureResult()
         result.combine(eigenstate_result)
-        self._driver_result_transformed.interpret(result)
+        self._properties_transformed.interpret(result)
         result.computed_vibrational_energies = eigenstate_result.eigenenergies
         return result
 

@@ -61,7 +61,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         _ = problem.second_q_ops()
 
         particle_number = cast(
-            ParticleNumber, problem.driver_result_transformed.get_property(ParticleNumber)
+            ParticleNumber, problem.properties_transformed.get_property(ParticleNumber)
         )
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals

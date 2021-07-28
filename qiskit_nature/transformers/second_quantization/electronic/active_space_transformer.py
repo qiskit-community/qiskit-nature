@@ -21,19 +21,20 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties import GroupedProperty, Property
-from qiskit_nature.properties.second_quantization import DriverResult, SecondQuantizedProperty
+from qiskit_nature.properties.second_quantization import (
+    SecondQuantizedProperty,
+    GroupedSecondQuantizedProperty,
+)
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.properties.second_quantization.electronic.electronic_driver_result import (
-    ElectronicDriverResult,
-)
 from qiskit_nature.properties.second_quantization.electronic.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
 )
+from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
 from qiskit_nature.results import ElectronicStructureResult
 
 from ..base_transformer import BaseTransformer
@@ -92,14 +93,14 @@ class ActiveSpaceTransformer(BaseTransformer):
         num_molecular_orbitals: Optional[int] = None,
         active_orbitals: Optional[List[int]] = None,
     ):
-        """Initializes a transformer which can reduce an `ElectronicDriverResult` to a configured
+        """Initializes a transformer which can reduce a `GroupedElectronicProperty` to a configured
         active space.
 
-        This transformer requires a `ParticleNumber` property to be available as well as
-        `ElectronicIntegrals` in the `ElectronicBasis.AO` basis. An `ElectronicDriverResult`
-        produced by Qiskit's drivers in general satisfies these conditions unless it was read from
-        an FCIDump file. However, those integrals are likely already reduced by the code which
-        produced the file.
+        This transformer requires a `ParticleNumber` property and an `ElectronicBasisTransform`
+        pseudo-property to be available as well as `ElectronicIntegrals` in the `ElectronicBasis.AO`
+        basis. An `ElectronicDriverResult` produced by Qiskit's drivers in general satisfies these
+        conditions unless it was read from an FCIDump file. However, those integrals are likely
+        already reduced by the code which produced the file.
 
         Args:
             num_electrons: The number of active electrons. If this is a tuple, it represents the
@@ -168,36 +169,43 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-    def transform(
-        self, molecule_data: DriverResult[SecondQuantizedProperty]
-    ) -> ElectronicDriverResult:
-        """Reduces the given `ElectronicDriverResult` to a given active space.
+    def transform(self, molecule_data: GroupedSecondQuantizedProperty) -> GroupedElectronicProperty:
+        """Reduces the given `GroupedElectronicProperty` to a given active space.
 
         Args:
-            molecule_data: the `ElectronicDriverResult` to be transformed.
+            molecule_data: the `GroupedElectronicProperty` to be transformed.
 
         Returns:
-            A new `ElectronicDriverResult` instance.
+            A new `GroupedElectronicProperty` instance.
 
         Raises:
-            QiskitNatureError: If the provided `ElectronicDriverResult` does not contain a
-                               `ParticleNumber` instance, if more electrons or orbitals are
-                               requested than are available, or if the number of selected active
-                               orbital indices does not match `num_molecular_orbitals`.
+            QiskitNatureError: If the provided `GroupedElectronicProperty` does not contain a
+                               `ParticleNumber` or `ElectronicBasisTransform` instance, if more
+                               electrons or orbitals are requested than are available, or if the
+                               number of selected active orbital indices does not match
+                               `num_molecular_orbitals`.
         """
-        if not isinstance(molecule_data, ElectronicDriverResult):
+        if not isinstance(molecule_data, GroupedElectronicProperty):
             raise QiskitNatureError(
-                "Only `ElectronicDriverResult` objects can be transformed by this Transformer, not "
-                f"objects of type, {type(molecule_data)}."
+                "Only `GroupedElectronicProperty` objects can be transformed by this Transformer, "
+                f"not objects of type, {type(molecule_data)}."
             )
 
         particle_number = molecule_data.get_property(ParticleNumber)
         if particle_number is None:
             raise QiskitNatureError(
-                "The provided `ElectronicDriverResult` result does not contain a `ParticleNumber` "
+                "The provided `GroupedElectronicProperty` does not contain a `ParticleNumber` "
                 "property, which is required by this transformer!"
             )
         particle_number = cast(ParticleNumber, particle_number)
+
+        electronic_basis_transform = molecule_data.get_property(ElectronicBasisTransform)
+        if electronic_basis_transform is None:
+            raise QiskitNatureError(
+                "The provided `GroupedElectronicProperty` does not contain an "
+                "`ElectronicBasisTransform` property, which is required by this transformer!"
+            )
+        electronic_basis_transform = cast(ElectronicBasisTransform, electronic_basis_transform)
 
         # get molecular orbital occupation numbers
         occupation_alpha = particle_number.occupation_alpha
@@ -208,8 +216,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(molecule_data)
 
         # get molecular orbital coefficients
-        coeff_alpha = molecule_data.electronic_basis_transform.coeff_alpha
-        coeff_beta = molecule_data.electronic_basis_transform.coeff_beta
+        coeff_alpha = electronic_basis_transform.coeff_alpha
+        coeff_beta = electronic_basis_transform.coeff_beta
 
         # initialize size-reducing basis transformation
         self._transform_active = ElectronicBasisTransform(
@@ -234,7 +242,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             ),
         )
 
-        # construct new ElectronicDriverResult
+        # construct new GroupedElectronicProperty
         molecule_data_reduced = ElectronicStructureResult()
         molecule_data_reduced.electronic_basis_transform = self._transform_active
         molecule_data_reduced = self._transform_property(molecule_data)  # type: ignore
@@ -242,12 +250,12 @@ class ActiveSpaceTransformer(BaseTransformer):
         return molecule_data_reduced
 
     def _determine_active_space(
-        self, molecule_data: ElectronicDriverResult
+        self, molecule_data: GroupedElectronicProperty
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            molecule_data: the `ElectronicDriverResult` to be transformed.
+            molecule_data: the `GroupedElectronicProperty` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.

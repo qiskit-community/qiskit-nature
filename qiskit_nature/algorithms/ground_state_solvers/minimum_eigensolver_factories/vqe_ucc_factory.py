@@ -190,7 +190,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             A VQE suitable to compute the ground state of the molecule transformed
             by ``transformation``.
         """
-        driver_result = problem.driver_result_transformed
+        driver_result = problem.properties_transformed
         particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
         num_spin_orbitals = particle_number.num_spin_orbitals
         num_particles = particle_number.num_alpha, particle_number.num_beta

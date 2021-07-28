@@ -16,10 +16,10 @@ from collections.abc import Iterable
 from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
 
 from qiskit_nature.results import EigenstateResult
-from .property import Property
+from .property import Property, PseudoProperty
 
 # pylint: disable=invalid-name
-T = TypeVar("T", bound=Property)
+T = TypeVar("T", bound=Property, covariant=True)
 
 
 class GroupedProperty(Property, Iterable, Generic[T]):
@@ -72,9 +72,13 @@ class GroupedProperty(Property, Iterable, Generic[T]):
     def _generator(self) -> Generator[T, T, None]:
         """A generator-iterator method [1] iterating over all internal properties.
 
+        `PseudoProperty` objects are automatically excluded.
+
         [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
         """
         for prop in self._properties.values():
+            if isinstance(prop, PseudoProperty):
+                continue
             new_property = yield prop
             if new_property is not None:
                 self.add_property(new_property)

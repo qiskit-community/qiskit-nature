@@ -12,9 +12,11 @@
 
 """The Freeze-Core Reduction interface."""
 
-from typing import List, Optional, Tuple
+from typing import cast, List, Optional, Tuple
 
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicDriverResult
+from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
 
 from .active_space_transformer import ActiveSpaceTransformer
 
@@ -57,7 +59,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         pass
 
     def _determine_active_space(
-        self, molecule_data: ElectronicDriverResult
+        self, molecule_data: GroupedElectronicProperty
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
@@ -66,7 +68,18 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         Returns:
             The list of active and inactive orbital indices.
+
+        Raises:
+            QiskitNatureError: if a GroupedElectronicProperty is provided which is not also an
+                               ElectronicElectronicDriverResult.
         """
+        if not isinstance(molecule_data, ElectronicDriverResult):
+            raise QiskitNatureError(
+                "The FreezeCoreTransformer requires an `ElectronicDriverResult`, not a property of "
+                f"type {type(molecule_data)}."
+            )
+        molecule_data = cast(ElectronicDriverResult, molecule_data)
+
         molecule = molecule_data.molecule
         particle_number = molecule_data.get_property("ParticleNumber")
 

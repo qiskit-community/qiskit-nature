@@ -69,7 +69,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         second_q_ops = problem.second_q_ops()
         main_op = second_q_ops[0]
 
-        particle_number = problem.driver_result_transformed.get_property("ParticleNumber")
+        particle_number = problem.properties_transformed.get_property("ParticleNumber")
 
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals

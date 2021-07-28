@@ -16,8 +16,8 @@ from typing import Optional, TypeVar
 
 from qiskit_nature import QiskitNatureError
 from .bases import VibrationalBasis
-from ...grouped_property import GroupedProperty
-from ..second_quantized_property import SecondQuantizedProperty
+from ...property import PseudoProperty
+from ..second_quantized_property import SecondQuantizedProperty, GroupedSecondQuantizedProperty
 
 
 class VibrationalProperty(SecondQuantizedProperty):
@@ -57,7 +57,7 @@ class VibrationalProperty(SecondQuantizedProperty):
 T = TypeVar("T", bound=VibrationalProperty)
 
 
-class GroupedVibrationalProperty(GroupedProperty[T], VibrationalProperty):
+class GroupedVibrationalProperty(GroupedSecondQuantizedProperty[T], VibrationalProperty):
     """A GroupedProperty subtype containing purely vibrational properties."""
 
     def add_property(self, prop: Optional[T]) -> None:
@@ -70,7 +70,7 @@ class GroupedVibrationalProperty(GroupedProperty[T], VibrationalProperty):
             QiskitNatureError: if the added property is not an vibrational one.
         """
         if prop is not None:
-            if not isinstance(prop, VibrationalProperty):
+            if not isinstance(prop, (VibrationalProperty, PseudoProperty)):
                 raise QiskitNatureError(
                     f"{prop.__class__.__name__} is not an instance of `VibrationalProperty`, which "
                     "it must be in order to be added to an `GroupedVibrationalProperty`!"

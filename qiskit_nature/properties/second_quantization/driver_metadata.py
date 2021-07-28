@@ -12,17 +12,20 @@
 
 """The DriverMetadata class."""
 
+from ..property import PseudoProperty
 
-class DriverMetadata:
+
+class DriverMetadata(PseudoProperty):
     """A meta-data storage container for driver information."""
 
-    def __init__(self, name: str, version: str, config: str) -> None:
+    def __init__(self, program: str, version: str, config: str) -> None:
         """
         Args:
-            name: the name of the classical code run by the driver.
+            program: the name of the classical code run by the driver.
             version: the version of the classical code.
             config: the configuration of the classical code.
         """
-        self.name = name
+        super().__init__(self.__class__.__name__)
+        self.program = program
         self.version = version
         self.config = config

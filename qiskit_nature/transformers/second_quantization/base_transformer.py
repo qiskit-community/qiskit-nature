@@ -15,23 +15,25 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from qiskit_nature.properties.second_quantization import DriverResult, SecondQuantizedProperty
+from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 
 
 class BaseTransformer(ABC):
-    """The interface for implementing methods which map from one `DriverResult` to another.
+    """The interface for implementing methods which map from one `GroupedProperty` to another.
     These methods may or may not affect the size of the Hilbert space.
     """
 
     @abstractmethod
-    def transform(self, molecule_data: DriverResult[SecondQuantizedProperty]):
-        """Transforms one `DriverResult` into another one. This may or may not affect the size of
+    def transform(
+        self, molecule_data: GroupedSecondQuantizedProperty
+    ) -> GroupedSecondQuantizedProperty:
+        """Transforms one `GroupedProperty` into another one. This may or may not affect the size of
         the Hilbert space.
 
         Args:
-            molecule_data: the `DriverResult` to be transformed.
+            molecule_data: the `GroupedProperty` to be transformed.
 
         Returns:
-            A new `DriverResult` instance.
+            A new `GroupedProperty` instance.
         """
         raise NotImplementedError()

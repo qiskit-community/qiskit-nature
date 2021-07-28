@@ -41,9 +41,7 @@ class ElectronicDriverResult(GroupedElectronicProperty):
         Property objects should be added via `add_property` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
-        self.driver_metadata: DriverMetadata = None
         self.molecule: Molecule = None
-        self.electronic_basis_transform: ElectronicBasisTransform = None
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicDriverResult":
@@ -70,8 +68,10 @@ class ElectronicDriverResult(GroupedElectronicProperty):
         ret.add_property(Magnetization.from_legacy_driver_result(qmol))
         ret.add_property(ElectronicDipoleMoment.from_legacy_driver_result(qmol))
 
-        ret.electronic_basis_transform = ElectronicBasisTransform(
-            ElectronicBasis.AO, ElectronicBasis.MO, qmol.mo_coeff, qmol.mo_coeff_b
+        ret.add_property(
+            ElectronicBasisTransform(
+                ElectronicBasis.AO, ElectronicBasis.MO, qmol.mo_coeff, qmol.mo_coeff_b
+            )
         )
 
         geometry: List[Tuple[str, List[float]]] = []
@@ -80,10 +80,12 @@ class ElectronicDriverResult(GroupedElectronicProperty):
 
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
-        ret.driver_metadata = DriverMetadata(
-            qmol.origin_driver_name,
-            qmol.origin_driver_version,
-            qmol.origin_driver_config,
+        ret.add_property(
+            DriverMetadata(
+                qmol.origin_driver_name,
+                qmol.origin_driver_version,
+                qmol.origin_driver_config,
+            )
         )
 
         return ret

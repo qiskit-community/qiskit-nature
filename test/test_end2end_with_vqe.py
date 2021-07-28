@@ -43,8 +43,8 @@ class TestEnd2End(QiskitNatureTestCase):
         second_q_ops = problem.second_q_ops()
         converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
         num_particles = (
-            problem.driver_result_transformed.get_property("ParticleNumber").num_alpha,
-            problem.driver_result_transformed.get_property("ParticleNumber").num_beta,
+            problem.properties_transformed.get_property("ParticleNumber").num_alpha,
+            problem.properties_transformed.get_property("ParticleNumber").num_beta,
         )
         self.qubit_op = converter.convert(second_q_ops[0], num_particles)
         self.aux_ops = converter.convert_match(second_q_ops[1:])
