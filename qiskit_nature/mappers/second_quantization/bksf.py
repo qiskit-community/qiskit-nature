@@ -407,7 +407,7 @@ def _add_edges_for_term(edge_matrix: np.ndarray, term_str: str) -> None:
         if len(inds) != 2:
             raise ValueError("wrong number or raising and lowering: ", len(inds))
         _add_one_edge(edge_matrix, *inds)
-    # For `double_excitation` create an edge between the two `+`s and edge between the two `-`s.
+    # For `double_excitation` create an edge between the two `+`s and an edge between the two `-`s.
     elif _type == TermType.DOUBLE_EXCITATION:
         raise_inds = [i for (i, c) in facs if c == "+"]
         lower_inds = [i for (i, c) in facs if c == "-"]
