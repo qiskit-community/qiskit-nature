@@ -96,7 +96,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
 
             def get_solver(self, problem, qubit_converter):
                 particle_number = cast(
-                    ParticleNumber, problem.driver_result_transformed.get_property(ParticleNumber)
+                    ParticleNumber, problem.properties_transformed.get_property(ParticleNumber)
                 )
                 num_spin_orbitals = particle_number.num_spin_orbitals
                 num_particles = (particle_number.num_alpha, particle_number.num_beta)

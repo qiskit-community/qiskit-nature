@@ -406,7 +406,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             active_occ_beta = p_n.occupation_beta[self._active_orbs_indices]
             transformed_property = ParticleNumber(
                 len(self._active_orbs_indices) * 2,
-                (sum(active_occ_alpha), sum(active_occ_beta)),
+                (int(sum(active_occ_alpha)), int(sum(active_occ_beta))),
                 active_occ_alpha,
                 active_occ_beta,
             )
