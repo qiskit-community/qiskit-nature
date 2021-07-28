@@ -200,8 +200,7 @@ def _coulomb_exchange(  # pylint: disable=invalid-name
         final_coeff = 0.25
     else:  # one commutation
         final_coeff = -0.25
-    qubit_op = (final_coeff * h2_pqrs) * qubit_op
-    return qubit_op
+    return (final_coeff * h2_pqrs) * qubit_op
 
 
 ## SW2018 eq 35
