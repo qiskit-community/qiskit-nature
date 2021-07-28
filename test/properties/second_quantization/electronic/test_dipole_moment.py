@@ -60,10 +60,10 @@ class TestElectronicDipoleMoment(QiskitNatureTestCase):
 class TestDipoleMoment(QiskitNatureTestCase):
     """Test DipoleMoment Property"""
 
-    def test_matrix_operator(self):
-        """Test matrix_operator."""
+    def test_integral_operator(self):
+        """Test integral_operator."""
         random = np.random.random((4, 4))
         prop = DipoleMoment("x", [OneBodyElectronicIntegrals(ElectronicBasis.AO, (random, None))])
-        matrix_op = prop.matrix_operator(None)
+        matrix_op = prop.integral_operator(None)
         # the matrix-operator of the dipole moment is unaffected by the density!
         self.assertTrue(np.allclose(random, matrix_op._matrices[0]))

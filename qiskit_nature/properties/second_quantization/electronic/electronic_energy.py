@@ -177,24 +177,22 @@ class ElectronicEnergy(IntegralProperty):
 
         return ret
 
-    def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """Constructs the operator of this property in matrix-format for a given density.
-
-        An IntegralProperty typically represents an observable which can be expressed in terms of a
-        matrix-formatted operator at a given electronic density. This method must be implemented by
-        a subclass to provide this functionality.
+    def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
+        """Constructs the Fock operator resulting from this `ElectronicEnergy`.
 
         Args:
-            density: the electronic density at which to compute the matrix operator.
+            density: the electronic density at which to compute the operator.
 
         Returns:
-            OneBodyElectronicIntegrals: the matrix-formatted operator stored as ElectronicIntegrals.
+            OneBodyElectronicIntegrals: the operator stored as ElectronicIntegrals.
 
         Raises:
-            NotImplementedError: if no AO-integrals are stored within `self`.
+            NotImplementedError: if no AO electronic integrals are available.
         """
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
-            raise NotImplementedError()
+            raise NotImplementedError(
+                "Construction of the Fock operator outside of the AO basis is not yet implemented."
+            )
 
         one_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 1)
         two_e_ints = cast(

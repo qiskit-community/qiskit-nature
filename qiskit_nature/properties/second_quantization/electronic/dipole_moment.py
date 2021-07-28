@@ -52,24 +52,26 @@ class DipoleMoment(IntegralProperty):
         name = self.__class__.__name__ + axis.upper()
         super().__init__(name, electronic_integrals, shift=shift)
 
-    def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """Constructs the operator of this property in matrix-format for a given density.
+    def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
+        """Returns the AO 1-electron integrals.
 
-        An IntegralProperty typically represents an observable which can be expressed in terms of a
-        matrix-formatted operator at a given electronic density. This method must be implemented by
-        a subclass to provide this functionality.
+        The operator for a dipole moment is simply given by the 1-electron integrals and does not
+        require the density for its construction.
 
         Args:
-            density: the electronic density at which to compute the matrix operator.
+            density: the electronic density at which to compute the operator.
 
         Returns:
-            OneBodyElectronicIntegrals: the matrix-formatted operator stored as ElectronicIntegrals.
+            OneBodyElectronicIntegrals: the operator stored as ElectronicIntegrals.
 
         Raises:
-            NotImplementedError: if no AO-integrals are stored within `self`.
+            NotImplementedError: if no AO electronic integrals are available.
         """
         if ElectronicBasis.AO not in self._electronic_integrals.keys():
-            raise NotImplementedError()
+            raise NotImplementedError(
+                "Construction of the DipoleMoment's integral operator without AO integrals is not "
+                "yet implemented."
+            )
 
         return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 

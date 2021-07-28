@@ -57,14 +57,14 @@ class TestElectronicEnergy(QiskitNatureTestCase):
             self.assertEqual(op[0], expected_op[0])
             self.assertTrue(np.isclose(op[1], expected_op[1]))
 
-    def test_matrix_operator(self):
-        """Test matrix_operator."""
+    def test_integral_operator(self):
+        """Test integral_operator."""
         # duplicate MO integrals into AO basis for this test
         trafo = ElectronicBasisTransform(ElectronicBasis.MO, ElectronicBasis.AO, np.eye(2))
         self.prop.transform_basis(trafo)
 
         density = OneBodyElectronicIntegrals(ElectronicBasis.AO, (0.5 * np.eye(2), None))
-        matrix_op = self.prop.matrix_operator(density)
+        matrix_op = self.prop.integral_operator(density)
 
         expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])
         self.assertTrue(np.allclose(matrix_op._matrices[0], expected))

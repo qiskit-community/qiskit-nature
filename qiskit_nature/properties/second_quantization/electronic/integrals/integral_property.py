@@ -101,20 +101,27 @@ class IntegralProperty(ElectronicProperty):
         for integral in self._electronic_integrals[transform.initial_basis].values():
             self.add_electronic_integral(integral.transform_basis(transform))
 
-    def matrix_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """Constructs the operator of this property in matrix-format for a given density.
+    def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
+        """Constructs the operator of this property in integral-format for a given density.
 
         An IntegralProperty typically represents an observable which can be expressed in terms of a
-        matrix-formatted operator at a given electronic density. This method must be implemented by
-        a subclass to provide this functionality.
+        matrix-formatted operator at a given electronic density. In the Property framework the
+        generic representation of such are `ElectronicIntegrals`.
 
         Args:
-            density: the electronic density at which to compute the matrix operator.
+            density: the electronic density at which to compute the operator.
 
         Returns:
-            OneBodyElectronicIntegrals: the matrix-formatted operator stored as ElectronicIntegrals.
+            OneBodyElectronicIntegrals: the operator stored as ElectronicIntegrals.
+
+        Raises:
+            NotImplementedError: this method is not implemented by the base class. It cannot be made
+                                 abstract because we need other functionality of the base class
+                                 available on its own.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"The {self.__class__.__name__}.integral_operator is not implemented!"
+        )
 
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""

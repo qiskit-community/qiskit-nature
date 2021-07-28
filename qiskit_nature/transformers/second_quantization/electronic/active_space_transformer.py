@@ -386,7 +386,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         elif isinstance(prop, IntegralProperty):
             # get matrix operator of IntegralProperty
-            fock_operator = prop.matrix_operator(self._density_inactive)
+            fock_operator = prop.integral_operator(self._density_inactive)
             # the total operator equals the AO-1-body-term + the inactive matrix operator
             total_op = prop.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
             # compute the energy shift introduced by the ActiveSpaceTransformer
