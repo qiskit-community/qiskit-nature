@@ -378,7 +378,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     operator `fer_op`.
 
     The graph is undirected, so we choose to return the edges in the upper triangle.
-    (There are no self edges.). The lower triangle are all `False`.
+    (There are no self edges.) The lower triangle entries are all `False`.
 
     Returns:
           numpy.ndarray(dtype=bool): edge_matrix the adjacency matrix.
