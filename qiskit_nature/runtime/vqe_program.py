@@ -129,7 +129,8 @@ class VQEProgram(MinimumEigensolver):
         else:
             if "name" not in optimizer.keys():
                 raise ValueError(
-                    "The optimizer dictionary must contain a ``name`` key specifying the type of the optimizer."
+                    "The optimizer dictionary must contain a ``name`` key specifying the type "
+                    "of the optimizer."
                 )
 
             _validate_optimizer_settings(optimizer)

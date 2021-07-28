@@ -36,10 +36,7 @@ class TestVQEProgram(QiskitNatureTestCase):
         super().setUp()
         self.provider = FakeRuntimeProvider()
 
-    @data(
-        {"name": "SPSA", "maxiter": 100},
-        SPSA(maxiter=100)
-    )
+    @data({"name": "SPSA", "maxiter": 100}, SPSA(maxiter=100))
     def test_standard_case(self, optimizer):
         """Test a standard use case."""
         circuit = RealAmplitudes(3)
