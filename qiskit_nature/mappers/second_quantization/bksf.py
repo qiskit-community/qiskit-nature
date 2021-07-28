@@ -215,8 +215,7 @@ def _excitation_operator(  # pylint: disable=invalid-name
     b_a = edge_operator_bi(edge_list, p)
     b_b = edge_operator_bi(edge_list, q)
     a_ab = edge_operator_aij(edge_list, p, q)
-    qubit_op = (-1j * 0.5 * h1_pq) * ((b_b & a_ab) + (a_ab & b_a))
-    return qubit_op
+    return (-1j * 0.5 * h1_pq) * ((b_b & a_ab) + (a_ab & b_a))
 
 
 ## SW2018 eq 37
