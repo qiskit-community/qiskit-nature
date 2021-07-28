@@ -403,7 +403,7 @@ def _add_edges_for_term(edge_matrix: np.ndarray, term_str: str) -> None:
     """
     (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
     _type = _interaction_type(n_number, n_raise, n_lower)
-    # For EXCITATION and NUMBER_EXCITATION, create and edge between the `+` and `-`.
+    # For EXCITATION and NUMBER_EXCITATION, create an edge between the `+` and `-`.
     if _type in (TermType.EXCITATION, TermType.NUMBER_EXCITATION):
         inds = [i for (i, c) in facs if c in "+-"]
         if len(inds) != 2:
