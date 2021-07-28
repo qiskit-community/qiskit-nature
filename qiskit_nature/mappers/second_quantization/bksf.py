@@ -369,7 +369,7 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
     elif n_raise == 2 and n_lower == 2:
         return TermType.DOUBLE_EXCITATION
     else:
-        raise ValueError("unexpected number of operators: ", n_number)
+        raise ValueError(f"n_raise ({n_raise}) not equal to n_lower ({n_lower})")
 
 
 def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
