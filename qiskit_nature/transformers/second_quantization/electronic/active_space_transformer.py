@@ -400,8 +400,20 @@ class ActiveSpaceTransformer(BaseTransformer):
             # insert the energy shift
             transformed_property._shift[self.__class__.__name__] = e_inactive
 
+        elif isinstance(prop, ParticleNumber):
+            p_n = cast(ParticleNumber, prop)
+            active_occ_alpha = p_n.occupation_alpha[self._active_orbs_indices]
+            active_occ_beta = p_n.occupation_beta[self._active_orbs_indices]
+            transformed_property = ParticleNumber(
+                len(self._active_orbs_indices) * 2,
+                (sum(active_occ_alpha), sum(active_occ_beta)),
+                active_occ_alpha,
+                active_occ_beta,
+            )
+
         elif isinstance(prop, SecondQuantizedProperty):
-            transformed_property = prop.reduce_system_size(self._active_orbs_indices)
+            transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
+
         else:
             raise TypeError(f"{type(prop)} is an unsupported Property-type for this Transformer!")
 

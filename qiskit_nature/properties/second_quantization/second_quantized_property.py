@@ -41,20 +41,6 @@ class SecondQuantizedProperty(Property):
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns the (list of) second quantized operators associated with this Property."""
 
-    def reduce_system_size(self, active_orbital_indices: List[int]) -> "SecondQuantizedProperty":
-        """Reduces the system size to a subset of active orbitals.
-
-        Args:
-            active_orbital_indices: the list of active orbital indices.
-
-        Returns:
-            A new SecondQuantizedProperty of the reduced size.
-
-        Raises:
-            A NotImplementedError if this property does not implement this kind-of reduction.
-        """
-        raise NotImplementedError()
-
     @classmethod
     @abstractmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":

@@ -60,17 +60,6 @@ class Magnetization(ElectronicProperty):
             qmol.num_molecular_orbitals * 2,
         )
 
-    def reduce_system_size(self, active_orbital_indices: List[int]) -> "Magnetization":
-        """Reduces the system size to a subset of active orbitals.
-
-        Args:
-            active_orbital_indices: the list of active orbital indices.
-
-        Returns:
-            A new Magnetization property instance of the reduced size.
-        """
-        return Magnetization(len(active_orbital_indices) * 2)
-
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the magnetization operator."""
         op = FermionicOp(

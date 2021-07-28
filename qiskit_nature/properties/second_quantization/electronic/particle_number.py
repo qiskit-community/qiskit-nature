@@ -143,26 +143,6 @@ class ParticleNumber(ElectronicProperty):
             qmol.mo_occ_b,
         )
 
-    def reduce_system_size(self, active_orbital_indices: List[int]) -> "ParticleNumber":
-        """Reduces the system size to a subset of active orbitals.
-
-        Args:
-            active_orbital_indices: the list of active orbital indices.
-
-        Returns:
-            A new ParticleNumber property instance of the reduced size.
-        """
-        active_occ_alpha = self.occupation_alpha[active_orbital_indices]
-        active_occ_beta = self.occupation_beta[active_orbital_indices]
-        num_alpha = sum(active_occ_alpha)
-        num_beta = sum(active_occ_beta)
-        return ParticleNumber(
-            len(active_orbital_indices) * 2,
-            (num_alpha, num_beta),
-            active_occ_alpha,
-            active_occ_beta,
-        )
-
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the particle number operator."""
         op = FermionicOp(

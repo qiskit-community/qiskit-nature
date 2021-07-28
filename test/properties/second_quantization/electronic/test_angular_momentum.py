@@ -45,9 +45,3 @@ class TestAngularMomentum(QiskitNatureTestCase):
         for op, expected_op in zip(ops[0].to_list(), expected):
             self.assertEqual(op[0], expected_op[0])
             self.assertTrue(np.isclose(op[1], expected_op[1]))
-
-    def test_reduce_system_size(self):
-        """Test reduce_system_size."""
-        prop = self.prop.reduce_system_size([1, 2])
-        self.assertEqual(prop._num_spin_orbitals, 4)
-        self.assertEqual(self.prop._num_spin_orbitals, 8)

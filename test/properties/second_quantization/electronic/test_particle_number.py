@@ -45,13 +45,3 @@ class TestParticleNumber(QiskitNatureTestCase):
             "IIIIIIIN",
         ]
         self.assertEqual([l for l, _ in ops[0].to_list()], expected)
-
-    def test_reduce_system_size(self):
-        """Test reduce_system_size."""
-        prop = self.prop.reduce_system_size([1, 2])
-        self.assertEqual(prop._num_spin_orbitals, 4)
-        self.assertEqual(prop._num_alpha, 1)
-        self.assertEqual(prop._num_beta, 1)
-        self.assertEqual(self.prop._num_spin_orbitals, 8)
-        self.assertEqual(self.prop._num_alpha, 2)
-        self.assertEqual(self.prop._num_beta, 2)
