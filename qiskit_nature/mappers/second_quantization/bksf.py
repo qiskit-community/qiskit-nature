@@ -141,7 +141,7 @@ def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> Spa
         return qubit_op1 + qubit_op2
 
 
-def _analyze_term(term_str: str) -> Tuple[TermType, List]:
+def _analyze_term(term_str: str) -> Tuple[TermType, List[Tuple[int, str]]]:
     """
     Return the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
