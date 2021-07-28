@@ -98,7 +98,7 @@ class ParticleNumber(ElectronicProperty):
         """Returns the occupation numbers of the alpha-spin orbitals.
 
         The occupation numbers may be float because in non-Hartree Fock methods you may encounter
-        superpositions of determinant.
+        superpositions of determinants.
         """
         return np.asarray(self._occupation_alpha)
 
@@ -107,7 +107,7 @@ class ParticleNumber(ElectronicProperty):
         """Returns the occupation numbers of the beta-spin orbitals.
 
         The occupation numbers may be float because in non-Hartree Fock methods you may encounter
-        superpositions of determinant.
+        superpositions of determinants.
         """
         return np.asarray(self._occupation_beta)
 
