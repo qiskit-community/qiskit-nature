@@ -294,7 +294,7 @@ def _unpack_term(
     are ignored.
 
     Args:
-       `term_str`: a string of characters in `+-NI`.
+       `term_str`: a string of characters in `N+-I`.
        `expand_number_op`: if `True`, number operators are expanded to `(i, '+')`, `(i, '-')`
          in the returned list of factors.
 
