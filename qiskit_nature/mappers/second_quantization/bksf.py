@@ -276,8 +276,7 @@ def _number_excitation(  # pylint: disable=invalid-name
         final_coeff = 1j * 0.25
     else:
         raise ValueError(f"unexpected sequence of indices: {p}, {q}, {r}, {s}")
-    qubit_op = (final_coeff * h2_pqrs) * qubit_op
-    return qubit_op
+    return (final_coeff * h2_pqrs) * qubit_op
 
 
 def _unpack_term(
