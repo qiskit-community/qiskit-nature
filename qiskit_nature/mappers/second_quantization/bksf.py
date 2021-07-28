@@ -477,9 +477,9 @@ def edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
     The definitions used here are consistent with arXiv:quant-ph/0003137
 
     Args:
-        edge_list (numpy.ndarray): a 2xE matrix, where E is total number of edge
+        edge_list: a 2xE matrix, where E is total number of edges
                                     and each pair denotes (from, to)
-        i (int): index for specifying the edge operator B.
+        i: index for specifying the edge operator B.
 
     Returns:
         Pauli: qubit operator
