@@ -436,10 +436,10 @@ def edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
     The definitions used here are consistent with arXiv:quant-ph/0003137
 
     Args:
-        edge_list (numpy.ndarray): a 2xE matrix, where E is total number of edge
+        edge_list: a 2xE matrix, where E is total number of edges
                                     and each pair denotes (from, to)
-        i (int): specifying the edge operator A
-        j (int): specifying the edge operator A
+        i: specifying the edge operator A
+        j: specifying the edge operator A
 
     Returns:
         Pauli: qubit operator
