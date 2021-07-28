@@ -27,14 +27,11 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from ..second_quantized_property import (
-    LegacyDriverResult,
-    LegacyElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from .types import ElectronicProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 
 
-class AngularMomentum(SecondQuantizedProperty):
+class AngularMomentum(ElectronicProperty):
     """The AngularMomentum property."""
 
     def __init__(self, num_spin_orbitals: int):

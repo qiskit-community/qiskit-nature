@@ -17,13 +17,14 @@ from typing import Dict, List, Optional
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ...second_quantized_property import LegacyDriverResult, SecondQuantizedProperty
+from ...second_quantized_property import LegacyDriverResult
 from ..bases import ElectronicBasis, ElectronicBasisTransform
+from ..types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 
 
-class IntegralProperty(SecondQuantizedProperty):
+class IntegralProperty(ElectronicProperty):
     """A common Property object based on `ElectronicIntegrals` as its raw data.
 
     This is a common base class, extracted to be used by (at the time of writing) the

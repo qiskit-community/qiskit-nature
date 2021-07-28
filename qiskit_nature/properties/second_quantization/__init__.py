@@ -26,7 +26,6 @@ they desire to evaluate.
    :toctree: ../stubs/
    :nosignatures:
 
-   DriverResult
    SecondQuantizedProperty
 
 .. autosummary::
@@ -36,10 +35,8 @@ they desire to evaluate.
    vibrational
 """
 
-from .driver_result import DriverResult
 from .second_quantized_property import SecondQuantizedProperty
 
 __all__ = [
-    "DriverResult",
     "SecondQuantizedProperty",
 ]

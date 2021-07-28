@@ -10,19 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The DriverResult class."""
-
-from typing import TypeVar
-
-from ..grouped_property import GroupedProperty
-from .second_quantized_property import SecondQuantizedProperty
-
-# pylint: disable=invalid-name
-T = TypeVar("T", bound=SecondQuantizedProperty)
-
-
-class DriverResult(GroupedProperty[T], SecondQuantizedProperty):
-    """The GroupedProperty result produced by a second quantization driver."""
+"""The DriverMetadata class."""
 
 
 class DriverMetadata:

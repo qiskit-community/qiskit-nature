@@ -22,7 +22,7 @@ from qiskit.opflow import PauliSumOp, Z2Symmetries
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import BaseDriver, QMolecule, WatsonHamiltonian
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.properties.second_quantization.driver_result import DriverResult
+from qiskit_nature.properties import GroupedProperty
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
@@ -64,7 +64,7 @@ class BaseProblem(ABC):
         self._molecule_data: Union[QMolecule, WatsonHamiltonian] = None
         self._molecule_data_transformed: Union[QMolecule, WatsonHamiltonian] = None
 
-        self._driver_result_transformed: DriverResult = None
+        self._properties_transformed: GroupedProperty = None
 
     @property
     def molecule_data(self) -> Union[QMolecule, WatsonHamiltonian]:
@@ -77,9 +77,9 @@ class BaseProblem(ABC):
         return self._molecule_data_transformed
 
     @property
-    def driver_result_transformed(self) -> DriverResult:
-        """Returns the transformed DriverResult object."""
-        return self._driver_result_transformed
+    def properties_transformed(self) -> GroupedProperty:
+        """Returns the transformed GroupedProperty object."""
+        return self._properties_transformed
 
     @property
     def num_particles(self) -> Optional[Tuple[int, int]]:

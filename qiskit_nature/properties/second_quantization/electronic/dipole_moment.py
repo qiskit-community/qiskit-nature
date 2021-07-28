@@ -19,13 +19,10 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from ...grouped_property import GroupedProperty
-from ..second_quantized_property import (
-    LegacyDriverResult,
-    LegacyElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
+from .types import ElectronicProperty
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -85,7 +82,7 @@ class DipoleMoment(IntegralProperty):
         pass
 
 
-class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], SecondQuantizedProperty):
+class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
     """The ElectronicDipoleMoment property.
 
     This Property computes **purely** the electronic dipole moment (possibly minus additional shifts

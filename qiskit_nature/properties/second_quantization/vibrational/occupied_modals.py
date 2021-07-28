@@ -18,11 +18,8 @@ from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
-from .vibrational_property import VibrationalProperty
-from ..second_quantized_property import (
-    LegacyDriverResult,
-    LegacyVibrationalDriverResult,
-)
+from .types import VibrationalProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
 
 
 class OccupiedModals(VibrationalProperty):

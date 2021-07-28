@@ -18,7 +18,7 @@ from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ..driver_result import DriverMetadata, DriverResult
+from ..driver_metadata import DriverMetadata
 from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
@@ -26,9 +26,10 @@ from .dipole_moment import ElectronicDipoleMoment
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
+from .types import GroupedElectronicProperty
 
 
-class ElectronicDriverResult(DriverResult):
+class ElectronicDriverResult(GroupedElectronicProperty):
     """The ElectronicDriverResult class.
 
     This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects

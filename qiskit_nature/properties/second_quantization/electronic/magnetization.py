@@ -18,14 +18,11 @@ from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ..second_quantized_property import (
-    LegacyDriverResult,
-    LegacyElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from .types import ElectronicProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicDriverResult
 
 
-class Magnetization(SecondQuantizedProperty):
+class Magnetization(ElectronicProperty):
     """The Magnetization property."""
 
     def __init__(self, num_spin_orbitals: int):

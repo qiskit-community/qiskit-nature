@@ -20,7 +20,7 @@ from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
-from .vibrational_property import VibrationalProperty
+from .types import VibrationalProperty
 from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalDriverResult
 
 
