@@ -423,7 +423,7 @@ def bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
         ferm_op: the fermionic operator in the second quantized form
 
     Returns:
-        numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edge
+        numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edges
                         and each pair denotes (from, to)
     """
     edge_matrix = _get_adjacency_matrix(ferm_op)
