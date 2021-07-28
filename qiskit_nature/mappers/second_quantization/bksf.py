@@ -300,7 +300,7 @@ def _unpack_term(
 
     Returns:
        tuple: A tuple of two elements. First, a tuple of three integers giving the number of
-       number-, raising-, and -lowering operators. Second a list of factors represented by
+       number, raising, and lowering operators. Second a list of factors represented by
        tuples of two elements: the first is an index and the second one of "-", "+", or "N".
        If `expand_number_op` is `True`, then factors of `N` are expanded.
 
