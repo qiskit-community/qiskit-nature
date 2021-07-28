@@ -331,8 +331,14 @@ class PySCFDriver(FermionicDriver):
         return PySCFDriver(**kwargs)
 
     @staticmethod
-    def to_driver_basis(basis: str) -> Any:
-        """convert basis to a driver acceptable basis"""
+    def to_driver_basis(basis: str) -> str:
+        """
+        Converts basis to a driver acceptable basis
+        Args:
+            basis: The basis set to be used
+        Returns:
+            driver acceptable basis
+        """
         return basis
 
     @staticmethod

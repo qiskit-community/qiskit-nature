@@ -108,8 +108,14 @@ class PSI4Driver(FermionicDriver):
         return PSI4Driver(cfg1 + cfg2 + cfg3 + cfg4)
 
     @staticmethod
-    def to_driver_basis(basis: str) -> Any:
-        """convert basis to a driver acceptable basis"""
+    def to_driver_basis(basis: str) -> str:
+        """
+        Converts basis to a driver acceptable basis
+        Args:
+            basis: The basis set to be used
+        Returns:
+            driver acceptable basis
+        """
         if basis == "sto3g":
             return "sto-3g"
         return basis

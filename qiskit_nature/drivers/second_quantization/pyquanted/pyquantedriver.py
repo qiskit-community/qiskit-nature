@@ -40,8 +40,16 @@ class BasisType(Enum):
     B631GSS = "6-31g**"
 
     @staticmethod
-    def type_from_string(basis: str):
-        """get basis type from string"""
+    def type_from_string(basis: str) -> "BasisType":
+        """
+        Get basis type from string
+        Args:
+            basis: The basis set to be used
+        Returns:
+            BasisType basis
+        Raises:
+            QiskitNatureError: invalid basis
+        """
         for item in BasisType:
             if basis == item.value:
                 return item
@@ -158,8 +166,14 @@ class PyQuanteDriver(FermionicDriver):
         return PyQuanteDriver(**kwargs)
 
     @staticmethod
-    def to_driver_basis(basis: str) -> Any:
-        """convert basis to a driver acceptable basis"""
+    def to_driver_basis(basis: str) -> BasisType:
+        """
+        Converts basis to a driver acceptable basis
+        Args:
+            basis: The basis set to be used
+        Returns:
+            driver acceptable basis
+        """
         return BasisType.type_from_string(basis)
 
     @staticmethod
