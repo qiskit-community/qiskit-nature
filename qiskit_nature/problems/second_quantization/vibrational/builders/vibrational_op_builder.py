@@ -26,13 +26,6 @@ from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational
 logger = logging.getLogger(__name__)
 
 
-@deprecate_function(
-    "0.2.0",
-    DeprecatedType.CLASS,
-    "VibrationalEnergy",
-    "from qiskit_nature.properties.second_quantization.vibrational in combination with the new "
-    "HarmonicBasis from qiskit_nature.properties.second_quantization.vibrational.bases",
-)
 def _build_vibrational_op(
     watson_hamiltonian: WatsonHamiltonian,
     num_modals: Union[int, List[int]],
@@ -72,6 +65,13 @@ def _build_vibrational_op(
     return build_vibrational_op_from_ints(boson_hamilt_harm_basis, num_modes, num_modals)
 
 
+@deprecate_function(
+    "0.2.0",
+    DeprecatedType.CLASS,
+    "VibrationalEnergy",
+    "from qiskit_nature.properties.second_quantization.vibrational in combination with the new "
+    "HarmonicBasis from qiskit_nature.properties.second_quantization.vibrational.bases",
+)
 def build_vibrational_op_from_ints(
     h_mat: List[List[Tuple[List[List[int]], complex]]],
     num_modes: int,

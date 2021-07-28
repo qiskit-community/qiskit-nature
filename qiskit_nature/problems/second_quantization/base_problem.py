@@ -52,14 +52,14 @@ class BaseProblem(ABC):
         self._legacy_transform = False
         new_transformers = False
         for trafo in self.transformers:
-            if trafo is None:
-                continue
             if isinstance(trafo, LegacyBaseTransformer):
                 self._legacy_transform = True
             elif isinstance(trafo, BaseTransformer):
                 new_transformers = True
         if self._legacy_transform and new_transformers:
-            raise QiskitNatureError("You cannot mix transformers of the legacy and the new type!")
+            raise QiskitNatureError(
+                "A mix of current and deprecated transformers is not supported!"
+            )
 
         self._molecule_data: Union[QMolecule, WatsonHamiltonian] = None
         self._molecule_data_transformed: Union[QMolecule, WatsonHamiltonian] = None

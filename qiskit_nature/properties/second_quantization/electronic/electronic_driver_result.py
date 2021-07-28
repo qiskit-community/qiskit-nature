@@ -43,8 +43,6 @@ class ElectronicDriverResult(DriverResult):
         self.driver_metadata: DriverMetadata = None
         self.molecule: Molecule = None
         self.electronic_basis_transform: ElectronicBasisTransform = None
-        # TODO: where to put orbital_energies?
-        # TODO: where to put kinetic, overlap matrices? Do we want explicit Fock matrix?
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicDriverResult":

@@ -104,7 +104,7 @@ class ElectronicEnergy(IntegralProperty):
     def fock(self) -> ElectronicIntegrals:
         """Returns the AO Fock operator.
 
-        In the case of DFT this canNOT be reconstructed from the 1- and
+        In the case of DFT this cannot be reconstructed from the 1- and
         2-electron integrals because of the XCF-dependent term.
         """
         return self._fock

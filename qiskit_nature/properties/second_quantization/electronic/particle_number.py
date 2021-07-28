@@ -43,8 +43,8 @@ class ParticleNumber(SecondQuantizedProperty):
         self,
         num_spin_orbitals: int,
         num_particles: Union[int, Tuple[int, int]],
-        occupation: Optional[List[int]] = None,
-        occupation_beta: Optional[List[int]] = None,
+        occupation: Optional[List[float]] = None,
+        occupation_beta: Optional[List[float]] = None,
     ):
         """
         Args:
@@ -65,13 +65,13 @@ class ParticleNumber(SecondQuantizedProperty):
             self._num_alpha, self._num_beta = num_particles
 
         if occupation is None:
-            self._occupation_alpha = [1 for _ in range(self._num_alpha)]
-            self._occupation_alpha += [0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
-            self._occupation_beta = [1 for _ in range(self._num_beta)]
-            self._occupation_beta += [0] * (num_spin_orbitals // 2 - len(self._occupation_beta))
+            self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
+            self._occupation_alpha += [0.0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
+            self._occupation_beta = [1.0 for _ in range(self._num_beta)]
+            self._occupation_beta += [0.0] * (num_spin_orbitals // 2 - len(self._occupation_beta))
         elif occupation_beta is None:
-            self._occupation_alpha = [np.ceil(o / 2) for o in occupation]
-            self._occupation_beta = [np.floor(o / 2) for o in occupation]
+            self._occupation_alpha = [o / 2.0 for o in occupation]
+            self._occupation_beta = [o / 2.0 for o in occupation]
         else:
             self._occupation_alpha = occupation
             self._occupation_beta = occupation_beta
@@ -98,13 +98,21 @@ class ParticleNumber(SecondQuantizedProperty):
 
     @property
     def occupation_alpha(self) -> np.ndarray:
-        """Returns the occupation_alpha."""
-        return np.asarray(self._occupation_alpha, dtype=int)
+        """Returns the occupation numbers of the alpha-spin orbitals.
+
+        The occupation numbers may be float because in non-Hartree Fock methods you may encounter
+        superpositions of determinant.
+        """
+        return np.asarray(self._occupation_alpha)
 
     @property
     def occupation_beta(self) -> np.ndarray:
-        """Returns the occupation_beta."""
-        return np.asarray(self._occupation_beta, dtype=int)
+        """Returns the occupation numbers of the beta-spin orbitals.
+
+        The occupation numbers may be float because in non-Hartree Fock methods you may encounter
+        superpositions of determinant.
+        """
+        return np.asarray(self._occupation_beta)
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
