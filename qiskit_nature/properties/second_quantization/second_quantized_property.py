@@ -85,4 +85,7 @@ class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Returns the list of `FermioncOp`s given by the properties contained in this one."""
+        """
+        Returns the list of second quantized operators given by the properties contained in this
+        group.
+        """
