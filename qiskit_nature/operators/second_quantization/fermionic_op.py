@@ -372,7 +372,14 @@ class FermionicOp(SecondQuantizedOp):
         )
 
     def to_normal_order(self) -> "FermionicOp":
-        """Convert to the normal order. The returned operator is a sparse label mode."""
+        """Convert to the normal order. This is not usual normal order.
+        It returns the operator with normal order but equivalent to the input operator.
+        For example, in usual :math:`\\colon c_0 c_0^\\dagger\\colon = -c_0^\\dagger c_0`
+        where :math:`c_0` is an annihilation operator,
+        but this method returns :math:`-c_0^\\dagger c_0 + 1`.
+        The returned operator is a sparse label mode.
+        """
+        temp_sparse_label = self.sparse_label
         self.sparse_label = False
         ret = 0
 
@@ -397,9 +404,11 @@ class FermionicOp(SecondQuantizedOp):
                     True,
                 )
 
+        self.sparse_label = temp_sparse_label
+
         if isinstance(ret, FermionicOp):
             return ret
-        return FermionicOp(("", 0), self.register_length, True)
+        return FermionicOp(("", 0), self.register_length, self.sparse_label)
 
     @classmethod
     def zero(cls, register_length: int) -> "FermionicOp":
