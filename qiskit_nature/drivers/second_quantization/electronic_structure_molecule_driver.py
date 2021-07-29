@@ -16,15 +16,12 @@ This module implements a common molecule electronic structure based driver.
 
 from typing import Optional, Dict, Any, Type
 import logging
+import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..molecule import Molecule
-from .pyscfd import PySCFDriver
-from .psi4d import PSI4Driver
-from .pyquanted import PyQuanteDriver
-from .gaussiand import GaussianDriver
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +30,10 @@ class ElectronicStructureDriverType(Enum):
     """Electronic structure Driver Type."""
 
     AUTO = "auto"
-    PYSCF = "pyscf"
-    PSI4 = "psi4"
-    PYQUANTE = "pyquante"
-    GAUSSIAN = "gaussian"
+    PYSCF = "PySCFDriver"
+    PSI4 = "PSI4Driver"
+    PYQUANTE = "PyQuanteDriver"
+    GAUSSIAN = "GaussianDriver"
 
     @staticmethod
     def driver_class_from_type(
@@ -69,20 +66,14 @@ class ElectronicStructureDriverType(Enum):
                             missing_error = ex
             if driver_class is None:
                 raise missing_error
-        elif driver_type == ElectronicStructureDriverType.PYSCF:
-            PySCFDriver.check_installed()
-            driver_class = PySCFDriver
-        elif driver_type == ElectronicStructureDriverType.PSI4:
-            PSI4Driver.check_installed()
-            driver_class = PSI4Driver
-        elif driver_type == ElectronicStructureDriverType.PYQUANTE:
-            PyQuanteDriver.check_installed()
-            driver_class = PyQuanteDriver
-        elif driver_type == ElectronicStructureDriverType.GAUSSIAN:
-            GaussianDriver.check_installed()
-            driver_class = GaussianDriver
         else:
-            MissingOptionalLibraryError(libname=driver_type, name="ElectronicStructureDriverType")
+            driver_module = importlib.import_module("qiskit_nature.drivers.second_quantization")
+            driver_class = getattr(driver_module, driver_type.value, None)
+            if driver_class is None:
+                raise MissingOptionalLibraryError(
+                    libname=driver_type, name="ElectronicStructureDriverType"
+                )
+            driver_class.check_installed()  # type: ignore
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class

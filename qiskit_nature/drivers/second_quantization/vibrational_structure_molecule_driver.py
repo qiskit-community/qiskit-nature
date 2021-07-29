@@ -16,12 +16,12 @@ This module implements a common molecule vibrational structure based driver.
 
 from typing import Optional, Dict, Any, Type
 import logging
+import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
 from .vibrational_structure_driver import VibrationalStructureDriver
 from ..molecule import Molecule
-from .gaussiand import GaussianForcesDriver
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class VibrationalStructureDriverType(Enum):
     """Vibrational structure Driver Type."""
 
     AUTO = "auto"
-    GAUSSIAN_FORCES = "gaussian_forces"
+    GAUSSIAN_FORCES = "GaussianForcesDriver"
 
     @staticmethod
     def driver_class_from_type(
@@ -63,11 +63,14 @@ class VibrationalStructureDriverType(Enum):
                             missing_error = ex
             if driver_class is None:
                 raise missing_error
-        elif driver_type == VibrationalStructureDriverType.GAUSSIAN_FORCES:
-            GaussianForcesDriver.check_installed()
-            driver_class = GaussianForcesDriver
         else:
-            MissingOptionalLibraryError(libname=driver_type, name="VibrationalStructureDriverType")
+            driver_module = importlib.import_module("qiskit_nature.drivers.second_quantization")
+            driver_class = getattr(driver_module, driver_type.value, None)
+            if driver_class is None:
+                raise MissingOptionalLibraryError(
+                    libname=driver_type, name="VibrationalStructureDriverType"
+                )
+            driver_class.check_installed()  # type: ignore
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
