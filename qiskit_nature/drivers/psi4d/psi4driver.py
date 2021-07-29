@@ -17,7 +17,7 @@ import os
 import subprocess
 import sys
 import tempfile
-import warnings
+from pathlib import Path
 from shutil import which
 from typing import Union, List, Optional
 
@@ -26,6 +26,7 @@ from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
 from ...exceptions import QiskitNatureError
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 logger = logging.getLogger(__name__)
 
@@ -67,13 +68,11 @@ class PSI4Driver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        warnings.warn(
-            "This PSI4Driver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.psi4d "
-            "PSI4Driver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "PSI4Driver",
+            "from qiskit_nature.drivers.second_quantization.psi4d as a direct replacement",
         )
         self._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
@@ -120,19 +119,25 @@ class PSI4Driver(FermionicDriver):
         else:
             cfg = self._config
 
-        psi4d_directory = os.path.dirname(os.path.realpath(__file__))
-        template_file = psi4d_directory + "/_template.txt"
-        qiskit_nature_directory = os.path.abspath(os.path.join(psi4d_directory, "../.."))
+        psi4d_directory = Path(__file__).resolve().parent
+        template_file = psi4d_directory.joinpath("_template.txt")
+        qiskit_nature_directory = psi4d_directory.parent.parent
 
         molecule = QMolecule()
 
         input_text = cfg + "\n"
         input_text += "import sys\n"
-        syspath = "['" + qiskit_nature_directory + "','" + "','".join(sys.path) + "']"
+        syspath = (
+            "['"
+            + qiskit_nature_directory.as_posix()
+            + "','"
+            + "','".join(Path(p).as_posix() for p in sys.path)
+            + "']"
+        )
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
         input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"
-        input_text += '_q_molecule = QMolecule("{0}")\n'.format(molecule.filename)
+        input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
 
         with open(template_file, "r") as file:
             input_text += file.read()

@@ -13,13 +13,10 @@
 """The Freeze-Core Reduction interface."""
 
 from typing import List, Optional
-import logging
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 
 from .active_space_transformer import ActiveSpaceTransformer
-
-logger = logging.getLogger(__name__)
 
 
 class FreezeCoreTransformer(ActiveSpaceTransformer):
@@ -29,7 +26,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         self,
         freeze_core: bool = True,
         remove_orbitals: Optional[List[int]] = None,
-    ):
+    ) -> None:
         """Initializes a transformer which reduces a `QMolecule` by removing some molecular
         orbitals.
 

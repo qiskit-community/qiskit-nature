@@ -40,26 +40,27 @@ SPHINXOPTS    =
 all_check: spell style lint copyright mypy clean_sphinx html doctest
 
 lint:
-	pylint -rn --ignore=gauopen qiskit_nature test tools
+	python -m pylint -rn --ignore=gauopen qiskit_nature test tools
+	python tools/verify_headers.py qiskit_nature test tools
 
 mypy:
-	mypy qiskit_nature test tools
+	python -m mypy qiskit_nature test tools
 
 style:
-	black --check --exclude="gauopen" qiskit_nature test tools
+	python -m black --check --exclude="gauopen" qiskit_nature test tools
 
 black:
-	black --exclude="gauopen" qiskit_nature test tools
+	python -m black --exclude="gauopen" qiskit_nature test tools
 
 test:
 	python -m unittest discover -v test
 
 test_ci:
 	echo "Detected $(NPROCS) CPUs running with $(CONCURRENCY) workers"
-	stestr run --concurrency $(CONCURRENCY)
+	python -m stestr run --concurrency $(CONCURRENCY)
 
 spell:
-	pylint -rn --disable=all --enable=spelling --spelling-dict=en_US --spelling-private-dict-file=.pylintdict --ignore=gauopen qiskit_nature test tools
+	python -m pylint -rn --disable=all --enable=spelling --spelling-dict=en_US --spelling-private-dict-file=.pylintdict --ignore=gauopen qiskit_nature test tools
 	make -C docs spell SPHINXOPTS=$(SPHINXOPTS)
 
 copyright:
@@ -75,11 +76,11 @@ clean_sphinx:
 	make -C docs clean
 
 coverage:
-	coverage3 run --source qiskit_nature --omit */gauopen/* -m unittest discover -s test -q
-	coverage3 report
+	python -m coverage3 run --source qiskit_nature --omit */gauopen/* -m unittest discover -s test -q
+	python -m coverage3 report
 
 coverage_erase:
-	coverage erase
+	python -m coverage erase
 
 clean: clean_sphinx coverage_erase; 
 

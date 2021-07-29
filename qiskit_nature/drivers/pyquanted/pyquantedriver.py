@@ -14,7 +14,6 @@
 
 import importlib
 import logging
-import warnings
 from enum import Enum
 from typing import Union, List, Optional
 
@@ -26,6 +25,7 @@ from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
 from ...exceptions import QiskitNatureError
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 logger = logging.getLogger(__name__)
 
@@ -79,13 +79,11 @@ class PyQuanteDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        warnings.warn(
-            "This PyQuanteDriver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.pyquanted "
-            "PyQuanteDriver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "PyQuanteDriver",
+            "from qiskit_nature.drivers.second_quantization.pyquanted as a direct replacement",
         )
         validate_min("maxiters", maxiters, 1)
         self._check_valid()

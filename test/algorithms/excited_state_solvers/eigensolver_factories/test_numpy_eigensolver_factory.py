@@ -11,12 +11,11 @@
 # that they have been altered from the originals.
 """ Test NumPyMinimumEigensovler Factory """
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 import numpy as np
 
 from qiskit.algorithms import NumPyEigensolver
 from qiskit_nature.algorithms import NumPyEigensolverFactory
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
@@ -28,19 +27,17 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
     # NOTE: The actual usage of this class is mostly tested in combination with the ground-state
     # eigensolvers (one module above).
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
 
-        try:
-            self.driver = PySCFDriver(
-                atom="H .0 .0 .0; H .0 .0 0.75",
-                unit=UnitsType.ANGSTROM,
-                charge=0,
-                spin=0,
-                basis="sto3g",
-            )
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
+        self.driver = PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.75",
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto3g",
+        )
 
         self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
 

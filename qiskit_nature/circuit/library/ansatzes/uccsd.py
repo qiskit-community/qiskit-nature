@@ -15,13 +15,9 @@ The UCCSD Ansatz.
 
 from typing import Optional, Tuple
 
-import logging
-
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature.converters.second_quantization import QubitConverter
 from .ucc import UCC
-
-logger = logging.getLogger(__name__)
 
 
 class UCCSD(UCC):

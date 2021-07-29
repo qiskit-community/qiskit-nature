@@ -14,13 +14,12 @@
 
 from typing import List, Optional
 
-import warnings
-
 from ..qmolecule import QMolecule
 from .dumper import dump
-from .parser import parse
+from .parser import parse  # pylint: disable=deprecated-module
 from ..fermionic_driver import FermionicDriver
 from ...exceptions import QiskitNatureError
+from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class FCIDumpDriver(FermionicDriver):
@@ -47,13 +46,11 @@ class FCIDumpDriver(FermionicDriver):
             QiskitNatureError: If ``fcidump_input`` is not a string or if ``atoms`` is not a list
                 of valid atomic symbols as specified in ``QMolecule``.
         """
-        warnings.warn(
-            "This FCIDumpDriver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.fcidumpd "
-            "FCIDumpDriver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "FCIDumpDriver",
+            "from qiskit_nature.drivers.second_quantization.fcidumpd as a direct replacement",
         )
         super().__init__()
 

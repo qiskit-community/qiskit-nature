@@ -14,7 +14,6 @@
 
 from typing import List, Optional, Tuple, Union
 import copy
-import logging
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -25,8 +24,6 @@ from .base_transformer import BaseTransformer
 ACTIVE_INTS_SUBSCRIPT = "pqrs,pi,qj,rk,sl->ijkl"
 
 INACTIVE_ENERGY_SUBSCRIPT = "ij,ji"
-
-logger = logging.getLogger(__name__)
 
 
 class ActiveSpaceTransformer(BaseTransformer):
@@ -79,7 +76,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         num_electrons: Optional[Union[int, Tuple[int, int]]] = None,
         num_molecular_orbitals: Optional[int] = None,
         active_orbitals: Optional[List[int]] = None,
-    ):
+    ) -> None:
         """Initializes a transformer which can reduce a `QMolecule` to a configured active space.
 
         This transformer requires the AO-basis matrices `hcore` and `eri` to be available, as well

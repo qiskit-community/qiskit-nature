@@ -14,18 +14,23 @@
 
 import importlib
 import logging
-import warnings
 from typing import Optional, Union, List
 
 from qiskit.utils.validation import validate_min
+from qiskit.exceptions import MissingOptionalLibraryError
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals
-from ..base_driver import DeprecatedEnum, DeprecatedEnumMeta
 from ..fermionic_driver import FermionicDriver, HFMethodType
 from ..molecule import Molecule
 from ..units_type import UnitsType
 from ...exceptions import QiskitNatureError
+from ...deprecation import (
+    DeprecatedType,
+    warn_deprecated_same_type_name,
+    DeprecatedEnum,
+    DeprecatedEnumMeta,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +42,16 @@ class InitialGuess(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
     HCORE = "1e"
     ONE_E = "1e"
     ATOM = "atom"
+
+    def deprecate(self):
+        """show deprecate message"""
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.ENUM,
+            self.__class__.__name__,
+            "from qiskit_nature.drivers.second_quantization as a direct replacement",
+            3,
+        )
 
 
 class PySCFDriver(FermionicDriver):
@@ -86,13 +101,11 @@ class PySCFDriver(FermionicDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        warnings.warn(
-            "This PySCFDriver is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit_nature.drivers.second_quantization.pyscfd "
-            "PySCFDriver as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "PySCFDriver",
+            "from qiskit_nature.drivers.second_quantization.pyscfd as a direct replacement",
         )
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):
@@ -125,16 +138,30 @@ class PySCFDriver(FermionicDriver):
 
     @staticmethod
     def _check_valid():
-        err_msg = "PySCF is not installed. See https://pyscf.org/install.html"
+        """Checks that PySCF is actually installed.
+
+        Raises:
+            MissingOptionalLibraryError: If PySCF is not installed.
+        """
         try:
-            spec = importlib.util.find_spec("pyscf")
+            spec = importlib.util.find_spec("pyscf")  # type: ignore
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
             logger.debug("PySCF check error %s", str(ex))
-            raise QiskitNatureError(err_msg) from ex
+            raise MissingOptionalLibraryError(
+                libname="PySCF",
+                name="PySCFDriver",
+                pip_install="pip install 'qiskit-nature[pyscf]'",
+                msg="See https://pyscf.org/install.html",
+            ) from ex
 
-        raise QiskitNatureError(err_msg)
+        raise MissingOptionalLibraryError(
+            libname="PySCF",
+            name="PySCFDriver",
+            pip_install="pip install 'qiskit-nature[pyscf]'",
+            msg="See https://pyscf.org/install.html",
+        )
 
     def run(self) -> QMolecule:
         if self.molecule is not None:

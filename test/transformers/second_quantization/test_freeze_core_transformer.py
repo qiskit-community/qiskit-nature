@@ -14,9 +14,7 @@
 
 import unittest
 
-from test.transformers.second_quantization.test_active_space_transformer import (
-    TestActiveSpaceTransformer,
-)
+from test import QiskitNatureTestCase
 
 from ddt import ddt, idata
 
@@ -25,8 +23,15 @@ from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 
 
 @ddt
-class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
+class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
+
+    # pylint: disable=import-outside-toplevel
+    from test.transformers.second_quantization.test_active_space_transformer import (
+        TestActiveSpaceTransformer,
+    )
+
+    assertQMolecule = TestActiveSpaceTransformer.assertQMolecule
 
     @idata(
         [

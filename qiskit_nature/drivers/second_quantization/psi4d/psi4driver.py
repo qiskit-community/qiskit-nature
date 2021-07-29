@@ -17,13 +17,14 @@ import os
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 from shutil import which
 from typing import Union, List, Optional
 
 from qiskit_nature import QiskitNatureError
 
 from ..qmolecule import QMolecule
-from ..fermionic_driver import FermionicDriver, HFMethodType
+from ..fermionic_driver import FermionicDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
 
@@ -49,21 +50,21 @@ class PSI4Driver(FermionicDriver):
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
         molecule: Optional[Molecule] = None,
         basis: str = "sto-3g",
-        hf_method: HFMethodType = HFMethodType.RHF,
+        method: MethodType = MethodType.RHF,
     ) -> None:
         """
         Args:
             config: A molecular configuration conforming to PSI4 format.
             molecule: A driver independent Molecule definition instance may be provided. When a
                 molecule is supplied the ``config`` parameter is ignored and the Molecule instance,
-                along with ``basis`` and ``hf_method`` is used to build a basic config instead.
+                along with ``basis`` and ``method`` is used to build a basic config instead.
                 The Molecule object is read when the driver is run and converted to the driver
                 dependent configuration for the computation. This allows, for example, the Molecule
                 geometry to be updated to compute different points.
             basis: Basis set name as recognized by the PSI4 program.
                 See https://psicode.org/psi4manual/master/basissets.html for more information.
                 Defaults to the minimal basis 'sto-3g'.
-            hf_method: Hartree-Fock Method type.
+            method: Hartree-Fock Method type.
 
         Raises:
             QiskitNatureError: Invalid Input
@@ -78,7 +79,7 @@ class PSI4Driver(FermionicDriver):
         super().__init__(
             molecule=molecule,
             basis=basis,
-            hf_method=hf_method.value,
+            method=method.value,
             supports_molecule=True,
         )
         self._config = config
@@ -103,7 +104,7 @@ class PSI4Driver(FermionicDriver):
         cfg1 = f"molecule {name} {{\nunits {units}\n"
         cfg2 = f"{self.molecule.charge} {self.molecule.multiplicity}\n"
         cfg3 = f"{geom}\nno_com\nno_reorient\n}}\n\n"
-        cfg4 = f"set {{\n basis {self.basis}\n scf_type pk\n reference {self.hf_method}\n}}"
+        cfg4 = f"set {{\n basis {self.basis}\n scf_type pk\n reference {self.method}\n}}"
         return cfg1 + cfg2 + cfg3 + cfg4
 
     def run(self) -> QMolecule:
@@ -112,19 +113,25 @@ class PSI4Driver(FermionicDriver):
         else:
             cfg = self._config
 
-        psi4d_directory = os.path.dirname(os.path.realpath(__file__))
-        template_file = psi4d_directory + "/_template.txt"
-        qiskit_nature_directory = os.path.abspath(os.path.join(psi4d_directory, "../.."))
+        psi4d_directory = Path(__file__).resolve().parent
+        template_file = psi4d_directory.joinpath("_template.txt")
+        qiskit_nature_directory = psi4d_directory.parent.parent
 
         molecule = QMolecule()
 
         input_text = cfg + "\n"
         input_text += "import sys\n"
-        syspath = "['" + qiskit_nature_directory + "','" + "','".join(sys.path) + "']"
+        syspath = (
+            "['"
+            + qiskit_nature_directory.as_posix()
+            + "','"
+            + "','".join(Path(p).as_posix() for p in sys.path)
+            + "']"
+        )
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
         input_text += "from qiskit_nature.drivers.second_quantization.qmolecule import QMolecule\n"
-        input_text += '_q_molecule = QMolecule("{0}")\n'.format(molecule.filename)
+        input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
 
         with open(template_file, "r") as file:
             input_text += file.read()

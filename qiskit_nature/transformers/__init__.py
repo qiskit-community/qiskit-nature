@@ -21,29 +21,22 @@ Transformers (:mod:`qiskit_nature.transformers`)
 
    second_quantization
 
+
+Deprecated Classes
+------------------
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   ActiveSpaceTransformer
+   FreezeCoreTransformer
+
 """
 
-from importlib import import_module
-from warnings import warn
+from .active_space_transformer import ActiveSpaceTransformer
+from .freeze_core_transformer import FreezeCoreTransformer
 
-deprecated_names = [
+__all__ = [
     "ActiveSpaceTransformer",
-    "BaseTransformer",
     "FreezeCoreTransformer",
 ]
-
-
-def __getattr__(name):
-    if name in deprecated_names:
-        warn(
-            f"{name} has been moved to {__name__}.second_quantization.{name}",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        module = import_module(".second_quantization", __name__)
-        return getattr(module, name)
-    raise AttributeError(f"module {__name__} has no attribute {name}")
-
-
-def __dir__():
-    return sorted(deprecated_names)

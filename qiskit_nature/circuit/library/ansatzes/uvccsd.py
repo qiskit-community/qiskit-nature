@@ -15,13 +15,9 @@ The UVCCSD Ansatz.
 
 from typing import Optional, List
 
-import logging
-
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature.converters.second_quantization import QubitConverter
 from .uvcc import UVCC
-
-logger = logging.getLogger(__name__)
 
 
 class UVCCSD(UVCC):

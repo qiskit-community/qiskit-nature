@@ -13,7 +13,6 @@
 """ Gaussian Forces Driver """
 
 from typing import Union, List, Optional
-import logging
 
 from qiskit_nature import QiskitNatureError
 
@@ -25,7 +24,6 @@ from .gaussian_utils import check_valid
 from .gaussian_log_driver import GaussianLogDriver
 from .gaussian_log_result import GaussianLogResult
 
-logger = logging.getLogger(__name__)
 
 B3YLP_JCF_DEFAULT = """
 #p B3LYP/cc-pVTZ Freq=(Anharm) Int=Ultrafine SCF=VeryTight
@@ -70,7 +68,7 @@ class GaussianForcesDriver(BosonicDriver):
             QiskitNatureError: If `jcf` or `molecule` given and Gaussian™ 16 executable
                 cannot be located.
         """
-        super().__init__(molecule=molecule, basis=basis, hf_method="", supports_molecule=True)
+        super().__init__(molecule=molecule, basis=basis, method="", supports_molecule=True)
         self._jcf = jcf
         self._logfile = None
         self._normalize = normalize

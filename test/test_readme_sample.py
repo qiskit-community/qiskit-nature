@@ -18,22 +18,19 @@ the issue then ensure changes are made to readme too.
 
 import unittest
 
-from test import QiskitNatureTestCase
-from qiskit_nature import QiskitNatureError
+from test import QiskitNatureTestCase, requires_extra_library
 
 
 class TestReadmeSample(QiskitNatureTestCase):
     """Test sample code from readme"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            # pylint: disable=import-outside-toplevel
-            from qiskit_nature.drivers.second_quantization import PySCFDriver
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers.second_quantization import PySCFDriver
 
-            PySCFDriver(atom="Li .0 .0 .0; H .0 .0 1.6")
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
+        PySCFDriver(atom="Li .0 .0 .0; H .0 .0 1.6")
 
         try:
             # pylint: disable=import-outside-toplevel
@@ -105,7 +102,7 @@ class TestReadmeSample(QiskitNatureTestCase):
         ansatz = TwoLocal(num_spin_orbitals, ["ry", "rz"], "cz")
 
         # add the initial state
-        ansatz.compose(init_state, front=True)
+        ansatz.compose(init_state, front=True, inplace=True)
 
         # set the backend for the quantum computation
         from qiskit import Aer

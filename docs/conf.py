@@ -63,17 +63,18 @@ rst_prolog = """
 nbsphinx_prolog = """
 {% set docname = env.doc2path(env.docname, base=None) %}
 .. only:: html
-
+    
     .. role:: raw-html(raw)
         :format: html
-
-    .. raw:: html
-
-        <br><br><br>
-
+    
     .. note::
-        Run interactively in jupyter notebook.
-"""
+        This page was generated from `docs/{{ docname }}`__.
+        
+        __"""
+
+vers = version.split(".")
+link_str = f" https://github.com/Qiskit/qiskit-nature/blob/stable/{vers[0]}.{vers[1]}/docs/"
+nbsphinx_prolog += link_str + "{{ docname }}"
 
 # -- General configuration ---------------------------------------------------
 
@@ -146,6 +147,10 @@ numfig_format = {
 # Usually you set "language" from the command line for these cases.
 language = None
 
+# For Adding Locale
+locale_dirs = ['locale/']   # path is example but recommended.
+gettext_compact = False     # optional.
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
@@ -204,3 +209,4 @@ def setup(app):
     app.add_directive('customgalleryitem', CustomGalleryItemDirective)
     app.add_directive('customcarditem', CustomCardItemDirective)
     app.add_directive('customcalloutitem', CustomCalloutItemDirective)
+    app.setup_extension('versionutils')
