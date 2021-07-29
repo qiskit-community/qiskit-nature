@@ -442,7 +442,15 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
 
 
 def _add_one_edge(edge_matrix: np.ndarray, i: int, j: int) -> None:
-    """Add an edge from lesser index to greater. This maintains the upper triangular structure."""
+    """Add an edge in the adjacency matrix from lesser index to greater.
+
+    This maintains the upper triangular structure.
+
+    Args:
+      i: the first vertex index
+      j: the second vertex index. The values of `i` and `j` may be in any order,
+         but they must not be equal.
+    """
     if i == j:
         raise ValueError("expecting i != j")
     edge_matrix[min(i, j), max(i, j)] = True
