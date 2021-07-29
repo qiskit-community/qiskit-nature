@@ -13,7 +13,6 @@
 """The Base Operator Transformer interface."""
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 
