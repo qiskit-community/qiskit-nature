@@ -38,7 +38,7 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")
 
-        edge_list = bksf_edge_list_fermionic_op(second_q_op)
+        edge_list = _bksf_edge_list_fermionic_op(second_q_op)
         sparse_pauli = _convert_operator(second_q_op, edge_list)
 
         ## Simplify and sort the result
@@ -189,7 +189,7 @@ def _number_operator(  # pylint: disable=invalid-name
     Returns:
       The result of the Fermionic to Pauli operator mapping.
     """
-    b_p = edge_operator_bi(edge_list, p)
+    b_p = _edge_operator_bi(edge_list, p)
     id_op = _pauli_id(edge_list.shape[1])
     return (0.5 * h1_pq) * (id_op - b_p)  # SW2018 eq 33
 
@@ -210,8 +210,8 @@ def _coulomb_exchange(  # pylint: disable=invalid-name
     Returns:
       The result of the Fermionic to Pauli operator mapping.
     """
-    b_p = edge_operator_bi(edge_list, p)
-    b_q = edge_operator_bi(edge_list, q)
+    b_p = _edge_operator_bi(edge_list, p)
+    b_q = _edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
     qubit_op = (id_op - b_p) * (id_op - b_q)
     if p == s:  # two commutations to order as two number operators.
@@ -239,9 +239,9 @@ def _excitation_operator(  # pylint: disable=invalid-name
     """  # pylint: disable=missing-raises-doc
     if p >= q:
         raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
-    b_a = edge_operator_bi(edge_list, p)
-    b_b = edge_operator_bi(edge_list, q)
-    a_ab = edge_operator_aij(edge_list, p, q)
+    b_a = _edge_operator_bi(edge_list, p)
+    b_b = _edge_operator_bi(edge_list, q)
+    a_ab = _edge_operator_aij(edge_list, p, q)
     return (-1j * 0.5 * h1_pq) * ((b_b & a_ab) + (a_ab & b_a))
 
 
@@ -262,12 +262,12 @@ def _double_excitation(  # pylint: disable=invalid-name
     Returns:
       The result of the Fermionic to Pauli operator mapping.
     """
-    b_p = edge_operator_bi(edge_list, p)
-    b_q = edge_operator_bi(edge_list, q)
-    b_r = edge_operator_bi(edge_list, r)
-    b_s = edge_operator_bi(edge_list, s)
-    a_pq = edge_operator_aij(edge_list, p, q)
-    a_rs = edge_operator_aij(edge_list, r, s)
+    b_p = _edge_operator_bi(edge_list, p)
+    b_q = _edge_operator_bi(edge_list, q)
+    b_r = _edge_operator_bi(edge_list, r)
+    b_s = _edge_operator_bi(edge_list, s)
+    a_pq = _edge_operator_aij(edge_list, p, q)
+    a_rs = _edge_operator_aij(edge_list, r, s)
     a_pq = -a_pq if q < p else a_pq
     a_rs = -a_rs if s < r else a_rs
 
@@ -306,30 +306,30 @@ def _number_excitation(  # pylint: disable=invalid-name
     Returns:
       The result of the Fermionic to Pauli operator mapping.
     """  # pylint: disable=missing-raises-doc
-    b_p = edge_operator_bi(edge_list, p)
-    b_q = edge_operator_bi(edge_list, q)
+    b_p = _edge_operator_bi(edge_list, p)
+    b_q = _edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
     if p == r:
-        b_s = edge_operator_bi(edge_list, s)
-        a_qs = edge_operator_aij(edge_list, q, s)
+        b_s = _edge_operator_bi(edge_list, s)
+        a_qs = _edge_operator_aij(edge_list, q, s)
         a_qs = -a_qs if s < q else a_qs
         qubit_op = (a_qs * b_s + b_q * a_qs) * (id_op - b_p)
         final_coeff = 1j * 0.25
     elif p == s:
-        b_r = edge_operator_bi(edge_list, r)
-        a_qr = edge_operator_aij(edge_list, q, r)
+        b_r = _edge_operator_bi(edge_list, r)
+        a_qr = _edge_operator_aij(edge_list, q, r)
         a_qr = -a_qr if r < q else a_qr
         qubit_op = (a_qr * b_r + b_q * a_qr) * (id_op - b_p)
         final_coeff = 1j * -0.25
     elif q == r:
-        b_s = edge_operator_bi(edge_list, s)
-        a_ps = edge_operator_aij(edge_list, p, s)
+        b_s = _edge_operator_bi(edge_list, s)
+        a_ps = _edge_operator_aij(edge_list, p, s)
         a_ps = -a_ps if s < p else a_ps
         qubit_op = (a_ps * b_s + b_p * a_ps) * (id_op - b_q)
         final_coeff = 1j * -0.25
     elif q == s:
-        b_r = edge_operator_bi(edge_list, r)
-        a_pr = edge_operator_aij(edge_list, p, r)
+        b_r = _edge_operator_bi(edge_list, r)
+        a_pr = _edge_operator_aij(edge_list, p, r)
         a_pr = -a_pr if r < p else a_pr
         qubit_op = (a_pr * b_r + b_p * a_pr) * (id_op - b_q)
         final_coeff = 1j * 0.25
@@ -450,7 +450,7 @@ def _add_one_edge(edge_matrix: np.ndarray, i: int, j: int) -> None:
       i: the first vertex index
       j: the second vertex index. The values of `i` and `j` may be in any order,
          but they must not be equal.
-    """
+    """  # pylint: disable=missing-raises-doc
     if i == j:
         raise ValueError("expecting i != j")
     edge_matrix[min(i, j), max(i, j)] = True
@@ -481,7 +481,7 @@ def _add_edges_for_term(edge_matrix: np.ndarray, term_str: str) -> None:
         _add_one_edge(edge_matrix, *lower_inds)
 
 
-def bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
+def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
     """Construct edge list required for the bksf algorithm.
 
     Args:
@@ -496,7 +496,7 @@ def bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
     return edge_list_as_2d_array
 
 
-def edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
+def _edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
     """Calculate the edge operator A_ij.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -537,7 +537,7 @@ def edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
     return SparsePauliOp(qubit_op)
 
 
-def edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
+def _edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
     """Calculate the edge operator B_i.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137

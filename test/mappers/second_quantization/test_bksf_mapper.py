@@ -20,7 +20,7 @@ from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMapper
-from qiskit_nature.mappers.second_quantization.bksf import edge_operator_aij, edge_operator_bi
+from qiskit_nature.mappers.second_quantization.bksf import _edge_operator_aij, _edge_operator_bi
 from qiskit_nature.mappers.second_quantization import bksf
 
 
@@ -40,10 +40,10 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test bksf mapping, edge operator bi"""
         edge_matrix = np.triu(np.ones((4, 4)))
         edge_list = np.array(np.nonzero(np.triu(edge_matrix) - np.diag(np.diag(edge_matrix))))
-        qterm_b0 = edge_operator_bi(edge_list, 0)
-        qterm_b1 = edge_operator_bi(edge_list, 1)
-        qterm_b2 = edge_operator_bi(edge_list, 2)
-        qterm_b3 = edge_operator_bi(edge_list, 3)
+        qterm_b0 = _edge_operator_bi(edge_list, 0)
+        qterm_b1 = _edge_operator_bi(edge_list, 1)
+        qterm_b2 = _edge_operator_bi(edge_list, 2)
+        qterm_b3 = _edge_operator_bi(edge_list, 3)
 
         ref_qterm_b0 = SparsePauliOp("IIIZZZ")
         ref_qterm_b1 = SparsePauliOp("IZZIIZ")
@@ -63,12 +63,12 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test bksf mapping, edge operator aij"""
         edge_matrix = np.triu(np.ones((4, 4)))
         edge_list = np.array(np.nonzero(np.triu(edge_matrix) - np.diag(np.diag(edge_matrix))))
-        qterm_a01 = edge_operator_aij(edge_list, 0, 1)
-        qterm_a02 = edge_operator_aij(edge_list, 0, 2)
-        qterm_a03 = edge_operator_aij(edge_list, 0, 3)
-        qterm_a12 = edge_operator_aij(edge_list, 1, 2)
-        qterm_a13 = edge_operator_aij(edge_list, 1, 3)
-        qterm_a23 = edge_operator_aij(edge_list, 2, 3)
+        qterm_a01 = _edge_operator_aij(edge_list, 0, 1)
+        qterm_a02 = _edge_operator_aij(edge_list, 0, 2)
+        qterm_a03 = _edge_operator_aij(edge_list, 0, 3)
+        qterm_a12 = _edge_operator_aij(edge_list, 1, 2)
+        qterm_a13 = _edge_operator_aij(edge_list, 1, 3)
+        qterm_a23 = _edge_operator_aij(edge_list, 2, 3)
 
         ref_qterm_a01 = SparsePauliOp("IIIIIX")
         ref_qterm_a02 = SparsePauliOp("IIIIXZ")
@@ -94,12 +94,12 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test H2 molecule"""
         with self.subTest("Excitation edges 1"):
             assert np.alltrue(
-                bksf.bksf_edge_list_fermionic_op(FermionicOp("+-+-")) == np.array([[0, 1], [2, 3]])
+                bksf._bksf_edge_list_fermionic_op(FermionicOp("+-+-")) == np.array([[0, 1], [2, 3]])
             )
 
         with self.subTest("Excitation edges 2"):
             assert np.alltrue(
-                bksf.bksf_edge_list_fermionic_op(FermionicOp("+--+")) == np.array([[0, 1], [3, 2]])
+                bksf._bksf_edge_list_fermionic_op(FermionicOp("+--+")) == np.array([[0, 1], [3, 2]])
             )
 
         ## H2 from pyscf with sto-3g basis
