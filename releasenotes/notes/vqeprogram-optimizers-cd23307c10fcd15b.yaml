@@ -1,5 +1,5 @@
 ---
-features:
+fixes:
   - |
     Allow Qiskit's :class:`~qiskit.algorithms.optimizers.Optimizer` classes as input for
     the ``optimizer`` in the :class:`~qiskit_nature.runtime.VQEProgram` instead of only
