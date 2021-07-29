@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Bravyi-Kitaev Super Fast(BKSF) Mapper."""
+"""The Bravyi-Kitaev Super Fast (BKSF) Mapper."""
 
 from enum import Enum
 from typing import List, Tuple
@@ -482,7 +482,7 @@ def _add_edges_for_term(edge_matrix: np.ndarray, term_str: str) -> None:
 
 
 def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
-    """Construct edge list required for the bksf algorithm.
+    """Construct edge list required for the BKSF algorithm.
 
     Args:
         ferm_op: the fermionic operator in the second quantized form

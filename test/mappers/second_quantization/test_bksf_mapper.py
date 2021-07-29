@@ -37,7 +37,7 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
     """Test Bravyi-Kitaev Super-Fast Mapper"""
 
     def test_bksf_edge_op_bi(self):
-        """Test bksf mapping, edge operator bi"""
+        """Test BKSF mapping, edge operator bi"""
         edge_matrix = np.triu(np.ones((4, 4)))
         edge_list = np.array(np.nonzero(np.triu(edge_matrix) - np.diag(np.diag(edge_matrix))))
         qterm_b0 = _edge_operator_bi(edge_list, 0)
@@ -60,7 +60,7 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             self.assertEqual(qterm_b3, ref_qterm_b3)
 
     def test_bksf_edge_op_aij(self):
-        """Test bksf mapping, edge operator aij"""
+        """Test BKSF mapping, edge operator aij"""
         edge_matrix = np.triu(np.ones((4, 4)))
         edge_list = np.array(np.nonzero(np.triu(edge_matrix) - np.diag(np.diag(edge_matrix))))
         qterm_a01 = _edge_operator_aij(edge_list, 0, 1)
