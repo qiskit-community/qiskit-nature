@@ -65,7 +65,6 @@ class ElectronicEnergy(IntegralProperty):
         self._orbital_enerfies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
-        self._fock: ElectronicIntegrals = None
 
     @property
     def orbital_energies(self) -> np.ndarray:
@@ -99,20 +98,6 @@ class ElectronicEnergy(IntegralProperty):
     def overlap(self, overlap: ElectronicIntegrals) -> None:
         """Sets the AO overlap integrals."""
         self._overlap = overlap
-
-    @property
-    def fock(self) -> ElectronicIntegrals:
-        """Returns the AO Fock operator.
-
-        In the case of DFT this cannot be reconstructed from the 1- and
-        2-electron integrals because of the XCF-dependent term.
-        """
-        return self._fock
-
-    @fock.setter
-    def fock(self, fock: ElectronicIntegrals) -> None:
-        """Returns the AO Fock operator."""
-        self._fock = fock
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
