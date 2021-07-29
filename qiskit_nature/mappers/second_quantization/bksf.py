@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Bravyi-Kitaev Super Fast (BKSF) Mapper."""
+"""The Bravyi-Kitaev Super-Fast (BKSF) Mapper."""
 
 from enum import Enum
 from typing import List, Tuple
@@ -23,7 +23,7 @@ from .fermionic_mapper import FermionicMapper
 
 
 class BravyiKitaevSuperFastMapper(FermionicMapper):
-    """The Bravyi-Kitaev super fast fermion-to-qubit mapping.
+    """The Bravyi-Kitaev super-fast fermion-to-qubit mapping.
 
     This implementation follows closely Reference [1].
 
