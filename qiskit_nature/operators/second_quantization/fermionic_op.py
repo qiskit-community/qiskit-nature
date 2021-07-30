@@ -408,7 +408,7 @@ class FermionicOp(SecondQuantizedOp):
 
         if isinstance(ret, FermionicOp):
             return ret
-        return FermionicOp(("", 0), self.register_length, self.sparse_label)
+        return FermionicOp(("", 0), self.register_length, True)
 
     @classmethod
     def zero(cls, register_length: int) -> "FermionicOp":
