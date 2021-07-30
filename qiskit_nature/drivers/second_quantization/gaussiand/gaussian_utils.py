@@ -27,7 +27,12 @@ _G16PROG = which(_GAUSSIAN_16)
 
 
 def check_valid() -> None:
-    """Checks if Gaussian is installed and available"""
+    """
+    Checks if Gaussian is installed and available
+
+    Raises:
+        MissingOptionalLibraryError: if not installed.
+    """
     if _G16PROG is None:
         raise MissingOptionalLibraryError(
             libname=_GAUSSIAN_16,

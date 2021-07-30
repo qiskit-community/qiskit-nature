@@ -177,8 +177,13 @@ class PyQuanteDriver(ElectronicStructureDriver):
         return BasisType.type_from_string(basis)
 
     @staticmethod
-    def check_installed():
-        """Check if PyQuante is installed"""
+    def check_installed() -> None:
+        """
+        Checks if PyQuante is installed and available
+
+        Raises:
+            MissingOptionalLibraryError: if not installed.
+        """
         try:
             spec = importlib.util.find_spec("pyquante2")
             if spec is not None:

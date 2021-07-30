@@ -121,8 +121,13 @@ class PSI4Driver(ElectronicStructureDriver):
         return basis
 
     @staticmethod
-    def check_installed():
-        """check if installed"""
+    def check_installed() -> None:
+        """
+        Checks if PSI4 is installed and available
+
+        Raises:
+            MissingOptionalLibraryError: if not installed.
+        """
         if PSI4_APP is None:
             raise MissingOptionalLibraryError(libname="PSI4", name="PSI4Driver")
 

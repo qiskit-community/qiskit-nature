@@ -120,8 +120,13 @@ class GaussianDriver(ElectronicStructureDriver):
         return basis
 
     @staticmethod
-    def check_installed():
-        """check if installed"""
+    def check_installed() -> None:
+        """
+        Checks if Gaussian is installed and available
+
+        Raises:
+            MissingOptionalLibraryError: if not installed.
+        """
         check_valid()
 
     def run(self) -> QMolecule:
