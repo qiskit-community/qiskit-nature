@@ -29,7 +29,7 @@ class TestAngularMomentum(QiskitNatureTestCase):
         super().setUp()
         qmol = QMolecule()
         qmol.num_molecular_orbitals = 4
-        self.prop = AngularMomentum.from_driver_result(qmol)
+        self.prop = AngularMomentum.from_legacy_driver_result(qmol)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

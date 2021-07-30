@@ -12,20 +12,29 @@
 
 """The ParticleNumber property."""
 
-from typing import cast, List, Optional, Tuple, Union
+import logging
+from typing import List, Optional, Tuple, Union, cast
+
+import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from .types import ElectronicProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
+
+LOGGER = logging.getLogger(__file__)
 
 
-class ParticleNumber(SecondQuantizedProperty):
-    """The ParticleNumber property."""
+class ParticleNumber(ElectronicProperty):
+    """The ParticleNumber property.
+
+    Note that this Property serves a two purposes:
+        1. it stores the expected number of electrons (`self.num_particles`)
+        2. it is used to evaluate the measured number of electrons via auxiliary operators.
+           If this measured number does not match the expected number a warning will be logged.
+    """
 
     def __init__(
         self,
@@ -54,9 +63,9 @@ class ParticleNumber(SecondQuantizedProperty):
 
         if occupation is None:
             self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
-            self._occupation_alpha += [0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
+            self._occupation_alpha += [0.0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
             self._occupation_beta = [1.0 for _ in range(self._num_beta)]
-            self._occupation_beta += [0] * (num_spin_orbitals // 2 - len(self._occupation_beta))
+            self._occupation_beta += [0.0] * (num_spin_orbitals // 2 - len(self._occupation_beta))
         elif occupation_beta is None:
             self._occupation_alpha = [o / 2.0 for o in occupation]
             self._occupation_beta = [o / 2.0 for o in occupation]
@@ -64,8 +73,53 @@ class ParticleNumber(SecondQuantizedProperty):
             self._occupation_alpha = occupation
             self._occupation_beta = occupation_beta
 
+    @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the num_spin_orbitals."""
+        return self._num_spin_orbitals
+
+    @property
+    def num_alpha(self) -> int:
+        """Returns the number of alpha electrons."""
+        return self._num_alpha
+
+    @property
+    def num_beta(self) -> int:
+        """Returns the number of beta electrons."""
+        return self._num_beta
+
+    @property
+    def num_particles(self) -> Tuple[int, int]:
+        """Returns the number of electrons."""
+        return (self.num_alpha, self.num_beta)
+
+    @property
+    def occupation_alpha(self) -> np.ndarray:
+        """Returns the occupation numbers of the alpha-spin orbitals.
+
+        The occupation numbers may be float because in non-Hartree Fock methods you may encounter
+        superpositions of determinants.
+        """
+        return np.asarray(self._occupation_alpha)
+
+    @property
+    def occupation_beta(self) -> np.ndarray:
+        """Returns the occupation numbers of the beta-spin orbitals.
+
+        The occupation numbers may be float because in non-Hartree Fock methods you may encounter
+        superpositions of determinants.
+        """
+        return np.asarray(self._occupation_beta)
+
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
+        string += [f"\t{self._num_spin_orbitals} SOs"]
+        string += [f"\t{self._num_alpha} alpha electrons: {self.occupation_alpha}"]
+        string += [f"\t{self._num_beta} beta electrons: {self.occupation_beta}"]
+        return "\n".join(string)
+
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "ParticleNumber":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
         """Construct a ParticleNumber instance from a QMolecule.
 
         Args:
@@ -78,7 +132,7 @@ class ParticleNumber(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
 
         qmol = cast(QMolecule, result)
 
@@ -96,3 +150,34 @@ class ParticleNumber(SecondQuantizedProperty):
             register_length=self._num_spin_orbitals,
         )
         return [op]
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        expected = self.num_alpha + self.num_beta
+        result.num_particles = []
+
+        if not isinstance(result.aux_operator_eigenvalues, list):
+            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        else:
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            if aux_op_eigenvalues is None:
+                continue
+
+            if aux_op_eigenvalues[0] is not None:
+                n_particles = aux_op_eigenvalues[0][0].real  # type: ignore
+                result.num_particles.append(n_particles)
+
+                if not np.isclose(n_particles, expected):
+                    LOGGER.warning(
+                        "The measured number of particles %s does NOT match the expected number of "
+                        "particles %s!",
+                        n_particles,
+                        expected,
+                    )
+            else:
+                result.num_particles.append(None)

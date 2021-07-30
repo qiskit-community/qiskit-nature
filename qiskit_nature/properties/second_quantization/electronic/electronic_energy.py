@@ -12,86 +12,42 @@
 
 """The ElectronicEnergy property."""
 
-from typing import cast, Dict, List, Optional
+from typing import Dict, List, Optional, cast
+
+import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
+    IntegralProperty,
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-    SecondQuantizedProperty,
-)
 
 
-# TODO: extract into separate file?
-class _IntegralProperty(SecondQuantizedProperty):
-    """A common Property object based on `ElectronicIntegrals` as its raw data.
-
-    This is a common base class, extracted to be used by (at the time of writing) the
-    `ElectronicEnergy` and the `DipoleMoment` properties. More subclasses may be added in the
-    future.
-    """
-
-    def __init__(
-        self,
-        name: str,
-        basis: ElectronicBasis,
-        electronic_integrals: Dict[int, ElectronicIntegrals],
-        shift: Optional[Dict[str, float]] = None,
-    ):
-        """
-        Args:
-            basis: the basis which the integrals in ``electronic_integrals`` are stored in.
-            electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                ``ElectronicIntegrals``.
-            shift: an optional dictionary of value shifts.
-        """
-        super().__init__(name)
-        self._basis = basis
-        self._electronic_integrals = electronic_integrals
-        self._shift = shift
-
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
-        return [
-            sum(  # type: ignore
-                ints.to_second_q_op() for ints in self._electronic_integrals.values()
-            ).reduce()
-        ]
-
-    @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "_IntegralProperty":
-        """This property does not support construction from a driver result (yet).
-
-        Args:
-            result: ignored.
-
-        Raises:
-            NotImplemented
-        """
-        raise NotImplementedError()
-
-
-class ElectronicEnergy(_IntegralProperty):
+class ElectronicEnergy(IntegralProperty):
     """The ElectronicEnergy property.
 
     This is the main property of any electronic structure problem. It constructs the Hamiltonian
     whose eigenvalue is the target of a later used Quantum algorithm.
+
+    Note that this Property computes **purely** the electronic energy (possibly minus additional
+    shifts introduced via e.g. classical transformers). However, for convenience it provides a
+    storage location for the nuclear repulsion energy. If available, this information will be used
+    during the call of `interpret` to provide the electronic, nuclear and total energy components in
+    the result object.
     """
 
     def __init__(
         self,
-        basis: ElectronicBasis,
-        electronic_integrals: Dict[int, ElectronicIntegrals],
-        energy_shift: Optional[Dict[str, float]] = None,
-        reference_energy: Optional[float] = None,
+        electronic_integrals: List[ElectronicIntegrals],
+        energy_shift: Optional[Dict[str, complex]] = None,
+        nuclear_repulsion_energy: Optional[complex] = None,
+        reference_energy: Optional[complex] = None,
     ):
         """
         Args:
@@ -101,11 +57,50 @@ class ElectronicEnergy(_IntegralProperty):
             reference_energy: an optional reference energy (such as the HF energy).
             energy_shift: an optional dictionary of energy shifts.
         """
-        super().__init__(self.__class__.__name__, basis, electronic_integrals, shift=energy_shift)
+        super().__init__(self.__class__.__name__, electronic_integrals, shift=energy_shift)
+        self._nuclear_repulsion_energy = nuclear_repulsion_energy
         self._reference_energy = reference_energy
 
+        # Additional, purely information data (i.e. currently not used by the Stack itself).
+        self._orbital_enerfies: np.ndarray = None
+        self._kinetic: ElectronicIntegrals = None
+        self._overlap: ElectronicIntegrals = None
+
+    @property
+    def orbital_energies(self) -> np.ndarray:
+        """Returns the orbital energies.
+
+        If no spin-distinction is made, this is a 1-D array, otherwise it is a 2-D array.
+        """
+        return self._orbital_energies
+
+    @orbital_energies.setter
+    def orbital_energies(self, orbital_energies: np.ndarray) -> None:
+        """Sets the orbital energies."""
+        self._orbital_energies = orbital_energies
+
+    @property
+    def kinetic(self) -> ElectronicIntegrals:
+        """Returns the AO kinetic integrals."""
+        return self._kinetic
+
+    @kinetic.setter
+    def kinetic(self, kinetic: ElectronicIntegrals) -> None:
+        """Sets the AO kinetic integrals."""
+        self._kinetic = kinetic
+
+    @property
+    def overlap(self) -> ElectronicIntegrals:
+        """Returns the AO overlap integrals."""
+        return self._overlap
+
+    @overlap.setter
+    def overlap(self, overlap: ElectronicIntegrals) -> None:
+        """Sets the AO overlap integrals."""
+        self._overlap = overlap
+
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "ElectronicEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
         """Construct an ElectronicEnergy instance from a QMolecule.
 
         Args:
@@ -118,29 +113,94 @@ class ElectronicEnergy(_IntegralProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
 
         qmol = cast(QMolecule, result)
 
         energy_shift = qmol.energy_shift.copy()
-        energy_shift["nuclear repulsion"] = qmol.nuclear_repulsion_energy
 
-        return cls(
-            ElectronicBasis.MO,
-            {
-                1: OneBodyElectronicIntegrals(
+        integrals: List[ElectronicIntegrals] = []
+        if qmol.hcore is not None:
+            integrals.append(
+                OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b))
+            )
+        if qmol.eri is not None:
+            integrals.append(
+                TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None))
+            )
+        if qmol.mo_onee_ints is not None:
+            integrals.append(
+                OneBodyElectronicIntegrals(
                     ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
-                ),
-                2: TwoBodyElectronicIntegrals(
+                )
+            )
+        if qmol.mo_eri_ints is not None:
+            integrals.append(
+                TwoBodyElectronicIntegrals(
                     ElectronicBasis.MO,
-                    (
-                        qmol.mo_eri_ints,
-                        qmol.mo_eri_ints_ba,
-                        qmol.mo_eri_ints_bb,
-                        None,
-                    ),
-                ),
-            },
+                    (qmol.mo_eri_ints, qmol.mo_eri_ints_ba, qmol.mo_eri_ints_bb, None),
+                )
+            )
+
+        ret = cls(
+            integrals,
             energy_shift=energy_shift,
+            nuclear_repulsion_energy=qmol.nuclear_repulsion_energy,
             reference_energy=qmol.hf_energy,
         )
+
+        orb_energies = qmol.orbital_energies
+        if qmol.orbital_energies_b is not None:
+            orb_energies = np.asarray((qmol.orbital_energies, qmol.orbital_energies_b))
+        ret.orbital_energies = orb_energies
+
+        if qmol.kinetic is not None:
+            ret.kinetic = OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.kinetic, None))
+
+        if qmol.overlap is not None:
+            ret.overlap = OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.overlap, None))
+
+        return ret
+
+    def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
+        """Constructs the Fock operator resulting from this `ElectronicEnergy`.
+
+        Args:
+            density: the electronic density at which to compute the operator.
+
+        Returns:
+            OneBodyElectronicIntegrals: the operator stored as ElectronicIntegrals.
+
+        Raises:
+            NotImplementedError: if no AO electronic integrals are available.
+        """
+        if ElectronicBasis.AO not in self._electronic_integrals.keys():
+            raise NotImplementedError(
+                "Construction of the Fock operator outside of the AO basis is not yet implemented."
+            )
+
+        one_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 1)
+        two_e_ints = cast(
+            TwoBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 2)
+        )
+
+        op = one_e_ints
+
+        coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
+        # by reversing the order of the matrices we can construct the (beta, alpha)-ordered Coulomb
+        # integrals
+        coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])
+        exchange = two_e_ints.compose(density, "ijkl,jk->il")
+        op += coulomb + coulomb_inv - exchange
+
+        return cast(OneBodyElectronicIntegrals, op)
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        result.hartree_fock_energy = self._reference_energy
+        result.nuclear_repulsion_energy = self._nuclear_repulsion_energy
+        result.extracted_transformer_energies = self._shift.copy()

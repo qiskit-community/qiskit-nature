@@ -23,6 +23,7 @@ from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasisTransform,
 )
 from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
 
@@ -70,9 +71,9 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 16 * mat_aa))
-            self.assertIsNone(ints_mo._matrices[1])
-            self.assertIsNone(ints_mo._matrices[2])
-            self.assertIsNone(ints_mo._matrices[3])
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 16 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[2], 16 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[3], 16 * mat_aa))
 
         with self.subTest("Alpha and Beta"):
             ints_ao = TwoBodyElectronicIntegrals(
@@ -91,9 +92,9 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
             ints_mo = ints_ao.transform_basis(transform_beta)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 16 * mat_aa))
-            self.assertIsNone(ints_mo._matrices[1])
-            self.assertIsNone(ints_mo._matrices[2])
-            self.assertIsNone(ints_mo._matrices[3])
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 36 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[2], 81 * mat_aa))
+            self.assertTrue(np.allclose(ints_mo._matrices[3], 36 * mat_aa))
 
         with self.subTest("Beta custom coeff"):
             transform_beta = ElectronicBasisTransform(
@@ -185,3 +186,44 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), expected):
                 self.assertEqual(real_label, exp_label)
                 self.assertTrue(np.isclose(real_coeff, exp_coeff))
+
+    def test_add(self):
+        """Test addition."""
+        mat_aa = np.arange(16).reshape((2, 2, 2, 2))
+        mat_bb = np.arange(-16, 0).reshape((2, 2, 2, 2))
+
+        ints_aa = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (mat_aa, None, None, None))
+        ints_bb = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (mat_bb, None, None, None))
+
+        ints_sum = ints_aa + ints_bb
+
+        self.assertTrue(isinstance(ints_sum, TwoBodyElectronicIntegrals))
+        self.assertTrue(np.allclose(ints_sum._matrices[0], mat_aa + mat_bb))
+
+    def test_mul(self):
+        """Test multiplication."""
+        mat_aa = np.arange(16).reshape((2, 2, 2, 2))
+
+        ints_aa = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (mat_aa, None, None, None))
+
+        ints_mul = 2.0 * ints_aa
+
+        self.assertTrue(isinstance(ints_mul, TwoBodyElectronicIntegrals))
+        self.assertTrue(np.allclose(ints_mul._matrices[0], 2.0 * mat_aa))
+
+    def test_compose(self):
+        """Test composition."""
+        mat_aa = np.arange(16).reshape((2, 2, 2, 2))
+        mat_b = np.arange(-4, 0).reshape((2, 2))
+
+        ints_aa = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
+        ints_b = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_b, None))
+
+        einsum = "ijkl,ji->kl"
+        composition = ints_aa.compose(ints_b, einsum)
+
+        expected = np.einsum(einsum, mat_aa, mat_b)
+
+        self.assertTrue(isinstance(composition, OneBodyElectronicIntegrals))
+        self.assertTrue(composition._basis, ElectronicBasis.AO)
+        self.assertTrue(np.allclose(composition._matrices[0], expected))

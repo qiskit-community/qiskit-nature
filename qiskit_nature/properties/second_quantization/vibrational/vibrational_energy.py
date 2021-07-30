@@ -12,21 +12,19 @@
 
 """The VibrationalEnergy property."""
 
-from typing import cast, Dict, List, Optional
+from typing import cast, Dict, List, Optional, Tuple
 
 from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
-from ..second_quantized_property import (
-    DriverResult,
-    SecondQuantizedProperty,
-    VibrationalDriverResult,
-)
+from .types import VibrationalProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalStructureDriverResult
 
 
-class VibrationalEnergy(SecondQuantizedProperty):
+class VibrationalEnergy(VibrationalProperty):
     """The VibrationalEnergy property.
 
     This is the main property of any vibrational structure problem. It constructs the Hamiltonian
@@ -35,24 +33,24 @@ class VibrationalEnergy(SecondQuantizedProperty):
 
     def __init__(
         self,
-        vibrational_integrals: Dict[int, VibrationalIntegrals],
+        vibrational_integrals: List[VibrationalIntegrals],
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
     ):
         """
         Args:
-            vibrational_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                ``VibrationalIntegrals``.
+            vibrational_integrals: a list of ``VibrationalIntegrals``.
             truncation_order: an optional truncation order for the highest number of body terms to
                 include in the constructed Hamiltonian.
             basis: the ``VibrationalBasis`` through which to map the integrals into second
                 quantization. This property **MUST** be set before the second-quantized operator can
                 be constructed.
         """
-        super().__init__(self.__class__.__name__)
-        self._vibrational_integrals = vibrational_integrals
+        super().__init__(self.__class__.__name__, basis)
+        self._vibrational_integrals: Dict[int, VibrationalIntegrals] = {}
+        for integral in vibrational_integrals:
+            self.add_vibrational_integral(integral)
         self._truncation_order = truncation_order
-        self._basis = basis
 
     @property
     def truncation_order(self) -> int:
@@ -64,18 +62,14 @@ class VibrationalEnergy(SecondQuantizedProperty):
         """Sets the truncation order."""
         self._truncation_order = truncation_order
 
-    @property
-    def basis(self) -> VibrationalBasis:
-        """Returns the basis."""
-        return self._basis
-
-    @basis.setter
-    def basis(self, basis: VibrationalBasis) -> None:
-        """Sets the basis."""
-        self._basis = basis
+    def __str__(self) -> str:
+        string = [super().__str__()]
+        for ints in self._vibrational_integrals.values():
+            string += [f"\t{ints}"]
+        return "\n".join(string)
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "VibrationalEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
         """Construct a VibrationalEnergy instance from a WatsonHamiltonian.
 
         Args:
@@ -88,21 +82,42 @@ class VibrationalEnergy(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, VibrationalDriverResult)
+        cls._validate_input_type(result, LegacyVibrationalStructureDriverResult)
 
         w_h = cast(WatsonHamiltonian, result)
 
-        vib_ints: Dict[int, VibrationalIntegrals] = {
-            1: VibrationalIntegrals(1, []),
-            2: VibrationalIntegrals(2, []),
-            3: VibrationalIntegrals(3, []),
-        }
+        sorted_integrals: Dict[int, List[Tuple[float, Tuple[int, ...]]]] = {1: [], 2: [], 3: []}
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]
             num_body = len(set(ints))
-            vib_ints[num_body].integrals.append((coeff, tuple(ints)))
+            sorted_integrals[num_body].append((coeff, tuple(ints)))
 
-        return cls(vib_ints)
+        return cls(
+            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        )
+
+    def add_vibrational_integral(self, integral: VibrationalIntegrals) -> None:
+        """Adds a VibrationalIntegrals instance to the internal storage.
+
+        Internally, the VibrationalIntegrals are stored in a dictionary sorted by their number of
+        body terms. This simplifies access based on these properties (see
+        `get_vibrational_integral`) and avoids duplicate, inconsistent entries.
+
+        Args:
+            integral: the VibrationalIntegrals to add.
+        """
+        self._vibrational_integrals[integral._num_body_terms] = integral
+
+    def get_vibrational_integral(self, num_body_terms: int) -> Optional[VibrationalIntegrals]:
+        """Gets an VibrationalIntegrals given the number of body terms.
+
+        Args:
+            num_body_terms: the number of body terms of the queried integrals.
+
+        Returns:
+            The queried integrals object (or None if unavailable).
+        """
+        return self._vibrational_integrals.get(num_body_terms, None)
 
     def second_q_ops(self) -> List[VibrationalOp]:
         """Returns a list containing the Hamiltonian constructed by the stored integrals."""
@@ -113,3 +128,10 @@ class VibrationalEnergy(SecondQuantizedProperty):
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
         return [sum(ops)]  # type: ignore
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
