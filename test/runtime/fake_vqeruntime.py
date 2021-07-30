@@ -14,6 +14,7 @@
 
 from typing import Dict, Any
 import numpy as np
+from qiskit.algorithms.optimizers import Optimizer
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit.providers import Provider
@@ -59,7 +60,7 @@ class FakeVQERuntime:
             "aux_operators": (list, type(None)),
             "ansatz": QuantumCircuit,
             "initial_point": (np.ndarray, str),
-            "optimizer": dict,
+            "optimizer": (Optimizer, dict),
             "shots": int,
             "measurement_error_mitigation": bool,
             "store_intermediate": bool,
