@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """The Electronic Structure Problem class."""
-from functools import partial, reduce
+from functools import partial
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -25,17 +25,14 @@ from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver,
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.electronic import (
-    AngularMomentum,
-    TotalDipoleMoment,
-    ElectronicEnergy,
-    Magnetization,
+    ElectronicStructureDriverResult,
     ParticleNumber,
 )
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
+from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
-from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
 
 
@@ -45,7 +42,9 @@ class ElectronicStructureProblem(BaseProblem):
     def __init__(
         self,
         driver: ElectronicStructureDriver,
-        q_molecule_transformers: Optional[List[BaseTransformer]] = None,
+        q_molecule_transformers: Optional[
+            List[Union[LegacyBaseTransformer, BaseTransformer]]
+        ] = None,
     ):
         """
 
@@ -57,8 +56,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        molecule_data_transformed = cast(QMolecule, self._molecule_data_transformed)
-        return molecule_data_transformed.num_alpha, molecule_data_transformed.num_beta
+        return self._properties_transformed.get_property("ParticleNumber").num_particles
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -70,25 +68,16 @@ class ElectronicStructureProblem(BaseProblem):
             operator, and (if available) x, y, z dipole operators.
         """
         self._molecule_data = cast(QMolecule, self.driver.run())
-        self._molecule_data_transformed = cast(QMolecule, self._transform(self._molecule_data))
+        if self._legacy_transform:
+            qmol_transformed = self._transform(self._molecule_data)
+            self._properties_transformed = (
+                ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
+            )
+        else:
+            prop = ElectronicStructureDriverResult.from_legacy_driver_result(self._molecule_data)
+            self._properties_transformed = self._transform(prop)
 
-        # TODO: in a follow-up PR we should gather these properties in a super-object. Possibly
-        # ElectronicDriverResult?
-        properties = []
-        for cls in [
-            ElectronicEnergy,
-            ParticleNumber,
-            AngularMomentum,
-            Magnetization,
-            TotalDipoleMoment,
-        ]:
-            prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
-            if prop is not None:
-                properties.append(prop)
-
-        second_quantized_ops_list = reduce(
-            lambda a, b: a + b, [prop.second_q_ops() for prop in properties]
-        )
+        second_quantized_ops_list = self._properties_transformed.second_q_ops()
 
         return second_quantized_ops_list
 
@@ -141,9 +130,26 @@ class ElectronicStructureProblem(BaseProblem):
         Returns:
             An electronic structure result.
         """
-        q_molecule = cast(QMolecule, self.molecule_data)
-        q_molecule_transformed = cast(QMolecule, self.molecule_data_transformed)
-        return _interpret(q_molecule, q_molecule_transformed, raw_result)
+        eigenstate_result = None
+        if isinstance(raw_result, EigenstateResult):
+            eigenstate_result = raw_result
+        elif isinstance(raw_result, EigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = raw_result.eigenvalues
+            eigenstate_result.eigenstates = raw_result.eigenstates
+            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
+        elif isinstance(raw_result, MinimumEigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
+            eigenstate_result.eigenstates = [raw_result.eigenstate]
+            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        result = ElectronicStructureResult()
+        result.combine(eigenstate_result)
+        self._properties_transformed.interpret(result)
+        result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
+        return result
 
     def get_default_filter_criterion(
         self,
@@ -162,10 +168,12 @@ class ElectronicStructureProblem(BaseProblem):
             num_particles_aux = aux_values[0][0]
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
-            q_molecule_transformed = cast(QMolecule, self._molecule_data_transformed)
+            particle_number = cast(
+                ParticleNumber, self.properties_transformed.get_property(ParticleNumber)
+            )
             return (
                 np.isclose(
-                    q_molecule_transformed.num_alpha + q_molecule_transformed.num_beta,
+                    particle_number.num_alpha + particle_number.num_beta,
                     num_particles_aux,
                 )
                 and np.isclose(0.0, total_angular_momentum_aux)

@@ -65,7 +65,7 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
-            self.assertIsNone(ints_mo._matrices[1])
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 4 * mat_a))
 
         with self.subTest("Alpha and Beta"):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, mat_b))
@@ -80,7 +80,7 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, None))
             ints_mo = ints_ao.transform_basis(transform_beta)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
-            self.assertIsNone(ints_mo._matrices[1])
+            self.assertTrue(np.allclose(ints_mo._matrices[1], 9 * mat_a))
 
         with self.subTest("Beta custom coeff"):
             transform_beta = ElectronicBasisTransform(
@@ -166,3 +166,44 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             ):
                 self.assertEqual(real_label, exp_label)
                 self.assertTrue(np.isclose(real_coeff, exp_coeff))
+
+    def test_add(self):
+        """Test addition."""
+        mat_a = np.arange(1, 5).reshape((2, 2))
+        mat_b = np.arange(-4, 0).reshape((2, 2))
+
+        ints_a = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, None))
+        ints_b = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_b, None))
+
+        ints_sum = ints_a + ints_b
+
+        self.assertTrue(isinstance(ints_sum, OneBodyElectronicIntegrals))
+        self.assertTrue(np.allclose(ints_sum._matrices[0], mat_a + mat_b))
+
+    def test_mul(self):
+        """Test multiplication."""
+        mat_a = np.arange(1, 5).reshape((2, 2))
+
+        ints_a = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, None))
+
+        ints_mul = 2.0 * ints_a
+
+        self.assertTrue(isinstance(ints_mul, OneBodyElectronicIntegrals))
+        self.assertTrue(np.allclose(ints_mul._matrices[0], 2.0 * mat_a))
+
+    def test_compose(self):
+        """Test composition."""
+        mat_a = np.arange(1, 5).reshape((2, 2))
+        mat_b = np.arange(-4, 0).reshape((2, 2))
+
+        ints_a = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, None))
+        ints_b = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_b, None))
+
+        composition = ints_a.compose(ints_b)
+
+        # The factor 2.0 arises from the fact that mat_a and mat_b also get populated into the None
+        # fields.
+        expected = 2.0 * np.einsum("ij,ji", mat_a, mat_b)
+
+        self.assertTrue(isinstance(composition, complex))
+        self.assertAlmostEqual(composition, expected)

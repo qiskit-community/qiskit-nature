@@ -38,7 +38,7 @@ class TestDirectMapper(QiskitNatureTestCase):
         num_modes = watson_hamiltonian.num_modes
         num_modals = [2] * num_modes
 
-        vibration_energy = VibrationalEnergy.from_driver_result(watson_hamiltonian)
+        vibration_energy = VibrationalEnergy.from_legacy_driver_result(watson_hamiltonian)
         vibration_energy.basis = HarmonicBasis(num_modals)
 
         vibration_op = vibration_energy.second_q_ops()[0]

@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """The Vibrational Structure Problem class."""
 
-from functools import partial, reduce
+from functools import partial
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -23,15 +23,14 @@ from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.vibrational import (
-    OccupiedModals,
-    VibrationalEnergy,
+    VibrationalStructureDriverResult,
 )
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
+from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
-from .result_interpreter import _interpret
 from ..base_problem import BaseProblem
 
 
@@ -43,7 +42,7 @@ class VibrationalStructureProblem(BaseProblem):
         bosonic_driver: VibrationalStructureDriver,
         num_modals: Union[int, List[int]],
         truncation_order: int,
-        transformers: Optional[List[BaseTransformer]] = None,
+        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
     ):
         """
         Args:
@@ -64,11 +63,10 @@ class VibrationalStructureProblem(BaseProblem):
             A list of `SecondQuantizedOp` in the following order: ... .
         """
         self._molecule_data: WatsonHamiltonian = cast(WatsonHamiltonian, self.driver.run())
-        self._molecule_data_transformed: WatsonHamiltonian = cast(
-            WatsonHamiltonian, self._transform(self._molecule_data)
-        )
+        prop = VibrationalStructureDriverResult.from_legacy_driver_result(self._molecule_data)
+        self._properties_transformed = cast(VibrationalStructureDriverResult, self._transform(prop))
 
-        num_modes = self._molecule_data_transformed.num_modes
+        num_modes = self._properties_transformed.num_modes
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * num_modes
         else:
@@ -76,19 +74,9 @@ class VibrationalStructureProblem(BaseProblem):
 
         # TODO: expose this as an argument in __init__
         basis = HarmonicBasis(num_modals)
+        self._properties_transformed.basis = basis
 
-        # TODO: in a follow-up PR we should gather these properties in a super-object. Possibly
-        # VibrationalDriverResult?
-        properties = []
-        for cls in [VibrationalEnergy, OccupiedModals]:
-            prop = cls.from_driver_result(self._molecule_data_transformed)  # type: ignore
-            if prop is not None:
-                prop.basis = basis  # type: ignore
-                properties.append(prop)
-
-        second_quantized_ops_list = reduce(
-            lambda a, b: a + b, [prop.second_q_ops() for prop in properties]
-        )
+        second_quantized_ops_list = self._properties_transformed.second_q_ops()
 
         return second_quantized_ops_list
 
@@ -128,7 +116,9 @@ class VibrationalStructureProblem(BaseProblem):
         """
 
         if isinstance(self.num_modals, int):
-            num_modals = [self.num_modals] * self._molecule_data_transformed.num_modes
+            num_modals = [self.num_modals] * cast(
+                VibrationalStructureDriverResult, self._properties_transformed
+            ).num_modes
         else:
             num_modals = self.num_modals
 
@@ -144,8 +134,26 @@ class VibrationalStructureProblem(BaseProblem):
         Returns:
             An vibrational structure result.
         """
-
-        return _interpret(self._molecule_data.num_modes, raw_result)
+        eigenstate_result = None
+        if isinstance(raw_result, EigenstateResult):
+            eigenstate_result = raw_result
+        elif isinstance(raw_result, EigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = raw_result.eigenvalues
+            eigenstate_result.eigenstates = raw_result.eigenstates
+            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
+        elif isinstance(raw_result, MinimumEigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
+            eigenstate_result.eigenstates = [raw_result.eigenstate]
+            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        result = VibrationalStructureResult()
+        result.combine(eigenstate_result)
+        self._properties_transformed.interpret(result)
+        result.computed_vibrational_energies = eigenstate_result.eigenenergies
+        return result
 
     def get_default_filter_criterion(
         self,

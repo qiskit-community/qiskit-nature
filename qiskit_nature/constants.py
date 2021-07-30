@@ -36,3 +36,5 @@ C_M_PER_S = 2.9979245800e8
 HBAR_J_S = 1.054571800e-34  # note this is h/2Pi
 H_J_S = 6.62607015e-34
 KB_J_PER_K = 1.3806488e-23
+BOHR = 0.52917721092  # No of Angstroms in Bohr (from 2010 CODATA)
+DEBYE = 0.393430307  # No ea0 in Debye. Use to convert our dipole moment numbers to Debye
