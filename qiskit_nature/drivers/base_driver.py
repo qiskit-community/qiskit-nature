@@ -25,7 +25,6 @@ from ..deprecation import DeprecatedType, warn_deprecated_same_type_name
 class BaseDriver(ABC):
     """**DEPRECATED** Base class for Qiskit Nature drivers."""
 
-    @abstractmethod
     def __init__(
         self,
         molecule: Optional[Molecule] = None,

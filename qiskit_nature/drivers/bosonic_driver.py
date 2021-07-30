@@ -28,7 +28,6 @@ class BosonicDriver(BaseDriver):
     Base class for Qiskit Nature's bosonic drivers.
     """
 
-    @abstractmethod
     def __init__(
         self,
         molecule: Optional[Molecule] = None,

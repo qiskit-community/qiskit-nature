@@ -52,7 +52,6 @@ class FermionicDriver(BaseDriver):
     Base class for Qiskit Nature's fermionic drivers.
     """
 
-    @abstractmethod
     def __init__(
         self,
         molecule: Optional[Molecule] = None,
