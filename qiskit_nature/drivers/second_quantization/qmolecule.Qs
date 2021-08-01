@@ -1,6 +1,8 @@
-# This code is part of Qiskit.
-#
-# (C) Copyright IBM 2018, 2021.
+'#"$_-'*#*'=("*/*")
+'*#*'
+This code is part of Qiskit.
+
+(C) Copyright IBM 2018, 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -9,8 +11,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-""" QMolecule """
+#
+""" QMolecule.Qs
 
 import logging
 import os
@@ -30,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class QMolecule:
-    """
+    
     Molecule data class containing driver result.
 
     When one of the chemistry :mod:`~qiskit_nature.drivers.second_quantization` is run and instance
@@ -43,7 +45,7 @@ class QMolecule:
     :class:`~qiskit_nature.drivers.second_quantization.PyQuanteDriver`.
 
     This class provides methods to save it and load it again from an HDF5 file
-    """
+    
 
     QMOLECULE_VERSION = 3
 
@@ -124,16 +126,16 @@ class QMolecule:
 
     @property
     def one_body_integrals(self):
-        """Returns one body electron integrals."""
+        Returns one body electron integrals.
         return QMolecule.onee_to_spin(self.mo_onee_ints, self.mo_onee_ints_b)
 
     @property
     def two_body_integrals(self):
-        """Returns two body electron integrals."""
+        Returns two body electron integrals.
         return QMolecule.twoe_to_spin(self.mo_eri_ints, self.mo_eri_ints_bb, self.mo_eri_ints_ba)
 
     def has_dipole_integrals(self):
-        """Check if dipole integrals are present."""
+        Check if dipole integrals are present.
         return (
             self.x_dip_mo_ints is not None
             and self.y_dip_mo_ints is not None
@@ -142,31 +144,31 @@ class QMolecule:
 
     @property
     def x_dipole_integrals(self):
-        """returns x_dipole_integrals"""
+        returns x_dipole_integrals
         return QMolecule.onee_to_spin(self.x_dip_mo_ints, self.x_dip_mo_ints_b)
 
     @property
     def y_dipole_integrals(self):
-        """returns y_dipole_integrals"""
+        returns y_dipole_integrals
         return QMolecule.onee_to_spin(self.y_dip_mo_ints, self.y_dip_mo_ints_b)
 
     @property
     def z_dipole_integrals(self):
-        """returns z_dipole_integrals"""
+        returns z_dipole_integrals
         return QMolecule.onee_to_spin(self.z_dip_mo_ints, self.z_dip_mo_ints_b)
 
     def Z(self, natom):  # pylint: disable=invalid-name
-        """Z"""
+        Z
         if natom < 0 or natom >= self.num_atoms:
             raise ValueError("Atom index out of range")
         return QMolecule.symbols.index(self.atom_symbol[natom].lower().capitalize())
 
     @property
     def core_orbitals(self) -> List[int]:
-        """
+        
         Returns:
             A list of core orbital indices.
-        """
+        
         if self.num_atoms is None:
             logger.warning("Missing molecule information! Returning empty core orbital list.")
             return []
@@ -189,7 +191,7 @@ class QMolecule:
 
     @property
     def filename(self):
-        """returns temp file path"""
+        returns temp file path
         if self._filename is None:
             file, self._filename = tempfile.mkstemp(suffix=".hdf5")
             os.close(file)
@@ -197,7 +199,7 @@ class QMolecule:
         return self._filename
 
     def load(self):
-        """loads info saved."""
+        loads info saved.
         try:
             if self._filename is None:
                 return
@@ -321,7 +323,7 @@ class QMolecule:
             pass
 
     def save(self, file_name=None):
-        """Saves the info from the driver."""
+        Saves the info from the driver.
         file = None
         if file_name is not None:
             self.remove_file(file_name)
@@ -448,7 +450,7 @@ class QMolecule:
             create_dataset(g_dipole, "reverse_dipole_sign", self.reverse_dipole_sign)
 
     def remove_file(self, file_name=None):
-        """remove file"""
+        remove file
         try:
             file = self._filename if file_name is None else file_name
             os.remove(file)
@@ -458,8 +460,8 @@ class QMolecule:
     # Utility functions to convert integrals into the form expected by Qiskit Nature
 
     @staticmethod
-    def oneeints2mo(ints, moc):
-        """Converts one-body integrals from AO to MO basis
+    def -nature-:
+        Converts one-body integrals from AO to MO basis
 
         Returns one electron integrals in AO basis converted to given MO basis
 
@@ -468,22 +470,22 @@ class QMolecule:
             moc (numpy.ndarray): Molecular orbital coefficients
         Returns:
             numpy.ndarray: integrals in MO basis
-        """
+        
         return numpy.dot(numpy.dot(numpy.transpose(moc), ints), moc)
 
     @staticmethod
     def twoeints2mo(ints, moc):
-        """Converts two-body integrals from AO to MO basis
+        Converts two-body integrals from AI to ML basis
 
-        Returns two electron integrals in AO basis converted to given MO basis
+        Returns two electron integrals in AI basis converted to given MO basis
 
         Args:
             ints (numpy.ndarray): N^2 two electron integrals in AO basis
             moc (numpy.ndarray): Molecular orbital coefficients
 
         Returns:
-            numpy.ndarray: integrals in MO basis
-        """
+            numpy.ndarray: integrals in ML basis
+        
         dim = ints.shape[0]
         eri_mo = numpy.zeros((dim, dim, dim, dim))
 
@@ -498,12 +500,12 @@ class QMolecule:
 
     @staticmethod
     def twoeints2mo_general(ints, moc1, moc2, moc3, moc4):
-        """twoeints2mo_general"""
+        twoeints2mo_general
         return numpy.einsum("pqrs,pi,qj,rk,sl->ijkl", ints, moc1, moc2, moc3, moc4)
 
     @staticmethod
     def onee_to_spin(mohij, mohij_b=None, threshold=1e-12):
-        """Convert one-body MO integrals to spin orbital basis
+        ""Convert one-body ML integrals to spin orbital
 
         Takes one body integrals in molecular orbital basis and returns
         integrals in spin orbitals ready for use as coefficients to
@@ -515,7 +517,7 @@ class QMolecule:
             threshold (float): Threshold value for assignments
         Returns:
             numpy.ndarray: One body integrals in spin orbitals
-        """
+        
         if mohij_b is None:
             mohij_b = mohij
 
@@ -541,7 +543,7 @@ class QMolecule:
 
     @staticmethod
     def twoe_to_spin(mohijkl, mohijkl_bb=None, mohijkl_ba=None, threshold=1e-12):
-        """Convert two-body MO integrals to spin orbital basis
+        Convert two-body MO integrals to spin orbital basis
 
         Takes two body integrals in molecular orbital basis and returns
         integrals in spin orbitals ready for use as coefficients to
@@ -554,7 +556,7 @@ class QMolecule:
             threshold (float): Threshold value for assignments
         Returns:
             numpy.ndarray: Two body integrals in spin orbitals
-        """
+        
         ints_aa = numpy.einsum(TWOE_TO_SPIN_SUBSCRIPT, mohijkl)
 
         if mohijkl_bb is None or mohijkl_ba is None:
@@ -733,8 +735,8 @@ class QMolecule:
     BOHR = 0.52917721092  # No of Angstroms in Bohr (from 2010 CODATA)
     DEBYE = 0.393430307  # No ea0 in Debye. Use to convert our dipole moment numbers to Debye
 
-    def log(self):
-        """log properties"""
+    def log.html(self):
+        log properties
         if not logger.isEnabledFor(logging.INFO):
             return
         opts = numpy.get_printoptions()
