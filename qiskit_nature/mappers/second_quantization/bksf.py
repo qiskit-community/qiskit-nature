@@ -385,7 +385,7 @@ def _unpack_term(
             else:
                 facs.append((i, "N"))
         else:
-            raise ValueError("Unexpected operator ", c, " in term.")
+            raise ValueError("Unsupported operator ", c, " in term.")
 
     return (n_number, n_raise, n_lower), facs
 
