@@ -212,12 +212,12 @@ class PySCFDriver(ElectronicStructureDriver):
 
     @property
     def method(self) -> MethodType:
-        """return Hartree-Fock method"""
+        """Returns Hartree-Fock/Kohn-Sham method"""
         return self._method
 
     @method.setter
     def method(self, value: MethodType) -> None:
-        """set Hartree-Fock method"""
+        """Sets Hartree-Fock/Kohn-Sham method"""
         self._method = value
 
     @property
