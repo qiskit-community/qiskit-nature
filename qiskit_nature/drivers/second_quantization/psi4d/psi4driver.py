@@ -19,12 +19,13 @@ import sys
 import tempfile
 from pathlib import Path
 from shutil import which
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Any, Dict
 
+from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
 
 from ..qmolecule import QMolecule
-from ..fermionic_driver import FermionicDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
 
@@ -35,7 +36,7 @@ PSI4 = "psi4"
 PSI4_APP = which(PSI4)
 
 
-class PSI4Driver(FermionicDriver):
+class PSI4Driver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the PSI4 program.
 
@@ -48,70 +49,90 @@ class PSI4Driver(FermionicDriver):
             str, List[str]
         ] = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n}\n\n"
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
-        molecule: Optional[Molecule] = None,
-        basis: str = "sto-3g",
-        method: MethodType = MethodType.RHF,
     ) -> None:
         """
         Args:
             config: A molecular configuration conforming to PSI4 format.
-            molecule: A driver independent Molecule definition instance may be provided. When a
-                molecule is supplied the ``config`` parameter is ignored and the Molecule instance,
-                along with ``basis`` and ``method`` is used to build a basic config instead.
-                The Molecule object is read when the driver is run and converted to the driver
-                dependent configuration for the computation. This allows, for example, the Molecule
-                geometry to be updated to compute different points.
-            basis: Basis set name as recognized by the PSI4 program.
-                See https://psicode.org/psi4manual/master/basissets.html for more information.
-                Defaults to the minimal basis 'sto-3g'.
-            method: Hartree-Fock Method type.
 
         Raises:
             QiskitNatureError: Invalid Input
         """
-        self._check_valid()
+        super().__init__()
+        self.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
 
         if isinstance(config, list):
             config = "\n".join(config)
 
-        super().__init__(
-            molecule=molecule,
-            basis=basis,
-            method=method.value,
-            supports_molecule=True,
-        )
         self._config = config
 
     @staticmethod
-    def _check_valid():
-        if PSI4_APP is None:
-            raise QiskitNatureError("Could not locate {}".format(PSI4))
+    def from_molecule(
+        molecule: Molecule,
+        basis: str = "sto3g",
+        method: MethodType = MethodType.RHF,
+        driver_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> "PSI4Driver":
+        """
+        Args:
+            molecule: molecule
+            basis: basis set
+            method: Hartree-Fock Method type
+            driver_kwargs: kwargs to be passed to driver
+        Returns:
+            driver
 
-    def _from_molecule_to_str(self) -> str:
-        units = None
-        if self.molecule.units == UnitsType.ANGSTROM:
+        Raises:
+            QiskitNatureError: Unknown unit
+        """
+        # Ignore kwargs parameter for this driver
+        del driver_kwargs
+        PSI4Driver.check_installed()
+        basis = PSI4Driver.to_driver_basis(basis)
+
+        if molecule.units == UnitsType.ANGSTROM:
             units = "ang"
-        elif self.molecule.units == UnitsType.BOHR:
+        elif molecule.units == UnitsType.BOHR:
             units = "bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
-        name = "".join([name for (name, _) in self.molecule.geometry])
+            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+        name = "".join([name for (name, _) in molecule.geometry])
         geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
         )
         cfg1 = f"molecule {name} {{\nunits {units}\n"
-        cfg2 = f"{self.molecule.charge} {self.molecule.multiplicity}\n"
+        cfg2 = f"{molecule.charge} {molecule.multiplicity}\n"
         cfg3 = f"{geom}\nno_com\nno_reorient\n}}\n\n"
-        cfg4 = f"set {{\n basis {self.basis}\n scf_type pk\n reference {self.method}\n}}"
-        return cfg1 + cfg2 + cfg3 + cfg4
+        cfg4 = f"set {{\n basis {basis}\n scf_type pk\n reference {method.value}\n}}"
+        return PSI4Driver(cfg1 + cfg2 + cfg3 + cfg4)
+
+    @staticmethod
+    def to_driver_basis(basis: str) -> str:
+        """
+        Converts basis to a driver acceptable basis
+        Args:
+            basis: The basis set to be used
+        Returns:
+            driver acceptable basis
+        """
+        if basis == "sto3g":
+            return "sto-3g"
+        return basis
+
+    @staticmethod
+    def check_installed() -> None:
+        """
+        Checks if PSI4 is installed and available
+
+        Raises:
+            MissingOptionalLibraryError: if not installed.
+        """
+        if PSI4_APP is None:
+            raise MissingOptionalLibraryError(libname="PSI4", name="PSI4Driver")
 
     def run(self) -> QMolecule:
-        if self.molecule is not None:
-            cfg = self._from_molecule_to_str()
-        else:
-            cfg = self._config
+        cfg = self._config
 
         psi4d_directory = Path(__file__).resolve().parent
         template_file = psi4d_directory.joinpath("_template.txt")

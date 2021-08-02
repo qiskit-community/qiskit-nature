@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.drivers.second_quantization import BosonicDriver, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.vibrational import (
@@ -39,7 +39,7 @@ class VibrationalStructureProblem(BaseProblem):
 
     def __init__(
         self,
-        bosonic_driver: BosonicDriver,
+        bosonic_driver: VibrationalStructureDriver,
         num_modals: Union[int, List[int]],
         truncation_order: int,
         transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,

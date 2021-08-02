@@ -14,44 +14,45 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 from test.drivers.second_quantization.test_driver import TestDriver
-from qiskit_nature.drivers.second_quantization import GaussianDriver
-from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers.second_quantization import (
+    GaussianDriver,
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
+)
 
 
 class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
     """Gaussian Driver tests."""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            driver = GaussianDriver(
-                [
-                    "# rhf/sto-3g scf(conventional) geom=nocrowd",
-                    "",
-                    "h2 molecule",
-                    "",
-                    "0 1",
-                    "H   0.0  0.0    0.0",
-                    "H   0.0  0.0    0.735",
-                    "",
-                ]
-            )
-        except QiskitNatureError:
-            self.skipTest("GAUSSIAN driver does not appear to be installed")
+        driver = GaussianDriver(
+            [
+                "# rhf/sto-3g scf(conventional) geom=nocrowd",
+                "",
+                "h2 molecule",
+                "",
+                "0 1",
+                "H   0.0  0.0    0.0",
+                "H   0.0  0.0    0.735",
+                "",
+            ]
+        )
         self.qmolecule = driver.run()
 
 
 class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
     """Gaussian Driver tests."""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            driver = GaussianDriver(molecule=TestDriver.MOLECULE)
-        except QiskitNatureError:
-            self.skipTest("GAUSSIAN driver does not appear to be installed")
+        driver = ElectronicStructureMoleculeDriver(
+            TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.GAUSSIAN
+        )
         self.qmolecule = driver.run()
 
 

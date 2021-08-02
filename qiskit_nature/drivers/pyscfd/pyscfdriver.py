@@ -105,7 +105,7 @@ class PySCFDriver(FermionicDriver):
             "0.2.0",
             DeprecatedType.CLASS,
             "PySCFDriver",
-            "from qiskit_nature.drivers.second_quantization.pyscfd as a direct replacement",
+            "from qiskit_nature.drivers.second_quantization.pyscfd",
         )
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):

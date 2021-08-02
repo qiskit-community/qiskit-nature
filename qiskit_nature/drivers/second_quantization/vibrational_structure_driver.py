@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-This module implements the abstract base class for bosonic driver modules.
+This module implements the abstract base class for vibrational structure driver modules.
 """
 
 from abc import abstractmethod
@@ -20,9 +20,9 @@ from .watson_hamiltonian import WatsonHamiltonian
 from .base_driver import BaseDriver
 
 
-class BosonicDriver(BaseDriver):
+class VibrationalStructureDriver(BaseDriver):
     """
-    Base class for Qiskit Nature's bosonic drivers.
+    Base class for Qiskit Nature's vibrational structure drivers.
     """
 
     @abstractmethod
@@ -31,6 +31,6 @@ class BosonicDriver(BaseDriver):
         Runs driver to produce a WatsonHamiltonian output.
 
         Returns:
-            A WatsonHamiltonian comprising the bosonic data.
+            A WatsonHamiltonian comprising the vibrational structure data.
         """
         pass
