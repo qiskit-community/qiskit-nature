@@ -68,8 +68,8 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
     computed before this method is called. The returned Pauli operator must be sorted and simplified.
 
     Args:
-      `ferm_op`: The fermionic operator to convert.
-      `edge_list`: The qubit-connectivity graph expressed as an edge list.
+      ferm_op: The fermionic operator to convert.
+      edge_list: The qubit-connectivity graph expressed as an edge list.
 
     Returns:
       An un-simplified Pauli operator representing `ferm_op`.
@@ -351,8 +351,8 @@ def _unpack_term(
     are ignored.
 
     Args:
-       `term_str`: a string of characters in `N+-I`.
-       `expand_number_op`: if `True`, number operators are expanded to `(i, '+')`, `(i, '-')`
+       term_str: a string of characters in `N+-I`.
+       expand_number_op: if `True`, number operators are expanded to `(i, '+')`, `(i, '-')`
          in the returned list of factors.
 
     Returns:
@@ -394,9 +394,9 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
     to the number of lowering operators.
 
     Args:
-       `n_number`: the number of number operators
-       `n_raise`: the number of raising operators
-       `n_lower`: the number of lowering operators
+      n_number: the number of number operators
+      n_raise: the number of raising operators
+      n_lower: the number of lowering operators
 
     Returns:
       TermType: The type of interaction.
@@ -432,7 +432,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
       fer_op: The Fermionic operator.
 
     Returns:
-          numpy.ndarray(dtype=bool): edge_matrix the adjacency matrix.
+      numpy.ndarray(dtype=bool): edge_matrix the adjacency matrix.
     """
     n_modes = fer_op.register_length
     edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
@@ -569,9 +569,9 @@ def _to_physicist_index_order(facs: List[Tuple[int, str]]) -> Tuple[List[Tuple[i
         `c` is either `-` or `+`.
 
     Returns:
-        facs_out: A copy of the reordered factors or the input list (not a copy) if the factors are
+      facs_out: A copy of the reordered factors or the input list (not a copy) if the factors are
           already in the desired order.
-        phase: Either `1` or `-1`.
+      phase: Either `1` or `-1`.
 
     Raises:
         ValueError: if `facs` does not represent a two-body interaction.
