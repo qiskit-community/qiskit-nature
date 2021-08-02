@@ -44,7 +44,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
+from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -107,11 +107,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
         aux_ops = ElectronicEnergy(
-            ElectronicBasis.MO,
-            {
-                1: OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
-                2: TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
-            },
+            [
+                OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
+                TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
+            ],
         ).second_q_ops()
         aux_ops_copy = copy.deepcopy(aux_ops)
 
@@ -418,7 +417,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         reduction. This regression test ensures that this behavior remains fixed.
         """
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization")
+            hdf5_input=self.get_resource_path(
+                "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
+            )
         )
         problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
         qubit_converter = QubitConverter(

@@ -18,11 +18,13 @@ Electronic Integrals (:mod:`qiskit_nature.properties.electronic_structure.integr
 """
 
 from .electronic_integrals import ElectronicIntegrals
+from .integral_property import IntegralProperty
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 from .two_body_electronic_integrals import TwoBodyElectronicIntegrals
 
 __all__ = [
     "ElectronicIntegrals",
+    "IntegralProperty",
     "OneBodyElectronicIntegrals",
     "TwoBodyElectronicIntegrals",
 ]

@@ -13,40 +13,42 @@
 """ Test Driver PyQuante """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers import UnitsType
-from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType
-from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers.second_quantization import (
+    PyQuanteDriver,
+    BasisType,
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
+)
 
 
 class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
     """PYQUANTE Driver tests."""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            driver = PyQuanteDriver(
-                atoms="H .0 .0 .0; H .0 .0 0.735",
-                units=UnitsType.ANGSTROM,
-                charge=0,
-                multiplicity=1,
-                basis=BasisType.BSTO3G,
-            )
-        except QiskitNatureError:
-            self.skipTest("PYQUANTE driver does not appear to be installed")
+        driver = PyQuanteDriver(
+            atoms="H .0 .0 .0; H .0 .0 0.735",
+            units=UnitsType.ANGSTROM,
+            charge=0,
+            multiplicity=1,
+            basis=BasisType.BSTO3G,
+        )
         self.qmolecule = driver.run()
 
 
 class TestDriverPyQuanteMolecule(QiskitNatureTestCase, TestDriver):
     """PYQUANTE Driver molecule tests."""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            driver = PyQuanteDriver(molecule=TestDriver.MOLECULE)
-        except QiskitNatureError:
-            self.skipTest("PYQUANTE driver does not appear to be installed")
+        driver = ElectronicStructureMoleculeDriver(
+            TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.PYQUANTE
+        )
         self.qmolecule = driver.run()
 
 

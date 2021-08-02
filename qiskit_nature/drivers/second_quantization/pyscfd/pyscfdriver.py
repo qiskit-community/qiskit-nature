@@ -13,19 +13,20 @@
 """The PySCF Driver."""
 
 import importlib
+import inspect
 import logging
 import os
 import tempfile
 import warnings
 from enum import Enum
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Any, Dict
 
 import numpy as np
 from qiskit.utils.validation import validate_min
 from qiskit.exceptions import MissingOptionalLibraryError
 
 from ....exceptions import QiskitNatureError
-from ..fermionic_driver import FermionicDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..qmolecule import QMolecule
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -54,7 +55,7 @@ class InitialGuess(Enum):
     ATOM = "atom"
 
 
-class PySCFDriver(FermionicDriver):
+class PySCFDriver(ElectronicStructureDriver):
     """A Second-Quantization driver for Qiskit Nature using the PySCF library.
 
     References:
@@ -76,7 +77,6 @@ class PySCFDriver(FermionicDriver):
         init_guess: InitialGuess = InitialGuess.MINAO,
         max_memory: Optional[int] = None,
         chkfile: Optional[str] = None,
-        molecule: Optional[Molecule] = None,
     ) -> None:
         """
         Args:
@@ -113,12 +113,6 @@ class PySCFDriver(FermionicDriver):
             chkfile: The path to a PySCF checkpoint file from which to load a previously run
                 calculation. The data stored in this file is assumed to be already converged.
                 Refer to 6_ and 7_ for more details.
-            molecule: A driver independent ``Molecule`` definition instance may be provided. When
-                a molecule is supplied the ``atom``, ``unit``, ``charge`` and ``spin`` parameters
-                are all ignored as the Molecule instance now defines these instead. The Molecule
-                object is read when the driver is run and converted to the driver dependent
-                configuration for the computation. This allows, for example, the Molecule geometry
-                to be updated to compute different points.
 
         Raises:
             QiskitNatureError: An invalid input was supplied.
@@ -131,8 +125,9 @@ class PySCFDriver(FermionicDriver):
         .. _6: https://pyscf.org/pyscf_api_docs/pyscf.scf.html#module-pyscf.scf.hf
         .. _7: https://pyscf.org/pyscf_api_docs/pyscf.lib.html#module-pyscf.lib.chkfile
         """
+        super().__init__()
         # First, ensure that PySCF is actually installed
-        self._check_installed()
+        self.check_installed()
 
         if isinstance(atom, list):
             atom = ";".join(atom)
@@ -144,18 +139,14 @@ class PySCFDriver(FermionicDriver):
             )
 
         validate_min("max_cycle", max_cycle, 1)
-        super().__init__(
-            molecule=molecule,
-            basis=basis,
-            method=method.value,
-            supports_molecule=True,
-        )
 
         # we use the property-setter to deal with conversion
         self.atom = atom  # type: ignore
-        self._unit = unit.value
+        self._unit = unit
         self._charge = charge
         self._spin = spin
+        self._basis = basis
+        self._method = method
         self._xc_functional = xc_functional
         self.xcf_library = xcf_library  # validate choice in property setter
         self._conv_tol = conv_tol
@@ -180,12 +171,12 @@ class PySCFDriver(FermionicDriver):
         self._atom = atom.replace("\n", ";")
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> UnitsType:
         """Returns the unit."""
         return self._unit
 
     @unit.setter
-    def unit(self, unit: str) -> None:
+    def unit(self, unit: UnitsType) -> None:
         """Sets the unit."""
         self._unit = unit
 
@@ -208,6 +199,26 @@ class PySCFDriver(FermionicDriver):
     def spin(self, spin: int) -> None:
         """Sets the spin."""
         self._spin = spin
+
+    @property
+    def basis(self) -> str:
+        """return basis"""
+        return self._basis
+
+    @basis.setter
+    def basis(self, value: str) -> None:
+        """set basis"""
+        self._basis = value
+
+    @property
+    def method(self) -> MethodType:
+        """Returns Hartree-Fock/Kohn-Sham method"""
+        return self._method
+
+    @method.setter
+    def method(self, value: MethodType) -> None:
+        """Sets Hartree-Fock/Kohn-Sham method"""
+        self._method = value
 
     @property
     def xc_functional(self) -> str:
@@ -285,7 +296,53 @@ class PySCFDriver(FermionicDriver):
         self._chkfile = chkfile
 
     @staticmethod
-    def _check_installed() -> None:
+    def from_molecule(
+        molecule: Molecule,
+        basis: str = "sto3g",
+        method: MethodType = MethodType.RHF,
+        driver_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> "PySCFDriver":
+        """
+        Args:
+            molecule: molecule
+            basis: basis set
+            method: Hartree-Fock Method type
+            driver_kwargs: kwargs to be passed to driver
+        Returns:
+            driver
+        """
+        PySCFDriver.check_installed()
+        kwargs = {}
+        if driver_kwargs:
+            args = inspect.getfullargspec(PySCFDriver.__init__).args
+            for key, value in driver_kwargs.items():
+                if key not in ["self"] and key in args:
+                    kwargs[key] = value
+
+        kwargs["atom"] = [  # type: ignore
+            " ".join(map(str, (name, *coord)))  # type: ignore
+            for (name, coord) in molecule.geometry
+        ]
+        kwargs["charge"] = molecule.charge
+        kwargs["spin"] = molecule.multiplicity - 1
+        kwargs["unit"] = molecule.units
+        kwargs["basis"] = PySCFDriver.to_driver_basis(basis)
+        kwargs["method"] = method
+        return PySCFDriver(**kwargs)
+
+    @staticmethod
+    def to_driver_basis(basis: str) -> str:
+        """
+        Converts basis to a driver acceptable basis
+        Args:
+            basis: The basis set to be used
+        Returns:
+            driver acceptable basis
+        """
+        return basis
+
+    @staticmethod
+    def check_installed() -> None:
         """Checks that PySCF is actually installed.
 
         Raises:
@@ -320,15 +377,6 @@ class PySCFDriver(FermionicDriver):
         Returns:
             A QMolecule object containing the raw driver results.
         """
-        if self.molecule is not None:
-            self.atom = [  # type: ignore
-                " ".join(map(str, (name, *coord)))  # type: ignore
-                for (name, coord) in self.molecule.geometry
-            ]
-            self._charge = self.molecule.charge
-            self._spin = self.molecule.multiplicity - 1
-            self._unit = self.molecule.units.value
-
         self._build_molecule()
         self.run_pyscf()
 
@@ -360,7 +408,7 @@ class PySCFDriver(FermionicDriver):
 
             self._mol = gto.Mole(
                 atom=atom,
-                unit=self._unit,
+                unit=self._unit.value,
                 basis=self._basis,
                 max_memory=self._max_memory,
                 verbose=verbose,
@@ -424,9 +472,11 @@ class PySCFDriver(FermionicDriver):
         Raises:
             QiskitNatureError: If an invalid HF method type was supplied.
         """
+        method_name = None
+        method_cls = None
         try:
             # attempt to gather the SCF-method class specified by the MethodType
-            method_name = self._method.upper()
+            method_name = self.method.value.upper()
             method_cls = getattr(scf, method_name)
         except AttributeError as exc:
             raise QiskitNatureError("Failed to load {} HF object.".format(method_name)) from exc
@@ -481,17 +531,17 @@ class PySCFDriver(FermionicDriver):
         q_mol.origin_driver_version = pyscf_version
         cfg = [
             "atom={}".format(self._atom),
-            "unit={}".format(self._unit),
+            "unit={}".format(self._unit.value),
             "charge={}".format(self._charge),
             "spin={}".format(self._spin),
             "basis={}".format(self._basis),
-            "method={}".format(self._method),
+            "method={}".format(self.method.value),
             "conv_tol={}".format(self._conv_tol),
             "max_cycle={}".format(self._max_cycle),
             "init_guess={}".format(self._init_guess),
             "max_memory={}".format(self._max_memory),
         ]
-        if self._method.lower() in ("rks", "roks", "uks"):
+        if self.method.value.lower() in ("rks", "roks", "uks"):
             cfg.extend(
                 [
                     "xc_functional={}".format(self._xc_functional),

@@ -48,9 +48,11 @@ Utilities
 """
 
 from .occupied_modals import OccupiedModals
+from .vibrational_structure_driver_result import VibrationalStructureDriverResult
 from .vibrational_energy import VibrationalEnergy
 
 __all__ = [
     "OccupiedModals",
+    "VibrationalStructureDriverResult",
     "VibrationalEnergy",
 ]

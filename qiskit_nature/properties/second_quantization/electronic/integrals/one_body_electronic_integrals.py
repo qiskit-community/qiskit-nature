@@ -46,6 +46,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         """
         num_body_terms = 1
         super().__init__(num_body_terms, basis, matrices, threshold)
+        self._matrix_representations = ["Alpha", "Beta"]
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
         """Transforms the integrals according to the given transform object.
@@ -100,3 +101,35 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
     def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
         return [(indices[0], "+"), (indices[1], "-")]
+
+    def compose(self, other: ElectronicIntegrals, einsum_subscript: str = "ij,ji") -> complex:
+        """Composes these OneBodyElectronicIntegrals with another instance thereof.
+
+        Args:
+            other: an instance of OneBodyElectronicIntegrals.
+            einsum_subscript: an additional `np.einsum` subscript.
+
+        Returns:
+            The resulting complex.
+
+        Raises:
+            TypeError: if `other` is not an `OneBodyElectronicIntegrals` instance.
+            ValueError: if the bases of `self` and `other` do not match.
+        """
+        if not isinstance(other, OneBodyElectronicIntegrals):
+            raise TypeError(
+                "OneBodyElectronicIntegrals.compose expected an `OneBodyElectronicIntegrals` object"
+                f" and not one of type {type(other)}."
+            )
+
+        if self._basis != other._basis:
+            raise ValueError(
+                f"The basis of self, {self._basis.value}, does not match the basis of other, "
+                f"{other._basis}!"
+            )
+
+        product = 0.0
+        for front, back in zip(self._matrices, other._matrices):
+            product += np.einsum(einsum_subscript, front, back)
+
+        return complex(product)

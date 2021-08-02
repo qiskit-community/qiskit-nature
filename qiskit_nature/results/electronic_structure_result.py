@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Tuple, cast
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.constants import DEBYE
 from .eigenstate_result import EigenstateResult
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all
@@ -147,7 +147,7 @@ class ElectronicStructureResult(EigenstateResult):
     def total_dipole_moment_in_debye(self) -> Optional[List[float]]:
         """Returns total dipole of moment in Debye"""
         tdm = self.total_dipole_moment
-        return [dip / QMolecule.DEBYE if dip is not None else None for dip in tdm]
+        return [dip / DEBYE if dip is not None else None for dip in tdm]
 
     @property
     def dipole_moment(self) -> Optional[List[DipoleTuple]]:
@@ -168,9 +168,9 @@ class ElectronicStructureResult(EigenstateResult):
             return None
         dipmd = []
         for dip in dipm:
-            dipmd0 = dip[0] / QMolecule.DEBYE if dip[0] is not None else None
-            dipmd1 = dip[1] / QMolecule.DEBYE if dip[1] is not None else None
-            dipmd2 = dip[2] / QMolecule.DEBYE if dip[2] is not None else None
+            dipmd0 = dip[0] / DEBYE if dip[0] is not None else None
+            dipmd1 = dip[1] / DEBYE if dip[1] is not None else None
+            dipmd2 = dip[2] / DEBYE if dip[2] is not None else None
             dipmd += [(dipmd0, dipmd1, dipmd2)]
         return dipmd
 

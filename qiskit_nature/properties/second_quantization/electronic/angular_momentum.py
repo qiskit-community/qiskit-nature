@@ -20,20 +20,18 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
 from .bases import ElectronicBasis
 from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from .types import ElectronicProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 
 
-class AngularMomentum(SecondQuantizedProperty):
+class AngularMomentum(ElectronicProperty):
     """The AngularMomentum property."""
 
     def __init__(self, num_spin_orbitals: int):
@@ -43,9 +41,15 @@ class AngularMomentum(SecondQuantizedProperty):
         """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
+        # TODO: store expected spin?
+
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
+        string += [f"\t{self._num_spin_orbitals} SOs"]
+        return "\n".join(string)
 
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "AngularMomentum":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "AngularMomentum":
         """Construct an AngularMomentum instance from a QMolecule.
 
         Args:
@@ -58,7 +62,7 @@ class AngularMomentum(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
 
         qmol = cast(QMolecule, result)
 
@@ -77,6 +81,27 @@ class AngularMomentum(SecondQuantizedProperty):
         h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        result.total_angular_momentum = []
+
+        if not isinstance(result.aux_operator_eigenvalues, list):
+            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        else:
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            if aux_op_eigenvalues is None:
+                continue
+
+            if aux_op_eigenvalues[1] is not None:
+                result.total_angular_momentum.append(aux_op_eigenvalues[1][0].real)  # type: ignore
+            else:
+                result.total_angular_momentum.append(None)
 
 
 def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:

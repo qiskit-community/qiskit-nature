@@ -52,8 +52,8 @@ Driver Base Class
    :nosignatures:
 
    BaseDriver
-   BosonicDriver
-   FermionicDriver
+   VibrationalStructureDriver
+   ElectronicStructureDriver
 
 Driver Common
 =============
@@ -92,13 +92,15 @@ chemistry program/library and needs no special install.
 The :class:`FCIDumpDriver` likewise reads from a pre-existing file in this case a standard
 FCIDump file and again needs no special install.
 
-Fermionic Drivers
-=================
+Electronic Structure Drivers
+============================
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
+   ElectronicStructureMoleculeDriver
+   ElectronicStructureDriverType
    GaussianDriver
    PSI4Driver
    PyQuanteDriver
@@ -106,13 +108,15 @@ Fermionic Drivers
    HDF5Driver
    FCIDumpDriver
 
-Bosonic Drivers
-===============
+Vibrational Structure Drivers
+=============================
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
+   VibrationalStructureMoleculeDriver
+   VibrationalStructureDriverType
    GaussianForcesDriver
 
 General Driver
@@ -139,11 +143,19 @@ Submodules
 
 """
 
+from .electronic_structure_molecule_driver import (
+    ElectronicStructureMoleculeDriver,
+    ElectronicStructureDriverType,
+)
+from .vibrational_structure_molecule_driver import (
+    VibrationalStructureMoleculeDriver,
+    VibrationalStructureDriverType,
+)
 from .base_driver import BaseDriver
 from .qmolecule import QMolecule
 from .watson_hamiltonian import WatsonHamiltonian
-from .bosonic_driver import BosonicDriver
-from .fermionic_driver import FermionicDriver, MethodType
+from .vibrational_structure_driver import VibrationalStructureDriver
+from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from .fcidumpd import FCIDumpDriver
 from .gaussiand import GaussianDriver, GaussianLogDriver, GaussianLogResult, GaussianForcesDriver
 from .hdf5d import HDF5Driver
@@ -152,12 +164,16 @@ from .pyquanted import PyQuanteDriver, BasisType
 from .pyscfd import PySCFDriver, InitialGuess
 
 __all__ = [
+    "ElectronicStructureMoleculeDriver",
+    "ElectronicStructureDriverType",
+    "VibrationalStructureMoleculeDriver",
+    "VibrationalStructureDriverType",
     "MethodType",
     "QMolecule",
     "WatsonHamiltonian",
     "BaseDriver",
-    "BosonicDriver",
-    "FermionicDriver",
+    "VibrationalStructureDriver",
+    "ElectronicStructureDriver",
     "FCIDumpDriver",
     "GaussianDriver",
     "GaussianForcesDriver",

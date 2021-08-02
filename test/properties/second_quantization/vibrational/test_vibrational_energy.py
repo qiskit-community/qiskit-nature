@@ -59,7 +59,7 @@ class TestVibrationalEnergy(QiskitNatureTestCase):
             ],
             4,
         )
-        self.prop = VibrationalEnergy.from_driver_result(watson)
+        self.prop = VibrationalEnergy.from_legacy_driver_result(watson)
         self.prop.basis = basis
 
     def test_second_q_ops(self):
