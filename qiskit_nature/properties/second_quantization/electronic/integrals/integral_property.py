@@ -54,7 +54,7 @@ class IntegralProperty(ElectronicProperty):
         string = [super().__str__()]
         for basis_ints in self._electronic_integrals.values():
             for ints in basis_ints.values():
-                string += [f"\t{ints}"]
+                string += ["\t" + "\n\t".join(str(ints).split("\n"))]
         if self._shift:
             string += ["\tEnergy Shifts:"]
             for name, shift in self._shift.items():
