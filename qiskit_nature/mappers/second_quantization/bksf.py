@@ -498,7 +498,8 @@ def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
 
 
 def _edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
-    """Calculate the edge operator A_ij.
+    # pylint: disable=missing-return-doc
+    """Return the edge operator A_ij.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
 
@@ -507,9 +508,6 @@ def _edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
                                     and each pair denotes (from, to)
         i: specifying the edge operator A
         j: specifying the edge operator A
-
-    Returns:
-        Pauli: qubit operator
     """
     v = np.zeros(edge_list.shape[1])
     w = np.zeros(edge_list.shape[1])
@@ -539,7 +537,8 @@ def _edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
 
 
 def _edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
-    """Calculate the edge operator B_i.
+    # pylint: disable=missing-return-doc
+    """Return the edge operator B_i.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
 
@@ -547,9 +546,6 @@ def _edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
         edge_list: a 2xE matrix, where E is total number of edges
                                     and each pair denotes (from, to)
         i: index for specifying the edge operator B.
-
-    Returns:
-        Pauli: qubit operator
     """
     qubit_position_matrix = np.asarray(np.where(edge_list == i))
     qubit_position = qubit_position_matrix[1]
