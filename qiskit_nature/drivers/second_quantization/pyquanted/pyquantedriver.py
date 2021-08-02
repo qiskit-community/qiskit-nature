@@ -28,6 +28,7 @@ from .integrals import compute_integrals
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
+from ....exceptions import NotSupportedMethodError
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +94,8 @@ class PyQuanteDriver(ElectronicStructureDriver):
         """
         super().__init__()
         validate_min("maxiters", maxiters, 1)
-        self.check_installed()
+        PyQuanteDriver.check_installed()
+        PyQuanteDriver.check_method_supported(method)
         if not isinstance(atoms, str) and not isinstance(atoms, list):
             raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
 
@@ -148,6 +150,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
             driver
         """
         PyQuanteDriver.check_installed()
+        PyQuanteDriver.check_method_supported(method)
         kwargs = {}
         if driver_kwargs:
             args = inspect.getfullargspec(PyQuanteDriver.__init__).args
@@ -201,6 +204,19 @@ class PyQuanteDriver(ElectronicStructureDriver):
             name="PyQuanteDriver",
             msg="See https://github.com/rpmuller/pyquante2",
         )
+
+    @staticmethod
+    def check_method_supported(method: MethodType) -> None:
+        """
+        Checks that PyQuante supports this method.
+        Args:
+            method: Method type
+
+        Raises:
+            NotSupportedMethodError: If method not supported.
+        """
+        if method in [MethodType.RKS, MethodType.ROKS, MethodType.UKS]:
+            raise NotSupportedMethodError(f"Invalid Pyquante method {method.value}.")
 
     def run(self) -> QMolecule:
         atoms = self._atoms

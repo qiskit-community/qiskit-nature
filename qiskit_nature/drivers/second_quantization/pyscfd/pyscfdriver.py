@@ -127,7 +127,8 @@ class PySCFDriver(ElectronicStructureDriver):
         """
         super().__init__()
         # First, ensure that PySCF is actually installed
-        self.check_installed()
+        PySCFDriver.check_installed()
+        PySCFDriver.check_method_supported(method)
 
         if isinstance(atom, list):
             atom = ";".join(atom)
@@ -312,6 +313,7 @@ class PySCFDriver(ElectronicStructureDriver):
             driver
         """
         PySCFDriver.check_installed()
+        PySCFDriver.check_method_supported(method)
         kwargs = {}
         if driver_kwargs:
             args = inspect.getfullargspec(PySCFDriver.__init__).args
@@ -367,6 +369,19 @@ class PySCFDriver(ElectronicStructureDriver):
             pip_install="pip install 'qiskit-nature[pyscf]'",
             msg="See https://pyscf.org/install.html",
         )
+
+    @staticmethod
+    def check_method_supported(method: MethodType) -> None:
+        """
+        Checks that PySCF supports this method.
+        Args:
+            method: Method type
+
+        Raises:
+            NotSupportedMethodError: If method not supported.
+        """
+        # supports all methods
+        pass
 
     def run(self) -> QMolecule:
         """Runs the PySCF driver.
