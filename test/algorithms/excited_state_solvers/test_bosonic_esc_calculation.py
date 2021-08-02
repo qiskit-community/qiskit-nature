@@ -20,7 +20,7 @@ from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
 
-from qiskit_nature.drivers.second_quantization import BosonicDriver, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver, WatsonHamiltonian
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization.vibrational import (
@@ -37,7 +37,7 @@ from qiskit_nature.algorithms import (
 )
 
 
-class _DummyBosonicDriver(BosonicDriver):
+class _DummyBosonicDriver(VibrationalStructureDriver):
     def __init__(self):
         super().__init__()
         modes = [

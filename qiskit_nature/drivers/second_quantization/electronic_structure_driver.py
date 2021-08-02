@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-This module implements the abstract base class for fermionic driver modules.
+This module implements the abstract base class for electronic structure driver modules.
 """
 
 from abc import abstractmethod
@@ -37,9 +37,9 @@ class MethodType(Enum):
     UKS = "uks"
 
 
-class FermionicDriver(BaseDriver):
+class ElectronicStructureDriver(BaseDriver):
     """
-    Base class for Qiskit Nature's fermionic drivers.
+    Base class for Qiskit Nature's electronic structure drivers.
     """
 
     @abstractmethod

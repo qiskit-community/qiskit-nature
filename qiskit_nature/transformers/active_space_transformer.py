@@ -14,20 +14,20 @@
 
 from typing import List, Optional, Tuple, Union
 import copy
+import logging
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_name
+from qiskit_nature.drivers import QMolecule
 
 from .base_transformer import BaseTransformer
 
-ACTIVE_INTS_SUBSCRIPT = "pqrs,pi,qj,rk,sl->ijkl"
-
-INACTIVE_ENERGY_SUBSCRIPT = "ij,ji"
+logger = logging.getLogger(__name__)
 
 
 class ActiveSpaceTransformer(BaseTransformer):
-    r"""The Active-Space reduction.
+    r"""**DEPRECATED!** The Active-Space reduction.
 
     The reduction is done by computing the inactive Fock operator which is defined as
     :math:`F^I_{pq} = h_{pq} + \sum_i 2 g_{iipq} - g_{iqpi}` and the inactive energy which is
@@ -99,6 +99,12 @@ class ActiveSpaceTransformer(BaseTransformer):
                              only be used to enforce an active space that is not chosen purely
                              around the Fermi level.
         """
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "ActiveSpaceTransformer",
+            "from qiskit_nature.transformers.second_quantization.electronic as a direct replacement",
+        )
         self._num_electrons = num_electrons
         self._num_molecular_orbitals = num_molecular_orbitals
         self._active_orbitals = active_orbitals
@@ -219,14 +225,14 @@ class ActiveSpaceTransformer(BaseTransformer):
                 )
             if self._num_electrons < 0:
                 raise QiskitNatureError(
-                    "The number of active electrons cannot be negative:",
+                    "The number of active electrons cannot be negative, not:",
                     str(self._num_electrons),
                 )
         elif isinstance(self._num_electrons, tuple):
             if not all(isinstance(n_elec, int) and n_elec >= 0 for n_elec in self._num_electrons):
                 raise QiskitNatureError(
                     "Neither the number of alpha, nor the number of beta electrons can be "
-                    "negative:",
+                    "negative, not:",
                     str(self._num_electrons),
                 )
         else:
@@ -238,7 +244,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         if isinstance(self._num_molecular_orbitals, int):
             if self._num_molecular_orbitals < 0:
                 raise QiskitNatureError(
-                    "The number of active orbitals cannot be negative:",
+                    "The number of active orbitals cannot be negative, not:",
                     str(self._num_molecular_orbitals),
                 )
         else:
@@ -476,20 +482,14 @@ class ActiveSpaceTransformer(BaseTransformer):
         e_inactive = 0.0
         if not self._beta and self._mo_coeff_inactive[0].size > 0:
             e_inactive += 0.5 * np.einsum(
-                INACTIVE_ENERGY_SUBSCRIPT,
-                self._density_inactive[0],
-                hcore[0] + fock_inactive[0],
+                "ij,ji", self._density_inactive[0], hcore[0] + fock_inactive[0]
             )
         elif self._beta and self._mo_coeff_inactive[1].size > 0:
             e_inactive += 0.5 * np.einsum(
-                INACTIVE_ENERGY_SUBSCRIPT,
-                self._density_inactive[0],
-                hcore[0] + fock_inactive[0],
+                "ij,ji", self._density_inactive[0], hcore[0] + fock_inactive[0]
             )
             e_inactive += 0.5 * np.einsum(
-                INACTIVE_ENERGY_SUBSCRIPT,
-                self._density_inactive[1],
-                hcore[1] + fock_inactive[1],
+                "ij,ji", self._density_inactive[1], hcore[1] + fock_inactive[1]
             )
 
         return e_inactive
@@ -529,7 +529,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             return ((hij, hij_b), None)
 
         hijkl = np.einsum(
-            ACTIVE_INTS_SUBSCRIPT,
+            "pqrs,pi,qj,rk,sl->ijkl",
             eri,
             self._mo_coeff_active[0],
             self._mo_coeff_active[0],
@@ -542,7 +542,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         if self._beta:
             hijkl_bb = np.einsum(
-                ACTIVE_INTS_SUBSCRIPT,
+                "pqrs,pi,qj,rk,sl->ijkl",
                 eri,
                 self._mo_coeff_active[1],
                 self._mo_coeff_active[1],
@@ -551,7 +551,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 optimize=True,
             )
             hijkl_ba = np.einsum(
-                ACTIVE_INTS_SUBSCRIPT,
+                "pqrs,pi,qj,rk,sl->ijkl",
                 eri,
                 self._mo_coeff_active[1],
                 self._mo_coeff_active[1],

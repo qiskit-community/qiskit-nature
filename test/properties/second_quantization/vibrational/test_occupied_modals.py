@@ -26,7 +26,7 @@ class TestOccupiedModals(QiskitNatureTestCase):
         """Setup basis."""
         super().setUp()
         basis = HarmonicBasis([2, 3, 4])
-        self.prop = OccupiedModals.from_driver_result(WatsonHamiltonian([], -1))
+        self.prop = OccupiedModals.from_legacy_driver_result(WatsonHamiltonian([], -1))
         self.prop.basis = basis
 
     def test_second_q_ops(self):

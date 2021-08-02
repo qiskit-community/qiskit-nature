@@ -22,7 +22,7 @@ from qiskit_nature.drivers.second_quantization import GaussianDriver
 # an internal method to check G16 installed. We need to replace that with
 # the following dummy for things to work and we do it for each test so the
 # class ends up as it was
-def _check_valid():
+def _check_installed():
     pass
 
 
@@ -31,12 +31,12 @@ class TestDriverGaussianExtra(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.good_check = GaussianDriver._check_valid
-        GaussianDriver._check_valid = _check_valid
+        self.good_check = GaussianDriver.check_installed
+        GaussianDriver.check_installed = _check_installed
         # We can now create a driver without the installed (check valid) test failing
 
     def tearDown(self):
-        GaussianDriver._check_valid = self.good_check
+        GaussianDriver.check_installed = self.good_check
 
     def test_cfg_augment(self):
         """test input configuration augmentation"""

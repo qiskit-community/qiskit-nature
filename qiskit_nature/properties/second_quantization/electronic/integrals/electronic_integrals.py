@@ -14,6 +14,7 @@
 
 import itertools
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -68,6 +69,28 @@ class ElectronicIntegrals(ABC):
         self._num_body_terms = num_body_terms
         self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]] = matrices
         self._threshold = threshold
+        self._matrix_representations: List[str] = [""] * len(matrices)
+
+        if basis != ElectronicBasis.SO:
+            self._fill_matrices()
+
+    def __str__(self) -> str:
+        string = [f"({self._basis.name}) {self._num_body_terms}-Body Terms:"]
+        if self._basis == ElectronicBasis.SO:
+            string += self._render_matrix_as_sparse_list(self._matrices)
+        else:
+            for title, mat in zip(self._matrix_representations, self._matrices):
+                string += [f"\t{title}"]
+                string += self._render_matrix_as_sparse_list(mat)
+        return "\n".join(string)
+
+    @staticmethod
+    def _render_matrix_as_sparse_list(matrix) -> List[str]:
+        string = []
+        nonzero = matrix.nonzero()
+        for value, *indices in zip(matrix[nonzero], *nonzero):
+            string += [f"\t{indices} = {value}"]
+        return string
 
     @staticmethod
     def _validate_num_body_terms(num_body_terms: int) -> None:
@@ -103,6 +126,21 @@ class ElectronicIntegrals(ABC):
                     f"2 to the power of the number of body terms, {2 ** num_body_terms}, does not "
                     f"match the number of provided matrices, {len(matrices)}."
                 )
+
+    def _fill_matrices(self) -> None:
+        """Fills the internal matrices where `None` placeholders were inserted.
+
+        This method iterates the internal list of matrices and replaces any occurrences of `None`
+        with the first matrix of the list. In case, more symmetry arguments need to be considered a
+        subclass should overwrite this method.
+        """
+        filled_matrices = []
+        for mat in self._matrices:
+            if mat is not None:
+                filled_matrices.append(mat)
+            else:
+                filled_matrices.append(self._matrices[0])
+        self._matrices = tuple(filled_matrices)
 
     @abstractmethod
     def transform_basis(self, transform: ElectronicBasisTransform) -> "ElectronicIntegrals":
@@ -178,3 +216,52 @@ class ElectronicIntegrals(ABC):
         Returns:
             A list of tuples associating each index with a creation/annihilation operator symbol.
         """
+
+    def add(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+        """Adds two ElectronicIntegrals instances.
+
+        Args:
+            other: another instance of ElectronicIntegrals.
+
+        Returns:
+            The added ElectronicIntegrals.
+        """
+        ret = deepcopy(self)
+        if isinstance(self._matrices, np.ndarray):
+            ret._matrices = self._matrices + other._matrices
+        else:
+            ret._matrices = [a + b for a, b in zip(self._matrices, other._matrices)]  # type: ignore
+        return ret
+
+    def compose(
+        self, other: "ElectronicIntegrals", einsum_subscript: Optional[str] = None
+    ) -> Union[complex, "ElectronicIntegrals"]:
+        """Composes two ElectronicIntegrals instances.
+
+        Args:
+            other: another instance of ElectronicIntegrals.
+            einsum_subscript: an additional `np.einsum` subscript.
+
+        Returns:
+            Either a single number or a new instance of ElectronicIntegrals.
+        """
+        raise NotImplementedError()
+
+    def __rmul__(self, other: complex) -> "ElectronicIntegrals":
+        ret = deepcopy(self)
+        if isinstance(self._matrices, np.ndarray):
+            ret._matrices = other * self._matrices
+        else:
+            ret._matrices = [other * mat for mat in self._matrices]  # type: ignore
+        return ret
+
+    def __add__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+        if self._basis != other._basis:
+            raise ValueError(
+                f"The basis of self, {self._basis.value}, does not match the basis of other, "
+                f"{other._basis}!"
+            )
+        return self.add(other)
+
+    def __sub__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+        return self + (-1.0) * other

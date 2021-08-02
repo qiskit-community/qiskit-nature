@@ -24,7 +24,7 @@ from qiskit_nature.drivers.second_quantization import GaussianDriver
 # an internal method to check G16 installed. We need to replace that with
 # the following dummy for things to work and we do it for each test so the
 # class ends up as it was
-def _check_valid():
+def _check_installed():
     pass
 
 
@@ -33,8 +33,8 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
 
     def setUp(self):
         super().setUp()
-        self.good_check = GaussianDriver._check_valid
-        GaussianDriver._check_valid = _check_valid
+        self.good_check = GaussianDriver.check_installed
+        GaussianDriver.check_installed = _check_installed
         # We can now create a driver without the installed (check valid) test failing
         # and create a qmolecule from the saved output matrix file. This will test the
         # parsing of it into the qmolecule is correct.
@@ -49,7 +49,7 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
             self.skipTest("GAUSSIAN qcmatrixio not found")
 
     def tearDown(self):
-        GaussianDriver._check_valid = self.good_check
+        GaussianDriver.check_installed = self.good_check
 
 
 if __name__ == "__main__":

@@ -12,8 +12,6 @@
 
 """Utility methods to build fermionic hopping operators."""
 
-# TODO: re-implement these as properties?
-
 from typing import cast, Callable, Dict, List, Tuple, Union
 
 from qiskit.opflow import PauliSumOp

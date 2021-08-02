@@ -13,17 +13,19 @@
 """ PyQuante Driver """
 
 import importlib
+import inspect
 import logging
 from enum import Enum
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Any, Dict
 
+from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
 
 from ..qmolecule import QMolecule
 from .integrals import compute_integrals
-from ..fermionic_driver import FermionicDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
 
@@ -37,8 +39,24 @@ class BasisType(Enum):
     B631G = "6-31g"
     B631GSS = "6-31g**"
 
+    @staticmethod
+    def type_from_string(basis: str) -> "BasisType":
+        """
+        Get basis type from string
+        Args:
+            basis: The basis set to be used
+        Returns:
+            BasisType basis
+        Raises:
+            QiskitNatureError: invalid basis
+        """
+        for item in BasisType:
+            if basis == item.value:
+                return item
+        raise QiskitNatureError(f"Invalid Basis type basis {basis}.")
 
-class PyQuanteDriver(FermionicDriver):
+
+class PyQuanteDriver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the PyQuante2 library.
 
@@ -55,7 +73,6 @@ class PyQuanteDriver(FermionicDriver):
         method: MethodType = MethodType.RHF,
         tol: float = 1e-8,
         maxiters: int = 100,
-        molecule: Optional[Molecule] = None,
     ) -> None:
         """
         Args:
@@ -70,18 +87,13 @@ class PyQuanteDriver(FermionicDriver):
             tol: Convergence tolerance see pyquante2.scf hamiltonians and iterators
             maxiters: Convergence max iterations see pyquante2.scf hamiltonians and iterators,
                 has a min. value of 1.
-            molecule: A driver independent Molecule definition instance may be provided. When a
-                molecule is supplied the ``atoms``, ``units``, ``charge`` and ``multiplicity``
-                parameters are all ignored as the Molecule instance now defines these instead. The
-                Molecule object is read when the driver is run and converted to the driver dependent
-                configuration for the computation. This allows, for example, the Molecule geometry
-                to be updated to compute different points.
 
         Raises:
             QiskitNatureError: Invalid Input
         """
+        super().__init__()
         validate_min("maxiters", maxiters, 1)
-        self._check_valid()
+        self.check_installed()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
             raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
 
@@ -90,56 +102,121 @@ class PyQuanteDriver(FermionicDriver):
         elif isinstance(atoms, str):
             atoms = atoms.replace("\n", ";")
 
-        super().__init__(
-            molecule=molecule,
-            basis=basis.value,
-            method=method.value,
-            supports_molecule=True,
-        )
         self._atoms = atoms
-        self._units = units.value
+        self._units = units
         self._charge = charge
         self._multiplicity = multiplicity
+        self._basis = basis
+        self._method = method
         self._tol = tol
         self._maxiters = maxiters
 
+    @property
+    def basis(self) -> BasisType:
+        """return basis"""
+        return self._basis
+
+    @basis.setter
+    def basis(self, value: BasisType) -> None:
+        """set basis"""
+        self._basis = value
+
+    @property
+    def method(self) -> MethodType:
+        """return Hartree-Fock method"""
+        return self._method
+
+    @method.setter
+    def method(self, value: MethodType) -> None:
+        """set Hartree-Fock method"""
+        self._method = value
+
     @staticmethod
-    def _check_valid():
-        err_msg = "PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2"
+    def from_molecule(
+        molecule: Molecule,
+        basis: str = "sto3g",
+        method: MethodType = MethodType.RHF,
+        driver_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> "PyQuanteDriver":
+        """
+        Args:
+            molecule: molecule
+            basis: basis set
+            method: Hartree-Fock Method type
+            driver_kwargs: kwargs to be passed to driver
+        Returns:
+            driver
+        """
+        PyQuanteDriver.check_installed()
+        kwargs = {}
+        if driver_kwargs:
+            args = inspect.getfullargspec(PyQuanteDriver.__init__).args
+            for key, value in driver_kwargs.items():
+                if key not in ["self"] and key in args:
+                    kwargs[key] = value
+
+        kwargs["atoms"] = ";".join(
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+        )
+        kwargs["charge"] = molecule.charge
+        kwargs["multiplicity"] = molecule.multiplicity
+        kwargs["units"] = molecule.units
+        kwargs["basis"] = PyQuanteDriver.to_driver_basis(basis)
+        kwargs["method"] = method
+        return PyQuanteDriver(**kwargs)
+
+    @staticmethod
+    def to_driver_basis(basis: str) -> BasisType:
+        """
+        Converts basis to a driver acceptable basis
+        Args:
+            basis: The basis set to be used
+        Returns:
+            driver acceptable basis
+        """
+        return BasisType.type_from_string(basis)
+
+    @staticmethod
+    def check_installed() -> None:
+        """
+        Checks if PyQuante is installed and available
+
+        Raises:
+            MissingOptionalLibraryError: if not installed.
+        """
         try:
             spec = importlib.util.find_spec("pyquante2")
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
             logger.debug("PyQuante2 check error %s", str(ex))
-            raise QiskitNatureError(err_msg) from ex
+            raise MissingOptionalLibraryError(
+                libname="PyQuante2",
+                name="PyQuanteDriver",
+                msg="See https://github.com/rpmuller/pyquante2",
+            ) from ex
 
-        raise QiskitNatureError(err_msg)
+        raise MissingOptionalLibraryError(
+            libname="PyQuante2",
+            name="PyQuanteDriver",
+            msg="See https://github.com/rpmuller/pyquante2",
+        )
 
     def run(self) -> QMolecule:
-        if self.molecule is not None:
-            atoms = ";".join(
-                [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
-            )
-            charge = self.molecule.charge
-            multiplicity = self.molecule.multiplicity
-            units = self.molecule.units.value
-        else:
-            atoms = self._atoms
-            charge = self._charge
-            multiplicity = self._multiplicity
-            units = self._units
-
+        atoms = self._atoms
+        charge = self._charge
+        multiplicity = self._multiplicity
+        units = self._units
         basis = self.basis
         method = self.method
 
         q_mol = compute_integrals(
             atoms=atoms,
-            units=units,
+            units=units.value,
             charge=charge,
             multiplicity=multiplicity,
-            basis=basis,
-            method=method,
+            basis=basis.value,
+            method=method.value,
             tol=self._tol,
             maxiters=self._maxiters,
         )
@@ -147,11 +224,11 @@ class PyQuanteDriver(FermionicDriver):
         q_mol.origin_driver_name = "PYQUANTE"
         cfg = [
             "atoms={}".format(atoms),
-            "units={}".format(units),
+            "units={}".format(units.value),
             "charge={}".format(charge),
             "multiplicity={}".format(multiplicity),
-            "basis={}".format(basis),
-            "method={}".format(method),
+            "basis={}".format(basis.value),
+            "method={}".format(method.value),
             "tol={}".format(self._tol),
             "maxiters={}".format(self._maxiters),
             "",

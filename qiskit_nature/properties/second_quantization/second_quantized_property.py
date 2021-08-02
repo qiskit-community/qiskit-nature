@@ -13,7 +13,7 @@
 """The SecondQuantizedProperty base class."""
 
 from abc import abstractmethod
-from typing import Any, List, Union
+from typing import Any, List, TypeVar, Union
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule as LegacyQMolecule
@@ -21,11 +21,14 @@ from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
+from ..grouped_property import GroupedProperty
 from ..property import Property
 
-ElectronicDriverResult = Union[QMolecule, LegacyQMolecule]
-VibrationalDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
-DriverResult = Union[ElectronicDriverResult, VibrationalDriverResult]
+LegacyElectronicStructureDriverResult = Union[QMolecule, LegacyQMolecule]
+LegacyVibrationalStructureDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
+LegacyDriverResult = Union[
+    LegacyElectronicStructureDriverResult, LegacyVibrationalStructureDriverResult
+]
 
 
 class SecondQuantizedProperty(Property):
@@ -42,7 +45,7 @@ class SecondQuantizedProperty(Property):
 
     @classmethod
     @abstractmethod
-    def from_driver_result(cls, result: DriverResult) -> "Property":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":
         """Construct a Property instance from a driver result.
 
         This method should implement the logic which is required to extract the raw data for a
@@ -59,15 +62,30 @@ class SecondQuantizedProperty(Property):
         """
 
     @classmethod
-    def _validate_input_type(cls, result: DriverResult, valid_type: Any) -> None:
+    def _validate_input_type(cls, result: LegacyDriverResult, valid_type: Any) -> None:
         # The type hint of `valid_type` is not easy to determine because we are passing a typing
         # alias which is a type hint itself. So what is the type hint for a type hint...
-        # For the time being this should be fine because the logic around `from_driver_result` will
-        # need to slightly adapted *before* the next release anyways when we continue with the
-        # integration of the `Property` objects.
+        # For the time being this should be fine because the logic around from_legacy_driver_result
+        # will need to be slightly adapted *before* the next release anyways when we continue with
+        # the integration of the `Property` objects.
         if not isinstance(result, valid_type.__args__):
             raise QiskitNatureError(
                 f"You cannot construct an {cls.__name__} from a {result.__class__.__name__}. "
                 "Please provide an object of any of these types instead: "
                 f"{typ.__name__ for typ in valid_type.__args__}"
             )
+
+
+# pylint: disable=invalid-name
+T = TypeVar("T", bound=SecondQuantizedProperty, covariant=True)
+
+
+class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty):
+    """A GroupedProperty subtype containing purely second-quantized properties."""
+
+    @abstractmethod
+    def second_q_ops(self) -> List[SecondQuantizedOp]:
+        """
+        Returns the list of second quantized operators given by the properties contained in this
+        group.
+        """

@@ -49,7 +49,7 @@ evaluated:
    :toctree: ../stubs/
    :nosignatures:
 
-   TotalDipoleMoment
+   ElectronicDipoleMoment
 
 
 Utilities
@@ -64,14 +64,16 @@ Utilities
 """
 
 from .angular_momentum import AngularMomentum
-from .dipole_moment import TotalDipoleMoment
+from .dipole_moment import ElectronicDipoleMoment
+from .electronic_structure_driver_result import ElectronicStructureDriverResult
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 
 __all__ = [
     "AngularMomentum",
-    "TotalDipoleMoment",
+    "ElectronicDipoleMoment",
+    "ElectronicStructureDriverResult",
     "ElectronicEnergy",
     "Magnetization",
     "ParticleNumber",
