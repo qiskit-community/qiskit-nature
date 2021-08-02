@@ -12,36 +12,32 @@
 
 """ Fermionic operator builder. """
 
-import itertools
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.deprecation import DeprecatedType, deprecate_function
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    ElectronicIntegrals,
+    IntegralProperty,
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
+)
 
 
-def _build_fermionic_op(q_molecule: QMolecule) -> FermionicOp:
-    """
-    Builds a fermionic operator based on a QMolecule object.
-
-    Args:
-        q_molecule (QMolecule): QMolecule instance with 1- and/or 2-body integrals.
-
-    Returns:
-        FermionicOp: FermionicOp built from a QMolecule object.
-    """
-
-    one_body_ints = q_molecule.one_body_integrals
-    two_body_ints = q_molecule.two_body_integrals
-
-    return build_ferm_op_from_ints(one_body_ints, two_body_ints)
-
-
+@deprecate_function(
+    "0.2.0",
+    DeprecatedType.CLASS,
+    "IntegralProperty",
+    "from qiskit_nature.properties.second_quantization.electronic.integrals in combination with the"
+    " more versatile ElectronicIntegrals containers",
+)
 def build_ferm_op_from_ints(
     one_body_integrals: np.ndarray, two_body_integrals: np.ndarray = None
 ) -> FermionicOp:
-    """
+    """**DEPRECATED!**
     Builds a fermionic operator based on 1- and/or 2-body integrals. Integral values are used for
     the coefficients of the second-quantized Hamiltonian that is built. If integrals are stored
     in the '*chemist*' notation
@@ -64,70 +60,14 @@ def build_ferm_op_from_ints(
     Returns:
         FermionicOp: FermionicOp built from 1- and/or 2-body integrals.
     """
+    integrals: List[ElectronicIntegrals] = []
+    integrals.append(OneBodyElectronicIntegrals(ElectronicBasis.SO, one_body_integrals))
+    if two_body_integrals is not None:
+        integrals.append(TwoBodyElectronicIntegrals(ElectronicBasis.SO, two_body_integrals))
 
-    fermionic_op = _build_ferm_op_helper(one_body_integrals, two_body_integrals)
-    fermionic_op = fermionic_op.reduce()
+    prop = IntegralProperty("", integrals)
+
+    fermionic_op = prop.second_q_ops()[0]
 
     return fermionic_op
-
-
-def _build_ferm_op_helper(
-    one_body_integrals: np.ndarray, two_body_integrals: np.ndarray
-) -> FermionicOp:
-    one_body_base_ops_labels = _create_one_body_base_ops(one_body_integrals)
-    two_body_base_ops_labels = (
-        _create_two_body_base_ops(two_body_integrals) if two_body_integrals is not None else []
-    )
-    base_ops_labels = one_body_base_ops_labels + two_body_base_ops_labels
-
-    if base_ops_labels:
-        return FermionicOp(base_ops_labels)
-    else:
-        return FermionicOp(("", 0), register_length=len(one_body_integrals))
-
-
-def _create_one_body_base_ops(
-    one_body_integrals: np.ndarray,
-) -> List[Tuple[str, complex]]:
-    repeat_num = 2
-    return _create_base_ops_labels(one_body_integrals, repeat_num, _calc_coeffs_with_ops_one_body)
-
-
-def _create_two_body_base_ops(
-    two_body_integrals: np.ndarray,
-) -> List[Tuple[str, complex]]:
-    repeat_num = 4
-    return _create_base_ops_labels(two_body_integrals, repeat_num, _calc_coeffs_with_ops_two_body)
-
-
-def _create_base_ops_labels(
-    integrals: np.ndarray, repeat_num: int, calc_coeffs_with_ops
-) -> List[Tuple[str, complex]]:
-    all_base_ops_labels = []
-    integrals_length = len(integrals)
-    for idx in itertools.product(range(integrals_length), repeat=repeat_num):
-        coeff = integrals[idx]
-        if not coeff:
-            continue
-        coeffs_with_ops = calc_coeffs_with_ops(idx)
-        base_op = _create_base_op_from_labels(coeff, integrals_length, coeffs_with_ops)
-        all_base_ops_labels += base_op.to_list()
-    return all_base_ops_labels
-
-
-def _calc_coeffs_with_ops_one_body(idx) -> List[Tuple[complex, str]]:
-    return [(idx[0], "+"), (idx[1], "-")]
-
-
-def _calc_coeffs_with_ops_two_body(idx) -> List[Tuple[complex, str]]:
-    return [(idx[0], "+"), (idx[2], "+"), (idx[3], "-"), (idx[1], "-")]
-
-
-def _create_base_op_from_labels(coeff, length: int, coeffs_with_ops) -> FermionicOp:
-    label = ["I"] * length
-    base_op = coeff * FermionicOp("".join(label))
-    for i, op in coeffs_with_ops:
-        label_i = label.copy()
-        label_i[i] = op
-        base_op @= FermionicOp("".join(label_i))
-    return base_op
+  

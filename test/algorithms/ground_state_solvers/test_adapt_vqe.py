@@ -16,7 +16,7 @@ import unittest
 
 from typing import cast
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 
 import numpy as np
 
@@ -24,32 +24,34 @@ from qiskit.providers.basicaer import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import UnitsType
-from qiskit_nature.drivers.second_quantization import PySCFDriver, QMolecule
+from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
-    build_ferm_op_from_ints,
+from qiskit_nature.properties.second_quantization.electronic import (
+    ElectronicEnergy,
+    ParticleNumber,
+)
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
 )
 
 
 class TestAdaptVQE(QiskitNatureTestCase):
     """Test Adaptive VQE Ground State Calculation"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
 
-        try:
-            self.driver = PySCFDriver(
-                atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
-            )
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
-            return
+        self.driver = PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
+        )
 
         self.problem = ElectronicStructureProblem(self.driver)
 
@@ -73,7 +75,12 @@ class TestAdaptVQE(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = [build_ferm_op_from_ints(h_1, h_2)]
+        aux_ops = ElectronicEnergy(
+            [
+                OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
+                TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
+            ]
+        ).second_q_ops()
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.problem)
@@ -88,13 +95,11 @@ class TestAdaptVQE(QiskitNatureTestCase):
             """A custom MESFactory"""
 
             def get_solver(self, problem, qubit_converter):
-                q_molecule_transformed = cast(QMolecule, problem.molecule_data_transformed)
-                num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
-                num_particles = (
-                    q_molecule_transformed.num_alpha,
-                    q_molecule_transformed.num_beta,
+                particle_number = cast(
+                    ParticleNumber, problem.properties_transformed.get_property(ParticleNumber)
                 )
-                num_spin_orbitals = 2 * num_molecular_orbitals
+                num_spin_orbitals = particle_number.num_spin_orbitals
+                num_particles = (particle_number.num_alpha, particle_number.num_beta)
 
                 initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
                 ansatz = UCC(

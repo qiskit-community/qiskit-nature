@@ -13,13 +13,12 @@
 """ Test Numerical qEOM excited states calculation """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
@@ -37,19 +36,17 @@ from qiskit_nature.algorithms import (
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """Test Numerical qEOM excited states calculation"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8
-        try:
-            self.driver = PySCFDriver(
-                atom="H .0 .0 .0; H .0 .0 0.75",
-                unit=UnitsType.ANGSTROM,
-                charge=0,
-                spin=0,
-                basis="sto3g",
-            )
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
+        self.driver = PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.75",
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=0,
+            basis="sto3g",
+        )
 
         self.reference_energies = [
             -1.8427016,
@@ -75,10 +72,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
-        for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(
-                results.computed_energies[idx], self.reference_energies[idx], places=4
-            )
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
 
     def test_vqe_mes(self):
         """Test VQEUCCSDFactory with QEOM"""
@@ -87,10 +82,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
 
-        for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(
-                results.computed_energies[idx], self.reference_energies[idx], places=4
-            )
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""
@@ -109,8 +102,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             if not np.isclose(comp_energy, computed_energies[-1]):
                 computed_energies.append(comp_energy)
 
-        for idx in range(len(self.reference_energies)):
-            self.assertAlmostEqual(computed_energies[idx], self.reference_energies[idx], places=4)
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(computed_energies[idx], energy, places=4)
 
 
 if __name__ == "__main__":

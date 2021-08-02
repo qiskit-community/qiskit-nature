@@ -22,7 +22,6 @@ bergholm
 berlin
 bitstring
 bohr
-boltzman
 boltzmann
 bool
 boolean
@@ -73,6 +72,7 @@ dataset
 dcx
 debye
 deepcopy
+dft
 diag
 diagonalizes
 diagonalizing
@@ -91,8 +91,10 @@ eigensolution
 eigensolver
 eigensolvers
 eigenstate
+eigenstateresult
 eigenstates
 einact
+einsum
 endian
 endif
 enum
@@ -197,6 +199,7 @@ mcrz
 mct
 mcu
 mcx
+metadata
 microsoft
 minao
 mixin
@@ -261,6 +264,7 @@ ps
 py
 pyquante
 pyscf
+pxd
 qarg
 qargs
 qasm
@@ -322,8 +326,10 @@ str
 subcircuits
 subclasses
 submodules
+subtype
 succ
 sudo
+superpositions
 sx
 sxdg
 symm
@@ -360,6 +366,7 @@ untransforms
 uvcc
 vals
 variational
+verbatim
 vibrational
 vibrationalop
 vibro
@@ -373,6 +380,7 @@ watson
 wavefunction
 whitespace
 wigner
+xcf
 xcfun
 xdata
 xy

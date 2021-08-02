@@ -18,22 +18,19 @@ the issue then ensure changes are made to readme too.
 
 import unittest
 
-from test import QiskitNatureTestCase
-from qiskit_nature import QiskitNatureError
+from test import QiskitNatureTestCase, requires_extra_library
 
 
 class TestReadmeSample(QiskitNatureTestCase):
     """Test sample code from readme"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            # pylint: disable=import-outside-toplevel
-            from qiskit_nature.drivers.second_quantization import PySCFDriver
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers.second_quantization import PySCFDriver
 
-            PySCFDriver(atom="Li .0 .0 .0; H .0 .0 1.6")
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
+        PySCFDriver(atom="Li .0 .0 .0; H .0 .0 1.6")
 
         try:
             # pylint: disable=import-outside-toplevel
@@ -72,12 +69,10 @@ class TestReadmeSample(QiskitNatureTestCase):
         second_q_ops = problem.second_q_ops()
         main_op = second_q_ops[0]
 
-        num_particles = (
-            problem.molecule_data_transformed.num_alpha,
-            problem.molecule_data_transformed.num_beta,
-        )
+        particle_number = problem.properties_transformed.get_property("ParticleNumber")
 
-        num_spin_orbitals = 2 * problem.molecule_data.num_molecular_orbitals
+        num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        num_spin_orbitals = particle_number.num_spin_orbitals
 
         # setup the classical optimizer for VQE
         from qiskit.algorithms.optimizers import L_BFGS_B

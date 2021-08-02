@@ -16,7 +16,7 @@ from typing import List, Optional
 
 from ..qmolecule import QMolecule
 from .dumper import dump
-from .parser import parse
+from .parser import parse  # pylint: disable=deprecated-module
 from ..fermionic_driver import FermionicDriver
 from ...exceptions import QiskitNatureError
 from ...deprecation import DeprecatedType, warn_deprecated_same_type_name

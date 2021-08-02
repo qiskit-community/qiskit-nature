@@ -20,6 +20,7 @@ import logging
 import os
 import unittest
 import time
+from qiskit.exceptions import MissingOptionalLibraryError
 
 # disable deprecation warnings that can cause log output overflow
 # pylint: disable=unused-argument
@@ -31,6 +32,24 @@ def _noop(*args, **kargs):
 
 # disable warning messages
 # warnings.warn = _noop
+
+
+def requires_extra_library(test_item):
+    """Decorator that skips test if an extra library is not available
+    Args:
+        test_item (callable): function to be decorated.
+    Returns:
+        callable: the decorated function.
+    """
+
+    def wrapper(self, *args):
+        try:
+            test_item(self, *args)
+        except MissingOptionalLibraryError as ex:
+            self.skipTest(str(ex))
+        return wrapper
+
+    return wrapper
 
 
 class QiskitNatureTestCase(unittest.TestCase, ABC):
@@ -45,6 +64,9 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         warnings.filterwarnings(action="ignore", category=DeprecationWarning, module=".*drivers.*")
         warnings.filterwarnings(
             action="default", category=DeprecationWarning, module=".*drivers.second_quantization.*"
+        )
+        warnings.filterwarnings(
+            action="ignore", category=DeprecationWarning, module=".*transformers*"
         )
         self._started_at = time.time()
         self._class_location = __file__

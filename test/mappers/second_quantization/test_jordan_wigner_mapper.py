@@ -20,9 +20,7 @@ from qiskit.opflow import X, Y, Z, I
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.problems.second_quantization.electronic.builders import (
-    fermionic_op_builder,
-)
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 
 
 class TestJordanWignerMapper(QiskitNatureTestCase):
@@ -54,7 +52,7 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
             )
         )
         q_molecule = driver.run()
-        fermionic_op = fermionic_op_builder._build_fermionic_op(q_molecule)
+        fermionic_op = ElectronicEnergy.from_legacy_driver_result(q_molecule).second_q_ops()[0]
         mapper = JordanWignerMapper()
         qubit_op = mapper.map(fermionic_op)
 

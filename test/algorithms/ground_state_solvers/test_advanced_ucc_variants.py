@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
@@ -28,7 +28,7 @@ from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
+from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 
 
 # pylint: disable=invalid-name
@@ -37,6 +37,7 @@ from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
     """Test for these extensions."""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
         self.driver = PySCFDriver(atom="H 0 0 0.735; H 0 0 0", basis="631g")

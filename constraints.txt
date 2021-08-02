@@ -1,4 +1,4 @@
-astroid==2.5
-pylint==2.7.1
+astroid==2.6.1
+pylint==2.9.0
 numpy>=1.20.0 ; python_version>'3.6'
 

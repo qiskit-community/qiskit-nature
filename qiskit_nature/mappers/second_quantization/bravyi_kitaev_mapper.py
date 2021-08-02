@@ -23,8 +23,10 @@ from .fermionic_mapper import FermionicMapper
 from .qubit_mapper import QubitMapper
 
 
-class BravyiKitaevMapper(FermionicMapper):
-    """The Bravyi-Kitaev fermion-to-qubit mapping."""
+class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
+    def __init__(self):
+        """The Bravyi-Kitaev fermion-to-qubit mapping."""
+        super().__init__(allows_two_qubit_reduction=False)
 
     def map(self, second_q_op: FermionicOp) -> PauliSumOp:
 

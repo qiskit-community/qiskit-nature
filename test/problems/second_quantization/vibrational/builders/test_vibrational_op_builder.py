@@ -11,6 +11,8 @@
 # that they have been altered from the originals.
 """Tests Fermionic Operator builder."""
 
+import warnings
+
 from test import QiskitNatureTestCase
 from test.problems.second_quantization.vibrational.resources.expected_labels import (
     _co2_freq_b3lyp_dense_labels as expected_labels,
@@ -41,6 +43,7 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
         num_modals = 2
         truncation_order = 3
 
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         vibrational_op = _build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
 
         assert isinstance(vibrational_op, VibrationalOp)
