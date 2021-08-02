@@ -291,14 +291,15 @@ def _number_excitation(  # pylint: disable=invalid-name
 ) -> SparsePauliOp:
     """Map a number-excitation operator to a Pauli operator.
 
-    Exactly two of the indices p, q, r, s must be equal. These represent
-    The number operator, while the remaining two represent the excitation
-    operator.
+    Exactly two of the indices p, q, r, s must be equal, and this pair must consist
+    of either p or q and either r or s. Furthermore  You must ensure that p < q.
+    The equal indices represent the number operator, while the remaining two
+    represent the excitation operator.
 
     Args:
       edge_list: representation of graph specifying neighboring qubits.
       p: First Fermionic-mode index.
-      q: Second Fermionic-mode index. You must ensure that p < q.
+      q: Second Fermionic-mode index.
       r: Third Fermionic-mode index.
       s: Fourth Fermionic-mode index.
       h2_pqrs: Numerical coefficient of the term.
@@ -574,7 +575,7 @@ def _to_physicist_index_order(facs: List[Tuple[int, str]]) -> Tuple[List[Tuple[i
       phase: Either `1` or `-1`.
 
     Raises:
-        ValueError: if `facs` does not represent a two-body interaction.
+      ValueError: if `facs` does not represent a two-body interaction.
     """
     ops = [fac[1] for fac in facs]
     if ops == ["+", "+", "-", "-"]:
