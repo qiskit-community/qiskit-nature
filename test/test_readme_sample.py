@@ -69,12 +69,10 @@ class TestReadmeSample(QiskitNatureTestCase):
         second_q_ops = problem.second_q_ops()
         main_op = second_q_ops[0]
 
-        num_particles = (
-            problem.molecule_data_transformed.num_alpha,
-            problem.molecule_data_transformed.num_beta,
-        )
+        particle_number = problem.properties_transformed.get_property("ParticleNumber")
 
-        num_spin_orbitals = 2 * problem.molecule_data.num_molecular_orbitals
+        num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        num_spin_orbitals = particle_number.num_spin_orbitals
 
         # setup the classical optimizer for VQE
         from qiskit.algorithms.optimizers import L_BFGS_B

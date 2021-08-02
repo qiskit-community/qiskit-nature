@@ -346,6 +346,11 @@ class Molecule:
         return UnitsType.ANGSTROM
 
     @property
+    def atoms(self) -> List[str]:
+        """Get the list of atoms"""
+        return [atom for atom, _ in self._geometry]
+
+    @property
     def geometry(self) -> List[Tuple[str, List[float]]]:
         """Get geometry accounting for any perturbations"""
         return self._get_perturbed_geom()

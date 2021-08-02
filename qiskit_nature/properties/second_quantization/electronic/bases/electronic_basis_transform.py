@@ -16,10 +16,11 @@ from typing import Optional
 
 import numpy as np
 
+from ....property import PseudoProperty
 from .electronic_basis import ElectronicBasis
 
 
-class ElectronicBasisTransform:
+class ElectronicBasisTransform(PseudoProperty):
     """This class contains the coefficients required to map from one basis into another."""
 
     def __init__(
@@ -39,6 +40,7 @@ class ElectronicBasisTransform:
                 dimension of ``coeff_alpha``. If it is left as ``None``, ``coeff_alpha`` will be
                 used for the beta-spin orbitals too.
         """
+        super().__init__(self.__class__.__name__)
         self.initial_basis = initial_basis
         self.final_basis = final_basis
         self.coeff_alpha = coeff_alpha
