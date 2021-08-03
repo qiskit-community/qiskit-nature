@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 from qiskit_nature.drivers.second_quantization import PSI4Driver
 from qiskit_nature import QiskitNatureError
 
@@ -22,12 +22,10 @@ from qiskit_nature import QiskitNatureError
 class TestDriverPSI4Extra(QiskitNatureTestCase):
     """PSI4 Driver extra tests for driver specifics, errors etc"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            PSI4Driver._check_valid()
-        except QiskitNatureError:
-            self.skipTest("PSI4 driver does not appear to be installed")
+        PSI4Driver.check_installed()
 
     def test_input_format_list(self):
         """input as a list"""

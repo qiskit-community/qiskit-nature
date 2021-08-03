@@ -15,10 +15,10 @@
 import os
 
 from ..qmolecule import QMolecule
-from ..fermionic_driver import FermionicDriver
+from ..electronic_structure_driver import ElectronicStructureDriver
 
 
-class HDF5Driver(FermionicDriver):
+class HDF5Driver(ElectronicStructureDriver):
     """
     Qiskit Nature driver for reading an HDF5 file.
 

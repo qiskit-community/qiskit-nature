@@ -14,12 +14,7 @@
 This module implements the abstract base class for driver modules.
 """
 
-from typing import Optional
 from abc import ABC, abstractmethod
-
-from qiskit_nature import QiskitNatureError
-
-from ..molecule import Molecule
 
 
 class BaseDriver(ABC):
@@ -28,76 +23,8 @@ class BaseDriver(ABC):
     """
 
     @abstractmethod
-    def __init__(
-        self,
-        molecule: Optional[Molecule] = None,
-        basis: str = "sto3g",
-        method: str = "rhf",
-        supports_molecule: bool = False,
-    ) -> None:
-        """
-        Args:
-            molecule: molecule
-            basis: basis set
-            method: Hartree-Fock Method type
-            supports_molecule: Indicates if driver supports molecule
-
-        Raises:
-            QiskitNatureError: Molecule passed but driver doesn't support it.
-        """
-        if molecule is not None and not supports_molecule:
-            raise QiskitNatureError("Driver doesn't support molecule.")
-
-        self._molecule = molecule
-        self._basis = basis
-        self._method = method
-        self._supports_molecule = supports_molecule
-
-    @abstractmethod
     def run(self):
         """
         Runs a driver to produce an output data structure.
         """
         raise NotImplementedError()
-
-    @property
-    def supports_molecule(self) -> bool:
-        """
-        True for derived classes that support Molecule.
-
-        Returns:
-            True if Molecule is supported.
-        """
-        return self._supports_molecule
-
-    @property
-    def molecule(self) -> Optional[Molecule]:
-        """return molecule"""
-        return self._molecule
-
-    @molecule.setter
-    def molecule(self, value: Molecule) -> None:
-        """set molecule"""
-        if not self.supports_molecule:
-            raise QiskitNatureError("Driver doesn't support molecule.")
-        self._molecule = value
-
-    @property
-    def basis(self) -> str:
-        """return basis"""
-        return self._basis
-
-    @basis.setter
-    def basis(self, value: str) -> None:
-        """set basis"""
-        self._basis = value
-
-    @property
-    def method(self) -> str:
-        """return Hartree-Fock method"""
-        return self._method
-
-    @method.setter
-    def method(self, value: str) -> None:
-        """set Hartree-Fock method"""
-        self._method = value

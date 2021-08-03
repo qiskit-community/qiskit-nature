@@ -15,6 +15,7 @@
 import logging
 from subprocess import Popen, PIPE
 from shutil import which
+from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
 
 logger = logging.getLogger(__name__)
@@ -26,12 +27,17 @@ _G16PROG = which(_GAUSSIAN_16)
 
 
 def check_valid() -> None:
-    """Checks if Gaussian is installed and available"""
+    """
+    Checks if Gaussian is installed and available
+
+    Raises:
+        MissingOptionalLibraryError: if not installed.
+    """
     if _G16PROG is None:
-        raise QiskitNatureError(
-            "Could not locate {} executable '{}'. Please check that it is installed correctly.".format(
-                _GAUSSIAN_16_DESC, _GAUSSIAN_16
-            )
+        raise MissingOptionalLibraryError(
+            libname=_GAUSSIAN_16,
+            name=_GAUSSIAN_16_DESC,
+            msg="Please check that it is installed correctly",
         )
 
 

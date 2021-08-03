@@ -15,15 +15,43 @@ This module implements the abstract base class for bosonic driver modules.
 """
 
 from abc import abstractmethod
+from typing import Optional
 
 from qiskit_nature.drivers.watson_hamiltonian import WatsonHamiltonian
 from .base_driver import BaseDriver
+from .molecule import Molecule
+from ..deprecation import DeprecatedType, warn_deprecated
 
 
 class BosonicDriver(BaseDriver):
     """
     Base class for Qiskit Nature's bosonic drivers.
     """
+
+    def __init__(
+        self,
+        molecule: Optional[Molecule] = None,
+        basis: str = "sto3g",
+        hf_method: str = "rhf",
+        supports_molecule: bool = False,
+    ) -> None:
+        """
+        Args:
+            molecule: molecule
+            basis: basis set
+            hf_method: Hartree-Fock Method type
+            supports_molecule: Indicates if driver supports molecule
+        """
+        super().__init__(
+            molecule, basis=basis, hf_method=hf_method, supports_molecule=supports_molecule
+        )
+        warn_deprecated(
+            "0.2.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="BosonicDriver",
+            new_name="VibrationalStructureDriver",
+            additional_msg="from qiskit_nature.drivers.second_quantization",
+        )
 
     @abstractmethod
     def run(self) -> WatsonHamiltonian:
