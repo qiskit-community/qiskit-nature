@@ -15,7 +15,7 @@
 import contextlib
 import io
 import unittest
-from typing import Optional, List
+from typing import Optional, List, cast
 
 from test import QiskitNatureTestCase
 
@@ -27,7 +27,7 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper, Parity
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
 class TestQubitConverter(QiskitNatureTestCase):
@@ -90,9 +90,10 @@ class TestQubitConverter(QiskitNatureTestCase):
                 "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
             )
         )
-        self.molecule = driver.run()
-        self.num_particles = (self.molecule.num_alpha, self.molecule.num_beta)
-        self.h2_op = ElectronicEnergy.from_legacy_driver_result(self.molecule).second_q_ops()[0]
+        self.driver_result = driver.run()
+        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+        self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        self.h2_op = self.driver_result.second_q_ops()[0]
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""

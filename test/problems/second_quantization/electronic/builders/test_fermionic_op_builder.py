@@ -12,6 +12,8 @@
 
 """Tests Fermionic Operator builder."""
 
+from typing import cast
+
 from test import QiskitNatureTestCase
 from test.problems.second_quantization.electronic.resources.resource_reader import (
     read_expected_file,
@@ -21,6 +23,8 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
 
 class TestFermionicOpBuilder(QiskitNatureTestCase):
@@ -67,7 +71,11 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
             )
         )
         driver_result = driver.run()
-        fermionic_op = driver_result.get_property("ElectronicEnergy").second_q_ops()[0]
+        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        reduced = ElectronicEnergy(
+            [electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)]
+        )
+        fermionic_op = reduced.second_q_ops()[0]
 
         with self.subTest("Check type of fermionic operator"):
             assert isinstance(fermionic_op, FermionicOp)

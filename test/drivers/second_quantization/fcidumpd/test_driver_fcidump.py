@@ -43,7 +43,11 @@ class BaseTestDriverFCIDump(ABC):
         self.mo_eri_ba = None
         self.mo_eri_bb = None
 
-    subTest = unittest.TestCase.subTest
+    @abstractmethod
+    def subTest(self, msg, **kwargs):
+        # pylint: disable=invalid-name
+        """subtest"""
+        raise Exception("Abstract method")
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):

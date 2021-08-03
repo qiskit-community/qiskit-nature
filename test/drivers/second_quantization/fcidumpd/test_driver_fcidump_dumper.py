@@ -15,6 +15,7 @@
 import tempfile
 import unittest
 from abc import ABC, abstractmethod
+from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
@@ -36,7 +37,11 @@ class BaseTestDriverFCIDumpDumper(ABC):
         self.mo_onee = None
         self.mo_eri = None
 
-    subTest = unittest.TestCase.subTest
+    @abstractmethod
+    def subTest(self, msg, **kwargs):
+        # pylint: disable=invalid-name
+        """subtest"""
+        raise Exception("Abstract method")
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
@@ -99,7 +104,7 @@ class BaseTestDriverFCIDumpDumper(ABC):
 
 
 @unittest.skip("Until the FCIDumpDriver can handle non-beta spin cases")
-class TestDriverFCIDumpDumpH2(BaseTestDriverFCIDumpDumper):
+class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper):
     """RHF FCIDump Driver tests."""
 
     def setUp(self):

@@ -12,7 +12,6 @@
 
 """ Test Driver """
 
-import unittest
 from abc import ABC, abstractmethod
 from typing import cast
 
@@ -44,7 +43,11 @@ class TestDriver(ABC):
         self.log = None
         self.driver_result: ElectronicStructureDriverResult = None
 
-    subTest = unittest.TestCase.subTest
+    @abstractmethod
+    def subTest(self, msg, **kwargs):
+        # pylint: disable=invalid-name
+        """subtest"""
+        raise Exception("Abstract method")
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):

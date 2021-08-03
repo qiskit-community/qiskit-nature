@@ -70,7 +70,7 @@ class ElectronicStructureProblem(BaseProblem):
         """
         driver_result = self.driver.run()
         if self._legacy_transform:
-            qmol_transformed = self._transform(self._molecule_data)
+            qmol_transformed = self._transform(driver_result)
             self._properties_transformed = (
                 ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
             )
@@ -119,8 +119,8 @@ class ElectronicStructureProblem(BaseProblem):
             A tuple containing the hopping operators, the types of commutativities and the
             excitation indices.
         """
-        q_molecule = cast(QMolecule, self.molecule_data)
-        return _build_qeom_hopping_ops(q_molecule, qubit_converter, excitations)
+        particle_number = self.properties_transformed.get_property("ParticleNumber")
+        return _build_qeom_hopping_ops(particle_number, qubit_converter, excitations)
 
     def interpret(
         self,
