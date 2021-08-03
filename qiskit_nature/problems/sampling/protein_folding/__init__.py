@@ -42,7 +42,7 @@ For more details consult the paper Robert et al., npj quantum information 7, 38,
 
 .. currentmodule:: qiskit_nature.problems.sampling.protein_folding
 
-Protein Folding Problem Class
+Protein Folding Problem
 =============================
 .. autosummary::
    :toctree: ../stubs/
@@ -50,7 +50,7 @@ Protein Folding Problem Class
 
    ProteinFoldingProblem
 
-Peptide Class
+Peptide
 =============
 .. autosummary::
    :toctree: ../stubs/
@@ -58,7 +58,33 @@ Peptide Class
 
    Peptide
 
-Penalty Parameters Class
+Main Chain
+=============
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MainChain
+
+Side Chain
+=============
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   SideChain
+
+Interactions
+=============
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MixedInteraction
+   MiyazawaJerniganInteraction
+   RandomInteraction
+
+Penalty Parameters
 ========================
 .. autosummary::
    :toctree: ../stubs/
@@ -66,13 +92,22 @@ Penalty Parameters Class
 
    PenaltyParameters
 """
-
+from .interactions.mixed_interaction import MixedInteraction
+from .interactions.miyazawa_jernigan_interaction import MiyazawaJerniganInteraction
+from .interactions.random_interaction import RandomInteraction
 from .penalty_parameters import PenaltyParameters
+from .peptide.chains.main_chain import MainChain
+from .peptide.chains.side_chain import SideChain
 from .peptide.peptide import Peptide
 from .protein_folding_problem import ProteinFoldingProblem
 
 __all__ = [
     "ProteinFoldingProblem",
     "Peptide",
+    "MainChain",
+    "SideChain",
+    "MixedInteraction",
+    "MiyazawaJerniganInteraction",
+    "RandomInteraction",
     "PenaltyParameters",
 ]

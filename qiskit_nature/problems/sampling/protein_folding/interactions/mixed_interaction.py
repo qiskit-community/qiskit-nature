@@ -27,7 +27,7 @@ class MixedInteraction(Interaction):
         """
         Args:
             additional_energies: additional energies to be used in the construction of an energy
-            matrix for the MixedInteraction.
+                                matrix for the MixedInteraction.
         """
         self.additional_energies = additional_energies
 

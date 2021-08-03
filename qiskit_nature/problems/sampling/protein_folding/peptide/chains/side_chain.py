@@ -35,7 +35,7 @@ class SideChain(BaseChain):
             main_bead_id: Index of the main bead which the side chain is attached to.
             side_chain_len: Length of the side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
-            beads.
+                                        beads.
         """
         beads_list = self._build_side_chain(
             main_chain_len, main_bead_id, side_chain_len, side_chain_residue_sequences
