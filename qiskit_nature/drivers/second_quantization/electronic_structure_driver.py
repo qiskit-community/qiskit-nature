@@ -17,7 +17,7 @@ This module implements the abstract base class for electronic structure driver m
 from abc import abstractmethod
 from enum import Enum
 
-from .qmolecule import QMolecule
+from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
 from .base_driver import BaseDriver
 
 
@@ -43,7 +43,7 @@ class ElectronicStructureDriver(BaseDriver):
     """
 
     @abstractmethod
-    def run(self) -> QMolecule:
+    def run(self) -> GroupedElectronicProperty:
         """
         Runs driver to produce a QMolecule output.
 

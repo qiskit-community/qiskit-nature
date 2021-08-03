@@ -41,7 +41,7 @@ class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
                 "",
             ]
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
@@ -53,7 +53,7 @@ class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
         driver = ElectronicStructureMoleculeDriver(
             TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.GAUSSIAN
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 if __name__ == "__main__":

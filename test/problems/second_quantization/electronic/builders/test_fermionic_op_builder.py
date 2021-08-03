@@ -12,8 +12,6 @@
 
 """Tests Fermionic Operator builder."""
 
-import warnings
-
 from test import QiskitNatureTestCase
 from test.problems.second_quantization.electronic.resources.resource_reader import (
     read_expected_file,
@@ -23,7 +21,6 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.problems.second_quantization.electronic.builders import fermionic_op_builder
 
 
 class TestFermionicOpBuilder(QiskitNatureTestCase):
@@ -42,11 +39,8 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
                 "H2_631g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        fermionic_op = fermionic_op_builder.build_ferm_op_from_ints(
-            q_molecule.one_body_integrals, q_molecule.two_body_integrals
-        )
+        driver_result = driver.run()
+        fermionic_op = driver_result.get_property("ElectronicEnergy").second_q_ops()[0]
 
         with self.subTest("Check type of fermionic operator"):
             assert isinstance(fermionic_op, FermionicOp)
@@ -72,9 +66,8 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
                 "H2_631g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        fermionic_op = fermionic_op_builder.build_ferm_op_from_ints(q_molecule.one_body_integrals)
+        driver_result = driver.run()
+        fermionic_op = driver_result.get_property("ElectronicEnergy").second_q_ops()[0]
 
         with self.subTest("Check type of fermionic operator"):
             assert isinstance(fermionic_op, FermionicOp)

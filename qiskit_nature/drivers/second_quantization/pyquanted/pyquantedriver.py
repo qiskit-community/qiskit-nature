@@ -22,8 +22,8 @@ from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
-from ..qmolecule import QMolecule
 from .integrals import compute_integrals
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
@@ -202,7 +202,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
             msg="See https://github.com/rpmuller/pyquante2",
         )
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         atoms = self._atoms
         charge = self._charge
         multiplicity = self._multiplicity
@@ -235,4 +235,4 @@ class PyQuanteDriver(ElectronicStructureDriver):
         ]
         q_mol.origin_driver_config = "\n".join(cfg)
 
-        return q_mol
+        return ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)

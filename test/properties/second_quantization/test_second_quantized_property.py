@@ -30,6 +30,7 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 class TestSecondQuantizedProperty(QiskitNatureTestCase):
     """General Property base class tests."""
 
+    # pylint: disable=invalid-name
     LegacyElectronicStructureDriverResult = Union[QMolecule, LegacyQMolecule]
     LegacyVibrationalStructureDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
     LegacyDriverResult = Union[

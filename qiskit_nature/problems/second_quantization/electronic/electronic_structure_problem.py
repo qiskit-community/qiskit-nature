@@ -21,6 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature.drivers import QMolecule as LegacyQMolecule
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver, QMolecule
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -67,15 +68,18 @@ class ElectronicStructureProblem(BaseProblem):
             total particle number operator, total angular momentum operator, total magnetization
             operator, and (if available) x, y, z dipole operators.
         """
-        self._molecule_data = cast(QMolecule, self.driver.run())
+        driver_result = self.driver.run()
         if self._legacy_transform:
             qmol_transformed = self._transform(self._molecule_data)
             self._properties_transformed = (
                 ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
             )
+        elif isinstance(driver_result, (QMolecule, LegacyQMolecule)):
+            self._properties_transformed = (
+                ElectronicStructureDriverResult.from_legacy_driver_result(driver_result)
+            )
         else:
-            prop = ElectronicStructureDriverResult.from_legacy_driver_result(self._molecule_data)
-            self._properties_transformed = self._transform(prop)
+            self._properties_transformed = self._transform(driver_result)
 
         second_quantized_ops_list = self._properties_transformed.second_q_ops()
 

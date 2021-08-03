@@ -24,6 +24,7 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 import numpy as np
 from qiskit.utils.validation import validate_min
 from qiskit.exceptions import MissingOptionalLibraryError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 from ....exceptions import QiskitNatureError
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
@@ -368,7 +369,7 @@ class PySCFDriver(ElectronicStructureDriver):
             msg="See https://pyscf.org/install.html",
         )
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         """Runs the PySCF driver.
 
         Raises:
@@ -381,7 +382,7 @@ class PySCFDriver(ElectronicStructureDriver):
         self.run_pyscf()
 
         q_mol = self._construct_qmolecule()
-        return q_mol
+        return ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
 
     def _build_molecule(self) -> None:
         """Builds the PySCF molecule object.

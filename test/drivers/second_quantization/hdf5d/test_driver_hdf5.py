@@ -28,7 +28,7 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
                 "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
             )
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 if __name__ == "__main__":

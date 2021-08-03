@@ -12,11 +12,14 @@
 
 """ Test Driver PSI4 """
 
+from typing import cast
+
 import unittest
 
 from test import QiskitNatureTestCase, requires_extra_library
 from qiskit_nature.drivers.second_quantization import PSI4Driver
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 
 
 class TestDriverPSI4Extra(QiskitNatureTestCase):
@@ -45,8 +48,9 @@ class TestDriverPSI4Extra(QiskitNatureTestCase):
                 "}",
             ]
         )
-        qmolecule = driver.run()
-        self.assertAlmostEqual(qmolecule.hf_energy, -1.117, places=3)
+        driver_result = driver.run()
+        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        self.assertAlmostEqual(electronic_energy.reference_energy, -1.117, places=3)
 
     def test_input_format_string(self):
         """input as a multi line string"""
@@ -65,8 +69,9 @@ scf_type pk
 }
 """
         driver = PSI4Driver(cfg)
-        qmolecule = driver.run()
-        self.assertAlmostEqual(qmolecule.hf_energy, -1.117, places=3)
+        driver_result = driver.run()
+        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        self.assertAlmostEqual(electronic_energy.reference_energy, -1.117, places=3)
 
     def test_input_format_fail(self):
         """input type failure"""

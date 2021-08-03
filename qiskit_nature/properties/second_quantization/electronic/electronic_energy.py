@@ -44,8 +44,8 @@ class ElectronicEnergy(IntegralProperty):
         self,
         electronic_integrals: List[ElectronicIntegrals],
         energy_shift: Optional[Dict[str, complex]] = None,
-        nuclear_repulsion_energy: Optional[complex] = None,
-        reference_energy: Optional[complex] = None,
+        nuclear_repulsion_energy: Optional[float] = None,
+        reference_energy: Optional[float] = None,
     ):
         """
         Args:
@@ -63,6 +63,26 @@ class ElectronicEnergy(IntegralProperty):
         self._orbital_enerfies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
+
+    @property
+    def nuclear_repulsion_energy(self) -> Optional[float]:
+        """Returns the nuclear repulsion energy."""
+        return self._nuclear_repulsion_energy
+
+    @nuclear_repulsion_energy.setter
+    def nuclear_repulsion_energy(self, nuclear_repulsion_energy: Optional[float]) -> None:
+        """Sets the nuclear repulsion energy."""
+        self._nuclear_repulsion_energy = nuclear_repulsion_energy
+
+    @property
+    def reference_energy(self) -> Optional[float]:
+        """Returns the reference energy."""
+        return self._reference_energy
+
+    @reference_energy.setter
+    def reference_energy(self, reference_energy: Optional[float]) -> None:
+        """Sets the reference energy."""
+        self._reference_energy = reference_energy
 
     @property
     def orbital_energies(self) -> np.ndarray:

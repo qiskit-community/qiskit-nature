@@ -12,11 +12,15 @@
 
 """ Test Driver FCIDump """
 
+from typing import cast
+
 import unittest
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature.drivers.second_quantization import FCIDumpDriver
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy, ParticleNumber
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
 
 class BaseTestDriverFCIDump(ABC):
@@ -28,7 +32,7 @@ class BaseTestDriverFCIDump(ABC):
 
     def __init__(self):
         self.log = None
-        self.qmolecule = None
+        self.driver_result = None
         self.nuclear_repulsion_energy = None
         self.num_molecular_orbitals = None
         self.num_alpha = None
@@ -38,6 +42,8 @@ class BaseTestDriverFCIDump(ABC):
         self.mo_eri = None
         self.mo_eri_ba = None
         self.mo_eri_bb = None
+
+    subTest = unittest.TestCase.subTest
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
@@ -54,103 +60,76 @@ class BaseTestDriverFCIDump(ABC):
         """assert Sequence Equal"""
         raise Exception("Abstract method")
 
-    def test_driver_inactive_energy(self):
-        """driver inactive energy test"""
-        self.log.debug(
-            "QMolecule inactive energy is {}".format(self.qmolecule.nuclear_repulsion_energy)
-        )
-        self.assertAlmostEqual(
-            self.qmolecule.nuclear_repulsion_energy,
-            self.nuclear_repulsion_energy,
-            places=3,
+    def test_driver_result_electronic_energy(self):
+        """Test the ElectronicEnergy property."""
+        electronic_energy = cast(
+            ElectronicEnergy, self.driver_result.get_property(ElectronicEnergy)
         )
 
-    def test_driver_num_molecular_orbitals(self):
-        """driver num orbitals test"""
-        self.log.debug(
-            "QMolecule Number of orbitals is {}".format(self.qmolecule.num_molecular_orbitals)
-        )
-        self.assertEqual(self.qmolecule.num_molecular_orbitals, self.num_molecular_orbitals)
-
-    def test_driver_num_alpha(self):
-        """driver num alpha test"""
-        self.log.debug("QMolecule Number of alpha electrons is {}".format(self.qmolecule.num_alpha))
-        self.assertEqual(self.qmolecule.num_alpha, self.num_alpha)
-
-    def test_driver_num_beta(self):
-        """driver num beta test"""
-        self.log.debug("QMolecule Number of beta electrons is {}".format(self.qmolecule.num_beta))
-        self.assertEqual(self.qmolecule.num_beta, self.num_beta)
-
-    def test_driver_mo_onee_ints(self):
-        """driver alpha mo onee ints test"""
-        self.log.debug(
-            "QMolecule MO alpha one electron integrals are {}".format(self.qmolecule.mo_onee_ints)
-        )
-        self.assertEqual(self.qmolecule.mo_onee_ints.shape, self.mo_onee.shape)
-        np.testing.assert_array_almost_equal(
-            np.absolute(self.qmolecule.mo_onee_ints),
-            np.absolute(self.mo_onee),
-            decimal=4,
-        )
-
-    def test_driver_mo_onee_b_ints(self):
-        """driver beta mo onee ints test"""
-        if self.mo_onee_b is None:
-            return
-        self.log.debug(
-            "QMolecule MO beta one electron integrals are {}".format(self.qmolecule.mo_onee_ints_b)
-        )
-        self.assertEqual(self.qmolecule.mo_onee_ints_b.shape, self.mo_onee_b.shape)
-        np.testing.assert_array_almost_equal(
-            np.absolute(self.qmolecule.mo_onee_ints_b),
-            np.absolute(self.mo_onee_b),
-            decimal=4,
-        )
-
-    def test_driver_mo_eri_ints(self):
-        """driver alpha-alpha mo eri ints test"""
-        self.log.debug(
-            "QMolecule MO alpha-alpha two electron integrals are {}".format(
-                self.qmolecule.mo_eri_ints
+        with self.subTest("inactive energy"):
+            self.log.debug("inactive energy: {}".format(electronic_energy.nuclear_repulsion_energy))
+            self.assertAlmostEqual(
+                electronic_energy.nuclear_repulsion_energy,
+                self.nuclear_repulsion_energy,
+                places=3,
             )
-        )
-        self.assertEqual(self.qmolecule.mo_eri_ints.shape, self.mo_eri.shape)
-        np.testing.assert_array_almost_equal(
-            np.absolute(self.qmolecule.mo_eri_ints), np.absolute(self.mo_eri), decimal=4
-        )
 
-    def test_driver_mo_eri_ints_ba(self):
-        """driver beta-alpha mo eri ints test"""
-        if self.mo_eri_ba is None:
-            return
-        self.log.debug(
-            "QMolecule MO beta-alpha two electron integrals are {}".format(
-                self.qmolecule.mo_eri_ints_ba
+        mo_onee_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
+        with self.subTest("1-body alpha"):
+            self.log.debug("MO one electron integrals are {}".format(mo_onee_ints))
+            self.assertEqual(mo_onee_ints._matrices[0].shape, self.mo_onee.shape)
+            np.testing.assert_array_almost_equal(
+                np.absolute(mo_onee_ints._matrices[0]),
+                np.absolute(self.mo_onee),
+                decimal=4,
             )
-        )
-        self.assertEqual(self.qmolecule.mo_eri_ints_ba.shape, self.mo_eri_ba.shape)
-        np.testing.assert_array_almost_equal(
-            np.absolute(self.qmolecule.mo_eri_ints_ba),
-            np.absolute(self.mo_eri_ba),
-            decimal=4,
-        )
 
-    def test_driver_mo_eri_ints_bb(self):
-        """driver beta-beta mo eri ints test"""
-        if self.mo_eri_bb is None:
-            return
-        self.log.debug(
-            "QMolecule MO beta-beta two electron integrals are {}".format(
-                self.qmolecule.mo_eri_ints_bb
+        if self.mo_onee_b is not None:
+            with self.subTest("1-body beta"):
+                self.assertEqual(mo_onee_ints._matrices[1].shape, self.mo_onee_b.shape)
+                np.testing.assert_array_almost_equal(
+                    np.absolute(mo_onee_ints._matrices[1]),
+                    np.absolute(self.mo_onee_b),
+                    decimal=4,
+                )
+
+        mo_eri_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+        with self.subTest("2-body alpha-alpha"):
+            self.log.debug("MO two electron integrals {}".format(mo_eri_ints))
+            self.assertEqual(mo_eri_ints._matrices[0].shape, self.mo_eri.shape)
+            np.testing.assert_array_almost_equal(
+                np.absolute(mo_eri_ints._matrices[0]), np.absolute(self.mo_eri), decimal=4
             )
-        )
-        self.assertEqual(self.qmolecule.mo_eri_ints_bb.shape, self.mo_eri_bb.shape)
-        np.testing.assert_array_almost_equal(
-            np.absolute(self.qmolecule.mo_eri_ints_bb),
-            np.absolute(self.mo_eri_bb),
-            decimal=4,
-        )
+
+        if self.mo_eri_ba is not None:
+            with self.subTest("2-body beta-alpha"):
+                self.assertEqual(mo_eri_ints._matrices[1].shape, self.mo_eri_ba.shape)
+                np.testing.assert_array_almost_equal(
+                    np.absolute(mo_eri_ints._matrices[1]), np.absolute(self.mo_eri_ba), decimal=4
+                )
+
+        if self.mo_eri_bb is not None:
+            with self.subTest("2-body beta-beta"):
+                self.assertEqual(mo_eri_ints._matrices[2].shape, self.mo_eri_bb.shape)
+                np.testing.assert_array_almost_equal(
+                    np.absolute(mo_eri_ints._matrices[2]), np.absolute(self.mo_eri_bb), decimal=4
+                )
+
+    def test_driver_result_particle_number(self):
+        """Test the ParticleNumber property."""
+        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+
+        with self.subTest("orbital number"):
+            self.log.debug("Number of orbitals is {}".format(particle_number.num_spin_orbitals))
+            self.assertEqual(particle_number.num_spin_orbitals, self.num_molecular_orbitals * 2)
+
+        with self.subTest("alpha electron number"):
+            self.log.debug("Number of alpha electrons is {}".format(particle_number.num_alpha))
+            self.assertEqual(particle_number.num_alpha, self.num_alpha)
+
+        with self.subTest("beta electron number"):
+            self.log.debug("Number of beta electrons is {}".format(particle_number.num_beta))
+            self.assertEqual(particle_number.num_beta, self.num_beta)
 
 
 class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
@@ -177,7 +156,7 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
                 "test_driver_fcidump_h2.fcidump", "drivers/second_quantization/fcidumpd"
             )
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
@@ -204,7 +183,7 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
                 "test_driver_fcidump_lih.fcidump", "drivers/second_quantization/fcidumpd"
             )
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
@@ -231,7 +210,7 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
                 "test_driver_fcidump_oh.fcidump", "drivers/second_quantization/fcidumpd"
             )
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 if __name__ == "__main__":

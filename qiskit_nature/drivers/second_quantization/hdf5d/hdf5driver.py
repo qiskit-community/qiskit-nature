@@ -14,6 +14,8 @@
 
 import os
 
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+
 from ..qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver
 
@@ -45,7 +47,7 @@ class HDF5Driver(ElectronicStructureDriver):
         """Sets work path."""
         self._work_path = new_work_path
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         """
         Runs driver to produce a QMolecule output.
 
@@ -64,4 +66,4 @@ class HDF5Driver(ElectronicStructureDriver):
 
         molecule = QMolecule(hdf5_file)
         molecule.load()
-        return molecule
+        return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)

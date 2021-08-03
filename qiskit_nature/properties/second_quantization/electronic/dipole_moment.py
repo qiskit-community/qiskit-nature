@@ -111,6 +111,16 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         for dipole in dipole_axes:
             self.add_property(dipole)
 
+    @property
+    def nuclear_dipole_moment(self) -> Optional[DipoleTuple]:
+        """Returns the nuclear dipole moment."""
+        return self._nuclear_dipole_moment
+
+    @nuclear_dipole_moment.setter
+    def nuclear_dipole_moment(self, nuclear_dipole_moment: Optional[DipoleTuple]) -> None:
+        """Sets the nuclear dipole moment."""
+        self._nuclear_dipole_moment = nuclear_dipole_moment
+
     @classmethod
     def from_legacy_driver_result(cls, result: Any) -> Optional["ElectronicDipoleMoment"]:
         """Construct a ElectronicDipoleMoment instance from a QMolecule.

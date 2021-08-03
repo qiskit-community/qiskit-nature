@@ -22,6 +22,7 @@ from typing import Union, List, Optional, Any, Dict
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 from ..qmolecule import QMolecule
 from .gaussian_utils import check_valid, run_g16
@@ -129,7 +130,7 @@ class GaussianDriver(ElectronicStructureDriver):
         """
         check_valid()
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         cfg = self._config
         while not cfg.endswith("\n\n"):
             cfg += "\n"
@@ -162,7 +163,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
         q_mol.origin_driver_name = "GAUSSIAN"
         q_mol.origin_driver_config = cfg
-        return q_mol
+        return ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
 
     @staticmethod
     def _augment_config(fname: str, cfg: str) -> str:

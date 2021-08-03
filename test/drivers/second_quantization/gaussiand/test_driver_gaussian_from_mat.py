@@ -43,7 +43,7 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
             "test_driver_gaussian_from_mat.mat", "drivers/second_quantization/gaussiand"
         )
         try:
-            self.qmolecule = g16._parse_matrix_file(matfile)
+            self.driver_result = g16._parse_matrix_file(matfile)
         except QiskitNatureError:
             self.tearDown()
             self.skipTest("GAUSSIAN qcmatrixio not found")

@@ -23,6 +23,7 @@ from typing import Union, List, Optional, Any, Dict
 
 from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 from ..qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
@@ -131,7 +132,7 @@ class PSI4Driver(ElectronicStructureDriver):
         if PSI4_APP is None:
             raise MissingOptionalLibraryError(libname="PSI4", name="PSI4Driver")
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         cfg = self._config
 
         psi4d_directory = Path(__file__).resolve().parent
@@ -195,7 +196,7 @@ class PSI4Driver(ElectronicStructureDriver):
         _q_molecule.remove_file()
         _q_molecule.origin_driver_name = "PSI4"
         _q_molecule.origin_driver_config = cfg
-        return _q_molecule
+        return ElectronicStructureDriverResult.from_legacy_driver_result(_q_molecule)
 
     @staticmethod
     def _run_psi4(input_file, output_file):
