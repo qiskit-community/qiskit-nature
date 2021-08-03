@@ -5,13 +5,8 @@ pylint>=2.8.3
 pylatexenc>=1.4
 stestr>=2.0.0
 ddt>=1.2.0,!=1.4.0
-<<<<<<< HEAD
-reno>=3.2.0
-Sphinx>=1.8.3,!=3.1.0,<4
-=======
 reno>=3.4.0
-Sphinx>=1.8.3,!=3.1.0
->>>>>>> db51c17 (Bump reno requirement to latest version and set default_branch (#300))
+Sphinx>=1.8.3,!=3.1.0,<4
 sphinx-panels
 sphinx-gallery
 sphinx-autodoc-typehints
