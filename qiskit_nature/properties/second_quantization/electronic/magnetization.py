@@ -12,14 +12,12 @@
 
 """The Magnetization property."""
 
-from typing import cast, List
+from typing import cast, Any, List, Union
 
-from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from .types import ElectronicProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 
 
 class Magnetization(ElectronicProperty):
@@ -39,7 +37,7 @@ class Magnetization(ElectronicProperty):
         return "\n".join(string)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
+    def from_legacy_driver_result(cls, result: Any) -> "Magnetization":
         """Construct a Magnetization instance from a QMolecule.
 
         Args:
@@ -52,7 +50,11 @@ class Magnetization(ElectronicProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers import QMolecule as LegacyQMolecule
+        from qiskit_nature.drivers.second_quantization import QMolecule
+
+        cls._validate_input_type(result, Union[QMolecule, LegacyQMolecule])
 
         qmol = cast(QMolecule, result)
 

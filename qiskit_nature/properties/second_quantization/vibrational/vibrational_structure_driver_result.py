@@ -12,12 +12,10 @@
 
 """The VibrationalStructureDriverResult class."""
 
-from typing import List, cast
+from typing import Any, List, Union, cast
 
-from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
-from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalStructureDriverResult
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
@@ -48,9 +46,7 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         self._num_modes = num_modes
 
     @classmethod
-    def from_legacy_driver_result(
-        cls, result: LegacyDriverResult
-    ) -> "VibrationalStructureDriverResult":
+    def from_legacy_driver_result(cls, result: Any) -> "VibrationalStructureDriverResult":
         """Converts a WatsonHamiltonian into an `ElectronicStructureDriverResult`.
 
         Args:
@@ -62,7 +58,11 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, LegacyVibrationalStructureDriverResult)
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
+        from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+
+        cls._validate_input_type(result, Union[WatsonHamiltonian, LegacyWatsonHamiltonian])
 
         ret = cls()
 

@@ -16,19 +16,10 @@ from abc import abstractmethod
 from typing import Any, List, TypeVar, Union
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import QMolecule as LegacyQMolecule
-from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
 from ..grouped_property import GroupedProperty
 from ..property import Property
-
-LegacyElectronicStructureDriverResult = Union[QMolecule, LegacyQMolecule]
-LegacyVibrationalStructureDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
-LegacyDriverResult = Union[
-    LegacyElectronicStructureDriverResult, LegacyVibrationalStructureDriverResult
-]
 
 
 class SecondQuantizedProperty(Property):
@@ -45,7 +36,7 @@ class SecondQuantizedProperty(Property):
 
     @classmethod
     @abstractmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":
+    def from_legacy_driver_result(cls, result: Any) -> "Property":
         """Construct a Property instance from a driver result.
 
         This method should implement the logic which is required to extract the raw data for a
@@ -62,7 +53,7 @@ class SecondQuantizedProperty(Property):
         """
 
     @classmethod
-    def _validate_input_type(cls, result: LegacyDriverResult, valid_type: Any) -> None:
+    def _validate_input_type(cls, result: Any, valid_type: Any) -> None:
         # The type hint of `valid_type` is not easy to determine because we are passing a typing
         # alias which is a type hint itself. So what is the type hint for a type hint...
         # For the time being this should be fine because the logic around from_legacy_driver_result

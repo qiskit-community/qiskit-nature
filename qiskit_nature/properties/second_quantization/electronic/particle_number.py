@@ -13,16 +13,14 @@
 """The ParticleNumber property."""
 
 import logging
-from typing import List, Optional, Tuple, Union, cast
+from typing import Any, List, Optional, Tuple, Union, cast
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from .types import ElectronicProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 
 LOGGER = logging.getLogger(__file__)
 
@@ -119,7 +117,7 @@ class ParticleNumber(ElectronicProperty):
         return "\n".join(string)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
+    def from_legacy_driver_result(cls, result: Any) -> "ParticleNumber":
         """Construct a ParticleNumber instance from a QMolecule.
 
         Args:
@@ -132,7 +130,11 @@ class ParticleNumber(ElectronicProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers import QMolecule as LegacyQMolecule
+        from qiskit_nature.drivers.second_quantization import QMolecule
+
+        cls._validate_input_type(result, Union[QMolecule, LegacyQMolecule])
 
         qmol = cast(QMolecule, result)
 

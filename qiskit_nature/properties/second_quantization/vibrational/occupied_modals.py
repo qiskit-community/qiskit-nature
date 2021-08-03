@@ -12,14 +12,13 @@
 
 """The OccupiedModals property."""
 
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Union
 
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalStructureDriverResult
 
 
 class OccupiedModals(VibrationalProperty):
@@ -38,7 +37,7 @@ class OccupiedModals(VibrationalProperty):
         super().__init__(self.__class__.__name__, basis)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "OccupiedModals":
+    def from_legacy_driver_result(cls, result: Any) -> "OccupiedModals":
         """Construct an OccupiedModals instance from a WatsonHamiltonian.
 
         Args:
@@ -51,7 +50,11 @@ class OccupiedModals(VibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, LegacyVibrationalStructureDriverResult)
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
+        from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+
+        cls._validate_input_type(result, Union[WatsonHamiltonian, LegacyWatsonHamiltonian])
 
         return cls()
 

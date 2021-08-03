@@ -86,6 +86,7 @@ class ElectronicIntegrals(ABC):
 
     @staticmethod
     def _render_matrix_as_sparse_list(matrix) -> List[str]:
+        # TODO: handle all-zero matrix
         string = []
         nonzero = matrix.nonzero()
         for value, *indices in zip(matrix[nonzero], *nonzero):

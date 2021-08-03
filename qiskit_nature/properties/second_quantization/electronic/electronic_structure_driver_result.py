@@ -12,14 +12,11 @@
 
 """The ElectronicStructureDriverResult class."""
 
-from typing import List, Tuple, cast
+from typing import TYPE_CHECKING, Any, List, Tuple, Union, cast
 
-from qiskit_nature.drivers import Molecule
-from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..driver_metadata import DriverMetadata
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import ElectronicDipoleMoment
@@ -27,6 +24,9 @@ from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
+
+if TYPE_CHECKING:
+    from qiskit_nature.molecule import Molecule
 
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
@@ -41,12 +41,10 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Property objects should be added via `add_property` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
-        self.molecule: Molecule = None
+        self.molecule: "Molecule" = None
 
     @classmethod
-    def from_legacy_driver_result(
-        cls, result: LegacyDriverResult
-    ) -> "ElectronicStructureDriverResult":
+    def from_legacy_driver_result(cls, result: Any) -> "ElectronicStructureDriverResult":
         """Converts a QMolecule into an `ElectronicStructureDriverResult`.
 
         Args:
@@ -58,11 +56,16 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers import Molecule
+        from qiskit_nature.drivers import QMolecule as LegacyQMolecule
+        from qiskit_nature.drivers.second_quantization import QMolecule
 
-        ret = cls()
+        cls._validate_input_type(result, Union[QMolecule, LegacyQMolecule])
 
         qmol = cast(QMolecule, result)
+
+        ret = cls()
 
         ret.add_property(ElectronicEnergy.from_legacy_driver_result(qmol))
         ret.add_property(ParticleNumber.from_legacy_driver_result(qmol))

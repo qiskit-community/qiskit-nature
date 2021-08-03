@@ -45,3 +45,5 @@ class ElectronicBasisTransform(PseudoProperty):
         self.final_basis = final_basis
         self.coeff_alpha = coeff_alpha
         self.coeff_beta = coeff_alpha if coeff_beta is None else coeff_beta
+
+    # TODO: implement __str__

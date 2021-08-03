@@ -12,16 +12,14 @@
 
 """The VibrationalEnergy property."""
 
-from typing import cast, Dict, List, Optional, Tuple
+from typing import cast, Any, Dict, List, Optional, Tuple, Union
 
-from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyVibrationalStructureDriverResult
 
 
 class VibrationalEnergy(VibrationalProperty):
@@ -69,7 +67,7 @@ class VibrationalEnergy(VibrationalProperty):
         return "\n".join(string)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
+    def from_legacy_driver_result(cls, result: Any) -> "VibrationalEnergy":
         """Construct a VibrationalEnergy instance from a WatsonHamiltonian.
 
         Args:
@@ -82,7 +80,11 @@ class VibrationalEnergy(VibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        cls._validate_input_type(result, LegacyVibrationalStructureDriverResult)
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
+        from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+
+        cls._validate_input_type(result, Union[WatsonHamiltonian, LegacyWatsonHamiltonian])
 
         w_h = cast(WatsonHamiltonian, result)
 

@@ -12,14 +12,12 @@
 
 """The ElectronicEnergy property."""
 
-from typing import Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.results import EigenstateResult
 
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
@@ -100,7 +98,7 @@ class ElectronicEnergy(IntegralProperty):
         self._overlap = overlap
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
+    def from_legacy_driver_result(cls, result: Any) -> "ElectronicEnergy":
         """Construct an ElectronicEnergy instance from a QMolecule.
 
         Args:
@@ -113,7 +111,11 @@ class ElectronicEnergy(IntegralProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        # pylint: disable=import-outside-toplevel
+        from qiskit_nature.drivers import QMolecule as LegacyQMolecule
+        from qiskit_nature.drivers.second_quantization import QMolecule
+
+        cls._validate_input_type(result, Union[QMolecule, LegacyQMolecule])
 
         qmol = cast(QMolecule, result)
 

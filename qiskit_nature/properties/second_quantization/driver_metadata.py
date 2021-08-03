@@ -29,3 +29,5 @@ class DriverMetadata(PseudoProperty):
         self.program = program
         self.version = version
         self.config = config
+
+    # TODO: implement __str__

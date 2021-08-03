@@ -12,7 +12,7 @@
 
 """General SecondQuantizedProperty base class tests."""
 
-from typing import Any
+from typing import Any, Union
 
 from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
@@ -22,16 +22,19 @@ from qiskit_nature.drivers import QMolecule as LegacyQMolecule
 from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
-    LegacyDriverResult,
-    LegacyElectronicStructureDriverResult,
     SecondQuantizedProperty,
-    LegacyVibrationalStructureDriverResult,
 )
 
 
 @ddt
 class TestSecondQuantizedProperty(QiskitNatureTestCase):
     """General Property base class tests."""
+
+    LegacyElectronicStructureDriverResult = Union[QMolecule, LegacyQMolecule]
+    LegacyVibrationalStructureDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
+    LegacyDriverResult = Union[
+        LegacyElectronicStructureDriverResult, LegacyVibrationalStructureDriverResult
+    ]
 
     @unpack
     @data(

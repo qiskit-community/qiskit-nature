@@ -12,12 +12,11 @@
 
 """The ElectronicEnergy property."""
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ...second_quantized_property import LegacyDriverResult
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 from ..types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
@@ -133,7 +132,7 @@ class IntegralProperty(ElectronicProperty):
         return [sum(int.to_second_q_op() for int in ints.values()).reduce()]  # type: ignore
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":
+    def from_legacy_driver_result(cls, result: Any) -> "IntegralProperty":
         """This property does not support construction from a driver result (yet).
 
         Args:
