@@ -111,12 +111,11 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
                         `PYSCF`, `PSI4`, `PYQUANTE`, `GAUSSIAN`
             driver_kwargs: kwargs to be passed to driver
         """
-        super().__init__()
-        self._driver_type = driver_type
-        self._driver_kwargs = driver_kwargs
         self._molecule = molecule
         self._basis = basis
         self._method = method
+        self._driver_type = driver_type
+        self._driver_kwargs = driver_kwargs
 
     @property
     def molecule(self) -> Optional[Molecule]:
@@ -127,6 +126,16 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
     def molecule(self, value: Molecule) -> None:
         """set molecule"""
         self._molecule = value
+
+    @property
+    def driver_type(self) -> ElectronicStructureDriverType:
+        """return driver type"""
+        return self._driver_type
+
+    @driver_type.setter
+    def driver_type(self, value: ElectronicStructureDriverType) -> None:
+        """set driver type"""
+        self._driver_type = value
 
     @property
     def basis(self) -> str:
@@ -163,7 +172,7 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
         Runs a driver to produce an output data structure.
         """
         driver_class = ElectronicStructureDriverType.driver_class_from_type(
-            self._driver_type, self.method
+            self.driver_type, self.method
         )
         driver = driver_class.from_molecule(
             self.molecule, self.basis, self.method, self.driver_kwargs
