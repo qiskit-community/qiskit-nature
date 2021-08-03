@@ -48,4 +48,3 @@ class PenaltyParameters:
         """Returns a penalty parameter used to penalize local overlap between beads within a
         nearest neighbor contact."""
         return self._penalty_1
-

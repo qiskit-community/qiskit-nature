@@ -31,8 +31,7 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
-        lambda_contacts = 10
-        penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
+        penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
 
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9
@@ -59,8 +58,7 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
-        lambda_contacts = 10
-        penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
+        penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
 
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9
