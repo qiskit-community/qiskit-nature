@@ -19,6 +19,13 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.electronic.bases import (
+    ElectronicBasis,
+    ElectronicBasisTransform,
+)
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    OneBodyElectronicIntegrals,
+)
 
 
 class TestElectronicEnergy(QiskitNatureTestCase):
@@ -33,7 +40,7 @@ class TestElectronicEnergy(QiskitNatureTestCase):
             )
         )
         qmol = driver.run()
-        self.prop = ElectronicEnergy.from_driver_result(qmol)
+        self.prop = ElectronicEnergy.from_legacy_driver_result(qmol)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
@@ -49,3 +56,15 @@ class TestElectronicEnergy(QiskitNatureTestCase):
         for op, expected_op in zip(ops[0].to_list(), expected):
             self.assertEqual(op[0], expected_op[0])
             self.assertTrue(np.isclose(op[1], expected_op[1]))
+
+    def test_integral_operator(self):
+        """Test integral_operator."""
+        # duplicate MO integrals into AO basis for this test
+        trafo = ElectronicBasisTransform(ElectronicBasis.MO, ElectronicBasis.AO, np.eye(2))
+        self.prop.transform_basis(trafo)
+
+        density = OneBodyElectronicIntegrals(ElectronicBasis.AO, (0.5 * np.eye(2), None))
+        matrix_op = self.prop.integral_operator(density)
+
+        expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])
+        self.assertTrue(np.allclose(matrix_op._matrices[0], expected))

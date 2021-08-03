@@ -17,7 +17,7 @@ import logging
 import os
 import sys
 import tempfile
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Any, Dict
 
 import numpy as np
 
@@ -25,14 +25,14 @@ from qiskit_nature import QiskitNatureError
 
 from ..qmolecule import QMolecule
 from .gaussian_utils import check_valid, run_g16
-from ..fermionic_driver import FermionicDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 
 
-class GaussianDriver(FermionicDriver):
+class GaussianDriver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the Gaussian™ 16 program.
 
@@ -49,69 +49,88 @@ class GaussianDriver(FermionicDriver):
         self,
         config: Union[str, List[str]] = "# rhf/sto-3g scf(conventional)\n\n"
         "h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735\n\n",
-        molecule: Optional[Molecule] = None,
-        basis: str = "sto-3g",
-        method: MethodType = MethodType.RHF,
     ) -> None:
         """
         Args:
             config: A molecular configuration conforming to Gaussian™ 16 format.
-            molecule: A driver independent Molecule definition instance may be provided. When a
-                molecule is supplied the ``config`` parameter is ignored and the Molecule instance,
-                along with ``basis`` and ``method`` is used to build a basic config instead.
-                The Molecule object is read when the driver is run and converted to the driver
-                dependent configuration for the computation. This allows, for example, the Molecule
-                geometry to be updated to compute different points.
-            basis: Basis set name as recognized by Gaussian™ 16.
-                See https://gaussian.com/basissets/ for more information.
-                Defaults to the minimal basis 'sto-3g'.
-            method: Hartree-Fock Method type.
 
         Raises:
             QiskitNatureError: Invalid Input
         """
-        GaussianDriver._check_valid()
+        super().__init__()
+        GaussianDriver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for Gaussian Driver '{}'".format(config))
 
         if isinstance(config, list):
             config = "\n".join(config)
 
-        super().__init__(
-            molecule=molecule,
-            basis=basis,
-            method=method.value,
-            supports_molecule=True,
-        )
         self._config = config
 
     @staticmethod
-    def _check_valid():
-        check_valid()
+    def from_molecule(
+        molecule: Molecule,
+        basis: str = "sto-3g",
+        method: MethodType = MethodType.RHF,
+        driver_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> "GaussianDriver":
+        """
+        Args:
+            molecule: molecule
+            basis: basis set
+            method: Hartree-Fock Method type
+            driver_kwargs: kwargs to be passed to driver
+        Returns:
+            driver
+        Raises:
+            QiskitNatureError: Unknown unit
+        """
+        # Ignore kwargs parameter for this driver
+        del driver_kwargs
+        GaussianDriver.check_installed()
+        basis = GaussianDriver.to_driver_basis(basis)
 
-    def _from_molecule_to_str(self) -> str:
-        units = None
-        if self.molecule.units == UnitsType.ANGSTROM:
+        if molecule.units == UnitsType.ANGSTROM:
             units = "Angstrom"
-        elif self.molecule.units == UnitsType.BOHR:
+        elif molecule.units == UnitsType.BOHR:
             units = "Bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
-        cfg1 = f"# {self.method}/{self.basis} UNITS={units} scf(conventional)\n\n"
-        name = "".join([name for (name, _) in self.molecule.geometry])
+            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+        cfg1 = f"# {method.value}/{basis} UNITS={units} scf(conventional)\n\n"
+        name = "".join([name for (name, _) in molecule.geometry])
         geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
+            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
         )
         cfg2 = f"{name} molecule\n\n"
-        cfg3 = f"{self.molecule.charge} {self.molecule.multiplicity}\n{geom}\n\n"
-        return cfg1 + cfg2 + cfg3
+        cfg3 = f"{molecule.charge} {molecule.multiplicity}\n{geom}\n\n"
+
+        return GaussianDriver(cfg1 + cfg2 + cfg3)
+
+    @staticmethod
+    def to_driver_basis(basis: str) -> str:
+        """
+        Converts basis to a driver acceptable basis
+        Args:
+            basis: The basis set to be used
+        Returns:
+            driver acceptable basis
+        """
+        if basis == "sto3g":
+            return "sto-3g"
+        return basis
+
+    @staticmethod
+    def check_installed() -> None:
+        """
+        Checks if Gaussian is installed and available
+
+        Raises:
+            MissingOptionalLibraryError: if not installed.
+        """
+        check_valid()
 
     def run(self) -> QMolecule:
-        if self.molecule is not None:
-            cfg = self._from_molecule_to_str()
-        else:
-            cfg = self._config
-
+        cfg = self._config
         while not cfg.endswith("\n\n"):
             cfg += "\n"
 

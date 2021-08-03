@@ -28,7 +28,7 @@ class TestParticleNumber(QiskitNatureTestCase):
         qmol.num_molecular_orbitals = 4
         qmol.num_alpha = 2
         qmol.num_beta = 2
-        self.prop = ParticleNumber.from_driver_result(qmol)
+        self.prop = ParticleNumber.from_legacy_driver_result(qmol)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

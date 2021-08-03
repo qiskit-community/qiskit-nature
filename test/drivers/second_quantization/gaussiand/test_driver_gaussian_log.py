@@ -14,10 +14,9 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 
 from qiskit_nature.drivers.second_quantization import GaussianLogDriver, GaussianLogResult
-from qiskit_nature import QiskitNatureError
 
 
 class TestDriverGaussianLog(QiskitNatureTestCase):
@@ -29,34 +28,32 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
             "test_driver_gaussian_log.txt", "drivers/second_quantization/gaussiand"
         )
 
+    @requires_extra_library
     def test_log_driver(self):
         """Test the driver itself creates log and we can get a result"""
-        try:
-            driver = GaussianLogDriver(
-                [
-                    "#p B3LYP/6-31g Freq=(Anharm) Int=Ultrafine SCF=VeryTight",
-                    "",
-                    "CO2 geometry optimization B3LYP/cc-pVTZ",
-                    "",
-                    "0 1",
-                    "C  -0.848629  2.067624  0.160992",
-                    "O   0.098816  2.655801 -0.159738",
-                    "O  -1.796073  1.479446  0.481721",
-                    "",
-                    "",
-                ]
-            )
-            result = driver.run()
-            qfc = result.quadratic_force_constants
-            expected = [
-                ("1", "1", 1409.20235, 1.17003, 0.07515),
-                ("2", "2", 2526.46159, 3.76076, 0.24156),
-                ("3a", "3a", 462.61566, 0.12609, 0.0081),
-                ("3b", "3b", 462.61566, 0.12609, 0.0081),
+        driver = GaussianLogDriver(
+            [
+                "#p B3LYP/6-31g Freq=(Anharm) Int=Ultrafine SCF=VeryTight",
+                "",
+                "CO2 geometry optimization B3LYP/cc-pVTZ",
+                "",
+                "0 1",
+                "C  -0.848629  2.067624  0.160992",
+                "O   0.098816  2.655801 -0.159738",
+                "O  -1.796073  1.479446  0.481721",
+                "",
+                "",
             ]
-            self.assertListEqual(qfc, expected)
-        except QiskitNatureError:
-            self.skipTest("GAUSSIAN driver does not appear to be installed")
+        )
+        result = driver.run()
+        qfc = result.quadratic_force_constants
+        expected = [
+            ("1", "1", 1409.20235, 1.17003, 0.07515),
+            ("2", "2", 2526.46159, 3.76076, 0.24156),
+            ("3a", "3a", 462.61566, 0.12609, 0.0081),
+            ("3b", "3b", 462.61566, 0.12609, 0.0081),
+        ]
+        self.assertListEqual(qfc, expected)
 
     # These tests check the gaussian log result and the parsing from a partial log file that is
     # located with the tests so that this aspect of the code can be tested independent of

@@ -72,7 +72,7 @@ class PSI4Driver(FermionicDriver):
             "0.2.0",
             DeprecatedType.CLASS,
             "PSI4Driver",
-            "from qiskit_nature.drivers.second_quantization.psi4d as a direct replacement",
+            "from qiskit_nature.drivers.second_quantization.psi4d",
         )
         self._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):

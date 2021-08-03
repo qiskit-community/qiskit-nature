@@ -14,19 +14,23 @@
 
 import unittest
 
-from test.transformers.second_quantization.test_active_space_transformer import (
-    TestActiveSpaceTransformer,
-)
-
+from test import QiskitNatureTestCase
 from ddt import ddt, idata
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 @ddt
-class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
+class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
+
+    # pylint: disable=import-outside-toplevel
+    from test.transformers.test_active_space_transformer import (
+        TestActiveSpaceTransformer,
+    )
+
+    assertQMolecule = TestActiveSpaceTransformer.assertQMolecule
 
     @idata(
         [
@@ -36,7 +40,9 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
     def test_full_active_space(self, kwargs):
         """Test that transformer has no effect when all orbitals are active."""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers/second_quantization")
+            hdf5_input=self.get_resource_path(
+                "H2_sto3g.hdf5", "transformers/second_quantization/electronic"
+            )
         )
         q_molecule = driver.run()
 
@@ -55,7 +61,9 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
     def test_freeze_core(self):
         """Test the `freeze_core` convenience argument."""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization")
+            hdf5_input=self.get_resource_path(
+                "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
+            )
         )
         q_molecule = driver.run()
 
@@ -64,7 +72,7 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
 
         expected = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "LiH_sto3g_reduced.hdf5", "transformers/second_quantization"
+                "LiH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
             )
         ).run()
 
@@ -73,7 +81,9 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
     def test_freeze_core_with_remove_orbitals(self):
         """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "transformers/second_quantization")
+            hdf5_input=self.get_resource_path(
+                "BeH_sto3g.hdf5", "transformers/second_quantization/electronic"
+            )
         )
         q_molecule = driver.run()
 
@@ -82,7 +92,7 @@ class TestFreezeCoreTransformer(TestActiveSpaceTransformer):
 
         expected = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization"
+                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
             )
         ).run()
 

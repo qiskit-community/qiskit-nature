@@ -13,7 +13,7 @@
 """The Qiskit Nature VQE Quantum Program."""
 
 
-from typing import List, Callable, Optional, Any, Dict
+from typing import List, Callable, Optional, Any, Dict, Union
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -21,6 +21,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Provider
 from qiskit.providers.backend import Backend
 from qiskit.algorithms import MinimumEigensolver, MinimumEigensolverResult, VQEResult
+from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
@@ -31,7 +32,7 @@ class VQEProgram(MinimumEigensolver):
     def __init__(
         self,
         ansatz: QuantumCircuit,
-        optimizer: Optional[Dict[str, Any]] = None,
+        optimizer: Optional[Union[Optimizer, Dict[str, Any]]] = None,
         initial_point: Optional[np.ndarray] = None,
         provider: Optional[Provider] = None,
         backend: Optional[Backend] = None,
@@ -43,14 +44,15 @@ class VQEProgram(MinimumEigensolver):
         """
         Args:
             ansatz: A parameterized circuit used as Ansatz for the wave function.
-            optimizer: A dictionary specifying a classical optimizer.
-                Currently only SPSA and QN-SPSA are supported. Per default, SPSA is used.
-                The dictionary must contain a key ``name`` for the name of the optimizer and may
-                contain additional keys for the settings.
-                E.g. ``{'name': 'SPSA', 'maxiter': 100}``.
+            optimizer: An optimizer or dictionary specifying a classical optimizer.
+                If a dictionary, only SPSA and QN-SPSA are supported. The dictionary must contain a
+                key ``name`` for the name of the optimizer and may contain additional keys for the
+                settings. E.g. ``{'name': 'SPSA', 'maxiter': 100}``.
+                Per default, SPSA is used.
             backend: The backend to run the circuits on.
             initial_point: An optional initial point (i.e. initial parameter values)
                 for the optimizer. If ``None`` a random vector is used.
+            provider: Provider that supports the runtime feature.
             shots: The number of shots to be used
             measurement_error_mitigation: Whether or not to use measurement error mitigation.
             callback: a callback that can access the intermediate data during the optimization.
@@ -62,7 +64,7 @@ class VQEProgram(MinimumEigensolver):
                 steps. Per default False.
         """
         if optimizer is None:
-            optimizer = {"name": "SPSA"}
+            optimizer = SPSA(maxiter=300)
 
         # define program name
         self._program_id = "vqe"
@@ -116,21 +118,25 @@ class VQEProgram(MinimumEigensolver):
         self._ansatz = ansatz
 
     @property
-    def optimizer(self) -> Dict[str, Any]:
+    def optimizer(self) -> Union[Optimizer, Dict[str, Any]]:
         """Return the dictionary describing the optimizer."""
         return self._optimizer
 
     @optimizer.setter
-    def optimizer(self, settings: Dict[str, Any]) -> None:
+    def optimizer(self, optimizer: Union[Optimizer, Dict[str, Any]]) -> None:
         """Set the optimizer."""
-        if "name" not in settings.keys():
-            raise ValueError(
-                "The settings must contain a ``name`` key specifying the type of " "the optimizer."
-            )
+        if isinstance(optimizer, Optimizer):
+            self._optimizer = optimizer
+        else:
+            if "name" not in optimizer.keys():
+                raise ValueError(
+                    "The optimizer dictionary must contain a ``name`` key specifying the type "
+                    "of the optimizer."
+                )
 
-        _validate_optimizer_settings(settings)
+            _validate_optimizer_settings(optimizer)
 
-        self._optimizer = settings
+            self._optimizer = optimizer
 
     @property
     def backend(self) -> Optional[Backend]:

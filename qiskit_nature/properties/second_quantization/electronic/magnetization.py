@@ -16,15 +16,13 @@ from typing import cast, List
 
 from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.results import EigenstateResult
 
-from ..second_quantized_property import (
-    DriverResult,
-    ElectronicDriverResult,
-    SecondQuantizedProperty,
-)
+from .types import ElectronicProperty
+from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 
 
-class Magnetization(SecondQuantizedProperty):
+class Magnetization(ElectronicProperty):
     """The Magnetization property."""
 
     def __init__(self, num_spin_orbitals: int):
@@ -35,8 +33,13 @@ class Magnetization(SecondQuantizedProperty):
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
 
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
+        string += [f"\t{self._num_spin_orbitals} SOs"]
+        return "\n".join(string)
+
     @classmethod
-    def from_driver_result(cls, result: DriverResult) -> "Magnetization":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
         """Construct a Magnetization instance from a QMolecule.
 
         Args:
@@ -49,7 +52,7 @@ class Magnetization(SecondQuantizedProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        cls._validate_input_type(result, ElectronicDriverResult)
+        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
 
         qmol = cast(QMolecule, result)
 
@@ -67,3 +70,24 @@ class Magnetization(SecondQuantizedProperty):
             register_length=self._num_spin_orbitals,
         )
         return [op]
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """
+        result.magnetization = []
+
+        if not isinstance(result.aux_operator_eigenvalues, list):
+            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        else:
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            if aux_op_eigenvalues is None:
+                continue
+
+            if aux_op_eigenvalues[2] is not None:
+                result.magnetization.append(aux_op_eigenvalues[2][0].real)  # type: ignore
+            else:
+                result.magnetization.append(None)
