@@ -80,7 +80,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
-        lambda_contacts = 10
         main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
         main_chain_len = 9
         side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 0]
@@ -90,7 +89,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
+        penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
         pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         qubit_op = qubit_op_builder._build_qubit_op()
@@ -106,7 +105,6 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
-        lambda_contacts = 10
         main_chain_residue_seq = ["S", "A", "A", "C", "S"]
         main_chain_len = 5
         side_chain_lens = [0, 0, 1, 1, 0]
@@ -116,7 +114,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1, lambda_contacts)
+        penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
         pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         qubit_op = qubit_op_builder._build_qubit_op()

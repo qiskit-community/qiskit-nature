@@ -20,7 +20,6 @@ class PenaltyParameters:
         penalty_chiral: float = 10.0,
         penalty_back: float = 10.0,
         penalty_1: float = 10.0,
-        penalty_contacts: float = 10.0,
     ):
         """
         Args:
@@ -28,14 +27,11 @@ class PenaltyParameters:
             penalty_back: A penalty parameter used to penalize turns along the same axis.
             penalty_1: A penalty parameter used to penalize local overlap between beads within a
                 nearest neighbor contact.
-            penalty_contacts: A penalty parameter used to penalize local overlap between beads
-                within a nearest neighbor contact.
         """
 
         self._penalty_chiral = penalty_chiral
         self._penalty_back = penalty_back
         self._penalty_1 = penalty_1
-        self._penalty_contacts = penalty_contacts
 
     @property
     def penalty_chiral(self) -> float:
@@ -53,8 +49,3 @@ class PenaltyParameters:
         nearest neighbor contact."""
         return self._penalty_1
 
-    @property
-    def penalty_contacts(self) -> float:
-        """Returns a penalty parameter used to penalize local overlap between beads within a
-        nearest neighbor contact."""
-        return self._penalty_contacts
