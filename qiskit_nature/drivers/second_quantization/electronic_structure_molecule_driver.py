@@ -22,7 +22,7 @@ from enum import Enum
 from qiskit.exceptions import MissingOptionalLibraryError
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..molecule import Molecule
-from ...exceptions import NotSupportedMethodError
+from ...exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class ElectronicStructureDriverType(Enum):
 
         Raises:
             MissingOptionalLibraryError: Driver not installed.
-            NotSupportedMethodError: method not supported by driver.
+            UnsupportMethodError: method not supported by driver.
         """
         driver_class = None
         if driver_type == ElectronicStructureDriverType.AUTO:
@@ -68,10 +68,7 @@ class ElectronicStructureDriverType(Enum):
                             item, method
                         )
                         break
-                    except MissingOptionalLibraryError as ex:
-                        if error is None:
-                            error = ex
-                    except NotSupportedMethodError as ex:
+                    except (MissingOptionalLibraryError, UnsupportMethodError) as ex:
                         if error is None:
                             error = ex
             if driver_class is None:

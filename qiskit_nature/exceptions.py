@@ -21,7 +21,7 @@ class QiskitNatureError(QiskitError):
     pass
 
 
-class NotSupportedMethodError(QiskitNatureError):
+class UnsupportMethodError(QiskitNatureError):
     """Class used if a driver doesn't support given method."""
 
     pass

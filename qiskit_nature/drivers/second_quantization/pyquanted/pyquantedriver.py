@@ -28,7 +28,7 @@ from .integrals import compute_integrals
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
-from ....exceptions import NotSupportedMethodError
+from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
@@ -213,10 +213,10 @@ class PyQuanteDriver(ElectronicStructureDriver):
             method: Method type
 
         Raises:
-            NotSupportedMethodError: If method not supported.
+            UnsupportMethodError: If method not supported.
         """
-        if method in [MethodType.RKS, MethodType.ROKS, MethodType.UKS]:
-            raise NotSupportedMethodError(f"Invalid Pyquante method {method.value}.")
+        if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
+            raise UnsupportMethodError(f"Invalid Pyquante method {method.value}.")
 
     def run(self) -> QMolecule:
         atoms = self._atoms

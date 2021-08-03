@@ -378,7 +378,7 @@ class PySCFDriver(ElectronicStructureDriver):
             method: Method type
 
         Raises:
-            NotSupportedMethodError: If method not supported.
+            UnsupportMethodError: If method not supported.
         """
         # supports all methods
         pass
