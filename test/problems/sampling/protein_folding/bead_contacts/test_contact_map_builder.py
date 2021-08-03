@@ -12,9 +12,7 @@
 """Tests ContactMapBuilder."""
 from test import QiskitNatureTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
-from qiskit.opflow import PauliSumOp
 from qiskit_nature.problems.sampling.protein_folding.bead_contacts import contact_map_builder
-from qiskit_nature.problems.sampling.protein_folding.bead_contacts.contact_map import ContactMap
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 PATH = "problems/sampling/protein_folding/resources/test_contact_map_builder"
@@ -148,57 +146,3 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         self.assertEqual(lower_side_upper_main[3][7], expected_5)
         self.assertEqual(lower_side_upper_side[3][6], expected_6)
         self.assertEqual(r_contact, 6)
-
-    def test_create_qubit_list(self):
-        """
-        Tests that the list of all qubits (conformation and interaction) is created correctly.
-        """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 0, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None]
-
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
-        contact_map = ContactMap(peptide)
-        new_qubits = contact_map._create_peptide_qubit_list()
-
-        expected_path = self.get_resource_path(
-            "test_create_new_qubit_list_1",
-            PATH,
-        )
-
-        expected_1 = read_expected_file(expected_path)
-        expected_path = self.get_resource_path(
-            "test_create_new_qubit_list_2",
-            PATH,
-        )
-
-        expected_2 = read_expected_file(expected_path)
-        expected_path = self.get_resource_path(
-            "test_create_new_qubit_list_3",
-            PATH,
-        )
-
-        expected_3 = read_expected_file(expected_path)
-        expected_path = self.get_resource_path(
-            "test_create_new_qubit_list_4",
-            PATH,
-        )
-
-        expected_4 = read_expected_file(expected_path)
-        expected_path = self.get_resource_path(
-            "test_create_new_qubit_list_5",
-            PATH,
-        )
-
-        expected_5 = read_expected_file(expected_path)
-
-        self.assertEqual(len(new_qubits), 6)
-        self.assertEqual(new_qubits[0], PauliSumOp.from_list([("I" * 80, 0)]))
-        self.assertEqual(new_qubits[1], expected_1)
-        self.assertEqual(new_qubits[2], expected_2)
-        self.assertEqual(new_qubits[3], expected_3)
-        self.assertEqual(new_qubits[4], expected_4)
-        self.assertEqual(new_qubits[5], expected_5)

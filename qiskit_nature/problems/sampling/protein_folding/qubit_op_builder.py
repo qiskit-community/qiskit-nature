@@ -91,9 +91,8 @@ class QubitOpBuilder:
         h_bbsc, h_scbb = (
             self._create_h_bbsc_and_h_scbb() if self._penalty_parameters.penalty_1 else (0, 0)
         )
-        h_contacts = self._create_h_contacts() if self._penalty_parameters.penalty_contacts else 0
 
-        h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc + h_contacts
+        h_total = h_chiral + h_back + h_short + h_bbbb + h_bbsc + h_scbb + h_scsc
 
         return h_total.reduce()
 
@@ -490,31 +489,3 @@ class QubitOpBuilder:
         h_short = _fix_qubits(h_short)
 
         return h_short
-
-    # TODO verify the meaning of this term
-    def _create_h_contacts(self) -> Union[PauliSumOp, PauliOp]:
-        """
-        Creates a Hamiltonian term approximating nearest neighbor interactions and includes
-        energy of
-        contacts that are present in system (energy shift). # TODO better description?
-
-        Returns:
-            h_contacts: Contribution to energetic Hamiltonian for approximate nearest neighbor
-            interactions.
-
-        """
-        penalty_contacts = self._penalty_parameters.penalty_contacts
-        new_qubits = self._contact_map._create_peptide_qubit_list()
-        main_chain_len = len(self._peptide.get_main_chain)
-        full_id = _build_full_identity(2 * (main_chain_len - 1))
-        # 4 because for each component of a contact map
-        full_id_contacts = _build_full_identity(4 * pow(main_chain_len - 1, 2))
-        # original code treats the 0th entry (valued 0) as a qubit register
-        new_qubits[0] = 0.5 * (full_id_contacts ^ full_id ^ full_id)
-        h_contacts = 0.0
-        for operator in new_qubits[-self._contact_map.num_contacts :]:
-            h_contacts += operator
-        h_contacts = h_contacts ** 2
-        h_contacts *= penalty_contacts
-        h_contacts = _fix_qubits(h_contacts)
-        return h_contacts
