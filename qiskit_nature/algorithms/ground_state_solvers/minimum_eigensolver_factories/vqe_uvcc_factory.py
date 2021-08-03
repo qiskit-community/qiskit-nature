@@ -22,10 +22,12 @@ from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
 from qiskit_nature.circuit.library import UVCC, UVCCSD, VSCF
-from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization.vibrational import (
     VibrationalStructureProblem,
+)
+from qiskit_nature.properties.second_quantization.vibrational import (
+    VibrationalStructureDriverResult,
 )
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -189,9 +191,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             by ``transformation``.
         """
 
-        watson_hamiltonian_transformed = cast(WatsonHamiltonian, problem.molecule_data_transformed)
-        num_modals = problem.num_modals
-        num_modes = watson_hamiltonian_transformed.num_modes
+        basis = cast(VibrationalStructureDriverResult, problem.properties_transformed).basis
+        num_modals = basis.num_modals_per_mode
+        num_modes = len(num_modals)
 
         if isinstance(num_modals, int):
             num_modals = [num_modals] * num_modes

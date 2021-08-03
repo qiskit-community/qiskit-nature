@@ -19,7 +19,7 @@ from test.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import PySCFDriver, UnitsType, HFMethodType
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, ParityMapper
 from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.transformers.second_quantization import FreezeCoreTransformer
+from qiskit_nature.transformers import FreezeCoreTransformer
 
 
 class TestDriverMethodsPySCF(TestDriverMethods):

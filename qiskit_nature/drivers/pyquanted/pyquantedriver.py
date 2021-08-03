@@ -83,7 +83,7 @@ class PyQuanteDriver(FermionicDriver):
             "0.2.0",
             DeprecatedType.CLASS,
             "PyQuanteDriver",
-            "from qiskit_nature.drivers.second_quantization.pyquanted as a direct replacement",
+            "from qiskit_nature.drivers.second_quantization.pyquanted",
         )
         validate_min("maxiters", maxiters, 1)
         self._check_valid()

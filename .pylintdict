@@ -72,6 +72,7 @@ dataset
 dcx
 debye
 deepcopy
+dft
 diag
 diagonalizes
 diagonalizing
@@ -93,6 +94,7 @@ eigenstate
 eigenstateresult
 eigenstates
 einact
+einsum
 endian
 endif
 enum
@@ -171,6 +173,7 @@ jw
 ket
 kitaev
 knowles
+kohn
 kwarg
 kwargs
 labelled
@@ -197,6 +200,7 @@ mcrz
 mct
 mcu
 mcx
+metadata
 microsoft
 minao
 mixin
@@ -323,8 +327,10 @@ str
 subcircuits
 subclasses
 submodules
+subtype
 succ
 sudo
+superpositions
 sx
 sxdg
 symm
@@ -375,6 +381,7 @@ watson
 wavefunction
 whitespace
 wigner
+xcf
 xcfun
 xdata
 xy

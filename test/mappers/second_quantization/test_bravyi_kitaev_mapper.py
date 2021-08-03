@@ -52,7 +52,7 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
             )
         )
         q_molecule = driver.run()
-        fermionic_op = ElectronicEnergy.from_driver_result(q_molecule).second_q_ops()[0]
+        fermionic_op = ElectronicEnergy.from_legacy_driver_result(q_molecule).second_q_ops()[0]
         mapper = BravyiKitaevMapper()
         qubit_op = mapper.map(fermionic_op)
 

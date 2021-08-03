@@ -27,6 +27,7 @@ they desire to evaluate.
    :nosignatures:
 
    SecondQuantizedProperty
+   GroupedSecondQuantizedProperty
 
 .. autosummary::
    :toctree:
@@ -35,8 +36,9 @@ they desire to evaluate.
    vibrational
 """
 
-from .second_quantized_property import SecondQuantizedProperty
+from .second_quantized_property import GroupedSecondQuantizedProperty, SecondQuantizedProperty
 
 __all__ = [
     "SecondQuantizedProperty",
+    "GroupedSecondQuantizedProperty",
 ]

@@ -13,14 +13,18 @@
 """The Freeze-Core Reduction interface."""
 
 from typing import List, Optional
+import logging
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_name
+from qiskit_nature.drivers import QMolecule
 
 from .active_space_transformer import ActiveSpaceTransformer
 
+logger = logging.getLogger(__name__)
+
 
 class FreezeCoreTransformer(ActiveSpaceTransformer):
-    """The Freeze-Core reduction."""
+    """**DEPRECATED!** The Freeze-Core reduction."""
 
     def __init__(
         self,
@@ -49,6 +53,12 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
                              must make sure that these are _unoccupied_ orbitals, which can be
                              removed without taking any energy shifts into account.
         """
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "FreezeCoreTransformer",
+            "from qiskit_nature.transformers.second_quantization.electronic as a direct replacement",
+        )
         self._freeze_core = freeze_core
         self._remove_orbitals = remove_orbitals
 

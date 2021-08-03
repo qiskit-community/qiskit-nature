@@ -24,9 +24,7 @@ from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic import (
-    ElectronicStructureProblem,
-)
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
 
 class TestEnd2End(QiskitNatureTestCase):
@@ -45,8 +43,8 @@ class TestEnd2End(QiskitNatureTestCase):
         second_q_ops = problem.second_q_ops()
         converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
         num_particles = (
-            problem.molecule_data_transformed.num_alpha,
-            problem.molecule_data_transformed.num_beta,
+            problem.properties_transformed.get_property("ParticleNumber").num_alpha,
+            problem.properties_transformed.get_property("ParticleNumber").num_beta,
         )
         self.qubit_op = converter.convert(second_q_ops[0], num_particles)
         self.aux_ops = converter.convert_match(second_q_ops[1:])

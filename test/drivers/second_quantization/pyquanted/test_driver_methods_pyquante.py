@@ -14,8 +14,8 @@
 
 import unittest
 
+from test import requires_extra_library
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType, MethodType
 
@@ -23,12 +23,10 @@ from qiskit_nature.drivers.second_quantization import PyQuanteDriver, BasisType,
 class TestDriverMethodsPyquante(TestDriverMethods):
     """Driver Methods Pyquante tests"""
 
+    @requires_extra_library
     def setUp(self):
         super().setUp()
-        try:
-            PyQuanteDriver(atoms=self.lih)
-        except QiskitNatureError:
-            self.skipTest("PyQuante driver does not appear to be installed")
+        PyQuanteDriver(atoms=self.lih)
 
     def test_lih_rhf(self):
         """lih rhf test"""

@@ -23,10 +23,12 @@ from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
-from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
+)
+from qiskit_nature.properties.second_quantization.electronic import (
+    ParticleNumber,
 )
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -188,13 +190,10 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             A VQE suitable to compute the ground state of the molecule transformed
             by ``transformation``.
         """
-        q_molecule_transformed = cast(QMolecule, problem.molecule_data_transformed)
-        num_molecular_orbitals = q_molecule_transformed.num_molecular_orbitals
-        num_particles = (
-            q_molecule_transformed.num_alpha,
-            q_molecule_transformed.num_beta,
-        )
-        num_spin_orbitals = 2 * num_molecular_orbitals
+        driver_result = problem.properties_transformed
+        particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
+        num_spin_orbitals = particle_number.num_spin_orbitals
+        num_particles = particle_number.num_alpha, particle_number.num_beta
 
         initial_state = self.initial_state
         if initial_state is None:
