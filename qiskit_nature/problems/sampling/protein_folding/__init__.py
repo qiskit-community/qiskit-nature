@@ -80,6 +80,7 @@ Interactions
    :toctree: ../stubs/
    :nosignatures:
 
+   Interaction
    MixedInteraction
    MiyazawaJerniganInteraction
    RandomInteraction
@@ -92,6 +93,7 @@ Penalty Parameters
 
    PenaltyParameters
 """
+from .interactions.interaction import Interaction
 from .interactions.mixed_interaction import MixedInteraction
 from .interactions.miyazawa_jernigan_interaction import MiyazawaJerniganInteraction
 from .interactions.random_interaction import RandomInteraction
@@ -106,6 +108,7 @@ __all__ = [
     "Peptide",
     "MainChain",
     "SideChain",
+    "Interaction",
     "MixedInteraction",
     "MiyazawaJerniganInteraction",
     "RandomInteraction",

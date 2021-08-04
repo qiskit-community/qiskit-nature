@@ -29,8 +29,8 @@ class SideBead(BaseBead):
                             chain of this side bead is attached.
             side_index: Index of the bead on the related side chain in a peptide.
             residue_type: A character representing the type of a residue for the bead.
-            turn_qubits: A list of Pauli operators that encodes the turn following from a
-            given bead index.
+            turn_qubits: A list of Pauli operators that encodes the turn following from a given
+                        bead index.
         """
         super().__init__(
             "side_chain",

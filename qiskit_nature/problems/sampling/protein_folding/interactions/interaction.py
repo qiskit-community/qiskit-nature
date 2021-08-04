@@ -22,12 +22,13 @@ class Interaction(ABC):
     def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
         """
         Calculates an energy matrix for a particular interaction type.
+
         Args:
             chain_len: Length of a protein chain.
             residue_sequence: A list that contains characters defining residues for a chain of
                             proteins.
 
         Returns:
-            pair_energies: Numpy array of pair energies for amino acids.
+            Numpy array of pair energies for amino acids.
         """
         pass

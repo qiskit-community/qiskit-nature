@@ -59,12 +59,13 @@ class BaseChain(ABC):
         """
         Builds a PauliOp of length 2 * (chain_len - 1) (number of qubits necessary to encode all
         turns for the chain of length chain_len) with a Pauli Z operator at a given index.
+
         Args:
             chain_len: length of the chain.
             pauli_z_index: index of a Pauli Z operator in a turn operator.
 
         Returns:
-            turn_qubit: A Pauli operator that encodes the turn following from a given bead index.
+            A Pauli operator that encodes the turn following from a given bead index.
         """
         num_turn_qubits = 2 * (chain_len - 1)
         norm_factor = 0.5

@@ -53,22 +53,19 @@ class ContactMap:
     def lower_side_upper_main(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a first bead in a side chain (first index in a dictionary) and a bead in a main
-        chain (second
-        index in a dictionary)."""
+        chain (second index in a dictionary)."""
         return self._lower_side_upper_main
 
     @property
     def lower_main_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a bead in a main chain (first index in a dictionary) and a first bead in a side
-        chain (second
-        index in a dictionary)."""
+        chain (second index in a dictionary)."""
         return self._lower_main_upper_side
 
     @property
     def lower_side_upper_side(self) -> Dict[int, dict]:
         """Returns a dictionary which is a component of a contact map that stores contact operators
         between a first bead in a side chain (first index in a dictionary) and a first bead in a
-        side chain (
-        second index in a dictionary)."""
+        side chain (second index in a dictionary)."""
         return self._lower_side_upper_side

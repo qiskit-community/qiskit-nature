@@ -32,7 +32,7 @@ class Peptide:
             main_chain_residue_sequences: List of characters that define residues for a main chain.
             side_chain_lens: List of lengths of all side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
-                beads.
+                                        beads.
         """
 
         self._main_chain = MainChain(
@@ -47,7 +47,7 @@ class Peptide:
         Returns the list of all side chains in a peptide.
 
         Returns:
-            side_chains: the list of all side chains in a peptide.
+            A list of all side chains in a peptide.
         """
         side_chains = []
         for main_bead in self._main_chain.beads_list:
@@ -60,7 +60,7 @@ class Peptide:
         chains are present.
 
         Returns:
-            side_chain_hot_vector: a one-hot encoding list for side chains in a peptide.
+            A one-hot encoding list for side chains in a peptide.
         """
         side_chain_hot_vector = []
         for main_bead in self._main_chain.beads_list:

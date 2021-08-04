@@ -35,13 +35,14 @@ class MixedInteraction(Interaction):
         """
         Calculates an energy matrix for a mixed interaction based on the Miyazawa-Jernigan
         potential file.
+
         Args:
             chain_len: Length of a protein chain.
             residue_sequence: A list that contains characters defining residues for a chain of
-            proteins.
+                            proteins.
 
         Returns:
-            pair_energies: Numpy array of pair energies for amino acids.
+            Numpy array of pair energies for amino acids.
         """
         _validate_residue_sequence(residue_sequence)
         mj_interaction, list_aa = _load_energy_matrix_file()

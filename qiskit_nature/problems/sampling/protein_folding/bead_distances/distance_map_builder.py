@@ -46,9 +46,8 @@ class DistanceMapBuilder:
             peptide: A Peptide object that includes all information about a protein.
 
         Returns:
-            distance_map: A beads-indexed dictionary that stores distances between beads of a
-                            peptide as qubit operators.
-            self.num_distances: number of distances calculated.
+            Tuple of beads-indexed dictionary that stores distances between beads of a peptide as
+            qubit operators and the number of distances calculated.
         """
         self._calc_distances_main_chain(peptide)
         self._add_distances_side_chain(peptide)
@@ -117,6 +116,7 @@ class DistanceMapBuilder:
         distance between lower_bead_ind and upper_bead_ind bead pairs,
         distance_map_axis_a :math:`= \sum_k (-1)^k*indica(k)` where :math:`k` iterates from
         lower_bead_ind to upper_bead_ind - 1.
+
         Args:
             peptide: A Peptide object that includes all information about a protein.
         """

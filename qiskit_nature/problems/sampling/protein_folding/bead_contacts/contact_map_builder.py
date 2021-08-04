@@ -51,17 +51,13 @@ def _create_contact_qubits(
     Contact operators created in this builder can be used as blueprints for any level of nearest
     neighbors interactions.
 
-
     Args:
         peptide: A Peptide object that includes all information about a protein.
 
     Returns:
-        lower_main_upper_main, lower_side_upper_main, lower_main_upper_side, \
-           lower_side_upper_side, num_contacts: Tuple consisting of dictionaries
-                                    of Pauli operators for contacts/
-                                    interactions between a lower/upper bead from the main/side
-                                    chain and a lower/upper bead from the main/side chain and the
-                                    total number of contacts.
+        Tuple consisting of dictionaries of Pauli operators for contacts/interactions between a
+        lower/upper bead from the main/side chain and a lower/upper bead from the main/side chain
+        and the total number of contacts.
     """
     main_chain_len = len(peptide.get_main_chain)
     side_chain = peptide.get_side_chain_hot_vector()

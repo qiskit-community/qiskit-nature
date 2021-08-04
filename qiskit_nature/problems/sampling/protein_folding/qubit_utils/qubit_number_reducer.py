@@ -29,10 +29,8 @@ def _remove_unused_qubits(
         total_hamiltonian: A full Hamiltonian for the protein folding problem.
 
     Returns:
-        total_hamiltonian_compressed: The total_hamiltonian compressed to an equivalent
-                            Hamiltonian.
-        unused_qubits: indices of qubits in the original Hamiltonian that were unused as
-                        optimization variables.
+        Tuple consisting of the total_hamiltonian compressed to an equivalent Hamiltonian and
+        indices of qubits in the original Hamiltonian that were unused as optimization variables.
     """
     unused_qubits = _find_unused_qubits(total_hamiltonian)
     num_qubits = total_hamiltonian.num_qubits

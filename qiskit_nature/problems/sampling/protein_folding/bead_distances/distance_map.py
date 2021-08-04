@@ -84,7 +84,7 @@ class DistanceMap:
             pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
         Returns:
-            expression: Contribution to an energetic Hamiltonian.
+            Contribution to an energetic Hamiltonian.
         """
         bounding_constant = 7
         lambda_0 = bounding_constant * (upper_bead_ind - lower_bead_ind + 1) * lambda_1
@@ -132,7 +132,7 @@ class DistanceMap:
             pair_energies_multiplier: A constant that multiplies pair energy contributions.
 
         Returns:
-            expression: Contribution to an energetic Hamiltonian.
+            Contribution to an energetic Hamiltonian.
         """
         energy = pair_energies[lower_bead_ind][is_side_chain_upper][upper_bead_ind][
             is_side_chain_lower

@@ -18,11 +18,12 @@ from qiskit.opflow import PauliOp, I, Z
 def _build_full_identity(num_qubits: int) -> PauliOp:
     """
     Builds a full identity operator of a given size.
+
     Args:
         num_qubits: number of qubits on which a full identity operator will be created.
 
     Returns:
-        full_identity: a full identity operator of a given size.
+        A full identity operator of a given size.
     """
     full_identity = I
     for _ in range(1, num_qubits):
@@ -34,14 +35,15 @@ def _build_pauli_z_op(num_qubits: int, pauli_z_indices: List[int]) -> PauliOp:
     """
     Builds a Pauli operator of a given size with Pauli Z operators on indicated positions and
     identity operators on other positions.
+
     Args:
         num_qubits: number of qubits on which a Pauli operator will be created.
         pauli_z_indices: a list of indices in a Pauli operator on which a Pauli Z operator shall
                         appear.
 
     Returns:
-        operator: a Pauli operator of a given size with Pauli Z operators on indicated positions
-                and identity operators on other positions.
+        A Pauli operator of a given size with Pauli Z operators on indicated positions and
+        identity operators on other positions.
     """
     if 0 in pauli_z_indices:
         operator = Z

@@ -91,9 +91,7 @@ class BaseBead(ABC):
         """
         Returns all turn indicator functions for the bead.
         Returns:
-            turn_indicator_fun_0, turn_indicator_fun_1, \
-               turn_indicator_fun_2, turn_indicator_fun_3: A tuple of all turn indicator
-               functions for the bead.
+            A tuple of all turn indicator functions for the bead.
         """
         if self.turn_qubits is None:
             return None

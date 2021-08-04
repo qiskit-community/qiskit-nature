@@ -68,6 +68,7 @@ class MainChain(BaseChain):
     ) -> Sequence[MainBead]:
         """
         Creates a main chain for a given main chain length and side chain data.
+
         Args:
             main_chain_len: length of the main chain of a peptide.
             main_chain_residue_sequences: list of characters that define residues for a main chain.
@@ -76,7 +77,7 @@ class MainChain(BaseChain):
             beads.
 
         Returns:
-            main_chain: an instance of a MainChain class.
+            An instance of a MainChain class.
 
         Raises:
             InvalidSizeException: when the length of list of side chain lengths provided does not
@@ -152,7 +153,7 @@ class MainChain(BaseChain):
             beads.
 
         Returns:
-            side_chain: an instance of a SideChain class.
+            An instance of a SideChain class.
         """
         if self._is_side_chain_present(main_bead_id, side_chain_lens, side_chain_residue_sequences):
             side_chain = SideChain(
@@ -177,8 +178,7 @@ class MainChain(BaseChain):
                                         beads.
 
         Returns:
-            is_side_chain_present: a boolean indicating whether a given main bead hosts a side
-            chain.
+            A boolean indicating whether a given main bead hosts a side chain.
         """
         is_side_chain_present = bool(
             side_chain_lens

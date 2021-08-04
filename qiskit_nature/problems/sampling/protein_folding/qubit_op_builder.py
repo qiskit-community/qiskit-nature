@@ -54,7 +54,7 @@ class QubitOpBuilder:
         8 terms responsible for chirality, geometry and nearest neighbors interactions.
 
         Returns:
-            h_total: A total Hamiltonian for the protein folding problem.
+            A total Hamiltonian for the protein folding problem.
 
         Raises:
             InvalidSizeException: if chains of invalid/incompatible sizes provided.
@@ -106,7 +106,7 @@ class QubitOpBuilder:
             upper_bead: A bead with a bigger index in the chain.
 
         Returns:
-            turns_operator: A qubit operator for consecutive turns.
+            A qubit operator for consecutive turns.
         """
         (
             lower_bead_indic_0,
@@ -137,8 +137,8 @@ class QubitOpBuilder:
         omitted (fixed in optimization) due to symmetry degeneracy.
 
         Returns:
-            H_back: Contribution to Hamiltonian in symbolic notation that penalizes
-                    consecutive turns along the same axis
+            Contribution to Hamiltonian in symbolic notation that penalizes consecutive turns
+            along the same axis.
         """
 
         main_chain = self._peptide.get_main_chain
@@ -158,7 +158,7 @@ class QubitOpBuilder:
         of side chains, this function returns a value of 0.
 
         Returns:
-            h_chiral: Hamiltonian term that imposes the right chirality.
+            Hamiltonian term that imposes the right chirality.
         """
 
         main_chain = self._peptide.get_main_chain
@@ -281,8 +281,8 @@ class QubitOpBuilder:
         main/backbone (BB) beads.
 
         Returns:
-            h_bbbb: Hamiltonian term corresponding to a 1st neighbor interaction between
-                    main/backbone (BB) beads.
+            Hamiltonian term corresponding to a 1st neighbor interaction between main/backbone (
+            BB) beads.
         """
         penalty_1 = self._penalty_parameters.penalty_1
         h_bbbb = 0
@@ -338,8 +338,7 @@ class QubitOpBuilder:
         of side chains, this function returns a value of 0.
 
         Returns:
-            h_bbsc, h_scbb: Tuple of Hamiltonian terms consisting of backbone and side chain
-            interactions.
+            Tuple of Hamiltonian terms consisting of backbone and side chain interactions.
         """
         penalty_1 = self._penalty_parameters.penalty_1
         h_bbsc = 0
@@ -430,7 +429,7 @@ class QubitOpBuilder:
         returns a value of 0.
 
         Returns:
-            h_scsc: Hamiltonian term consisting of side chain pairwise interactions
+            Hamiltonian term consisting of side chain pairwise interactions
         """
         penalty_1 = self._penalty_parameters.penalty_1
         h_scsc = 0
@@ -461,9 +460,8 @@ class QubitOpBuilder:
         4 beads apart. If no side chains are present, this function returns 0.
 
         Returns:
-            h_short: Contribution to energetic Hamiltonian for interactions between beads that
-            are no
-            more than 4 beads apart.
+            Contribution to energetic Hamiltonian for interactions between beads that are no more
+            than 4 beads apart.
         """
         main_chain_len = len(self._peptide.get_main_chain)
         side_chain = self._peptide.get_side_chain_hot_vector()

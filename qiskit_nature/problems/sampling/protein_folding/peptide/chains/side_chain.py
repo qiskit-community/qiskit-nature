@@ -51,6 +51,7 @@ class SideChain(BaseChain):
     ) -> Union[Sequence[SideBead], None]:
         """
         Creates a side chain for a given main bead.
+
         Args:
             main_bead_id: id of a main bead that will host a side chain.
             main_chain_len: length of the main chain of a peptide.
@@ -59,7 +60,7 @@ class SideChain(BaseChain):
             beads.
 
         Returns:
-            side_chain: an instance of a SideChain class.
+            An instance of a SideChain class.
 
         Raises:
             InvalidSideChainException: if side chains of length greater than 1 provided.

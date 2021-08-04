@@ -53,8 +53,8 @@ class ProteinFoldingProblem(SamplingProblem):
         To obtain the full qubit operator for a Hamiltonian, use the method `qubit_op_full`.
 
         Returns:
-            qubit_operator: a qubit operator for the Hamiltonian encoding a protein folding
-                            problem on an optimized number of qubits.
+            A qubit operator for the Hamiltonian encoding a protein folding problem on an
+            optimized number of qubits.
         """
         qubit_operator, unused_qubits = qubit_number_reducer._remove_unused_qubits(
             self._qubit_op_full()
@@ -69,7 +69,7 @@ class ProteinFoldingProblem(SamplingProblem):
         larger that necessary. To ensure the optimal number of qubits, use the method `qubit_op`.
 
         Returns:
-            qubit_operator: a qubit operator for the Hamiltonian encoding a protein folding problem.
+            A qubit operator for the Hamiltonian encoding a protein folding problem.
         """
         qubit_operator = self._qubit_op_builder._build_qubit_op()
         return qubit_operator

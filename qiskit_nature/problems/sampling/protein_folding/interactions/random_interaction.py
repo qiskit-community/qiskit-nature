@@ -24,12 +24,13 @@ class RandomInteraction(Interaction):
     def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str] = None) -> np.ndarray:
         """
         Calculates an energy matrix for a random interaction.
+
         Args:
             chain_len: Length of a protein chain.
             residue_sequence: None
 
         Returns:
-            pair_energies: Numpy array of pair energies for amino acids.
+            Numpy array of pair energies for amino acids.
         """
         pair_energies = -1 - 4 * algorithm_globals.random.random(
             (chain_len + 1, 2, chain_len + 1, 2)
