@@ -182,7 +182,7 @@ class VibrationalStructureProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
-            for mode in range(self.molecule_data.num_modes):
+            for mode in range(self.properties_transformed.num_modes):
                 if aux_values is None or not np.isclose(aux_values[mode][0], 1):
                     return False
             return True

@@ -152,7 +152,7 @@ class PSI4Driver(ElectronicStructureDriver):
         )
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
-        input_text += "from qiskit_nature.drivers.second_quantization.qmolecule import QMolecule\n"
+        input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"
         input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
 
         with open(template_file, "r") as file:
