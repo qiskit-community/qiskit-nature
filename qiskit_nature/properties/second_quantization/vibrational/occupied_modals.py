@@ -14,6 +14,7 @@
 
 from typing import Any, List, Optional, Tuple, Union
 
+from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
@@ -50,9 +51,6 @@ class OccupiedModals(VibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers import WatsonHamiltonian
-
         cls._validate_input_type(result, WatsonHamiltonian)
 
         return cls()

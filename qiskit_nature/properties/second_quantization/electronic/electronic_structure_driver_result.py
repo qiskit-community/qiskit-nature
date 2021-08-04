@@ -12,8 +12,10 @@
 
 """The ElectronicStructureDriverResult class."""
 
-from typing import TYPE_CHECKING, Any, List, Tuple, Union, cast
+from typing import Any, List, Tuple, Union, cast
 
+from qiskit_nature.drivers import Molecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..driver_metadata import DriverMetadata
@@ -24,9 +26,6 @@ from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
-
-if TYPE_CHECKING:
-    from qiskit_nature.drivers.molecule import Molecule
 
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
@@ -56,10 +55,6 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers import Molecule
-        from qiskit_nature.drivers import QMolecule
-
         cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)

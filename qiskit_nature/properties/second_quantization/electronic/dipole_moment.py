@@ -14,6 +14,7 @@
 
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
@@ -135,9 +136,6 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers import QMolecule
-
         cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)

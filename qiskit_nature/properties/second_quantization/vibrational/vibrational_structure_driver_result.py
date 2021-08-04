@@ -14,6 +14,7 @@
 
 from typing import Any, List, Union, cast
 
+from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from .occupied_modals import OccupiedModals
@@ -58,9 +59,6 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         Raises:
             QiskitNatureError: if a QMolecule is provided.
         """
-        # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers import WatsonHamiltonian
-
         cls._validate_input_type(result, WatsonHamiltonian)
 
         ret = cls()

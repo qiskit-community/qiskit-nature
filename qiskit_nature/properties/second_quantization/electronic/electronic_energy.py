@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 import numpy as np
 
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.results import EigenstateResult
 
 from .bases import ElectronicBasis
@@ -131,9 +132,6 @@ class ElectronicEnergy(IntegralProperty):
         Raises:
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
-        # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers import QMolecule
-
         cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
