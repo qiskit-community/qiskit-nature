@@ -18,7 +18,7 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import PauliTrotterEvolution
+from qiskit.opflow import OperatorBase, PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -160,6 +160,8 @@ class UVCC(EvolvedOperatorAnsatz):
     def _build(self) -> None:
         if self._data is not None:
             return
+
+        self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]
 
         if self.operators is None or self.operators == [None]:
             excitation_ops = self.excitation_ops()
