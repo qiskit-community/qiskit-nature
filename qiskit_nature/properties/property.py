@@ -13,6 +13,7 @@
 """The Property base class."""
 
 from abc import ABC, abstractmethod
+import logging
 
 from qiskit_nature.results import EigenstateResult
 
@@ -46,6 +47,13 @@ class Property(ABC):
 
     def __str__(self) -> str:
         return self.name
+
+    def log(self) -> None:
+        """Logs the Property information."""
+        logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
+        if not logger.isEnabledFor(logging.INFO):
+            return
+        logger.info(self.__str__())
 
     @abstractmethod
     def interpret(self, result: EigenstateResult) -> None:
