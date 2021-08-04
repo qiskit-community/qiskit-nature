@@ -21,8 +21,8 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
-from qiskit_nature.drivers import QMolecule as LegacyQMolecule
-from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver, QMolecule
+from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.electronic import (
@@ -74,7 +74,7 @@ class ElectronicStructureProblem(BaseProblem):
             self._properties_transformed = (
                 ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
             )
-        elif isinstance(driver_result, (QMolecule, LegacyQMolecule)):
+        elif isinstance(driver_result, QMolecule):
             self._properties_transformed = (
                 ElectronicStructureDriverResult.from_legacy_driver_result(driver_result)
             )

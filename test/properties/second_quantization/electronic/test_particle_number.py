@@ -14,7 +14,7 @@
 
 from test import QiskitNatureTestCase
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 

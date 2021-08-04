@@ -18,9 +18,9 @@ from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import QMolecule as LegacyQMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     SecondQuantizedProperty,
 )
@@ -31,21 +31,16 @@ class TestSecondQuantizedProperty(QiskitNatureTestCase):
     """General Property base class tests."""
 
     # pylint: disable=invalid-name
-    LegacyElectronicStructureDriverResult = Union[QMolecule, LegacyQMolecule]
     LegacyVibrationalStructureDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
-    LegacyDriverResult = Union[
-        LegacyElectronicStructureDriverResult, LegacyVibrationalStructureDriverResult
-    ]
+    LegacyDriverResult = Union[QMolecule, LegacyVibrationalStructureDriverResult]
 
     @unpack
     @data(
-        (QMolecule(), LegacyElectronicStructureDriverResult, False),
+        (QMolecule(), QMolecule, False),
         (QMolecule(), LegacyVibrationalStructureDriverResult, True),
-        (LegacyQMolecule(), LegacyElectronicStructureDriverResult, False),
-        (LegacyQMolecule(), LegacyVibrationalStructureDriverResult, True),
-        (WatsonHamiltonian([], -1), LegacyElectronicStructureDriverResult, True),
+        (WatsonHamiltonian([], -1), QMolecule, True),
         (WatsonHamiltonian([], -1), LegacyVibrationalStructureDriverResult, False),
-        (LegacyWatsonHamiltonian([], -1), LegacyElectronicStructureDriverResult, True),
+        (LegacyWatsonHamiltonian([], -1), QMolecule, True),
         (LegacyWatsonHamiltonian([], -1), LegacyVibrationalStructureDriverResult, False),
     )
     def test_validate_input_type(

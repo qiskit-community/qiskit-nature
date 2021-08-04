@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import AngularMomentum
 
 

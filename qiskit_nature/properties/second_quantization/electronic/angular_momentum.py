@@ -61,10 +61,9 @@ class AngularMomentum(ElectronicProperty):
             QiskitNatureError: if a WatsonHamiltonian is provided.
         """
         # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers import QMolecule as LegacyQMolecule
-        from qiskit_nature.drivers.second_quantization import QMolecule
+        from qiskit_nature.drivers import QMolecule
 
-        cls._validate_input_type(result, Union[QMolecule, LegacyQMolecule])
+        cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
 

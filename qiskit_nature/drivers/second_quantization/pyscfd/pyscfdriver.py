@@ -28,7 +28,7 @@ from qiskit_nature.properties.second_quantization.electronic import ElectronicSt
 
 from ....exceptions import QiskitNatureError
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
-from ..qmolecule import QMolecule
+from ...qmolecule import QMolecule
 from ...molecule import Molecule
 from ...units_type import UnitsType
 

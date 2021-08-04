@@ -20,7 +20,8 @@ import numpy as np
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers.second_quantization import BaseDriver, QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import BaseDriver, WatsonHamiltonian
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 from qiskit_nature.results import EigenstateResult

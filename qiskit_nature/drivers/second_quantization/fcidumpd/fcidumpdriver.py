@@ -26,7 +26,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     TwoBodyElectronicIntegrals,
 )
 
-from ..qmolecule import QMolecule
+from ...qmolecule import QMolecule
 from .dumper import dump
 from .parser import parse  # pylint: disable=deprecated-module
 from ..electronic_structure_driver import ElectronicStructureDriver

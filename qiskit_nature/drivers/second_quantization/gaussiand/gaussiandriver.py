@@ -24,7 +24,7 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
-from ..qmolecule import QMolecule
+from ...qmolecule import QMolecule
 from .gaussian_utils import check_valid, run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule

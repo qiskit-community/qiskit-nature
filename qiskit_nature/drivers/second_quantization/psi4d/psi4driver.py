@@ -25,7 +25,7 @@ from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
-from ..qmolecule import QMolecule
+from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType

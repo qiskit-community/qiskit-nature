@@ -16,7 +16,7 @@ import os
 
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
-from ..qmolecule import QMolecule
+from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver
 
 
