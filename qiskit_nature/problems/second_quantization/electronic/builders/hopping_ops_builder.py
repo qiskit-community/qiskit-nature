@@ -42,7 +42,7 @@ def _build_qeom_hopping_ops(
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
-        particle_number: the `ParticleNumber` property containing relevant sector informatin.
+        particle_number: the `ParticleNumber` property containing relevant sector information.
         qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
