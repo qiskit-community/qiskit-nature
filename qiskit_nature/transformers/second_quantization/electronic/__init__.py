@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-QMolecule Transformers (:mod:`qiskit_nature.transformers.second_quantization`)
-==============================================================================
+QMolecule Transformers (:mod:`qiskit_nature.transformers.second_quantization.electronic`)
+=========================================================================================
 
-.. currentmodule:: qiskit_nature.transformers.second_quantization
+.. currentmodule:: qiskit_nature.transformers.second_quantization.electronic
 
 Transformers act on a :class:`~qiskit_nature.drivers.second_quantization.QMolecule` to produce an
 altered copy of it as per the specific transformer. So for instance the
