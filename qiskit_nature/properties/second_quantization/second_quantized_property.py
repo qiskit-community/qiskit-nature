@@ -16,10 +16,13 @@ from abc import abstractmethod
 from typing import Any, List, Type, TypeVar, Union
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
 from ..grouped_property import GroupedProperty
 from ..property import Property
+
+LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 
 
 class SecondQuantizedProperty(Property):
@@ -36,7 +39,7 @@ class SecondQuantizedProperty(Property):
 
     @classmethod
     @abstractmethod
-    def from_legacy_driver_result(cls, result: Any) -> "Property":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":
         """Construct a Property instance from a driver result.
 
         This method should implement the logic which is required to extract the raw data for a

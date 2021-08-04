@@ -12,13 +12,14 @@
 
 """The ElectronicEnergy property."""
 
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 import numpy as np
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
@@ -119,7 +120,7 @@ class ElectronicEnergy(IntegralProperty):
         self._overlap = overlap
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> "ElectronicEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
         """Construct an ElectronicEnergy instance from a QMolecule.
 
         Args:

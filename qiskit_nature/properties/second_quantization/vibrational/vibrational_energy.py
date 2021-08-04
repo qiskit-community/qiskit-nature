@@ -12,12 +12,13 @@
 
 """The VibrationalEnergy property."""
 
-from typing import cast, Any, Dict, List, Optional, Tuple, Union
+from typing import cast, Dict, List, Optional, Tuple, Union
 
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
@@ -68,7 +69,7 @@ class VibrationalEnergy(VibrationalProperty):
         return "\n".join(string)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> "VibrationalEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
         """Construct a VibrationalEnergy instance from a WatsonHamiltonian.
 
         Args:

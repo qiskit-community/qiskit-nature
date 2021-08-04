@@ -12,11 +12,12 @@
 
 """The VibrationalStructureDriverResult class."""
 
-from typing import Any, List, Union, cast
+from typing import List, Union, cast
 
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
+from ..second_quantized_property import LegacyDriverResult
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
@@ -47,7 +48,9 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         self._num_modes = num_modes
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> "VibrationalStructureDriverResult":
+    def from_legacy_driver_result(
+        cls, result: LegacyDriverResult
+    ) -> "VibrationalStructureDriverResult":
         """Converts a WatsonHamiltonian into an `ElectronicStructureDriverResult`.
 
         Args:

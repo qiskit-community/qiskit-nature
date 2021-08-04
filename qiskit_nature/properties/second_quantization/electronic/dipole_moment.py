@@ -12,12 +12,13 @@
 
 """The ElectronicDipoleMoment property."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from ...grouped_property import GroupedProperty
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
@@ -123,7 +124,9 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         self._nuclear_dipole_moment = nuclear_dipole_moment
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> Optional["ElectronicDipoleMoment"]:
+    def from_legacy_driver_result(
+        cls, result: LegacyDriverResult
+    ) -> Optional["ElectronicDipoleMoment"]:
         """Construct a ElectronicDipoleMoment instance from a QMolecule.
 
         Args:

@@ -12,12 +12,13 @@
 
 """The Magnetization property."""
 
-from typing import cast, Any, List, Union
+from typing import cast, List, Union
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
 
 
@@ -38,7 +39,7 @@ class Magnetization(ElectronicProperty):
         return "\n".join(string)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> "Magnetization":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
         """Construct a Magnetization instance from a QMolecule.
 
         Args:

@@ -12,12 +12,13 @@
 
 """The OccupiedModals property."""
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
 
@@ -38,7 +39,7 @@ class OccupiedModals(VibrationalProperty):
         super().__init__(self.__class__.__name__, basis)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> "OccupiedModals":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "OccupiedModals":
         """Construct an OccupiedModals instance from a WatsonHamiltonian.
 
         Args:

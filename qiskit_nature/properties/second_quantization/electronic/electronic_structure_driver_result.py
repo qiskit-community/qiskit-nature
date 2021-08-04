@@ -12,12 +12,13 @@
 
 """The ElectronicStructureDriverResult class."""
 
-from typing import Any, List, Tuple, Union, cast
+from typing import List, Tuple, Union, cast
 
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
+from ..second_quantized_property import LegacyDriverResult
 from ..driver_metadata import DriverMetadata
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
@@ -43,7 +44,9 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         self.molecule: "Molecule" = None
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> "ElectronicStructureDriverResult":
+    def from_legacy_driver_result(
+        cls, result: LegacyDriverResult
+    ) -> "ElectronicStructureDriverResult":
         """Converts a QMolecule into an `ElectronicStructureDriverResult`.
 
         Args:

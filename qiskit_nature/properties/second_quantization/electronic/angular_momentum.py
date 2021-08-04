@@ -12,7 +12,7 @@
 
 """The AngularMomentum property."""
 
-from typing import cast, Any, List, Tuple, Union
+from typing import cast, List, Tuple, Union
 
 import itertools
 
@@ -22,6 +22,7 @@ from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     OneBodyElectronicIntegrals,
@@ -48,7 +49,7 @@ class AngularMomentum(ElectronicProperty):
         return "\n".join(string)
 
     @classmethod
-    def from_legacy_driver_result(cls, result: Any) -> "AngularMomentum":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "AngularMomentum":
         """Construct an AngularMomentum instance from a QMolecule.
 
         Args:
