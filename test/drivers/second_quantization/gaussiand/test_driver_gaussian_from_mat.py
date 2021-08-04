@@ -18,6 +18,7 @@ from test import QiskitNatureTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import GaussianDriver
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 
 # We need to have an instance so we can test function but constructor calls
@@ -43,7 +44,8 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
             "test_driver_gaussian_from_mat.mat", "drivers/second_quantization/gaussiand"
         )
         try:
-            self.driver_result = g16._parse_matrix_file(matfile)
+            q_mol = g16._parse_matrix_file(matfile)
+            self.driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
         except QiskitNatureError:
             self.tearDown()
             self.skipTest("GAUSSIAN qcmatrixio not found")
