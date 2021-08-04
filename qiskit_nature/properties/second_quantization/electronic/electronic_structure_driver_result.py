@@ -26,7 +26,7 @@ from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
 
 if TYPE_CHECKING:
-    from qiskit_nature.molecule import Molecule
+    from qiskit_nature.drivers.molecule import Molecule
 
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
