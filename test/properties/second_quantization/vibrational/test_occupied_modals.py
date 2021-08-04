@@ -14,7 +14,7 @@
 
 from test import QiskitNatureTestCase
 
-from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.properties.second_quantization.vibrational import OccupiedModals
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 

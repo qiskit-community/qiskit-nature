@@ -17,7 +17,7 @@ import copy
 import logging
 import re
 
-from ..watson_hamiltonian import WatsonHamiltonian
+from ...watson_hamiltonian import WatsonHamiltonian
 
 logger = logging.getLogger(__name__)
 

@@ -13,7 +13,7 @@
 """The SecondQuantizedProperty base class."""
 
 from abc import abstractmethod
-from typing import Any, List, TypeVar, Union
+from typing import Any, List, Type, TypeVar, Union
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -53,17 +53,11 @@ class SecondQuantizedProperty(Property):
         """
 
     @classmethod
-    def _validate_input_type(cls, result: Any, valid_type: Any) -> None:
-        # The type hint of `valid_type` is not easy to determine because we are passing a typing
-        # alias which is a type hint itself. So what is the type hint for a type hint...
-        # For the time being this should be fine because the logic around from_legacy_driver_result
-        # will need to be slightly adapted *before* the next release anyways when we continue with
-        # the integration of the `Property` objects.
-        if not isinstance(result, valid_type.__args__):
+    def _validate_input_type(cls, result: Any, valid_type: Type) -> None:
+        if not isinstance(result, valid_type):
             raise QiskitNatureError(
                 f"You cannot construct an {cls.__name__} from a {result.__class__.__name__}. "
-                "Please provide an object of any of these types instead: "
-                f"{typ.__name__ for typ in valid_type.__args__}"
+                f"Please provide an object of type {valid_type} instead."
             )
 
 

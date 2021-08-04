@@ -16,7 +16,9 @@ This module implements the abstract base class for vibrational structure driver 
 
 from abc import abstractmethod
 
-from .watson_hamiltonian import WatsonHamiltonian
+from qiskit_nature.properties.second_quantization.vibrational.types import (
+    GroupedVibrationalProperty,
+)
 from .base_driver import BaseDriver
 
 
@@ -26,7 +28,7 @@ class VibrationalStructureDriver(BaseDriver):
     """
 
     @abstractmethod
-    def run(self) -> WatsonHamiltonian:
+    def run(self) -> GroupedVibrationalProperty:
         """
         Runs driver to produce a WatsonHamiltonian output.
 

@@ -59,10 +59,9 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
             QiskitNatureError: if a QMolecule is provided.
         """
         # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
-        from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+        from qiskit_nature.drivers import WatsonHamiltonian
 
-        cls._validate_input_type(result, Union[WatsonHamiltonian, LegacyWatsonHamiltonian])
+        cls._validate_input_type(result, WatsonHamiltonian)
 
         ret = cls()
 

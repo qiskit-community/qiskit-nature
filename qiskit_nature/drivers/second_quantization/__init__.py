@@ -152,7 +152,6 @@ from .vibrational_structure_molecule_driver import (
     VibrationalStructureDriverType,
 )
 from .base_driver import BaseDriver
-from .watson_hamiltonian import WatsonHamiltonian
 from .vibrational_structure_driver import VibrationalStructureDriver
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from .fcidumpd import FCIDumpDriver
@@ -168,7 +167,6 @@ __all__ = [
     "VibrationalStructureMoleculeDriver",
     "VibrationalStructureDriverType",
     "MethodType",
-    "WatsonHamiltonian",
     "BaseDriver",
     "VibrationalStructureDriver",
     "ElectronicStructureDriver",

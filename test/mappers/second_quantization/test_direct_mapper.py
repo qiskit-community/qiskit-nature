@@ -19,7 +19,6 @@ from test.mappers.second_quantization.resources.reference_direct_mapper import R
 
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
-from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 
 
@@ -34,11 +33,11 @@ class TestDirectMapper(QiskitNatureTestCase):
                 "problems/second_quantization/vibrational/resources",
             )
         )
-        watson_hamiltonian = driver.run()
-        num_modes = watson_hamiltonian.num_modes
+        driver_result = driver.run()
+        num_modes = driver_result.num_modes
         num_modals = [2] * num_modes
 
-        vibration_energy = VibrationalEnergy.from_legacy_driver_result(watson_hamiltonian)
+        vibration_energy = driver_result.get_property("VibrationalEnergy")
         vibration_energy.basis = HarmonicBasis(num_modals)
 
         vibration_op = vibration_energy.second_q_ops()[0]

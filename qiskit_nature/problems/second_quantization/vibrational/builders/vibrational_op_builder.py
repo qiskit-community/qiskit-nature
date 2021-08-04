@@ -15,7 +15,7 @@ from typing import Union, List, Optional, Tuple
 import logging
 
 from qiskit_nature.deprecation import DeprecatedType, deprecate_function
-from qiskit_nature.drivers.second_quantization import WatsonHamiltonian
+from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization.bosonic_bases import BosonicBasis, HarmonicBasis
 
 from qiskit_nature.operators.second_quantization import VibrationalOp

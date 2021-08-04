@@ -19,7 +19,8 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver, WatsonHamiltonian
+from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.vibrational import (
@@ -62,9 +63,22 @@ class VibrationalStructureProblem(BaseProblem):
         Returns:
             A list of `SecondQuantizedOp` in the following order: ... .
         """
-        self._molecule_data: WatsonHamiltonian = cast(WatsonHamiltonian, self.driver.run())
-        prop = VibrationalStructureDriverResult.from_legacy_driver_result(self._molecule_data)
-        self._properties_transformed = cast(VibrationalStructureDriverResult, self._transform(prop))
+        driver_result = self.driver.run()
+        if self._legacy_transform:
+            watson_transformed = self._transform(driver_result)
+            properties_transformed = VibrationalStructureDriverResult.from_legacy_driver_result(
+                watson_transformed
+            )
+        elif isinstance(driver_result, WatsonHamiltonian):
+            properties_transformed = VibrationalStructureDriverResult.from_legacy_driver_result(
+                driver_result
+            )
+        else:
+            properties_transformed = self._transform(driver_result)
+
+        self._properties_transformed = cast(
+            VibrationalStructureDriverResult, properties_transformed
+        )
 
         num_modes = self._properties_transformed.num_modes
         if isinstance(self.num_modals, int):
