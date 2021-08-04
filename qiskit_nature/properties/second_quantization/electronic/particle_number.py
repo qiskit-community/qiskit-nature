@@ -38,8 +38,8 @@ class ParticleNumber(ElectronicProperty):
         self,
         num_spin_orbitals: int,
         num_particles: Union[int, Tuple[int, int]],
-        occupation: Optional[List[float]] = None,
-        occupation_beta: Optional[List[float]] = None,
+        occupation: Optional[Union[np.ndarray, List[float]]] = None,
+        occupation_beta: Optional[Union[np.ndarray, List[float]]] = None,
     ):
         """
         Args:
@@ -68,8 +68,8 @@ class ParticleNumber(ElectronicProperty):
             self._occupation_alpha = [o / 2.0 for o in occupation]
             self._occupation_beta = [o / 2.0 for o in occupation]
         else:
-            self._occupation_alpha = occupation
-            self._occupation_beta = occupation_beta
+            self._occupation_alpha = occupation  # type: ignore
+            self._occupation_beta = occupation_beta  # type: ignore
 
     @property
     def num_spin_orbitals(self) -> int:
