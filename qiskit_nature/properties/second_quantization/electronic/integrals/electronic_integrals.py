@@ -80,13 +80,16 @@ class ElectronicIntegrals(ABC):
             string += self._render_matrix_as_sparse_list(self._matrices)
         else:
             for title, mat in zip(self._matrix_representations, self._matrices):
+                rendered_matrix = self._render_matrix_as_sparse_list(mat)
                 string += [f"\t{title}"]
-                string += self._render_matrix_as_sparse_list(mat)
+                if not rendered_matrix:
+                    string[-1] += " is all zero"
+                    continue
+                string += rendered_matrix
         return "\n".join(string)
 
     @staticmethod
     def _render_matrix_as_sparse_list(matrix) -> List[str]:
-        # TODO: handle all-zero matrix
         string = []
         nonzero = matrix.nonzero()
         for value, *indices in zip(matrix[nonzero], *nonzero):
