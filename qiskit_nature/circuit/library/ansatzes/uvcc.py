@@ -12,17 +12,18 @@
 
 """ The Unitary Vibrational Coupled-Cluster Single and Double excitations Ansatz. """
 
+import logging
 from functools import partial
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-import logging
-
 from qiskit.circuit import QuantumCircuit
+from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import PauliTrotterEvolution
+
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp, VibrationalOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from .evolved_operator_ansatz import EvolvedOperatorAnsatz
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp, VibrationalOp
+
 from .utils.vibration_excitation_generator import generate_vibration_excitations
 
 logger = logging.getLogger(__name__)
