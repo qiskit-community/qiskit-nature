@@ -62,11 +62,9 @@ Driver Common
    :toctree: ../stubs/
    :nosignatures:
 
-   QMolecule
    MethodType
    BasisType
    InitialGuess
-   WatsonHamiltonian
 
 Drivers
 =======

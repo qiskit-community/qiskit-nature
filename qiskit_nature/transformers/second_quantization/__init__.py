@@ -27,6 +27,14 @@ would need to be included back into any ground state energy computation to get c
 
    BaseTransformer
 
+
+Submodules
+==========
+
+.. autosummary::
+   :toctree:
+
+   electronic
 """
 
 from .base_transformer import BaseTransformer
