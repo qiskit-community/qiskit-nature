@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Introduces the :class:`~qiskit_nature.drivers.second_quantization.ElectronicStructureMoleculeDriver` and
+    :class:`~qiskit_nature.drivers.second_quantization.VibrationalStructureMoleculeDriver`
+    that allow for the creation of Molecule-based drivers by specifying a molecule plus basis and
+    method (for Electronic Structure drivers only) and a driver type. An additional type `AUTO` allows for
+    the lookup of the first driver installed that supports the given method. The documentation of
+    those two molecule driver classes gives more details on it.

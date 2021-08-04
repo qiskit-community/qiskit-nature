@@ -22,6 +22,7 @@ from enum import Enum
 from qiskit.exceptions import MissingOptionalLibraryError
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..molecule import Molecule
+from ...exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
@@ -38,34 +39,40 @@ class ElectronicStructureDriverType(Enum):
     @staticmethod
     def driver_class_from_type(
         driver_type: "ElectronicStructureDriverType",
+        method: MethodType,
     ) -> Type[ElectronicStructureDriver]:
         """
         Get driver class from driver type
 
         Args:
             driver_type:type of driver to be used. If `AUTO` is selected, it will use
-                        the first driver installed in the following order:
+                        the first driver installed and that supports the given method
+                        in the following order:
                         `PYSCF`, `PSI4`, `PYQUANTE`, `GAUSSIAN`
+            method: Used to verify if the driver supports it.
 
         Returns:
             driver class
 
         Raises:
             MissingOptionalLibraryError: Driver not installed.
+            UnsupportMethodError: method not supported by driver.
         """
         driver_class = None
         if driver_type == ElectronicStructureDriverType.AUTO:
-            missing_error = None
+            error = None
             for item in ElectronicStructureDriverType:
                 if item != ElectronicStructureDriverType.AUTO:
                     try:
-                        driver_class = ElectronicStructureDriverType.driver_class_from_type(item)
+                        driver_class = ElectronicStructureDriverType.driver_class_from_type(
+                            item, method
+                        )
                         break
-                    except MissingOptionalLibraryError as ex:
-                        if missing_error is None:
-                            missing_error = ex
+                    except (MissingOptionalLibraryError, UnsupportMethodError) as ex:
+                        if error is None:
+                            error = ex
             if driver_class is None:
-                raise missing_error
+                raise error
         else:
             driver_module = importlib.import_module("qiskit_nature.drivers.second_quantization")
             driver_class = getattr(driver_module, driver_type.value, None)
@@ -74,6 +81,7 @@ class ElectronicStructureDriverType(Enum):
                     libname=driver_type, name="ElectronicStructureDriverType"
                 )
             driver_class.check_installed()  # type: ignore
+            driver_class.check_method_supported(method)  # type: ignore
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
@@ -98,19 +106,16 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
             basis: basis set
             method: The method type to be used for the calculation.
             driver_type:type of driver to be used. If `AUTO` is selected, it will use
-                        the first driver installed in the following order:
+                        the first driver installed and that supports the given method
+                        in the following order:
                         `PYSCF`, `PSI4`, `PYQUANTE`, `GAUSSIAN`
             driver_kwargs: kwargs to be passed to driver
-
-        Raises:
-            MissingOptionalLibraryError: Driver not installed.
         """
-        super().__init__()
-        self._driver_class = ElectronicStructureDriverType.driver_class_from_type(driver_type)
-        self._driver_kwargs = driver_kwargs
         self._molecule = molecule
         self._basis = basis
         self._method = method
+        self._driver_type = driver_type
+        self._driver_kwargs = driver_kwargs
 
     @property
     def molecule(self) -> Optional[Molecule]:
@@ -121,6 +126,16 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
     def molecule(self, value: Molecule) -> None:
         """set molecule"""
         self._molecule = value
+
+    @property
+    def driver_type(self) -> ElectronicStructureDriverType:
+        """return driver type"""
+        return self._driver_type
+
+    @driver_type.setter
+    def driver_type(self, value: ElectronicStructureDriverType) -> None:
+        """set driver type"""
+        self._driver_type = value
 
     @property
     def basis(self) -> str:
@@ -156,7 +171,10 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
         """
         Runs a driver to produce an output data structure.
         """
-        driver = self._driver_class.from_molecule(
+        driver_class = ElectronicStructureDriverType.driver_class_from_type(
+            self.driver_type, self.method
+        )
+        driver = driver_class.from_molecule(
             self.molecule, self.basis, self.method, self.driver_kwargs
         )
         return driver.run()
