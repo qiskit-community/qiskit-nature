@@ -13,6 +13,7 @@
 """ Test Numerical qEOM excited states calculation """
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -52,7 +53,9 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
             [5.03965375, 2, 2, 1, 1],
             [0.43840625000000005, 2, 2, 2, 2],
         ]
-        self._watson = WatsonHamiltonian(modes, 2)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self._watson = WatsonHamiltonian(modes, 2)
 
     def run(self):
         """Run dummy driver to return test watson hamiltonian"""
