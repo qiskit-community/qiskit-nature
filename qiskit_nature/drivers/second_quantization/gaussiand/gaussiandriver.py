@@ -28,6 +28,7 @@ from .gaussian_utils import check_valid, run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
+from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +89,7 @@ class GaussianDriver(ElectronicStructureDriver):
         # Ignore kwargs parameter for this driver
         del driver_kwargs
         GaussianDriver.check_installed()
+        GaussianDriver.check_method_supported(method)
         basis = GaussianDriver.to_driver_basis(basis)
 
         if molecule.units == UnitsType.ANGSTROM:
@@ -128,6 +130,19 @@ class GaussianDriver(ElectronicStructureDriver):
             MissingOptionalLibraryError: if not installed.
         """
         check_valid()
+
+    @staticmethod
+    def check_method_supported(method: MethodType) -> None:
+        """
+        Checks that Gaussian supports this method.
+        Args:
+            method: Method type
+
+        Raises:
+            UnsupportMethodError: If method not supported.
+        """
+        if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
+            raise UnsupportMethodError(f"Invalid Gaussian method {method.value}.")
 
     def run(self) -> QMolecule:
         cfg = self._config

@@ -16,12 +16,14 @@ import unittest
 from test import QiskitNatureTestCase, requires_extra_library
 from ddt import ddt, data
 from qiskit_nature.drivers.second_quantization import (
+    MethodType,
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
     VibrationalStructureDriverType,
     VibrationalStructureMoleculeDriver,
 )
 from qiskit_nature.drivers import Molecule
+from qiskit_nature.exceptions import UnsupportMethodError
 
 
 @ddt
@@ -64,6 +66,21 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
         )
         molecule = driver.run()
         self.assertAlmostEqual(molecule.hf_energy, hf_energy, places=5)
+
+    @data(
+        ElectronicStructureDriverType.PSI4,
+        ElectronicStructureDriverType.PYQUANTE,
+        ElectronicStructureDriverType.GAUSSIAN,
+    )
+    @requires_extra_library
+    def test_unsupported_method(self, driver_type):
+        """test unsupported methods"""
+        for method in [MethodType.RKS, MethodType.ROKS, MethodType.UKS]:
+            driver = ElectronicStructureMoleculeDriver(
+                self._molecule, basis="sto3g", method=method, driver_type=driver_type
+            )
+            with self.assertRaises(UnsupportMethodError):
+                _ = driver.run()
 
 
 @ddt
