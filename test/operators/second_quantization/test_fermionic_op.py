@@ -330,7 +330,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertTrue(np.allclose(mat, targ))
 
         with self.subTest("nontrivial sparse matrix"):
-            mat = FermionicOp([('ENI+', 3j), ('-N+-', -2)]).to_matrix()
+            mat = FermionicOp([("ENI+", 3j), ("-N+-", -2)]).to_matrix()
             targ = csc_matrix(([-3j, 3j, -2], ([5, 7, 6], [4, 6, 13])), shape=(16, 16))
             self.assertTrue((mat != targ).nnz == 0)
 

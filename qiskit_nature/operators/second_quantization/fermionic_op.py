@@ -299,10 +299,11 @@ class FermionicOp(SecondQuantizedOp):
 
         # loop over all columns of the matrix
         for col_idx in range(2 ** self.register_length):
-            initial_occupations = [int(occ) for occ in np.binary_repr(col_idx, self.register_length)]
+            initial_occupations = [
+                int(occ) for occ in np.binary_repr(col_idx, self.register_length)
+            ]
             # loop over the terms in the operator data
             for opstring, prefactor in self.reduce()._data:
-
                 # check if opstring is the identity
                 if opstring == "":
                     csc_data.append(prefactor)
