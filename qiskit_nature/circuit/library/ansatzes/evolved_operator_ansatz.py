@@ -45,10 +45,11 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
             name: The name of the circuit.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
-        warn_deprecated_same_type_name(
+warn_deprecated_same_type_name(
             "0.2.0",
             DeprecatedType.CLASS,
-            "qiskit.circuit.library.EvolvedOperatorAnsatz",
+            "EvolvedOperatorAnsatz",
+            "from qiskit.circuit.library as a direct replacement",
         )
         if evolution is None:
             evolution = PauliTrotterEvolution()
