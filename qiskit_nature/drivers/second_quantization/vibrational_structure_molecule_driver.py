@@ -96,15 +96,11 @@ class VibrationalStructureMoleculeDriver(VibrationalStructureDriver):
                         the first driver installed in the following order:
                         `GAUSSIAN_FORCES`
             driver_kwargs: kwargs to be passed to driver
-
-        Raises:
-            MissingOptionalLibraryError: Driver not installed.
         """
-        super().__init__()
-        self._driver_class = VibrationalStructureDriverType.driver_class_from_type(driver_type)
-        self._driver_kwargs = driver_kwargs
         self._molecule = molecule
         self._basis = basis
+        self._driver_type = driver_type
+        self._driver_kwargs = driver_kwargs
 
     @property
     def molecule(self) -> Optional[Molecule]:
@@ -115,6 +111,16 @@ class VibrationalStructureMoleculeDriver(VibrationalStructureDriver):
     def molecule(self, value: Molecule) -> None:
         """set molecule"""
         self._molecule = value
+
+    @property
+    def driver_type(self) -> VibrationalStructureDriverType:
+        """return driver type"""
+        return self._driver_type
+
+    @driver_type.setter
+    def driver_type(self, value: VibrationalStructureDriverType) -> None:
+        """set driver type"""
+        self._driver_type = value
 
     @property
     def basis(self) -> str:
@@ -140,5 +146,6 @@ class VibrationalStructureMoleculeDriver(VibrationalStructureDriver):
         """
         Runs a driver to produce an output data structure.
         """
-        driver = self._driver_class.from_molecule(self.molecule, self.basis, self.driver_kwargs)
+        driver_class = VibrationalStructureDriverType.driver_class_from_type(self.driver_type)
+        driver = driver_class.from_molecule(self.molecule, self.basis, self.driver_kwargs)
         return driver.run()
