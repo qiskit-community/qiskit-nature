@@ -248,7 +248,7 @@ class TestFermionicOp(QiskitNatureTestCase):
         with self.subTest("reduce integer"):
             fer_op = FermionicOp("N") + FermionicOp("E") + FermionicOp("N")
             reduced_op = fer_op.reduce()
-            targ = FermionicOp([("N", 2), ("E", 1)])
+            targ = FermionicOp([("N", 1), ("I", 1)])
             self.assertFermionEqual(reduced_op, targ)
 
         with self.subTest("reduce complex"):

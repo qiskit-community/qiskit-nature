@@ -13,12 +13,42 @@
 """The Fermionic-particle Operator."""
 
 import re
-from functools import reduce
 from itertools import product
-from typing import List, Optional, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union
 
-from qiskit_nature.operators.second_quantization.legacy_fermionic_op import _LegacyFermionicOp
+import numpy as np
+
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
+
+_ZERO_LABELS = {
+    ("+", "+"),
+    ("+", "N"),
+    ("-", "-"),
+    ("-", "E"),
+    ("N", "E"),
+    ("E", "+"),
+    ("N", "-"),
+    ("E", "N"),
+}
+_MAPPING = {
+    ("I", "I"): "I",
+    ("I", "+"): "+",
+    ("I", "-"): "-",
+    ("I", "N"): "N",
+    ("I", "E"): "E",
+    ("+", "I"): "+",
+    ("+", "-"): "N",
+    ("+", "E"): "+",
+    ("-", "I"): "-",
+    ("-", "+"): "E",
+    ("-", "N"): "-",
+    ("N", "I"): "N",
+    ("N", "+"): "+",
+    ("N", "N"): "N",
+    ("E", "I"): "E",
+    ("E", "-"): "-",
+    ("E", "E"): "E",
+}
 
 
 class FermionicOp(SecondQuantizedOp):
@@ -271,7 +301,7 @@ class FermionicOp(SecondQuantizedOp):
         register_length = max(self.register_length, other.register_length)
         if not new_data:
             return FermionicOp(("", 0), register_length)
-        return FermionicOp._from_legacy(FermionicOp(new_data, register_length)._to_legacy())
+        return FermionicOp(new_data, register_length)
 
     def add(self, other: "FermionicOp") -> "FermionicOp":
         if not isinstance(other, FermionicOp):
@@ -293,7 +323,7 @@ class FermionicOp(SecondQuantizedOp):
         """
         if self.sparse_label:
             return self._data.copy()
-        return self._to_legacy().to_list()
+        return self._to_dense_label_data()
 
     def adjoint(self) -> "FermionicOp":
         data = []
@@ -312,8 +342,17 @@ class FermionicOp(SecondQuantizedOp):
         if rtol is None:
             rtol = self.rtol
 
-        op = self._to_legacy().reduce(atol, rtol)
-        return FermionicOp._from_legacy(op)
+        labels, coeffs = zip(*self.to_normal_order()._to_dense_label_data())
+        label_list, indices = np.unique(labels, return_inverse=True, axis=0)
+        coeff_list = np.zeros(len(coeffs), dtype=np.complex128)
+        for i, val in zip(indices, coeffs):
+            coeff_list[i] += val
+        non_zero = [
+            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
+        ]
+        if not non_zero:
+            return FermionicOp(("", 0), self.register_length)
+        return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
     def set_label_display_mode(self, mode: str):
         """Set the display mode of labels.
@@ -332,31 +371,25 @@ class FermionicOp(SecondQuantizedOp):
         else:
             raise ValueError(f"Invalid `mode` {mode} is given. `mode` must be 'dense' or 'sparse'.")
 
-    @classmethod
-    def _from_legacy(cls, op: _LegacyFermionicOp):
-        return cls(
-            [(cls._to_sparse_label(label), coeff) for label, coeff in op.to_list()],
-            register_length=op.register_length,
-        )
-
-    def _to_legacy(self) -> _LegacyFermionicOp:
-        op = sum(
-            (
-                reduce(
-                    lambda a, b: a.compose(b),
-                    (_LegacyFermionicOp(c, self.register_length) for c in label.split()),
-                )
-                if label != ""
-                else _LegacyFermionicOp("", self.register_length)
-            )
-            * coeff
-            for label, coeff in self._data
-        )
-        op = cast(_LegacyFermionicOp, op)
-        non_zero_list = [elem for elem in op.to_list() if elem[1] != 0]
-        if not non_zero_list:
-            return _LegacyFermionicOp(("I" * self.register_length, 0))
-        return _LegacyFermionicOp(non_zero_list)
+    def _to_dense_label_data(self) -> List[Tuple[str, complex]]:
+        dense_label_data = []
+        for label, coeff in self._data:
+            label_list = ["I"] * self.register_length
+            for c in label.split():
+                char = c[0]
+                index = int(c[2:])
+                if (label_list[index], char) in _ZERO_LABELS:
+                    break
+                label_list[index] = _MAPPING[(label_list[index], char)]
+                if index != self.register_length and char in {"+", "-"}:
+                    exchange_label = label_list[index + 1 :]
+                    num_exchange = exchange_label.count("+") + exchange_label.count("-")
+                    coeff *= -1 if num_exchange % 2 else 1
+            else:
+                dense_label_data.append(("".join(label_list), coeff))
+        if not dense_label_data:
+            return [("I" * self.register_length, 0j)]
+        return dense_label_data
 
     @staticmethod
     def _to_sparse_label(label):
