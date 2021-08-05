@@ -102,6 +102,7 @@ Exceptions
    InvalidResidueException
    InvalidSideChainException
    InvalidSizeException
+
 """
 from .exceptions.invalid_residue_exception import InvalidResidueException
 from .exceptions.invalid_side_chain_exception import InvalidSideChainException
@@ -116,7 +117,7 @@ from .peptide.chains.side_chain import SideChain
 from .peptide.peptide import Peptide
 from .protein_folding_problem import ProteinFoldingProblem
 
-__all__ = {
+__all__ = [
     "ProteinFoldingProblem",
     "Peptide",
     "MainChain",
@@ -129,4 +130,4 @@ __all__ = {
     "InvalidResidueException",
     "InvalidSideChainException",
     "InvalidSizeException",
-}
+]
