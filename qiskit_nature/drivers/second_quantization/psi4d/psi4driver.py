@@ -28,6 +28,7 @@ from ..qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
+from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class PSI4Driver(ElectronicStructureDriver):
             QiskitNatureError: Invalid Input
         """
         super().__init__()
-        self.check_installed()
+        PSI4Driver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
 
@@ -89,6 +90,7 @@ class PSI4Driver(ElectronicStructureDriver):
         # Ignore kwargs parameter for this driver
         del driver_kwargs
         PSI4Driver.check_installed()
+        PSI4Driver.check_method_supported(method)
         basis = PSI4Driver.to_driver_basis(basis)
 
         if molecule.units == UnitsType.ANGSTROM:
@@ -130,6 +132,19 @@ class PSI4Driver(ElectronicStructureDriver):
         """
         if PSI4_APP is None:
             raise MissingOptionalLibraryError(libname="PSI4", name="PSI4Driver")
+
+    @staticmethod
+    def check_method_supported(method: MethodType) -> None:
+        """
+        Checks that PSI4 supports this method.
+        Args:
+            method: Method type
+
+        Raises:
+            UnsupportMethodError: If method not supported.
+        """
+        if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
+            raise UnsupportMethodError(f"Invalid PSI4 method {method.value}.")
 
     def run(self) -> QMolecule:
         cfg = self._config
