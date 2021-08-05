@@ -15,6 +15,8 @@
 import re
 from functools import reduce
 from typing import List, Optional, Tuple, Union, cast
+from scipy.sparse import csc_matrix
+import numpy as np
 
 from qiskit_nature.operators.second_quantization.legacy_fermionic_op import _LegacyFermionicOp
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
@@ -280,6 +282,67 @@ class FermionicOp(SecondQuantizedOp):
         if FermionicOp._label_display_mode_is_dense:
             return self._to_legacy().to_list()
         return self._data.copy()
+
+    def to_matrix(self, sparse: Optional[bool] = True) -> Union[csc_matrix, np.ndarray]:
+        """Convert to a matrix representation over the full fermionic Fock space in occupation number
+        basis. The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
+
+        Args:
+            sparse: If true, the matrix is returned as a sparse csc_matrix, else it is returned as a
+            dense numpy array.
+
+        Returns:
+            The matrix (scipy.sparse.csc_matrix or numpy.ndarray with dtype=numpy.complex128)
+        """
+
+        csc_data, csc_col, csc_row = [], [], []
+
+        # loop over all columns of the matrix
+        for col_idx in range(2 ** self.register_length):
+            # loop over the terms in the operator data
+            for opstring, prefactor in self.reduce()._data:
+
+                occupations = [int(occ) for occ in np.binary_repr(col_idx, self.register_length)]
+                sign = 1
+                mapped_to_zero = False
+
+                # apply terms sequentially to the current basis state
+                for label, _, mode in reversed(opstring.split(" ")):
+                    mode_idx = int(mode)
+
+                    if label == "-":
+                        # If this mode is not occupied, the action of '-' on the state is zero
+                        if occupations[mode_idx] == 0:
+                            mapped_to_zero = True
+                            break
+                        sign *= (-1) ** sum(occupations[:mode_idx])
+                        occupations[mode_idx] = 0
+
+                    if label == "+":
+                        # If this mode is already occupied, the action of '+' on this state is zero
+                        if occupations[mode_idx] == 1:
+                            mapped_to_zero = True
+                            break
+                        sign *= (-1) ** sum(occupations[:mode_idx])
+                        occupations[mode_idx] = 1
+
+                # add data point to matrix in the correct row
+                if not mapped_to_zero:
+                    row_idx = int("".join([str(occ) for occ in occupations]), 2)
+                    csc_data.append(sign * prefactor)
+                    csc_row.append(row_idx)
+                    csc_col.append(col_idx)
+
+        sparse_mat = csc_matrix(
+            (csc_data, (csc_row, csc_col)),
+            shape=(2 ** self.register_length, 2 ** self.register_length),
+            dtype=complex,
+        )
+
+        if sparse:
+            return sparse_mat
+        else:
+            return sparse_mat.toarray()
 
     def adjoint(self) -> "FermionicOp":
         data = []
