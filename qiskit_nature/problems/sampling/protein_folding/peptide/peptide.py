@@ -29,10 +29,13 @@ class Peptide:
         """
         Args:
             main_chain_len: Length of the main chain of a peptide.
-            main_chain_residue_sequences: List of characters that define residues for a main chain.
+            main_chain_residue_sequences: List of characters that define residues for a main
+                                        chain. Valid residue types are [A, C, D, E, F, G, H, I,
+                                        K, L, M, N, P, Q, R, S, T, V, W, Y].
             side_chain_lens: List of lengths of all side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
-                                        beads.
+                                        beads. Valid residue types are [A, C, D, E, F, G, H, I,
+                                        K, L, M, N, P, Q, R, S, T, V, W, Y].
         """
 
         self._main_chain = MainChain(
