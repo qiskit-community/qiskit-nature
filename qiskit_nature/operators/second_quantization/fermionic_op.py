@@ -299,39 +299,47 @@ class FermionicOp(SecondQuantizedOp):
 
         # loop over all columns of the matrix
         for col_idx in range(2 ** self.register_length):
+            initial_occupations = [int(occ) for occ in np.binary_repr(col_idx, self.register_length)]
             # loop over the terms in the operator data
             for opstring, prefactor in self.reduce()._data:
 
-                occupations = [int(occ) for occ in np.binary_repr(col_idx, self.register_length)]
-                sign = 1
-                mapped_to_zero = False
-
-                # apply terms sequentially to the current basis state
-                for label, _, mode in reversed(opstring.split(" ")):
-                    mode_idx = int(mode)
-
-                    if label == "-":
-                        # If this mode is not occupied, the action of '-' on the state is zero
-                        if occupations[mode_idx] == 0:
-                            mapped_to_zero = True
-                            break
-                        sign *= (-1) ** sum(occupations[:mode_idx])
-                        occupations[mode_idx] = 0
-
-                    if label == "+":
-                        # If this mode is already occupied, the action of '+' on this state is zero
-                        if occupations[mode_idx] == 1:
-                            mapped_to_zero = True
-                            break
-                        sign *= (-1) ** sum(occupations[:mode_idx])
-                        occupations[mode_idx] = 1
-
-                # add data point to matrix in the correct row
-                if not mapped_to_zero:
-                    row_idx = int("".join([str(occ) for occ in occupations]), 2)
-                    csc_data.append(sign * prefactor)
-                    csc_row.append(row_idx)
+                # check if opstring is the identity
+                if opstring == "":
+                    csc_data.append(prefactor)
+                    csc_row.append(col_idx)
                     csc_col.append(col_idx)
+                else:
+                    occupations = initial_occupations.copy()
+                    sign = 1
+                    mapped_to_zero = False
+
+                    # apply terms sequentially to the current basis state
+                    for label in reversed(opstring.split(" ")):
+                        op_char = label[0]
+                        mode_idx = int(label[2:])
+
+                        if op_char == "-":
+                            # If this mode is not occupied, the action of '-' on the state is zero
+                            if occupations[mode_idx] == 0:
+                                mapped_to_zero = True
+                                break
+                            sign *= (-1) ** sum(occupations[:mode_idx])
+                            occupations[mode_idx] = 0
+
+                        if op_char == "+":
+                            # If this mode is already occupied, the action of '+' on this state is zero
+                            if occupations[mode_idx] == 1:
+                                mapped_to_zero = True
+                                break
+                            sign *= (-1) ** sum(occupations[:mode_idx])
+                            occupations[mode_idx] = 1
+
+                    # add data point to matrix in the correct row
+                    if not mapped_to_zero:
+                        row_idx = int("".join([str(occ) for occ in occupations]), 2)
+                        csc_data.append(sign * prefactor)
+                        csc_row.append(row_idx)
+                        csc_col.append(col_idx)
 
         sparse_mat = csc_matrix(
             (csc_data, (csc_row, csc_col)),
