@@ -27,6 +27,7 @@ The top-level classes and submodules of qiskit_nature are:
    :nosignatures:
 
    QiskitNatureError
+   UnsupportMethodError
 
 Submodules
 ==========
@@ -49,9 +50,10 @@ Submodules
 """
 
 from .version import __version__
-from .exceptions import QiskitNatureError
+from .exceptions import QiskitNatureError, UnsupportMethodError
 
 __all__ = [
     "__version__",
     "QiskitNatureError",
+    "UnsupportMethodError",
 ]
