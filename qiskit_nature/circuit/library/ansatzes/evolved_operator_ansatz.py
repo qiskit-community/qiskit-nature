@@ -12,7 +12,6 @@
 
 """The evolved operator ansatz."""
 
-import warnings
 from typing import List, Optional, Union
 
 import numpy as np
@@ -20,6 +19,8 @@ from qiskit.circuit import Parameter, ParameterVector, QuantumCircuit, QuantumRe
 from qiskit.circuit.exceptions import CircuitError
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import EvolutionBase, OperatorBase, PauliTrotterEvolution
+
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class EvolvedOperatorAnsatz(BlueprintCircuit):
@@ -44,13 +45,10 @@ class EvolvedOperatorAnsatz(BlueprintCircuit):
             name: The name of the circuit.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
-        warnings.warn(
-            "This EvolvedOperatorAnsatz is deprecated as of 0.2.0, "
-            "and will be removed no earlier than 3 months after the release. "
-            "You should use the qiskit.circuit.library.EvolvedOperatorAnsatz "
-            "as a direct replacement instead.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated_same_type_name(
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "qiskit.circuit.library.EvolvedOperatorAnsatz",
         )
         if evolution is None:
             evolution = PauliTrotterEvolution()
