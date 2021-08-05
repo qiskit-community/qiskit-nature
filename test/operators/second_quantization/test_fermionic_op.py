@@ -16,6 +16,8 @@ import unittest
 from functools import lru_cache
 from itertools import product
 from test import QiskitNatureTestCase
+import numpy as np
+from scipy.sparse import csc_matrix
 
 from ddt import data, ddt, unpack
 
@@ -299,6 +301,38 @@ class TestFermionicOp(QiskitNatureTestCase):
         self.assertListEqual(fer_op.to_list(), str2list(label))
         fer_op.set_label_display_mode("dense")
         self.assertNotEqual(fer_op.to_list(), str2list(label))
+
+    def test_to_matrix(self):
+        """Test to_matrix"""
+        with self.subTest("identity operator matrix"):
+            mat = FermionicOp.one(2).to_matrix(sparse=False)
+            targ = np.eye(4)
+            self.assertTrue(np.allclose(mat, targ))
+
+        with self.subTest("number operator matrix"):
+            mat = FermionicOp("IN").to_matrix(sparse=False)
+            targ = np.array([[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]])
+            self.assertTrue(np.allclose(mat, targ))
+
+        with self.subTest("emptiness operator matrix"):
+            mat = FermionicOp("IE").to_matrix(sparse=False)
+            targ = np.array([[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]])
+            self.assertTrue(np.allclose(mat, targ))
+
+        with self.subTest("raising operator matrix"):
+            mat = FermionicOp("I+").to_matrix(sparse=False)
+            targ = np.array([[0, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, -1, 0]])
+            self.assertTrue(np.allclose(mat, targ))
+
+        with self.subTest("lowering operator matrix"):
+            mat = FermionicOp("I-").to_matrix(sparse=False)
+            targ = np.array([[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0]])
+            self.assertTrue(np.allclose(mat, targ))
+
+        with self.subTest("nontrivial sparse matrix"):
+            mat = FermionicOp([('ENI+', 3j), ('-N+-', -2)]).to_matrix()
+            targ = csc_matrix(([-3j, 3j, -2], ([5, 7, 6], [4, 6, 13])), shape=(16, 16))
+            self.assertTrue((mat != targ).nnz == 0)
 
 
 if __name__ == "__main__":
