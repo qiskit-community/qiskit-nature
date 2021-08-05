@@ -23,7 +23,25 @@ from ..sampling_problem import SamplingProblem
 
 
 class ProteinFoldingProblem(SamplingProblem):
-    """Defines a protein folding problem that can be passed to algorithms."""
+    """Defines a protein folding problem that can be passed to algorithms. Example initialization:
+
+    .. code-block:: python
+
+        penalty_terms = PenaltyParameters(15, 15, 15)
+        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A", "G"]
+        main_chain_len = 10
+        side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 1, 0]
+        side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", "S", None]
+
+        peptide = Peptide(
+            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
+        )
+
+        mj_interaction = MiyazawaJerniganInteraction()
+
+        protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
+        qubit_op = protein_folding_problem.qubit_op()
+    """
 
     def __init__(
         self, peptide: Peptide, interaction: Interaction, penalty_parameters: PenaltyParameters
