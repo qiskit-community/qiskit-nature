@@ -20,8 +20,9 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit_nature.properties.second_quantization.vibrational.types import \
-    GroupedVibrationalProperty
+from qiskit_nature.properties.second_quantization.vibrational.types import (
+    GroupedVibrationalProperty,
+)
 from .vibrational_structure_driver import VibrationalStructureDriver
 from ..molecule import Molecule
 

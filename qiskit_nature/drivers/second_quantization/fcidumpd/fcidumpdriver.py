@@ -106,7 +106,7 @@ class FCIDumpDriver(ElectronicStructureDriver):
 
         # NOTE: under Python 3.6, pylint appears to be unable to properly identify this case of
         # nested abstract classes (cf. https://github.com/Qiskit/qiskit-nature/runs/3245395353).
-        # However, since the unittests pass I am adding an exception for this specific case.
+        # However, since the tests pass I am adding an exception for this specific case.
         # pylint: disable=abstract-class-instantiated
         driver_result = ElectronicStructureDriverResult()
         driver_result.add_property(electronic_energy)

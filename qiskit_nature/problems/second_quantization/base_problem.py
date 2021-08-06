@@ -85,7 +85,7 @@ class BaseProblem(ABC):
                 "Mixing a deprecated driver with Property-based transformers is not advised. Please"
                 " consider switching to the new Property-based drivers in "
                 "qiskit_nature.drivers.second_quantization",
-                UserWarning
+                UserWarning,
             )
 
         self._legacy_transform = self._legacy_driver and legacy_transformer_present
