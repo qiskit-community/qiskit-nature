@@ -27,14 +27,14 @@ class MainChain(BaseChain):
     def __init__(
         self,
         main_chain_len: int,
-        main_chain_residue_sequences: List[str],
+        main_chain_residue_sequence: List[str],
         side_chain_lens: List[int],
         side_chain_residue_sequences: List[Optional[str]],
     ):
         """
         Args:
             main_chain_len: Length of the main chain of a peptide.
-            main_chain_residue_sequences: List of characters that define residues for the main
+            main_chain_residue_sequence: List of characters that define residues for the main
                                         chain.
             side_chain_lens: List of lengths of all side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
@@ -45,10 +45,10 @@ class MainChain(BaseChain):
                                     equal the length of the main chain.
             InvalidSideChainException: when first, second or last main beads have a side chain.
         """
-        self._main_chain_residue_sequence = main_chain_residue_sequences
+        self._main_chain_residue_sequence = main_chain_residue_sequence
         beads_list = self._build_main_chain(
             main_chain_len,
-            main_chain_residue_sequences,
+            main_chain_residue_sequence,
             side_chain_lens,
             side_chain_residue_sequences,
         )
@@ -62,7 +62,7 @@ class MainChain(BaseChain):
     def _build_main_chain(
         self,
         main_chain_len: int,
-        main_chain_residue_sequences: List[str],
+        main_chain_residue_sequence: List[str],
         side_chain_lens: List[int],
         side_chain_residue_sequences: List[Optional[str]],
     ) -> Sequence[MainBead]:
@@ -71,7 +71,7 @@ class MainChain(BaseChain):
 
         Args:
             main_chain_len: length of the main chain of a peptide.
-            main_chain_residue_sequences: list of characters that define residues for a main chain.
+            main_chain_residue_sequence: list of characters that define residues for a main chain.
             side_chain_lens: list of lengths of all side chains.
             side_chain_residue_sequences: list of characters that define residues for all side
                                         beads. None if a side bead does not exist.
@@ -85,7 +85,7 @@ class MainChain(BaseChain):
             InvalidSideChainException: when first, second or last main beads have a side chain.
         """
         main_chain = []
-        self._validate_main_chain_lengths(main_chain_len, main_chain_residue_sequences)
+        self._validate_main_chain_lengths(main_chain_len, main_chain_residue_sequence)
         self._validate_side_chain_lengths(
             main_chain_len, side_chain_lens, side_chain_residue_sequences
         )
@@ -100,7 +100,7 @@ class MainChain(BaseChain):
             )
             main_bead = MainBead(
                 main_bead_id,
-                main_chain_residue_sequences[main_bead_id],
+                main_chain_residue_sequence[main_bead_id],
                 (bead_turn_qubit_1, bead_turn_qubit_2),
                 side_chain,
             )
@@ -129,12 +129,12 @@ class MainChain(BaseChain):
 
     @staticmethod
     def _validate_main_chain_lengths(
-        main_chain_len: int, main_chain_residue_sequences: List[str]
+        main_chain_len: int, main_chain_residue_sequence: List[str]
     ) -> None:
-        if main_chain_len != len(main_chain_residue_sequences):
+        if main_chain_len != len(main_chain_residue_sequence):
             raise InvalidSizeException(
                 f"The length of list of main chain residue sequences: "
-                f"{len(main_chain_residue_sequences)} does not equal the length of the main "
+                f"{len(main_chain_residue_sequence)} does not equal the length of the main "
                 f"chain: {main_chain_len}"
             )
 

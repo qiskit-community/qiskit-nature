@@ -22,14 +22,14 @@ class Peptide:
     def __init__(
         self,
         main_chain_len: int,
-        main_chain_residue_sequences: List[str],
+        main_chain_residue_sequence: List[str],
         side_chain_lens: List[int],
         side_chain_residue_sequences: List[Optional[str]],
     ):
         """
         Args:
             main_chain_len: Length of the main chain of a peptide.
-            main_chain_residue_sequences: List of characters that define residues for a main
+            main_chain_residue_sequence: List of characters that define residues for a main
                                         chain. Valid residue types are [A, C, D, E, F, G, H, I,
                                         K, L, M, N, P, Q, R, S, T, V, W, Y].
             side_chain_lens: List of lengths of all side chains.
@@ -41,7 +41,7 @@ class Peptide:
 
         self._main_chain = MainChain(
             main_chain_len,
-            main_chain_residue_sequences,
+            main_chain_residue_sequence,
             side_chain_lens,
             side_chain_residue_sequences,
         )
