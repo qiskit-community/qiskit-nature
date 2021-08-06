@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a main bead of a peptide."""
-from typing import List
+from typing import Tuple
 
 from qiskit.opflow import PauliOp, OperatorBase
 
@@ -22,13 +22,17 @@ class MainBead(BaseBead):
     """A class defining a main bead of a peptide."""
 
     def __init__(
-        self, main_index: int, residue_type: str, turn_qubits: List[PauliOp], side_chain: SideChain
+        self,
+        main_index: int,
+        residue_type: str,
+        turn_qubits: Tuple[PauliOp, PauliOp],
+        side_chain: SideChain,
     ):
         """
         Args:
             main_index: index of the bead on the main chain in a peptide.
             residue_type: A character representing the type of a residue for the bead.
-            turn_qubits: A list of Pauli operators that encodes the turn following from a
+            turn_qubits: A tuple of two Pauli operators that encodes the turn following from a
                             given bead index.
             side_chain: An object representing a side chain attached to this main bead.
         """

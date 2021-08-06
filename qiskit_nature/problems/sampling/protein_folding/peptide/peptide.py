@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class containing information about beads and chains of a protein."""
-from typing import List, Sequence
+from typing import List, Sequence, Optional
 
 from .chains.side_chain import SideChain
 from .chains.main_chain import MainChain
@@ -24,7 +24,7 @@ class Peptide:
         main_chain_len: int,
         main_chain_residue_sequences: List[str],
         side_chain_lens: List[int],
-        side_chain_residue_sequences: List[str],
+        side_chain_residue_sequences: List[Optional[str]],
     ):
         """
         Args:
@@ -34,8 +34,9 @@ class Peptide:
                                         K, L, M, N, P, Q, R, S, T, V, W, Y].
             side_chain_lens: List of lengths of all side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
-                                        beads. Valid residue types are [A, C, D, E, F, G, H, I,
-                                        K, L, M, N, P, Q, R, S, T, V, W, Y].
+                                        beads. None if a side bead does not exist. Valid residue
+                                        types are [A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R,
+                                        S, T, V, W, Y].
         """
 
         self._main_chain = MainChain(

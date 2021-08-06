@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a side chain of a peptide."""
-from typing import List, Union, Sequence
+from typing import List, Union, Sequence, Optional
 
 from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
@@ -27,7 +27,7 @@ class SideChain(BaseChain):
         main_chain_len: int,
         main_bead_id: int,
         side_chain_len: int,
-        side_chain_residue_sequences: List[str],
+        side_chain_residue_sequences: List[Optional[str]],
     ):
         """
         Args:
@@ -35,7 +35,7 @@ class SideChain(BaseChain):
             main_bead_id: Index of the main bead which the side chain is attached to.
             side_chain_len: Length of the side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
-                                        beads.
+                                        beads. None if a side bead does not exist.
         """
         beads_list = self._build_side_chain(
             main_chain_len, main_bead_id, side_chain_len, side_chain_residue_sequences
@@ -47,7 +47,7 @@ class SideChain(BaseChain):
         main_chain_len: int,
         main_bead_id: int,
         side_chain_len: int,
-        side_chain_residue_sequences: List[str],
+        side_chain_residue_sequences: List[Optional[str]],
     ) -> Union[Sequence[SideBead], None]:
         """
         Creates a side chain for a given main bead.
@@ -57,7 +57,7 @@ class SideChain(BaseChain):
             main_chain_len: length of the main chain of a peptide.
             side_chain_len: length of a given side chain.
             side_chain_residue_sequences: list of characters that define residues for all side
-            beads.
+                                        beads. None is a side bead does not exist.
 
         Returns:
             An instance of a SideChain class.
@@ -79,7 +79,7 @@ class SideChain(BaseChain):
                 main_bead_id,
                 side_bead_id,
                 side_chain_residue_sequences[side_bead_id],
-                [bead_turn_qubit_1, bead_turn_qubit_2],
+                (bead_turn_qubit_1, bead_turn_qubit_2),
             )
             side_chain.append(side_bead)
         return side_chain

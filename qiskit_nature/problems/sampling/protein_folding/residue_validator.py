@@ -65,6 +65,6 @@ def _validate_residue_symbol(residue_symbol: str):
     ]
     if residue_symbol is not None and residue_symbol not in valid_residues:
         raise InvalidResidueException(
-            f"Provided residue type {residue_symbol} is not valid. Valid residue types are [A, C,"
-            f"D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y]"
+            f"Provided residue type {residue_symbol} is not valid. Valid residue types are "
+            f"{valid_residues}"
         )

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a side bead of a peptide."""
-from typing import List
+from typing import Tuple, Optional
 
 from qiskit.opflow import PauliOp, OperatorBase
 
@@ -21,15 +21,20 @@ class SideBead(BaseBead):
     """A class defining a side bead of a peptide."""
 
     def __init__(
-        self, main_index: int, side_index: int, residue_type: str, turn_qubits: List[PauliOp]
+        self,
+        main_index: int,
+        side_index: int,
+        residue_type: Optional[str],
+        turn_qubits: Tuple[PauliOp, PauliOp],
     ):
         """
         Args:
             main_index: Index of the bead on the main chain in a peptide to which the side
-                            chain of this side bead is attached.
+                        chain of this side bead is attached.
             side_index: Index of the bead on the related side chain in a peptide.
-            residue_type: A character representing the type of a residue for the bead.
-            turn_qubits: A list of Pauli operators that encodes the turn following from a given
+            residue_type: A character representing the type of a residue for the bead. None if a
+                        side bead does not exists.
+            turn_qubits: A tuple of two Pauli operators that encodes the turn following from a given
                         bead index.
         """
         super().__init__(

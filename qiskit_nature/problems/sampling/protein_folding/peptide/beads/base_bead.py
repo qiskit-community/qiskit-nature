@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """An abstract class defining a bead of a peptide."""
 from abc import ABC
-from typing import List, Tuple, Union, Callable
+from typing import Tuple, Union, Callable, Optional
 
 from qiskit.opflow import PauliOp, OperatorBase
 
@@ -26,8 +26,8 @@ class BaseBead(ABC):
         self,
         chain_type: str,
         main_index: int,
-        residue_type: str,
-        turn_qubits: List[PauliOp],
+        residue_type: Optional[str],
+        turn_qubits: Tuple[PauliOp, PauliOp],
         build_turn_indicator_fun_0: Callable[[], OperatorBase],
         build_turn_indicator_fun_1: Callable[[], OperatorBase],
         build_turn_indicator_fun_2: Callable[[], OperatorBase],
@@ -37,8 +37,9 @@ class BaseBead(ABC):
         Args:
             chain_type: Type of the chain, either "main_chain" or "side_chain".
             main_index: index of the bead on the main chain in a peptide.
-            residue_type: A character representing the type of a residue for the bead.
-            turn_qubits: A list of Pauli operators that encodes the turn following from a
+            residue_type: A character representing the type of a residue for the bead. None in
+                        case of non-existing side bead.
+            turn_qubits: A tuple of two of Pauli operators that encodes the turn following from a
                             given bead index.
             build_turn_indicator_fun_0: method that build turn indicator functions for the bead.
                                         It is passed by a child class (SideBead or MainBead) and
@@ -74,12 +75,12 @@ class BaseBead(ABC):
             self._turn_indicator_fun_3 = build_turn_indicator_fun_3()
 
     @property
-    def turn_qubits(self) -> List[PauliOp]:
+    def turn_qubits(self) -> Tuple[PauliOp, PauliOp]:
         """Returns the list of two qubits that encode the turn following from the bead."""
         return self._turn_qubits
 
     @property
-    def residue_type(self) -> str:
+    def residue_type(self) -> Optional[str]:
         """Returns a residue type."""
         return self._residue_type
 

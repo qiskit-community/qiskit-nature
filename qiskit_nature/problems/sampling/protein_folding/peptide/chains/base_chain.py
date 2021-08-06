@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """An abstract class defining a chain of a peptide."""
 from abc import ABC
-from typing import List, Sequence
+from typing import List, Sequence, Optional
 
 from qiskit.opflow import PauliOp
 
@@ -45,7 +45,7 @@ class BaseChain(ABC):
         return self._beads_list
 
     @property
-    def residue_sequence(self) -> List[str]:
+    def residue_sequence(self) -> List[Optional[str]]:
         """
         Returns the list of all residue sequences in the chain.
         """
