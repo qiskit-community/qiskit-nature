@@ -45,7 +45,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
         self.electronic_structure_problem.second_q_ops()
         self.particle_number = (
-            self.electronic_structure_problem.properties_transformed.get_property("ParticleNumber")
+            self.electronic_structure_problem.grouped_property_transformed.get_property(
+                "ParticleNumber"
+            )
         )
 
     def test_build_hopping_operators(self):

@@ -16,13 +16,13 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import BaseDriver
-from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
@@ -62,25 +62,41 @@ class BaseProblem(ABC):
                 "A mix of current and deprecated transformers is not supported!"
             )
 
-        self._molecule_data: Union[QMolecule, WatsonHamiltonian] = None
-        self._molecule_data_transformed: Union[QMolecule, WatsonHamiltonian] = None
+        self._molecule_data: Optional[Union[QMolecule, WatsonHamiltonian]] = None
+        self._molecule_data_transformed: Optional[Union[QMolecule, WatsonHamiltonian]] = None
 
-        self._properties_transformed: GroupedSecondQuantizedProperty = None
+        self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
+        self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
 
-    @property
-    def molecule_data(self) -> Union[QMolecule, WatsonHamiltonian]:
+    @property  # type: ignore[misc]
+    @deprecate_property(
+        "0.2.0",
+        new_type=DeprecatedType.PROPERTY,
+        new_name="grouped_property",
+    )
+    def molecule_data(self) -> Optional[Union[QMolecule, WatsonHamiltonian]]:
         """Returns the raw molecule data object."""
         return self._molecule_data
 
-    @property
-    def molecule_data_transformed(self) -> Union[QMolecule, WatsonHamiltonian]:
+    @property  # type: ignore[misc]
+    @deprecate_property(
+        "0.2.0",
+        new_type=DeprecatedType.PROPERTY,
+        new_name="grouped_property_transformed",
+    )
+    def molecule_data_transformed(self) -> Optional[Union[QMolecule, WatsonHamiltonian]]:
         """Returns the raw transformed molecule data object."""
         return self._molecule_data_transformed
 
     @property
-    def properties_transformed(self) -> GroupedSecondQuantizedProperty:
+    def grouped_property(self) -> Optional[GroupedSecondQuantizedProperty]:
+        """Returns the GroupedSecondQuantizedProperty object."""
+        return self._grouped_property
+
+    @property
+    def grouped_property_transformed(self) -> Optional[GroupedSecondQuantizedProperty]:
         """Returns the transformed GroupedSecondQuantizedProperty object."""
-        return self._properties_transformed
+        return self._grouped_property_transformed
 
     @property
     def num_particles(self) -> Optional[Tuple[int, int]]:

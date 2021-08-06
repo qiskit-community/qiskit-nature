@@ -57,7 +57,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        return self._properties_transformed.get_property("ParticleNumber").num_particles
+        return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -71,17 +71,17 @@ class ElectronicStructureProblem(BaseProblem):
         driver_result = self.driver.run()
         if self._legacy_transform:
             qmol_transformed = self._transform(driver_result)
-            self._properties_transformed = (
+            self._grouped_property_transformed = (
                 ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
             )
         elif isinstance(driver_result, QMolecule):
-            self._properties_transformed = (
+            self._grouped_property_transformed = (
                 ElectronicStructureDriverResult.from_legacy_driver_result(driver_result)
             )
         else:
-            self._properties_transformed = self._transform(driver_result)
+            self._grouped_property_transformed = self._transform(driver_result)
 
-        second_quantized_ops_list = self._properties_transformed.second_q_ops()
+        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
 
         return second_quantized_ops_list
 
@@ -119,7 +119,7 @@ class ElectronicStructureProblem(BaseProblem):
             A tuple containing the hopping operators, the types of commutativities and the
             excitation indices.
         """
-        particle_number = self.properties_transformed.get_property("ParticleNumber")
+        particle_number = self.grouped_property_transformed.get_property("ParticleNumber")
         return _build_qeom_hopping_ops(particle_number, qubit_converter, excitations)
 
     def interpret(
@@ -151,7 +151,7 @@ class ElectronicStructureProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self._properties_transformed.interpret(result)
+        self._grouped_property_transformed.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         return result
 
@@ -173,7 +173,7 @@ class ElectronicStructureProblem(BaseProblem):
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
             particle_number = cast(
-                ParticleNumber, self.properties_transformed.get_property(ParticleNumber)
+                ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )
             return (
                 np.isclose(

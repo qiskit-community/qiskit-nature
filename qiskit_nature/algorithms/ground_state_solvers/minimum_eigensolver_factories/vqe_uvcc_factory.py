@@ -191,7 +191,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             by ``transformation``.
         """
 
-        basis = cast(VibrationalStructureDriverResult, problem.properties_transformed).basis
+        basis = cast(VibrationalStructureDriverResult, problem.grouped_property_transformed).basis
         num_modals = basis.num_modals_per_mode
         num_modes = len(num_modals)
 

@@ -66,21 +66,21 @@ class VibrationalStructureProblem(BaseProblem):
         driver_result = self.driver.run()
         if self._legacy_transform:
             watson_transformed = self._transform(driver_result)
-            properties_transformed = VibrationalStructureDriverResult.from_legacy_driver_result(
-                watson_transformed
+            grouped_property_transformed = (
+                VibrationalStructureDriverResult.from_legacy_driver_result(watson_transformed)
             )
         elif isinstance(driver_result, WatsonHamiltonian):
-            properties_transformed = VibrationalStructureDriverResult.from_legacy_driver_result(
-                driver_result
+            grouped_property_transformed = (
+                VibrationalStructureDriverResult.from_legacy_driver_result(driver_result)
             )
         else:
-            properties_transformed = self._transform(driver_result)
+            grouped_property_transformed = self._transform(driver_result)
 
-        self._properties_transformed = cast(
-            VibrationalStructureDriverResult, properties_transformed
+        self._grouped_property_transformed = cast(
+            VibrationalStructureDriverResult, grouped_property_transformed
         )
 
-        num_modes = self._properties_transformed.num_modes
+        num_modes = self._grouped_property_transformed.num_modes
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * num_modes
         else:
@@ -88,9 +88,9 @@ class VibrationalStructureProblem(BaseProblem):
 
         # TODO: expose this as an argument in __init__
         basis = HarmonicBasis(num_modals)
-        self._properties_transformed.basis = basis
+        self._grouped_property_transformed.basis = basis
 
-        second_quantized_ops_list = self._properties_transformed.second_q_ops()
+        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
 
         return second_quantized_ops_list
 
@@ -131,7 +131,7 @@ class VibrationalStructureProblem(BaseProblem):
 
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * cast(
-                VibrationalStructureDriverResult, self._properties_transformed
+                VibrationalStructureDriverResult, self._grouped_property_transformed
             ).num_modes
         else:
             num_modals = self.num_modals
@@ -165,7 +165,7 @@ class VibrationalStructureProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = VibrationalStructureResult()
         result.combine(eigenstate_result)
-        self._properties_transformed.interpret(result)
+        self._grouped_property_transformed.interpret(result)
         result.computed_vibrational_energies = eigenstate_result.eigenenergies
         return result
 
@@ -182,7 +182,7 @@ class VibrationalStructureProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
-            for mode in range(self.properties_transformed.num_modes):
+            for mode in range(self.grouped_property_transformed.num_modes):
                 if aux_values is None or not np.isclose(aux_values[mode][0], 1):
                     return False
             return True
