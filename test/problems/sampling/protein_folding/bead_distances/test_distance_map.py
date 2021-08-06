@@ -39,7 +39,9 @@ class TestDistanceMap(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(
+            main_chain_len, main_chain_residue_seq
+        )
         lambda_1 = 2
         lower_main_bead_index = 1
         upper_main_bead_index = 4
@@ -77,7 +79,9 @@ class TestDistanceMap(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(
+            main_chain_len, main_chain_residue_seq
+        )
         lambda_1 = 2
         lower_main_bead_index = 3
         upper_main_bead_index = 5
@@ -110,7 +114,9 @@ class TestDistanceMap(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 0, 0]
         side_chain_residue_sequences = [None, None, "A", None, None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(
+            main_chain_len, main_chain_residue_seq
+        )
 
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
@@ -146,7 +152,9 @@ class TestDistanceMap(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(
+            main_chain_len, main_chain_residue_seq
+        )
 
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
