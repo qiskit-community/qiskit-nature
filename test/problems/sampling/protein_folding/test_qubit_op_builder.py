@@ -90,7 +90,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         )
         mj_interaction = MiyazawaJerniganInteraction()
         penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         qubit_op = qubit_op_builder._build_qubit_op()
         expected_path = self.get_resource_path(
@@ -115,7 +115,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         )
         mj_interaction = MiyazawaJerniganInteraction()
         penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         qubit_op = qubit_op_builder._build_qubit_op()
         expected_path = self.get_resource_path(
@@ -138,7 +138,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_back = qubit_op_builder._create_h_back()
@@ -163,7 +163,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_back = qubit_op_builder._create_h_back()
@@ -186,7 +186,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_chiral = qubit_op_builder._create_h_chiral()
@@ -209,7 +209,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_chiral = qubit_op_builder._create_h_chiral()
@@ -227,7 +227,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
@@ -250,7 +250,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
@@ -267,7 +267,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 0, 0, 1, 0]
         side_chain_residue_sequences = [None, None, "A", None, None, "A", None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
@@ -296,7 +296,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
@@ -322,7 +322,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )
@@ -341,7 +341,7 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 0]
         side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", None]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calc_energy_matrix(main_chain_len, main_chain_residue_seq)
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_len, main_chain_residue_seq)
         peptide = Peptide(
             main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
         )

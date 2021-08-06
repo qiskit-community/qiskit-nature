@@ -27,7 +27,7 @@ class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
         interaction = MiyazawaJerniganInteraction()
         num_beads = 3
         sequence = ["A", "A", "A"]
-        energy_matrix = interaction.calc_energy_matrix(num_beads, sequence)
+        energy_matrix = interaction.calculate_energy_matrix(num_beads, sequence)
 
         self.assertEqual(len(energy_matrix), num_beads + 1)
         self.assertEqual(len(energy_matrix[0]), 2)
@@ -39,4 +39,4 @@ class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
         sequence = ["A", "A", "B"]
 
         with self.assertRaises(InvalidResidueException):
-            _ = interaction.calc_energy_matrix(num_beads, sequence)
+            _ = interaction.calculate_energy_matrix(num_beads, sequence)

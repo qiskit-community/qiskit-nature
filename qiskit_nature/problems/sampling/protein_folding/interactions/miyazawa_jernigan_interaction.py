@@ -23,7 +23,7 @@ from ..data_loaders.energy_matrix_loader import (
 class MiyazawaJerniganInteraction(Interaction):
     """A class defining a Miyazawa-Jernigan interaction between beads of a peptide."""
 
-    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
+    def calculate_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
         """
         Calculates an energy matrix for a Miyazawa-Jernigan interaction based on the
         Miyazawa-Jernigan potential file.

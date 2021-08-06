@@ -56,7 +56,7 @@ class ProteinFoldingProblem(SamplingProblem):
         self._peptide = peptide
         self._interaction = interaction
         self._penalty_parameters = penalty_parameters
-        self._pair_energies = interaction.calc_energy_matrix(
+        self._pair_energies = interaction.calculate_energy_matrix(
             len(peptide.get_main_chain), peptide.get_main_chain.main_chain_residue_sequence
         )
         self._qubit_op_builder = QubitOpBuilder(

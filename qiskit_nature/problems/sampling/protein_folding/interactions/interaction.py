@@ -19,7 +19,7 @@ class Interaction(ABC):
     """An abstract class defining an interaction between beads of a peptide."""
 
     @abstractmethod
-    def calc_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
+    def calculate_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
         """
         Calculates an energy matrix for a particular interaction type.
 

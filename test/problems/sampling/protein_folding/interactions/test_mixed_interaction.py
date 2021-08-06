@@ -28,7 +28,7 @@ class TestMixedInteraction(QiskitNatureTestCase):
         interaction = MixedInteraction(additional_energies)
         num_beads = 3
         sequence = ["A", "A", "S"]
-        energy_matrix = interaction.calc_energy_matrix(num_beads, sequence)
+        energy_matrix = interaction.calculate_energy_matrix(num_beads, sequence)
 
         self.assertEqual(len(energy_matrix), num_beads + 1)
         self.assertEqual(len(energy_matrix[0]), 2)
@@ -40,4 +40,4 @@ class TestMixedInteraction(QiskitNatureTestCase):
         sequence = ["Z"]
 
         with self.assertRaises(InvalidResidueException):
-            _ = interaction.calc_energy_matrix(num_beads, sequence)
+            _ = interaction.calculate_energy_matrix(num_beads, sequence)
