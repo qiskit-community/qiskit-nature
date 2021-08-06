@@ -37,6 +37,9 @@ from qiskit_nature.algorithms import (
     ExcitedStatesEigensolver,
     NumPyEigensolverFactory,
 )
+from qiskit_nature.properties.second_quantization.vibrational import (
+    VibrationalStructureDriverResult,
+)
 
 
 class _DummyBosonicDriver(VibrationalStructureDriver):
@@ -55,11 +58,12 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
         ]
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self._watson = WatsonHamiltonian(modes, 2)
+            watson = WatsonHamiltonian(modes, 2)
+            self._driver_result = VibrationalStructureDriverResult.from_legacy_driver_result(watson)
 
     def run(self):
         """Run dummy driver to return test watson hamiltonian"""
-        return self._watson
+        return self._driver_result
 
 
 class TestBosonicESCCalculation(QiskitNatureTestCase):

@@ -13,6 +13,7 @@
 """ HDF5 Driver """
 
 import os
+import warnings
 
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
@@ -64,6 +65,8 @@ class HDF5Driver(ElectronicStructureDriver):
         if not os.path.isfile(hdf5_file):
             raise LookupError("HDF5 file not found: {}".format(hdf5_file))
 
-        molecule = QMolecule(hdf5_file)
-        molecule.load()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            molecule = QMolecule(hdf5_file)
+            molecule.load()
         return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)

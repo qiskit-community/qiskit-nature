@@ -12,6 +12,7 @@
 # This code is part of Qiskit.
 """The Base Problem class."""
 
+import warnings
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
@@ -22,11 +23,14 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers import BaseDriver as LegacyBaseDriver
 from qiskit_nature.drivers.second_quantization import BaseDriver
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
+
+LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 
 
 class BaseProblem(ABC):
@@ -34,7 +38,7 @@ class BaseProblem(ABC):
 
     def __init__(
         self,
-        driver: BaseDriver,
+        driver: Union[LegacyBaseDriver, BaseDriver],
         transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
     ):
         """
@@ -44,26 +48,50 @@ class BaseProblem(ABC):
             transformers: A list of transformations to be applied to the molecule.
 
         Raises:
-            QiskitNatureError: if new and legacy transformer instances are mixed.
+            QiskitNatureError: if the driver or any transformer of the legacy stack are mixed with
+                their implementations since version 0.2.0.
         """
 
         self.driver = driver
         self.transformers = transformers or []
 
-        self._legacy_transform = False
-        new_transformers = False
-        for trafo in self.transformers:
-            if isinstance(trafo, LegacyBaseTransformer):
-                self._legacy_transform = True
-            elif isinstance(trafo, BaseTransformer):
-                new_transformers = True
-        if self._legacy_transform and new_transformers:
+        self._legacy_driver = isinstance(driver, LegacyBaseDriver)
+
+        legacy_transformer_present = any(
+            isinstance(trafo, LegacyBaseTransformer) for trafo in self.transformers
+        )
+        new_transformer_present = any(
+            isinstance(trafo, BaseTransformer) for trafo in self.transformers
+        )
+
+        if legacy_transformer_present and new_transformer_present:
             raise QiskitNatureError(
                 "A mix of current and deprecated transformers is not supported!"
             )
 
-        self._molecule_data: Optional[Union[QMolecule, WatsonHamiltonian]] = None
-        self._molecule_data_transformed: Optional[Union[QMolecule, WatsonHamiltonian]] = None
+        if not self._legacy_driver and legacy_transformer_present:
+            # a LegacyBaseTransformer cannot transform the Property results produced by the new
+            # drivers.
+            raise QiskitNatureError(
+                "The deprecated transformers do not support transforming the new Property-based "
+                "drivers!"
+            )
+
+        if self._legacy_driver and new_transformer_present:
+            # a LegacyBaseDriver produces a LegacyDriverResult which cannot be transformed by the
+            # Property-based transformers. However, the LegacyDriverResult can be converted before
+            # iterating through the transformers.
+            warnings.warn(
+                "Mixing a deprecated driver with Property-based transformers is not advised. Please"
+                " consider switching to the new Property-based drivers in "
+                "qiskit_nature.drivers.second_quantization",
+                UserWarning
+            )
+
+        self._legacy_transform = self._legacy_driver and legacy_transformer_present
+
+        self._molecule_data: Optional[LegacyDriverResult] = None
+        self._molecule_data_transformed: Optional[LegacyDriverResult] = None
 
         self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
         self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
@@ -74,7 +102,7 @@ class BaseProblem(ABC):
         new_type=DeprecatedType.PROPERTY,
         new_name="grouped_property",
     )
-    def molecule_data(self) -> Optional[Union[QMolecule, WatsonHamiltonian]]:
+    def molecule_data(self) -> Optional[LegacyDriverResult]:
         """Returns the raw molecule data object."""
         return self._molecule_data
 
@@ -84,7 +112,7 @@ class BaseProblem(ABC):
         new_type=DeprecatedType.PROPERTY,
         new_name="grouped_property_transformed",
     )
-    def molecule_data_transformed(self) -> Optional[Union[QMolecule, WatsonHamiltonian]]:
+    def molecule_data_transformed(self) -> Optional[LegacyDriverResult]:
         """Returns the raw transformed molecule data object."""
         return self._molecule_data_transformed
 

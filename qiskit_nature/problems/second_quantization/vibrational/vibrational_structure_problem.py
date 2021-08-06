@@ -64,20 +64,30 @@ class VibrationalStructureProblem(BaseProblem):
             A list of `SecondQuantizedOp` in the following order: ... .
         """
         driver_result = self.driver.run()
-        if self._legacy_transform:
-            watson_transformed = self._transform(driver_result)
-            grouped_property_transformed = (
-                VibrationalStructureDriverResult.from_legacy_driver_result(watson_transformed)
+
+        if self._legacy_driver:
+            self._molecule_data = cast(WatsonHamiltonian, driver_result)
+            self._grouped_property = VibrationalStructureDriverResult.from_legacy_driver_result(
+                self._molecule_data
             )
-        elif isinstance(driver_result, WatsonHamiltonian):
-            grouped_property_transformed = (
-                VibrationalStructureDriverResult.from_legacy_driver_result(driver_result)
-            )
+
+            if self._legacy_transform:
+                self._molecule_data_transformed = self._transform(self._molecule_data)
+                self._grouped_property_transformed = (
+                    VibrationalStructureDriverResult.from_legacy_driver_result(
+                        self._molecule_data_transformed
+                    )
+                )
+
+            else:
+                self._grouped_property_transformed = self._transform(self._grouped_property)
+
         else:
-            grouped_property_transformed = self._transform(driver_result)
+            self._grouped_property = driver_result
+            self._grouped_property_transformed = self._transform(self._grouped_property)
 
         self._grouped_property_transformed = cast(
-            VibrationalStructureDriverResult, grouped_property_transformed
+            VibrationalStructureDriverResult, self._grouped_property_transformed
         )
 
         num_modes = self._grouped_property_transformed.num_modes

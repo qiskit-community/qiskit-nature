@@ -17,7 +17,7 @@ from qiskit_nature.problems.second_quantization import VibrationalStructureProbl
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 
 
-class TestVibrationalProblem(QiskitNatureTestCase):
+class TestVibrationalStructureProblem(QiskitNatureTestCase):
     """Tests Vibrational Problem."""
 
     def test_second_q_ops_without_transformers(self):
@@ -38,6 +38,15 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         vibrational_problem = VibrationalStructureProblem(driver, num_modals, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
         vibrational_op = second_quantized_ops[0]
+
+        with self.subTest("Check that the correct properties are/aren't None"):
+            # new driver used, molecule_data* should be None
+            self.assertIsNone(vibrational_problem.molecule_data)
+            self.assertIsNone(vibrational_problem.molecule_data_transformed)
+            # converted properties should never be None
+            self.assertIsNotNone(vibrational_problem.grouped_property)
+            self.assertIsNotNone(vibrational_problem.grouped_property_transformed)
+
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):

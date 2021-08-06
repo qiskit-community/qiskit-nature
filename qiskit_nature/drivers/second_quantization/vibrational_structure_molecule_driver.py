@@ -20,6 +20,8 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
+from qiskit_nature.properties.second_quantization.vibrational.types import \
+    GroupedVibrationalProperty
 from .vibrational_structure_driver import VibrationalStructureDriver
 from ..molecule import Molecule
 
@@ -142,10 +144,12 @@ class VibrationalStructureMoleculeDriver(VibrationalStructureDriver):
         """set driver kwargs"""
         self._driver_kwargs = value
 
-    def run(self):
+    def run(self) -> GroupedVibrationalProperty:
         """
         Runs a driver to produce an output data structure.
         """
         driver_class = VibrationalStructureDriverType.driver_class_from_type(self.driver_type)
-        driver = driver_class.from_molecule(self.molecule, self.basis, self.driver_kwargs)
+        driver = driver_class.from_molecule(  # type: ignore
+            self.molecule, self.basis, self.driver_kwargs
+        )
         return driver.run()

@@ -69,17 +69,27 @@ class ElectronicStructureProblem(BaseProblem):
             operator, and (if available) x, y, z dipole operators.
         """
         driver_result = self.driver.run()
-        if self._legacy_transform:
-            qmol_transformed = self._transform(driver_result)
-            self._grouped_property_transformed = (
-                ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
+
+        if self._legacy_driver:
+            self._molecule_data = cast(QMolecule, driver_result)
+            self._grouped_property = ElectronicStructureDriverResult.from_legacy_driver_result(
+                self._molecule_data
             )
-        elif isinstance(driver_result, QMolecule):
-            self._grouped_property_transformed = (
-                ElectronicStructureDriverResult.from_legacy_driver_result(driver_result)
-            )
+
+            if self._legacy_transform:
+                self._molecule_data_transformed = self._transform(self._molecule_data)
+                self._grouped_property_transformed = (
+                    ElectronicStructureDriverResult.from_legacy_driver_result(
+                        self._molecule_data_transformed
+                    )
+                )
+
+            else:
+                self._grouped_property_transformed = self._transform(self._grouped_property)
+
         else:
-            self._grouped_property_transformed = self._transform(driver_result)
+            self._grouped_property = driver_result
+            self._grouped_property_transformed = self._transform(self._grouped_property)
 
         second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
 
