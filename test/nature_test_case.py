@@ -61,12 +61,15 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
     def setUp(self) -> None:
         warnings.filterwarnings("default", category=DeprecationWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
-        warnings.filterwarnings(action="ignore", category=DeprecationWarning, module=".*drivers.*")
+        warnings.filterwarnings(action="ignore", category=DeprecationWarning, module=".*drivers*")
         warnings.filterwarnings(
-            action="default", category=DeprecationWarning, module=".*drivers.second_quantization.*"
+            action="default", category=DeprecationWarning, module=".*drivers.second_quantization*"
         )
         warnings.filterwarnings(
             action="ignore", category=DeprecationWarning, module=".*transformers*"
+        )
+        warnings.filterwarnings(
+            action="default", category=DeprecationWarning, module=".*transformers.second_quantization*"
         )
         self._started_at = time.time()
         self._class_location = __file__

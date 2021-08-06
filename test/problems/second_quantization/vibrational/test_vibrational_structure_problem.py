@@ -11,10 +11,14 @@
 # that they have been altered from the originals.
 
 """Tests Vibrational Problem."""
+
+import warnings
 from test import QiskitNatureTestCase
-from qiskit_nature.operators.second_quantization import VibrationalOp
-from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
+
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
+from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.problems.second_quantization import \
+    VibrationalStructureProblem
 
 
 class TestVibrationalStructureProblem(QiskitNatureTestCase):
@@ -28,9 +32,11 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
             "CO2_freq_B3LYP_ccpVDZ.log",
             "problems/second_quantization/vibrational/resources",
         )
-        driver = GaussianForcesDriver(logfile=logfile)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            driver = GaussianForcesDriver(logfile=logfile)
+            watson_hamiltonian = driver.run()
 
-        watson_hamiltonian = driver.run()
         num_modals = 2
         truncation_order = 3
         num_modes = watson_hamiltonian.num_modes

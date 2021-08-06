@@ -13,6 +13,7 @@
 """ Test Direct Mapper """
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 from test.mappers.second_quantization.resources.reference_direct_mapper import REFERENCE
@@ -27,13 +28,15 @@ class TestDirectMapper(QiskitNatureTestCase):
 
     def test_mapping(self):
         """Test mapping to qubit operator"""
-        driver = GaussianForcesDriver(
-            logfile=self.get_resource_path(
-                "CO2_freq_B3LYP_ccpVDZ.log",
-                "problems/second_quantization/vibrational/resources",
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            driver = GaussianForcesDriver(
+                logfile=self.get_resource_path(
+                    "CO2_freq_B3LYP_ccpVDZ.log",
+                    "problems/second_quantization/vibrational/resources",
+                )
             )
-        )
-        driver_result = driver.run()
+            driver_result = driver.run()
         num_modes = driver_result.num_modes
         num_modals = [2] * num_modes
 

@@ -37,13 +37,14 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
             "CO2_freq_B3LYP_ccpVDZ.log",
             "problems/second_quantization/vibrational/resources",
         )
-        driver = GaussianForcesDriver(logfile=logfile)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            driver = GaussianForcesDriver(logfile=logfile)
+            watson_hamiltonian = driver.run()
 
-        watson_hamiltonian = driver.run()
         num_modals = 2
         truncation_order = 3
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
         vibrational_op = _build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
 
         assert isinstance(vibrational_op, VibrationalOp)
