@@ -9,28 +9,11 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""
-Problems (:mod:`qiskit_nature.problems`)
-========================================
-
-.. currentmodule:: qiskit_nature.problems
+"""An exception for an invalid side chain in a peptide."""
+from qiskit_nature import QiskitNatureError
 
 
-Second-Quantization Problems
-++++++++++++++++++++++++++++
+class InvalidSideChainException(QiskitNatureError):
+    """An exception for an invalid side chain in a peptide."""
 
-.. autosummary::
-   :toctree:
-
-   second_quantization
-
-Sampling Problems
-+++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   sampling
-
-"""
+    pass

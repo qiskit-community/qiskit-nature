@@ -9,28 +9,9 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
 """
-Problems (:mod:`qiskit_nature.problems`)
-========================================
-
-.. currentmodule:: qiskit_nature.problems
-
-
-Second-Quantization Problems
-++++++++++++++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   second_quantization
-
-Sampling Problems
-+++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   sampling
-
+The mj_matrix.txt file stores knowledge-based (statistical) potentials for the description of
+inter-residue contacts for proteins derived by using quasi-chemical approximation. The potentials
+used here are introduced by Miyazawa, S. and Jernigan, R. L. in J. Mol. Biol.256, 623–644 (1996)
+in Table 3.
 """
