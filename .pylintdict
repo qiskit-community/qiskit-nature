@@ -2,6 +2,7 @@ adjoint
 aer
 aij
 al
+alanine
 allclose
 ancilla
 ancillas
@@ -12,11 +13,15 @@ ansatzes
 antisymmetrized
 ao
 april
+arginine
 args
 arxiv
+asparagine
+aspartic
 atol
 autosummary
 avogadro
+äquivalenzverbot
 backend
 barkoutsos
 bb
@@ -40,6 +45,7 @@ cbit
 ccx
 cfg
 chc
+chirality
 chkfile
 chuang
 ci
@@ -69,6 +75,7 @@ ctrl
 currentmodule
 cx
 cy
+cysteine
 cz
 das
 dataset
@@ -118,6 +125,7 @@ fermion
 fermionic
 fermionicop
 fermions
+fmt
 fock
 formatter
 fortran
@@ -128,6 +136,9 @@ gaussiand
 getitem
 getter
 gfortran
+glutamic
+glutamine
+glycine
 gss
 gto
 hamiltonian
@@ -142,6 +153,7 @@ hermite
 hijkls
 hijs
 hilbert
+histidine
 html
 ia
 iajb
@@ -160,6 +172,7 @@ interatomic
 internuclear
 ints
 iso
+isoleucine
 isometry
 iswap
 isym
@@ -172,6 +185,7 @@ james
 jb
 jcf
 jcp
+jernigan
 ji
 jl
 jordan
@@ -187,6 +201,7 @@ kwargs
 labelled
 lda
 len
+leucine
 libor
 libxc
 lih
@@ -196,6 +211,7 @@ ljik
 lk
 logfile
 lookback
+lysine
 macos
 makefile
 maxdepth
@@ -208,10 +224,12 @@ mcrz
 mct
 mcu
 mcx
+methionine
 metadata
 microsoft
 minao
 mixin
+miyazawa
 moc
 mohij
 mohijkl
@@ -237,6 +255,7 @@ norb
 norbs
 nosignatures
 np
+npj
 ns
 num
 numpy
@@ -261,6 +280,7 @@ paulis
 paulische
 pca
 perturbative
+phenylalanine
 phonons
 popovas
 posteriori
@@ -269,11 +289,12 @@ prebuilt
 prepend
 preprint
 preprocesses
+proline
 ps
+pxd
 py
 pyquante
 pyscf
-pxd
 qarg
 qargs
 qasm
@@ -298,6 +319,7 @@ rebranding
 regs
 rhf
 rhs
+robert
 rohf
 rossmannek
 rtol
@@ -318,6 +340,7 @@ scipy
 sd
 sdg
 sdt
+serine
 setia
 setted
 shende
@@ -351,6 +374,7 @@ taylor
 tdg
 tensored
 th
+threonine
 toctree
 toffoli
 tol
@@ -359,8 +383,10 @@ tran
 translational
 transpilation
 trotterization
+tryptophan
 twoe
 twoeints
+tyrosine
 uc
 ucc
 uccd
@@ -377,6 +403,8 @@ undirected
 unitaries
 untransforms
 uvcc
+über
+valine
 vals
 variational
 verbatim
@@ -406,5 +434,3 @@ zi
 zmatrix
 zsh
 zz
-äquivalenzverbot
-über
