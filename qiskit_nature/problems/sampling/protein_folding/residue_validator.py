@@ -22,7 +22,8 @@ def _validate_residue_sequence(residue_sequence: Union[List[str], str]):
     Checks if the provided residue sequence contains allowed characters.
 
     Args:
-        residue_sequence: A list that contains characters defining residues for a chain of proteins.
+        residue_sequence: A list or a string that contains characters defining residues for a
+                        chain of proteins.
 
     Throws:
         InvalidResidueException: If an illegal residue character is discovered.

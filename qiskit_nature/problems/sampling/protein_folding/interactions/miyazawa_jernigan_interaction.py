@@ -31,8 +31,8 @@ class MiyazawaJerniganInteraction(Interaction):
         Miyazawa-Jernigan potential file.
 
         Args:
-            residue_sequence: A list that contains characters defining residues for a chain of
-                            proteins.
+            residue_sequence: A list or a string that contains characters defining residues for
+                            a chain of proteins.
 
         Returns:
             Numpy array of pair energies for amino acids.

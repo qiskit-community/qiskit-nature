@@ -67,7 +67,7 @@ class BaseBead(ABC):
         self._residue_type = residue_type
         _validate_residue_symbol(residue_type)
         self._turn_qubits = turn_qubits
-        if self._residue_type != "" and self.turn_qubits is not None:
+        if self._residue_type and self.turn_qubits is not None:
             self._full_id = _build_full_identity(turn_qubits[0].num_qubits)
             self._turn_indicator_fun_0 = build_turn_indicator_fun_0()
             self._turn_indicator_fun_1 = build_turn_indicator_fun_1()

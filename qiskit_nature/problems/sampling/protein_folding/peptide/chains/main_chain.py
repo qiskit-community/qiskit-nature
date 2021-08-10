@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining the main chain of a peptide."""
-from typing import List, Sequence, Optional
+from typing import List, Sequence
 
 from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
@@ -31,15 +31,15 @@ class MainChain(BaseChain):
     ):
         """
         Args:
-            main_chain_residue_sequence: List of characters that define residues for the main
+            main_chain_residue_sequence: String of characters that define residues for the main
                                         chain.
             side_chain_residue_sequences: List of characters that define residues for all side
-                                        beads. "" if a side bead does not exist.
+                                        beads. Empty string if a side bead does not exist.
 
         Raises:
-            InvalidSizeException: when the length of list of side chain lengths provided does not
+            InvalidSizeException: When the length of list of side chain lengths provided does not
                                     equal the length of the main chain.
-            InvalidSideChainException: when first, second or last main beads have a side chain.
+            InvalidSideChainException: When first, second or last main beads have a side chain.
         """
         self._main_chain_residue_sequence = main_chain_residue_sequence
         beads_list = self._build_main_chain(
@@ -62,17 +62,17 @@ class MainChain(BaseChain):
         Creates a main chain for a given main chain length and side chain data.
 
         Args:
-            main_chain_residue_sequence: list of characters that define residues for a main chain.
-            side_chain_residue_sequences: list of characters that define residues for all side
-                                        beads. "" if a side bead does not exist.
+            main_chain_residue_sequence: String of characters that define residues for a main chain.
+            side_chain_residue_sequences: List of characters that define residues for all side
+                                        beads. Empty string if a side bead does not exist.
 
         Returns:
             An instance of a MainChain class.
 
         Raises:
-            InvalidSizeException: when the length of list of side chain lengths provided does not
+            InvalidSizeException: When the length of list of side chain lengths provided does not
                                     equal the length of the main chain.
-            InvalidSideChainException: when first, second or last main beads have a side chain.
+            InvalidSideChainException: When first, second or last main beads have a side chain.
         """
         main_chain = []
         main_chain_len = len(main_chain_residue_sequence)
@@ -131,10 +131,10 @@ class MainChain(BaseChain):
         """
         Creates a side chain for a given main bead.
         Args:
-            main_bead_id: id of a main bead that will host a side chain.
-            main_chain_len: length of the main chain of a peptide.
-            side_chain_residue_sequences: list of characters that define residues for all side
-                                        beads. "" if a side bead does not exist.
+            main_bead_id: Id of a main bead that will host a side chain.
+            main_chain_len: Length of the main chain of a peptide.
+            side_chain_residue_sequences: List of characters that define residues for all side
+                                        beads. Empty string if a side bead does not exist.
 
         Returns:
             An instance of a SideChain class.
@@ -157,10 +157,9 @@ class MainChain(BaseChain):
         """
         Returns true if a main bead of a given id hosts a side chain. Returns false otherwise.
         Args:
-            main_bead_id: id of a main bead that will host a side chain.
-            side_chain_residue_sequences: list of characters that define residues for all side
-                                        beads. "" if a side bead does not exist.
-                                        beads.
+            main_bead_id: Id of a main bead that will host a side chain.
+            side_chain_residue_sequences: List of characters that define residues for all side
+                                        beads. Empty string if a side bead does not exist.
 
         Returns:
             A boolean indicating whether a given main bead hosts a side chain.

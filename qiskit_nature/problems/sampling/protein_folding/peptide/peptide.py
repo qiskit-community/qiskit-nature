@@ -26,13 +26,13 @@ class Peptide:
     ):
         """
         Args:
-            main_chain_residue_sequence: List of characters that define residues for a main
+            main_chain_residue_sequence: String of characters that define residues for a main
                                         chain. Valid residue types are [A, C, D, E, F, G, H, I,
                                         K, L, M, N, P, Q, R, S, T, V, W, Y].
             side_chain_residue_sequences: List of characters that define residues for all side
-                                        beads. "" if a side bead does not exist. Valid residue
-                                        types are [A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R,
-                                        S, T, V, W, Y].
+                                        beads. Empty string if a side bead does not exist. Valid
+                                        residue types are [A, C, D, E, F, G, H, I, K, L, M, N, P,
+                                        Q, R, S, T, V, W, Y].
         """
 
         self._main_chain = MainChain(
