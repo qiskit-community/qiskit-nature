@@ -28,14 +28,10 @@ class ProteinFoldingProblem(SamplingProblem):
     .. code-block:: python
 
         penalty_terms = PenaltyParameters(15, 15, 15)
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A", "G"]
-        main_chain_len = 10
-        side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", "S", None]
+        main_chain_residue_seq = "SAASSASAAG"
+        side_chain_residue_sequences = ["", "", "A", "A", "A", "A", "A", "A", "S", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
 
         mj_interaction = MiyazawaJerniganInteraction()
 
@@ -57,7 +53,7 @@ class ProteinFoldingProblem(SamplingProblem):
         self._interaction = interaction
         self._penalty_parameters = penalty_parameters
         self._pair_energies = interaction.calculate_energy_matrix(
-            len(peptide.get_main_chain), peptide.get_main_chain.main_chain_residue_sequence
+            peptide.get_main_chain.main_chain_residue_sequence
         )
         self._qubit_op_builder = QubitOpBuilder(
             self._peptide, self._pair_energies, self._penalty_parameters

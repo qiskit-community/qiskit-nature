@@ -30,14 +30,10 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests that check turns operators are generate correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A"]
-        main_chain_len = 6
-        side_chain_lens = [0, 0, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "A", None]
+        main_chain_residue_seq = "SAASSA"
+        side_chain_residue_sequences = ["", "", "A", "A", "A", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         bead_2 = peptide.get_main_chain[2]
         bead_3 = peptide.get_main_chain[3]
         bead_4 = peptide.get_main_chain[4]
@@ -80,19 +76,13 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A"]
-        main_chain_len = 9
-        side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", None]
+        main_chain_residue_seq = "SAASSASAA"
+        side_chain_residue_sequences = ["", "", "A", "A", "A", "A", "A", "A", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
         penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         qubit_op = qubit_op_builder._build_qubit_op()
         expected_path = self.get_resource_path(
@@ -107,19 +97,13 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         lambda_back = 10
         lambda_chiral = 10
         lambda_1 = 10
-        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", None]
+        main_chain_residue_seq = "SAACS"
+        side_chain_residue_sequences = ["", "", "A", "A", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
         penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         qubit_op = qubit_op_builder._build_qubit_op()
         expected_path = self.get_resource_path(
@@ -133,18 +117,12 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests that the Hamiltonian to back-overlaps is created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 0, 0, 0]
-        side_chain_residue_sequences = [None, None, None, None, None]
+        main_chain_residue_seq = "SAASS"
+        side_chain_residue_sequences = ["", "", "", "", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_back = qubit_op_builder._create_h_back()
@@ -160,18 +138,12 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         Tests that the Hamiltonian to back-overlaps is created correctly in the presence of side
         chains which should not have any influence in this case.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", None]
+        main_chain_residue_seq = "SAASS"
+        side_chain_residue_sequences = ["", "", "A", "A", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_back = qubit_op_builder._create_h_back()
@@ -186,17 +158,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests that the Hamiltonian chirality constraints is created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A"]
-        main_chain_len = 8
-        side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        main_chain_residue_seq = "SAASSASA"
+        side_chain_residue_sequences = ["", "", "A", "", "", "A", "A", ""]
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_chiral = qubit_op_builder._create_h_chiral()
@@ -211,17 +177,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests that the Hamiltonian chirality constraints is created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", None]
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        main_chain_residue_seq = "SAACS"
+        side_chain_residue_sequences = ["", "", "A", "A", ""]
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_chiral = qubit_op_builder._create_h_chiral()
@@ -234,17 +194,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
     def test_create_h_bbbb(self):
         """Tests if H_BBBB Hamiltonian qubit operator is built correctly."""
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A"]
-        main_chain_len = 8
-        side_chain_lens = [0, 0, 1, 0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None, "A", "A", None]
+        main_chain_residue_seq = "SAASSASA"
+        side_chain_residue_sequences = ["", "", "A", "", "", "A", "A", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_bbbb = qubit_op_builder._create_h_bbbb()
@@ -259,17 +213,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests if H_BBBB Hamiltonian qubit operator is built correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", None]
+        main_chain_residue_seq = "SAACS"
+        side_chain_residue_sequences = ["", "", "A", "A", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_bbbb = qubit_op_builder._create_h_bbbb()
@@ -278,17 +226,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
     def test_create_h_bbsc_and_h_scbb(self):
         """Tests if H_BBSC and H_SCBB Hamiltonians qubit operators are built correctly."""
-        main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A"]
-        main_chain_len = 7
-        side_chain_lens = [0, 0, 1, 0, 0, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None, "A", None]
+        main_chain_residue_seq = "APRLAAA"
+        side_chain_residue_sequences = ["", "", "A", "", "", "A", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
 
@@ -309,17 +251,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
 
     def test_create_h_bbsc_and_h_scbb_2(self):
         """Tests if H_BBSC and H_SCBB Hamiltonians qubit operators are built correctly."""
-        main_chain_residue_seq = ["A", "P", "R", "L", "A", "A"]
-        main_chain_len = 6
-        side_chain_lens = [0, 0, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "A", None]
+        main_chain_residue_seq = "APRLAA"
+        side_chain_residue_sequences = ["", "", "A", "A", "A", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
 
@@ -337,17 +273,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests if H_BBBB Hamiltonian qubit operator is built correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", None]
+        main_chain_residue_seq = "SAACS"
+        side_chain_residue_sequences = ["", "", "A", "A", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_bbsc, h_scbb = qubit_op_builder._create_h_bbsc_and_h_scbb()
@@ -358,17 +288,11 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         """
         Tests that the Hamiltonian to back-overlaps is created correctly.
         """
-        main_chain_residue_seq = ["A", "P", "R", "L", "A", "A", "A", "A"]
-        main_chain_len = 8
-        side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", None]
+        main_chain_residue_seq = "APRLAAAA"
+        side_chain_residue_sequences = ["", "", "A", "A", "A", "A", "A", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         penalty_params = PenaltyParameters()
         qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
         h_short = qubit_op_builder._create_h_short()

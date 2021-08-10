@@ -26,14 +26,10 @@ class TestDistanceMapBuilder(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        main_chain_residue_seq = ["S", "A", "A", "A", "A"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 0, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None]
+        main_chain_residue_seq = "SAAAA"
+        side_chain_residue_sequences = ["", "", "A", "", ""]
 
-        self.peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        self.peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         self.distance_map_builder = DistanceMapBuilder()
 
     def test_calc_distances_main_chain(self):

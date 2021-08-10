@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a Miyazawa-Jernigan interaction between beads of a peptide."""
-from typing import List
+from typing import List, Union
 
 import numpy as np
 from .interaction import Interaction
@@ -25,19 +25,19 @@ class MiyazawaJerniganInteraction(Interaction):
     Details of this model can be found in Miyazawa, S. and Jernigan, R. L. J. Mol. Biol.256,
     623–644 (1996), Table 3."""
 
-    def calculate_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
+    def calculate_energy_matrix(self, residue_sequence: Union[List[str], str]) -> np.ndarray:
         """
         Calculates an energy matrix for a Miyazawa-Jernigan interaction based on the
         Miyazawa-Jernigan potential file.
 
         Args:
-            chain_len: Length of a protein chain.
             residue_sequence: A list that contains characters defining residues for a chain of
                             proteins.
 
         Returns:
             Numpy array of pair energies for amino acids.
         """
+        chain_len = len(residue_sequence)
         _validate_residue_sequence(residue_sequence)
         mj_interaction, list_aa = _load_energy_matrix_file()
         pair_energies = np.zeros((chain_len + 1, 2, chain_len + 1, 2))
