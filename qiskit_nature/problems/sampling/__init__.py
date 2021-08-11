@@ -11,26 +11,17 @@
 # that they have been altered from the originals.
 
 """
-Problems (:mod:`qiskit_nature.problems`)
-========================================
+Sampling Problems (:mod:`qiskit_nature.problems.sampling`)
+==========================================================
 
-.. currentmodule:: qiskit_nature.problems
+.. currentmodule:: qiskit_nature.problems.sampling
 
 
-Second-Quantization Problems
-++++++++++++++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   second_quantization
-
-Sampling Problems
+Protein Folding
 +++++++++++++++++
 
 .. autosummary::
    :toctree:
 
-   sampling
-
+   protein_folding
 """
