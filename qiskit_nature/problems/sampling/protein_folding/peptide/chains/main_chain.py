@@ -103,7 +103,7 @@ class MainChain(BaseChain):
     ) -> None:
         if main_chain_len != len(side_chain_residue_sequences):
             raise InvalidSizeException(
-                f"The length of list of main chain residue sequences: "
+                f"The length of the list of side chain residue sequences: "
                 f"{len(side_chain_residue_sequences)} does not equal the length of the main "
                 f"chain: {main_chain_len}"
             )
@@ -118,8 +118,8 @@ class MainChain(BaseChain):
             or side_chain_residue_sequences[-1] != ""
         ):
             raise InvalidSideChainException(
-                "First, second and last main beads are not allowed to have a side chain. Non-None "
-                "residue provided for an invalid side chain"
+                "First, second and last main beads are not allowed to have a side chain. Nonempty "
+                "residue provided for an invalid side chain."
             )
 
     def _create_side_chain(

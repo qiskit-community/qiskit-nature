@@ -37,8 +37,8 @@ class BaseBead(ABC):
         Args:
             chain_type: Type of the chain, either "main_chain" or "side_chain".
             main_index: index of the bead on the main chain in a peptide.
-            residue_type: A character representing the type of a residue for the bead. "" in
-                        case of non-existing side bead.
+            residue_type: A character representing the type of a residue for the bead. An empty
+                        string in case of non-existing side bead.
             turn_qubits: A tuple of two of Pauli operators that encodes the turn following from a
                             given bead index.
             build_turn_indicator_fun_0: method that build turn indicator functions for the bead.
