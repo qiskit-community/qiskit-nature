@@ -43,9 +43,7 @@ class ElectronicStructureProblem(BaseProblem):
     def __init__(
         self,
         driver: ElectronicStructureDriver,
-        transformers: Optional[
-            List[Union[LegacyBaseTransformer, BaseTransformer]]
-        ] = None,
+        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
     ):
         """
 
