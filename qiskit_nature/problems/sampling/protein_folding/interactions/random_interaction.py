@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a random interaction between beads of a peptide."""
-from typing import List, Union
 
 import numpy as np
 from qiskit.utils import algorithm_globals
@@ -21,7 +20,6 @@ from .interaction import Interaction
 class RandomInteraction(Interaction):
     """A class defining a random interaction between beads of a peptide."""
 
-    # TODO only needs length...
     def calculate_energy_matrix(self, residue_sequence: str) -> np.ndarray:
         """
         Calculates an energy matrix for a random interaction.

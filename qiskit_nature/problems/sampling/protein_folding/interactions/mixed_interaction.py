@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a mixed interaction between beads of a peptide."""
-from typing import List, Union
 
 import numpy as np
+
 from .interaction import Interaction
 from ..residue_validator import _validate_residue_sequence
 from ..data_loaders.energy_matrix_loader import (

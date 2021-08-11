@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """An abstract class defining an interaction between beads of a peptide."""
 from abc import ABC, abstractmethod
-from typing import List, Union
 
 import numpy as np
 
