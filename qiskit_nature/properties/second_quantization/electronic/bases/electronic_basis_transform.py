@@ -58,8 +58,5 @@ class ElectronicBasisTransform(PseudoProperty):
 
     @staticmethod
     def _render_coefficients(coeffs) -> List[str]:
-        string = []
         nonzero = coeffs.nonzero()
-        for value, *indices in zip(coeffs[nonzero], *nonzero):
-            string += [f"\t{indices} = {value}"]
-        return string
+        return [f"\t{indices} = {value}" for value, *indices in zip(coeffs[nonzero], *nonzero)]

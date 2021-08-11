@@ -561,9 +561,7 @@ class PySCFDriver(ElectronicStructureDriver):
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
         coords = self._mol.atom_coords()
-        geometry = []
-        for i, xyz in enumerate(coords):
-            geometry.append((self._mol.atom_pure_symbol(i), list(xyz)))
+       geometry = [(self._mol.atom_pure_symbol(i), list(xyz)) for i, xyz in enumerate(coords)]
 
         driver_result.molecule = Molecule(
             geometry,
@@ -673,10 +671,8 @@ class PySCFDriver(ElectronicStructureDriver):
         )
 
         orbs_energy, orbs_energy_b = self._extract_mo_data("mo_energy")
-        if orbs_energy_b is not None:
-            electronic_energy.orbital_energies = np.asarray((orbs_energy, orbs_energy_b))
-        else:
-            electronic_energy.orbital_energies = np.asarray(orbs_energy)
+       orbital_energies = (orbs_energy, orbs_energy_b) if orbs_energy_b is not None else orbs_energy
+       electronic_energy.orbital_energies = np.asarray(orbital_energies)
 
         driver_result.add_property(electronic_energy)
 
