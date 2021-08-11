@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    The :class:`~qiskit_nature.circuit.library.EvolvedOperatorAnsatz` is deprecated.
+    Use :class:`~qiskit.circuit.library.EvolvedOperatorAnsatz` as a direct replacement instead.

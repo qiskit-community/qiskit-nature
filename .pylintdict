@@ -1,5 +1,6 @@
 adjoint
 aer
+aij
 al
 alanine
 allclose
@@ -11,6 +12,7 @@ ansatz
 ansatzes
 antisymmetrized
 ao
+april
 arginine
 args
 arxiv
@@ -26,6 +28,7 @@ bb
 bergholm
 berlin
 bitstring
+bksf
 bohr
 boltzmann
 bool
@@ -106,6 +109,7 @@ endian
 endif
 enum
 eom
+eq
 eri
 et
 eugene
@@ -113,6 +117,7 @@ excitations
 extrapolator
 extrapolator's
 extrapolators
+facs
 fcidump
 fcompiler
 fermi
@@ -177,14 +182,17 @@ iterable
 iteratively
 itertools
 iz
+james
 jb
 jcf
+jcp
 jernigan
 ji
 jl
 jordan
 jupyter
 jw
+kanav
 ket
 kitaev
 knowles
@@ -335,6 +343,7 @@ sd
 sdg
 sdt
 serine
+setia
 setted
 shende
 sklearn
@@ -356,6 +365,7 @@ subtest
 subtype
 succ
 sudo
+superfast
 superpositions
 sx
 sxdg
@@ -389,8 +399,10 @@ ucrx
 ucry
 ucrz
 ulimit
+un
 unary
 uncompiled
+undirected
 unitaries
 untransforms
 uvcc
@@ -411,6 +423,7 @@ vz
 watson
 wavefunction
 whitespace
+whitfield
 wigner
 xcf
 xcfun
