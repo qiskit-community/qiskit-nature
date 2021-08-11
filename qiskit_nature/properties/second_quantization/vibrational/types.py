@@ -50,7 +50,7 @@ class VibrationalProperty(SecondQuantizedProperty):
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
-        string += [f"\t{line}" for line in str(self._basis).split("\n")]
+        string += [f"\t{line}" for line in str(self.basis).split("\n")]
         return "\n".join(string)
 
 
