@@ -25,13 +25,13 @@ class MiyazawaJerniganInteraction(Interaction):
     Details of this model can be found in Miyazawa, S. and Jernigan, R. L. J. Mol. Biol.256,
     623–644 (1996), Table 3."""
 
-    def calculate_energy_matrix(self, residue_sequence: Union[List[str], str]) -> np.ndarray:
+    def calculate_energy_matrix(self, residue_sequence: str) -> np.ndarray:
         """
         Calculates an energy matrix for a Miyazawa-Jernigan interaction based on the
         Miyazawa-Jernigan potential file.
 
         Args:
-            residue_sequence: A list or a string that contains characters defining residues for
+            residue_sequence: A string that contains characters defining residues for
                             a chain of proteins.
 
         Returns:

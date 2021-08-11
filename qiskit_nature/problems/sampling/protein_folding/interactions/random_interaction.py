@@ -22,7 +22,7 @@ class RandomInteraction(Interaction):
     """A class defining a random interaction between beads of a peptide."""
 
     # TODO only needs length...
-    def calculate_energy_matrix(self, residue_sequence: Union[List[str], str]) -> np.ndarray:
+    def calculate_energy_matrix(self, residue_sequence: str) -> np.ndarray:
         """
         Calculates an energy matrix for a random interaction.
 

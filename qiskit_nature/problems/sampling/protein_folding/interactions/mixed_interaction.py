@@ -31,13 +31,13 @@ class MixedInteraction(Interaction):
         """
         self.additional_energies = additional_energies
 
-    def calculate_energy_matrix(self, residue_sequence: Union[List[str], str]) -> np.ndarray:
+    def calculate_energy_matrix(self, residue_sequence: str) -> np.ndarray:
         """
         Calculates an energy matrix for a mixed interaction based on the Miyazawa-Jernigan
         potential file.
 
         Args:
-            residue_sequence: A list or a string that contains characters defining residues for
+            residue_sequence: A string that contains characters defining residues for
                             a chain of proteins.
 
         Returns:
