@@ -45,7 +45,7 @@ class BaseProblem(ABC):
 
         Args:
             driver: A driver encoding the molecule information.
-            transformers: A list of transformations to be applied to the molecule.
+            transformers: A list of transformations to be applied to the driver result.
 
         Raises:
             QiskitNatureError: if the driver or any transformer of the legacy stack are mixed with
@@ -118,12 +118,16 @@ class BaseProblem(ABC):
 
     @property
     def grouped_property(self) -> Optional[GroupedSecondQuantizedProperty]:
-        """Returns the GroupedSecondQuantizedProperty object."""
+        """Returns the
+        :class:`~qiskit_nature.properties.second-quantization.GroupedSecondQuantizedProperty`
+        object."""
         return self._grouped_property
 
     @property
     def grouped_property_transformed(self) -> Optional[GroupedSecondQuantizedProperty]:
-        """Returns the transformed GroupedSecondQuantizedProperty object."""
+        """Returns the transformed
+        :class:`~qiskit_nature.properties.second-quantization.GroupedSecondQuantizedProperty`
+        object."""
         return self._grouped_property_transformed
 
     @property
@@ -161,7 +165,7 @@ class BaseProblem(ABC):
 
     @abstractmethod
     def interpret(self, raw_result: EigenstateResult) -> EigenstateResult:
-        """Interprets an EigenstateResult in the context of this transformation.
+        """Interprets an EigenstateResult in the context of this problem.
 
         Args:
             raw_result: an eigenstate result object.

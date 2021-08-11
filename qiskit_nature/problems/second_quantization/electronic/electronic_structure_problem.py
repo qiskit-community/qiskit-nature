@@ -43,7 +43,7 @@ class ElectronicStructureProblem(BaseProblem):
     def __init__(
         self,
         driver: ElectronicStructureDriver,
-        q_molecule_transformers: Optional[
+        transformers: Optional[
             List[Union[LegacyBaseTransformer, BaseTransformer]]
         ] = None,
     ):
@@ -51,9 +51,9 @@ class ElectronicStructureProblem(BaseProblem):
 
         Args:
             driver: A fermionic driver encoding the molecule information.
-            q_molecule_transformers: A list of transformations to be applied to the molecule.
+            transformers: A list of transformations to be applied to the driver result.
         """
-        super().__init__(driver, q_molecule_transformers)
+        super().__init__(driver, transformers)
 
     @property
     def num_particles(self) -> Tuple[int, int]:
