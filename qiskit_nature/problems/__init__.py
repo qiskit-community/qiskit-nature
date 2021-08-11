@@ -17,9 +17,20 @@ Problems (:mod:`qiskit_nature.problems`)
 .. currentmodule:: qiskit_nature.problems
 
 
+Second-Quantization Problems
+++++++++++++++++++++++++++++
+
 .. autosummary::
    :toctree:
 
    second_quantization
+
+Sampling Problems
++++++++++++++++++
+
+.. autosummary::
+   :toctree:
+
+   sampling
 
 """
