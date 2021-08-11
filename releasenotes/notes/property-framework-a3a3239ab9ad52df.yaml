@@ -6,13 +6,13 @@ features:
     for the legacy driver results like `QMolecule` and `WatsonHamiltonian`.
     Please refer to the tutorial and documentation for more details.
     Related Github issues:
-      * https://github.com/Qiskit/qiskit-nature/issues/148
-      * https://github.com/Qiskit/qiskit-nature/issues/167
-      * https://github.com/Qiskit/qiskit-nature/pull/220
-      * https://github.com/Qiskit/qiskit-nature/issues/243
-      * https://github.com/Qiskit/qiskit-nature/pull/263
-      * https://github.com/Qiskit/qiskit-nature/issues/264
-      * https://github.com/Qiskit/qiskit-nature/pull/303
+    * https://github.com/Qiskit/qiskit-nature/issues/148
+    * https://github.com/Qiskit/qiskit-nature/issues/167
+    * https://github.com/Qiskit/qiskit-nature/pull/220
+    * https://github.com/Qiskit/qiskit-nature/issues/243
+    * https://github.com/Qiskit/qiskit-nature/pull/263
+    * https://github.com/Qiskit/qiskit-nature/issues/264
+    * https://github.com/Qiskit/qiskit-nature/pull/303
 deprecations:
   - |
     * the legacy driver return types, `QMolecule` and `WatsonHamiltonian`
