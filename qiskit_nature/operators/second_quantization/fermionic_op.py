@@ -377,11 +377,11 @@ class FermionicOp(SecondQuantizedOp):
 
         .. note::
 
-            This method does not return usual normal ordering.
-            The order is calculated by commutation relation.
-            For example, in usual :math:`\\colon c_0 c_0^\\dagger\\colon = -c_0^\\dagger c_0`
+            This method implements the transformation of an operator to the normal ordered operator. 
+            The transformation is calculated by considering all commutation relations between the operators.
+            For example, for the case :math:`\\colon c_0 c_0^\\dagger\\colon`
             where :math:`c_0` is an annihilation operator,
-            but this method returns :math:`1 - c_0^\\dagger c_0`.
+            this method returns :math:`1 - c_0^\\dagger c_0` due to commutation relations. 
             See the reference: https://en.wikipedia.org/wiki/Normal_order#Multiple_fermions.
 
         """
