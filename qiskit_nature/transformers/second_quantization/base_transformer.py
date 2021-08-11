@@ -18,19 +18,20 @@ from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedP
 
 
 class BaseTransformer(ABC):
-    """The interface for implementing methods which map from one `GroupedProperty` to another.
+    """The interface for implementing methods which map from one
+    :class:`~qiskit_nature.properties.GroupedProperty` to another.
     These methods may or may not affect the size of the Hilbert space.
     """
 
     @abstractmethod
     def transform(
-        self, molecule_data: GroupedSecondQuantizedProperty
+        self, grouped_property: GroupedSecondQuantizedProperty
     ) -> GroupedSecondQuantizedProperty:
-        """Transforms one `GroupedProperty` into another one. This may or may not affect the size of
-        the Hilbert space.
+        """Transforms one :class:`~qiskit_nature.properties.GroupedProperty` into another one.
+        This may or may not affect the size of the Hilbert space.
 
         Args:
-            molecule_data: the `GroupedProperty` to be transformed.
+            grouped_property: the `GroupedProperty` to be transformed.
 
         Returns:
             A new `GroupedProperty` instance.
