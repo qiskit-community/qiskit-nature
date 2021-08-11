@@ -48,20 +48,20 @@ class ElectronicEnergy(IntegralProperty):
         energy_shift: Optional[Dict[str, complex]] = None,
         nuclear_repulsion_energy: Optional[float] = None,
         reference_energy: Optional[float] = None,
-    ):
+    ) -> None:
         """
         Args:
-            basis: the basis which the integrals in ``electronic_integrals`` are stored in.
             electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
                 ``ElectronicIntegrals``.
-            reference_energy: an optional reference energy (such as the HF energy).
             energy_shift: an optional dictionary of energy shifts.
+            nuclear_repulsion_energy: the optional nuclear repulsion energy.
+            reference_energy: an optional reference energy (such as the HF energy).
         """
         super().__init__(self.__class__.__name__, electronic_integrals, shift=energy_shift)
         self._nuclear_repulsion_energy = nuclear_repulsion_energy
         self._reference_energy = reference_energy
 
-        # Additional, purely information data (i.e. currently not used by the Stack itself).
+        # Additional, purely informational data (i.e. currently not used by the Stack itself).
         self._orbital_enerfies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None

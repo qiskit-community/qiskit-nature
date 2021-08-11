@@ -27,9 +27,10 @@ class VibrationalProperty(SecondQuantizedProperty):
         self,
         name: str,
         basis: Optional[VibrationalBasis] = None,
-    ):
+    ) -> None:
         """
         Args:
+            name: the name of the property.
             basis: the ``VibrationalBasis`` through which to map the integrals into second
                 quantization. This property **MUST** be set before the second-quantized operator can
                 be constructed.
@@ -78,7 +79,7 @@ class GroupedVibrationalProperty(GroupedSecondQuantizedProperty[T], VibrationalP
             prop: the property to be added.
 
         Raises:
-            QiskitNatureError: if the added property is not an vibrational one.
+            QiskitNatureError: if the added property is not a vibrational one.
         """
         if prop is not None:
             if not isinstance(prop, (VibrationalProperty, PseudoProperty)):

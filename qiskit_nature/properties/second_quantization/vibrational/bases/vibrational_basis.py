@@ -39,7 +39,7 @@ class VibrationalBasis(ABC):
 
     @property
     def num_modals_per_mode(self) -> List[int]:
-        """Returns the num_modals_per_mode."""
+        """Returns the number of modals per mode."""
         return self._num_modals_per_mode
 
     def __str__(self) -> str:

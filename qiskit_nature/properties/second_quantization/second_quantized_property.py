@@ -28,31 +28,31 @@ LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 class SecondQuantizedProperty(Property):
     """The SecondQuantizedProperty base class.
 
-    A second-quantization property provides the logic to transform a raw data (as e.g. produced by a
+    A second-quantization property provides the logic to transform raw data (as e.g. produced by a
     `qiskit_nature.second_quantization.drivers.BaseDriver`) into a
     `qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
     """
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Returns the (list of) second quantized operators associated with this Property."""
+        """Returns the list of second quantized operators associated with this Property."""
 
     @classmethod
     @abstractmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":
-        """Construct a Property instance from a driver result.
+        """Construct a Property instance from a legacy driver result.
 
         This method should implement the logic which is required to extract the raw data for a
-        certain property from the result produced by a driver.
+        certain property from the result produced by a legacy driver.
 
         Args:
-            result: the driver result from which to extract the raw data.
+            result: the legacy driver result from which to extract the raw data.
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if an invalid driver result type is passed.
+            QiskitNatureError: if an invalid legacy driver result type is passed.
         """
 
     @classmethod

@@ -30,7 +30,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         basis: ElectronicBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
-    ):
+    ) -> None:
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
@@ -81,7 +81,9 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         return OneBodyElectronicIntegrals(transform.final_basis, (matrix_a, matrix_b))
 
     def to_spin(self) -> np.ndarray:
-        """Transforms the integrals into the special ``ElectronicBasis.SO`` basis.
+        """Transforms the integrals into the special
+        :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`
+        basis.
 
         In this case of the 1-body integrals, the returned matrix is a block matrix of the form:
         ``[[alpha_spin, zeros], [zeros, beta_spin]]``.

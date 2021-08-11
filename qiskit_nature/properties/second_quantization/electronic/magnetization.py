@@ -25,7 +25,7 @@ from .types import ElectronicProperty
 class Magnetization(ElectronicProperty):
     """The Magnetization property."""
 
-    def __init__(self, num_spin_orbitals: int):
+    def __init__(self, num_spin_orbitals: int) -> None:
         """
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
@@ -71,6 +71,7 @@ class Magnetization(ElectronicProperty):
         )
         return [op]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
 

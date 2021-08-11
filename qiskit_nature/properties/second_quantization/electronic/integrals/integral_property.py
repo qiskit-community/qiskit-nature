@@ -37,7 +37,7 @@ class IntegralProperty(ElectronicProperty):
         name: str,
         electronic_integrals: List[ElectronicIntegrals],
         shift: Optional[Dict[str, complex]] = None,
-    ):
+    ) -> None:
         """
         Args:
             name: the name of this Property object.
@@ -106,7 +106,7 @@ class IntegralProperty(ElectronicProperty):
 
         An IntegralProperty typically represents an observable which can be expressed in terms of a
         matrix-formatted operator at a given electronic density. In the Property framework the
-        generic representation of such are `ElectronicIntegrals`.
+        generic representation of such matrices are `ElectronicIntegrals`.
 
         Args:
             density: the electronic density at which to compute the operator.
@@ -134,13 +134,13 @@ class IntegralProperty(ElectronicProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":
-        """This property does not support construction from a driver result (yet).
+        """This property does not support construction from a legacy driver result (yet).
 
         Args:
             result: ignored.
 
         Raises:
-            NotImplemented
+            NotImplementedError
         """
         raise NotImplementedError()
 
@@ -149,5 +149,8 @@ class IntegralProperty(ElectronicProperty):
 
         Args:
             result: the result to add meaning to.
+
+        Raises:
+            NotImplementedError
         """
         raise NotImplementedError()

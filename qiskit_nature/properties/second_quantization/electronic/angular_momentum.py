@@ -34,7 +34,7 @@ from .types import ElectronicProperty
 class AngularMomentum(ElectronicProperty):
     """The AngularMomentum property."""
 
-    def __init__(self, num_spin_orbitals: int):
+    def __init__(self, num_spin_orbitals: int) -> None:
         """
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
@@ -82,6 +82,7 @@ class AngularMomentum(ElectronicProperty):
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
 

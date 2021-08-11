@@ -39,12 +39,12 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
 
     @property
     def num_modes(self) -> int:
-        """Returns the num_modes."""
+        """Returns the number of modes."""
         return self._num_modes
 
     @num_modes.setter
     def num_modes(self, num_modes: int) -> None:
-        """Sets the num_modes."""
+        """Sets the number of modes."""
         self._num_modes = num_modes
 
     @classmethod

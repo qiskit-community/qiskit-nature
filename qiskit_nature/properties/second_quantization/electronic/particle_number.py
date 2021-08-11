@@ -42,7 +42,7 @@ class ParticleNumber(ElectronicProperty):
         num_particles: Union[int, Tuple[int, int]],
         occupation: Optional[Union[np.ndarray, List[float]]] = None,
         occupation_beta: Optional[Union[np.ndarray, List[float]]] = None,
-    ):
+    ) -> None:
         """
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
@@ -151,6 +151,7 @@ class ParticleNumber(ElectronicProperty):
         )
         return [op]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
 

@@ -36,7 +36,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         basis: ElectronicBasis,
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
-    ):
+    ) -> None:
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
@@ -125,7 +125,9 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         return TwoBodyElectronicIntegrals(transform.final_basis, tuple(matrices))
 
     def to_spin(self) -> np.ndarray:
-        """Transforms the integrals into the special ``ElectronicBasis.SO`` basis.
+        """Transforms the integrals into the special
+        :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`
+        basis.
 
         Returns:
             A single matrix containing the ``n-body`` integrals in the spin orbital basis.

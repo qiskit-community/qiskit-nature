@@ -36,7 +36,7 @@ class VibrationalEnergy(VibrationalProperty):
         vibrational_integrals: List[VibrationalIntegrals],
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
-    ):
+    ) -> None:
         """
         Args:
             vibrational_integrals: a list of ``VibrationalIntegrals``.

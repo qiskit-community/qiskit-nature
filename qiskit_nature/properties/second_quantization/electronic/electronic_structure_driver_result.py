@@ -95,9 +95,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns the list of `FermioncOp`s given by the properties contained in this one."""
         ops: List[FermionicOp] = []
-        # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
-        # NOTE: this will also get rid of the hard-coded aux_operator eigenvalue indices in the
-        # `interpret` methods of all of these properties
+        # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
         for cls in [
             ElectronicEnergy,
             ParticleNumber,

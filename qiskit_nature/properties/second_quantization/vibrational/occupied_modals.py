@@ -29,12 +29,12 @@ class OccupiedModals(VibrationalProperty):
     def __init__(
         self,
         basis: Optional[VibrationalBasis] = None,
-    ):
+    ) -> None:
         """
         Args:
             basis: the ``VibrationalBasis`` through which to map the integrals into second
-                quantization. This property **MUST** be set before the second-quantized operator can
-                be constructed.
+                quantization. This attribute **MUST** be set before the second-quantized operator
+                can be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
 
@@ -82,6 +82,7 @@ class OccupiedModals(VibrationalProperty):
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
 

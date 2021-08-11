@@ -42,11 +42,12 @@ class DipoleMoment(IntegralProperty):
         axis: str,
         electronic_integrals: List[ElectronicIntegrals],
         shift: Optional[Dict[str, complex]] = None,
-    ):
+    ) -> None:
         """
         Args:
             axis: the name of the Cartesian axis.
             dipole: an IntegralProperty property representing the dipole moment operator.
+            shift: an optional dictionary of dipole moment shifts.
         """
         self._axis = axis
         name = self.__class__.__name__ + axis.upper()
@@ -100,11 +101,14 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
         nuclear_dipole_moment: Optional[DipoleTuple] = None,
         reverse_dipole_sign: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             dipole_axes: a dictionary mapping Cartesian axes to DipoleMoment properties.
             dipole_shift: an optional dictionary of named dipole shifts.
+            nuclear_dipole_moment: the optional nuclear dipole moment.
+            reverse_dipole_sign: whether the sign of the electronic dipole components needs to be
+                reversed in order to match the nuclear dipole moment direction.
         """
         super().__init__(self.__class__.__name__)
         self._dipole_shift = dipole_shift
@@ -123,11 +127,23 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         """Sets the nuclear dipole moment."""
         self._nuclear_dipole_moment = nuclear_dipole_moment
 
+    @property
+    def reverse_dipole_sign(self) -> bool:
+        """Returns whether or not the sign of the electronic dipole components needs to be reversed
+        in order to match the nuclear dipole moment direction."""
+        return self._reverse_dipole_sign
+
+    @reverse_dipole_sign.setter
+    def reverse_dipole_sign(self, reverse_dipole_sign: bool) -> None:
+        """Sets whether or not the sign of the electronic dipole components needs to be reversed in
+        order to match the nuclear dipole moment direction."""
+        self._reverse_dipole_sign = reverse_dipole_sign
+
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> Optional["ElectronicDipoleMoment"]:
-        """Construct a ElectronicDipoleMoment instance from a QMolecule.
+        """Construct an ElectronicDipoleMoment instance from a QMolecule.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
@@ -190,6 +206,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         """Returns a list of dipole moment operators along all Cartesian axes."""
         return [dip.second_q_ops()[0] for dip in self._properties.values()]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
 

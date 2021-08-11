@@ -23,12 +23,23 @@ T = TypeVar("T", bound=Property, covariant=True)
 
 
 class GroupedProperty(Property, Iterable, Generic[T]):
-    """A group of multiple properties."""
+    """A group of multiple properties.
+
+    This class implements the Composite Pattern [1]. As such, it acts as both, a container of
+    multiple Property instances as well as a Property itself.
+    Property objects can be added and accessed via the `add_property` and `get_property` methods,
+    respectively.
+
+    The internal data container stores Property objects by name. This has the side effect that each
+    object stored in this group must have a unique name.
+
+    [1]: https://en.wikipedia.org/wiki/Composite_pattern
+    """
 
     def __init__(self, name: str) -> None:
         """
         Args:
-            name: the name of the property.
+            name: the name of the property group.
         """
         super().__init__(name)
         self._properties: Dict[str, T] = {}
