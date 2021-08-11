@@ -32,7 +32,7 @@ class QubitOpBuilder:
     """Builds qubit operators for all Hamiltonian terms in the protein folding problem."""
 
     def __init__(
-        self, peptide: Peptide, pair_energies: np.ndarray, penalty_parameters: PenaltyParameters
+            self, peptide: Peptide, pair_energies: np.ndarray, penalty_parameters: PenaltyParameters
     ):
         """Builds qubit operators for all Hamiltonian terms in the protein folding problem.
 
@@ -47,6 +47,9 @@ class QubitOpBuilder:
         self._penalty_parameters = penalty_parameters
         self._contact_map = ContactMap(peptide)
         self._distance_map = DistanceMap(peptide)
+        _side_chain_hot_vector = self._peptide.get_side_chain_hot_vector()
+        self._has_side_chain_second_bead = _side_chain_hot_vector[1] if len(
+            _side_chain_hot_vector) > 1 else False
 
     def _build_qubit_op(self) -> Union[PauliSumOp, PauliOp]:
         """
@@ -96,8 +99,7 @@ class QubitOpBuilder:
 
         return h_total.reduce()
 
-    @staticmethod
-    def _create_turn_operators(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
+    def _create_turn_operators(self, lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
         """
         Creates a qubit operator for consecutive turns.
 
@@ -126,8 +128,7 @@ class QubitOpBuilder:
             lower_bead_indic_0 @ upper_bead_indic_0
             + lower_bead_indic_1 @ upper_bead_indic_1
             + lower_bead_indic_2 @ upper_bead_indic_2
-            + lower_bead_indic_3 @ upper_bead_indic_3
-        )
+            + lower_bead_indic_3 @ upper_bead_indic_3 ,self._has_side_chain_second_bead)
         return turns_operator
 
     def _create_h_back(self) -> Union[PauliSumOp, PauliOp]:
@@ -147,7 +148,7 @@ class QubitOpBuilder:
         for i in range(len(main_chain) - 2):
             h_back += penalty_back * self._create_turn_operators(main_chain[i], main_chain[i + 1])
 
-        h_back = _fix_qubits(h_back)
+        h_back = _fix_qubits(h_back, self._has_side_chain_second_bead)
         return h_back
 
     def _create_h_chiral(self) -> Union[PauliSumOp, PauliOp]:
@@ -241,38 +242,38 @@ class QubitOpBuilder:
                 upper_main_bead_indic_1,
                 upper_side_bead_indic_3,
             )
-            h_chiral = _fix_qubits(h_chiral)
+            h_chiral = _fix_qubits(h_chiral, self._has_side_chain_second_bead)
         return h_chiral
 
     def _build_chiral_term(
-        self,
-        full_id,
-        lower_main_bead_indic_b,
-        lower_main_bead_indic_c,
-        lower_main_bead_indic_d,
-        turn_coeff,
-        upper_main_bead_indic_b,
-        upper_main_bead_indic_c,
-        upper_main_bead_indic_d,
-        upper_side_bead_indic_a,
+            self,
+            full_id,
+            lower_main_bead_indic_b,
+            lower_main_bead_indic_c,
+            lower_main_bead_indic_d,
+            turn_coeff,
+            upper_main_bead_indic_b,
+            upper_main_bead_indic_c,
+            upper_main_bead_indic_d,
+            upper_side_bead_indic_a,
     ):
         return (
-            self._penalty_parameters.penalty_chiral
-            * (full_id - upper_side_bead_indic_a)
-            @ (
-                (1 - turn_coeff)
-                * (
-                    lower_main_bead_indic_b @ upper_main_bead_indic_c
-                    + lower_main_bead_indic_c @ upper_main_bead_indic_d
-                    + lower_main_bead_indic_d @ upper_main_bead_indic_b
+                self._penalty_parameters.penalty_chiral
+                * (full_id - upper_side_bead_indic_a)
+                @ (
+                        (1 - turn_coeff)
+                        * (
+                                lower_main_bead_indic_b @ upper_main_bead_indic_c
+                                + lower_main_bead_indic_c @ upper_main_bead_indic_d
+                                + lower_main_bead_indic_d @ upper_main_bead_indic_b
+                        )
+                        + turn_coeff
+                        * (
+                                lower_main_bead_indic_c @ upper_main_bead_indic_b
+                                + lower_main_bead_indic_d @ upper_main_bead_indic_c
+                                + lower_main_bead_indic_b @ upper_main_bead_indic_d
+                        )
                 )
-                + turn_coeff
-                * (
-                    lower_main_bead_indic_c @ upper_main_bead_indic_b
-                    + lower_main_bead_indic_d @ upper_main_bead_indic_c
-                    + lower_main_bead_indic_b @ upper_main_bead_indic_d
-                )
-            )
         )
 
     def _create_h_bbbb(self) -> Union[PauliSumOp, PauliOp]:
@@ -328,7 +329,7 @@ class QubitOpBuilder:
                     )
                 except (IndexError, KeyError):
                     pass
-                h_bbbb = _fix_qubits(h_bbbb)
+                h_bbbb = _fix_qubits(h_bbbb, self._has_side_chain_second_bead)
         return h_bbbb
 
     def _create_h_bbsc_and_h_scbb(self) -> Union[PauliSumOp, PauliOp]:
@@ -353,73 +354,73 @@ class QubitOpBuilder:
                 if side_chain[j - 1] == 1:
 
                     h_bbsc += self._contact_map.lower_main_upper_side[i][j] ^ (
-                        self._distance_map._first_neighbor(
-                            self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
-                        )
-                        + self._distance_map._second_neighbor(
-                            self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
-                        )
+                            self._distance_map._first_neighbor(
+                                self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
+                            )
+                            + self._distance_map._second_neighbor(
+                        self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
+                    )
                     )
                     try:
                         h_bbsc += self._contact_map.lower_side_upper_side[i][
-                            j
-                        ] ^ self._distance_map._first_neighbor(
+                                      j
+                                  ] ^ self._distance_map._first_neighbor(
                             self._peptide, i, 1, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
                         h_bbsc += self._contact_map.lower_main_upper_side[i][
-                            j
-                        ] ^ self._distance_map._second_neighbor(
+                                      j
+                                  ] ^ self._distance_map._second_neighbor(
                             self._peptide, i + 1, 0, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
                         h_bbsc += self._contact_map.lower_main_upper_side[i][
-                            j
-                        ] ^ self._distance_map._second_neighbor(
+                                      j
+                                  ] ^ self._distance_map._second_neighbor(
                             self._peptide, i - 1, 0, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
                 if side_chain[i - 1] == 1:
                     h_scbb += self._contact_map.lower_side_upper_main[i][j] ^ (
-                        self._distance_map._first_neighbor(
-                            self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
-                        )
-                        + self._distance_map._second_neighbor(
-                            self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
-                        )
+                            self._distance_map._first_neighbor(
+                                self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
+                            )
+                            + self._distance_map._second_neighbor(
+                        self._peptide, i, 0, j, 0, penalty_1, self._pair_energies
+                    )
                     )
                     try:
                         h_scbb += self._contact_map.lower_side_upper_main[i][
-                            j
-                        ] ^ self._distance_map._second_neighbor(
+                                      j
+                                  ] ^ self._distance_map._second_neighbor(
                             self._peptide, i, 1, j, 1, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
                         h_scbb += self._contact_map.lower_side_upper_main[i][
-                            j
-                        ] ^ self._distance_map._second_neighbor(
+                                      j
+                                  ] ^ self._distance_map._second_neighbor(
                             self._peptide, i, 1, j + 1, 0, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
                     try:
                         h_scbb += self._contact_map.lower_side_upper_main[i][
-                            j
-                        ] ^ self._distance_map._second_neighbor(
+                                      j
+                                  ] ^ self._distance_map._second_neighbor(
                             self._peptide, i, 1, j - 1, 0, penalty_1, self._pair_energies
                         )
                     except (IndexError, KeyError, TypeError):
                         pass
 
-        h_bbsc = _fix_qubits(h_bbsc)
-        h_scbb = _fix_qubits(h_scbb)
+        h_bbsc = _fix_qubits(h_bbsc, self._has_side_chain_second_bead)
+        h_scbb = _fix_qubits(h_scbb, self._has_side_chain_second_bead)
         return h_bbsc, h_scbb
 
     def _create_h_scsc(self) -> Union[PauliSumOp, PauliOp]:
@@ -442,17 +443,17 @@ class QubitOpBuilder:
                 if side_chain[i - 1] == 0 or side_chain[j - 1] == 0:
                     continue
                 h_scsc += self._contact_map.lower_side_upper_side[i][j] ^ (
-                    self._distance_map._first_neighbor(
-                        self._peptide, i, 1, j, 1, penalty_1, self._pair_energies
-                    )
-                    + self._distance_map._second_neighbor(
-                        self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
-                    )
-                    + self._distance_map._second_neighbor(
-                        self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
-                    )
+                        self._distance_map._first_neighbor(
+                            self._peptide, i, 1, j, 1, penalty_1, self._pair_energies
+                        )
+                        + self._distance_map._second_neighbor(
+                    self._peptide, i, 1, j, 0, penalty_1, self._pair_energies
                 )
-        return _fix_qubits(h_scsc)
+                        + self._distance_map._second_neighbor(
+                    self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
+                )
+                )
+        return _fix_qubits(h_scsc, self._has_side_chain_second_bead)
 
     def _create_h_short(self) -> Union[PauliSumOp, PauliOp]:
         """
@@ -484,6 +485,6 @@ class QubitOpBuilder:
                 )
                 composed = op1 @ op2
                 h_short += (coeff * composed).reduce()
-        h_short = _fix_qubits(h_short)
+        h_short = _fix_qubits(h_short, self._has_side_chain_second_bead)
 
         return h_short

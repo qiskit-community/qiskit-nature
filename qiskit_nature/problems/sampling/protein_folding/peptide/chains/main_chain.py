@@ -39,7 +39,7 @@ class MainChain(BaseChain):
         Raises:
             InvalidSizeException: When the length of list of side chain lengths provided does not
                                     equal the length of the main chain.
-            InvalidSideChainException: When first, second or last main beads have a side chain.
+            InvalidSideChainException: When first or last main beads have a side chain.
         """
         self._main_chain_residue_sequence = main_chain_residue_sequence
         beads_list = self._build_main_chain(
@@ -114,11 +114,10 @@ class MainChain(BaseChain):
     ) -> None:
         if side_chain_residue_sequences is not None and (
             side_chain_residue_sequences[0] != ""
-            or side_chain_residue_sequences[1] != ""
             or side_chain_residue_sequences[-1] != ""
         ):
             raise InvalidSideChainException(
-                "First, second and last main beads are not allowed to have a side chain. Nonempty "
+                "First and last main beads are not allowed to have a side chain. Nonempty "
                 "residue provided for an invalid side chain."
             )
 
