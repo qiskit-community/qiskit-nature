@@ -13,6 +13,7 @@
 """The Fermionic-particle Operator."""
 
 import re
+from dataclasses import dataclass
 from itertools import product
 from typing import List, Optional, Tuple, Union
 
@@ -174,7 +175,12 @@ class FermionicOp(SecondQuantizedOp):
 
     def __init__(
         self,
-        data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
+        data: Union[
+            str,
+            Tuple[str, complex],
+            List[Tuple[str, complex]],
+            List[Tuple[List["_FermionLabel"], complex]],
+        ],
         register_length: Optional[int] = None,
         sparse_label: bool = False,
     ):
@@ -189,55 +195,76 @@ class FermionicOp(SecondQuantizedOp):
             ValueError: given data is invalid value.
             TypeError: given data has invalid type.
         """
+        self._data: List[Tuple[List[_FermionLabel], complex]]
 
-        if not isinstance(data, (tuple, list, str)):
-            raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
-
-        if isinstance(data, tuple):
-            if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
-                raise TypeError(
-                    f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
-                )
-            data = [data]
-
-        if isinstance(data, str):
-            data = [(data, 1)]
-
-        if not all(
-            isinstance(label, str) and isinstance(coeff, (int, float, complex))
-            for label, coeff in data
-        ):
-            raise TypeError("Data list must be [(str, number)].")
-
-        if all("_" not in label for label, _ in data):
-            data = [
-                (" ".join(f"{c}_{i}" for i, c in enumerate(label)), coeff) for label, coeff in data
-            ]
-
-        label_pattern = re.compile(r"^[\+\-NIE]_\d+$")
-        invalid_labels = [
-            label for label, _ in data if not all(label_pattern.match(c) for c in label.split())
-        ]
-        if invalid_labels:
-            raise ValueError(f"Invalid labels for sparse labels are given: {invalid_labels}")
-
-        self._register_length = (
-            register_length
-            if register_length
-            else max(max((int(c[2:]) for c in label.split()), default=0) for label, _ in data) + 1
-        )
-        self._data = [
-            (self._substituted_label(label), complex(coeff))  # type: ignore
-            for label, coeff in data
-        ]
         self.sparse_label = sparse_label
+        if isinstance(data, list) and isinstance(data[0][0], list) and register_length is not None:
+            self._data = data  # type: ignore
+            self._register_length = register_length
+        else:
+            if not isinstance(data, (tuple, list, str)):
+                raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
 
-    @staticmethod
-    def _substituted_label(label):
-        re_number = re.compile(r"N_(\d+)")
-        re_empty = re.compile(r"E_(\d+)")
-        substituted_label = re_number.sub(r"+_\1 -_\1", re_empty.sub(r"-_\1 +_\1", label))
-        return " ".join(filter(lambda x: x[0] != "I", substituted_label.split()))
+            if isinstance(data, str):
+                data = [(data, complex(1))]
+
+            elif isinstance(data, tuple):
+                if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
+                    raise TypeError(
+                        f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
+                    )
+                data = [data]
+
+            else:
+                if not isinstance(data[0][0], str) or not isinstance(
+                    data[0][1], (int, float, complex)
+                ):
+                    raise TypeError("Data list must be [(str, number)].")
+
+            if all("_" not in label for label, _ in data):
+                self._data = [
+                    (
+                        self._substituted_label([(c, int(i)) for i, c in enumerate(label)]),
+                        complex(coeff),  # type: ignore
+                    )
+                    for label, coeff in data
+                ]
+            else:
+                self._data = [
+                    (
+                        self._substituted_label(
+                            [(c[0], int(c[2:])) for c in label.split()]  # type: ignore
+                        ),
+                        complex(coeff),  # type: ignore
+                    )
+                    for label, coeff in data
+                ]
+
+            if register_length is not None:
+                self._register_length = register_length
+
+    def _substituted_label(self, label):
+        max_index = 0
+        new_label = []
+        for c, index in label:
+            max_index = max(max_index, index)
+            if c == "+":
+                new_label.append(_FermionLabel(True, index))
+            elif c == "-":
+                new_label.append(_FermionLabel(False, index))
+            elif c == "N":
+                new_label.append(_FermionLabel(True, index))
+                new_label.append(_FermionLabel(False, index))
+            elif c == "E":
+                new_label.append(_FermionLabel(False, index))
+                new_label.append(_FermionLabel(True, index))
+            elif c == "I":
+                continue
+            else:
+                raise ValueError(f"Invalid label {c}_{index} is given.")
+
+        self._register_length = max_index + 1
+        return new_label
 
     def __repr__(self) -> str:
         data = self.to_list()
@@ -292,7 +319,7 @@ class FermionicOp(SecondQuantizedOp):
             filter(
                 lambda x: x[1] != 0,
                 (
-                    (" ".join(filter(None, (label1, label2))), cf1 * cf2)
+                    (label1 + label2, cf1 * cf2)
                     for label2, cf2 in other._data
                     for label1, cf1 in self._data
                 ),
@@ -322,16 +349,17 @@ class FermionicOp(SecondQuantizedOp):
             A list of tuples consisting of the dense label and corresponding coefficient.
         """
         if self.sparse_label:
-            return self._data.copy()
+            return [
+                (" ".join(str(label) for label in label_data), coeff)
+                for label_data, coeff in self._data
+            ]
         return self._to_dense_label_data()
 
     def adjoint(self) -> "FermionicOp":
         data = []
         for label, coeff in self._data:
             conjugated_coeff = coeff.conjugate()
-            adjoint_label = " ".join(
-                "+" + c[1:] if c[0] == "-" else "-" + c[1:] for c in reversed(label.split())
-            )
+            adjoint_label = [fer_label.adjoint() for fer_label in reversed(label)]
             data.append((adjoint_label, conjugated_coeff))
 
         return FermionicOp(data, register_length=self.register_length)
@@ -375,9 +403,9 @@ class FermionicOp(SecondQuantizedOp):
         dense_label_data = []
         for label, coeff in self._data:
             label_list = ["I"] * self.register_length
-            for c in label.split():
-                char = c[0]
-                index = int(c[2:])
+            for fer_label in label:
+                char = "+" if fer_label.is_creation else "-"
+                index = fer_label.index
                 if (label_list[index], char) in _ZERO_LABELS:
                     break
                 label_list[index] = _MAPPING[(label_list[index], char)]
@@ -472,3 +500,24 @@ class FermionicOp(SecondQuantizedOp):
             The unity-operator of the given length.
         """
         return FermionicOp(("I_0", 1.0), register_length=register_length)
+
+
+@dataclass(frozen=True)
+class _FermionLabel:
+    """Represent Label for Fermion +_{n} or -_{n}"""
+
+    is_creation: bool  # if True creation operator, otherwise annihilation operator
+    index: int
+
+    def __str__(self):
+        if self.is_creation:
+            return f"+_{self.index}"
+        return f"-_{self.index}"
+
+    def adjoint(self) -> "_FermionLabel":
+        """Calculate adjoint
+
+        Returns:
+            The adjoint label
+        """
+        return _FermionLabel(not self.is_creation, self.index)
