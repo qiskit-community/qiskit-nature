@@ -113,8 +113,7 @@ class MainChain(BaseChain):
         side_chain_residue_sequences: List[str],
     ) -> None:
         if side_chain_residue_sequences is not None and (
-            side_chain_residue_sequences[0] != ""
-            or side_chain_residue_sequences[-1] != ""
+            side_chain_residue_sequences[0] != "" or side_chain_residue_sequences[-1] != ""
         ):
             raise InvalidSideChainException(
                 "First and last main beads are not allowed to have a side chain. Nonempty "

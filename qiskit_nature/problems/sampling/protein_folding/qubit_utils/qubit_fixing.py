@@ -18,8 +18,8 @@ from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
 def _fix_qubits(
-        operator: Union[int, PauliSumOp, PauliOp, OperatorBase],
-        has_side_chain_second_bead: bool = False
+    operator: Union[int, PauliSumOp, PauliOp, OperatorBase],
+    has_side_chain_second_bead: bool = False,
 ) -> Union[int, PauliSumOp, PauliOp, OperatorBase]:
     """
     Assigns predefined values for turns qubits on positions 0, 1, 2, 3, 5 in the main chain
@@ -35,9 +35,9 @@ def _fix_qubits(
     # operator might be 0 (int) because it is initialized as operator = 0; then we should not
     # attempt fixing qubits
     if (
-            not isinstance(operator, PauliOp)
-            and not isinstance(operator, PauliSumOp)
-            and not isinstance(operator, OperatorBase)
+        not isinstance(operator, PauliOp)
+        and not isinstance(operator, PauliSumOp)
+        and not isinstance(operator, OperatorBase)
     ):
         return operator
     operator = operator.reduce()
@@ -63,8 +63,9 @@ def _fix_qubits(
     return operator_updated
 
 
-def _calc_updated_coeffs(hamiltonian: Union[PauliSumOp, PauliOp], table_z,
-                         has_side_chain_second_bead: bool) -> np.ndarray:
+def _calc_updated_coeffs(
+    hamiltonian: Union[PauliSumOp, PauliOp], table_z, has_side_chain_second_bead: bool
+) -> np.ndarray:
     coeffs = np.copy(hamiltonian.primitive.coeffs[0])
     if len(table_z) > 1 and table_z[1] == np.bool_(True):
         coeffs = -1 * coeffs
