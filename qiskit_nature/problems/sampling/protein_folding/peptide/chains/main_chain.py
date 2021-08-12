@@ -37,9 +37,9 @@ class MainChain(BaseChain):
                                         beads. Empty string if a side bead does not exist.
 
         Raises:
-            InvalidSizeException: When the length of list of side chain lengths provided does not
+            InvalidSizeException: If the length of list of side chain lengths provided does not
                                     equal the length of the main chain.
-            InvalidSideChainException: When first or last main beads have a side chain.
+            InvalidSideChainException: If first or last main beads have a side chain.
         """
         self._main_chain_residue_sequence = main_chain_residue_sequence
         beads_list = self._build_main_chain(
@@ -72,7 +72,7 @@ class MainChain(BaseChain):
         Raises:
             InvalidSizeException: When the length of list of side chain lengths provided does not
                                     equal the length of the main chain.
-            InvalidSideChainException: When first, second or last main beads have a side chain.
+            InvalidSideChainException: When first or last main beads have a side chain.
         """
         main_chain = []
         main_chain_len = len(main_chain_residue_sequence)

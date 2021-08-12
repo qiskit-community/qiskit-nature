@@ -10,14 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Validates protein residues provided."""
-from typing import List, Union
 
 from .exceptions.invalid_residue_exception import (
     InvalidResidueException,
 )
 
 
-def _validate_residue_sequence(residue_sequence: Union[List[str], str]):
+def _validate_residue_sequence(residue_sequence: str):
     """
     Checks if the provided residue sequence contains allowed characters.
 

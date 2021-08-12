@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Builds Pauli operators of a given size."""
-from typing import List
+from typing import Set
 
 from qiskit.opflow import PauliOp, I, Z
 
@@ -31,14 +31,14 @@ def _build_full_identity(num_qubits: int) -> PauliOp:
     return full_identity
 
 
-def _build_pauli_z_op(num_qubits: int, pauli_z_indices: List[int]) -> PauliOp:
+def _build_pauli_z_op(num_qubits: int, pauli_z_indices: Set[int]) -> PauliOp:
     """
     Builds a Pauli operator of a given size with Pauli Z operators on indicated positions and
     identity operators on other positions.
 
     Args:
         num_qubits: number of qubits on which a Pauli operator will be created.
-        pauli_z_indices: a list of indices in a Pauli operator on which a Pauli Z operator shall
+        pauli_z_indices: a set of indices in a Pauli operator on which a Pauli Z operator shall
                         appear.
 
     Returns:
