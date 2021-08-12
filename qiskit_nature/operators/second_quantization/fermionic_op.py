@@ -179,6 +179,7 @@ class FermionicOp(SecondQuantizedOp):
             str,
             Tuple[str, complex],
             List[Tuple[str, complex]],
+            List[Tuple[str, float]],
             List[Tuple[List["_FermionLabel"], complex]],
         ],
         register_length: Optional[int] = None,
