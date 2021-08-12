@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """An abstract class defining an interaction between beads of a peptide."""
 from abc import ABC, abstractmethod
-from typing import List
+
 import numpy as np
 
 
@@ -19,14 +19,13 @@ class Interaction(ABC):
     """An abstract class defining an interaction between beads of a peptide."""
 
     @abstractmethod
-    def calculate_energy_matrix(self, chain_len: int, residue_sequence: List[str]) -> np.ndarray:
+    def calculate_energy_matrix(self, residue_sequence: str) -> np.ndarray:
         """
         Calculates an energy matrix for a particular interaction type.
 
         Args:
-            chain_len: Length of a protein chain.
-            residue_sequence: A list that contains characters defining residues for a chain of
-                            proteins.
+            residue_sequence: A string that contains characters defining residues for
+                            a chain of proteins.
 
         Returns:
             Numpy array of pair energies for amino acids.

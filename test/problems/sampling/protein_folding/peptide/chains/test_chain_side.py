@@ -24,9 +24,8 @@ class TestSideChain(QiskitNatureTestCase):
         """Tests that a SideChain is created."""
         main_chain_len = 4
         main_bead_id = 3
-        side_chain_len = 1
         side_chain_residue_seq = ["A"]
-        side_chain = SideChain(main_chain_len, main_bead_id, side_chain_len, side_chain_residue_seq)
+        side_chain = SideChain(main_chain_len, main_bead_id, side_chain_residue_seq)
         self.assertEqual(len(side_chain), 1)
         self.assertEqual(side_chain[0].chain_type, "side_chain")
         self.assertEqual(side_chain[0].main_index, 3)
@@ -35,7 +34,6 @@ class TestSideChain(QiskitNatureTestCase):
         """Tests that a SideChain of length greater than 1 throws an exception."""
         main_chain_len = 4
         main_bead_id = 3
-        side_chain_len = 2
         side_chain_residue_seq = ["S", "A"]
         with self.assertRaises(InvalidSideChainException):
-            _ = SideChain(main_chain_len, main_bead_id, side_chain_len, side_chain_residue_seq)
+            _ = SideChain(main_chain_len, main_bead_id, side_chain_residue_seq)

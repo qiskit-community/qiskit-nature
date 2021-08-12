@@ -67,8 +67,8 @@ class QubitOpBuilder:
             raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
         if side_chain[0] == 1 or side_chain[-1] == 1 or side_chain[1] == 1:
             raise InvalidSideChainException(
-                "First, second and last main beads are not allowed to have a side chain. Non-None "
-                "residue provided for an invalid side chain"
+                "First, second and last main beads are not allowed to have a side chain. Nonempty "
+                "residue provided for an invalid side chain."
             )
 
         num_qubits = 4 * pow(main_chain_len - 1, 2)
