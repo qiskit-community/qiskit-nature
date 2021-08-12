@@ -13,17 +13,18 @@
 The Unitary Coupled-Cluster Ansatz.
 """
 
+import logging
 from functools import partial
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-import logging
-
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import PauliTrotterEvolution
+from qiskit.circuit.library import EvolvedOperatorAnsatz
+from qiskit.opflow import OperatorBase, PauliTrotterEvolution
+
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from .evolved_operator_ansatz import EvolvedOperatorAnsatz
+from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
+
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
 logger = logging.getLogger(__name__)
@@ -246,6 +247,8 @@ class UCC(EvolvedOperatorAnsatz):
     def _build(self) -> None:
         if self._data is not None:
             return
+
+        self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]
 
         if self.operators is None or self.operators == [None]:
             # The qubit operators are cached by the `EvolvedOperatorAnsatz` class. We only generate
