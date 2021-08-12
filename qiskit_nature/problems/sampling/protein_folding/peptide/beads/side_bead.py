@@ -21,11 +21,11 @@ class SideBead(BaseBead):
     """A class defining a side bead of a peptide."""
 
     def __init__(
-            self,
-            main_index: int,
-            side_index: int,
-            residue_type: Optional[str],
-            turn_qubits: Tuple[PauliOp, PauliOp],
+        self,
+        main_index: int,
+        side_index: int,
+        residue_type: Optional[str],
+        turn_qubits: Tuple[PauliOp, PauliOp],
     ):
         """
         Args:
@@ -51,8 +51,7 @@ class SideBead(BaseBead):
 
     def __str__(self):
         return (
-                self.chain_type + "_" + str(self.side_index) + "_main_chain_ind_" + str(
-            self.main_index)
+            self.chain_type + "_" + str(self.side_index) + "_main_chain_ind_" + str(self.main_index)
         )
 
     def __hash__(self):
@@ -62,27 +61,25 @@ class SideBead(BaseBead):
         if not isinstance(SideBead, other):
             return False
         return (
-                self.main_index == other.main_index
-                and self.side_index == other.side_index
-                and self.chain_type == other.chain_type
+            self.main_index == other.main_index
+            and self.side_index == other.side_index
+            and self.chain_type == other.chain_type
         )
 
     def _build_turn_indicator_fun_0(self) -> OperatorBase:
         return (
-                ((self._full_id - self._turn_qubits[0]) @ (self._full_id - self._turn_qubits[1]))
-                ^ self._full_id
+            ((self._full_id - self._turn_qubits[0]) @ (self._full_id - self._turn_qubits[1]))
+            ^ self._full_id
         ).reduce()
 
     def _build_turn_indicator_fun_1(self) -> OperatorBase:
         return (
-                (self._turn_qubits[1] @ (
-                            self._turn_qubits[1] - self._turn_qubits[0])) ^ self._full_id
+            (self._turn_qubits[1] @ (self._turn_qubits[1] - self._turn_qubits[0])) ^ self._full_id
         ).reduce()
 
     def _build_turn_indicator_fun_2(self) -> OperatorBase:
         return (
-                (self._turn_qubits[0] @ (
-                            self._turn_qubits[0] - self._turn_qubits[1])) ^ self._full_id
+            (self._turn_qubits[0] @ (self._turn_qubits[0] - self._turn_qubits[1])) ^ self._full_id
         ).reduce()
 
     def _build_turn_indicator_fun_3(self) -> OperatorBase:
