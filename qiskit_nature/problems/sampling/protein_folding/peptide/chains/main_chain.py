@@ -105,7 +105,7 @@ class MainChain(BaseChain):
             raise InvalidSizeException(
                 f"The length of the list of side chain residue sequences: "
                 f"{len(side_chain_residue_sequences)} does not equal the length of the main "
-                f"chain: {main_chain_len}"
+                f"chain: {main_chain_len}."
             )
 
     @staticmethod
