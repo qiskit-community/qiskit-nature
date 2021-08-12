@@ -21,7 +21,7 @@ the paper cited below). Allowing a side chain at a second bead might be supporte
 the expense of an additional qubit required. Each chain consists of beads that encode information
 about the turn that follows to another main bead (in case of main beads) or into a side bead (in
 case of side beads). Moreover, each bead is characterized by a letter which encodes its residue
-sequence which defines the energy of interactions with other beads (unless interactions are
+sequence and defines the energy of interactions with other beads (unless interactions are
 random). Currently, only interactions involving first nearest neighbors are supported. Each side
 chain is attached to one and only one main bead. Currently, only side chains of length 1 (i.e.
 with 1 bead) are supported which is a simplifying assumption. A generalization of this approach is

@@ -17,7 +17,14 @@ from .chains.main_chain import MainChain
 
 
 class Peptide:
-    """A class containing information about beads and chains of a protein."""
+    """A class containing information about beads and chains of a protein. Each bead is
+    characterized by a letter which encodes its residue sequence and defines the energy of
+    interactions with other beads (unless interactions are random). For more information about
+    residue types see:
+    https://en.wikipedia.org/wiki/Amino_acid#Table_of_standard_amino_acid_abbreviations_and_properties.
+    Currently, only side chains of length 1 (i.e. with 1 bead) are supported which is a
+    simplifying assumption. For more information see the description in the Protein Folding
+    Problems module and the paper cited there."""
 
     def __init__(
         self,
@@ -32,7 +39,10 @@ class Peptide:
             side_chain_residue_sequences: List of characters that define residues for all side
                                         beads. Empty string if a side bead does not exist. Valid
                                         residue types are [A, C, D, E, F, G, H, I, K, L, M, N, P,
-                                        Q, R, S, T, V, W, Y].
+                                        Q, R, S, T, V, W, Y]. Side chains cannot be attached to
+                                        first, second or last main bead. First and last main
+                                        beads with a side chain can be modeled by elongating the
+                                        main chain with corresponding side chains.
         """
 
         self._main_chain = MainChain(
