@@ -327,7 +327,7 @@ class FermionicOp(SecondQuantizedOp):
             )
         )
         register_length = max(self.register_length, other.register_length)
-        sparse_label = self.sparse_label or other.sparse_label,
+        sparse_label = self.sparse_label or other.sparse_label
         if not new_data:
             return FermionicOp(("", 0), register_length, sparse_label)
         return FermionicOp(new_data, register_length, sparse_label)
