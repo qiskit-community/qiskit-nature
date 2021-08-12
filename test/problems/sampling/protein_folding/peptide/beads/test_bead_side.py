@@ -32,10 +32,10 @@ class TestSideBead(QiskitNatureTestCase):
         num_turn_qubits = 2 * (main_chain_len - 1)
         main_chain_id = 3
         side_bead_id = 3
-        turn_qubits = [
+        turn_qubits = (
             0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ I ^ I ^ I ^ I ^ Z),
             0.5 * _build_full_identity(num_turn_qubits) - 0.5 * (I ^ I ^ I ^ I ^ Z ^ I),
-        ]
+        )
         side_bead = SideBead(main_chain_id, side_bead_id, residue_type, turn_qubits)
 
         indic_0, indic_1, indic_2, indic_3 = side_bead.indicator_functions
@@ -70,8 +70,8 @@ class TestSideBead(QiskitNatureTestCase):
 
     def test_side_bead_constructor_none(self):
         """Tests that a SideBead is created."""
-        residue_type = None
-        turn_qubits = [Z, Z]
+        residue_type = ""
+        turn_qubits = (Z, Z)
         main_chain_id = 3
         side_bead_id = 3
         side_bead = SideBead(main_chain_id, side_bead_id, residue_type, turn_qubits)

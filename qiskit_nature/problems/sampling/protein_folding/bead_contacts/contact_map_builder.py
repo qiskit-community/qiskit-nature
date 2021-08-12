@@ -154,7 +154,7 @@ def _create_contact_op_for_axis(
     num_qubits: int,
 ) -> PauliOp:
     z_op_index = _calc_index(main_chain_len - 1, lower_bead_id - 1, upper_bead_id - 1)
-    contact_op = _build_pauli_z_op(num_qubits, [z_op_index])
+    contact_op = _build_pauli_z_op(num_qubits, {z_op_index})
     # we have 4 block positions for all combinations of main and side chain beads (main-main,
     # main-side, side-main, side-side)
     contact_op_padded = full_id if contact_op_block_position != 0 else contact_op

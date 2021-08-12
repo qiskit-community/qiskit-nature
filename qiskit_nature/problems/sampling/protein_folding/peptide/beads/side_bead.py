@@ -32,8 +32,8 @@ class SideBead(BaseBead):
             main_index: Index of the bead on the main chain in a peptide to which the side
                         chain of this side bead is attached.
             side_index: Index of the bead on the related side chain in a peptide.
-            residue_type: A character representing the type of a residue for the bead. None if a
-                        side bead does not exists.
+            residue_type: A character representing the type of a residue for the bead. Empty
+                        string if a side bead does not exists.
             turn_qubits: A tuple of two Pauli operators that encodes the turn following from a given
                         bead index.
         """
