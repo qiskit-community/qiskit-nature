@@ -300,6 +300,50 @@ class TestFermionicOp(QiskitNatureTestCase):
         fer_op.set_label_display_mode("dense")
         self.assertNotEqual(fer_op.to_list(), str2list(label))
 
+    def test_normal_order(self):
+        """test normal_order method"""
+        with self.subTest("Test for creation operator"):
+            orig = FermionicOp("+")
+            fer_op = orig.to_normal_order()
+            targ = FermionicOp("+_0", sparse_label=True)
+            self.assertFermionEqual(fer_op, targ)
+            self.assertFalse(orig.sparse_label)
+
+        with self.subTest("Test for annihilation operator"):
+            orig = FermionicOp("-")
+            fer_op = orig.to_normal_order()
+            targ = FermionicOp("-_0", sparse_label=True)
+            self.assertFermionEqual(fer_op, targ)
+            self.assertFalse(orig.sparse_label)
+
+        with self.subTest("Test for number operator"):
+            orig = FermionicOp("N")
+            fer_op = orig.to_normal_order()
+            targ = FermionicOp("+_0 -_0", sparse_label=True)
+            self.assertFermionEqual(fer_op, targ)
+            self.assertFalse(orig.sparse_label)
+
+        with self.subTest("Test for empty operator"):
+            orig = FermionicOp("E")
+            fer_op = orig.to_normal_order()
+            targ = FermionicOp([("", 1), ("+_0 -_0", -1)], sparse_label=True)
+            self.assertFermionEqual(fer_op, targ)
+            self.assertFalse(orig.sparse_label)
+
+        with self.subTest("Test for multiple operators 1"):
+            orig = FermionicOp("-+")
+            fer_op = orig.to_normal_order()
+            targ = FermionicOp([("+_1 -_0", -1)], sparse_label=True)
+            self.assertFermionEqual(fer_op, targ)
+            self.assertFalse(orig.sparse_label)
+
+        with self.subTest("Test for multiple operators 2"):
+            orig = 3 * FermionicOp("E+-")
+            fer_op = orig.to_normal_order()
+            targ = FermionicOp([("+_1 -_2", 3), ("+_0 +_1 -_0 -_2", 3)], sparse_label=True)
+            self.assertFermionEqual(fer_op, targ)
+            self.assertFalse(orig.sparse_label)
+
 
 if __name__ == "__main__":
     unittest.main()
