@@ -75,15 +75,14 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self, problem: BaseProblem, qubit_converter: QubitConverter
     ) -> MinimumEigensolver:
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
-        provided by the ``transformation``.
+        provided by the ``problem``.
 
         Args:
             problem: a class encoding a problem to be solved.
             qubit_converter: a class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
         Returns:
-            A NumPyMinimumEigensolver suitable to compute the ground state of the molecule
-            transformed by ``transformation``.
+            A NumPyMinimumEigensolver suitable to compute the ground state of the molecule.
         """
         filter_criterion = self._filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:
