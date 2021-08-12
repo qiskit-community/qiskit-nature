@@ -16,17 +16,18 @@ The protein to be folded is defined in a Peptide class. Each peptide consists of
 main chain and optionally several side chains. Side chains cannot be attached to first, second or
 last main bead. First and last main beads with a side chain can be modeled by elongating the
 main chain with corresponding side chains. The assumption of no side chain attached to a second
-main bead allows for saving 1 qubit without the loss of generality due to symmetry arguments (see
-the paper cited below). Allowing a side chain at a second bead might be supported in the future at
-the expense of an additional qubit required. Each chain consists of beads that encode information
-about the turn that follows to another main bead (in case of main beads) or into a side bead (in
-case of side beads). Moreover, each bead is characterized by a letter which encodes its residue
-sequence and defines the energy of interactions with other beads (unless interactions are
-random). Currently, only interactions involving first nearest neighbors are supported. Each side
-chain is attached to one and only one main bead. Currently, only side chains of length 1 (i.e.
-with 1 bead) are supported which is a simplifying assumption. A generalization of this approach is
-for future investigation. Constraints on feasible folds are incorporated in the objective function
-using penalty terms whose importance is regulated by parameters in the PenaltyParameters class.
+main bead allows for saving 1 qubit in the qubit encoding of a main chain without the loss of
+generality due to symmetry arguments (see the paper cited below). Allowing a side chain at a
+second bead might be supported in the future at the expense of an additional qubit required. Each
+chain consists of beads that encode information about the turn that follows to another main bead
+(in case of main beads) or into a side bead (in case of side beads). Moreover, each bead is
+characterized by a letter which encodes its residue sequence and defines the energy of
+interactions with other beads (unless interactions are random). Currently, only interactions
+involving first nearest neighbors are supported. Each side chain is attached to one and only one
+main bead. Currently, only side chains of length 1 (i.e. with 1 bead) are supported which is a
+simplifying assumption. A generalization of this approach is for future investigation.
+Constraints on feasible folds are incorporated in the objective function using penalty terms
+whose importance is regulated by parameters in the PenaltyParameters class.
 
 In the final operator for the problem qubit registers have the following meaning:
 (interactions qubits) tensored with (conformation qubits),
