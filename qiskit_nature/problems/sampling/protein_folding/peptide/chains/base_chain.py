@@ -71,5 +71,5 @@ class BaseChain(ABC):
         norm_factor = 0.5
         turn_qubit = norm_factor * _build_full_identity(
             num_turn_qubits
-        ) - norm_factor * _build_pauli_z_op(num_turn_qubits, [pauli_z_index])
+        ) - norm_factor * _build_pauli_z_op(num_turn_qubits, {pauli_z_index})
         return turn_qubit
