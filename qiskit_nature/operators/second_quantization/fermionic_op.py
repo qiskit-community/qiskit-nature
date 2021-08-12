@@ -141,6 +141,7 @@ class FermionicOp(SecondQuantizedOp):
             fermion += FermionicOp(somedata)
 
     """
+    _truncate = 200
 
     def __init__(
         self,
@@ -217,7 +218,8 @@ class FermionicOp(SecondQuantizedOp):
             data_str = f"'{data[0]}'"
         data_str = f"{data}"
 
-        # TODO truncate
+        if self._truncate and len(data_str) > self._truncate:
+            data_str = data_str[0 : self._truncate - 5] + "..." + data_str[-2:]
         return (
             "FermionicOp("
             f"{data_str}, "
@@ -226,12 +228,28 @@ class FermionicOp(SecondQuantizedOp):
             ")"
         )
 
+    @classmethod
+    def set_truncation(cls, val):
+        """Set the max number of characters to display before truncation/
+        Args:
+            val (int): the number of characters.
+
+        .. note::
+            Truncation will be disabled if the truncation value is set to 0.
+        """
+        cls._truncate = int(val)
+
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
         if len(self) == 1:
             label, coeff = self.to_list()[0]
-            return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
+            return f"{coeff} * ({label})"
+        ret = "  " + "\n+ ".join(
+            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.to_list()]
+        )
+        if self._truncate and len(ret) > self._truncate:
+            ret = ret[0 : self._truncate - 4] + " ..."
+        return ret
 
     def __len__(self):
         return len(self._data)
