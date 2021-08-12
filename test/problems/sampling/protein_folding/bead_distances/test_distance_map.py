@@ -30,18 +30,12 @@ class TestDistanceMap(QiskitNatureTestCase):
         Tests that Pauli operators for 1st neighbor interactions are created correctly.
         """
 
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
-        main_chain_len = 6
-        side_chain_lens = [0, 0, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "S", "S", None]
+        main_chain_residue_seq = "SAASSS"
+        side_chain_residue_sequences = ["", "", "A", "S", "S", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         lambda_1 = 2
         lower_main_bead_index = 1
         upper_main_bead_index = 4
@@ -70,18 +64,12 @@ class TestDistanceMap(QiskitNatureTestCase):
         Tests that Pauli operators for 1st neighbor interactions are created correctly.
         """
 
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
-        main_chain_len = 6
-        side_chain_lens = [0, 0, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "S", "S", None]
+        main_chain_residue_seq = "SAASSS"
+        side_chain_residue_sequences = ["", "", "A", "S", "S", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
         lambda_1 = 2
         lower_main_bead_index = 3
         upper_main_bead_index = 5
@@ -109,18 +97,12 @@ class TestDistanceMap(QiskitNatureTestCase):
         """
         Tests that Pauli operators for 2nd neighbor interactions are created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 0, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None]
+        main_chain_residue_seq = "SAASS"
+        side_chain_residue_sequences = ["", "", "A", "", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         lambda_1 = 2
         lower_main_bead_index = 1
         upper_main_bead_index = 4
@@ -147,18 +129,12 @@ class TestDistanceMap(QiskitNatureTestCase):
         """
         Tests that Pauli operators for 2nd neighbor interactions are created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "C", "S"]
-        main_chain_len = 5
-        side_chain_lens = [0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", None]
+        main_chain_residue_seq = "SAACS"
+        side_chain_residue_sequences = ["", "", "A", "A", ""]
         mj_interaction = MiyazawaJerniganInteraction()
-        pair_energies = mj_interaction.calculate_energy_matrix(
-            main_chain_len, main_chain_residue_seq
-        )
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         lambda_1 = 2
         lower_main_bead_index = 3
         upper_main_bead_index = 4
