@@ -34,14 +34,10 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         lambda_1 = 10
         penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
 
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "A", "S", "A", "A", "G"]
-        main_chain_len = 10
-        side_chain_lens = [0, 0, 1, 1, 1, 1, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "A", "A", "A", "A", "S", None]
+        main_chain_residue_seq = "SAASSASAAG"
+        side_chain_residue_sequences = ["", "", "A", "A", "A", "A", "A", "A", "S", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
 
         mj_interaction = MiyazawaJerniganInteraction()
 

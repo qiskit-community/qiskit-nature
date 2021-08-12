@@ -10,19 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Validates protein residues provided."""
-from typing import List
 
 from .exceptions.invalid_residue_exception import (
     InvalidResidueException,
 )
 
 
-def _validate_residue_sequence(residue_sequence: List[str]):
+def _validate_residue_sequence(residue_sequence: str):
     """
     Checks if the provided residue sequence contains allowed characters.
 
     Args:
-        residue_sequence: A list that contains characters defining residues for a chain of proteins.
+        residue_sequence: A list or a string that contains characters defining residues for a
+                        chain of proteins.
 
     Throws:
         InvalidResidueException: If an illegal residue character is discovered.
@@ -63,7 +63,7 @@ def _validate_residue_symbol(residue_symbol: str):
         "W",  # Tryptophan
         "Y",  # Tyrosine
     ]
-    if residue_symbol is not None and residue_symbol not in valid_residues:
+    if residue_symbol != "" and residue_symbol not in valid_residues:
         raise InvalidResidueException(
             f"Provided residue type {residue_symbol} is not valid. Valid residue types are "
             f"{valid_residues}"

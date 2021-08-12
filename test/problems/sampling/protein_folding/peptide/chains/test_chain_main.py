@@ -22,13 +22,9 @@ class TestMainChain(QiskitNatureTestCase):
 
     def test_main_chain_constructor(self):
         """Tests that a MainChain is created."""
-        main_chain_len = 4
         main_chain_residue_seq = "SASA"
-        side_chain_lens = [0, 0, 1, 0]
-        side_chain_residue_sequences = [None, None, "S", None]
-        main_chain = MainChain(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        side_chain_residue_sequences = ["", "", "S", ""]
+        main_chain = MainChain(main_chain_residue_seq, side_chain_residue_sequences)
 
         self.assertEqual(len(main_chain.beads_list), 4)
         assert main_chain[0].side_chain is None
@@ -38,42 +34,30 @@ class TestMainChain(QiskitNatureTestCase):
 
     def test_main_chain_illegal_side_chain_first(self):
         """Tests that an exception is thrown in case of illegal side chain."""
-        main_chain_len = 4
         main_chain_residue_seq = "SAAA"
-        side_chain_lens = [1, 0, 1, 0]
-        side_chain_residue_sequences = ["A", None, "S", None]
+        side_chain_residue_sequences = ["A", "", "S", ""]
         with self.assertRaises(InvalidSideChainException):
             _ = MainChain(
-                main_chain_len,
                 main_chain_residue_seq,
-                side_chain_lens,
                 side_chain_residue_sequences,
             )
 
     def test_main_chain_illegal_side_chain_second(self):
         """Tests that an exception is thrown in case of illegal side chain."""
-        main_chain_len = 4
         main_chain_residue_seq = "SAAA"
-        side_chain_lens = [0, 1, 1, 0]
-        side_chain_residue_sequences = [None, "A", "S", None]
+        side_chain_residue_sequences = ["", "A", "S", ""]
         with self.assertRaises(InvalidSideChainException):
             _ = MainChain(
-                main_chain_len,
                 main_chain_residue_seq,
-                side_chain_lens,
                 side_chain_residue_sequences,
             )
 
     def test_main_chain_illegal_side_chain_last(self):
         """Tests that an exception is thrown in case of illegal side chain."""
-        main_chain_len = 4
         main_chain_residue_seq = "SAAA"
-        side_chain_lens = [0, 0, 1, 1]
-        side_chain_residue_sequences = [None, None, "A", "S"]
+        side_chain_residue_sequences = ["", "", "A", "S"]
         with self.assertRaises(InvalidSideChainException):
             _ = MainChain(
-                main_chain_len,
                 main_chain_residue_seq,
-                side_chain_lens,
                 side_chain_residue_sequences,
             )
