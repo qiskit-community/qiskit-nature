@@ -70,9 +70,9 @@ class MainChain(BaseChain):
             An instance of a MainChain class.
 
         Raises:
-            InvalidSizeException: When the length of list of side chain lengths provided does not
+            InvalidSizeException: If the length of list of side chain lengths provided does not
                                     equal the length of the main chain.
-            InvalidSideChainException: When first, second or last main beads have a side chain.
+            InvalidSideChainException: If first, second or last main beads have a side chain.
         """
         main_chain = []
         main_chain_len = len(main_chain_residue_sequence)
