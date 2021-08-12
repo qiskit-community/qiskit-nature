@@ -17,7 +17,7 @@ from .exceptions.invalid_residue_exception import (
 )
 
 
-def _validate_residue_sequence(residue_sequence: Union[List[str], str]):
+def _validate_residue_sequence(residue_sequence: str):
     """
     Checks if the provided residue sequence contains allowed characters.
 
