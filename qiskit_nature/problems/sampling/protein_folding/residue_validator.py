@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Validates protein residues provided."""
-from typing import List, Union
 
 from .exceptions.invalid_residue_exception import (
     InvalidResidueException,
