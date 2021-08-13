@@ -24,7 +24,7 @@ from qiskit_nature.results import EigenstateResult
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
 
-LOGGER = logging.getLogger(__file__)
+LOGGER = logging.getLogger(__name__)
 
 
 class ParticleNumber(ElectronicProperty):
@@ -36,12 +36,17 @@ class ParticleNumber(ElectronicProperty):
            If this measured number does not match the expected number a warning will be logged.
     """
 
+    ABSOLUTE_TOLERANCE = 1e-05
+    RELATIVE_TOLERANCE = 1e-02
+
     def __init__(
         self,
         num_spin_orbitals: int,
         num_particles: Union[int, Tuple[int, int]],
         occupation: Optional[Union[np.ndarray, List[float]]] = None,
         occupation_beta: Optional[Union[np.ndarray, List[float]]] = None,
+        absolute_tolerance: float = ABSOLUTE_TOLERANCE,
+        relative_tolerance: float = RELATIVE_TOLERANCE,
     ) -> None:
         """
         Args:
@@ -52,6 +57,10 @@ class ParticleNumber(ElectronicProperty):
             occupation: the occupation numbers. If ``occupation_beta`` is ``None``, these are the
                 total occupation numbers, otherwise these are treated as the alpha-spin occupation.
             occupation_beta: the beta-spin occupation numbers.
+            absolute_tolerance: the absolute tolerance used for checking whether the measured
+                particle number matches the expected one.
+            relative_tolerance: the relative tolerance used for checking whether the measured
+                particle number matches the expected one.
         """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
@@ -72,6 +81,9 @@ class ParticleNumber(ElectronicProperty):
         else:
             self._occupation_alpha = occupation  # type: ignore
             self._occupation_beta = occupation_beta  # type: ignore
+
+        self._absolute_tolerance = absolute_tolerance
+        self._relative_tolerance = relative_tolerance
 
     @property
     def num_spin_orbitals(self) -> int:
@@ -173,7 +185,12 @@ class ParticleNumber(ElectronicProperty):
                 n_particles = aux_op_eigenvalues[0][0].real  # type: ignore
                 result.num_particles.append(n_particles)
 
-                if not np.isclose(n_particles, expected):
+                if not np.isclose(
+                    n_particles,
+                    expected,
+                    rtol=self._relative_tolerance,
+                    atol=self._absolute_tolerance,
+                ):
                     LOGGER.warning(
                         "The measured number of particles %s does NOT match the expected number of "
                         "particles %s!",
