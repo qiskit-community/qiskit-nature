@@ -14,18 +14,20 @@
 
 from typing import List, Tuple
 
-from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
+from ...deprecation import DeprecatedType, warn_deprecated
 
 
 class BosonicBasis:
     """**DEPRECATED** Basis to express a second quantization Bosonic Hamiltonian."""
 
     def __init__(self):
-        warn_deprecated_same_type_name(
+        warn_deprecated(
             "0.2.0",
             DeprecatedType.CLASS,
             "BosonicBasis",
-            "from qiskit_nature.drivers.second_quantization.bosonic_bases as a direct replacement",
+            DeprecatedType.CLASS,
+            "VibrationalBasis",
+            "from qiskit_nature.properties.second_quantization.vibrational.bases",
         )
 
     def convert(self, threshold: float = 1e-6) -> List[List[Tuple[List[List[int]], complex]]]:

@@ -130,14 +130,6 @@ of interest that is parsed from the log.
    GaussianLogDriver
    GaussianLogResult
 
-Submodules
-==========
-
-.. autosummary::
-   :toctree:
-
-   bosonic_bases
-
 """
 
 from .electronic_structure_molecule_driver import (
