@@ -20,13 +20,9 @@ class TestPeptide(QiskitNatureTestCase):
     def test_peptide_constructor(self):
         """Tests that a Peptide is created."""
         main_chain_residue_seq = "SAAR"
-        main_chain_len = 4
-        side_chain_lens = [0, 0, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None]
+        side_chain_residue_sequences = ["", "", "A", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
 
         side_chain_hot_vector = peptide.get_side_chain_hot_vector()
 
@@ -40,13 +36,9 @@ class TestPeptide(QiskitNatureTestCase):
     def test_peptide_hot_vector_longer_chain(self):
         """Tests that a Peptide is created."""
         main_chain_residue_seq = "SAAAAAAAA"
-        main_chain_len = 9
-        side_chain_lens = [0, 0, 1, 0, 0, 1, 0, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None, "A", None, "A", None]
+        side_chain_residue_sequences = ["", "", "A", "", "", "A", "", "A", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
 
         side_chain_hot_vector = peptide.get_side_chain_hot_vector()
 
@@ -56,13 +48,9 @@ class TestPeptide(QiskitNatureTestCase):
     def test_peptide_get_side_chains(self):
         """Tests that a side chains are provided."""
         main_chain_residue_seq = "SAAAAAAAA"
-        main_chain_len = 9
-        side_chain_lens = [0, 0, 1, 0, 0, 1, 0, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", None, None, "A", None, "A", None]
+        side_chain_residue_sequences = ["", "", "A", "", "", "A", "", "A", ""]
 
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chain_lens, side_chain_residue_sequences
-        )
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
 
         side_chains = peptide.get_side_chains()
         self.assertEqual(side_chains[0], None)

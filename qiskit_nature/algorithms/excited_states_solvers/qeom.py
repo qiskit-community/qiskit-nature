@@ -229,8 +229,6 @@ class QEOM(ExcitedStatesSolver):
                     all_matrix_operators["v_{}_{}".format(m_u, n_u)] = v_mat_op
 
         try:
-            # The next step only works in the case of the FermionicTransformation. Thus, it is done
-            # in a try-except block. However, mypy doesn't detect this and thus we ignore it.
             z2_symmetries = self._gsc.qubit_converter.z2symmetries  # type: ignore
         except AttributeError:
             z2_symmetries = Z2Symmetries([], [], [])

@@ -35,8 +35,7 @@ class MinimumEigensolverFactory(ABC):
                              according to a mapper it is initialized with.
 
         Returns:
-            A minimum eigensolver suitable to compute the ground state of the molecule transformed
-            by ``transformation``.
+            A minimum eigensolver suitable to compute the ground state of the molecule.
         """
         raise NotImplementedError
 

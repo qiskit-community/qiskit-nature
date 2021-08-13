@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """A class defining a side chain of a peptide."""
-from typing import List, Union, Sequence, Optional
+from typing import List, Union, Sequence
 
 from ...exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
@@ -26,19 +26,18 @@ class SideChain(BaseChain):
         self,
         main_chain_len: int,
         main_bead_id: int,
-        side_chain_len: int,
-        side_chain_residue_sequences: List[Optional[str]],
+        side_chain_residue_sequences: List[str],
     ):
         """
         Args:
             main_chain_len: Length of the main chain of a peptide.
             main_bead_id: Index of the main bead which the side chain is attached to.
-            side_chain_len: Length of the side chains.
             side_chain_residue_sequences: List of characters that define residues for all side
-                                        beads. None if a side bead does not exist.
+                                        beads in a side chain. Empty string if a side bead does
+                                        not exist.
         """
         beads_list = self._build_side_chain(
-            main_chain_len, main_bead_id, side_chain_len, side_chain_residue_sequences
+            main_chain_len, main_bead_id, side_chain_residue_sequences
         )
         super().__init__(beads_list)
 
@@ -46,8 +45,7 @@ class SideChain(BaseChain):
         self,
         main_chain_len: int,
         main_bead_id: int,
-        side_chain_len: int,
-        side_chain_residue_sequences: List[Optional[str]],
+        side_chain_residue_sequences: List[str],
     ) -> Union[Sequence[SideBead], None]:
         """
         Creates a side chain for a given main bead.
@@ -55,9 +53,9 @@ class SideChain(BaseChain):
         Args:
             main_bead_id: id of a main bead that will host a side chain.
             main_chain_len: length of the main chain of a peptide.
-            side_chain_len: length of a given side chain.
             side_chain_residue_sequences: list of characters that define residues for all side
-                                        beads. None is a side bead does not exist.
+                                        beads in a side chain. Empty string if a side bead does
+                                        not exist.
 
         Returns:
             An instance of a SideChain class.
@@ -65,6 +63,7 @@ class SideChain(BaseChain):
         Raises:
             InvalidSideChainException: if side chains of length greater than 1 provided.
         """
+        side_chain_len = len(side_chain_residue_sequences)
         if side_chain_len > 1:
             raise InvalidSideChainException(
                 f"Only side chains of length 1 supported, length {side_chain_len} was given."

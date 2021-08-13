@@ -25,13 +25,9 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S"]
-        main_chain_len = 5
-        side_chains = [0, 0, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", None]
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chains, side_chain_residue_sequences
-        )
+        main_chain_residue_seq = "SAASS"
+        side_chain_residue_sequences = ["", "", "A", "A", ""]
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         (
             lower_main_upper_main,
             lower_side_upper_main,
@@ -50,13 +46,9 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S"]
-        main_chain_len = 6
-        side_chains = [0, 0, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "S", None]
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chains, side_chain_residue_sequences
-        )
+        main_chain_residue_seq = "SAASSS"
+        side_chain_residue_sequences = ["", "", "A", "A", "S", ""]
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         (
             lower_main_upper_main,
             lower_side_upper_main,
@@ -87,13 +79,9 @@ class TestContactMapBuilder(QiskitNatureTestCase):
         """
         Tests that Pauli operators for contact qubits are created correctly.
         """
-        main_chain_residue_seq = ["S", "A", "A", "S", "S", "S", "S"]
-        main_chain_len = 7
-        side_chains = [0, 0, 1, 1, 1, 1, 0]
-        side_chain_residue_sequences = [None, None, "A", "A", "S", "A", None]
-        peptide = Peptide(
-            main_chain_len, main_chain_residue_seq, side_chains, side_chain_residue_sequences
-        )
+        main_chain_residue_seq = "SAASSSS"
+        side_chain_residue_sequences = ["", "", "A", "A", "S", "A", ""]
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
         (
             lower_main_upper_main,
             lower_side_upper_main,

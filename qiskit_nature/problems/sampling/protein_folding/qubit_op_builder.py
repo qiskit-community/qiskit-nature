@@ -47,6 +47,10 @@ class QubitOpBuilder:
         self._penalty_parameters = penalty_parameters
         self._contact_map = ContactMap(peptide)
         self._distance_map = DistanceMap(peptide)
+        _side_chain_hot_vector = self._peptide.get_side_chain_hot_vector()
+        self._has_side_chain_second_bead = (
+            _side_chain_hot_vector[1] if len(_side_chain_hot_vector) > 1 else False
+        )
 
     def _build_qubit_op(self) -> Union[PauliSumOp, PauliOp]:
         """
@@ -65,10 +69,10 @@ class QubitOpBuilder:
 
         if len(side_chain) != main_chain_len:
             raise InvalidSizeException("side_chain_lens size not equal main_chain_len")
-        if side_chain[0] == 1 or side_chain[-1] == 1 or side_chain[1] == 1:
+        if side_chain[0] == 1 or side_chain[-1] == 1:
             raise InvalidSideChainException(
-                "First, second and last main beads are not allowed to have a side chain. Non-None "
-                "residue provided for an invalid side chain"
+                "First and last main beads are not allowed to have a side chain. Nonempty "
+                "residue provided for an invalid side chain."
             )
 
         num_qubits = 4 * pow(main_chain_len - 1, 2)
@@ -96,8 +100,7 @@ class QubitOpBuilder:
 
         return h_total.reduce()
 
-    @staticmethod
-    def _create_turn_operators(lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
+    def _create_turn_operators(self, lower_bead: BaseBead, upper_bead: BaseBead) -> OperatorBase:
         """
         Creates a qubit operator for consecutive turns.
 
@@ -126,7 +129,8 @@ class QubitOpBuilder:
             lower_bead_indic_0 @ upper_bead_indic_0
             + lower_bead_indic_1 @ upper_bead_indic_1
             + lower_bead_indic_2 @ upper_bead_indic_2
-            + lower_bead_indic_3 @ upper_bead_indic_3
+            + lower_bead_indic_3 @ upper_bead_indic_3,
+            self._has_side_chain_second_bead,
         )
         return turns_operator
 
@@ -147,7 +151,7 @@ class QubitOpBuilder:
         for i in range(len(main_chain) - 2):
             h_back += penalty_back * self._create_turn_operators(main_chain[i], main_chain[i + 1])
 
-        h_back = _fix_qubits(h_back)
+        h_back = _fix_qubits(h_back, self._has_side_chain_second_bead)
         return h_back
 
     def _create_h_chiral(self) -> Union[PauliSumOp, PauliOp]:
@@ -241,7 +245,7 @@ class QubitOpBuilder:
                 upper_main_bead_indic_1,
                 upper_side_bead_indic_3,
             )
-            h_chiral = _fix_qubits(h_chiral)
+            h_chiral = _fix_qubits(h_chiral, self._has_side_chain_second_bead)
         return h_chiral
 
     def _build_chiral_term(
@@ -328,7 +332,7 @@ class QubitOpBuilder:
                     )
                 except (IndexError, KeyError):
                     pass
-                h_bbbb = _fix_qubits(h_bbbb)
+                h_bbbb = _fix_qubits(h_bbbb, self._has_side_chain_second_bead)
         return h_bbbb
 
     def _create_h_bbsc_and_h_scbb(self) -> Union[PauliSumOp, PauliOp]:
@@ -418,8 +422,8 @@ class QubitOpBuilder:
                     except (IndexError, KeyError, TypeError):
                         pass
 
-        h_bbsc = _fix_qubits(h_bbsc)
-        h_scbb = _fix_qubits(h_scbb)
+        h_bbsc = _fix_qubits(h_bbsc, self._has_side_chain_second_bead)
+        h_scbb = _fix_qubits(h_scbb, self._has_side_chain_second_bead)
         return h_bbsc, h_scbb
 
     def _create_h_scsc(self) -> Union[PauliSumOp, PauliOp]:
@@ -452,7 +456,7 @@ class QubitOpBuilder:
                         self._peptide, i, 0, j, 1, penalty_1, self._pair_energies
                     )
                 )
-        return _fix_qubits(h_scsc)
+        return _fix_qubits(h_scsc, self._has_side_chain_second_bead)
 
     def _create_h_short(self) -> Union[PauliSumOp, PauliOp]:
         """
@@ -484,6 +488,6 @@ class QubitOpBuilder:
                 )
                 composed = op1 @ op2
                 h_short += (coeff * composed).reduce()
-        h_short = _fix_qubits(h_short)
+        h_short = _fix_qubits(h_short, self._has_side_chain_second_bead)
 
         return h_short
