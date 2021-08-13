@@ -13,13 +13,11 @@
 Protein Folding Problems (:mod:`qiskit_nature.problems.sampling.protein_folding`)
 =================================================================================
 The protein to be folded is defined in a Peptide class. Each peptide consists of one and only one
-main chain and optionally several side chains. Side chains cannot be attached to the first,
-second or last main bead. First and last main beads with a side chain can be modeled by
-elongating the main chain with corresponding side chains. The assumption of no side chain
-attached to a second main bead allows for saving 1 qubit in the qubit encoding of a main chain
-without loss of generality due to symmetry arguments (see the paper cited below). Allowing a side
-chain at a second bead might be supported in the future at the expense of an additional qubit
-required.
+main chain and optionally several side chains. Side chains cannot be attached to the first or
+last main bead. First and last main beads with a side chain can be modeled by
+elongating the main chain with corresponding side chains. No side chain attached to a second main
+bead allows for saving 1 qubit in the qubit encoding of a main chain without loss of generality
+due to symmetry arguments (see the paper cited below).
 
 Each chain consists of beads that encode information about the turn that follows to another main
 bead (in case of main beads) or into a side bead (in case of side beads). Moreover, each bead is

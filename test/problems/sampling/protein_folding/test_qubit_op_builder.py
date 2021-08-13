@@ -41,10 +41,19 @@ class TestQubitOpBuilder(QiskitNatureTestCase):
         side_bead_3 = bead_3.side_chain[0]
         side_bead_4 = bead_4.side_chain[0]
 
-        t_23 = QubitOpBuilder._create_turn_operators(bead_2, bead_3)
-        t_34 = QubitOpBuilder._create_turn_operators(bead_3, bead_4)
-        t_2s3 = QubitOpBuilder._create_turn_operators(side_bead_2, bead_3)
-        t_3s4s = QubitOpBuilder._create_turn_operators(side_bead_3, side_bead_4)
+        lambda_back = 10
+        lambda_chiral = 10
+        lambda_1 = 10
+        penalty_params = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
+        mj_interaction = MiyazawaJerniganInteraction()
+        pair_energies = mj_interaction.calculate_energy_matrix(main_chain_residue_seq)
+
+        qubit_op_builder = QubitOpBuilder(peptide, pair_energies, penalty_params)
+
+        t_23 = qubit_op_builder._create_turn_operators(bead_2, bead_3)
+        t_34 = qubit_op_builder._create_turn_operators(bead_3, bead_4)
+        t_2s3 = qubit_op_builder._create_turn_operators(side_bead_2, bead_3)
+        t_3s4s = qubit_op_builder._create_turn_operators(side_bead_3, side_bead_4)
 
         expected_path_t23 = self.get_resource_path(
             "test_check_turns_expected_t23",
