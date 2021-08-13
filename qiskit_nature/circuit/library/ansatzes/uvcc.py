@@ -84,7 +84,7 @@ class UVCC(EvolvedOperatorAnsatz):
                     (with identical types to those explained above) and must return a
                     `List[Tuple[Tuple[int, ...], Tuple[int, ...]]]`. For more information on how to
                     write such a callable refer to the default method
-                    :meth:`generate_vibration_excitations`.
+                    :meth:`~qiskit_nature.circuit.library.ansatzes.utils.generate_vibration_excitations`.
             reps: number of repetitions of basic module
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
