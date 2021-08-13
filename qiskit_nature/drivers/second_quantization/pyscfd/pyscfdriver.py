@@ -401,13 +401,10 @@ class PySCFDriver(ElectronicStructureDriver):
         pass
 
     def run(self) -> ElectronicStructureDriverResult:
-        """Runs the PySCF driver.
+        """Returns an ElectronicStructureDriverResult produced by the run driver.
 
         Raises:
             QiskitNatureError: if an error during the PySCF setup or calculation occurred.
-
-        Returns:
-            A QMolecule object containing the raw driver results.
         """
         self._build_molecule()
         self.run_pyscf()

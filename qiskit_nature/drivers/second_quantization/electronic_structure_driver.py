@@ -44,10 +44,5 @@ class ElectronicStructureDriver(BaseDriver):
 
     @abstractmethod
     def run(self) -> GroupedElectronicProperty:
-        """
-        Runs driver to produce a QMolecule output.
-
-        Returns:
-            A QMolecule containing the molecular data.
-        """
+        """Returns a GroupedElectronicProperty output as produced by the driver."""
         pass

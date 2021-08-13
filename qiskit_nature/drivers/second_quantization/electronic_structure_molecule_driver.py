@@ -169,9 +169,6 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
         self._driver_kwargs = value
 
     def run(self) -> GroupedElectronicProperty:
-        """
-        Runs a driver to produce an output data structure.
-        """
         driver_class = ElectronicStructureDriverType.driver_class_from_type(
             self.driver_type, self.method
         )

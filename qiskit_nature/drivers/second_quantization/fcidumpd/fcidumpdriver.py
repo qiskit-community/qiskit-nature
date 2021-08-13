@@ -26,7 +26,6 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     TwoBodyElectronicIntegrals,
 )
 
-from ...qmolecule import QMolecule
 from .dumper import dump
 from .parser import parse  # pylint: disable=deprecated-module
 from ..electronic_structure_driver import ElectronicStructureDriver
@@ -45,17 +44,13 @@ class FCIDumpDriver(ElectronicStructureDriver):
             ISSN 0010-4655, https://doi.org/10.1016/0010-4655(89)90033-7.
     """
 
-    def __init__(self, fcidump_input: str, atoms: Optional[List[str]] = None) -> None:
+    def __init__(self, fcidump_input: str) -> None:
         """
         Args:
             fcidump_input: Path to the FCIDump file.
-            atoms: Allows to specify the atom list of the molecule. If it is provided, the created
-                QMolecule instance will permit frozen core Hamiltonians. This list must consist of
-                valid atom symbols.
 
         Raises:
-            QiskitNatureError: If ``fcidump_input`` is not a string or if ``atoms`` is not a list
-                of valid atomic symbols as specified in ``QMolecule``.
+            QiskitNatureError: If ``fcidump_input`` is not a string.
         """
         super().__init__()
 
@@ -63,22 +58,8 @@ class FCIDumpDriver(ElectronicStructureDriver):
             raise QiskitNatureError("The fcidump_input must be str, not '{}'".format(fcidump_input))
         self._fcidump_input = fcidump_input
 
-        if (
-            atoms
-            and not isinstance(atoms, list)
-            and not all(sym in QMolecule.symbols for sym in atoms)
-        ):
-            raise QiskitNatureError(
-                "The atoms must be a list of valid atomic symbols, not '{}'".format(atoms)
-            )
-        self.atoms = atoms
-
     def run(self) -> ElectronicStructureDriverResult:
-        """Constructs a QMolecule instance out of a FCIDump file.
-
-        Returns:
-            A QMolecule instance populated with a minimal set of required data.
-        """
+        """Returns an ElectronicStructureDriverResult instance out of a FCIDump file."""
         fcidump_data = parse(self._fcidump_input)
 
         hij = fcidump_data.get("hij", None)

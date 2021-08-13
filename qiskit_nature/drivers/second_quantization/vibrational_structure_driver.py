@@ -29,10 +29,5 @@ class VibrationalStructureDriver(BaseDriver):
 
     @abstractmethod
     def run(self) -> GroupedVibrationalProperty:
-        """
-        Runs driver to produce a WatsonHamiltonian output.
-
-        Returns:
-            A WatsonHamiltonian comprising the vibrational structure data.
-        """
+        """Returns a GroupedVibrationalProperty output as produced by the driver."""
         pass

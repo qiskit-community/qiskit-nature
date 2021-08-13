@@ -26,7 +26,5 @@ class BaseDriver(ABC):
 
     @abstractmethod
     def run(self) -> GroupedSecondQuantizedProperty:
-        """
-        Runs a driver to produce an output data structure.
-        """
+        """Returns a GroupedSecondQuantizedProperty output as produced by the driver."""
         raise NotImplementedError()

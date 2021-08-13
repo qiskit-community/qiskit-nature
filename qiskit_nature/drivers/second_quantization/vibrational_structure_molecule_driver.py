@@ -146,9 +146,6 @@ class VibrationalStructureMoleculeDriver(VibrationalStructureDriver):
         self._driver_kwargs = value
 
     def run(self) -> GroupedVibrationalProperty:
-        """
-        Runs a driver to produce an output data structure.
-        """
         driver_class = VibrationalStructureDriverType.driver_class_from_type(self.driver_type)
         driver = driver_class.from_molecule(  # type: ignore
             self.molecule, self.basis, self.driver_kwargs

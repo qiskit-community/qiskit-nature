@@ -25,8 +25,7 @@ Qiskit Nature thus allows the user to configure a chemistry problem in a way tha
 already using the underlying chemistry program or library will be familiar with. The driver is
 used to compute some intermediate data, which later will be used to form the input to an
 algorithm.  Such intermediate data, is populated into a
-:class:`~qiskit_nature.drivers.second_quantization.QMolecule` object and includes the following for
-example:
+:class:`~qiskit_nature.drivers.QMolecule` object and includes the following for example:
 
 1. One- and two-body integrals in Molecular Orbital (MO) basis
 2. Dipole integrals
@@ -84,8 +83,8 @@ to use.
    qiskit_nature.drivers.second_quantization.pyscfd
 
 The :class:`HDF5Driver` reads molecular data from a pre-existing HDF5 file, as saved from a
-:class:`~qiskit_nature.drivers.second_quantization.QMolecule`, and is not dependent on any external
-chemistry program/library and needs no special install.
+:class:`~qiskit_nature.drivers.QMolecule`, and is not dependent on any external chemistry
+program/library and needs no special install.
 
 The :class:`FCIDumpDriver` likewise reads from a pre-existing file in this case a standard
 FCIDump file and again needs no special install.
