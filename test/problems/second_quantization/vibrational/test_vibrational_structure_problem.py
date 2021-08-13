@@ -45,9 +45,11 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         vibrational_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
-            # new driver used, molecule_data* should be None
-            self.assertIsNone(vibrational_problem.molecule_data)
-            self.assertIsNone(vibrational_problem.molecule_data_transformed)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                # new driver used, molecule_data* should be None
+                self.assertIsNone(vibrational_problem.molecule_data)
+                self.assertIsNone(vibrational_problem.molecule_data_transformed)
             # converted properties should never be None
             self.assertIsNotNone(vibrational_problem.grouped_property)
             self.assertIsNotNone(vibrational_problem.grouped_property_transformed)

@@ -13,6 +13,7 @@
 """General SecondQuantizedProperty base class tests."""
 
 from typing import Any, Union
+import warnings
 
 from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
@@ -22,6 +23,8 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     SecondQuantizedProperty,
 )
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 @ddt

@@ -52,9 +52,11 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
-            # new driver used, molecule_data* should be None
-            self.assertIsNone(electronic_structure_problem.molecule_data)
-            self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                # new driver used, molecule_data* should be None
+                self.assertIsNone(electronic_structure_problem.molecule_data)
+                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
             # converted properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
@@ -91,9 +93,11 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
-            # new driver used, molecule_data* should be None
-            self.assertIsNone(electronic_structure_problem.molecule_data)
-            self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                # new driver used, molecule_data* should be None
+                self.assertIsNone(electronic_structure_problem.molecule_data)
+                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
             # converted properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
@@ -136,10 +140,12 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
-            # legacy driver used, molecule_data should not be None
-            self.assertIsNotNone(electronic_structure_problem.molecule_data)
-            # no transformer used, molecule_data_transformed should be None
-            self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                # legacy driver used, molecule_data should not be None
+                self.assertIsNotNone(electronic_structure_problem.molecule_data)
+                # no transformer used, molecule_data_transformed should be None
+                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
             # converted properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
@@ -179,16 +185,20 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
-            # legacy driver used, molecule_data should not be None
-            self.assertIsNotNone(electronic_structure_problem.molecule_data)
-            # transformer used, molecule_data_transformed should not be None
-            self.assertIsNotNone(electronic_structure_problem.molecule_data_transformed)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                # legacy driver used, molecule_data should not be None
+                self.assertIsNotNone(electronic_structure_problem.molecule_data)
+                # transformer used, molecule_data_transformed should not be None
+                self.assertIsNotNone(electronic_structure_problem.molecule_data_transformed)
             # converted properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
         with self.subTest("Check that the deprecated molecule_data property is not None"):
-            self.assertIsNotNone(electronic_structure_problem.molecule_data)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                self.assertIsNotNone(electronic_structure_problem.molecule_data)
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
