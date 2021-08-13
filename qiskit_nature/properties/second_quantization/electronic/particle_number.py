@@ -33,7 +33,8 @@ class ParticleNumber(ElectronicProperty):
     Note that this Property serves a two purposes:
         1. it stores the expected number of electrons (`self.num_particles`)
         2. it is used to evaluate the measured number of electrons via auxiliary operators.
-           If this measured number does not match the expected number a warning will be logged.
+           If this measured number does not match the expected number it will be logged on the INFO
+           level.
     """
 
     ABSOLUTE_TOLERANCE = 1e-05
@@ -191,7 +192,7 @@ class ParticleNumber(ElectronicProperty):
                     rtol=self._relative_tolerance,
                     atol=self._absolute_tolerance,
                 ):
-                    LOGGER.warning(
+                    LOGGER.info(
                         "The measured number of particles %s does NOT match the expected number of "
                         "particles %s!",
                         n_particles,

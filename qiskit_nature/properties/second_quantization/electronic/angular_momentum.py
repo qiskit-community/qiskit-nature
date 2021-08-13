@@ -51,7 +51,7 @@ class AngularMomentum(ElectronicProperty):
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
             spin: the expected spin of the system. This is only used during result interpretation.
-                If the measured value does not match this one, a warning will be raised.
+                If the measured value does not match this one, this will be logged on the INFO level.
             absolute_tolerance: the absolute tolerance used for checking whether the measured
                 particle number matches the expected one.
             relative_tolerance: the relative tolerance used for checking whether the measured
@@ -144,7 +144,7 @@ class AngularMomentum(ElectronicProperty):
                         rtol=self._relative_tolerance,
                         atol=self._absolute_tolerance,
                     ):
-                        LOGGER.warning(
+                        LOGGER.info(
                             "The measured spin %s does NOT match the expected spin %s!",
                             spin,
                             expected,
