@@ -48,7 +48,9 @@ class HDF5Driver(ElectronicStructureDriver):
         self._work_path = new_work_path
 
     def run(self) -> ElectronicStructureDriverResult:
-        """Returns an ElectronicStructureDriverResult re-constructed from the HDF5 file.
+        """
+        Returns:
+            ElectronicStructureDriverResult re-constructed from the HDF5 file.
 
         Raises:
             LookupError: file not found.

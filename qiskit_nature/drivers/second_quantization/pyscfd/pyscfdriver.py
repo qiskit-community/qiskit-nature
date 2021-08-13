@@ -401,7 +401,9 @@ class PySCFDriver(ElectronicStructureDriver):
         pass
 
     def run(self) -> ElectronicStructureDriverResult:
-        """Returns an ElectronicStructureDriverResult produced by the run driver.
+        """
+        Returns:
+            ElectronicStructureDriverResult produced by the run driver.
 
         Raises:
             QiskitNatureError: if an error during the PySCF setup or calculation occurred.

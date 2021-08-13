@@ -84,7 +84,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
             self.get_resource_path(
                 "test_driver_fcidump_lih.fcidump", "drivers/second_quantization/fcidumpd"
             ),
-            atoms=["Li", "H"],
+            # atoms=["Li", "H"],
         )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy(result, "lih")
@@ -96,7 +96,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
             self.get_resource_path(
                 "test_driver_fcidump_oh.fcidump", "drivers/second_quantization/fcidumpd"
             ),
-            atoms=["O", "H"],
+            # atoms=["O", "H"],
         )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy(result, "oh")
@@ -121,7 +121,7 @@ class TestFCIDumpDriverDriverResult(QiskitNatureTestCase):
             self.get_resource_path(
                 "test_driver_fcidump_h2.fcidump", "drivers/second_quantization/fcidumpd"
             ),
-            atoms=["H", "H"],
+            # atoms=["H", "H"],
         ).run()
         with self.assertLogs("qiskit_nature", level="DEBUG") as _:
             driver_result.log()
