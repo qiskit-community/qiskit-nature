@@ -9,39 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""
-QuantumCircuit Ansatzes (:mod:`qiskit_nature.circuit.library.ansatzes`)
-=======================================================================
-
-.. currentmodule:: qiskit_nature.circuit.library.ansatzes
-
-
-Electronic Structure Ansatzes
-+++++++++++++++++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   UCC
-   UCCSD
-   PUCCD
-   SUCCD
-
-
-Vibrational Structure Ansatzes
-++++++++++++++++++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   CHC
-   UVCC
-   UVCCSD
-
-"""
+"""Qiskit Nature Circuit Library Ansatzes."""
 
 from .chc import CHC
 from .evolved_operator_ansatz import EvolvedOperatorAnsatz

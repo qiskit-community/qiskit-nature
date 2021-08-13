@@ -43,6 +43,15 @@ Ansatzes
    UVCC
    UVCCSD
 
+Ansatz Utilities
+================
+
+Utilities such as excitation generators for use with the ansatzes.
+
+.. autosummary::
+   :toctree:
+
+   ansatzes.utils
 """
 
 from .ansatzes import (
