@@ -377,9 +377,10 @@ class FermionicOp(SecondQuantizedOp):
 
     def to_list(self, display_format: Optional[str] = None) -> List[Tuple[str, complex]]:
         """Returns the operators internal contents in list-format.
+
         Args:
             display_format: If sparse, the label of output is represented by sparse.
-                            if dense, the label of output is represented by dense. (default: None)
+                if dense, the label of output is represented by dense. (default: None)
 
         Returns:
             A list of tuples consisting of the dense label and corresponding coefficient.
