@@ -379,8 +379,8 @@ class FermionicOp(SecondQuantizedOp):
         """Returns the operators internal contents in list-format.
 
         Args:
-            display_format: If sparse, the label of output is represented by sparse.
-                if dense, the label of output is represented by dense. (default: None)
+            display_format: If sparse, the label is represented sparsely during output.
+                            if dense, the label is represented densely during output. (default: None)
 
         Returns:
             A list of tuples consisting of the dense label and corresponding coefficient.
