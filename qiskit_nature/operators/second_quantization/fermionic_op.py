@@ -52,6 +52,30 @@ _MAPPING = {
 }
 
 
+@dataclass(frozen=True)
+class _FermionLabelPrimitive:
+    """Represent Label for Fermion +_{n} or -_{n}"""
+
+    is_creation: bool  # if True creation operator, otherwise annihilation operator
+    index: int
+
+    def __str__(self):
+        if self.is_creation:
+            return f"+_{self.index}"
+        return f"-_{self.index}"
+
+    def adjoint(self) -> "_FermionLabelPrimitive":
+        """Calculate adjoint
+
+        Returns:
+            The adjoint label
+        """
+        return _FermionLabelPrimitive(not self.is_creation, self.index)
+
+
+_FermionLabel = List[_FermionLabelPrimitive]
+
+
 class FermionicOp(SecondQuantizedOp):
     r"""
     N-mode Fermionic operator.
@@ -180,7 +204,7 @@ class FermionicOp(SecondQuantizedOp):
             Tuple[str, complex],
             List[Tuple[str, complex]],
             List[Tuple[str, float]],
-            List[Tuple[List["_FermionLabel"], complex]],
+            List[Tuple[_FermionLabel, complex]],
         ],
         register_length: Optional[int] = None,
         sparse_label: bool = False,
@@ -196,7 +220,7 @@ class FermionicOp(SecondQuantizedOp):
             ValueError: given data is invalid value.
             TypeError: given data has invalid type.
         """
-        self._data: List[Tuple[List[_FermionLabel], complex]]
+        self._data: List[Tuple[_FermionLabel, complex]]
 
         self.sparse_label = sparse_label
         if isinstance(data, list) and isinstance(data[0][0], list) and register_length is not None:
@@ -250,15 +274,15 @@ class FermionicOp(SecondQuantizedOp):
         for c, index in label:
             max_index = max(max_index, index)
             if c == "+":
-                new_label.append(_FermionLabel(True, index))
+                new_label.append(_FermionLabelPrimitive(True, index))
             elif c == "-":
-                new_label.append(_FermionLabel(False, index))
+                new_label.append(_FermionLabelPrimitive(False, index))
             elif c == "N":
-                new_label.append(_FermionLabel(True, index))
-                new_label.append(_FermionLabel(False, index))
+                new_label.append(_FermionLabelPrimitive(True, index))
+                new_label.append(_FermionLabelPrimitive(False, index))
             elif c == "E":
-                new_label.append(_FermionLabel(False, index))
-                new_label.append(_FermionLabel(True, index))
+                new_label.append(_FermionLabelPrimitive(False, index))
+                new_label.append(_FermionLabelPrimitive(True, index))
             elif c == "I":
                 continue
             else:
@@ -502,24 +526,3 @@ class FermionicOp(SecondQuantizedOp):
             The unity-operator of the given length.
         """
         return FermionicOp(("I_0", 1.0), register_length=register_length)
-
-
-@dataclass(frozen=True)
-class _FermionLabel:
-    """Represent Label for Fermion +_{n} or -_{n}"""
-
-    is_creation: bool  # if True creation operator, otherwise annihilation operator
-    index: int
-
-    def __str__(self):
-        if self.is_creation:
-            return f"+_{self.index}"
-        return f"-_{self.index}"
-
-    def adjoint(self) -> "_FermionLabel":
-        """Calculate adjoint
-
-        Returns:
-            The adjoint label
-        """
-        return _FermionLabel(not self.is_creation, self.index)
