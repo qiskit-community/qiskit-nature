@@ -40,7 +40,7 @@ class Peptide:
                                         beads. Empty string if a side bead does not exist. Valid
                                         residue types are [A, C, D, E, F, G, H, I, K, L, M, N, P,
                                         Q, R, S, T, V, W, Y]. Side chains cannot be attached to
-                                        first, second or last main bead. First and last main
+                                        first or last main bead. First and last main
                                         beads with a side chain can be modeled by elongating the
                                         main chain with corresponding side chains.
         """

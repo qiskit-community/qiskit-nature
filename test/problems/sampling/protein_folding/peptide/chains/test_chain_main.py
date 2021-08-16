@@ -42,16 +42,6 @@ class TestMainChain(QiskitNatureTestCase):
                 side_chain_residue_sequences,
             )
 
-    def test_main_chain_illegal_side_chain_second(self):
-        """Tests that an exception is thrown in case of illegal side chain."""
-        main_chain_residue_seq = "SAAA"
-        side_chain_residue_sequences = ["", "A", "S", ""]
-        with self.assertRaises(InvalidSideChainException):
-            _ = MainChain(
-                main_chain_residue_seq,
-                side_chain_residue_sequences,
-            )
-
     def test_main_chain_illegal_side_chain_last(self):
         """Tests that an exception is thrown in case of illegal side chain."""
         main_chain_residue_seq = "SAAA"

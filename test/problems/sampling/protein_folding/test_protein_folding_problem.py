@@ -50,3 +50,52 @@ class TestProteinFoldingProblem(QiskitNatureTestCase):
         )
         expected = read_expected_file(expected_path)
         self.assertEqual(qubit_op, expected)
+
+    def test_protein_folding_problem_2(self):
+        """Tests if a protein folding problem is created and returns a correct qubit operator."""
+        lambda_back = 10
+        lambda_chiral = 10
+        lambda_1 = 10
+        penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
+
+        main_chain_residue_seq = "SAAS"
+        side_chain_residue_sequences = ["", "", "A", ""]
+
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
+
+        mj_interaction = MiyazawaJerniganInteraction()
+
+        protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
+        qubit_op = protein_folding_problem._qubit_op_full()
+
+        expected_path = self.get_resource_path(
+            "test_protein_folding_problem_2",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        self.assertEqual(qubit_op, expected)
+
+    def test_protein_folding_problem_2_second_bead_side_chain(self):
+        """Tests if a protein folding problem is created and returns a correct qubit operator if
+        a second main bead has a side chain."""
+        lambda_back = 10
+        lambda_chiral = 10
+        lambda_1 = 10
+        penalty_terms = PenaltyParameters(lambda_chiral, lambda_back, lambda_1)
+
+        main_chain_residue_seq = "SAAS"
+        side_chain_residue_sequences = ["", "A", "A", ""]
+
+        peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
+
+        mj_interaction = MiyazawaJerniganInteraction()
+
+        protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
+        qubit_op = protein_folding_problem._qubit_op_full()
+
+        expected_path = self.get_resource_path(
+            "test_protein_folding_problem_2_second_bead_side_chain",
+            PATH,
+        )
+        expected = read_expected_file(expected_path)
+        self.assertEqual(qubit_op, expected)
