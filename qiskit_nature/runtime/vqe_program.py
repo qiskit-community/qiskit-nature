@@ -107,7 +107,8 @@ class VQEProgram(MinimumEigensolver):
         """Return the program ID."""
         return self._program_id
 
-    def supports_aux_operators(self) -> bool:
+    @classmethod
+    def supports_aux_operators(cls) -> bool:
         return True
 
     @property
