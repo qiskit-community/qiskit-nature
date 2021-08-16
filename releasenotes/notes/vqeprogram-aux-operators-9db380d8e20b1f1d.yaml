@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The :class:`~qiskit_nature.runtime.VQEProgram` does support the evaluation of auxiliary 
+    operators at the final state, but the 
+    :meth:`qiskit_nature.runtime.VQEProgram.supports_aux_operators` method previously returned 
+    `False` instead of `True`.
