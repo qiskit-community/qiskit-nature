@@ -165,25 +165,25 @@ class FermionicOp(SecondQuantizedOp):
     .. jupyter-execute::
 
       from qiskit_nature.operators.second_quantization import FermionicOp
-      0.5 * FermionicOp("I+") + FermionicOp("+I")
+      0.5 * FermionicOp("I+", display_format="dense") + FermionicOp("+I", display_format="dense")
 
     Sum
 
     .. jupyter-execute::
 
-      0.25 * sum(FermionicOp(label) for label in ['NIII', 'INII', 'IINI', 'IIIN'])
+      0.25 * sum(FermionicOp(label, display_format="dense") for label in ['NII', 'INI', 'IIN'])
 
     Operator multiplication
 
     .. jupyter-execute::
 
-      print(FermionicOp("+-") @ FermionicOp("E+"))
+      print(FermionicOp("+-", display_format="dense") @ FermionicOp("E+", display_format="dense"))
 
     Dagger
 
     .. jupyter-execute::
 
-      ~FermionicOp("+")
+      ~FermionicOp("+", display_format="dense")
 
     In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
     addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
