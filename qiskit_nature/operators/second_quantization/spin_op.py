@@ -406,7 +406,8 @@ class SpinOp(SecondQuantizedOp):
         new_coeff = coeff_list[non_zero]
         return SpinOp((new_array, new_coeff), spin=self.spin)
 
-    def to_list(self) -> List[Tuple[str, complex]]:
+    # pylint: disable=arguments-differ
+    def to_list(self) -> List[Tuple[str, complex]]:  # type: ignore
         """Getter for the list which represents `self`
 
         Returns:

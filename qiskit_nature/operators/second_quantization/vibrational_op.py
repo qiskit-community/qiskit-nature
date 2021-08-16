@@ -11,13 +11,12 @@
 # that they have been altered from the originals.
 """A Vibration operator."""
 
-from functools import reduce
-from typing import List, Tuple, Union, Optional
-
 import itertools
 import logging
 import operator
 import re
+from functools import reduce
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -234,7 +233,8 @@ class VibrationalOp(SecondQuantizedOp):
             self._num_modals,
         )
 
-    def to_list(self) -> List[Tuple[str, complex]]:
+    # pylint: disable=arguments-differ
+    def to_list(self) -> List[Tuple[str, complex]]:  # type: ignore
         """Returns the operators internal contents in list-format.
 
         Returns:
