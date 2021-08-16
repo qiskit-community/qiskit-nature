@@ -39,6 +39,23 @@ class TestQubitFixing(QiskitNatureTestCase):
         expected = (I ^ I ^ I ^ I ^ I ^ I ^ I) - (Z ^ I ^ I ^ I ^ I ^ I ^ I)
         self.assertEqual(fixed, expected)
 
+    def test_fix_qubits_large_fifth_qubit_forbidden(self):
+        """Tests if qubits are fixed correctly for an operator on a large number of qubits."""
+        operator = (Z ^ I ^ I ^ I ^ I ^ Z ^ Z) + (I ^ Z ^ Z ^ Z ^ I ^ I ^ I)
+        fixed = _fix_qubits(operator)
+
+        expected = -(I ^ I ^ Z ^ I ^ I ^ I ^ I) - (Z ^ I ^ I ^ I ^ I ^ I ^ I)
+        self.assertEqual(fixed, expected)
+
+    def test_fix_qubits_large_fifth_qubit_allowed(self):
+        """Tests if qubits are fixed correctly for an operator on a large number of qubits."""
+        operator = (Z ^ I ^ I ^ I ^ I ^ Z ^ Z) + (I ^ Z ^ Z ^ Z ^ I ^ I ^ I)
+        has_side_chain_second_bead = True
+        fixed = _fix_qubits(operator, has_side_chain_second_bead)
+
+        expected = (I ^ Z ^ Z ^ I ^ I ^ I ^ I) - (Z ^ I ^ I ^ I ^ I ^ I ^ I)
+        self.assertEqual(fixed, expected)
+
     def test_fix_qubits_pauli_op(self):
         """Tests if qubits are fixed correctly for an operator which is a PauliOp."""
         operator = Z ^ I ^ I ^ I ^ I ^ Z ^ Z

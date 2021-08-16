@@ -18,7 +18,8 @@ from qiskit.quantum_info import PauliTable, SparsePauliOp, Pauli
 
 
 def _fix_qubits(
-    operator: Union[int, PauliSumOp, PauliOp, OperatorBase]
+    operator: Union[int, PauliSumOp, PauliOp, OperatorBase],
+    has_side_chain_second_bead: bool = False,
 ) -> Union[int, PauliSumOp, PauliOp, OperatorBase]:
     """
     Assigns predefined values for turns qubits on positions 0, 1, 2, 3, 5 in the main chain
@@ -45,14 +46,14 @@ def _fix_qubits(
     if isinstance(operator, PauliOp):
         table_z = np.copy(operator.primitive.z)
         table_x = np.copy(operator.primitive.x)
-        _preset_binary_vals(table_z)
+        _preset_binary_vals(table_z, has_side_chain_second_bead)
         return PauliOp(Pauli((table_z, table_x)))
 
     for hamiltonian in operator:
         table_z = np.copy(hamiltonian.primitive.table.Z[0])
         table_x = np.copy(hamiltonian.primitive.table.X[0])
-        coeffs = _calc_updated_coeffs(hamiltonian, table_z)
-        _preset_binary_vals(table_z)
+        coeffs = _calc_updated_coeffs(hamiltonian, table_z, has_side_chain_second_bead)
+        _preset_binary_vals(table_z, has_side_chain_second_bead)
         new_table = np.concatenate((table_x, table_z), axis=0)
         new_tables.append(new_table)
         new_coeffs.append(coeffs)
@@ -62,17 +63,22 @@ def _fix_qubits(
     return operator_updated
 
 
-def _calc_updated_coeffs(hamiltonian: Union[PauliSumOp, PauliOp], table_z) -> np.ndarray:
+def _calc_updated_coeffs(
+    hamiltonian: Union[PauliSumOp, PauliOp], table_z, has_side_chain_second_bead: bool
+) -> np.ndarray:
     coeffs = np.copy(hamiltonian.primitive.coeffs[0])
     if len(table_z) > 1 and table_z[1] == np.bool_(True):
         coeffs = -1 * coeffs
-    if len(table_z) > 6 and table_z[5] == np.bool_(True):
+    if not has_side_chain_second_bead and len(table_z) > 6 and table_z[5] == np.bool_(True):
         coeffs = -1 * coeffs
     return coeffs
 
 
-def _preset_binary_vals(table_z):
-    for index in (0, 1, 2, 3, 5):
+def _preset_binary_vals(table_z, has_side_chain_second_bead: bool):
+    main_beads_indices = [0, 1, 2, 3]
+    if not has_side_chain_second_bead:
+        main_beads_indices.append(5)
+    for index in main_beads_indices:
         _preset_single_binary_val(table_z, index)
 
 

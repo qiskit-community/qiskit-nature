@@ -10,7 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Excitation generator utilities.
+"""
+Excitation generator utilities (:mod:`qiskit_nature.circuit.library.ansatzes.utils`)
+====================================================================================
+Utility methods to build fermionic and vibrational excitations.
 
 .. currentmodule:: qiskit_nature.circuit.library.ansatzes.utils
 
