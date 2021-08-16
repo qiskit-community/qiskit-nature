@@ -107,6 +107,9 @@ class VQEProgram(MinimumEigensolver):
         """Return the program ID."""
         return self._program_id
 
+    def supports_aux_operators(self) -> bool:
+        return True
+
     @property
     def ansatz(self) -> QuantumCircuit:
         """Return the ansatz."""
