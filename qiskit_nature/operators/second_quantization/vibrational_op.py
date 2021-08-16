@@ -233,8 +233,7 @@ class VibrationalOp(SecondQuantizedOp):
             self._num_modals,
         )
 
-    # pylint: disable=arguments-differ
-    def to_list(self) -> List[Tuple[str, complex]]:  # type: ignore
+    def to_list(self) -> List[Tuple[str, complex]]:
         """Returns the operators internal contents in list-format.
 
         Returns:

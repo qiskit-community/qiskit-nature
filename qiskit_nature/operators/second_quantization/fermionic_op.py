@@ -13,6 +13,7 @@
 """The Fermionic-particle Operator."""
 
 import re
+import warnings
 from dataclasses import dataclass
 from itertools import product
 from typing import List, Optional, Tuple, Union
@@ -196,6 +197,8 @@ class FermionicOp(SecondQuantizedOp):
             fermion += FermionicOp(somedata)
 
     """
+    # Warn only once
+    _display_format_warn = True
 
     def __init__(
         self,
@@ -207,7 +210,7 @@ class FermionicOp(SecondQuantizedOp):
             List[Tuple[_FermionLabel, complex]],
         ],
         register_length: Optional[int] = None,
-        display_format: str = "dense",
+        display_format: Optional[str] = None,
     ):
         """
         Args:
@@ -221,8 +224,18 @@ class FermionicOp(SecondQuantizedOp):
             ValueError: given data is invalid value.
             TypeError: given data has invalid type.
         """
-        self.display_format: str
-        self.set_display_format(display_format)
+        if display_format is None:
+            display_format = "dense"
+            if FermionicOp._display_format_warn:
+                FermionicOp._display_format_warn = False
+                warnings.warn(
+                    'The display_format="dense" will be changed to "sparse" as default.'
+                    "as of version 0.2.0 no sooner than 3 months after the release. "
+                    "Instead use the display_format=dense explicitly.",
+                    stacklevel=2,
+                )
+
+        self.display_format = display_format
 
         self._data: List[Tuple[_FermionLabel, complex]]
 
@@ -375,7 +388,11 @@ class FermionicOp(SecondQuantizedOp):
             self.display_format or other.display_format,
         )
 
-    def to_list(self, display_format: Optional[str] = None) -> List[Tuple[str, complex]]:
+    # pylint: disable=arguments-differ
+    def to_list(
+        self,
+        display_format: Optional[str] = None,
+    ) -> List[Tuple[str, complex]]:  # type: ignore
         """Returns the operators internal contents in list-format.
 
         Args:
@@ -431,8 +448,14 @@ class FermionicOp(SecondQuantizedOp):
             return FermionicOp(("", 0), self.register_length)
         return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
 
-    def set_display_format(self, display_format: str):
-        """Set the display mode of labels.
+    @property
+    def display_format(self):
+        """Return the display format"""
+        return self._display_format
+
+    @display_format.setter
+    def display_format(self, display_format: str):
+        """Set the display format of labels.
 
         Args:
             display_format: display format for labels. "sparse" or "dense" is available.
@@ -446,7 +469,7 @@ class FermionicOp(SecondQuantizedOp):
                 f"Invalid `display_format` {display_format} is given."
                 "`display_format` must be 'dense' or 'sparse'."
             )
-        self.display_format = display_format
+        self._display_format = display_format
 
     def _to_dense_label_data(self) -> List[Tuple[str, complex]]:
         dense_label_data = []

@@ -56,7 +56,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_list(self, display_format: Optional[str] = None) -> List[Tuple[str, complex]]:
+    def to_list(self) -> List[Tuple[str, complex]]:
         """Returns the operators internal contents in list-format."""
         raise NotImplementedError
 
