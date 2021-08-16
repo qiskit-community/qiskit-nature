@@ -106,6 +106,5 @@ class TestUCCSD(QiskitNatureTestCase):
             num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
         )
-        print(ansatz.draw())
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
