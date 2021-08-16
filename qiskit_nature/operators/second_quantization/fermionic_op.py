@@ -171,7 +171,7 @@ class FermionicOp(SecondQuantizedOp):
 
     .. jupyter-execute::
 
-      0.25 * sum(FermionicOp(label, display_format="dense") for label in ['NII', 'INI', 'IIN'])
+      0.25 * sum(FermionicOp(label, display_format="sparse") for label in ['+_0', '-_1', 'N_2'])
 
     Operator multiplication
 
