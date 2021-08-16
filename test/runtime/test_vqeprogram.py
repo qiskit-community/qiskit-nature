@@ -40,6 +40,7 @@ class TestVQEProgram(QiskitNatureTestCase):
         self.provider = FakeRuntimeProvider()
 
     def get_standard_program(self):
+        """Get a standard VQEProgram and operator to find the ground state of."""
         circuit = RealAmplitudes(3)
         operator = Z ^ I ^ Z
         initial_point = np.random.random(circuit.num_parameters)
