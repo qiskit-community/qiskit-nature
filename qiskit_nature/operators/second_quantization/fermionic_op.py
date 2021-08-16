@@ -428,7 +428,9 @@ class FermionicOp(SecondQuantizedOp):
             adjoint_label = [fer_label.adjoint() for fer_label in reversed(label)]
             data.append((adjoint_label, conjugated_coeff))
 
-        return FermionicOp(data, register_length=self.register_length)
+        return FermionicOp(
+            data, register_length=self.register_length, display_format=self.display_format
+        )
 
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "FermionicOp":
         if atol is None:

@@ -7,9 +7,6 @@ upgrade:
     In addition, the dense and sparse labels are now automatically detected by the existence of
     underscores.
 
-    The property `sparse_label` of :class:`~qiskit_nature.operators.second_quantization.FermionicOp`
+    The property `display_format` of :class:`~qiskit_nature.operators.second_quantization.FermionicOp`
     is added. There are two modes `dense` and `sparse`.
-    This mode can be switched by class method
-    :meth:`~qiskit_nature.operators.second_quantization.FermionicOp.set_label_display_mode()`.
-    If the label mode is `sparse`, `FermionicOp.sparse_label` becomes True.
-    Otherwise it becomes False.
+    This display format can be switched by the property `FermionicOp.display_format`.

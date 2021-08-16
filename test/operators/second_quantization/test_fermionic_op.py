@@ -295,9 +295,9 @@ class TestFermionicOp(QiskitNatureTestCase):
         """test label_display_mode"""
         fer_op = FermionicOp(pre_processing(label))
 
-        fer_op.set_display_format("sparse")
+        fer_op.display_format = "sparse"
         self.assertListEqual(fer_op.to_list(), str2list(label))
-        fer_op.set_display_format("dense")
+        fer_op.display_format = "dense"
         self.assertNotEqual(fer_op.to_list(), str2list(label))
 
     def test_normal_order(self):
