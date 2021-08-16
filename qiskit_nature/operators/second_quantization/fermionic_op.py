@@ -214,8 +214,8 @@ class FermionicOp(SecondQuantizedOp):
             data: Input data for FermionicOp. The allowed data is label str,
                   tuple (label, coeff), or list [(label, coeff)].
             register_length: positive integer that represents the length of registers.
-            display_format: If sparse, the label of output is represented by sparse.
-                            if dense, the label of output is represented by dense. (default: dense)
+            display_format: If sparse, the label is represented sparsely during output.
+                            if dense, the label is represented densely during output. (default: dense)
 
         Raises:
             ValueError: given data is invalid value.
