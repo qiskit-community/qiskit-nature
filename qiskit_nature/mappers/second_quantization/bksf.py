@@ -217,7 +217,7 @@ def _coulomb_exchange(  # pylint: disable=invalid-name
     b_p = _edge_operator_bi(edge_list, p)
     b_q = _edge_operator_bi(edge_list, q)
     id_op = _pauli_id(edge_list.shape[1])
-    qubit_op = (id_op - b_p) * (id_op - b_q)
+    qubit_op = (id_op - b_p).dot((id_op - b_q))
     if p == s:  # two commutations to order as two number operators.
         final_coeff = 0.25
     else:  # one commutation
@@ -276,15 +276,18 @@ def _double_excitation(  # pylint: disable=invalid-name
     a_rs = -a_rs if s < r else a_rs
 
     id_op = _pauli_id(edge_list.shape[1])
-    qubit_op = (a_pq * a_rs) * (
-        -id_op
-        - b_p * b_q
-        + b_p * b_r
-        + b_p * b_s
-        + b_q * b_r
-        + b_q * b_s
-        - b_r * b_s
-        + b_p * b_q * b_r * b_s  ## Agrees with SW2018 eq 37 and OpenFermion. Aqua had `-`.
+    qubit_op = (a_pq.dot(a_rs)).dot(
+        (
+            -id_op
+            - b_p.dot(b_q)
+            + b_p.dot(b_r)
+            + b_p.dot(b_s)
+            + b_q.dot(b_r)
+            + b_q.dot(b_s)
+            - b_r.dot(b_s)
+            # Agrees with SW2018 eq 37 and OpenFermion. Aqua had `-`.
+            + b_p.dot(b_q.dot(b_r.dot(b_s)))
+        )
     )
     final_coeff = 0.125
     return (final_coeff * h2_pqrs) * qubit_op
