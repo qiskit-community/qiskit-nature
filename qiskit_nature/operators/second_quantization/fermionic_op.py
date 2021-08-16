@@ -241,15 +241,20 @@ class FermionicOp(SecondQuantizedOp):
 
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
+
         if len(self) == 1:
             label, coeff = self.to_list()[0]
             return f"{coeff} * ({label})"
+        pre = (
+            "Fermionic Operator\n"
+            f"register length={self.register_length}, number terms={len(self)}\n"
+        )
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.to_list()]
         )
         if self._truncate and len(ret) > self._truncate:
             ret = ret[0 : self._truncate - 4] + " ..."
-        return ret
+        return pre + ret
 
     def __len__(self):
         return len(self._data)
