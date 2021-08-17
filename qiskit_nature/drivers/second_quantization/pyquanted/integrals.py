@@ -14,6 +14,7 @@
 
 import re
 import logging
+import warnings
 
 import numpy as np
 
@@ -116,7 +117,9 @@ def _calculate_integrals(molecule, basis="sto3g", method="rhf", tol=1e-8, maxite
         mohijkl_ba = np.einsum("aI,bJ,cK,dL,abcd->IJKL", orbs_b, orbs_b, orbs, orbs, hijkl[...])
 
     # Create driver level molecule object and populate
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
     _q_ = QMolecule()
+    warnings.filterwarnings("default", category=DeprecationWarning)
     _q_.origin_driver_version = "?"  # No version info seems available to access
     # Energies and orbits
     _q_.hf_energy = ehf[0]

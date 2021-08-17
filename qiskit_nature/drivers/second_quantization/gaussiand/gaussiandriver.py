@@ -17,6 +17,7 @@ import logging
 import os
 import sys
 import tempfile
+import warnings
 from typing import Union, List, Optional, Any, Dict
 
 import numpy as np
@@ -278,7 +279,9 @@ class GaussianDriver(ElectronicStructureDriver):
         logger.debug("MatrixElement file:\n%s", mel)
 
         # Create driver level molecule object and populate
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         _q_ = QMolecule()
+        warnings.filterwarnings("default", category=DeprecationWarning)
         _q_.origin_driver_version = mel.gversion
         # Energies and orbits
         _q_.hf_energy = mel.scalar("ETOTAL")

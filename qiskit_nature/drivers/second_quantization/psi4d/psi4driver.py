@@ -17,6 +17,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import warnings
 from pathlib import Path
 from shutil import which
 from typing import Union, List, Optional, Any, Dict
@@ -154,7 +155,9 @@ class PSI4Driver(ElectronicStructureDriver):
         template_file = psi4d_directory.joinpath("_template.txt")
         qiskit_nature_directory = psi4d_directory.parent.parent
 
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         molecule = QMolecule()
+        warnings.filterwarnings("default", category=DeprecationWarning)
 
         input_text = [cfg]
         input_text += ["import sys"]
@@ -205,7 +208,9 @@ class PSI4Driver(ElectronicStructureDriver):
             except Exception:  # pylint: disable=broad-except
                 pass
 
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         _q_molecule = QMolecule(molecule.filename)
+        warnings.filterwarnings("default", category=DeprecationWarning)
         _q_molecule.load()
         # remove internal file
         _q_molecule.remove_file()
