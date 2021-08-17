@@ -13,15 +13,18 @@
 """ Test Gaussian Forces Driver """
 
 import unittest
+import warnings
+from typing import cast
 
 from test import QiskitNatureTestCase, requires_extra_library
 
-from qiskit_nature.drivers import Molecule
+from qiskit_nature.drivers import Molecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import (
     GaussianForcesDriver,
     VibrationalStructureMoleculeDriver,
     VibrationalStructureDriverType,
 )
+from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
 
 
 class TestDriverGaussianForces(QiskitNatureTestCase):
@@ -132,11 +135,32 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         result = driver.run()
         self._check_driver_result(TestDriverGaussianForces._LOG_FILE_EXPECTED, result)
 
-    def _check_driver_result(self, expected, watson):
-        for i, entry in enumerate(watson.data):
-            msg = "mode[{}]={} does not match expected {}".format(i, entry, expected[i])
-            self.assertAlmostEqual(entry[0], expected[i][0], msg=msg)
-            self.assertListEqual(entry[1:], expected[i][1:], msg=msg)
+    def _check_driver_result(self, expected_watson_data, prop):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            expected_watson = WatsonHamiltonian(expected_watson_data, 4)
+        expected = VibrationalEnergy.from_legacy_driver_result(expected_watson)
+        true_vib_energy = cast(VibrationalEnergy, prop.get_property(VibrationalEnergy))
+
+        with self.subTest("one-body terms"):
+            expected_one_body = expected.get_vibrational_integral(1)
+            true_one_body = true_vib_energy.get_vibrational_integral(1)
+            self._check_integrals_are_close(expected_one_body, true_one_body)
+
+        with self.subTest("two-body terms"):
+            expected_two_body = expected.get_vibrational_integral(2)
+            true_two_body = true_vib_energy.get_vibrational_integral(2)
+            self._check_integrals_are_close(expected_two_body, true_two_body)
+
+        with self.subTest("three-body terms"):
+            expected_three_body = expected.get_vibrational_integral(3)
+            true_three_body = true_vib_energy.get_vibrational_integral(3)
+            self._check_integrals_are_close(expected_three_body, true_three_body)
+
+    def _check_integrals_are_close(self, expected, truth):
+        for exp, true in zip(expected.integrals, truth.integrals):
+            self.assertAlmostEqual(true[0], exp[0])
+            self.assertEqual(true[1], exp[1])
 
 
 if __name__ == "__main__":
