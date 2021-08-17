@@ -98,6 +98,26 @@ class FermionicOp(SecondQuantizedOp):
         `FermionicOp(list)`
           The list must be a list of valid tuples as explained above.
 
+    **Output of str and repr**
+
+    By default, the output of str and repr is truncated.
+    You can change the number of characters with `set_truncation`.
+    If you pass 0 to `set_truncation`, truncation is disabled and the full output will be printed.
+
+    Example:
+
+    .. jupyter-execute::
+
+      from qiskit_nature.operators.second_quantization import FermionicOp
+
+      print("truncated str output")
+      print(sum(FermionicOp("I", sparse_label=True) for _ in range(25)))
+
+      FermionicOp.set_truncation(0)
+      print("not truncated str output")
+      print(sum(FermionicOp("I", sparse_label=True) for _ in range(25)))
+
+
     **Algebra**
 
     This class supports the following basic arithmetic operations: addition, subtraction, scalar
@@ -108,7 +128,6 @@ class FermionicOp(SecondQuantizedOp):
 
     .. jupyter-execute::
 
-      from qiskit_nature.operators.second_quantization import FermionicOp
       0.5 * FermionicOp("I+") + FermionicOp("+I")
 
     Sum
@@ -141,6 +160,7 @@ class FermionicOp(SecondQuantizedOp):
             fermion += FermionicOp(somedata)
 
     """
+    _truncate = 200
 
     def __init__(
         self,
@@ -217,7 +237,8 @@ class FermionicOp(SecondQuantizedOp):
             data_str = f"'{data[0]}'"
         data_str = f"{data}"
 
-        # TODO truncate
+        if FermionicOp._truncate and len(data_str) > FermionicOp._truncate:
+            data_str = data_str[0 : FermionicOp._truncate - 5] + "..." + data_str[-2:]
         return (
             "FermionicOp("
             f"{data_str}, "
@@ -226,12 +247,33 @@ class FermionicOp(SecondQuantizedOp):
             ")"
         )
 
+    @classmethod
+    def set_truncation(cls, val: int) -> None:
+        """Set the max number of characters to display before truncation.
+        Args:
+            val: the number of characters.
+
+        .. note::
+            Truncation will be disabled if the truncation value is set to 0.
+        """
+        cls._truncate = int(val)
+
     def __str__(self) -> str:
         """Sets the representation of `self` in the console."""
+
         if len(self) == 1:
             label, coeff = self.to_list()[0]
-            return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
+            return f"{coeff} * ({label})"
+        pre = (
+            "Fermionic Operator\n"
+            f"register length={self.register_length}, number terms={len(self)}\n"
+        )
+        ret = "  " + "\n+ ".join(
+            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.to_list()]
+        )
+        if FermionicOp._truncate and len(ret) > FermionicOp._truncate:
+            ret = ret[0 : FermionicOp._truncate - 4] + " ..."
+        return pre + ret
 
     def __len__(self):
         return len(self._data)
