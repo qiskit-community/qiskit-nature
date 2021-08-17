@@ -11,13 +11,12 @@
 # that they have been altered from the originals.
 """A Vibration operator."""
 
-from functools import reduce
-from typing import List, Tuple, Union, Optional
-
 import itertools
 import logging
 import operator
 import re
+from functools import reduce
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
