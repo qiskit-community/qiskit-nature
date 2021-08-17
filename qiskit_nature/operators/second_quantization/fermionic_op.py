@@ -229,10 +229,10 @@ class FermionicOp(SecondQuantizedOp):
         )
 
     @classmethod
-    def set_truncation(cls, val):
+    def set_truncation(cls, val: int) -> None:
         """Set the max number of characters to display before truncation/
         Args:
-            val (int): the number of characters.
+            val: the number of characters.
 
         .. note::
             Truncation will be disabled if the truncation value is set to 0.
