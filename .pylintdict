@@ -4,6 +4,9 @@ aij
 al
 alanine
 allclose
+alzheimer
+aminoacid
+aminoacids
 ancilla
 ancillas
 ang
@@ -45,6 +48,7 @@ cbit
 ccx
 cfg
 chc
+chiral
 chirality
 chkfile
 chuang
@@ -73,6 +77,7 @@ cswap
 csx
 ctrl
 currentmodule
+cvar
 cx
 cy
 cysteine
@@ -92,6 +97,7 @@ dimensionality
 discoverable
 distinguishability
 dof
+doi
 dt
 dtype
 ecr
@@ -155,6 +161,7 @@ hijs
 hilbert
 histidine
 html
+https
 ia
 iajb
 ifdef
@@ -202,6 +209,7 @@ labelled
 lda
 len
 leucine
+levinthal
 libor
 libxc
 lih
@@ -241,10 +249,12 @@ multinomial
 mypy
 namelist
 nan
+nannichini
 natom
 nd
 ndarray
 nelec
+neuropeptide
 nicholas
 nielsen
 nmodes
@@ -273,6 +283,7 @@ ortho
 orthonormal
 otimes
 outpath
+pac
 param
 params
 pauli
@@ -282,6 +293,7 @@ pca
 perturbative
 phenylalanine
 phonons
+polypeptides
 popovas
 posteriori
 pre
@@ -354,6 +366,7 @@ statevector
 statevectors
 stdlib
 stdout
+stereochemistry
 sto
 stober
 str
@@ -424,6 +437,8 @@ wavefunction
 whitespace
 whitfield
 wigner
+wikipedia
+woerner
 xcf
 xcfun
 xdata
