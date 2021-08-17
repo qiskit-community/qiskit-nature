@@ -26,8 +26,8 @@ The main :class:`~qiskit_nature.properties.Property` of this module is the
    ElectronicEnergy
 
 which constructs the primary Hamiltonian whose solution is the goal of the Quantum Algorithm.
-The following auxiliary properties will be evaluated by default to provide further details of the
-solution:
+If the quantum algorithm in use supports the evaluation of auxiliary operators, the following
+properties will be evaluated by default to provide further details about the solution:
 
 .. autosummary::
    :toctree: ../stubs/
