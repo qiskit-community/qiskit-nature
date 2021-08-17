@@ -98,7 +98,7 @@ class FermionicOp(SecondQuantizedOp):
         `FermionicOp(list)`
           The list must be a list of valid tuples as explained above.
 
-    **Output or str and repr**
+    **Output of str and repr**
 
     By default, the output of str and repr is truncated.
     You can change the number of characters with `set_truncation`.
