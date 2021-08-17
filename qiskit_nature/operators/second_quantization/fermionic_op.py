@@ -101,8 +101,8 @@ class FermionicOp(SecondQuantizedOp):
     **Output or str and repr**
 
     By default, the output of str and repr is truncated.
-    You can change the numbre of characters from set_truncation.
-    If you pass 0 to set_truncation, it will not be truncated.
+    You can change the number of characters with `set_truncation`.
+    If you pass 0 to `set_truncation`, truncation is disabled and the full output will be printed.
 
     Example:
 
