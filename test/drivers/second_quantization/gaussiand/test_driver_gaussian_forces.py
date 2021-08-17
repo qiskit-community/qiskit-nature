@@ -24,8 +24,6 @@ from qiskit_nature.drivers.second_quantization import (
 )
 
 
-# TODO: fix this test! Skipping to make sure the rest of the CI passes for now...
-@unittest.skip("TODO")
 class TestDriverGaussianForces(QiskitNatureTestCase):
     """Gaussian Forces Driver tests."""
 
