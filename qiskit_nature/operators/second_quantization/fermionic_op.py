@@ -272,8 +272,8 @@ class FermionicOp(SecondQuantizedOp):
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.to_list()]
         )
-        if self._truncate and len(ret) > self._truncate:
-            ret = ret[0 : self._truncate - 4] + " ..."
+        if FermionicOp._truncate and len(ret) > FermionicOp._truncate:
+            ret = ret[0 : FermionicOp._truncate - 4] + " ..."
         return pre + ret
 
     def __len__(self):
