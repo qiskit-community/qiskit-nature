@@ -98,6 +98,26 @@ class FermionicOp(SecondQuantizedOp):
         `FermionicOp(list)`
           The list must be a list of valid tuples as explained above.
 
+    **Output or str and repr**
+
+    By default, the output of str and repr is truncated.
+    You can change the numbre of characters from set_truncation.
+    If you pass 0 to set_truncation, it will not be truncated.
+
+    Example:
+
+    .. jupyter-execute::
+
+      from qiskit_nature.operators.second_quantization import FermionicOp
+
+      print("truncated str output")
+      print(sum(FermionicOp("I", sparse_label=True) for _ in range(25)))
+
+      FermionicOp.set_truncation(0)
+      print("not truncated str output")
+      print(sum(FermionicOp("I", sparse_label=True) for _ in range(25)))
+
+
     **Algebra**
 
     This class supports the following basic arithmetic operations: addition, subtraction, scalar
@@ -108,7 +128,6 @@ class FermionicOp(SecondQuantizedOp):
 
     .. jupyter-execute::
 
-      from qiskit_nature.operators.second_quantization import FermionicOp
       0.5 * FermionicOp("I+") + FermionicOp("+I")
 
     Sum
@@ -218,8 +237,8 @@ class FermionicOp(SecondQuantizedOp):
             data_str = f"'{data[0]}'"
         data_str = f"{data}"
 
-        if self._truncate and len(data_str) > self._truncate:
-            data_str = data_str[0 : self._truncate - 5] + "..." + data_str[-2:]
+        if FermionicOp._truncate and len(data_str) > FermionicOp._truncate:
+            data_str = data_str[0 : FermionicOp._truncate - 5] + "..." + data_str[-2:]
         return (
             "FermionicOp("
             f"{data_str}, "
