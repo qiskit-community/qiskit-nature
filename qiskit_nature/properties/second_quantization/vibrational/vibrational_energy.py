@@ -109,7 +109,7 @@ class VibrationalEnergy(VibrationalProperty):
         Internally, the
         :class:`~qiskit_nature.properties.second_quantization.vibrational.integrals.VibrationalIntegrals`
         are stored in a dictionary sorted by their number of body terms. This simplifies access
-        based on these properties (see `get_vibrational_integral`) and avoids duplicate,
+        based on these properties (see ``get_vibrational_integral``) and avoids duplicate,
         inconsistent entries.
 
         Args:

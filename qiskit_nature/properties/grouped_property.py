@@ -28,7 +28,7 @@ class GroupedProperty(Property, Iterable, Generic[T]):
     This class implements the Composite Pattern [1]. As such, it acts as both, a container of
     multiple :class:`~qiskit_nature.properties.Property` instances as well as a
     :class:`~qiskit_nature.properties.Property` itself.  :class:`~qiskit_nature.properties.Property`
-    objects can be added and accessed via the `add_property` and `get_property` methods,
+    objects can be added and accessed via the ``add_property`` and ``get_property`` methods,
     respectively.
 
     The internal data container stores :class:`~qiskit_nature.properties.Property` objects by name.

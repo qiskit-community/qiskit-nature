@@ -38,7 +38,7 @@ class ElectronicEnergy(IntegralProperty):
     Note that this Property computes **purely** the electronic energy (possibly minus additional
     shifts introduced via e.g. classical transformers). However, for convenience it provides a
     storage location for the nuclear repulsion energy. If available, this information will be used
-    during the call of `interpret` to provide the electronic, nuclear and total energy components in
+    during the call of ``interpret`` to provide the electronic, nuclear and total energy components in
     the result object.
     """
 

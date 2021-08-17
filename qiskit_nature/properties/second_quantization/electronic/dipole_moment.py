@@ -91,7 +91,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
     This Property computes **purely** the electronic dipole moment (possibly minus additional shifts
     introduced via e.g. classical transformers). However, for convenience it provides a storage
     location for the nuclear dipole moment. If available, this information will be used during the
-    call of `interpret` to provide the electronic, nuclear and total dipole moments in the result
+    call of ``interpret`` to provide the electronic, nuclear and total dipole moments in the result
     object.
     """
 

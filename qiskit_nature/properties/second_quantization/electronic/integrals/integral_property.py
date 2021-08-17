@@ -71,7 +71,7 @@ class IntegralProperty(ElectronicProperty):
 
         Internally, the ElectronicIntegrals are stored in a nested dictionary sorted by their basis
         and number of body terms. This simplifies access based on these properties (see
-        `get_electronic_integral`) and avoids duplicate, inconsistent entries.
+        ``get_electronic_integral``) and avoids duplicate, inconsistent entries.
 
         Args:
             integral: the ElectronicIntegrals to add.

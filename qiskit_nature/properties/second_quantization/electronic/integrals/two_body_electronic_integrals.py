@@ -96,7 +96,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         Returns:
             The transformed
-            :class:``~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals``.
+            :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals`.
 
         Raises:
             QiskitNatureError: if the integrals do not match
@@ -177,7 +177,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         Args:
             other: an instance of
                 :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.OneBodyElectronicIntegrals`.
-            einsum_subscript: an additional `np.einsum` subscript.
+            einsum_subscript: an additional ``np.einsum`` subscript.
 
         Returns:
             The resulting

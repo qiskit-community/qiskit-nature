@@ -32,7 +32,7 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
 
     def __init__(self) -> None:
         """
-        Property objects should be added via `add_property` rather than via the initializer.
+        Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
         self._num_modes: int = None

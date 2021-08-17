@@ -163,7 +163,7 @@ class ElectronicIntegrals(ABC):
 
         Returns:
             The transformed
-            :class:``~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals``.
+            :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals`.
 
         Raises:
             QiskitNatureError: if the integrals do not match
@@ -254,7 +254,7 @@ class ElectronicIntegrals(ABC):
 
         Args:
             other: another instance of ``ElectronicIntegrals``.
-            einsum_subscript: an additional `np.einsum` subscript.
+            einsum_subscript: an additional ``np.einsum`` subscript.
 
         Returns:
             Either a single number or a new instance of ``ElectronicIntegrals``.
