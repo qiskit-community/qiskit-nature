@@ -16,9 +16,9 @@ Second-Quantization Properties (:mod:`qiskit_nature.properties.second_quantizati
 .. currentmodule:: qiskit_nature.properties.second_quantization
 
 
-These objects provide the means to map from raw data (as produced by e.g. a
-``qiskit_nature.drivers.BaseDriver``) to an operator which can be evaluated during the Quantum
-algorithm.
+These objects are produced by e.g. a :class:`~qiskit_nature.drivers.second_quantization.BaseDriver`
+and are used to store, convert and interpret raw data and their associated operators which can be
+evaluated during the Quantum algorithm.
 This provides a powerful interface through which a user will be able to insert custom objects which
 they desire to evaluate.
 

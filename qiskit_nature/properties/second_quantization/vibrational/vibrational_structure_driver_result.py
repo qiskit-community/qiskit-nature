@@ -26,8 +26,8 @@ from .types import GroupedVibrationalProperty
 class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     """The VibrationalStructureDriverResult class.
 
-    This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects
-    previously stored in Qiskit Nature's `WatsonHamiltonian` object.
+    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
+    previously stored in Qiskit Nature's :class:`~qiskit_nature.drivers.WatsonHamiltonian` object.
     """
 
     def __init__(self) -> None:
@@ -51,16 +51,17 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> "VibrationalStructureDriverResult":
-        """Converts a WatsonHamiltonian into an `ElectronicStructureDriverResult`.
+        """Converts a :class:`~qiskit_nature.drivers.WatsonHamiltonian` into an
+        ``VibrationalStructureDriverResult``.
 
         Args:
-            result: the WatsonHamiltonian to convert.
+            result: the :class:`~qiskit_nature.drivers.WatsonHamiltonian` to convert.
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a QMolecule is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.QMolecule` is provided.
         """
         cls._validate_input_type(result, WatsonHamiltonian)
 
@@ -75,7 +76,8 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         return ret
 
     def second_q_ops(self) -> List[VibrationalOp]:
-        """Returns the list of `VibrationalOp`s given by the properties contained in this one."""
+        """Returns the list of :class:`~qiskit_nature.operators.second_quantization.VibrationalOp`s
+        given by the properties contained in this one."""
         ops: List[VibrationalOp] = []
         # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
         for cls in [VibrationalEnergy, OccupiedModals]:

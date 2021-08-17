@@ -26,12 +26,13 @@ class GroupedProperty(Property, Iterable, Generic[T]):
     """A group of multiple properties.
 
     This class implements the Composite Pattern [1]. As such, it acts as both, a container of
-    multiple Property instances as well as a Property itself.
-    Property objects can be added and accessed via the `add_property` and `get_property` methods,
+    multiple :class:`~qiskit_nature.properties.Property` instances as well as a
+    :class:`~qiskit_nature.properties.Property` itself.  :class:`~qiskit_nature.properties.Property`
+    objects can be added and accessed via the `add_property` and `get_property` methods,
     respectively.
 
-    The internal data container stores Property objects by name. This has the side effect that each
-    object stored in this group must have a unique name.
+    The internal data container stores :class:`~qiskit_nature.properties.Property` objects by name.
+    This has the side effect that each object stored in this group must have a unique name.
 
     [1]: https://en.wikipedia.org/wiki/Composite_pattern
     """
@@ -83,7 +84,8 @@ class GroupedProperty(Property, Iterable, Generic[T]):
     def _generator(self) -> Generator[T, T, None]:
         """A generator-iterator method [1] iterating over all internal properties.
 
-        `PseudoProperty` objects are automatically excluded.
+        :class:`~qiskit_nature.properties.property.PseudoProperty` objects are automatically
+        excluded.
 
         [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
         """
@@ -95,7 +97,7 @@ class GroupedProperty(Property, Iterable, Generic[T]):
                 self.add_property(new_property)
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

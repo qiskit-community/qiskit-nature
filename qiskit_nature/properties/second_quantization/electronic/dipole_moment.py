@@ -77,7 +77,7 @@ class DipoleMoment(IntegralProperty):
         return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.
@@ -143,17 +143,18 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> Optional["ElectronicDipoleMoment"]:
-        """Construct an ElectronicDipoleMoment instance from a QMolecule.
+        """Construct an ElectronicDipoleMoment instance from a
+        :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
         cls._validate_input_type(result, QMolecule)
 
@@ -208,7 +209,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

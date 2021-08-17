@@ -24,7 +24,7 @@ class Property(ABC):
     A Property in Qiskit Nature provides the means to give meaning to a given set of raw data.
     As such, every Property is an object which constructs an operator to be evaluated during the
     problem solution and the interface provides the means for a user to write any custom Property
-    (i.e. the user can evaluate custom _observables_ by writing a class which can generate an
+    (i.e. the user can evaluate custom *observables* by writing a class which can generate an
     operator out of a given set of raw data).
     """
 
@@ -57,7 +57,7 @@ class Property(ABC):
 
     @abstractmethod
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

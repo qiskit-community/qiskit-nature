@@ -37,14 +37,17 @@ class VibrationalEnergy(VibrationalProperty):
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
     ) -> None:
+        # pylint: disable=line-too-long
         """
         Args:
-            vibrational_integrals: a list of ``VibrationalIntegrals``.
+            vibrational_integrals: a list of
+                :class:`~qiskit_nature.properties.second_quantization.vibrational.integrals.VibrationalIntegrals`.
             truncation_order: an optional truncation order for the highest number of body terms to
                 include in the constructed Hamiltonian.
-            basis: the ``VibrationalBasis`` through which to map the integrals into second
-                quantization. This property **MUST** be set before the second-quantized operator can
-                be constructed.
+            basis: the
+                :class:`~qiskit_nature.properties.second_quantization.vibrational.bases.VibrationalBasis`
+                through which to map the integrals into second quantization. This attribute **MUST**
+                be set before the second-quantized operator can be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
         self._vibrational_integrals: Dict[int, VibrationalIntegrals] = {}
@@ -70,17 +73,18 @@ class VibrationalEnergy(VibrationalProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
-        """Construct a VibrationalEnergy instance from a WatsonHamiltonian.
+        """Construct a VibrationalEnergy instance from a
+        :class:`~qiskit_nature.drivers.WatsonHamiltonian`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                WatsonHamiltonian is required!
+                :class:`~qiskit_nature.drivers.WatsonHamiltonian` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a QMolecule is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.QMolecule` is provided.
         """
         cls._validate_input_type(result, WatsonHamiltonian)
 
@@ -97,19 +101,28 @@ class VibrationalEnergy(VibrationalProperty):
         )
 
     def add_vibrational_integral(self, integral: VibrationalIntegrals) -> None:
-        """Adds a VibrationalIntegrals instance to the internal storage.
+        # pylint: disable=line-too-long
+        """Adds a
+        :class:`~qiskit_nature.properties.second_quantization.vibrational.integrals.VibrationalIntegrals`
+        instance to the internal storage.
 
-        Internally, the VibrationalIntegrals are stored in a dictionary sorted by their number of
-        body terms. This simplifies access based on these properties (see
-        `get_vibrational_integral`) and avoids duplicate, inconsistent entries.
+        Internally, the
+        :class:`~qiskit_nature.properties.second_quantization.vibrational.integrals.VibrationalIntegrals`
+        are stored in a dictionary sorted by their number of body terms. This simplifies access
+        based on these properties (see `get_vibrational_integral`) and avoids duplicate,
+        inconsistent entries.
 
         Args:
-            integral: the VibrationalIntegrals to add.
+            integral: the
+                :class:`~qiskit_nature.properties.second_quantization.vibrational.integrals.VibrationalIntegrals`
+                to add.
         """
         self._vibrational_integrals[integral._num_body_terms] = integral
 
     def get_vibrational_integral(self, num_body_terms: int) -> Optional[VibrationalIntegrals]:
-        """Gets an VibrationalIntegrals given the number of body terms.
+        """Gets an
+        :class:`~qiskit_nature.properties.second_quantization.vibrational.integrals.VibrationalIntegrals`
+        given the number of body terms.
 
         Args:
             num_body_terms: the number of body terms of the queried integrals.
@@ -130,7 +143,7 @@ class VibrationalEnergy(VibrationalProperty):
         return [sum(ops)]  # type: ignore
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

@@ -21,7 +21,7 @@ class VibrationalBasis(ABC):
 
     This class defines the interface which any vibrational basis must implement. A basis must be
     applied to the vibrational integrals in order to map them into a second-quantization form. Refer
-    to the documentation of ``qiskit_nature.properties.vibrational.integrals`` for more details.
+    to the documentation of :class:`~qiskit_nature.properties.vibrational.integrals` for more details.
     """
 
     def __init__(

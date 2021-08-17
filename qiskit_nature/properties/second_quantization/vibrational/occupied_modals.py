@@ -32,25 +32,27 @@ class OccupiedModals(VibrationalProperty):
     ) -> None:
         """
         Args:
-            basis: the ``VibrationalBasis`` through which to map the integrals into second
-                quantization. This attribute **MUST** be set before the second-quantized operator
-                can be constructed.
+            basis: the
+                :class:`~qiskit_nature.properties.second_quantization.vibrational.bases.VibrationalBasis`
+                through which to map the integrals into second quantization. This attribute **MUST**
+                be set before the second-quantized operator can be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "OccupiedModals":
-        """Construct an OccupiedModals instance from a WatsonHamiltonian.
+        """Construct an OccupiedModals instance from a
+        :class:`~qiskit_nature.drivers.WatsonHamiltonian`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                WatsonHamiltonian is required!
+                :class:`~qiskit_nature.drivers.WatsonHamiltonian` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a QMolecule is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.QMolecule` is provided.
         """
         cls._validate_input_type(result, WatsonHamiltonian)
 
@@ -84,7 +86,7 @@ class OccupiedModals(VibrationalProperty):
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

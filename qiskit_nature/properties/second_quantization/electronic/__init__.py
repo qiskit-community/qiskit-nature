@@ -17,7 +17,7 @@ Electronic Structure Properties (:mod:`qiskit_nature.properties.second_quantizat
 
 This module provides commonly evaluated properties for *electronic* problems.
 
-The main ``Property`` of this module is the
+The main :class:`~qiskit_nature.properties.Property` of this module is the
 
 .. autosummary::
    :toctree: ../stubs/

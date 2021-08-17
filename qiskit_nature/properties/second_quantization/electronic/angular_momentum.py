@@ -82,17 +82,17 @@ class AngularMomentum(ElectronicProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "AngularMomentum":
-        """Construct an AngularMomentum instance from a QMolecule.
+        """Construct an AngularMomentum instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
         cls._validate_input_type(result, QMolecule)
 
@@ -116,7 +116,7 @@ class AngularMomentum(ElectronicProperty):
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

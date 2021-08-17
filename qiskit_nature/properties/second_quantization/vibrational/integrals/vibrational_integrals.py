@@ -165,7 +165,8 @@ class VibrationalIntegrals(ABC):
         """Creates the operator representing the Hamiltonian defined by these vibrational integrals.
 
         Returns:
-            The ``VibrationalOp`` given by these vibrational integrals.
+            The :class:`~qiskit_nature.operators.second_quantization.VibrationalOp` given by these
+            vibrational integrals.
 
         Raises:
             QiskitNatureError: if no basis has been set yet.

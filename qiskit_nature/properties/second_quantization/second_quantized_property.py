@@ -28,9 +28,9 @@ LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 class SecondQuantizedProperty(Property):
     """The SecondQuantizedProperty base class.
 
-    A second-quantization property provides the logic to transform raw data (as e.g. produced by a
-    `qiskit_nature.second_quantization.drivers.BaseDriver`) into a
-    `qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+    A second-quantization property provides the logic to transform the raw data placed into it by
+    e.g. a :class:`qiskit_nature.drivers.second_quantization.BaseDriver` into a
+    :class:`qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
     """
 
     @abstractmethod
@@ -40,7 +40,8 @@ class SecondQuantizedProperty(Property):
     @classmethod
     @abstractmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":
-        """Construct a Property instance from a legacy driver result.
+        """Construct a :class:`~qiskit_nature.properties.Property` instance from a legacy driver
+        result.
 
         This method should implement the logic which is required to extract the raw data for a
         certain property from the result produced by a legacy driver.
@@ -69,7 +70,8 @@ T = TypeVar("T", bound=SecondQuantizedProperty, covariant=True)
 
 
 class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty):
-    """A GroupedProperty subtype containing purely second-quantized properties."""
+    """A :class:`~qiskit_nature.properties.GroupedProperty` subtype containing purely
+    second-quantized properties."""
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:

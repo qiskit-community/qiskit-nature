@@ -31,16 +31,19 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
+        # pylint: disable=line-too-long
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
-                ``ElectronicBasis.SO``, these integrals will be used *ad verbatim* during the
-                mapping to a ``SecondQuantizedOp``.
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`,
+                these integrals will be used *ad verbatim* during the mapping to a
+                :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
-                a single matrix, ``basis`` must be set to ``ElectronicBasis.SO``. Otherwise, this
-                must be a pair of matrices, the first one being the alpha-spin matrix (which is
-                required) and the second one being an optional beta-spin matrix. If the latter is
-                ``None``, the alpha-spin matrix is used in its place.
+                a single matrix, ``basis`` must be set to
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`.
+                Otherwise, this must be a pair of matrices, the first one being the alpha-spin
+                matrix (which is required) and the second one being an optional beta-spin matrix. If
+                the latter is ``None``, the alpha-spin matrix is used in its place.
             threshold: the truncation level below which to treat the integral in the SO matrix as
                 zero-valued.
         """
@@ -49,6 +52,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         self._matrix_representations = ["Alpha", "Beta"]
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
+        # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 
         If the integrals are already in the correct basis, ``self`` is returned.
@@ -57,11 +61,12 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             transform: the transformation object with the integral coefficients.
 
         Returns:
-            The transformed ``ElectronicIntegrals``.
+            The transformed
+            :class:``~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals``.
 
         Raises:
             QiskitNatureError: if the integrals do not match
-                ``ElectronicBasisTransform.initial_basis``.
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasisTransform.initial_basis`.
         """
         if self._basis == transform.final_basis:
             return self
@@ -105,18 +110,18 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         return [(indices[0], "+"), (indices[1], "-")]
 
     def compose(self, other: ElectronicIntegrals, einsum_subscript: str = "ij,ji") -> complex:
-        """Composes these OneBodyElectronicIntegrals with another instance thereof.
+        """Composes these ``OneBodyElectronicIntegrals`` with another instance thereof.
 
         Args:
-            other: an instance of OneBodyElectronicIntegrals.
+            other: an instance of ``OneBodyElectronicIntegrals``.
             einsum_subscript: an additional `np.einsum` subscript.
 
         Returns:
             The resulting complex.
 
         Raises:
-            TypeError: if `other` is not an `OneBodyElectronicIntegrals` instance.
-            ValueError: if the bases of `self` and `other` do not match.
+            TypeError: if ``other`` is not an ``OneBodyElectronicIntegrals`` instance.
+            ValueError: if the bases of ``self`` and ``other`` do not match.
         """
         if not isinstance(other, OneBodyElectronicIntegrals):
             raise TypeError(

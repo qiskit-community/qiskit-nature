@@ -32,8 +32,8 @@ from .types import GroupedElectronicProperty
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
     """The ElectronicStructureDriverResult class.
 
-    This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects
-    previously stored in Qiskit Nature's `QMolecule` object.
+    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
+    previously stored in Qiskit Nature's :class:`~qiskit_nature.drivers.QMolecule` object.
     """
 
     def __init__(self) -> None:
@@ -52,16 +52,17 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> "ElectronicStructureDriverResult":
-        """Converts a QMolecule into an `ElectronicStructureDriverResult`.
+        """Converts a :class:`~qiskit_nature.drivers.QMolecule` into an
+        ``ElectronicStructureDriverResult``.
 
         Args:
-            result: the QMolecule to convert.
+            result: the :class:`~qiskit_nature.drivers.QMolecule` to convert.
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
         cls._validate_input_type(result, QMolecule)
 
@@ -98,7 +99,8 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         return ret
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """Returns the list of `FermioncOp`s given by the properties contained in this one."""
+        """Returns the list of :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s
+        given by the properties contained in this one."""
         ops: List[FermionicOp] = []
         # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
         for cls in [

@@ -29,10 +29,12 @@ class ElectronicIntegrals(ABC):
 
     This class is a template for ``n``-body electronic integral containers.
     It provides method stubs which must be completed in order to allow basis transformation between
-    different ``ElectronicBasis``. An extra method stub must be implemented to map into the special
-    ``ElectronicBasis.SO`` basis which is a required intermediate representation of the electronic
-    integrals during the process of mapping to a
-    ``qiskit_nature.operators.second_quantization.SecondQuantizedOp``.
+    different
+    :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis`. An
+    extra method stub must be implemented to map into the special
+    :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO` basis
+    which is a required intermediate representation of the electronic integrals during the process
+    of mapping to a :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
     """
 
     INTEGRAL_TRUNCATION_LEVEL = 1e-12
@@ -44,16 +46,19 @@ class ElectronicIntegrals(ABC):
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
         threshold: float = INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
+        # pylint: disable=line-too-long
         """
         Args:
             num_body_terms: ``n``, as in the ``n-body`` terms stored in these integrals.
             basis: the basis which these integrals are stored in. If this is initialized with
-                ``ElectronicBasis.SO``, these integrals will be used *ad verbatim* during the
-                mapping to a ``SecondQuantizedOp``.
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`,
+                these integrals will be used *ad verbatim* during the mapping to a
+                :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
-                a single matrix, ``basis`` must be set to ``ElectronicBasis.SO``. Refer to the
-                documentation of the specific ``n-body`` integral types for the requirements in case
-                of multiple matrices.
+                a single matrix, ``basis`` must be set to
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`.
+                Refer to the documentation of the specific ``n-body`` integral types for the
+                requirements in case of multiple matrices.
             threshold: the truncation level below which to treat the integral in the SO matrix as
                 zero-valued.
 
@@ -61,7 +66,7 @@ class ElectronicIntegrals(ABC):
             ValueError: if the number of body terms is less than 1 or if the number of provided
                 matrices does not match the number of body term.
             TypeError: if the provided matrix type does not match with the basis or if the first
-                matrix is `None`.
+                matrix is ``None``.
         """
         self._validate_num_body_terms(num_body_terms)
         self._validate_matrices(matrices, basis, num_body_terms)
@@ -98,7 +103,7 @@ class ElectronicIntegrals(ABC):
 
     @staticmethod
     def _validate_num_body_terms(num_body_terms: int) -> None:
-        """Validates the `num_body_terms` setting."""
+        """Validates the number of body terms."""
         if num_body_terms < 1:
             raise ValueError(
                 f"The number of body terms must be greater than 0, not '{num_body_terms}'."
@@ -110,7 +115,7 @@ class ElectronicIntegrals(ABC):
         basis: ElectronicBasis,
         num_body_terms: int,
     ) -> None:
-        """Validates the `matrices` for a given `basis`."""
+        """Validates the ``matrices`` for a given ``basis``."""
         if basis == ElectronicBasis.SO:
             if not isinstance(matrices, np.ndarray):
                 raise TypeError(
@@ -132,9 +137,9 @@ class ElectronicIntegrals(ABC):
                 )
 
     def _fill_matrices(self) -> None:
-        """Fills the internal matrices where `None` placeholders were inserted.
+        """Fills the internal matrices where ``None`` placeholders were inserted.
 
-        This method iterates the internal list of matrices and replaces any occurrences of `None`
+        This method iterates the internal list of matrices and replaces any occurrences of ``None``
         with the first matrix of the list. In case, more symmetry arguments need to be considered a
         subclass should overwrite this method.
         """
@@ -148,6 +153,7 @@ class ElectronicIntegrals(ABC):
 
     @abstractmethod
     def transform_basis(self, transform: ElectronicBasisTransform) -> "ElectronicIntegrals":
+        # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 
         If the integrals are already in the correct basis, ``self`` is returned.
@@ -156,11 +162,12 @@ class ElectronicIntegrals(ABC):
             transform: the transformation object with the integral coefficients.
 
         Returns:
-            The transformed ``ElectronicIntegrals``.
+            The transformed
+            :class:``~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals``.
 
         Raises:
             QiskitNatureError: if the integrals do not match
-                ``ElectronicBasisTransform.initial_basis``.
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasisTransform.initial_basis`.
         """
 
     @abstractmethod
@@ -180,7 +187,8 @@ class ElectronicIntegrals(ABC):
         orbital basis.
 
         Returns:
-            The ``FermionicOp`` given by these electronic integrals.
+            The :class:`~qiskit_nature.operators.second_quantization.FermionicOp` given by these
+            electronic integrals.
         """
         spin_matrix = self.to_spin()
         register_length = len(spin_matrix)
@@ -242,14 +250,14 @@ class ElectronicIntegrals(ABC):
     def compose(
         self, other: "ElectronicIntegrals", einsum_subscript: Optional[str] = None
     ) -> Union[complex, "ElectronicIntegrals"]:
-        """Composes two ElectronicIntegrals instances.
+        """Composes two ``ElectronicIntegrals`` instances.
 
         Args:
-            other: another instance of ElectronicIntegrals.
+            other: another instance of ``ElectronicIntegrals``.
             einsum_subscript: an additional `np.einsum` subscript.
 
         Returns:
-            Either a single number or a new instance of ElectronicIntegrals.
+            Either a single number or a new instance of ``ElectronicIntegrals``.
         """
         raise NotImplementedError()
 

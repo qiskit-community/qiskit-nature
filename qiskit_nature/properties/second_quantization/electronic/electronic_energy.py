@@ -49,10 +49,11 @@ class ElectronicEnergy(IntegralProperty):
         nuclear_repulsion_energy: Optional[float] = None,
         reference_energy: Optional[float] = None,
     ) -> None:
+        # pylint: disable=line-too-long
         """
         Args:
             electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                ``ElectronicIntegrals``.
+                :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals`.
             energy_shift: an optional dictionary of energy shifts.
             nuclear_repulsion_energy: the optional nuclear repulsion energy.
             reference_energy: an optional reference energy (such as the HF energy).
@@ -121,17 +122,17 @@ class ElectronicEnergy(IntegralProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
-        """Construct an ElectronicEnergy instance from a QMolecule.
+        """Construct an ElectronicEnergy instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
         cls._validate_input_type(result, QMolecule)
 
@@ -183,7 +184,8 @@ class ElectronicEnergy(IntegralProperty):
         return ret
 
     def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """Constructs the Fock operator resulting from this `ElectronicEnergy`.
+        """Constructs the Fock operator resulting from this
+        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`.
 
         Args:
             density: the electronic density at which to compute the operator.
@@ -216,7 +218,7 @@ class ElectronicEnergy(IntegralProperty):
         return cast(OneBodyElectronicIntegrals, op)
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

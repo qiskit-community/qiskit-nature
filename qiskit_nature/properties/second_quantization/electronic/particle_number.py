@@ -31,7 +31,7 @@ class ParticleNumber(ElectronicProperty):
     """The ParticleNumber property.
 
     Note that this Property serves a two purposes:
-        1. it stores the expected number of electrons (`self.num_particles`)
+        1. it stores the expected number of electrons (``self.num_particles``)
         2. it is used to evaluate the measured number of electrons via auxiliary operators.
            If this measured number does not match the expected number, it will be logged on the INFO
            level.
@@ -133,17 +133,17 @@ class ParticleNumber(ElectronicProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
-        """Construct a ParticleNumber instance from a QMolecule.
+        """Construct a ParticleNumber instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
         cls._validate_input_type(result, QMolecule)
 
@@ -166,7 +166,7 @@ class ParticleNumber(ElectronicProperty):
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

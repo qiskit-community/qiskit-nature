@@ -16,7 +16,7 @@ Properties (:mod:`qiskit_nature.properties`)
 .. currentmodule:: qiskit_nature.properties
 
 
-Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (or _observables_).
+Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (or *observables*).
 
 .. autosummary::
    :toctree: ../stubs/
@@ -24,6 +24,7 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
 
    Property
    GroupedProperty
+   PseudoProperty
 
 .. autosummary::
    :toctree:
@@ -32,9 +33,10 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
 """
 
 from .grouped_property import GroupedProperty
-from .property import Property
+from .property import Property, PseudoProperty
 
 __all__ = [
     "Property",
     "GroupedProperty",
+    "PseudoProperty",
 ]

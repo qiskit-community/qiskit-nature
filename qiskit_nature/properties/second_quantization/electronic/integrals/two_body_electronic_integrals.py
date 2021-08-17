@@ -37,20 +37,23 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
+        # pylint: disable=line-too-long
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
-                ``ElectronicBasis.SO``, these integrals will be used *ad verbatim* during the
-                mapping to a ``SecondQuantizedOp``.
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`,
+                these integrals will be used *ad verbatim* during the mapping to a
+                :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
-                a single matrix, ``basis`` must be set to ``ElectronicBasis.SO``. Otherwise, this
-                must be a quartet of matrices, the first one being the alpha-alpha-spin matrix
-                (which is required), followed by the beta-alpha-spin, beta-beta-spin, and
-                alpha-beta-spin matrices (which are optional). The order of these matrices follows
-                the standard assigned of quadrants in a plane geometry. If any of the latter three
-                matrices are ``None``, the alpha-alpha-spin matrix will be used in their place.
-                However, the final matrix will be replaced by the transpose of the second one, if
-                and only if that happens to differ from ``None``.
+                a single matrix, ``basis`` must be set to
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`.
+                Otherwise, this must be a quartet of matrices, the first one being the
+                alpha-alpha-spin matrix (which is required), followed by the beta-alpha-spin,
+                beta-beta-spin, and alpha-beta-spin matrices (which are optional). The order of
+                these matrices follows the standard assigned of quadrants in a plane geometry. If
+                any of the latter three matrices are ``None``, the alpha-alpha-spin matrix will be
+                used in their place.  However, the final matrix will be replaced by the transpose of
+                the second one, if and only if that happens to differ from ``None``.
             threshold: the truncation level below which to treat the integral in the SO matrix as
                 zero-valued.
         """
@@ -59,13 +62,13 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         self._matrix_representations = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
 
     def _fill_matrices(self) -> None:
-        """Fills the internal matrices where `None` placeholders were inserted.
+        """Fills the internal matrices where ``None`` placeholders were inserted.
 
-        This method iterates the internal list of matrices and replaces any occurrences of `None`
+        This method iterates the internal list of matrices and replaces any occurrences of ``None``
         according to the following rules:
-            1. If the Alpha-Beta matrix (third index) is `None` and the Beta-Alpha matrix was not
-               `None`, its transpose will be used.
-            2. If the Beta-Alpha matrix was `None`, the Alpha-Alpha matrix is used as is.
+            1. If the Alpha-Beta matrix (third index) is ``None`` and the Beta-Alpha matrix was not
+               ``None``, its transpose will be used.
+            2. If the Beta-Alpha matrix was ``None``, the Alpha-Alpha matrix is used as is.
             3. Any other missing matrix gets replaced by the Alpha-Alpha matrix.
         """
         filled_matrices = []
@@ -83,6 +86,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         self._matrices = tuple(filled_matrices)
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
+        # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 
         If the integrals are already in the correct basis, ``self`` is returned.
@@ -91,11 +95,12 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             transform: the transformation object with the integral coefficients.
 
         Returns:
-            The transformed ``ElectronicIntegrals``.
+            The transformed
+            :class:``~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals``.
 
         Raises:
             QiskitNatureError: if the integrals do not match
-                ``ElectronicBasisTransform.initial_basis``.
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasisTransform.initial_basis`.
         """
         if self._basis == transform.final_basis:
             return self
@@ -162,23 +167,30 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     def compose(
         self, other: ElectronicIntegrals, einsum_subscript: Optional[str] = None
     ) -> OneBodyElectronicIntegrals:
-        """Composes these TwoBodyElectronicIntegrals with an instance of OneBodyElectronicIntegrals.
+        # pylint: disable=line-too-long
+        """Composes these ``TwoBodyElectronicIntegrals`` with an instance of
+        :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.OneBodyElectronicIntegrals`.
 
-        This method requires an `einsum_subscript` subscript and produces a new instance of
-        OneBodyElectronicIntegrals.
+        This method requires an ``einsum_subscript`` subscript and produces a new instance of
+        :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.OneBodyElectronicIntegrals`.
 
         Args:
-            other: an instance of OneBodyElectronicIntegrals.
+            other: an instance of
+                :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.OneBodyElectronicIntegrals`.
             einsum_subscript: an additional `np.einsum` subscript.
 
         Returns:
-            The resulting OneBodyElectronicIntegrals.
+            The resulting
+            :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.OneBodyElectronicIntegrals`.
 
         Raises:
-            TypeError: if `other` is not an `OneBodyElectronicIntegrals` instance.
-            ValueError: if the bases of `self` and `other` do not match or if `einsum_subscript` is
-                `None`.
-            NotImplementedError: if the basis of `self` is not `ElectronicBasis.AO`.
+            TypeError: if ``other`` is not an
+                :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.OneBodyElectronicIntegrals`
+                instance.
+            ValueError: if the bases of ``self`` and ``other`` do not match or if ``einsum_subscript`` is
+                ``None``.
+            NotImplementedError: if the basis of ``self`` is not
+            :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.AO`.
         """
         if einsum_subscript is None:
             raise ValueError(
