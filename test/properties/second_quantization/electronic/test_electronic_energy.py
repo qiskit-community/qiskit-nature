@@ -67,3 +67,77 @@ class TestElectronicEnergy(QiskitNatureTestCase):
 
         expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])
         self.assertTrue(np.allclose(matrix_op._matrices[0], expected))
+
+    def test_from_raw_integrals(self):
+        """Test from_raw_integrals utility method."""
+        one_body_a = np.random.random((2, 2))
+        one_body_b = np.random.random((2, 2))
+        two_body_aa = np.random.random((2, 2, 2, 2))
+        two_body_bb = np.random.random((2, 2, 2, 2))
+        two_body_ba = np.random.random((2, 2, 2, 2))
+
+        with self.subTest("minimal SO"):
+            prop = ElectronicEnergy.from_raw_integrals(ElectronicBasis.SO, one_body_a, two_body_aa)
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.SO, 1)._matrices, one_body_a
+                )
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.SO, 2)._matrices, two_body_aa
+                )
+            )
+
+        with self.subTest("minimal MO"):
+            prop = ElectronicEnergy.from_raw_integrals(ElectronicBasis.MO, one_body_a, two_body_aa)
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 1)._matrices[0], one_body_a
+                )
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[0], two_body_aa
+                )
+            )
+
+        with self.subTest("minimal MO with beta"):
+            prop = ElectronicEnergy.from_raw_integrals(
+                ElectronicBasis.MO,
+                one_body_a,
+                two_body_aa,
+                h1_b=one_body_b,
+                h2_bb=two_body_bb,
+                h2_ba=two_body_ba,
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 1)._matrices[0], one_body_a
+                )
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 1)._matrices[1], one_body_b
+                )
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[0], two_body_aa
+                )
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[1], two_body_ba
+                )
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[2], two_body_bb
+                )
+            )
+            self.assertTrue(
+                np.allclose(
+                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[3], two_body_ba.T
+                )
+            )

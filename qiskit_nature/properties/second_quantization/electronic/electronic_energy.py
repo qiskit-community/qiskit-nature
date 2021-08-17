@@ -122,7 +122,7 @@ class ElectronicEnergy(IntegralProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
-        """Construct an ElectronicEnergy instance from a :class:`~qiskit_nature.drivers.QMolecule`.
+        """Construct an ``ElectronicEnergy`` instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
@@ -182,6 +182,51 @@ class ElectronicEnergy(IntegralProperty):
             ret.overlap = OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.overlap, None))
 
         return ret
+
+    # pylint: disable=invalid-name
+    @classmethod
+    def from_raw_integrals(
+        cls,
+        basis: ElectronicBasis,
+        h1: np.ndarray,
+        h2: np.ndarray,
+        h1_b: Optional[np.ndarray] = None,
+        h2_bb: Optional[np.ndarray] = None,
+        h2_ba: Optional[np.ndarray] = None,
+        threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
+    ) -> "ElectronicEnergy":
+        """Construct an ``ElectronicEnergy`` from raw integrals in a given basis.
+
+        When setting the basis to
+        :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`,
+        all of the arguments ``h1_b``, ``h2_bb`` and ``h2_ba`` will be ignored.
+
+        Args:
+            basis: the
+                :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis`
+                of the provided integrals.
+            h1: the one-body integral matrix.
+            h2: the two-body integral matrix.
+            h1_b: the optional beta-spin one-body integral matrix.
+            h2_bb: the optional beta-beta-spin two-body integral matrix.
+            h2_ba: the optional beta-alpha-spin two-body integral matrix.
+            threshold: the truncation level below which to treat the integral in the SO matrix as
+                zero-valued.
+
+        Returns:
+            An instance of this property.
+        """
+        if basis == ElectronicBasis.SO:
+            one_body = OneBodyElectronicIntegrals(basis, h1, threshold=threshold)
+            two_body = TwoBodyElectronicIntegrals(basis, h2, threshold=threshold)
+        else:
+            one_body = OneBodyElectronicIntegrals(basis, (h1, h1_b), threshold=threshold)
+            h2_ab: Optional[np.ndarray] = h2_ba.T if h2_ba is not None else None
+            two_body = TwoBodyElectronicIntegrals(
+                basis, (h2, h2_ba, h2_bb, h2_ab), threshold=threshold
+            )
+
+        return cls([one_body, two_body])
 
     def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Constructs the Fock operator resulting from this
