@@ -23,6 +23,9 @@ from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import RealAmplitudes
 from qiskit.opflow import I, Z
 
+from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.runtime import VQEProgram
 
 from .fake_vqeruntime import FakeRuntimeProvider
@@ -36,9 +39,8 @@ class TestVQEProgram(QiskitNatureTestCase):
         super().setUp()
         self.provider = FakeRuntimeProvider()
 
-    @data({"name": "SPSA", "maxiter": 100}, SPSA(maxiter=100))
-    def test_standard_case(self, optimizer):
-        """Test a standard use case."""
+    def get_standard_program(self):
+        """Get a standard VQEProgram and operator to find the ground state of."""
         circuit = RealAmplitudes(3)
         operator = Z ^ I ^ Z
         initial_point = np.random.random(circuit.num_parameters)
@@ -46,14 +48,33 @@ class TestVQEProgram(QiskitNatureTestCase):
 
         vqe = VQEProgram(
             ansatz=circuit,
-            optimizer=optimizer,
+            optimizer=SPSA(),
             initial_point=initial_point,
             backend=backend,
             provider=self.provider,
         )
+        return vqe, operator
+
+    @data({"name": "SPSA", "maxiter": 100}, SPSA(maxiter=100))
+    def test_standard_case(self, optimizer):
+        """Test a standard use case."""
+        vqe, operator = self.get_standard_program()
+        vqe.optimizer = optimizer
         result = vqe.compute_minimum_eigenvalue(operator)
 
         self.assertIsInstance(result, VQEResult)
+
+    def test_supports_aux_ops(self):
+        """Test the VQEProgram says it supports aux operators."""
+        vqe, _ = self.get_standard_program()
+        self.assertTrue(vqe.supports_aux_operators)
+
+    def test_return_groundstate(self):
+        """Test the VQEProgram yields a ground state solver that returns the ground state."""
+        vqe, _ = self.get_standard_program()
+        qubit_converter = QubitConverter(JordanWignerMapper())
+        gss = GroundStateEigensolver(qubit_converter, vqe)
+        self.assertTrue(gss.returns_groundstate)
 
 
 if __name__ == "__main__":
