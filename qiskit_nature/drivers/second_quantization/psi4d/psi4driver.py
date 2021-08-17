@@ -156,8 +156,8 @@ class PSI4Driver(ElectronicStructureDriver):
 
         molecule = QMolecule()
 
-        input_text = cfg + "\n"
-        input_text += "import sys\n"
+        input_text = [cfg]
+        input_text += ["import sys"]
         syspath = (
             "['"
             + qiskit_nature_directory.as_posix()
@@ -166,17 +166,17 @@ class PSI4Driver(ElectronicStructureDriver):
             + "']"
         )
 
-        input_text += "sys.path = " + syspath + " + sys.path\n"
-        input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"
-        input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
+        input_text += ["sys.path = " + syspath + " + sys.path"]
+        input_text += ["from qiskit_nature.drivers.qmolecule import QMolecule"]
+        input_text += ['_q_molecule = QMolecule("{0}")'.format(Path(molecule.filename).as_posix())]
 
         with open(template_file, "r") as file:
-            input_text += file.read()
+            input_text += [line.strip("\n") for line in file.readlines()]
 
         file_fd, input_file = tempfile.mkstemp(suffix=".inp")
         os.close(file_fd)
         with open(input_file, "w") as stream:
-            stream.write(input_text)
+            stream.write("\n".join(input_text))
 
         file_fd, output_file = tempfile.mkstemp(suffix=".out")
         os.close(file_fd)

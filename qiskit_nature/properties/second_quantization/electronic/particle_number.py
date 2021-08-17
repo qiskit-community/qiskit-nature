@@ -33,7 +33,7 @@ class ParticleNumber(ElectronicProperty):
     Note that this Property serves a two purposes:
         1. it stores the expected number of electrons (`self.num_particles`)
         2. it is used to evaluate the measured number of electrons via auxiliary operators.
-           If this measured number does not match the expected number it will be logged on the INFO
+           If this measured number does not match the expected number, it will be logged on the INFO
            level.
     """
 

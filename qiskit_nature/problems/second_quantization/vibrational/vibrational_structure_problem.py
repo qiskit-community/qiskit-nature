@@ -47,10 +47,10 @@ class VibrationalStructureProblem(BaseProblem):
     ):
         """
         Args:
-            bosonic_driver: A bosonic driver encoding the molecule information.
+            bosonic_driver: a bosonic driver encoding the molecule information.
             num_modals: the number of modals per mode.
             truncation_order: order at which an n-body expansion is truncated
-            transformers: A list of transformations to be applied to the driver result.
+            transformers: a list of transformations to be applied to the driver result.
         """
         super().__init__(bosonic_driver, transformers)
         self.num_modals = num_modals

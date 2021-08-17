@@ -107,8 +107,8 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             dipole_axes: a dictionary mapping Cartesian axes to DipoleMoment properties.
             dipole_shift: an optional dictionary of named dipole shifts.
             nuclear_dipole_moment: the optional nuclear dipole moment.
-            reverse_dipole_sign: whether the sign of the electronic dipole components needs to be
-                reversed in order to match the nuclear dipole moment direction.
+            reverse_dipole_sign: indicates whether the sign of the electronic dipole components
+                needs to be reversed in order to match the nuclear dipole moment direction.
         """
         super().__init__(self.__class__.__name__)
         self._dipole_shift = dipole_shift

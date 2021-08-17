@@ -107,8 +107,8 @@ class FCIDumpDriver(ElectronicStructureDriver):
         Args:
             outpath: Path to the output file.
             driver_result: The ElectronicStructureDriverResult to be dumped. It is assumed that the
-                nuclear_repulsion_energy in its ElectronicEnergy property contains the inactive core
-                energy.
+                nuclear_repulsion_energy contains the inactive core energy in its ElectronicEnergy
+                property.
             orbsym: A list of spatial symmetries of the orbitals.
             isym: The spatial symmetry of the wave function.
         """
