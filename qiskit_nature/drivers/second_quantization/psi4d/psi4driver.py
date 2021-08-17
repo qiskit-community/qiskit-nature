@@ -170,8 +170,11 @@ class PSI4Driver(ElectronicStructureDriver):
         )
 
         input_text += ["sys.path = " + syspath + " + sys.path"]
+        input_text += ["import warnings"]
         input_text += ["from qiskit_nature.drivers.qmolecule import QMolecule"]
+        input_text += ["warnings.filterwarnings('ignore', category=DeprecationWarning)"]
         input_text += ['_q_molecule = QMolecule("{0}")'.format(Path(molecule.filename).as_posix())]
+        input_text += ["warnings.filterwarnings('default', category=DeprecationWarning)"]
 
         with open(template_file, "r") as file:
             input_text += [line.strip("\n") for line in file.readlines()]
