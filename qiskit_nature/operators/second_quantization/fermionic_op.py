@@ -229,9 +229,9 @@ class FermionicOp(SecondQuantizedOp):
             if FermionicOp._display_format_warn:
                 FermionicOp._display_format_warn = False
                 warnings.warn(
-                    'The display_format="dense" will be changed to "sparse" as default.'
-                    "as of version 0.2.0 no sooner than 3 months after the release. "
-                    "Instead use the display_format=dense explicitly.",
+                    "The default value for `display_format` will be changed from 'dense'"
+                    "to 'sparse' in version 0.3.0. Once that happens, you must specify"
+                    "display_format='dense' directly."
                     stacklevel=2,
                 )
 
