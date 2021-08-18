@@ -112,7 +112,7 @@ def _build_single_hopping_operator(
         label[occ] = "+"
     for unocc in excitation[1]:
         label[unocc] = "-"
-    fer_op = FermionicOp(("".join(label), 4.0 ** len(excitation[0])))
+    fer_op = FermionicOp(("".join(label), 4.0 ** len(excitation[0])), display_format="sparse")
 
     qubit_op: PauliSumOp = qubit_converter.convert_match(fer_op)
     z2_symmetries = qubit_converter.z2symmetries
