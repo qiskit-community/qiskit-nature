@@ -361,7 +361,7 @@ class UCC(EvolvedOperatorAnsatz):
                 label[occ] = "+"
             for unocc in exc[1]:
                 label[unocc] = "-"
-            op = FermionicOp("".join(label))
+            op = FermionicOp("".join(label), display_format="dense")
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)

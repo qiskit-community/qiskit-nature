@@ -94,12 +94,14 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test H2 molecule"""
         with self.subTest("Excitation edges 1"):
             assert np.alltrue(
-                bksf._bksf_edge_list_fermionic_op(FermionicOp("+-+-")) == np.array([[0, 1], [2, 3]])
+                bksf._bksf_edge_list_fermionic_op(FermionicOp("+-+-", display_format="dense"))
+                == np.array([[0, 1], [2, 3]])
             )
 
         with self.subTest("Excitation edges 2"):
             assert np.alltrue(
-                bksf._bksf_edge_list_fermionic_op(FermionicOp("+--+")) == np.array([[0, 1], [3, 2]])
+                bksf._bksf_edge_list_fermionic_op(FermionicOp("+--+", display_format="dense"))
+                == np.array([[0, 1], [3, 2]])
             )
 
         ## H2 from pyscf with sto-3g basis
@@ -119,7 +121,8 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
                 ("NIIN", (0.6634680964235684 + 0j)),
                 ("NINI", (0.6744887663568382 + 0j)),
                 ("NNII", (0.48217928821207245 + 0j)),
-            ]
+            ],
+            display_format="dense",
         )
 
         expected_pauli_op = SparsePauliOp.from_list(

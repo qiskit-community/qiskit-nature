@@ -15,16 +15,15 @@
 import contextlib
 import io
 import unittest
-from typing import Optional, List, cast
-
 from test import QiskitNatureTestCase
+from typing import List, Optional, cast
 
-from qiskit.opflow import X, Y, Z, I, PauliSumOp, Z2Symmetries
+from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
-from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
@@ -170,7 +169,9 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
         with self.subTest("Two qubit reduction skipped when operator too small"):
-            small_op = FermionicOp([("N_0", 1.0), ("E_1", 1.0)], register_length=2)
+            small_op = FermionicOp(
+                [("N_0", 1.0), ("E_1", 1.0)], register_length=2, display_format="sparse"
+            )
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op)

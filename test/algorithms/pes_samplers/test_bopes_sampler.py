@@ -150,7 +150,6 @@ class TestBOPES(QiskitNatureTestCase):
             -1.137302817836066,
             -1.1341458916990401,
         ]
-        print(result.energies)
         np.testing.assert_almost_equal(result.points, ref_points)
         np.testing.assert_almost_equal(result.energies, ref_energies)
 
