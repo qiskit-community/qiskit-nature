@@ -68,7 +68,7 @@ class GaussianLogDriver(BaseDriver):
         """
         check_valid()
 
-    def run(self) -> GaussianLogResult:
+    def run(self) -> GaussianLogResult:  # type: ignore
         """Runs the driver to produce a result given the supplied job control file.
 
         Returns:

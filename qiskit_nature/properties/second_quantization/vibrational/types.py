@@ -27,12 +27,14 @@ class VibrationalProperty(SecondQuantizedProperty):
         self,
         name: str,
         basis: Optional[VibrationalBasis] = None,
-    ):
+    ) -> None:
         """
         Args:
-            basis: the ``VibrationalBasis`` through which to map the integrals into second
-                quantization. This property **MUST** be set before the second-quantized operator can
-                be constructed.
+            name: the name of the property.
+            basis: the
+                :class:`~qiskit_nature.properties.second_quantization.vibrational.bases.VibrationalBasis`
+                through which to map the integrals into second quantization. This attribute **MUST**
+                be set before the second-quantized operator can be constructed.
         """
         super().__init__(name)
         self._basis = basis
@@ -49,7 +51,7 @@ class VibrationalProperty(SecondQuantizedProperty):
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
-        string += [f"\t{line}" for line in str(self._basis).split("\n")]
+        string += [f"\t{line}" for line in str(self.basis).split("\n")]
         return "\n".join(string)
 
 
@@ -78,7 +80,7 @@ class GroupedVibrationalProperty(GroupedSecondQuantizedProperty[T], VibrationalP
             prop: the property to be added.
 
         Raises:
-            QiskitNatureError: if the added property is not an vibrational one.
+            QiskitNatureError: if the added property is not a vibrational one.
         """
         if prop is not None:
             if not isinstance(prop, (VibrationalProperty, PseudoProperty)):

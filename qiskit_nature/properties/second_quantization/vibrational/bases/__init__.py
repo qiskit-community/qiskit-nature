@@ -10,11 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Vibrational Bases (:mod:`qiskit_nature.properties.vibrational_structure.bases`)
-===============================================================================
+Vibrational Bases (:mod:`qiskit_nature.properties.second_quantization.vibrational.bases`)
+=========================================================================================
 
-.. currentmodule:: qiskit_nature.properties.vibrational_structure.bases
+.. currentmodule:: qiskit_nature.properties.second_quantization.vibrational.bases
 
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   HarmonicBasis
+   VibrationalBasis
 """
 
 from .harmonic_basis import HarmonicBasis

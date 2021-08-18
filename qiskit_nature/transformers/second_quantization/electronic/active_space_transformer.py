@@ -169,11 +169,13 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-    def transform(self, molecule_data: GroupedSecondQuantizedProperty) -> GroupedElectronicProperty:
+    def transform(
+        self, grouped_property: GroupedSecondQuantizedProperty
+    ) -> GroupedElectronicProperty:
         """Reduces the given `GroupedElectronicProperty` to a given active space.
 
         Args:
-            molecule_data: the `GroupedElectronicProperty` to be transformed.
+            grouped_property: the `GroupedElectronicProperty` to be transformed.
 
         Returns:
             A new `GroupedElectronicProperty` instance.
@@ -185,13 +187,13 @@ class ActiveSpaceTransformer(BaseTransformer):
                                number of selected active orbital indices does not match
                                `num_molecular_orbitals`.
         """
-        if not isinstance(molecule_data, GroupedElectronicProperty):
+        if not isinstance(grouped_property, GroupedElectronicProperty):
             raise QiskitNatureError(
                 "Only `GroupedElectronicProperty` objects can be transformed by this Transformer, "
-                f"not objects of type, {type(molecule_data)}."
+                f"not objects of type, {type(grouped_property)}."
             )
 
-        particle_number = molecule_data.get_property(ParticleNumber)
+        particle_number = grouped_property.get_property(ParticleNumber)
         if particle_number is None:
             raise QiskitNatureError(
                 "The provided `GroupedElectronicProperty` does not contain a `ParticleNumber` "
@@ -199,7 +201,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             )
         particle_number = cast(ParticleNumber, particle_number)
 
-        electronic_basis_transform = molecule_data.get_property(ElectronicBasisTransform)
+        electronic_basis_transform = grouped_property.get_property(ElectronicBasisTransform)
         if electronic_basis_transform is None:
             raise QiskitNatureError(
                 "The provided `GroupedElectronicProperty` does not contain an "
@@ -213,7 +215,9 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._mo_occ_total = occupation_alpha + occupation_beta
 
         # determine the active space
-        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(molecule_data)
+        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(
+            grouped_property
+        )
 
         # get molecular orbital coefficients
         coeff_alpha = electronic_basis_transform.coeff_alpha
@@ -243,24 +247,24 @@ class ActiveSpaceTransformer(BaseTransformer):
         )
 
         # construct new GroupedElectronicProperty
-        molecule_data_reduced = ElectronicStructureResult()
-        molecule_data_reduced.electronic_basis_transform = self._transform_active
-        molecule_data_reduced = self._transform_property(molecule_data)  # type: ignore
+        grouped_property_transformed = ElectronicStructureResult()
+        grouped_property_transformed.electronic_basis_transform = self._transform_active
+        grouped_property_transformed = self._transform_property(grouped_property)  # type: ignore
 
-        return molecule_data_reduced
+        return grouped_property_transformed
 
     def _determine_active_space(
-        self, molecule_data: GroupedElectronicProperty
+        self, grouped_property: GroupedElectronicProperty
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            molecule_data: the `GroupedElectronicProperty` to be transformed.
+            grouped_property: the `GroupedElectronicProperty` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
         """
-        particle_number = molecule_data.get_property(ParticleNumber)
+        particle_number = grouped_property.get_property(ParticleNumber)
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, int):

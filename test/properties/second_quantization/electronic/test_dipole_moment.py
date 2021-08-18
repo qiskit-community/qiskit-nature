@@ -37,8 +37,7 @@ class TestElectronicDipoleMoment(QiskitNatureTestCase):
                 "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
             )
         )
-        qmol = driver.run()
-        self.prop = ElectronicDipoleMoment.from_legacy_driver_result(qmol)
+        self.prop = driver.run().get_property(ElectronicDipoleMoment)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

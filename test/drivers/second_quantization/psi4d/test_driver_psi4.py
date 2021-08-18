@@ -45,7 +45,7 @@ class TestDriverPSI4(QiskitNatureTestCase, TestDriver):
                 "}",
             ]
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 class TestDriverPSI4Molecule(QiskitNatureTestCase, TestDriver):
@@ -57,7 +57,7 @@ class TestDriverPSI4Molecule(QiskitNatureTestCase, TestDriver):
         driver = ElectronicStructureMoleculeDriver(
             TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.PSI4
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 if __name__ == "__main__":

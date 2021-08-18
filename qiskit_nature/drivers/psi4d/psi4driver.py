@@ -136,8 +136,11 @@ class PSI4Driver(FermionicDriver):
         )
 
         input_text += "sys.path = " + syspath + " + sys.path\n"
+        input_text += "import warnings\n"
         input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"
+        input_text += "warnings.filterwarnings('ignore', category=DeprecationWarning)\n"
         input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
+        input_text += "warnings.filterwarnings('default', category=DeprecationWarning)\n"
 
         with open(template_file, "r") as file:
             input_text += file.read()

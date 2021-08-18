@@ -17,7 +17,7 @@ Vibrational Structure Properties (:mod:`qiskit_nature.properties.second_quantiza
 
 This module provides commonly evaluated properties for *vibrational* problems.
 
-The main ``Property`` of this module is the
+The main :class:`~qiskit_nature.properties.Property` of this module is the
 
 .. autosummary::
    :toctree: ../stubs/

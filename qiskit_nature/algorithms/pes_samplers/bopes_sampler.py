@@ -13,7 +13,7 @@
 """The calculation of points on the Born-Oppenheimer Potential Energy Surface (BOPES)."""
 
 import logging
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
@@ -67,7 +67,7 @@ class BOPESSampler:
         self._tolerance = tolerance
         self._bootstrap = bootstrap
         self._problem: BaseProblem = None
-        self._driver: BaseDriver = None
+        self._driver: Union[DeprecatedBaseDriver, BaseDriver] = None
         self._points: List[float] = None
         self._energies: List[float] = None
         self._raw_results: Dict[float, EigenstateResult] = None

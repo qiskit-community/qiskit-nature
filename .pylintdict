@@ -142,6 +142,7 @@ gaussiand
 getitem
 getter
 gfortran
+github
 glutamic
 glutamine
 glycine
@@ -328,6 +329,7 @@ rccx
 readme
 realise
 rebranding
+refactor
 regs
 repr
 rhf
@@ -373,6 +375,7 @@ str
 subcircuits
 subclasses
 submodules
+subtest
 subtype
 succ
 sudo

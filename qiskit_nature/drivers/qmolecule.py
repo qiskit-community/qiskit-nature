@@ -19,7 +19,7 @@ import warnings
 from typing import List
 
 import numpy
-from ..deprecation import DeprecatedType, warn_deprecated_same_type_name
+from ..deprecation import DeprecatedType, warn_deprecated
 
 TWOE_TO_SPIN_SUBSCRIPT = "ijkl->ljik"
 
@@ -47,11 +47,16 @@ class QMolecule:
     QMOLECULE_VERSION = 3
 
     def __init__(self, filename=None):
-        warn_deprecated_same_type_name(
+        warn_deprecated(
             "0.2.0",
             DeprecatedType.CLASS,
             "QMolecule",
-            "from qiskit_nature.drivers.second_quantization as a direct replacement",
+            additional_msg=(
+                "Instead look towards the qiskit_nature.properties.second_quantization.electronic "
+                "module. The new return object for drivers is the ElectronicStructureDriverResult "
+                "which you can construct from a QMolecule via the `from_legacy_driver_result()` "
+                "method."
+            ),
         )
         self._filename = filename
 

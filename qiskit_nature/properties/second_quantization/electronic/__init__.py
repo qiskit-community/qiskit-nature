@@ -17,7 +17,7 @@ Electronic Structure Properties (:mod:`qiskit_nature.properties.second_quantizat
 
 This module provides commonly evaluated properties for *electronic* problems.
 
-The main ``Property`` of this module is the
+The main :class:`~qiskit_nature.properties.Property` of this module is the
 
 .. autosummary::
    :toctree: ../stubs/
@@ -26,8 +26,8 @@ The main ``Property`` of this module is the
    ElectronicEnergy
 
 which constructs the primary Hamiltonian whose solution is the goal of the Quantum Algorithm.
-The following auxiliary properties will be evaluated by default to provide further details of the
-solution:
+If the quantum algorithm in use supports the evaluation of auxiliary operators, the following
+properties will be evaluated by default to provide further details about the solution:
 
 .. autosummary::
    :toctree: ../stubs/
@@ -64,7 +64,7 @@ Utilities
 """
 
 from .angular_momentum import AngularMomentum
-from .dipole_moment import ElectronicDipoleMoment
+from .dipole_moment import DipoleMoment, ElectronicDipoleMoment
 from .electronic_structure_driver_result import ElectronicStructureDriverResult
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
@@ -72,6 +72,7 @@ from .particle_number import ParticleNumber
 
 __all__ = [
     "AngularMomentum",
+    "DipoleMoment",
     "ElectronicDipoleMoment",
     "ElectronicStructureDriverResult",
     "ElectronicEnergy",

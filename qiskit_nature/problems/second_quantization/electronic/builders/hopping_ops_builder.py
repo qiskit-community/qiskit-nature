@@ -20,13 +20,13 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
-from qiskit_nature.drivers.second_quantization import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
 def _build_qeom_hopping_ops(
-    q_molecule: QMolecule,
+    particle_number: ParticleNumber,
     qubit_converter: QubitConverter,
     excitations: Union[
         str,
@@ -42,7 +42,7 @@ def _build_qeom_hopping_ops(
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
-        q_molecule: the `QMolecule` specifying the electronic space in which the excitations lie.
+        particle_number: the `ParticleNumber` property containing relevant sector information.
         qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
@@ -59,9 +59,8 @@ def _build_qeom_hopping_ops(
         indices.
     """
 
-    num_alpha, num_beta = q_molecule.num_alpha, q_molecule.num_beta
-    num_molecular_orbitals = q_molecule.num_molecular_orbitals
-    num_spin_orbitals = 2 * num_molecular_orbitals
+    num_alpha, num_beta = particle_number.num_alpha, particle_number.num_beta
+    num_spin_orbitals = particle_number.num_spin_orbitals
 
     excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
     if isinstance(excitations, (str, int)) or (
@@ -113,7 +112,7 @@ def _build_single_hopping_operator(
         label[occ] = "+"
     for unocc in excitation[1]:
         label[unocc] = "-"
-    fer_op = FermionicOp(("".join(label), 4.0 ** len(excitation[0])))
+    fer_op = FermionicOp(("".join(label), 4.0 ** len(excitation[0])), display_format="sparse")
 
     qubit_op: PauliSumOp = qubit_converter.convert_match(fer_op)
     z2_symmetries = qubit_converter.z2symmetries

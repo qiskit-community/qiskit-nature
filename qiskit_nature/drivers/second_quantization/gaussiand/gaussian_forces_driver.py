@@ -15,7 +15,9 @@
 from typing import Union, List, Optional, Dict, Any
 from qiskit_nature import QiskitNatureError
 
-from ..watson_hamiltonian import WatsonHamiltonian
+from qiskit_nature.properties.second_quantization.vibrational import (
+    VibrationalStructureDriverResult,
+)
 from ...units_type import UnitsType
 from ..vibrational_structure_driver import VibrationalStructureDriver
 from ...molecule import Molecule
@@ -138,10 +140,11 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         """
         check_valid()
 
-    def run(self) -> WatsonHamiltonian:
+    def run(self) -> VibrationalStructureDriverResult:
         if self._logfile is not None:
             glr = GaussianLogResult(self._logfile)
         else:
             glr = GaussianLogDriver(jcf=self._jcf).run()
 
-        return glr.get_watson_hamiltonian(self._normalize)
+        watson = glr.get_watson_hamiltonian(self._normalize)
+        return VibrationalStructureDriverResult.from_legacy_driver_result(watson)

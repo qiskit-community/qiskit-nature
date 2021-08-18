@@ -18,9 +18,11 @@ from enum import Enum
 class ElectronicBasis(Enum):
     """An enumeration of the available electronic bases.
 
-    This ``Enum`` simply names the available electronic bases. The ``SO`` basis is the _special_
-    basis into which an ``ElectronicEnergy`` must map its integrals before being able to perform the
-    mapping to a ``qiskit_nature.operators.second_quantization.SecondQuantizedOp``.
+    This ``Enum`` simply names the available electronic bases. The ``SO`` basis is the *special*
+    basis into which an
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy` must map its
+    integrals before being able to perform the mapping to a
+    :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
     """
 
     # pylint: disable=invalid-name

@@ -17,32 +17,38 @@ from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 
-LOGGER = logging.getLogger(__file__)
+LOGGER = logging.getLogger(__name__)
 
 
 class ParticleNumber(ElectronicProperty):
     """The ParticleNumber property.
 
     Note that this Property serves a two purposes:
-        1. it stores the expected number of electrons (`self.num_particles`)
+        1. it stores the expected number of electrons (``self.num_particles``)
         2. it is used to evaluate the measured number of electrons via auxiliary operators.
-           If this measured number does not match the expected number a warning will be logged.
+           If this measured number does not match the expected number, it will be logged on the INFO
+           level.
     """
+
+    ABSOLUTE_TOLERANCE = 1e-05
+    RELATIVE_TOLERANCE = 1e-02
 
     def __init__(
         self,
         num_spin_orbitals: int,
         num_particles: Union[int, Tuple[int, int]],
-        occupation: Optional[List[float]] = None,
-        occupation_beta: Optional[List[float]] = None,
-    ):
+        occupation: Optional[Union[np.ndarray, List[float]]] = None,
+        occupation_beta: Optional[Union[np.ndarray, List[float]]] = None,
+        absolute_tolerance: float = ABSOLUTE_TOLERANCE,
+        relative_tolerance: float = RELATIVE_TOLERANCE,
+    ) -> None:
         """
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
@@ -52,6 +58,10 @@ class ParticleNumber(ElectronicProperty):
             occupation: the occupation numbers. If ``occupation_beta`` is ``None``, these are the
                 total occupation numbers, otherwise these are treated as the alpha-spin occupation.
             occupation_beta: the beta-spin occupation numbers.
+            absolute_tolerance: the absolute tolerance used for checking whether the measured
+                particle number matches the expected one.
+            relative_tolerance: the relative tolerance used for checking whether the measured
+                particle number matches the expected one.
         """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
@@ -70,8 +80,11 @@ class ParticleNumber(ElectronicProperty):
             self._occupation_alpha = [o / 2.0 for o in occupation]
             self._occupation_beta = [o / 2.0 for o in occupation]
         else:
-            self._occupation_alpha = occupation
-            self._occupation_beta = occupation_beta
+            self._occupation_alpha = occupation  # type: ignore
+            self._occupation_beta = occupation_beta  # type: ignore
+
+        self._absolute_tolerance = absolute_tolerance
+        self._relative_tolerance = relative_tolerance
 
     @property
     def num_spin_orbitals(self) -> int:
@@ -114,25 +127,27 @@ class ParticleNumber(ElectronicProperty):
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
-        string += [f"\t{self._num_alpha} alpha electrons: {self.occupation_alpha}"]
-        string += [f"\t{self._num_beta} beta electrons: {self.occupation_beta}"]
+        string += [f"\t{self._num_alpha} alpha electrons"]
+        string += [f"\t\torbital occupation: {self.occupation_alpha}"]
+        string += [f"\t{self._num_beta} beta electrons"]
+        string += [f"\t\torbital occupation: {self.occupation_beta}"]
         return "\n".join(string)
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
-        """Construct a ParticleNumber instance from a QMolecule.
+        """Construct a ParticleNumber instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
 
@@ -148,11 +163,13 @@ class ParticleNumber(ElectronicProperty):
         op = FermionicOp(
             [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
             register_length=self._num_spin_orbitals,
+            display_format="sparse",
         )
         return [op]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.
@@ -172,8 +189,13 @@ class ParticleNumber(ElectronicProperty):
                 n_particles = aux_op_eigenvalues[0][0].real  # type: ignore
                 result.num_particles.append(n_particles)
 
-                if not np.isclose(n_particles, expected):
-                    LOGGER.warning(
+                if not np.isclose(
+                    n_particles,
+                    expected,
+                    rtol=self._relative_tolerance,
+                    atol=self._absolute_tolerance,
+                ):
+                    LOGGER.info(
                         "The measured number of particles %s does NOT match the expected number of "
                         "particles %s!",
                         n_particles,

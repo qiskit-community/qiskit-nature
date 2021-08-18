@@ -16,6 +16,7 @@ import contextlib
 import copy
 import io
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -52,6 +53,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
+        warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*drivers.*")
         self.driver = HDF5Driver(
             self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
         )

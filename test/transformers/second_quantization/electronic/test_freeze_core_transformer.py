@@ -18,7 +18,6 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 
 
@@ -47,8 +46,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
                 "H2_sto3g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         # The references which we compare too were produced by the `ActiveSpaceTransformer` and,
         # thus, the key here needs to stay the same as in that test case.
@@ -70,19 +68,16 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
                 "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         trafo = FreezeCoreTransformer(freeze_core=True)
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected_qmol = HDF5Driver(
+        expected = HDF5Driver(
             hdf5_input=self.get_resource_path(
                 "LiH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
             )
         ).run()
-        expected_qmol.num_molecular_orbitals = 4
-        expected = ElectronicStructureDriverResult.from_legacy_driver_result(expected_qmol)
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
 
@@ -93,19 +88,17 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
                 "BeH_sto3g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         trafo = FreezeCoreTransformer(freeze_core=True, remove_orbitals=[4, 5])
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected_qmol = HDF5Driver(
+        expected = HDF5Driver(
             hdf5_input=self.get_resource_path(
                 "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
             )
         ).run()
-        expected_qmol.num_molecular_orbitals = 3
-        expected = ElectronicStructureDriverResult.from_legacy_driver_result(expected_qmol)
+        expected.get_property("ParticleNumber")._num_spin_orbitals = 6
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
 

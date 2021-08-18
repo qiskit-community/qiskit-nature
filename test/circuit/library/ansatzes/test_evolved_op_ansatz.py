@@ -78,7 +78,9 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
 
     def test_invalid_reps(self):
         """Test setting an invalid number of reps."""
-        evo = EvolvedOperatorAnsatz(X, reps=0)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            evo = EvolvedOperatorAnsatz(X, reps=0)
         with self.assertRaises(ValueError):
             _ = evo.count_ops()
 

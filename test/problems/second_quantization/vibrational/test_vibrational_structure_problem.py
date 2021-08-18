@@ -11,13 +11,16 @@
 # that they have been altered from the originals.
 
 """Tests Vibrational Problem."""
+
+import warnings
 from test import QiskitNatureTestCase
+
+from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
-from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 
 
-class TestVibrationalProblem(QiskitNatureTestCase):
+class TestVibrationalStructureProblem(QiskitNatureTestCase):
     """Tests Vibrational Problem."""
 
     def test_second_q_ops_without_transformers(self):
@@ -28,9 +31,11 @@ class TestVibrationalProblem(QiskitNatureTestCase):
             "CO2_freq_B3LYP_ccpVDZ.log",
             "problems/second_quantization/vibrational/resources",
         )
-        driver = GaussianForcesDriver(logfile=logfile)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            driver = GaussianForcesDriver(logfile=logfile)
+            watson_hamiltonian = driver.run()
 
-        watson_hamiltonian = driver.run()
         num_modals = 2
         truncation_order = 3
         num_modes = watson_hamiltonian.num_modes
@@ -38,6 +43,17 @@ class TestVibrationalProblem(QiskitNatureTestCase):
         vibrational_problem = VibrationalStructureProblem(driver, num_modals, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
         vibrational_op = second_quantized_ops[0]
+
+        with self.subTest("Check that the correct properties are/aren't None"):
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                # new driver used, molecule_data* should be None
+                self.assertIsNone(vibrational_problem.molecule_data)
+                self.assertIsNone(vibrational_problem.molecule_data_transformed)
+            # converted properties should never be None
+            self.assertIsNotNone(vibrational_problem.grouped_property)
+            self.assertIsNotNone(vibrational_problem.grouped_property_transformed)
+
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):

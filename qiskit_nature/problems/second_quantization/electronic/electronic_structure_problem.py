@@ -21,7 +21,8 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
-from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver, QMolecule
+from qiskit_nature.drivers import QMolecule
+from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.electronic import (
@@ -42,21 +43,19 @@ class ElectronicStructureProblem(BaseProblem):
     def __init__(
         self,
         driver: ElectronicStructureDriver,
-        q_molecule_transformers: Optional[
-            List[Union[LegacyBaseTransformer, BaseTransformer]]
-        ] = None,
+        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
     ):
         """
 
         Args:
             driver: A fermionic driver encoding the molecule information.
-            q_molecule_transformers: A list of transformations to be applied to the molecule.
+            transformers: A list of transformations to be applied to the driver result.
         """
-        super().__init__(driver, q_molecule_transformers)
+        super().__init__(driver, transformers)
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        return self._properties_transformed.get_property("ParticleNumber").num_particles
+        return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
@@ -67,17 +66,30 @@ class ElectronicStructureProblem(BaseProblem):
             total particle number operator, total angular momentum operator, total magnetization
             operator, and (if available) x, y, z dipole operators.
         """
-        self._molecule_data = cast(QMolecule, self.driver.run())
-        if self._legacy_transform:
-            qmol_transformed = self._transform(self._molecule_data)
-            self._properties_transformed = (
-                ElectronicStructureDriverResult.from_legacy_driver_result(qmol_transformed)
-            )
-        else:
-            prop = ElectronicStructureDriverResult.from_legacy_driver_result(self._molecule_data)
-            self._properties_transformed = self._transform(prop)
+        driver_result = self.driver.run()
 
-        second_quantized_ops_list = self._properties_transformed.second_q_ops()
+        if self._legacy_driver:
+            self._molecule_data = cast(QMolecule, driver_result)
+            self._grouped_property = ElectronicStructureDriverResult.from_legacy_driver_result(
+                self._molecule_data
+            )
+
+            if self._legacy_transform:
+                self._molecule_data_transformed = self._transform(self._molecule_data)
+                self._grouped_property_transformed = (
+                    ElectronicStructureDriverResult.from_legacy_driver_result(
+                        self._molecule_data_transformed
+                    )
+                )
+
+            else:
+                self._grouped_property_transformed = self._transform(self._grouped_property)
+
+        else:
+            self._grouped_property = driver_result
+            self._grouped_property_transformed = self._transform(self._grouped_property)
+
+        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
 
         return second_quantized_ops_list
 
@@ -115,8 +127,8 @@ class ElectronicStructureProblem(BaseProblem):
             A tuple containing the hopping operators, the types of commutativities and the
             excitation indices.
         """
-        q_molecule = cast(QMolecule, self.molecule_data)
-        return _build_qeom_hopping_ops(q_molecule, qubit_converter, excitations)
+        particle_number = self.grouped_property_transformed.get_property("ParticleNumber")
+        return _build_qeom_hopping_ops(particle_number, qubit_converter, excitations)
 
     def interpret(
         self,
@@ -147,7 +159,7 @@ class ElectronicStructureProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self._properties_transformed.interpret(result)
+        self._grouped_property_transformed.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         return result
 
@@ -169,7 +181,7 @@ class ElectronicStructureProblem(BaseProblem):
             # the second aux_value is the total angular momentum which (for singlets) should be zero
             total_angular_momentum_aux = aux_values[1][0]
             particle_number = cast(
-                ParticleNumber, self.properties_transformed.get_property(ParticleNumber)
+                ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )
             return (
                 np.isclose(

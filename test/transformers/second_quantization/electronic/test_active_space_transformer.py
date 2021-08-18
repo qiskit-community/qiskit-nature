@@ -88,8 +88,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 "H2_sto3g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
         for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
@@ -107,8 +106,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 "H2_631g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
         driver_result_reduced = trafo.transform(driver_result)
@@ -186,19 +184,16 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 "BeH_sto3g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=(2, 1), num_molecular_orbitals=3)
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureDriverResult.from_legacy_driver_result(
-            HDF5Driver(
-                hdf5_input=self.get_resource_path(
-                    "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
-                )
-            ).run()
-        )
+        expected = HDF5Driver(
+            hdf5_input=self.get_resource_path(
+                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+            )
+        ).run()
 
         self.assertDriverResult(driver_result_reduced, expected)
 
@@ -209,8 +204,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 "H2_631g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(
             num_electrons=2, num_molecular_orbitals=2, active_orbitals=[0, 2]
@@ -299,8 +293,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 "H2_sto3g.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         with self.assertRaises(QiskitNatureError, msg=message):
             ActiveSpaceTransformer(
@@ -316,8 +309,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 "H2_sto3g_v2.hdf5", "transformers/second_quantization/electronic"
             )
         )
-        q_molecule = driver.run()
-        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_molecule)
+        driver_result = driver.run()
 
         driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
         for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):

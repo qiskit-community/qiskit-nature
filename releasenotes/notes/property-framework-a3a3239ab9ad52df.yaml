@@ -1,0 +1,21 @@
+---
+features:
+  - |
+    The Property framework is the new modular and extensible approach for
+    representing observable quantities. The framework is used as a replacement
+    for the legacy driver results like `QMolecule` and `WatsonHamiltonian`.
+    Please refer to the tutorial and documentation for more details.
+    Related Github issues:
+    * https://github.com/Qiskit/qiskit-nature/issues/148
+    * https://github.com/Qiskit/qiskit-nature/issues/167
+    * https://github.com/Qiskit/qiskit-nature/pull/220
+    * https://github.com/Qiskit/qiskit-nature/issues/243
+    * https://github.com/Qiskit/qiskit-nature/pull/263
+    * https://github.com/Qiskit/qiskit-nature/issues/264
+    * https://github.com/Qiskit/qiskit-nature/pull/303
+deprecations:
+  - |
+    * the legacy driver return types, `QMolecule` and `WatsonHamiltonian`
+    * the legacy transformers acting on the now deprecated driver return types
+    * the `BaseProblem.molecule_data` and `BaseProblem.molecule_data_transformed` attributes
+

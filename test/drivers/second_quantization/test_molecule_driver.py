@@ -12,6 +12,8 @@
 
 """ Test Molecule Driver """
 
+from typing import cast
+
 import unittest
 from test import QiskitNatureTestCase, requires_extra_library
 from ddt import ddt, data
@@ -24,6 +26,7 @@ from qiskit_nature.drivers.second_quantization import (
 )
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.exceptions import UnsupportMethodError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 
 
 @ddt
@@ -64,8 +67,9 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
         driver = ElectronicStructureMoleculeDriver(
             self._molecule, basis="sto3g", driver_type=driver_type
         )
-        molecule = driver.run()
-        self.assertAlmostEqual(molecule.hf_energy, hf_energy, places=5)
+        driver_result = driver.run()
+        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        self.assertAlmostEqual(electronic_energy.reference_energy, hf_energy, places=5)
 
     @data(
         ElectronicStructureDriverType.PSI4,

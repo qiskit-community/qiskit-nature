@@ -23,7 +23,7 @@ from qiskit_nature.drivers import FermionicDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.transformers.second_quantization import BaseTransformer
+from qiskit_nature.transformers import BaseTransformer
 
 
 class TestDriverMethods(QiskitNatureTestCase):

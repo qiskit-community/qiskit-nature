@@ -490,8 +490,11 @@ class FermionicOp(SecondQuantizedOp):
             i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
-            return FermionicOp(("", 0), self.register_length)
-        return FermionicOp(list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])))
+            return FermionicOp(("", 0), self.register_length, display_format=self.display_format)
+        return FermionicOp(
+            list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
+            display_format=self.display_format,
+        )
 
     @property
     def display_format(self):
@@ -591,7 +594,7 @@ class FermionicOp(SecondQuantizedOp):
         Returns:
             The zero-operator of the given length.
         """
-        return FermionicOp(("I_0", 0.0), register_length=register_length)
+        return FermionicOp(("I_0", 0.0), register_length=register_length, display_format="sparse")
 
     @classmethod
     def one(cls, register_length: int) -> "FermionicOp":
@@ -603,4 +606,4 @@ class FermionicOp(SecondQuantizedOp):
         Returns:
             The unity-operator of the given length.
         """
-        return FermionicOp(("I_0", 1.0), register_length=register_length)
+        return FermionicOp(("I_0", 1.0), register_length=register_length, display_format="sparse")

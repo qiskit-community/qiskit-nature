@@ -12,11 +12,20 @@
 
 """FCIDump Driver."""
 
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import (
+    ElectronicStructureDriverResult,
+    ElectronicEnergy,
+    ParticleNumber,
+)
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
+)
 
-from ..qmolecule import QMolecule
 from .dumper import dump
 from .parser import parse  # pylint: disable=deprecated-module
 from ..electronic_structure_driver import ElectronicStructureDriver
@@ -35,17 +44,13 @@ class FCIDumpDriver(ElectronicStructureDriver):
             ISSN 0010-4655, https://doi.org/10.1016/0010-4655(89)90033-7.
     """
 
-    def __init__(self, fcidump_input: str, atoms: Optional[List[str]] = None) -> None:
+    def __init__(self, fcidump_input: str) -> None:
         """
         Args:
             fcidump_input: Path to the FCIDump file.
-            atoms: Allows to specify the atom list of the molecule. If it is provided, the created
-                QMolecule instance will permit frozen core Hamiltonians. This list must consist of
-                valid atom symbols.
 
         Raises:
-            QiskitNatureError: If ``fcidump_input`` is not a string or if ``atoms`` is not a list
-                of valid atomic symbols as specified in ``QMolecule``.
+            QiskitNatureError: If ``fcidump_input`` is not a string.
         """
         super().__init__()
 
@@ -53,48 +58,46 @@ class FCIDumpDriver(ElectronicStructureDriver):
             raise QiskitNatureError("The fcidump_input must be str, not '{}'".format(fcidump_input))
         self._fcidump_input = fcidump_input
 
-        if (
-            atoms
-            and not isinstance(atoms, list)
-            and not all(sym in QMolecule.symbols for sym in atoms)
-        ):
-            raise QiskitNatureError(
-                "The atoms must be a list of valid atomic symbols, not '{}'".format(atoms)
-            )
-        self.atoms = atoms
-
-    def run(self) -> QMolecule:
-        """Constructs a QMolecule instance out of a FCIDump file.
-
-        Returns:
-            A QMolecule instance populated with a minimal set of required data.
-        """
+    def run(self) -> ElectronicStructureDriverResult:
+        """Returns an ElectronicStructureDriverResult instance out of a FCIDump file."""
         fcidump_data = parse(self._fcidump_input)
 
-        q_mol = QMolecule()
+        hij = fcidump_data.get("hij", None)
+        hij_b = fcidump_data.get("hij_b", None)
+        hijkl = fcidump_data.get("hijkl", None)
+        hijkl_ba = fcidump_data.get("hijkl_ba", None)
+        hijkl_bb = fcidump_data.get("hijkl_bb", None)
 
-        q_mol.nuclear_repulsion_energy = fcidump_data.get("ecore", None)
-        q_mol.num_molecular_orbitals = fcidump_data.get("NORB")
-        q_mol.multiplicity = fcidump_data.get("MS2", 0) + 1
-        q_mol.molecular_charge = 0  # ensures QMolecule.log() works
-        q_mol.num_beta = (fcidump_data.get("NELEC") - (q_mol.multiplicity - 1)) // 2
-        q_mol.num_alpha = fcidump_data.get("NELEC") - q_mol.num_beta
-        if self.atoms is not None:
-            q_mol.num_atoms = len(self.atoms)
-            q_mol.atom_symbol = self.atoms
-            q_mol.atom_xyz = [[float("NaN")] * 3] * len(self.atoms)  # ensures QMolecule.log() works
+        multiplicity = fcidump_data.get("MS2", 0) + 1
+        num_beta = (fcidump_data.get("NELEC") - (multiplicity - 1)) // 2
+        num_alpha = fcidump_data.get("NELEC") - num_beta
 
-        q_mol.mo_onee_ints = fcidump_data.get("hij", None)
-        q_mol.mo_onee_ints_b = fcidump_data.get("hij_b", None)
-        q_mol.mo_eri_ints = fcidump_data.get("hijkl", None)
-        q_mol.mo_eri_ints_bb = fcidump_data.get("hijkl_bb", None)
-        q_mol.mo_eri_ints_ba = fcidump_data.get("hijkl_ba", None)
+        particle_number = ParticleNumber(
+            num_spin_orbitals=fcidump_data.get("NORB") * 2,
+            num_particles=(num_alpha, num_beta),
+        )
 
-        return q_mol
+        electronic_energy = ElectronicEnergy(
+            [
+                OneBodyElectronicIntegrals(ElectronicBasis.MO, (hij, hij_b)),
+                TwoBodyElectronicIntegrals(ElectronicBasis.MO, (hijkl, hijkl_ba, hijkl_bb, None)),
+            ],
+            nuclear_repulsion_energy=fcidump_data.get("ecore", None),
+        )
+
+        # NOTE: under Python 3.6, pylint appears to be unable to properly identify this case of
+        # nested abstract classes (cf. https://github.com/Qiskit/qiskit-nature/runs/3245395353).
+        # However, since the tests pass I am adding an exception for this specific case.
+        # pylint: disable=abstract-class-instantiated
+        driver_result = ElectronicStructureDriverResult()
+        driver_result.add_property(electronic_energy)
+        driver_result.add_property(particle_number)
+
+        return driver_result
 
     @staticmethod
     def dump(
-        q_mol: QMolecule,
+        driver_result: ElectronicStructureDriverResult,
         outpath: str,
         orbsym: Optional[List[str]] = None,
         isym: int = 1,
@@ -103,19 +106,24 @@ class FCIDumpDriver(ElectronicStructureDriver):
 
         Args:
             outpath: Path to the output file.
-            q_mol: QMolecule data to be dumped. It is assumed that the nuclear_repulsion_energy in
-                this QMolecule instance contains the inactive core energy.
+            driver_result: The ElectronicStructureDriverResult to be dumped. It is assumed that the
+                nuclear_repulsion_energy contains the inactive core energy in its ElectronicEnergy
+                property.
             orbsym: A list of spatial symmetries of the orbitals.
             isym: The spatial symmetry of the wave function.
         """
+        particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
+        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        one_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
+        two_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         dump(
             outpath,
-            q_mol.num_molecular_orbitals,
-            q_mol.num_alpha + q_mol.num_beta,
-            (q_mol.mo_onee_ints, q_mol.mo_onee_ints_b),  # type: ignore
-            (q_mol.mo_eri_ints, q_mol.mo_eri_ints_ba, q_mol.mo_eri_ints_bb),  # type: ignore
-            q_mol.nuclear_repulsion_energy,
-            ms2=q_mol.multiplicity - 1,
+            particle_number.num_spin_orbitals // 2,
+            particle_number.num_alpha + particle_number.num_beta,
+            one_body_integrals._matrices,  # type: ignore
+            two_body_integrals._matrices[0:3],  # type: ignore
+            electronic_energy.nuclear_repulsion_energy,
+            ms2=driver_result.molecule.multiplicity - 1,
             orbsym=orbsym,
             isym=isym,
         )
