@@ -127,8 +127,10 @@ class ParticleNumber(ElectronicProperty):
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
-        string += [f"\t{self._num_alpha} alpha electrons: {self.occupation_alpha}"]
-        string += [f"\t{self._num_beta} beta electrons: {self.occupation_beta}"]
+        string += [f"\t{self._num_alpha} alpha electrons"]
+        string += [f"\t\torbital occupation: {self.occupation_alpha}"]
+        string += [f"\t{self._num_beta} beta electrons"]
+        string += [f"\t\torbital occupation: {self.occupation_beta}"]
         return "\n".join(string)
 
     @classmethod
