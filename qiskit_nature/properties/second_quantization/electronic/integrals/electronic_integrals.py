@@ -215,9 +215,9 @@ class ElectronicIntegrals(ABC):
         Returns:
             The base operator.
         """
-        base_op = FermionicOp(("I_0", coeff), register_length=length)
+        base_op = FermionicOp(("I_0", coeff), register_length=length, display_format="sparse")
         for i, op in self._calc_coeffs_with_ops(indices):
-            base_op @= FermionicOp(f"{op}_{i}")
+            base_op @= FermionicOp(f"{op}_{i}", display_format="sparse")
         return base_op
 
     @abstractmethod
