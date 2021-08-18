@@ -44,8 +44,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
                 Otherwise, this must be a pair of matrices, the first one being the alpha-spin
                 matrix (which is required) and the second one being an optional beta-spin matrix. If
                 the latter is ``None``, the alpha-spin matrix is used in its place.
-            threshold: the truncation level below which to treat the integral in the SO matrix as
-                zero-valued.
+            threshold: the truncation level below which to treat the integral as zero-valued.
         """
         num_body_terms = 1
         super().__init__(num_body_terms, basis, matrices, threshold)

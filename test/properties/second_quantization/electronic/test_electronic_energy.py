@@ -14,6 +14,7 @@
 
 import json
 from test import QiskitNatureTestCase
+from typing import cast
 
 import numpy as np
 
@@ -39,7 +40,9 @@ class TestElectronicEnergy(QiskitNatureTestCase):
                 "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
             )
         )
-        self.prop = driver.run().get_property(ElectronicEnergy)
+        self.prop = cast(ElectronicEnergy, driver.run().get_property(ElectronicEnergy))
+        self.prop.get_electronic_integral(ElectronicBasis.MO, 1).set_truncation(2)
+        print(self.prop)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

@@ -35,9 +35,15 @@ class ElectronicIntegrals(ABC):
     :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO` basis
     which is a required intermediate representation of the electronic integrals during the process
     of mapping to a :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+
+    When these integrals are printed the output will be truncated based on the
+    ``ElectronicIntegrals._truncate`` value (defaults to 5). Use
+    ``ElectronicIntegrals.set_truncation`` to change this value.
     """
 
     INTEGRAL_TRUNCATION_LEVEL = 1e-12
+
+    _truncate = 5
 
     def __init__(
         self,
@@ -59,8 +65,7 @@ class ElectronicIntegrals(ABC):
                 :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`.
                 Refer to the documentation of the specific ``n-body`` integral types for the
                 requirements in case of multiple matrices.
-            threshold: the truncation level below which to treat the integral in the SO matrix as
-                zero-valued.
+            threshold: the truncation level below which to treat the integral as zero-valued.
 
         Raises:
             ValueError: if the number of body terms is less than 1 or if the number of provided
@@ -72,9 +77,16 @@ class ElectronicIntegrals(ABC):
         self._validate_matrices(matrices, basis, num_body_terms)
         self._basis = basis
         self._num_body_terms = num_body_terms
-        self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]] = matrices
         self._threshold = threshold
         self._matrix_representations: List[str] = [""] * len(matrices)
+        self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
+        if basis == ElectronicBasis.SO:
+            self._matrices = np.where(np.abs(matrices) > self._threshold, matrices, 0.0)
+        else:
+            self._matrices = tuple(
+                np.where(np.abs(mat) > self._threshold, mat, 0.0) if mat is not None else None
+                for mat in matrices
+            )
 
         if basis != ElectronicBasis.SO:
             self._fill_matrices()
@@ -97,9 +109,30 @@ class ElectronicIntegrals(ABC):
     def _render_matrix_as_sparse_list(matrix) -> List[str]:
         string = []
         nonzero = matrix.nonzero()
+        nonzero_count = len(nonzero[0])
+        string += [f"\t<{matrix.shape} matrix with {nonzero_count} non-zero entries>"]
+        count = 0
         for value, *indices in zip(matrix[nonzero], *nonzero):
+            if ElectronicIntegrals._truncate and count >= ElectronicIntegrals._truncate:
+                string += [
+                    f"\t... skipping {nonzero_count - ElectronicIntegrals._truncate} entries"
+                ]
+                break
             string += [f"\t{indices} = {value}"]
+            count += 1
         return string
+
+    @staticmethod
+    def set_truncation(max_num_entries: int) -> None:
+        """Set the maximum number of integral values to display before truncation.
+
+        Args:
+            max_num_entries: the maximum number of entries.
+
+        .. note::
+            Truncation will be disabled if `max_num)lines` is set to 0.
+        """
+        ElectronicIntegrals._truncate = max_num_entries
 
     @staticmethod
     def _validate_num_body_terms(num_body_terms: int) -> None:

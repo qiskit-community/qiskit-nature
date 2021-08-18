@@ -54,8 +54,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 any of the latter three matrices are ``None``, the alpha-alpha-spin matrix will be
                 used in their place.  However, the final matrix will be replaced by the transpose of
                 the second one, if and only if that happens to differ from ``None``.
-            threshold: the truncation level below which to treat the integral in the SO matrix as
-                zero-valued.
+            threshold: the truncation level below which to treat the integral as zero-valued.
         """
         num_body_terms = 2
         super().__init__(num_body_terms, basis, matrices, threshold)

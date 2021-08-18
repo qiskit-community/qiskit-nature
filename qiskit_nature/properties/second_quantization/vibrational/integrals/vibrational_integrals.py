@@ -26,7 +26,14 @@ from ..bases import VibrationalBasis
 
 
 class VibrationalIntegrals(ABC):
-    """A container for arbitrary ``n-body`` vibrational integrals."""
+    """A container for arbitrary ``n-body`` vibrational integrals.
+
+    When these integrals are printed the output will be truncated based on the
+    ``VibrationalIntegrals._truncate`` value (defaults to 5). Use
+    ``VibrationalIntegrals.set_truncation`` to change this value.
+    """
+
+    _truncate = 5
 
     def __init__(
         self,
@@ -75,9 +82,30 @@ class VibrationalIntegrals(ABC):
 
     def __str__(self) -> str:
         string = [f"{self._num_body_terms}-Body Terms:"]
+        integral_count = len(self._integrals)
+        string += [f"\t\t<sparse integral list with {integral_count} entries>"]
+        count = 0
         for value, indices in self._integrals:
-            string += [f"\t{indices} = {value}"]
+            if VibrationalIntegrals._truncate and count >= VibrationalIntegrals._truncate:
+                string += [
+                    f"\t\t... skipping {integral_count - VibrationalIntegrals._truncate} entries"
+                ]
+                break
+            string += [f"\t\t{indices} = {value}"]
+            count += 1
         return "\n".join(string)
+
+    @staticmethod
+    def set_truncation(max_num_entries: int) -> None:
+        """Set the maximum number of integral values to display before truncation.
+
+        Args:
+            max_num_entries: the maximum number of entries.
+
+        .. note::
+            Truncation will be disabled if `max_num)lines` is set to 0.
+        """
+        VibrationalIntegrals._truncate = max_num_entries
 
     def to_basis(self) -> np.ndarray:
         """Maps the integrals into a basis which permits mapping into second-quantization.
