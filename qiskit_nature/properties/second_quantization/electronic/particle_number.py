@@ -163,6 +163,7 @@ class ParticleNumber(ElectronicProperty):
         op = FermionicOp(
             [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
             register_length=self._num_spin_orbitals,
+            display_format="sparse",
         )
         return [op]
 

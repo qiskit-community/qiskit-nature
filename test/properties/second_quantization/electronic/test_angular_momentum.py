@@ -13,6 +13,7 @@
 """Test AngularMomentum Property"""
 
 import json
+import warnings
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -27,7 +28,9 @@ class TestAngularMomentum(QiskitNatureTestCase):
     def setUp(self):
         """Setup."""
         super().setUp()
-        qmol = QMolecule()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            qmol = QMolecule()
         qmol.num_molecular_orbitals = 4
         self.prop = AngularMomentum.from_legacy_driver_result(qmol)
 

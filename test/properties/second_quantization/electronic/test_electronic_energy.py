@@ -42,7 +42,6 @@ class TestElectronicEnergy(QiskitNatureTestCase):
         )
         self.prop = cast(ElectronicEnergy, driver.run().get_property(ElectronicEnergy))
         self.prop.get_electronic_integral(ElectronicBasis.MO, 1).set_truncation(2)
-        print(self.prop)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

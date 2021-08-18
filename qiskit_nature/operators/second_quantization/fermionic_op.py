@@ -490,7 +490,7 @@ class FermionicOp(SecondQuantizedOp):
             i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
         ]
         if not non_zero:
-            return FermionicOp(("", 0), self.register_length)
+            return FermionicOp(("", 0), self.register_length, display_format=self.display_format)
         return FermionicOp(
             list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
             display_format=self.display_format,

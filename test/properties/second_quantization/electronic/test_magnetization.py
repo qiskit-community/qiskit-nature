@@ -12,6 +12,7 @@
 
 """Test Magnetization Property"""
 
+import warnings
 from test import QiskitNatureTestCase
 
 from qiskit_nature.drivers import QMolecule
@@ -24,7 +25,9 @@ class TestMagnetization(QiskitNatureTestCase):
     def setUp(self):
         """Setup."""
         super().setUp()
-        qmol = QMolecule()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            qmol = QMolecule()
         qmol.num_molecular_orbitals = 4
         self.prop = Magnetization.from_legacy_driver_result(qmol)
 
@@ -33,13 +36,13 @@ class TestMagnetization(QiskitNatureTestCase):
         ops = self.prop.second_q_ops()
         self.assertEqual(len(ops), 1)
         expected = [
-            ("NIIIIIII", 0.5),
-            ("INIIIIII", 0.5),
-            ("IINIIIII", 0.5),
-            ("IIINIIII", 0.5),
-            ("IIIINIII", -0.5),
-            ("IIIIINII", -0.5),
-            ("IIIIIINI", -0.5),
-            ("IIIIIIIN", -0.5),
+            ("+_0 -_0", 0.5),
+            ("+_1 -_1", 0.5),
+            ("+_2 -_2", 0.5),
+            ("+_3 -_3", 0.5),
+            ("+_4 -_4", -0.5),
+            ("+_5 -_5", -0.5),
+            ("+_6 -_6", -0.5),
+            ("+_7 -_7", -0.5),
         ]
         self.assertEqual(ops[0].to_list(), expected)

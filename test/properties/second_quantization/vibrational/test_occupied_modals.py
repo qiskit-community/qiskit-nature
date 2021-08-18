@@ -12,6 +12,7 @@
 
 """Test OccupiedModals Property"""
 
+import warnings
 from test import QiskitNatureTestCase
 
 from qiskit_nature.drivers import WatsonHamiltonian
@@ -25,8 +26,11 @@ class TestOccupiedModals(QiskitNatureTestCase):
     def setUp(self):
         """Setup basis."""
         super().setUp()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            watson = WatsonHamiltonian([], -1)
         basis = HarmonicBasis([2, 3, 4])
-        self.prop = OccupiedModals.from_legacy_driver_result(WatsonHamiltonian([], -1))
+        self.prop = OccupiedModals.from_legacy_driver_result(watson)
         self.prop.basis = basis
 
     def test_second_q_ops(self):
