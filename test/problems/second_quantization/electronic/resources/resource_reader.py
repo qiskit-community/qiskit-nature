@@ -17,7 +17,7 @@ from typing import List, Tuple, Union
 
 def read_expected_file(path: str) -> List[Tuple[Union[str, float], ...]]:
     """Reads and parses resource file."""
-    expected_fermionic_op = []
+    expected_fermionic_op: List[Tuple[Union[str, float], ...]] = []
     with open(path, "r") as file:
         for line in file:
             coeff, *labels = line.split()
