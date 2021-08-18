@@ -103,7 +103,7 @@ class VibrationalIntegrals(ABC):
             max_num_entries: the maximum number of entries.
 
         .. note::
-            Truncation will be disabled if `max_num)lines` is set to 0.
+            Truncation will be disabled if `max_num_entries` is set to 0.
         """
         VibrationalIntegrals._truncate = max_num_entries
 
