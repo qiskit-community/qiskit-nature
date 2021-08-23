@@ -48,6 +48,7 @@ class TestElectronicDipoleMoment(QiskitNatureTestCase):
                 "dipole_moment_ops.json", "properties/second_quantization/electronic/resources"
             ),
             "r",
+            encoding="utf8",
         ) as file:
             expected = json.load(file)
         for op, expected_op in zip(ops, expected):
