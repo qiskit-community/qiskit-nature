@@ -117,7 +117,7 @@ class SUCCD(UCC):
         """
         self._validate_num_particles(num_particles)
 
-        excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = list()
+        excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = []
         excitations.extend(
             generate_fermionic_excitations(
                 1,

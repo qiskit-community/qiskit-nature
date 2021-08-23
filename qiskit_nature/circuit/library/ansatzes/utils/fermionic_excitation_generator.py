@@ -107,7 +107,7 @@ def generate_fermionic_excitations(
                 lambda exc: len(set(exc) & beta_exc_set) > max_spin_excitation, pool
             )
 
-    excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = list()
+    excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = []
     visited_excitations = set()
 
     for exc in pool:

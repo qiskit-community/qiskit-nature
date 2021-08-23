@@ -19,7 +19,7 @@ from qiskit.opflow import PauliSumOp
 def read_expected_file(path: str):
     """Reads and parses resource file."""
     pauli_sum_op = 0
-    with open(path, "r") as file:
+    with open(path, "r", encoding="utf8") as file:
         for line in file:
             pattern = re.compile(
                 r"""(?P<sign>[+,-]?)\s?(?P<coefficient>\d*.\d*)\s\*\s(?P<operator>[I, Z]*)""",

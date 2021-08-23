@@ -164,6 +164,7 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
                     "properties/second_quantization/electronic/integrals/resources",
                 ),
                 "r",
+                encoding="utf8",
             ) as file:
                 expected = json.load(file)
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), expected):
@@ -181,6 +182,7 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
                     "properties/second_quantization/electronic/integrals/resources",
                 ),
                 "r",
+                encoding="utf8",
             ) as file:
                 expected = json.load(file)
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), expected):

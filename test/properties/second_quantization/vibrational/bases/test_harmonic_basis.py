@@ -91,6 +91,7 @@ class TestHarmonicBasis(QiskitNatureTestCase):
                     "properties/second_quantization/vibrational/bases/resources",
                 ),
                 "r",
+                encoding="utf8",
             ) as file:
                 exp_nonzero, exp_values = json.load(file)
 
@@ -106,6 +107,7 @@ class TestHarmonicBasis(QiskitNatureTestCase):
                     "properties/second_quantization/vibrational/bases/resources",
                 ),
                 "r",
+                encoding="utf8",
             ) as file:
                 operator = json.load(file)
 
