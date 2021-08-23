@@ -74,6 +74,7 @@ class TestVibrationalEnergy(QiskitNatureTestCase):
                 "vibrational_energy_op.json", "properties/second_quantization/vibrational/resources"
             ),
             "r",
+            encoding="utf8",
         ) as file:
             expected = json.load(file)
         for op, expected_op in zip(ops[0].to_list(), expected):

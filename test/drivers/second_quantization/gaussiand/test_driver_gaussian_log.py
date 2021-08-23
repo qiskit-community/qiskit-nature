@@ -62,7 +62,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
     def test_gaussian_log_result_file(self):
         """Test result from file"""
         result = GaussianLogResult(self.logfile)
-        with open(self.logfile) as file:
+        with open(self.logfile, "r", encoding="utf8") as file:
             lines = file.read().split("\n")
 
         with self.subTest("Check list of lines"):
@@ -74,14 +74,14 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
 
     def test_gaussian_log_result_list(self):
         """Test result from list of strings"""
-        with open(self.logfile) as file:
+        with open(self.logfile, "r", encoding="utf8") as file:
             lines = file.read().split("\n")
         result = GaussianLogResult(lines)
         self.assertListEqual(result.log, lines)
 
     def test_gaussian_log_result_string(self):
         """Test result from string"""
-        with open(self.logfile) as file:
+        with open(self.logfile, "r", encoding="utf8") as file:
             line = file.read()
         result = GaussianLogResult(line)
         self.assertListEqual(result.log, line.split("\n"))

@@ -48,7 +48,7 @@ class GaussianLogResult:
             lines = log.split("\n")
 
             if len(lines) == 1:
-                with open(lines[0]) as file:
+                with open(lines[0], "r", encoding="utf8") as file:
                     self._log = file.read().split("\n")
             else:
                 self._log = lines
