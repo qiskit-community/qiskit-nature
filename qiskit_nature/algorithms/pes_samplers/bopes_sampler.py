@@ -154,9 +154,9 @@ class BOPESSampler:
         Returns:
             The results for all points.
         """
-        raw_results = dict()  # type: Dict[float, EigenstateResult]
+        raw_results: Dict[float, EigenstateResult] = {}
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
-            self._points_optparams = dict()
+            self._points_optparams = {}
             self._gss.solver.initial_point = self._initial_point  # type: ignore
 
         # Iterate over the points
