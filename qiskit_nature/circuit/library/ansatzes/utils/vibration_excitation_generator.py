@@ -64,7 +64,7 @@ def generate_vibration_excitations(
     #   2. find all possible combinations of length `num_excitations`
     pool = itertools.combinations(single_excitations, num_excitations)
 
-    excitations = list()
+    excitations = []
     visited_excitations = set()
 
     for exc in pool:

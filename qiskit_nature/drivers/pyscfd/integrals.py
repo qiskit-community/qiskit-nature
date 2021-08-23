@@ -287,7 +287,7 @@ def _calculate_integrals(mol, hf_method="rhf", conv_tol=1e-9, max_cycle=50, init
 
 
 def _process_pyscf_log(logfile):
-    with open(logfile) as file:
+    with open(logfile, "r", encoding="utf8") as file:
         content = file.readlines()
 
     for i, _ in enumerate(content):

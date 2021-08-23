@@ -752,7 +752,7 @@ class PySCFDriver(ElectronicStructureDriver):
         Args:
             logfile: the path of the PySCF logfile.
         """
-        with open(logfile) as file:
+        with open(logfile, "r", encoding="utf8") as file:
             content = file.readlines()
 
         for i, _ in enumerate(content):
