@@ -67,6 +67,10 @@ jobs:
           # append to reno config
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
         shell: bash
+      - name: Set up problem matches
+        run: |
+          echo "::add-matcher::./.github/problem_matchers/pylint.json"
+          echo "::add-matcher::./.github/problem_matchers/sphinx.json"
       - name: PIP Check
         run:  |
           source "$CONDA/etc/profile.d/conda.sh"
@@ -85,7 +89,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate
-          make spell
+          make -i spell
         if: ${{ !cancelled() }}
         shell: bash
       - name: Style Check
