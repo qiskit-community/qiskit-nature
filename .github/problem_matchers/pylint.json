@@ -9,8 +9,8 @@
                     "file": 1,
                     "line": 2,
                     "column": 3,
-                    "message": 4,
-                    "code": 5
+                    "code": 4,
+                    "message": 5
                 }
             ]
         },
@@ -23,8 +23,8 @@
                     "file": 1,
                     "line": 2,
                     "column": 3,
-                    "message": 4,
-                    "code": 5
+                    "code": 4,
+                    "message": 5
                 }
             ]
         }
