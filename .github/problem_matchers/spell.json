@@ -1,0 +1,28 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "pylint-spell",
+            "severity": "error",
+            "pattern": [
+                {
+                    "regexp": "^(.+):\\d+:\\d+:\\s(C\\d{4}):\\s(.+)$",
+                    "file": 1,
+                    "code": 2,
+                    "message": 3
+                }
+            ]
+        },
+        {
+            "owner": "sphinx-spell",
+            "severity": "error",
+            "pattern": [
+                {
+                    "regexp": "^(.+):\\d+:\\s(Spell check):\\s(.+)$",
+                    "file": 1,
+                    "code": 2,
+                    "message": 3
+                }
+            ]
+        }
+    ]
+}
