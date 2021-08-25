@@ -1,0 +1,14 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "copyright",
+            "pattern": [
+                {
+                    "regexp": "^Wrong Copyright Year: '(.+)': (.+)$",
+                    "file": 1,
+                    "message": 2
+                }
+            ]
+        }
+    ]
+}
