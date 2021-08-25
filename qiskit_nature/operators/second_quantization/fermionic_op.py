@@ -261,7 +261,7 @@ class FermionicOp(SecondQuantizedOp):
         self._data: List[Tuple[_FermionLabel, complex]]
 
         if isinstance(data, list) and isinstance(data[0][0], list) and register_length is not None:
-            self._data = data  # type: ignore
+            self._data = data
             self._register_length = register_length
         else:
             if not isinstance(data, (tuple, list, str)):
@@ -287,7 +287,7 @@ class FermionicOp(SecondQuantizedOp):
                 self._data = [
                     (
                         self._substituted_label([(c, int(i)) for i, c in enumerate(label)]),
-                        complex(coeff),  # type: ignore
+                        complex(coeff),
                     )
                     for label, coeff in data
                 ]
@@ -295,9 +295,9 @@ class FermionicOp(SecondQuantizedOp):
                 self._data = [
                     (
                         self._substituted_label(
-                            [(c[0], int(c[2:])) for c in label.split()]  # type: ignore
+                            [(c[0], int(c[2:])) for c in label.split()]
                         ),
-                        complex(coeff),  # type: ignore
+                        complex(coeff),
                     )
                     for label, coeff in data
                 ]
@@ -435,7 +435,7 @@ class FermionicOp(SecondQuantizedOp):
     def to_list(
         self,
         display_format: Optional[str] = None,
-    ) -> List[Tuple[str, complex]]:  # type: ignore
+    ) -> List[Tuple[str, complex]]:
         """Returns the operators internal contents in list-format.
 
         Args:
