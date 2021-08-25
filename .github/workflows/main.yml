@@ -157,6 +157,9 @@ jobs:
           fi
         if: ${{ matrix.python-version < 3.9 }}
         shell: bash
+      - name: Set up problem matches
+        run: |
+          echo "::add-matcher::./.github/problem_matchers/mypy.json"
       - name: Run lint
         run: |
           source "$CONDA/etc/profile.d/conda.sh"

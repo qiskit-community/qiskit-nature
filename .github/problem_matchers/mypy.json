@@ -1,0 +1,17 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "mypy",
+            "pattern": [
+                {
+                    "regexp": "^(\\033\\[0m)?([^:]+):(\d+): (\[^:\]+): (.*)  \\[(.*)\\]$",
+                        "file": 2,
+                        "line": 3,
+                        "severity": 4,
+                        "message": 5,
+                        "code": 6,
+                },
+            ],
+        },
+    ]
+}
