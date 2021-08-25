@@ -5,10 +5,10 @@
             "severity": "error",
             "pattern": [
                 {
-                    "regexp": "^(.+):\\d+:\\d+:\\s(C\\d{4}):\\s(.+)$",
+                    "regexp": "^(.+):\\d+:\\d+:\\s((C\\d{4}):\\s.+)$",
                     "file": 1,
-                    "code": 2,
-                    "message": 3
+                    "message": 2,
+                    "code": 3
                 }
             ]
         },
