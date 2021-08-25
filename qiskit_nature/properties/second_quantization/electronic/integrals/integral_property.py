@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The ElectronicEnergy property."""
+"""The IntegralProperty property."""
 
 from typing import Dict, List, Optional
 
@@ -25,11 +25,14 @@ from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 
 
 class IntegralProperty(ElectronicProperty):
-    """A common Property object based on `ElectronicIntegrals` as its raw data.
+    """A common Property object based on
+    :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals`
+    as its raw data.
 
     This is a common base class, extracted to be used by (at the time of writing) the
-    `ElectronicEnergy` and the `DipoleMoment` properties. More subclasses may be added in the
-    future.
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy` and the
+    :class:`~qiskit_nature.properties.second_quantization.electronic.DipoleMoment` properties. More
+    subclasses may be added in the future.
     """
 
     def __init__(
@@ -37,11 +40,13 @@ class IntegralProperty(ElectronicProperty):
         name: str,
         electronic_integrals: List[ElectronicIntegrals],
         shift: Optional[Dict[str, complex]] = None,
-    ):
+    ) -> None:
+        # pylint: disable=line-too-long
         """
         Args:
             name: the name of this Property object.
-            electronic_integrals: a list of ``ElectronicIntegrals``.
+            electronic_integrals: a list of
+                :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals`.
             shift: an optional dictionary of value shifts.
         """
         super().__init__(name)
@@ -54,7 +59,7 @@ class IntegralProperty(ElectronicProperty):
         string = [super().__str__()]
         for basis_ints in self._electronic_integrals.values():
             for ints in basis_ints.values():
-                string += [f"\t{ints}"]
+                string += ["\t" + "\n\t".join(str(ints).split("\n"))]
         if self._shift:
             string += ["\tEnergy Shifts:"]
             for name, shift in self._shift.items():
@@ -66,7 +71,7 @@ class IntegralProperty(ElectronicProperty):
 
         Internally, the ElectronicIntegrals are stored in a nested dictionary sorted by their basis
         and number of body terms. This simplifies access based on these properties (see
-        `get_electronic_integral`) and avoids duplicate, inconsistent entries.
+        ``get_electronic_integral``) and avoids duplicate, inconsistent entries.
 
         Args:
             integral: the ElectronicIntegrals to add.
@@ -106,7 +111,8 @@ class IntegralProperty(ElectronicProperty):
 
         An IntegralProperty typically represents an observable which can be expressed in terms of a
         matrix-formatted operator at a given electronic density. In the Property framework the
-        generic representation of such are `ElectronicIntegrals`.
+        generic representation of such matrices are
+        :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals`.
 
         Args:
             density: the electronic density at which to compute the operator.
@@ -134,20 +140,23 @@ class IntegralProperty(ElectronicProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":
-        """This property does not support construction from a driver result (yet).
+        """This property does not support construction from a legacy driver result (yet).
 
         Args:
             result: ignored.
 
         Raises:
-            NotImplemented
+            NotImplementedError
         """
         raise NotImplementedError()
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.
+
+        Raises:
+            NotImplementedError
         """
         raise NotImplementedError()

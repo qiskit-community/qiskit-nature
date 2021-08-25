@@ -46,7 +46,7 @@ class HartreeFock(QuantumCircuit):
 
         # encode the bitstring as a `FermionicOp`
         label = ["+" if bit else "I" for bit in bitstr]
-        bitstr_op = FermionicOp("".join(label))
+        bitstr_op = FermionicOp("".join(label), display_format="dense")
 
         # map the `FermionicOp` to a qubit operator
         qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op)

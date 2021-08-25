@@ -30,8 +30,8 @@ runs:
         if [ "${{ inputs.os }}" == "windows-latest" ]; then
           conda update -n base -c defaults conda
           conda activate
-          # conda install -y psi4=1.4rc4.dev1 python=${{ inputs.python-version }} -c psi4/label/dev -c conda-forge
-          conda install -y psi4 python=${{ inputs.python-version }} -c psi4/label/dev -c conda-forge
+          conda install -y psi4=1.4rc4.dev7 python=${{ inputs.python-version }} -c psi4/label/dev -c conda-forge
+          # conda install -y psi4 python=${{ inputs.python-version }} -c psi4/label/dev -c conda-forge
           psi4 --test
         else
           conda activate

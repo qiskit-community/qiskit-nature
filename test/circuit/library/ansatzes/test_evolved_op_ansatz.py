@@ -12,6 +12,7 @@
 
 """Test the evolved operator ansatz."""
 
+import warnings
 from test import QiskitNatureTestCase
 
 from qiskit.circuit import QuantumCircuit
@@ -30,7 +31,9 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
         ops = [Z ^ num_qubits, Y ^ num_qubits, X ^ num_qubits]
         strings = ["z" * num_qubits, "y" * num_qubits, "x" * num_qubits] * 2
 
-        evo = EvolvedOperatorAnsatz(ops, 2)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            evo = EvolvedOperatorAnsatz(ops, 2)
         evo._build()  # fixed by speedup parameter binds PR
 
         reference = QuantumCircuit(num_qubits)
@@ -45,7 +48,9 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
 
         op = X ^ I ^ Z
         matrix = op.to_matrix()
-        evo = EvolvedOperatorAnsatz(op, evolution=MatrixEvolution())
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            evo = EvolvedOperatorAnsatz(op, evolution=MatrixEvolution())
         evo._build()
 
         parameters = evo.parameters
@@ -58,7 +63,9 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
         """Test rebuilding after the operators changed."""
 
         ops = [X, Y, Z]
-        evo = EvolvedOperatorAnsatz(ops)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            evo = EvolvedOperatorAnsatz(ops)
         evo.operators = [X, Y]
         evo._build()
 
@@ -71,13 +78,17 @@ class TestEvolvedOperatorAnsatz(QiskitNatureTestCase):
 
     def test_invalid_reps(self):
         """Test setting an invalid number of reps."""
-        evo = EvolvedOperatorAnsatz(X, reps=0)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            evo = EvolvedOperatorAnsatz(X, reps=0)
         with self.assertRaises(ValueError):
             _ = evo.count_ops()
 
     def test_insert_barriers(self):
         """Test using insert_barriers."""
-        evo = EvolvedOperatorAnsatz(Z, reps=4, insert_barriers=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            evo = EvolvedOperatorAnsatz(Z, reps=4, insert_barriers=True)
         evo._build()
         ref = QuantumCircuit(1)
         for parameter in evo.parameters:

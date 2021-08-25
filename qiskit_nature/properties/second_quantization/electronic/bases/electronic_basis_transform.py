@@ -12,7 +12,7 @@
 
 """The ElectronicBasisTransform provides a container of bases transformation data."""
 
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -45,3 +45,18 @@ class ElectronicBasisTransform(PseudoProperty):
         self.final_basis = final_basis
         self.coeff_alpha = coeff_alpha
         self.coeff_beta = coeff_alpha if coeff_beta is None else coeff_beta
+
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
+        string += [f"\tInitial basis: {self.initial_basis.value}"]
+        string += [f"\tFinal basis: {self.final_basis.value}"]
+        string += ["\tAlpha coefficients:"]
+        string += self._render_coefficients(self.coeff_alpha)
+        string += ["\tBeta coefficients:"]
+        string += self._render_coefficients(self.coeff_beta)
+        return "\n".join(string)
+
+    @staticmethod
+    def _render_coefficients(coeffs) -> List[str]:
+        nonzero = coeffs.nonzero()
+        return [f"\t{indices} = {value}" for value, *indices in zip(coeffs[nonzero], *nonzero)]

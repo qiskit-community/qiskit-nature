@@ -10,11 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Electronic Bases (:mod:`qiskit_nature.properties.electronic_structure.bases`)
-=============================================================================
+Electronic Bases (:mod:`qiskit_nature.properties.second_quantization.electronic.bases`)
+=======================================================================================
 
-.. currentmodule:: qiskit_nature.properties.electronic_structure.bases
+.. currentmodule:: qiskit_nature.properties.second_quantization.electronic.bases
 
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   ElectronicBasis
+   ElectronicBasisTransform
 """
 
 from .electronic_basis import ElectronicBasis

@@ -17,13 +17,15 @@ import logging
 import os
 import sys
 import tempfile
+import warnings
 from typing import Union, List, Optional, Any, Dict
 
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
-from ..qmolecule import QMolecule
+from ...qmolecule import QMolecule
 from .gaussian_utils import check_valid, run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
@@ -144,7 +146,7 @@ class GaussianDriver(ElectronicStructureDriver):
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
             raise UnsupportMethodError(f"Invalid Gaussian method {method.value}.")
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         cfg = self._config
         while not cfg.endswith("\n\n"):
             cfg += "\n"
@@ -177,7 +179,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
         q_mol.origin_driver_name = "GAUSSIAN"
         q_mol.origin_driver_config = cfg
-        return q_mol
+        return ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
 
     @staticmethod
     def _augment_config(fname: str, cfg: str) -> str:
@@ -277,7 +279,9 @@ class GaussianDriver(ElectronicStructureDriver):
         logger.debug("MatrixElement file:\n%s", mel)
 
         # Create driver level molecule object and populate
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         _q_ = QMolecule()
+        warnings.filterwarnings("default", category=DeprecationWarning)
         _q_.origin_driver_version = mel.gversion
         # Energies and orbits
         _q_.hf_energy = mel.scalar("ETOTAL")

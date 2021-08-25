@@ -37,7 +37,7 @@ class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
             multiplicity=1,
             basis=BasisType.BSTO3G,
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 class TestDriverPyQuanteMolecule(QiskitNatureTestCase, TestDriver):
@@ -49,7 +49,7 @@ class TestDriverPyQuanteMolecule(QiskitNatureTestCase, TestDriver):
         driver = ElectronicStructureMoleculeDriver(
             TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.PYQUANTE
         )
-        self.qmolecule = driver.run()
+        self.driver_result = driver.run()
 
 
 if __name__ == "__main__":

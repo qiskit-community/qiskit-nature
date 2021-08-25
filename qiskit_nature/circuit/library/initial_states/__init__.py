@@ -9,22 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""
-QuantumCircuit Initial States (:mod:`qiskit_nature.circuit.library.initial_states`)
-===================================================================================
-
-.. currentmodule:: qiskit_nature.circuit.library.initial_states
-
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   HartreeFock
-   VSCF
-
-"""
+"""Qiskit Nature Circuit Library Initial States."""
 
 from .hartree_fock import HartreeFock
 from .vscf import VSCF

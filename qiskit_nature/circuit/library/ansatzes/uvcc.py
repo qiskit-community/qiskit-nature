@@ -12,17 +12,18 @@
 
 """ The Unitary Vibrational Coupled-Cluster Single and Double excitations Ansatz. """
 
+import logging
 from functools import partial
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-import logging
-
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import PauliTrotterEvolution
+from qiskit.circuit.library import EvolvedOperatorAnsatz
+from qiskit.opflow import OperatorBase, PauliTrotterEvolution
+
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp, VibrationalOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from .evolved_operator_ansatz import EvolvedOperatorAnsatz
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp, VibrationalOp
+
 from .utils.vibration_excitation_generator import generate_vibration_excitations
 
 logger = logging.getLogger(__name__)
@@ -83,7 +84,7 @@ class UVCC(EvolvedOperatorAnsatz):
                     (with identical types to those explained above) and must return a
                     `List[Tuple[Tuple[int, ...], Tuple[int, ...]]]`. For more information on how to
                     write such a callable refer to the default method
-                    :meth:`generate_vibration_excitations`.
+                    :meth:`~qiskit_nature.circuit.library.ansatzes.utils.generate_vibration_excitations`.
             reps: number of repetitions of basic module
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
@@ -159,6 +160,8 @@ class UVCC(EvolvedOperatorAnsatz):
     def _build(self) -> None:
         if self._data is not None:
             return
+
+        self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]
 
         if self.operators is None or self.operators == [None]:
             excitation_ops = self.excitation_ops()

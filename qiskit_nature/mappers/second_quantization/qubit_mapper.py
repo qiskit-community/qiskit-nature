@@ -16,12 +16,12 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 import numpy as np
-
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 
 
 class QubitMapper(ABC):
@@ -107,7 +107,12 @@ class QubitMapper(ABC):
 
         # TODO to_list() is not an attribute of SecondQuantizedOp. Change the former to have this or
         #   change the signature above to take FermionicOp?
-        for label, coeff in second_q_op.to_list():
+        label_coeff_list = (
+            second_q_op.to_list(display_format="dense")
+            if isinstance(second_q_op, FermionicOp)
+            else second_q_op.to_list()
+        )
+        for label, coeff in label_coeff_list:
 
             ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[coeff])
 

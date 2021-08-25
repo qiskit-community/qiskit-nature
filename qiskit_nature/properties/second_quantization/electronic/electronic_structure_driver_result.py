@@ -12,14 +12,14 @@
 
 """The ElectronicStructureDriverResult class."""
 
-from typing import List, Tuple, cast
+from typing import List, Tuple, Union, cast
 
 from qiskit_nature.drivers import Molecule
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
+from ..second_quantized_property import LegacyDriverResult
 from ..driver_metadata import DriverMetadata
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import ElectronicDipoleMoment
@@ -32,37 +32,43 @@ from .types import GroupedElectronicProperty
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
     """The ElectronicStructureDriverResult class.
 
-    This is a :class:~qiskit_nature.properties.GroupedProperty gathering all property objects
-    previously stored in Qiskit Nature's `QMolecule` object.
+    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
+    previously stored in Qiskit Nature's :class:`~qiskit_nature.drivers.QMolecule` object.
     """
 
     def __init__(self) -> None:
         """
-        Property objects should be added via `add_property` rather than via the initializer.
+        Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
-        self.molecule: Molecule = None
+        self.molecule: "Molecule" = None
+
+    def __str__(self) -> str:
+        string = [super().__str__()]
+        string += [str(self.molecule)]
+        return "\n".join(string)
 
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> "ElectronicStructureDriverResult":
-        """Converts a QMolecule into an `ElectronicStructureDriverResult`.
+        """Converts a :class:`~qiskit_nature.drivers.QMolecule` into an
+        ``ElectronicStructureDriverResult``.
 
         Args:
-            result: the QMolecule to convert.
+            result: the :class:`~qiskit_nature.drivers.QMolecule` to convert.
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
-
-        ret = cls()
+        cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
+
+        ret = cls()
 
         ret.add_property(ElectronicEnergy.from_legacy_driver_result(qmol))
         ret.add_property(ParticleNumber.from_legacy_driver_result(qmol))
@@ -93,11 +99,10 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         return ret
 
     def second_q_ops(self) -> List[FermionicOp]:
-        """Returns the list of `FermioncOp`s given by the properties contained in this one."""
+        """Returns the list of :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s
+        given by the properties contained in this one."""
         ops: List[FermionicOp] = []
-        # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
-        # NOTE: this will also get rid of the hard-coded aux_operator eigenvalue indices in the
-        # `interpret` methods of all of these properties
+        # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
         for cls in [
             ElectronicEnergy,
             ParticleNumber,

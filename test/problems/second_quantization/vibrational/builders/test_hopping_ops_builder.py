@@ -44,7 +44,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         self.qubit_converter = QubitConverter(DirectMapper())
         self.vibrational_problem.second_q_ops()
-        self.watson_hamiltonian = self.vibrational_problem.molecule_data
+        self.watson_hamiltonian = self.vibrational_problem.grouped_property_transformed
         self.num_modals = [self.basis_size] * self.watson_hamiltonian.num_modes
 
     def test_build_hopping_operators(self):

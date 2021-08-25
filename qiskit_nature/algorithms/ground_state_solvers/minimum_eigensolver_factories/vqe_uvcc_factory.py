@@ -178,8 +178,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         problem: VibrationalStructureProblem,
         qubit_converter: QubitConverter,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``transformation``.
-        This works only with a ``BosonicTransformation``.
+        """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
             problem: a class encoding a problem to be solved.
@@ -187,11 +186,10 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                              according to a mapper it is initialized with.
 
         Returns:
-            A VQE suitable to compute the ground state of the molecule transformed
-            by ``transformation``.
+            A VQE suitable to compute the ground state of the molecule.
         """
 
-        basis = cast(VibrationalStructureDriverResult, problem.properties_transformed).basis
+        basis = cast(VibrationalStructureDriverResult, problem.grouped_property_transformed).basis
         num_modals = basis.num_modals_per_mode
         num_modes = len(num_modals)
 

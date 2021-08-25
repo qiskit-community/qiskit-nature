@@ -12,20 +12,20 @@
 
 """The Magnetization property."""
 
-from typing import cast, List
+from typing import cast, List, Union
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 
 
 class Magnetization(ElectronicProperty):
     """The Magnetization property."""
 
-    def __init__(self, num_spin_orbitals: int):
+    def __init__(self, num_spin_orbitals: int) -> None:
         """
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
@@ -40,19 +40,19 @@ class Magnetization(ElectronicProperty):
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
-        """Construct a Magnetization instance from a QMolecule.
+        """Construct a Magnetization instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
 
@@ -68,11 +68,13 @@ class Magnetization(ElectronicProperty):
                 for o in range(self._num_spin_orbitals)
             ],
             register_length=self._num_spin_orbitals,
+            display_format="sparse",
         )
         return [op]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

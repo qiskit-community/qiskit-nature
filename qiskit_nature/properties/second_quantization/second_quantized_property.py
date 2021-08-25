@@ -13,66 +13,55 @@
 """The SecondQuantizedProperty base class."""
 
 from abc import abstractmethod
-from typing import Any, List, TypeVar, Union
+from typing import Any, List, Type, TypeVar, Union
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers import QMolecule as LegacyQMolecule
-from qiskit_nature.drivers import WatsonHamiltonian as LegacyWatsonHamiltonian
-from qiskit_nature.drivers.second_quantization import QMolecule, WatsonHamiltonian
+from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
 from ..grouped_property import GroupedProperty
 from ..property import Property
 
-LegacyElectronicStructureDriverResult = Union[QMolecule, LegacyQMolecule]
-LegacyVibrationalStructureDriverResult = Union[WatsonHamiltonian, LegacyWatsonHamiltonian]
-LegacyDriverResult = Union[
-    LegacyElectronicStructureDriverResult, LegacyVibrationalStructureDriverResult
-]
+LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 
 
 class SecondQuantizedProperty(Property):
     """The SecondQuantizedProperty base class.
 
-    A second-quantization property provides the logic to transform a raw data (as e.g. produced by a
-    `qiskit_nature.second_quantization.drivers.BaseDriver`) into a
-    `qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+    A second-quantization property provides the logic to transform the raw data placed into it by
+    e.g. a :class:`qiskit_nature.drivers.second_quantization.BaseDriver` into a
+    :class:`qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
     """
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Returns the (list of) second quantized operators associated with this Property."""
+        """Returns the list of second quantized operators associated with this Property."""
 
     @classmethod
     @abstractmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":
-        """Construct a Property instance from a driver result.
+        """Construct a :class:`~qiskit_nature.properties.Property` instance from a legacy driver
+        result.
 
         This method should implement the logic which is required to extract the raw data for a
-        certain property from the result produced by a driver.
+        certain property from the result produced by a legacy driver.
 
         Args:
-            result: the driver result from which to extract the raw data.
+            result: the legacy driver result from which to extract the raw data.
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if an invalid driver result type is passed.
+            QiskitNatureError: if an invalid legacy driver result type is passed.
         """
 
     @classmethod
-    def _validate_input_type(cls, result: LegacyDriverResult, valid_type: Any) -> None:
-        # The type hint of `valid_type` is not easy to determine because we are passing a typing
-        # alias which is a type hint itself. So what is the type hint for a type hint...
-        # For the time being this should be fine because the logic around from_legacy_driver_result
-        # will need to be slightly adapted *before* the next release anyways when we continue with
-        # the integration of the `Property` objects.
-        if not isinstance(result, valid_type.__args__):
+    def _validate_input_type(cls, result: Any, valid_type: Type) -> None:
+        if not isinstance(result, valid_type):
             raise QiskitNatureError(
                 f"You cannot construct an {cls.__name__} from a {result.__class__.__name__}. "
-                "Please provide an object of any of these types instead: "
-                f"{typ.__name__ for typ in valid_type.__args__}"
+                f"Please provide an object of type {valid_type} instead."
             )
 
 
@@ -81,7 +70,8 @@ T = TypeVar("T", bound=SecondQuantizedProperty, covariant=True)
 
 
 class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty):
-    """A GroupedProperty subtype containing purely second-quantized properties."""
+    """A :class:`~qiskit_nature.properties.GroupedProperty` subtype containing purely
+    second-quantized properties."""
 
     @abstractmethod
     def second_q_ops(self) -> List[SecondQuantizedOp]:
