@@ -178,8 +178,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         problem: ElectronicStructureProblem,
         qubit_converter: QubitConverter,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a UCCSD wavefunction ansatz, based on ``transformation``.
-        This works only with a ``FermionicTransformation``.
+        """Returns a VQE with a UCCSD wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
             problem: a class encoding a problem to be solved.
@@ -187,10 +186,9 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                              according to a mapper it is initialized with.
 
         Returns:
-            A VQE suitable to compute the ground state of the molecule transformed
-            by ``transformation``.
+            A VQE suitable to compute the ground state of the molecule.
         """
-        driver_result = problem.properties_transformed
+        driver_result = problem.grouped_property_transformed
         particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
         num_spin_orbitals = particle_number.num_spin_orbitals
         num_particles = particle_number.num_alpha, particle_number.num_beta

@@ -37,8 +37,7 @@ class TestElectronicDipoleMoment(QiskitNatureTestCase):
                 "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
             )
         )
-        qmol = driver.run()
-        self.prop = ElectronicDipoleMoment.from_legacy_driver_result(qmol)
+        self.prop = driver.run().get_property(ElectronicDipoleMoment)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
@@ -49,6 +48,7 @@ class TestElectronicDipoleMoment(QiskitNatureTestCase):
                 "dipole_moment_ops.json", "properties/second_quantization/electronic/resources"
             ),
             "r",
+            encoding="utf8",
         ) as file:
             expected = json.load(file)
         for op, expected_op in zip(ops, expected):

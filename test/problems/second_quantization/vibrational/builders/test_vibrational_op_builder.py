@@ -25,7 +25,7 @@ from qiskit_nature.operators.second_quantization.vibrational_op import Vibration
 from qiskit_nature.problems.second_quantization.vibrational.builders.vibrational_op_builder import (
     _build_vibrational_op,
 )
-from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
+from qiskit_nature.drivers import GaussianForcesDriver
 
 
 class TestVibrationalOpBuilder(QiskitNatureTestCase):
@@ -37,14 +37,17 @@ class TestVibrationalOpBuilder(QiskitNatureTestCase):
             "CO2_freq_B3LYP_ccpVDZ.log",
             "problems/second_quantization/vibrational/resources",
         )
-        driver = GaussianForcesDriver(logfile=logfile)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            driver = GaussianForcesDriver(logfile=logfile)
+            watson_hamiltonian = driver.run()
 
-        watson_hamiltonian = driver.run()
         num_modals = 2
         truncation_order = 3
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        vibrational_op = _build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            vibrational_op = _build_vibrational_op(watson_hamiltonian, num_modals, truncation_order)
 
         assert isinstance(vibrational_op, VibrationalOp)
         labels, coeffs = zip(*vibrational_op.to_list())

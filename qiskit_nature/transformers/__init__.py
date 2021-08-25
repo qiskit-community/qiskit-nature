@@ -20,18 +20,6 @@ Transformers (:mod:`qiskit_nature.transformers`)
    :toctree:
 
    second_quantization
-
-
-Deprecated Classes
-------------------
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   ActiveSpaceTransformer
-   BaseTransformer
-   FreezeCoreTransformer
-
 """
 
 from .active_space_transformer import ActiveSpaceTransformer

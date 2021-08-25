@@ -70,6 +70,19 @@ class Molecule:
 
         self._perturbations = None  # type: Optional[List[float]]
 
+    def __str__(self) -> str:
+        string = ["Molecule:"]
+        string += [f"\tMultiplicity: {self._multiplicity}"]
+        string += [f"\tCharge: {self._charge}"]
+        string += ["\tGeometry:"]
+        for atom, xyz in self._geometry:
+            string += [f"\t\t{atom}\t{xyz}"]
+        if self._masses is not None:
+            string += ["\tMasses:"]
+            for mass, (atom, _) in zip(self._masses, self._geometry):
+                string += [f"\t\t{atom}\t{mass}"]
+        return "\n".join(string)
+
     @staticmethod
     def _check_consistency(geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]):
         if masses is not None and len(masses) != len(geometry):

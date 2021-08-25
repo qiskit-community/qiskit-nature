@@ -13,7 +13,7 @@
 """The calculation of points on the Born-Oppenheimer Potential Energy Surface (BOPES)."""
 
 import logging
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
@@ -67,7 +67,7 @@ class BOPESSampler:
         self._tolerance = tolerance
         self._bootstrap = bootstrap
         self._problem: BaseProblem = None
-        self._driver: BaseDriver = None
+        self._driver: Union[DeprecatedBaseDriver, BaseDriver] = None
         self._points: List[float] = None
         self._energies: List[float] = None
         self._raw_results: Dict[float, EigenstateResult] = None
@@ -154,9 +154,9 @@ class BOPESSampler:
         Returns:
             The results for all points.
         """
-        raw_results = dict()  # type: Dict[float, EigenstateResult]
+        raw_results: Dict[float, EigenstateResult] = {}
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
-            self._points_optparams = dict()
+            self._points_optparams = {}
             self._gss.solver.initial_point = self._initial_point  # type: ignore
 
         # Iterate over the points
@@ -232,7 +232,7 @@ class BOPESSampler:
         # Save optimal point to bootstrap
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             # at every point evaluation, the optimal params are updated
-            optimal_params = self._gss.solver.optimal_params  # type: ignore
+            optimal_params = result.raw_result.optimal_point  # type: ignore
             self._points_optparams[point] = optimal_params
 
         return result

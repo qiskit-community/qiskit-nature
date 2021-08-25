@@ -12,57 +12,89 @@
 
 """The AngularMomentum property."""
 
-from typing import cast, List, Tuple
+import logging
+from typing import cast, List, Optional, Tuple, Union
 
 import itertools
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
 from .types import ElectronicProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
+
+LOGGER = logging.getLogger(__name__)
 
 
 class AngularMomentum(ElectronicProperty):
     """The AngularMomentum property."""
 
-    def __init__(self, num_spin_orbitals: int):
+    ABSOLUTE_TOLERANCE = 1e-05
+    RELATIVE_TOLERANCE = 1e-02
+
+    def __init__(
+        self,
+        num_spin_orbitals: int,
+        spin: Optional[float] = None,
+        absolute_tolerance: float = ABSOLUTE_TOLERANCE,
+        relative_tolerance: float = RELATIVE_TOLERANCE,
+    ) -> None:
         """
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
+            spin: the expected spin of the system. This is only used during result interpretation.
+                If the measured value does not match this one, this will be logged on the INFO level.
+            absolute_tolerance: the absolute tolerance used for checking whether the measured
+                particle number matches the expected one.
+            relative_tolerance: the relative tolerance used for checking whether the measured
+                particle number matches the expected one.
         """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
-        # TODO: store expected spin?
+        self._spin = spin
+        self._absolute_tolerance = absolute_tolerance
+        self._relative_tolerance = relative_tolerance
+
+    @property
+    def spin(self) -> Optional[float]:
+        """Returns the expected spin."""
+        return self._spin
+
+    @spin.setter
+    def spin(self, spin: Optional[float]) -> None:
+        """Sets the expected spin."""
+        self._spin = spin
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
+        if self.spin is not None:
+            string += [f"\tExpected spin: {self.spin}"]
         return "\n".join(string)
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "AngularMomentum":
-        """Construct an AngularMomentum instance from a QMolecule.
+        """Construct an AngularMomentum instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
 
@@ -82,12 +114,14 @@ class AngularMomentum(ElectronicProperty):
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
         return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.
         """
+        expected = self.spin
         result.total_angular_momentum = []
 
         if not isinstance(result.aux_operator_eigenvalues, list):
@@ -99,7 +133,22 @@ class AngularMomentum(ElectronicProperty):
                 continue
 
             if aux_op_eigenvalues[1] is not None:
-                result.total_angular_momentum.append(aux_op_eigenvalues[1][0].real)  # type: ignore
+                total_angular_momentum = aux_op_eigenvalues[1][0].real  # type: ignore
+                result.total_angular_momentum.append(total_angular_momentum)
+
+                if expected is not None:
+                    spin = (-1.0 + np.sqrt(1 + 4 * total_angular_momentum)) / 2
+                    if not np.isclose(
+                        spin,
+                        expected,
+                        rtol=self._relative_tolerance,
+                        atol=self._absolute_tolerance,
+                    ):
+                        LOGGER.info(
+                            "The measured spin %s does NOT match the expected spin %s!",
+                            spin,
+                            expected,
+                        )
             else:
                 result.total_angular_momentum.append(None)
 

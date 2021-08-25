@@ -20,7 +20,7 @@ from ddt import ddt, idata, unpack
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers.second_quantization import HDF5Driver, QMolecule
+from qiskit_nature.drivers import HDF5Driver, QMolecule
 from qiskit_nature.transformers import ActiveSpaceTransformer
 
 

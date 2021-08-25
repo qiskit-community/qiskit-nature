@@ -14,12 +14,12 @@
 
 from test import QiskitNatureTestCase
 
-from ddt import ddt, data, unpack
+from ddt import data, ddt, unpack
 
 from qiskit_nature.circuit.library import UCC
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
@@ -48,14 +48,14 @@ class TestUCC(QiskitNatureTestCase):
             8,
             (2, 2),
             [
-                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)]),
-                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)]),
-                FermionicOp([("++--I+-I", 1j), ("--++I-+I", 1j)]),
-                FermionicOp([("++--I+I-", 1j), ("--++I-I+", 1j)]),
-                FermionicOp([("+I-I++--", 1j), ("-I+I--++", 1j)]),
-                FermionicOp([("+II-++--", 1j), ("-II+--++", 1j)]),
-                FermionicOp([("I+-I++--", 1j), ("I-+I--++", 1j)]),
-                FermionicOp([("I+I-++--", 1j), ("I-I+--++", 1j)]),
+                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)], display_format="dense"),
+                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)], display_format="dense"),
+                FermionicOp([("++--I+-I", 1j), ("--++I-+I", 1j)], display_format="dense"),
+                FermionicOp([("++--I+I-", 1j), ("--++I-I+", 1j)], display_format="dense"),
+                FermionicOp([("+I-I++--", 1j), ("-I+I--++", 1j)], display_format="dense"),
+                FermionicOp([("+II-++--", 1j), ("-II+--++", 1j)], display_format="dense"),
+                FermionicOp([("I+-I++--", 1j), ("I-+I--++", 1j)], display_format="dense"),
+                FermionicOp([("I+I-++--", 1j), ("I-I+--++", 1j)], display_format="dense"),
             ],
         ),
         (
@@ -63,12 +63,17 @@ class TestUCC(QiskitNatureTestCase):
             8,
             (2, 1),
             [
-                FermionicOp([("++--+-II", 1j), ("--++-+II", 1j)]),
-                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)]),
-                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)]),
+                FermionicOp([("++--+-II", 1j), ("--++-+II", 1j)], display_format="dense"),
+                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)], display_format="dense"),
+                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)], display_format="dense"),
             ],
         ),
-        ("q", 8, (2, 2), [FermionicOp([("++--++--", 1j), ("--++--++", -1j)])]),
+        (
+            "q",
+            8,
+            (2, 2),
+            [FermionicOp([("++--++--", 1j), ("--++--++", -1j)], display_format="dense")],
+        ),
         # TODO: add more edge cases?
     )
     def test_ucc_ansatz(self, excitations, num_spin_orbitals, num_particles, expect):

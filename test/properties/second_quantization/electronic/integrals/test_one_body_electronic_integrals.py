@@ -135,14 +135,14 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(
                 op.to_list(),
                 [
-                    ("NIII", 1),
-                    ("+-II", 2),
-                    ("-+II", -3),
-                    ("INII", 4),
-                    ("IINI", 1),
-                    ("II+-", 2),
-                    ("II-+", -3),
-                    ("IIIN", 4),
+                    ("+_0 -_0", 1),
+                    ("+_0 -_1", 2),
+                    ("+_1 -_0", 3),
+                    ("+_1 -_1", 4),
+                    ("+_2 -_2", 1),
+                    ("+_2 -_3", 2),
+                    ("+_3 -_2", 3),
+                    ("+_3 -_3", 4),
                 ],
             ):
                 self.assertEqual(real_label, exp_label)
@@ -154,14 +154,14 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(
                 op.to_list(),
                 [
-                    ("NIII", 1),
-                    ("+-II", 2),
-                    ("-+II", -3),
-                    ("INII", 4),
-                    ("IINI", -4),
-                    ("II+-", -3),
-                    ("II-+", 2),
-                    ("IIIN", -1),
+                    ("+_0 -_0", 1),
+                    ("+_0 -_1", 2),
+                    ("+_1 -_0", 3),
+                    ("+_1 -_1", 4),
+                    ("+_2 -_2", -4),
+                    ("+_2 -_3", -3),
+                    ("+_3 -_2", -2),
+                    ("+_3 -_3", -1),
                 ],
             ):
                 self.assertEqual(real_label, exp_label)

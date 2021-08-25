@@ -20,6 +20,7 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
+from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..molecule import Molecule
 from ...exceptions import UnsupportMethodError
@@ -167,14 +168,11 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
         """set driver kwargs"""
         self._driver_kwargs = value
 
-    def run(self):
-        """
-        Runs a driver to produce an output data structure.
-        """
+    def run(self) -> GroupedElectronicProperty:
         driver_class = ElectronicStructureDriverType.driver_class_from_type(
             self.driver_type, self.method
         )
-        driver = driver_class.from_molecule(
+        driver = driver_class.from_molecule(  # type: ignore
             self.molecule, self.basis, self.method, self.driver_kwargs
         )
         return driver.run()

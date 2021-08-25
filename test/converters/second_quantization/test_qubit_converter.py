@@ -15,19 +15,18 @@
 import contextlib
 import io
 import unittest
-from typing import Optional, List
-
 from test import QiskitNatureTestCase
+from typing import List, Optional, cast
 
-from qiskit.opflow import X, Y, Z, I, PauliSumOp, Z2Symmetries
+from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
-from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
 class TestQubitConverter(QiskitNatureTestCase):
@@ -90,9 +89,10 @@ class TestQubitConverter(QiskitNatureTestCase):
                 "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
             )
         )
-        self.molecule = driver.run()
-        self.num_particles = (self.molecule.num_alpha, self.molecule.num_beta)
-        self.h2_op = ElectronicEnergy.from_legacy_driver_result(self.molecule).second_q_ops()[0]
+        self.driver_result = driver.run()
+        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+        self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        self.h2_op = self.driver_result.second_q_ops()[0]
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""
@@ -169,7 +169,9 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
         with self.subTest("Two qubit reduction skipped when operator too small"):
-            small_op = FermionicOp([("N_0", 1.0), ("E_1", 1.0)], register_length=2)
+            small_op = FermionicOp(
+                [("N_0", 1.0), ("E_1", 1.0)], register_length=2, display_format="sparse"
+            )
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op)

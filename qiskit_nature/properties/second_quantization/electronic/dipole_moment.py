@@ -12,14 +12,14 @@
 
 """The ElectronicDipoleMoment property."""
 
-from typing import Dict, List, Optional, Tuple, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ..second_quantized_property import LegacyDriverResult
 from ...grouped_property import GroupedProperty
-from ..second_quantized_property import LegacyDriverResult, LegacyElectronicStructureDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .types import ElectronicProperty
@@ -42,11 +42,12 @@ class DipoleMoment(IntegralProperty):
         axis: str,
         electronic_integrals: List[ElectronicIntegrals],
         shift: Optional[Dict[str, complex]] = None,
-    ):
+    ) -> None:
         """
         Args:
             axis: the name of the Cartesian axis.
             dipole: an IntegralProperty property representing the dipole moment operator.
+            shift: an optional dictionary of dipole moment shifts.
         """
         self._axis = axis
         name = self.__class__.__name__ + axis.upper()
@@ -76,7 +77,7 @@ class DipoleMoment(IntegralProperty):
         return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.
@@ -90,7 +91,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
     This Property computes **purely** the electronic dipole moment (possibly minus additional shifts
     introduced via e.g. classical transformers). However, for convenience it provides a storage
     location for the nuclear dipole moment. If available, this information will be used during the
-    call of `interpret` to provide the electronic, nuclear and total dipole moments in the result
+    call of ``interpret`` to provide the electronic, nuclear and total dipole moments in the result
     object.
     """
 
@@ -100,11 +101,14 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
         nuclear_dipole_moment: Optional[DipoleTuple] = None,
         reverse_dipole_sign: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             dipole_axes: a dictionary mapping Cartesian axes to DipoleMoment properties.
             dipole_shift: an optional dictionary of named dipole shifts.
+            nuclear_dipole_moment: the optional nuclear dipole moment.
+            reverse_dipole_sign: indicates whether the sign of the electronic dipole components
+                needs to be reversed in order to match the nuclear dipole moment direction.
         """
         super().__init__(self.__class__.__name__)
         self._dipole_shift = dipole_shift
@@ -113,23 +117,46 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         for dipole in dipole_axes:
             self.add_property(dipole)
 
+    @property
+    def nuclear_dipole_moment(self) -> Optional[DipoleTuple]:
+        """Returns the nuclear dipole moment."""
+        return self._nuclear_dipole_moment
+
+    @nuclear_dipole_moment.setter
+    def nuclear_dipole_moment(self, nuclear_dipole_moment: Optional[DipoleTuple]) -> None:
+        """Sets the nuclear dipole moment."""
+        self._nuclear_dipole_moment = nuclear_dipole_moment
+
+    @property
+    def reverse_dipole_sign(self) -> bool:
+        """Returns whether or not the sign of the electronic dipole components needs to be reversed
+        in order to match the nuclear dipole moment direction."""
+        return self._reverse_dipole_sign
+
+    @reverse_dipole_sign.setter
+    def reverse_dipole_sign(self, reverse_dipole_sign: bool) -> None:
+        """Sets whether or not the sign of the electronic dipole components needs to be reversed in
+        order to match the nuclear dipole moment direction."""
+        self._reverse_dipole_sign = reverse_dipole_sign
+
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> Optional["ElectronicDipoleMoment"]:
-        """Construct a ElectronicDipoleMoment instance from a QMolecule.
+        """Construct an ElectronicDipoleMoment instance from a
+        :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                QMolecule is required!
+                :class:`~qiskit_nature.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a WatsonHamiltonian is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
         """
-        cls._validate_input_type(result, LegacyElectronicStructureDriverResult)
+        cls._validate_input_type(result, QMolecule)
 
         qmol = cast(QMolecule, result)
 
@@ -180,8 +207,9 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         """Returns a list of dipole moment operators along all Cartesian axes."""
         return [dip.second_q_ops()[0] for dip in self._properties.values()]
 
+    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:~qiskit_nature.result.EigenstateResult in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

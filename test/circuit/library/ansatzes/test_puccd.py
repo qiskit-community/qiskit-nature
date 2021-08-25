@@ -30,15 +30,15 @@ class TestPUCC(QiskitNatureTestCase):
 
     @unpack
     @data(
-        (4, (1, 1), [FermionicOp([("+-+-", 1j), ("-+-+", -1j)])]),
+        (4, (1, 1), [FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense")]),
         (
             8,
             (2, 2),
             [
-                FermionicOp([("+I-I+I-I", 1j), ("-I+I-I+I", -1j)]),
-                FermionicOp([("+II-+II-", 1j), ("-II+-II+", -1j)]),
-                FermionicOp([("I+-II+-I", 1j), ("I-+II-+I", -1j)]),
-                FermionicOp([("I+I-I+I-", 1j), ("I-I+I-I+", -1j)]),
+                FermionicOp([("+I-I+I-I", 1j), ("-I+I-I+I", -1j)], display_format="dense"),
+                FermionicOp([("+II-+II-", 1j), ("-II+-II+", -1j)], display_format="dense"),
+                FermionicOp([("I+-II+-I", 1j), ("I-+II-+I", -1j)], display_format="dense"),
+                FermionicOp([("I+I-I+I-", 1j), ("I-I+I-I+", -1j)], display_format="dense"),
             ],
         ),
     )
@@ -61,9 +61,9 @@ class TestPUCC(QiskitNatureTestCase):
             (1, 1),
             (True, True),
             [
-                FermionicOp([("+-II", 1j), ("-+II", 1j)]),
-                FermionicOp([("II+-", 1j), ("II-+", 1j)]),
-                FermionicOp([("+-+-", 1j), ("-+-+", -1j)]),
+                FermionicOp([("+-II", 1j), ("-+II", 1j)], display_format="dense"),
+                FermionicOp([("II+-", 1j), ("II-+", 1j)], display_format="dense"),
+                FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense"),
             ],
         ),
         (
@@ -71,8 +71,8 @@ class TestPUCC(QiskitNatureTestCase):
             (1, 1),
             (True, False),
             [
-                FermionicOp([("+-II", 1j), ("-+II", 1j)]),
-                FermionicOp([("+-+-", 1j), ("-+-+", -1j)]),
+                FermionicOp([("+-II", 1j), ("-+II", 1j)], display_format="dense"),
+                FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense"),
             ],
         ),
         (
@@ -80,8 +80,8 @@ class TestPUCC(QiskitNatureTestCase):
             (1, 1),
             (False, True),
             [
-                FermionicOp([("II+-", 1j), ("II-+", 1j)]),
-                FermionicOp([("+-+-", 1j), ("-+-+", -1j)]),
+                FermionicOp([("II+-", 1j), ("II-+", 1j)], display_format="dense"),
+                FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense"),
             ],
         ),
     )

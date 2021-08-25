@@ -13,8 +13,11 @@
 """ HDF5 Driver """
 
 import os
+import warnings
 
-from ..qmolecule import QMolecule
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+
+from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver
 
 
@@ -22,8 +25,7 @@ class HDF5Driver(ElectronicStructureDriver):
     """
     Qiskit Nature driver for reading an HDF5 file.
 
-    The HDF5 file is as saved from
-    a :class:`~qiskit_nature.drivers.second_quantization.QMolecule` instance.
+    The HDF5 file is one as saved from a :class:`~qiskit_nature.drivers.QMolecule` instance.
     """
 
     def __init__(self, hdf5_input: str = "molecule.hdf5") -> None:
@@ -45,12 +47,10 @@ class HDF5Driver(ElectronicStructureDriver):
         """Sets work path."""
         self._work_path = new_work_path
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         """
-        Runs driver to produce a QMolecule output.
-
         Returns:
-            A QMolecule containing the molecular data.
+            ElectronicStructureDriverResult re-constructed from the HDF5 file.
 
         Raises:
             LookupError: file not found.
@@ -62,6 +62,8 @@ class HDF5Driver(ElectronicStructureDriver):
         if not os.path.isfile(hdf5_file):
             raise LookupError("HDF5 file not found: {}".format(hdf5_file))
 
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         molecule = QMolecule(hdf5_file)
+        warnings.filterwarnings("default", category=DeprecationWarning)
         molecule.load()
-        return molecule
+        return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)

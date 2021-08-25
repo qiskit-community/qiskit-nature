@@ -17,14 +17,16 @@ import os
 import subprocess
 import sys
 import tempfile
+import warnings
 from pathlib import Path
 from shutil import which
 from typing import Union, List, Optional, Any, Dict
 
 from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
-from ..qmolecule import QMolecule
+from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -146,17 +148,19 @@ class PSI4Driver(ElectronicStructureDriver):
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
             raise UnsupportMethodError(f"Invalid PSI4 method {method.value}.")
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         cfg = self._config
 
         psi4d_directory = Path(__file__).resolve().parent
         template_file = psi4d_directory.joinpath("_template.txt")
         qiskit_nature_directory = psi4d_directory.parent.parent
 
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         molecule = QMolecule()
+        warnings.filterwarnings("default", category=DeprecationWarning)
 
-        input_text = cfg + "\n"
-        input_text += "import sys\n"
+        input_text = [cfg]
+        input_text += ["import sys"]
         syspath = (
             "['"
             + qiskit_nature_directory.as_posix()
@@ -165,24 +169,27 @@ class PSI4Driver(ElectronicStructureDriver):
             + "']"
         )
 
-        input_text += "sys.path = " + syspath + " + sys.path\n"
-        input_text += "from qiskit_nature.drivers.second_quantization.qmolecule import QMolecule\n"
-        input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
+        input_text += ["sys.path = " + syspath + " + sys.path"]
+        input_text += ["import warnings"]
+        input_text += ["from qiskit_nature.drivers.qmolecule import QMolecule"]
+        input_text += ["warnings.filterwarnings('ignore', category=DeprecationWarning)"]
+        input_text += ['_q_molecule = QMolecule("{0}")'.format(Path(molecule.filename).as_posix())]
+        input_text += ["warnings.filterwarnings('default', category=DeprecationWarning)"]
 
-        with open(template_file, "r") as file:
-            input_text += file.read()
+        with open(template_file, "r", encoding="utf8") as file:
+            input_text += [line.strip("\n") for line in file.readlines()]
 
         file_fd, input_file = tempfile.mkstemp(suffix=".inp")
         os.close(file_fd)
-        with open(input_file, "w") as stream:
-            stream.write(input_text)
+        with open(input_file, "w", encoding="utf8") as stream:
+            stream.write("\n".join(input_text))
 
         file_fd, output_file = tempfile.mkstemp(suffix=".out")
         os.close(file_fd)
         try:
             PSI4Driver._run_psi4(input_file, output_file)
             if logger.isEnabledFor(logging.DEBUG):
-                with open(output_file, "r") as file:
+                with open(output_file, "r", encoding="utf8") as file:
                     logger.debug("PSI4 output file:\n%s", file.read())
         finally:
             run_directory = os.getcwd()
@@ -204,13 +211,15 @@ class PSI4Driver(ElectronicStructureDriver):
             except Exception:  # pylint: disable=broad-except
                 pass
 
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         _q_molecule = QMolecule(molecule.filename)
+        warnings.filterwarnings("default", category=DeprecationWarning)
         _q_molecule.load()
         # remove internal file
         _q_molecule.remove_file()
         _q_molecule.origin_driver_name = "PSI4"
         _q_molecule.origin_driver_config = cfg
-        return _q_molecule
+        return ElectronicStructureDriverResult.from_legacy_driver_result(_q_molecule)
 
     @staticmethod
     def _run_psi4(input_file, output_file):

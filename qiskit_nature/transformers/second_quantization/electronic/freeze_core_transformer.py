@@ -59,12 +59,12 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         pass
 
     def _determine_active_space(
-        self, molecule_data: GroupedElectronicProperty
+        self, grouped_property: GroupedElectronicProperty
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            molecule_data: the `ElectronicStructureDriverResult` to be transformed.
+            grouped_property: the `ElectronicStructureDriverResult` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
@@ -73,15 +73,15 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             QiskitNatureError: if a GroupedElectronicProperty is provided which is not also an
                                ElectronicElectronicStructureDriverResult.
         """
-        if not isinstance(molecule_data, ElectronicStructureDriverResult):
+        if not isinstance(grouped_property, ElectronicStructureDriverResult):
             raise QiskitNatureError(
                 "The FreezeCoreTransformer requires an `ElectronicStructureDriverResult`, not a "
-                f"property of type {type(molecule_data)}."
+                f"property of type {type(grouped_property)}."
             )
-        molecule_data = cast(ElectronicStructureDriverResult, molecule_data)
+        grouped_property = cast(ElectronicStructureDriverResult, grouped_property)
 
-        molecule = molecule_data.molecule
-        particle_number = molecule_data.get_property("ParticleNumber")
+        molecule = grouped_property.molecule
+        particle_number = grouped_property.get_property("ParticleNumber")
 
         inactive_orbs_idxs = list(range(self.count_core_orbitals(molecule.atoms)))
         if self._remove_orbitals is not None:

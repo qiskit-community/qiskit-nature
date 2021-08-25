@@ -14,12 +14,14 @@
 
 import unittest
 from functools import partial
+
 from test import QiskitNatureTestCase, requires_extra_library
 
 import numpy as np
 
-from qiskit.algorithms import NumPyMinimumEigensolver
-from qiskit.utils import algorithm_globals
+from qiskit import Aer
+from qiskit.algorithms import NumPyMinimumEigensolver, VQE
+from qiskit.utils import algorithm_globals, QuantumInstance
 
 from qiskit_nature.algorithms import GroundStateEigensolver, BOPESSampler
 from qiskit_nature.algorithms.pes_samplers import MorsePotential
@@ -28,7 +30,7 @@ from qiskit_nature.drivers.second_quantization import (
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
 )
-from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.mappers.second_quantization import ParityMapper, JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
@@ -36,12 +38,14 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 class TestBOPES(QiskitNatureTestCase):
     """Tests of BOPES Sampler."""
 
+    def setUp(self) -> None:
+        super().setUp()
+        self.seed = 50
+        algorithm_globals.random_seed = self.seed
+
     @requires_extra_library
     def test_h2_bopes_sampler(self):
         """Test BOPES Sampler on H2"""
-        seed = 50
-        algorithm_globals.random_seed = seed
-
         # Molecule
         dof = partial(Molecule.absolute_distance, atom_pair=(1, 0))
         m = Molecule(
@@ -78,9 +82,6 @@ class TestBOPES(QiskitNatureTestCase):
     @requires_extra_library
     def test_potential_interface(self):
         """Tests potential interface."""
-        seed = 50
-        algorithm_globals.random_seed = seed
-
         stretch = partial(Molecule.absolute_distance, atom_pair=(1, 0))
         # H-H molecule near equilibrium geometry
         m = Molecule(
@@ -115,6 +116,42 @@ class TestBOPES(QiskitNatureTestCase):
 
         np.testing.assert_array_almost_equal([pot.alpha, pot.r_0], [2.235, 0.720], decimal=3)
         np.testing.assert_array_almost_equal([pot.d_e, pot.m_shift], [0.2107, -1.1419], decimal=3)
+
+    @requires_extra_library
+    def test_vqe_bootstrap(self):
+        """Test with VQE and bootstrapping."""
+        qubit_converter = QubitConverter(JordanWignerMapper())
+        quantum_instance = QuantumInstance(
+            backend=Aer.get_backend("aer_simulator_statevector"),
+            seed_simulator=self.seed,
+            seed_transpiler=self.seed,
+        )
+        solver = VQE(quantum_instance=quantum_instance)
+
+        vqe_gse = GroundStateEigensolver(qubit_converter, solver)
+
+        distance1 = partial(Molecule.absolute_distance, atom_pair=(1, 0))
+        mol = Molecule(
+            geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 0.6])],
+            degrees_of_freedom=[distance1],
+        )
+
+        driver = ElectronicStructureMoleculeDriver(
+            mol, driver_type=ElectronicStructureDriverType.PYSCF
+        )
+        es_problem = ElectronicStructureProblem(driver)
+        points = list(np.linspace(0.6, 0.8, 4))
+        bopes = BOPESSampler(gss=vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None)
+        result = bopes.sample(es_problem, points)
+        ref_points = [0.6, 0.6666666666666666, 0.7333333333333334, 0.8]
+        ref_energies = [
+            -1.1162853926251162,
+            -1.1327033478688526,
+            -1.137302817836066,
+            -1.1341458916990401,
+        ]
+        np.testing.assert_almost_equal(result.points, ref_points)
+        np.testing.assert_almost_equal(result.energies, ref_energies)
 
 
 if __name__ == "__main__":

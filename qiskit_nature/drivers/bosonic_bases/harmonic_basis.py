@@ -52,7 +52,7 @@ class HarmonicBasis(BosonicBasis):
             "0.2.0",
             DeprecatedType.CLASS,
             "HarmonicBasis",
-            "from qiskit_nature.drivers.second_quantization.bosonic_bases as a direct replacement",
+            "from qiskit_nature.properties.second_quantization.bases",
         )
         super().__init__()
 

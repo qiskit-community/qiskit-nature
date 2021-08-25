@@ -13,6 +13,7 @@
 """ Test Numerical qEOM excited states calculation """
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -20,7 +21,8 @@ from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
 
-from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver, WatsonHamiltonian
+from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization.vibrational import (
@@ -34,6 +36,9 @@ from qiskit_nature.algorithms import (
     QEOM,
     ExcitedStatesEigensolver,
     NumPyEigensolverFactory,
+)
+from qiskit_nature.properties.second_quantization.vibrational import (
+    VibrationalStructureDriverResult,
 )
 
 
@@ -51,11 +56,14 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
             [5.03965375, 2, 2, 1, 1],
             [0.43840625000000005, 2, 2, 2, 2],
         ]
-        self._watson = WatsonHamiltonian(modes, 2)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            watson = WatsonHamiltonian(modes, 2)
+            self._driver_result = VibrationalStructureDriverResult.from_legacy_driver_result(watson)
 
     def run(self):
         """Run dummy driver to return test watson hamiltonian"""
-        return self._watson
+        return self._driver_result
 
 
 class TestBosonicESCCalculation(QiskitNatureTestCase):

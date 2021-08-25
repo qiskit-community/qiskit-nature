@@ -21,28 +21,35 @@ given molecule. A driver is created with a molecular configuration, passed in th
 with that particular driver. This allows custom configuration specific to each computational
 chemistry program or library to be passed.
 
-Qiskit Nature thus allows the user to configure a chemistry problem in a way that a chemist
-already using the underlying chemistry program or library will be familiar with. The driver is
-used to compute some intermediate data, which later will be used to form the input to an
-algorithm.  Such intermediate data, is populated into a
-:class:`~qiskit_nature.drivers.second_quantization.QMolecule` object and includes the following for
-example:
+Qiskit Nature thus allows the user to configure a chemistry problem in a way that a chemist already
+using the underlying chemistry program or library will be familiar with. The driver is used to
+compute some intermediate data, which later will be used to form the input to an algorithm. The
+intermediate data is stored in a :class:`~qiskit_nature.properties.GroupedProperty` which in turn
+contains multiple :class:`~qiskit_nature.properties.Property` objects.
+Some examples for the electronic structure case include:
 
-1. One- and two-body integrals in Molecular Orbital (MO) basis
-2. Dipole integrals
-3. Molecular orbital coefficients
-4. Hartree-Fock energy
-5. Nuclear repulsion energy
+1. :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
+2. :class:`~qiskit_nature.properties.second_quantization.electronic.ParticleNumber`
+3. :class:`~qiskit_nature.properties.second_quantization.electronic.AngularMomentum`
+4. :class:`~qiskit_nature.properties.second_quantization.electronic.Magnetization`
+5. :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicDipoleMoment`
 
 Once extracted, the structure of this intermediate data is independent of the driver that was
 used to compute it.  However the values and level of accuracy of such data will depend on the
 underlying chemistry program or library used by the specific driver.
 
-Qiskit Nature offers the option to serialize the Qmolecule data in a binary format known
-as `Hierarchical Data Format 5 (HDF5) <https://support.hdfgroup.org/HDF5/>`__.
-This is done to allow chemists to reuse the same input data in the future and to enable researchers
-to exchange input data with each other --- which is especially useful to researchers who may not
-have particular computational chemistry drivers installed on their computers.
+If you want to serialize your input data in order to reuse the same input data in the future or
+exchange input data with another person or computer, you have to (until Qiskit Nature 0.3.0) resort
+to using the deprecated drivers from the :class:`~qiskit_nature.drivers` module which still output a
+:class:`~qiskit_nature.drivers.QMolecule` object. This object can in turn by stored in a binary
+format known as the `Hierarchical Data Format 5 (HDF5) <https://support.hdfgroup.org/HDF5/>`__.
+You can use the :class:`~qiskit_nature.drivers.second_quantization.HDF5Driver` to read such a binary
+file and directly construct a :class:`~qiskit_nature.properties.GroupedProperty` as you would with
+the updated drivers.
+
+In the future, the :class:`~qiskit_nature.properties` module will support some serialization format
+directly without the need to fall back onto the deprecated :class:`~qiskit_nature.drivers.QMolecule`
+object.
 
 Driver Base Class
 =================
@@ -62,11 +69,9 @@ Driver Common
    :toctree: ../stubs/
    :nosignatures:
 
-   QMolecule
    MethodType
    BasisType
    InitialGuess
-   WatsonHamiltonian
 
 Drivers
 =======
@@ -86,8 +91,8 @@ to use.
    qiskit_nature.drivers.second_quantization.pyscfd
 
 The :class:`HDF5Driver` reads molecular data from a pre-existing HDF5 file, as saved from a
-:class:`~qiskit_nature.drivers.second_quantization.QMolecule`, and is not dependent on any external
-chemistry program/library and needs no special install.
+:class:`~qiskit_nature.drivers.QMolecule`, and is not dependent on any external chemistry
+program/library and needs no special install.
 
 The :class:`FCIDumpDriver` likewise reads from a pre-existing file in this case a standard
 FCIDump file and again needs no special install.
@@ -133,14 +138,6 @@ of interest that is parsed from the log.
    GaussianLogDriver
    GaussianLogResult
 
-Submodules
-==========
-
-.. autosummary::
-   :toctree:
-
-   bosonic_bases
-
 """
 
 from .electronic_structure_molecule_driver import (
@@ -152,8 +149,6 @@ from .vibrational_structure_molecule_driver import (
     VibrationalStructureDriverType,
 )
 from .base_driver import BaseDriver
-from .qmolecule import QMolecule
-from .watson_hamiltonian import WatsonHamiltonian
 from .vibrational_structure_driver import VibrationalStructureDriver
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from .fcidumpd import FCIDumpDriver
@@ -169,8 +164,6 @@ __all__ = [
     "VibrationalStructureMoleculeDriver",
     "VibrationalStructureDriverType",
     "MethodType",
-    "QMolecule",
-    "WatsonHamiltonian",
     "BaseDriver",
     "VibrationalStructureDriver",
     "ElectronicStructureDriver",

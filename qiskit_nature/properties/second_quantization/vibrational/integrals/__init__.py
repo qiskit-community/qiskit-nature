@@ -10,11 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 r"""
-Vibrational Integrals (:mod:`qiskit_nature.properties.vibrational_structure.integrals`)
-=======================================================================================
+Vibrational Integrals (:mod:`qiskit_nature.properties.second_quantization.vibrational.integrals`)
+=================================================================================================
 
-.. currentmodule:: qiskit_nature.properties.vibrational_structure.integrals
+.. currentmodule:: qiskit_nature.properties.second_quantization.vibrational.integrals
 
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   VibrationalIntegrals
 """
 
 from .vibrational_integrals import VibrationalIntegrals

@@ -13,11 +13,12 @@
 """Test AngularMomentum Property"""
 
 import json
+import warnings
 from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import AngularMomentum
 
 
@@ -27,7 +28,9 @@ class TestAngularMomentum(QiskitNatureTestCase):
     def setUp(self):
         """Setup."""
         super().setUp()
-        qmol = QMolecule()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            qmol = QMolecule()
         qmol.num_molecular_orbitals = 4
         self.prop = AngularMomentum.from_legacy_driver_result(qmol)
 
@@ -40,6 +43,7 @@ class TestAngularMomentum(QiskitNatureTestCase):
                 "angular_momentum_op.json", "properties/second_quantization/electronic/resources"
             ),
             "r",
+            encoding="utf8",
         ) as file:
             expected = json.load(file)
         for op, expected_op in zip(ops[0].to_list(), expected):

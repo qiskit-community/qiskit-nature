@@ -29,3 +29,11 @@ class DriverMetadata(PseudoProperty):
         self.program = program
         self.version = version
         self.config = config
+
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
+        string += [f"\tProgram: {self.program}"]
+        string += [f"\tVersion: {self.version}"]
+        string += ["\tConfig:"]
+        string += ["\t\t" + s for s in self.config.split("\n")]
+        return "\n".join(string)

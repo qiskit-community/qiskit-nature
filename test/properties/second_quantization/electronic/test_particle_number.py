@@ -12,9 +12,10 @@
 
 """Test ParticleNumber Property"""
 
+import warnings
 from test import QiskitNatureTestCase
 
-from qiskit_nature.drivers.second_quantization import QMolecule
+from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
@@ -24,7 +25,9 @@ class TestParticleNumber(QiskitNatureTestCase):
     def setUp(self):
         """Setup."""
         super().setUp()
-        qmol = QMolecule()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            qmol = QMolecule()
         qmol.num_molecular_orbitals = 4
         qmol.num_alpha = 2
         qmol.num_beta = 2
@@ -35,13 +38,13 @@ class TestParticleNumber(QiskitNatureTestCase):
         ops = self.prop.second_q_ops()
         self.assertEqual(len(ops), 1)
         expected = [
-            "NIIIIIII",
-            "INIIIIII",
-            "IINIIIII",
-            "IIINIIII",
-            "IIIINIII",
-            "IIIIINII",
-            "IIIIIINI",
-            "IIIIIIIN",
+            "+_0 -_0",
+            "+_1 -_1",
+            "+_2 -_2",
+            "+_3 -_3",
+            "+_4 -_4",
+            "+_5 -_5",
+            "+_6 -_6",
+            "+_7 -_7",
         ]
         self.assertEqual([l for l, _ in ops[0].to_list()], expected)

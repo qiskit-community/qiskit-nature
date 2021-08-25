@@ -16,8 +16,9 @@ from typing import Dict, Union, List, Tuple, cast
 import copy
 import logging
 import re
+import warnings
 
-from ..watson_hamiltonian import WatsonHamiltonian
+from ...watson_hamiltonian import WatsonHamiltonian
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class GaussianLogResult:
             lines = log.split("\n")
 
             if len(lines) == 1:
-                with open(lines[0]) as file:
+                with open(lines[0], "r", encoding="utf8") as file:
                     self._log = file.read().split("\n")
             else:
                 self._log = lines
@@ -255,6 +256,8 @@ class GaussianLogResult:
                 modes.append(line)
 
         num_modes = len(self.a_to_h_numbering.keys())
-        watson = WatsonHamiltonian(modes, num_modes)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            watson = WatsonHamiltonian(modes, num_modes)
 
         return watson
