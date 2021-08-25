@@ -4,12 +4,11 @@
             "owner": "mypy",
             "pattern": [
                 {
-                    "regexp": "^(\\033\\[0m)?([^:]+):(\d+): (\[^:\]+): (.*)  \\[(.*)\\]$",
-                        "file": 2,
-                        "line": 3,
-                        "severity": 4,
-                        "message": 5,
-                        "code": 6,
+                    "regexp": "^(.+):(\\d+):\\s(error|warning):\\s(.+)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4,
                 },
             ],
         },
