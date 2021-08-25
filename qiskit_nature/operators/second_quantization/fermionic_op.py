@@ -487,7 +487,7 @@ class FermionicOp(SecondQuantizedOp):
             # loop over the terms in the operator data
             for opstring, prefactor in self.reduce()._data:
                 # check if opstring is the identity
-                if opstring == "":
+                if not opstring:
                     csc_data.append(prefactor)
                     csc_row.append(col_idx)
                     csc_col.append(col_idx)
@@ -497,25 +497,22 @@ class FermionicOp(SecondQuantizedOp):
                     mapped_to_zero = False
 
                     # apply terms sequentially to the current basis state
-                    for label in reversed(opstring.split(" ")):
-                        op_char = label[0]
-                        mode_idx = int(label[2:])
-
-                        if op_char == "-":
+                    for label_primitive in reversed(opstring):
+                        if not label_primitive.is_creation:
                             # If this mode is not occupied, the action of '-' on the state is zero
-                            if occupations[mode_idx] == 0:
+                            if occupations[label_primitive.index] == 0:
                                 mapped_to_zero = True
                                 break
-                            sign *= (-1) ** sum(occupations[:mode_idx])
-                            occupations[mode_idx] = 0
+                            sign *= (-1) ** sum(occupations[: label_primitive.index])
+                            occupations[label_primitive.index] = 0
 
-                        if op_char == "+":
+                        if label_primitive.is_creation:
                             # If this mode is already occupied, the action of '+' on this state is zero
-                            if occupations[mode_idx] == 1:
+                            if occupations[label_primitive.index] == 1:
                                 mapped_to_zero = True
                                 break
-                            sign *= (-1) ** sum(occupations[:mode_idx])
-                            occupations[mode_idx] = 1
+                            sign *= (-1) ** sum(occupations[: label_primitive.index])
+                            occupations[label_primitive.index] = 1
 
                     # add data point to matrix in the correct row
                     if not mapped_to_zero:
