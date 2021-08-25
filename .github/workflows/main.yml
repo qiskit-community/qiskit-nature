@@ -69,6 +69,7 @@ jobs:
         shell: bash
       - name: Set up problem matches
         run: |
+          echo "::add-matcher::./.github/problem_matchers/copyright.json"
           echo "::add-matcher::./.github/problem_matchers/spell.json"
           echo "::add-matcher::./.github/problem_matchers/black.json"
       - name: PIP Check
