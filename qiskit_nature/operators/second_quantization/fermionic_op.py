@@ -13,6 +13,7 @@
 """The Fermionic-particle Operator."""
 
 import re
+import sys  # unused import for CI testing purposes
 import warnings
 from dataclasses import dataclass
 from itertools import product

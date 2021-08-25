@@ -159,6 +159,7 @@ jobs:
         shell: bash
       - name: Set up problem matches
         run: |
+          echo "::add-matcher::./.github/problem_matchers/pylint.json"
           echo "::add-matcher::./.github/problem_matchers/mypy.json"
       - name: Run lint
         run: |
