@@ -166,6 +166,7 @@ jobs:
         run: |
           echo "::add-matcher::./.github/problem_matchers/pylint.json"
           echo "::add-matcher::./.github/problem_matchers/mypy.json"
+        if: ${{ matrix.python-version == 3.7 }}
       - name: Run lint
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
