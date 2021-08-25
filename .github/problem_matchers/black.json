@@ -4,8 +4,8 @@
             "owner": "black",
             "pattern": [
                 {
-                    "regexp": "^would reformat\\s(.+)$",
-                    "file": 1,
+                    "regexp": "^(would reformat\\s(.+))$",
+                    "file": 2,
                     "message": 1
                 }
             ]

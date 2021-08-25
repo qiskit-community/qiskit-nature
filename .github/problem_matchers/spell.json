@@ -17,10 +17,10 @@
             "severity": "error",
             "pattern": [
                 {
-                    "regexp": "^(.+):\\d+:\\s(Spell check):\\s(.+)$",
+                    "regexp": "^(.+):\\d+:\\s((Spell check):\\s.+)$",
                     "file": 1,
-                    "code": 2,
-                    "message": 3
+                    "message": 2,
+                    "code": 3
                 }
             ]
         }
