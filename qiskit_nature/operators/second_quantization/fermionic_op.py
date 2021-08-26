@@ -474,7 +474,8 @@ class FermionicOp(SecondQuantizedOp):
             dense numpy array.
 
         Returns:
-            The matrix (scipy.sparse.csc_matrix or numpy.ndarray with dtype=numpy.complex128)
+            The matrix of the operator in the Fock basis (scipy.sparse.csc_matrix or numpy.ndarray
+            with dtype=numpy.complex128)
         """
 
         csc_data, csc_col, csc_row = [], [], []

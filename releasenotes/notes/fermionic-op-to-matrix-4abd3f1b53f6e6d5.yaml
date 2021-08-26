@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add :meth:`~qiskit_nature.operators.second_quantization.FermionicOp.to_matrix()`.
+    This method returns the matrix representation of the operator over the full fermionic Fock space in
+    occupation number basis.
