@@ -90,7 +90,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate
-          make -i spell
+          make spell
         if: ${{ !cancelled() }}
         shell: bash
       - name: Style Check

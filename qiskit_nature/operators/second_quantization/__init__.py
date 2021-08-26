@@ -14,8 +14,6 @@
 Second-Quantization Operators (:mod:`qiskit_nature.operators.second_quantization`)
 ==================================================================================
 
-This is a tpyo.
-
 .. currentmodule:: qiskit_nature.operators.second_quantization
 
 Second-Quantization Operators

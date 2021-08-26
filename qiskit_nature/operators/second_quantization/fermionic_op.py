@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,7 +13,6 @@
 """The Fermionic-particle Operator."""
 
 import re
-import sys  # unused import for CI testing purposes
 import warnings
 from dataclasses import dataclass
 from itertools import product
@@ -262,7 +261,7 @@ class FermionicOp(SecondQuantizedOp):
         self._data: List[Tuple[_FermionLabel, complex]]
 
         if isinstance(data, list) and isinstance(data[0][0], list) and register_length is not None:
-            self._data = data
+            self._data = data  # type: ignore
             self._register_length = register_length
         else:
             if not isinstance(data, (tuple, list, str)):
@@ -288,7 +287,7 @@ class FermionicOp(SecondQuantizedOp):
                 self._data = [
                     (
                         self._substituted_label([(c, int(i)) for i, c in enumerate(label)]),
-                        complex(coeff),
+                        complex(coeff),  # type: ignore
                     )
                     for label, coeff in data
                 ]
@@ -296,9 +295,9 @@ class FermionicOp(SecondQuantizedOp):
                 self._data = [
                     (
                         self._substituted_label(
-                            [(c[0], int(c[2:])) for c in label.split()]
+                            [(c[0], int(c[2:])) for c in label.split()]  # type: ignore
                         ),
-                        complex(coeff),
+                        complex(coeff),  # type: ignore
                     )
                     for label, coeff in data
                 ]
@@ -436,7 +435,7 @@ class FermionicOp(SecondQuantizedOp):
     def to_list(
         self,
         display_format: Optional[str] = None,
-    ) -> List[Tuple[str, complex]]:
+    ) -> List[Tuple[str, complex]]:  # type: ignore
         """Returns the operators internal contents in list-format.
 
         Args:
