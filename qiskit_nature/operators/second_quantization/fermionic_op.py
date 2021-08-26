@@ -487,7 +487,7 @@ class FermionicOp(SecondQuantizedOp):
             ]
             # loop over the terms in the operator data
             for opstring, prefactor in self.reduce()._data:
-                # check if opstring is the identity
+                # check if op string is the identity
                 if not opstring:
                     csc_data.append(prefactor)
                     csc_row.append(col_idx)
