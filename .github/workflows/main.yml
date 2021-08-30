@@ -67,6 +67,11 @@ jobs:
           # append to reno config
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
         shell: bash
+      - name: Set up problem matches
+        run: |
+          echo "::add-matcher::./.github/problem_matchers/copyright.json"
+          echo "::add-matcher::./.github/problem_matchers/spell.json"
+          echo "::add-matcher::./.github/problem_matchers/black.json"
       - name: PIP Check
         run:  |
           source "$CONDA/etc/profile.d/conda.sh"
@@ -157,6 +162,11 @@ jobs:
           fi
         if: ${{ matrix.python-version < 3.9 }}
         shell: bash
+      - name: Set up problem matches
+        run: |
+          echo "::add-matcher::./.github/problem_matchers/pylint.json"
+          echo "::add-matcher::./.github/problem_matchers/mypy.json"
+        if: ${{ matrix.python-version == 3.7 }}
       - name: Run lint
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
