@@ -499,21 +499,14 @@ class FermionicOp(SecondQuantizedOp):
 
                     # apply terms sequentially to the current basis state
                     for label_primitive in reversed(opstring):
-                        if not label_primitive.is_creation:
-                            # If this mode is not occupied, the action of '-' on the state is zero
-                            if occupations[label_primitive.index] == 0:
-                                mapped_to_zero = True
-                                break
-                            sign *= (-1) ** sum(occupations[: label_primitive.index])
-                            occupations[label_primitive.index] = 0
-
-                        if label_primitive.is_creation:
-                            # If this mode is already occupied, the action of '+' on this state is zero
-                            if occupations[label_primitive.index] == 1:
-                                mapped_to_zero = True
-                                break
-                            sign *= (-1) ** sum(occupations[: label_primitive.index])
-                            occupations[label_primitive.index] = 1
+                        occ = occupations[label_primitive.index]
+                        if label_primitive.is_creation == occ:
+                            # Applying the creation operator on an occupied state maps to zero. So
+                            # does applying the annihilation operator on an unoccupied state.
+                            mapped_to_zero = True
+                            break
+                        sign *= (-1) ** sum(occupations[: label_primitive.index])
+                        occupations[label_primitive.index] = not occ
 
                     # add data point to matrix in the correct row
                     if not mapped_to_zero:
