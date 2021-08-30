@@ -483,7 +483,7 @@ class FermionicOp(SecondQuantizedOp):
         # loop over all columns of the matrix
         for col_idx in range(2 ** self.register_length):
             initial_occupations = [
-                int(occ) for occ in np.binary_repr(col_idx, self.register_length)
+                occ == '1' for occ in np.binary_repr(col_idx, self.register_length)
             ]
             # loop over the terms in the operator data
             for opstring, prefactor in self.reduce()._data:
@@ -510,7 +510,7 @@ class FermionicOp(SecondQuantizedOp):
 
                     # add data point to matrix in the correct row
                     if not mapped_to_zero:
-                        row_idx = int("".join([str(occ) for occ in occupations]), 2)
+                        row_idx = int("".join([str(int(occ)) for occ in occupations]), 2)
                         csc_data.append(sign * prefactor)
                         csc_row.append(row_idx)
                         csc_col.append(col_idx)
