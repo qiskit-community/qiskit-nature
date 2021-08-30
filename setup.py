@@ -14,6 +14,7 @@ import setuptools
 import inspect
 import sys
 import os
+import re
 
 with open('requirements.txt') as f:
     REQUIREMENTS = f.read().splitlines()
