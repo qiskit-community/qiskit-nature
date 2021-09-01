@@ -21,6 +21,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import data, ddt, unpack
 from scipy.sparse import csc_matrix
+from scipy.sparse.linalg import eigs
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 
@@ -368,6 +369,27 @@ class TestFermionicOp(QiskitNatureTestCase):
             mat = FermionicOp([("ENI+", 3j), ("-N+-", -2)]).to_matrix()
             targ = csc_matrix(([-3j, 3j, -2], ([5, 7, 6], [4, 6, 13])), shape=(16, 16))
             self.assertTrue((mat != targ).nnz == 0)
+
+        with self.subTest("Test Hydrogen spectrum"):
+            h2_labels = [
+                ("+_0 -_1 +_2 -_3", (0.18093120148374142)),
+                ("+_0 -_1 -_2 +_3", (-0.18093120148374134)),
+                ("-_0 +_1 +_2 -_3", (-0.18093120148374134)),
+                ("-_0 +_1 -_2 +_3", (0.18093120148374128)),
+                ("+_3 -_3", (-0.4718960038869427)),
+                ("+_2 -_2", (-1.2563391028292563)),
+                ("+_2 -_2 +_3 -_3", (0.48365053378098793)),
+                ("+_1 -_1", (-0.4718960038869427)),
+                ("+_1 -_1 +_3 -_3", (0.6985737398458793)),
+                ("+_1 -_1 +_2 -_2", (0.6645817352647293)),
+                ("+_0 -_0", (-1.2563391028292563)),
+                ("+_0 -_0 +_3 -_3", (0.6645817352647293)),
+                ("+_0 -_0 +_2 -_2", (0.6757101625347564)),
+                ("+_0 -_0 +_1 -_1", (0.48365053378098793)),
+            ]
+            h2_matrix = FermionicOp(h2_labels, register_length=4).to_matrix()
+            eigvals, _ = eigs(h2_matrix)
+            self.assertTrue(np.allclose(np.min(eigvals), -1.8572750 + 0j))
 
     def test_normal_order(self):
         """test normal_order method"""
