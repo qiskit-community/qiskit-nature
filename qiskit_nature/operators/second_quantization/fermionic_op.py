@@ -510,7 +510,7 @@ class FermionicOp(SecondQuantizedOp):
 
                     # add data point to matrix in the correct row
                     if not mapped_to_zero:
-                        row_idx = int("".join([str(int(occ)) for occ in occupations]), 2)
+                        row_idx = sum(int(occ) << idx for idx, occ in enumerate(occupations[::-1]))
                         csc_data.append(sign * prefactor)
                         csc_row.append(row_idx)
                         csc_col.append(col_idx)
