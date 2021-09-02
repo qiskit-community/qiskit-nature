@@ -390,7 +390,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             h2_matrix = FermionicOp(h2_labels, register_length=4).to_matrix()
             evals, evecs = eigs(h2_matrix)
             self.assertTrue(np.isclose(np.min(evals), -1.8572750))
-            # make sure the groundstate has support only in the 2-particle subspace
+            # make sure the ground state has support only in the 2-particle subspace
             groundstate = evecs[:, np.argmin(evals)]
             for idx in np.where(~np.isclose(groundstate, 0))[0]:
                 binary = f"{idx:0{4}b}"
