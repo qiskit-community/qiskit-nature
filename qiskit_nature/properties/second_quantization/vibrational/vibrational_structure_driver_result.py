@@ -12,7 +12,7 @@
 
 """The VibrationalStructureDriverResult class."""
 
-from typing import List, Union, cast
+from typing import List, cast
 
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
