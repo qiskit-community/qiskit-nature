@@ -12,7 +12,7 @@
 
 """The Magnetization property."""
 
-from typing import cast, List, Union
+from typing import cast, List
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp

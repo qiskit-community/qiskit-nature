@@ -144,8 +144,8 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
                 # legacy driver used, molecule_data should not be None
                 self.assertIsNotNone(electronic_structure_problem.molecule_data)
-                # no transformer used, molecule_data_transformed should be None
-                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
+                # no transformer used, molecule_data_transformed should be set to molecule_data
+                self.assertIsNotNone(electronic_structure_problem.molecule_data_transformed)
             # converted properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
