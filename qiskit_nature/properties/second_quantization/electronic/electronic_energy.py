@@ -12,7 +12,7 @@
 
 """The ElectronicEnergy property."""
 
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, cast
 
 import numpy as np
 
