@@ -211,6 +211,8 @@ class VQEProgram(MinimumEigensolver):
 
         def wrapped_callback(*args):
             _, data = args  # first element is the job id
+            if isinstance(data, dict):
+                return # not expected params. skip
             iteration_count = data[0]
             params = data[1]
             mean = data[2]
