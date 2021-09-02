@@ -1,6 +1,6 @@
 # Qiskit Nature
 
-[![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)
+[![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)<!--- long-description-skip-end -->
 
 **Qiskit Nature** is an open-source framework that supports problems including ground state energy computations,
 excited states and dipole moments of molecule, both open and closed-shell.
@@ -26,7 +26,7 @@ pip install qiskit-nature
 If you want to work on the very latest work-in-progress versions, either to try features ahead of
 their official release or if you want to contribute to Qiskit Nature, then you can install from source.
 To do this follow the instructions in the
- [documentation](https://qiskit.org/documentation/contributing_to_qiskit.html#installing-from-source).
+ [documentation](https://qiskit.org/documentation/nature/getting_started.html#installation).
 
 ### Optional Installs
 
@@ -36,17 +36,17 @@ Several, as listed below, are supported, and while logic to interface these prog
 Qiskit Nature via the above pip installation, the dependent programs/libraries themselves need
 to be installed separately.
 
-1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.gaussiand.html), a commercial chemistry program
-2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
-3. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.pyscfd.html), an open-source Python chemistry program
-4. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.pyquanted.html), a pure cross-platform open-source Python chemistry program
+1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.gaussiand.html), a commercial chemistry program
+2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
+3. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.pyquanted.html), a pure cross-platform open-source Python chemistry program
+4. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.pyscfd.html), an open-source Python chemistry program
 
 ### HDF5 Driver
 
 A useful functionality integrated into Qiskit Nature is its ability to serialize a file
 in hierarchical Data Format 5 (HDF5) format representing all the output data from a chemistry driver.
 
-The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.drivers.HDF5Driver.html)
+The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.drivers.second_quantization.HDF5Driver.html#qiskit_nature.drivers.second_quantization.HDF5Driver)
 accepts such HDF5 files as input so molecular experiments can be run, albeit on the fixed data
 as stored in the file. As such, if you have some pre-created HDF5 files created from Qiskit
 Nature, you can use these with the HDF5 driver even if you do not install one of the classical
@@ -165,8 +165,8 @@ following Qiskit GitHub repositories at
 ## Contribution Guidelines
 
 If you'd like to contribute to Qiskit, please take a look at our
-[contribution guidelines](./CONTRIBUTING.md).
-This project adheres to Qiskit's [code of conduct](./CODE_OF_CONDUCT.md).
+[contribution guidelines](https://github.com/Qiskit/qiskit-nature/blob/main/CONTRIBUTING.md).
+This project adheres to Qiskit's [code of conduct](https://github.com/Qiskit/qiskit-nature/blob/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code.
 
 We use [GitHub issues](https://github.com/Qiskit/qiskit-nature/issues) for tracking requests and bugs. Please
@@ -189,10 +189,10 @@ file.
 
 ## License
 
-This project uses the [Apache License 2.0](LICENSE.txt).
+This project uses the [Apache License 2.0](https://github.com/Qiskit/qiskit-nature/blob/main/LICENSE.txt).
 
 However there is some code that is included under other licensing as follows:
 
-* The [Gaussian 16 driver](qiskit_nature/drivers/second_quantization/gaussiand) in `qiskit.chemistry`
-  contains [work](qiskit_nature/drivers/second_quantization/gaussiand/gauopen) licensed under the
-  [Gaussian Open-Source Public License](qiskit_nature/drivers/second_quantization/gaussiand/gauopen/LICENSE.txt).
+* The [Gaussian 16 driver](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/drivers/second_quantization/gaussiand) in `qiskit-nature`
+  contains [work](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/drivers/second_quantization/gaussiand/gauopen) licensed under the
+  [Gaussian Open-Source Public License](https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/drivers/second_quantization/gaussiand/gauopen/LICENSE.txt).

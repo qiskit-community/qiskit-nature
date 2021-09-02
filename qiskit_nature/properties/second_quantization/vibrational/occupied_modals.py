@@ -12,7 +12,7 @@
 
 """The OccupiedModals property."""
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
