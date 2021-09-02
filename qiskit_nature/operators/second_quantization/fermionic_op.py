@@ -480,11 +480,11 @@ class FermionicOp(SecondQuantizedOp):
 
         csc_data, csc_col, csc_row = [], [], []
 
+        dimension = 1 << self.register_length
+
         # loop over all columns of the matrix
-        for col_idx in range(2 ** self.register_length):
-            initial_occupations = [
-                occ == "1" for occ in f"{col_idx:0{self.register_length}b}"
-            ]
+        for col_idx in range(dimension):
+            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.register_length}b}"]
             # loop over the terms in the operator data
             for opstring, prefactor in self.reduce()._data:
                 # check if op string is the identity
@@ -517,7 +517,7 @@ class FermionicOp(SecondQuantizedOp):
 
         sparse_mat = csc_matrix(
             (csc_data, (csc_row, csc_col)),
-            shape=(2 ** self.register_length, 2 ** self.register_length),
+            shape=(dimension, dimension),
             dtype=complex,
         )
 
