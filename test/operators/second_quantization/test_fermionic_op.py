@@ -388,8 +388,13 @@ class TestFermionicOp(QiskitNatureTestCase):
                 ("+_0 -_0 +_1 -_1", (0.48365053378098793)),
             ]
             h2_matrix = FermionicOp(h2_labels, register_length=4).to_matrix()
-            eigvals, _ = eigs(h2_matrix)
-            self.assertTrue(np.allclose(np.min(eigvals), -1.8572750 + 0j))
+            evals, evecs = eigs(h2_matrix)
+            self.assertTrue(np.allclose(np.min(evals), -1.8572750 + 0j))
+            # make sure the groundstate has support only in the 2-particle subspace
+            groundstate = evecs[:, np.argmin(evals)]
+            for idx in np.where(~np.isclose(groundstate, 0))[0]:
+                binary = f"{idx:0{4}b}"
+                self.assertEqual(binary.count("1"), 2)
 
     def test_normal_order(self):
         """test normal_order method"""
