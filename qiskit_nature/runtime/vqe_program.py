@@ -72,7 +72,7 @@ class VQEProgram(VQERuntimeClient):
 
         # convert to previous result type
         with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
             vqe_result = VQEProgramResult()
 
         for attr in [
