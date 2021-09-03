@@ -1,0 +1,9 @@
+---
+deprecations:
+  - |
+    Rename the runtime "program" to runtime "client" to avoid name confusions and 
+    reflect the fact that it is an interface for code executed in the cloud. The classes
+    :class:`~qiskit_optimization.runtime.VQEProgram` and
+    :class:`~qiskit_optimization.runtime.VQEProgramResult` have been renamed to
+    :class:`~qiskit_optimization.runtime.VQERuntimeClient`,
+    :class:`~qiskit_optimization.runtime.VQERuntimeResult`, respectively.
