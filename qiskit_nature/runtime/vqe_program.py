@@ -209,15 +209,16 @@ class VQEProgram(MinimumEigensolver):
     def _wrap_vqe_callback(self) -> Optional[Callable]:
         """Wraps and returns the given callback to match the signature of the runtime callback."""
 
-        def wrapped_callback(*args):
+        def wrapped_callback(*args) -> None:
             _, data = args  # first element is the job id
             if isinstance(data, dict):
-                return # not expected params. skip
+                return  # not expected params. skip
             iteration_count = data[0]
             params = data[1]
             mean = data[2]
             sigma = data[3]
-            return self._callback(iteration_count, params, mean, sigma)
+            self._callback(iteration_count, params, mean, sigma)
+            return
 
         # if callback is set, return wrapped callback, else return None
         if self._callback:
