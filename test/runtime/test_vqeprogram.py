@@ -15,6 +15,7 @@
 from test import QiskitNatureTestCase
 
 import unittest
+import warnings
 from ddt import ddt, data
 import numpy as np
 from qiskit.providers.basicaer import QasmSimulatorPy
@@ -26,7 +27,7 @@ from qiskit.opflow import I, Z
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.runtime import VQERuntimeClient
+from qiskit_nature.runtime import VQERuntimeClient, VQEProgram
 
 from .fake_vqeruntime import FakeRuntimeProvider
 
@@ -39,42 +40,55 @@ class TestVQERuntimeClient(QiskitNatureTestCase):
         super().setUp()
         self.provider = FakeRuntimeProvider()
 
-    def get_standard_program(self):
+    def get_standard_program(self, use_deprecated=False):
         """Get a standard VQERuntimeClient and operator to find the ground state of."""
         circuit = RealAmplitudes(3)
         operator = Z ^ I ^ Z
         initial_point = np.random.random(circuit.num_parameters)
         backend = QasmSimulatorPy()
 
-        vqe = VQERuntimeClient(
+        if use_deprecated:
+            vqe_cls = VQEProgram
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+        else:
+            vqe_cls = VQERuntimeClient
+
+        vqe = vqe_cls(
             ansatz=circuit,
             optimizer=SPSA(),
             initial_point=initial_point,
             backend=backend,
             provider=self.provider,
         )
+
+        if use_deprecated:
+            warnings.filterwarnings("always", category=DeprecationWarning)
+
         return vqe, operator
 
     @data({"name": "SPSA", "maxiter": 100}, SPSA(maxiter=100))
     def test_standard_case(self, optimizer):
         """Test a standard use case."""
-        vqe, operator = self.get_standard_program()
-        vqe.optimizer = optimizer
-        result = vqe.compute_minimum_eigenvalue(operator)
+        for use_deprecated in [False, True]:
+            vqe, operator = self.get_standard_program(use_deprecated=use_deprecated)
+            vqe.optimizer = optimizer
+            result = vqe.compute_minimum_eigenvalue(operator)
 
-        self.assertIsInstance(result, VQEResult)
+            self.assertIsInstance(result, VQEResult)
 
     def test_supports_aux_ops(self):
         """Test the VQERuntimeClient says it supports aux operators."""
-        vqe, _ = self.get_standard_program()
-        self.assertTrue(vqe.supports_aux_operators)
+        for use_deprecated in [False, True]:
+            vqe, _ = self.get_standard_program(use_deprecated=use_deprecated)
+            self.assertTrue(vqe.supports_aux_operators)
 
     def test_return_groundstate(self):
         """Test the VQERuntimeClient yields a ground state solver that returns the ground state."""
-        vqe, _ = self.get_standard_program()
-        qubit_converter = QubitConverter(JordanWignerMapper())
-        gss = GroundStateEigensolver(qubit_converter, vqe)
-        self.assertTrue(gss.returns_groundstate)
+        for use_deprecated in [False, True]:
+            vqe, _ = self.get_standard_program(use_deprecated=use_deprecated)
+            qubit_converter = QubitConverter(JordanWignerMapper())
+            gss = GroundStateEigensolver(qubit_converter, vqe)
+            self.assertTrue(gss.returns_groundstate)
 
 
 if __name__ == "__main__":

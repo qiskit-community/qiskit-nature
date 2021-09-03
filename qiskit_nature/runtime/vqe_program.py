@@ -48,7 +48,7 @@ class VQEProgram(VQERuntimeClient):
         warnings.warn(
             "The qiskit_nature.runtime.VQEProgram has been renamed to "
             "qiskit_nature.runtime.VQERuntimeClient to reflect it is a client for a program "
-            "executed in the cloud. The VQEProgram is deprecated as of Qiskit Nature 0.3.0 and "
+            "executed in the cloud. The VQEProgram is deprecated as of Qiskit Nature 0.2.1 and "
             "be removed no sooner than 3 months after the release date.",
             DeprecationWarning,
             stacklevel=2,
@@ -105,7 +105,7 @@ class VQEProgramResult(VQERuntimeResult):
         warnings.warn(
             "The qiskit_nature.runtime.VQEProgramResult has been renamed to "
             "qiskit_nature.runtime.VQERuntimeResult to reflect it is a result from a runtime "
-            "program. The VQEProgramResult is deprecated as of Qiskit Nature 0.3.0 and "
+            "program. The VQEProgramResult is deprecated as of Qiskit Nature 0.2.1 and "
             "be removed no sooner than 3 months after the release date.",
             DeprecationWarning,
             stacklevel=2,
