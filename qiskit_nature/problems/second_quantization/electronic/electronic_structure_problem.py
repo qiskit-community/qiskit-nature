@@ -83,6 +83,10 @@ class ElectronicStructureProblem(BaseProblem):
                 )
 
             else:
+                if not self.transformers:
+                    # if no transformers are supplied, we can still provide
+                    # `molecule_data_transformed` as a copy of `molecule_data`
+                    self._molecule_data_transformed = self._molecule_data
                 self._grouped_property_transformed = self._transform(self._grouped_property)
 
         else:

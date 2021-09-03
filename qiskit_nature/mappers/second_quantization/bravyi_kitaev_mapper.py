@@ -13,7 +13,6 @@
 """The Bravyi-Kitaev Mapper."""
 
 import numpy as np
-
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
@@ -154,5 +153,11 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
                     remainder_pauli[j] & y_j & update_pauli[j],
                 )
             )
+
+        # PauliList has the phase information unlike deprecated PauliTable.
+        # Here, phase is unnecessary, so the following removes phase.
+        for pauli1, pauli2 in pauli_table:
+            pauli1.phase = 0
+            pauli2.phase = 0
 
         return QubitMapper.mode_based_mapping(second_q_op, pauli_table)

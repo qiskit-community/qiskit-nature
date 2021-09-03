@@ -13,7 +13,7 @@
 """The AngularMomentum property."""
 
 import logging
-from typing import cast, List, Optional, Tuple, Union
+from typing import cast, List, Optional, Tuple
 
 import itertools
 
