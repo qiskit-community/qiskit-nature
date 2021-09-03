@@ -26,13 +26,13 @@ from qiskit.opflow import I, Z
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.runtime import VQEProgram
+from qiskit_nature.runtime import VQERuntimeClient
 
 from .fake_vqeruntime import FakeRuntimeProvider
 
 
 @ddt
-class TestVQEProgram(QiskitNatureTestCase):
+class TestVQERuntimeClient(QiskitNatureTestCase):
     """Test the VQE program."""
 
     def setUp(self):
@@ -40,13 +40,13 @@ class TestVQEProgram(QiskitNatureTestCase):
         self.provider = FakeRuntimeProvider()
 
     def get_standard_program(self):
-        """Get a standard VQEProgram and operator to find the ground state of."""
+        """Get a standard VQERuntimeClient and operator to find the ground state of."""
         circuit = RealAmplitudes(3)
         operator = Z ^ I ^ Z
         initial_point = np.random.random(circuit.num_parameters)
         backend = QasmSimulatorPy()
 
-        vqe = VQEProgram(
+        vqe = VQERuntimeClient(
             ansatz=circuit,
             optimizer=SPSA(),
             initial_point=initial_point,
@@ -65,12 +65,12 @@ class TestVQEProgram(QiskitNatureTestCase):
         self.assertIsInstance(result, VQEResult)
 
     def test_supports_aux_ops(self):
-        """Test the VQEProgram says it supports aux operators."""
+        """Test the VQERuntimeClient says it supports aux operators."""
         vqe, _ = self.get_standard_program()
         self.assertTrue(vqe.supports_aux_operators)
 
     def test_return_groundstate(self):
-        """Test the VQEProgram yields a ground state solver that returns the ground state."""
+        """Test the VQERuntimeClient yields a ground state solver that returns the ground state."""
         vqe, _ = self.get_standard_program()
         qubit_converter = QubitConverter(JordanWignerMapper())
         gss = GroundStateEigensolver(qubit_converter, vqe)

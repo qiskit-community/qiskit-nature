@@ -18,7 +18,7 @@ from qiskit.algorithms.optimizers import Optimizer
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit.providers import Provider
-from qiskit_nature.runtime import VQEProgramResult
+from qiskit_nature.runtime import VQERuntimeResult
 
 
 class FakeVQEJob:
@@ -26,7 +26,7 @@ class FakeVQEJob:
 
     def result(self) -> Dict[str, Any]:
         """Return a VQE result."""
-        result = VQEProgramResult()
+        result = VQERuntimeResult()
         serialized_result = {
             "optimizer_evals": result.optimizer_evals,
             "optimizer_time": result.optimizer_time,

@@ -25,9 +25,11 @@ algorithms and scripts in the cloud.
 
    VQEProgram
    VQEProgramResult
+   VQERuntimeClient
+   VQERuntimeResult
 
 """
 
-from .vqe_program import VQEProgram, VQEProgramResult
+from .vqe_program import VQEProgram, VQEProgramResult, VQERuntimeClient, VQERuntimeResult
 
-__all__ = ["VQEProgram", "VQEProgramResult"]
+__all__ = ["VQEProgram", "VQEProgramResult", "VQERuntimeClient", "VQERuntimeResult"]
