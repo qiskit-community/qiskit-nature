@@ -27,7 +27,7 @@ from qiskit.opflow import I, Z
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.runtime import VQERuntimeClient, VQEProgram
+from qiskit_nature.runtime import VQERuntimeClient, VQEProgram, VQERuntimeResult, VQEProgramResult
 
 from .fake_vqeruntime import FakeRuntimeProvider
 
@@ -35,10 +35,6 @@ from .fake_vqeruntime import FakeRuntimeProvider
 @ddt
 class TestVQERuntimeClient(QiskitNatureTestCase):
     """Test the VQE program."""
-
-    def setUp(self):
-        super().setUp()
-        self.provider = FakeRuntimeProvider()
 
     def get_standard_program(self, use_deprecated=False):
         """Get a standard VQERuntimeClient and operator to find the ground state of."""
@@ -49,8 +45,10 @@ class TestVQERuntimeClient(QiskitNatureTestCase):
 
         if use_deprecated:
             vqe_cls = VQEProgram
+            provider = FakeRuntimeProvider(use_deprecated=True)
             warnings.filterwarnings("ignore", category=DeprecationWarning)
         else:
+            provider = FakeRuntimeProvider(use_deprecated=False)
             vqe_cls = VQERuntimeClient
 
         vqe = vqe_cls(
@@ -58,7 +56,7 @@ class TestVQERuntimeClient(QiskitNatureTestCase):
             optimizer=SPSA(),
             initial_point=initial_point,
             backend=backend,
-            provider=self.provider,
+            provider=provider,
         )
 
         if use_deprecated:
@@ -75,6 +73,7 @@ class TestVQERuntimeClient(QiskitNatureTestCase):
             result = vqe.compute_minimum_eigenvalue(operator)
 
             self.assertIsInstance(result, VQEResult)
+            self.assertIsInstance(result, VQEProgramResult if use_deprecated else VQERuntimeResult)
 
     def test_supports_aux_ops(self):
         """Test the VQERuntimeClient says it supports aux operators."""
