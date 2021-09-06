@@ -19,6 +19,7 @@ from itertools import product
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+from scipy.sparse import csc_matrix
 
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 
@@ -463,6 +464,67 @@ class FermionicOp(SecondQuantizedOp):
                 for label_data, coeff in self._data
             ]
         return self._to_dense_label_data()
+
+    def to_matrix(self, sparse: Optional[bool] = True) -> Union[csc_matrix, np.ndarray]:
+        """Convert to a matrix representation over the full fermionic Fock space in occupation number
+        basis. The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
+
+        Args:
+            sparse: If true, the matrix is returned as a sparse csc_matrix, else it is returned as a
+            dense numpy array.
+
+        Returns:
+            The matrix of the operator in the Fock basis (scipy.sparse.csc_matrix or numpy.ndarray
+            with dtype=numpy.complex128)
+        """
+
+        csc_data, csc_col, csc_row = [], [], []
+
+        dimension = 1 << self.register_length
+
+        # loop over all columns of the matrix
+        for col_idx in range(dimension):
+            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.register_length}b}"]
+            # loop over the terms in the operator data
+            for opstring, prefactor in self.reduce()._data:
+                # check if op string is the identity
+                if not opstring:
+                    csc_data.append(prefactor)
+                    csc_row.append(col_idx)
+                    csc_col.append(col_idx)
+                else:
+                    occupations = initial_occupations.copy()
+                    sign = 1
+                    mapped_to_zero = False
+
+                    # apply terms sequentially to the current basis state
+                    for label_primitive in reversed(opstring):
+                        occ = occupations[label_primitive.index]
+                        if label_primitive.is_creation == occ:
+                            # Applying the creation operator on an occupied state maps to zero. So
+                            # does applying the annihilation operator on an unoccupied state.
+                            mapped_to_zero = True
+                            break
+                        sign *= (-1) ** sum(occupations[: label_primitive.index])
+                        occupations[label_primitive.index] = not occ
+
+                    # add data point to matrix in the correct row
+                    if not mapped_to_zero:
+                        row_idx = sum(int(occ) << idx for idx, occ in enumerate(occupations[::-1]))
+                        csc_data.append(sign * prefactor)
+                        csc_row.append(row_idx)
+                        csc_col.append(col_idx)
+
+        sparse_mat = csc_matrix(
+            (csc_data, (csc_row, csc_col)),
+            shape=(dimension, dimension),
+            dtype=complex,
+        )
+
+        if sparse:
+            return sparse_mat
+        else:
+            return sparse_mat.toarray()
 
     def adjoint(self) -> "FermionicOp":
         data = []
