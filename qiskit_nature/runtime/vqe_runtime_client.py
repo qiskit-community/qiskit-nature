@@ -26,7 +26,7 @@ from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
 
-class VQERuntimeClient(MinimumEigensolver):
+class VQEClient(MinimumEigensolver):
     """The Qiskit Nature VQE Runtime Client.
 
     This class is a client to call the VQE program in Qiskit Runtime."""
@@ -303,7 +303,7 @@ class VQERuntimeClient(MinimumEigensolver):
 
 
 class VQERuntimeResult(VQEResult):
-    """The VQERuntimeClient result object.
+    """The VQEClient result object.
 
     This result objects contains the same as the VQEResult and additionally the history
     of the optimizer, containing information such as the function and parameter values per step.

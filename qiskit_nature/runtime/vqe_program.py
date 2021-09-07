@@ -24,11 +24,13 @@ from qiskit.algorithms import MinimumEigensolverResult
 from qiskit.algorithms.optimizers import Optimizer
 from qiskit.opflow import OperatorBase
 
-from .vqe_runtime_client import VQERuntimeClient, VQERuntimeResult
+from ..deprecation import warn_deprecated, DeprecatedType
+
+from .vqe_runtime_client import VQEClient, VQERuntimeResult
 
 
-class VQEProgram(VQERuntimeClient):
-    """DEPRECATED. This class has been renamed to ``qiskit_nature.runtime.VQERuntimeClient``.
+class VQEProgram(VQEClient):
+    """DEPRECATED. This class has been renamed to ``qiskit_nature.runtime.VQEClient``.
 
     This renaming reflects that this class is a client for a program executed in the cloud.
     """
@@ -45,13 +47,12 @@ class VQEProgram(VQERuntimeClient):
         callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         store_intermediate: bool = False,
     ) -> None:
-        warnings.warn(
-            "The qiskit_nature.runtime.VQEProgram has been renamed to "
-            "qiskit_nature.runtime.VQERuntimeClient to reflect it is a client for a program "
-            "executed in the cloud. The VQEProgram is deprecated as of Qiskit Nature 0.2.1 and "
-            "be removed no sooner than 3 months after the release date.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated(
+            version="0.2.1",
+            old_type=DeprecatedType.CLASS,
+            old_name="VQEProgram",
+            new_name="VQEClient",
+            additional_msg="from qiskit_optimization.runtime",
         )
         super().__init__(
             ansatz,
@@ -75,21 +76,7 @@ class VQEProgram(VQERuntimeClient):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             vqe_result = VQEProgramResult()
 
-        for attr in [
-            "job_id",
-            "cost_function_evals",
-            "eigenstate",
-            "eigenvalue",
-            "aux_operator_eigenvalues",
-            "optimal_parameters",
-            "optimal_point",
-            "optimal_value",
-            "optimizer_evals",
-            "optimizer_time",
-            "optimizer_history",
-        ]:
-            setattr(vqe_result, attr, getattr(result, attr))
-
+        vqe_result.combine(result)
         return vqe_result
 
 
@@ -102,11 +89,10 @@ class VQEProgramResult(VQERuntimeResult):
 
     def __init__(self) -> None:
         super().__init__()
-        warnings.warn(
-            "The qiskit_nature.runtime.VQEProgramResult has been renamed to "
-            "qiskit_nature.runtime.VQERuntimeResult to reflect it is a result from a runtime "
-            "program. The VQEProgramResult is deprecated as of Qiskit Nature 0.2.1 and "
-            "be removed no sooner than 3 months after the release date.",
-            DeprecationWarning,
-            stacklevel=2,
+        warn_deprecated(
+            version="0.2.1",
+            old_type=DeprecatedType.CLASS,
+            old_name="VQEProgramResult",
+            new_name="VQERuntimeResult",
+            additional_msg="from qiskit_optimization.runtime",
         )

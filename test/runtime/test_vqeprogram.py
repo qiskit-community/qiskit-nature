@@ -27,17 +27,17 @@ from qiskit.opflow import I, Z
 from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.runtime import VQERuntimeClient, VQEProgram, VQERuntimeResult, VQEProgramResult
+from qiskit_nature.runtime import VQEClient, VQEProgram, VQERuntimeResult, VQEProgramResult
 
 from .fake_vqeruntime import FakeRuntimeProvider
 
 
 @ddt
-class TestVQERuntimeClient(QiskitNatureTestCase):
+class TestVQEClient(QiskitNatureTestCase):
     """Test the VQE program."""
 
     def get_standard_program(self, use_deprecated=False):
-        """Get a standard VQERuntimeClient and operator to find the ground state of."""
+        """Get a standard VQEClient and operator to find the ground state of."""
         circuit = RealAmplitudes(3)
         operator = Z ^ I ^ Z
         initial_point = np.random.random(circuit.num_parameters)
@@ -49,7 +49,7 @@ class TestVQERuntimeClient(QiskitNatureTestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
         else:
             provider = FakeRuntimeProvider(use_deprecated=False)
-            vqe_cls = VQERuntimeClient
+            vqe_cls = VQEClient
 
         vqe = vqe_cls(
             ansatz=circuit,
@@ -76,13 +76,13 @@ class TestVQERuntimeClient(QiskitNatureTestCase):
             self.assertIsInstance(result, VQEProgramResult if use_deprecated else VQERuntimeResult)
 
     def test_supports_aux_ops(self):
-        """Test the VQERuntimeClient says it supports aux operators."""
+        """Test the VQEClient says it supports aux operators."""
         for use_deprecated in [False, True]:
             vqe, _ = self.get_standard_program(use_deprecated=use_deprecated)
             self.assertTrue(vqe.supports_aux_operators)
 
     def test_return_groundstate(self):
-        """Test the VQERuntimeClient yields a ground state solver that returns the ground state."""
+        """Test the VQEClient yields a ground state solver that returns the ground state."""
         for use_deprecated in [False, True]:
             vqe, _ = self.get_standard_program(use_deprecated=use_deprecated)
             qubit_converter = QubitConverter(JordanWignerMapper())
