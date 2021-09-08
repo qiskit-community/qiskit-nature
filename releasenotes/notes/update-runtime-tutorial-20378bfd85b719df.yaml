@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Updates the runtime tutorial to consistently use the new drivers in
+    combination with the new transformers and the Property-framework in general.
