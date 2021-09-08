@@ -52,7 +52,7 @@ class VQEProgram(VQEClient):
             old_type=DeprecatedType.CLASS,
             old_name="VQEProgram",
             new_name="VQEClient",
-            additional_msg="from qiskit_optimization.runtime",
+            additional_msg="from qiskit_nature.runtime",
         )
         super().__init__(
             ansatz,
@@ -81,7 +81,7 @@ class VQEProgram(VQEClient):
 
 
 class VQEProgramResult(VQERuntimeResult):
-    """DEPRECATED. The ``VQEProgram`` result object has been renamed to ``VQERuntimeResult``.
+    """DEPRECATED. The ``VQEProgramResult`` result object has been renamed to ``VQERuntimeResult``.
 
     This result objects contains the same as the VQEResult and additionally the history
     of the optimizer, containing information such as the function and parameter values per step.
@@ -94,5 +94,5 @@ class VQEProgramResult(VQERuntimeResult):
             old_type=DeprecatedType.CLASS,
             old_name="VQEProgramResult",
             new_name="VQERuntimeResult",
-            additional_msg="from qiskit_optimization.runtime",
+            additional_msg="from qiskit_nature.runtime",
         )
