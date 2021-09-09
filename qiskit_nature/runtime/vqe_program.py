@@ -197,16 +197,16 @@ class VQEProgram(MinimumEigensolver):
         self._store_intermediate = store
 
     @property
-    def callback(self) -> Callable:
+    def callback(self) -> Callable[[int, np.ndarray, float, float], None]:
         """Returns the callback."""
         return self._callback
 
     @callback.setter
-    def callback(self, callback: Callable) -> None:
+    def callback(self, callback: Callable[[int, np.ndarray, float, float], None]) -> None:
         """Set the callback."""
         self._callback = callback
 
-    def _wrap_vqe_callback(self) -> Optional[Callable]:
+    def _wrap_vqe_callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
         """Wraps and returns the given callback to match the signature of the runtime callback."""
 
         def wrapped_callback(*args) -> None:
