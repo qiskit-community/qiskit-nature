@@ -125,12 +125,12 @@ class QubitMapper(ABC):
                     ret_op &= times_annihilation_op(position, pauli_table)
                 elif char == "N":
                     # The occupation number operator N is given by `+-`.
-                    ret_op &= times_creation_op(position, pauli_table)
                     ret_op &= times_annihilation_op(position, pauli_table)
+                    ret_op &= times_creation_op(position, pauli_table)
                 elif char == "E":
                     # The `emptiness number` operator E is given by `-+` = (I - N).
-                    ret_op &= times_annihilation_op(position, pauli_table)
                     ret_op &= times_creation_op(position, pauli_table)
+                    ret_op &= times_annihilation_op(position, pauli_table)
                 elif char == "I":
                     continue
 

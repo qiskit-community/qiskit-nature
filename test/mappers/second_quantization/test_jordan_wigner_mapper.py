@@ -13,13 +13,13 @@
 """ Test Jordan Wigner Mapper """
 
 import unittest
-
 from test import QiskitNatureTestCase
 
-from qiskit.opflow import X, Y, Z, I
+from qiskit.opflow import I, PauliSumOp, X, Y, Z
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization import FermionicOp
 
 
 class TestJordanWignerMapper(QiskitNatureTestCase):
@@ -27,13 +27,13 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
 
     REF_H2 = (
         -0.81054798160031430 * (I ^ I ^ I ^ I)
-        - 0.22575349071287365 * (Z ^ I ^ I ^ I)
-        + 0.17218393211855787 * (I ^ Z ^ I ^ I)
+        + 0.22575349071287365 * (Z ^ I ^ I ^ I)
+        - 0.17218393211855787 * (I ^ Z ^ I ^ I)
         + 0.12091263243164174 * (Z ^ Z ^ I ^ I)
-        - 0.22575349071287362 * (I ^ I ^ Z ^ I)
+        + 0.22575349071287362 * (I ^ I ^ Z ^ I)
         + 0.17464343053355980 * (Z ^ I ^ Z ^ I)
         + 0.16614543242281926 * (I ^ Z ^ Z ^ I)
-        + 0.17218393211855818 * (I ^ I ^ I ^ Z)
+        - 0.17218393211855818 * (I ^ I ^ I ^ Z)
         + 0.16614543242281926 * (Z ^ I ^ I ^ Z)
         + 0.16892753854646372 * (I ^ Z ^ I ^ Z)
         + 0.12091263243164174 * (I ^ I ^ Z ^ Z)
@@ -66,6 +66,33 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         """Test this returns False for this mapper"""
         mapper = JordanWignerMapper()
         self.assertFalse(mapper.allows_two_qubit_reduction)
+
+    def test_mapping_for_single_op(self):
+        """Test for single register operator."""
+        with self.subTest("test +"):
+            op = FermionicOp("+")
+            expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
+            self.assertEqual(JordanWignerMapper().map(op), expected)
+
+        with self.subTest("test -"):
+            op = FermionicOp("-")
+            expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
+            self.assertEqual(JordanWignerMapper().map(op), expected)
+
+        with self.subTest("test N"):
+            op = FermionicOp("N")
+            expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
+            self.assertEqual(JordanWignerMapper().map(op), expected)
+
+        with self.subTest("test E"):
+            op = FermionicOp("E")
+            expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
+            self.assertEqual(JordanWignerMapper().map(op), expected)
+
+        with self.subTest("test I"):
+            op = FermionicOp("I")
+            expected = PauliSumOp.from_list([("I", 1)])
+            self.assertEqual(JordanWignerMapper().map(op), expected)
 
 
 if __name__ == "__main__":
