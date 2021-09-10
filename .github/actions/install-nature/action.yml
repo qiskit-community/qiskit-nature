@@ -18,7 +18,7 @@ runs:
   steps: 
     - run : |
         source "$CONDA/etc/profile.d/conda.sh"
-        conda activate
+        conda activate psi4env
         pip install -e .[pyscf]
         pip install -U -c constraints.txt -r requirements-dev.txt
       shell: bash

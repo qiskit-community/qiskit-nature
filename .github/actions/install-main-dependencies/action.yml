@@ -22,7 +22,7 @@ runs:
     - name: Install Dependencies from Main
       run: |
         source "$CONDA/etc/profile.d/conda.sh"
-        conda activate
+        conda activate psi4env
         pip install git+https://github.com/Qiskit/qiskit-terra
         if [ "${{ inputs.os }}" == "ubuntu-latest" ]; then
           export DISABLE_CONAN=1
