@@ -30,7 +30,7 @@ runs:
         PYTHONWARNINGS: default
       run: |
         source "$CONDA/etc/profile.d/conda.sh"
-        conda activate
+        conda activate psi4env
         # run slow tests only on scheduled event or if input flag is set
         if [ "${{ inputs.event-name }}" == "schedule" ] || [ "${{ inputs.run-slow }}" == "true" ]; then
           export QISKIT_TESTS="run_slow"
