@@ -87,16 +87,16 @@ class QubitMapper(ABC):
             # 0. Some utilities
 
         def times_creation_op(position, pauli_table):
-            # The creation operator is given by 0.5*(X + 1j*Y)
+            # The creation operator is given by 0.5*(X - 1j*Y)
             real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
-            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
+            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
 
             return real_part + imag_part
 
         def times_annihilation_op(position, pauli_table):
-            # The annihilation operator is given by 0.5*(X - 1j*Y)
+            # The annihilation operator is given by 0.5*(X + 1j*Y)
             real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
-            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
+            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
 
             return real_part + imag_part
 
