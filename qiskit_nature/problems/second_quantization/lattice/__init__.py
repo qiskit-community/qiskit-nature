@@ -11,26 +11,25 @@
 # that they have been altered from the originals.
 
 """
-Problems (:mod:`qiskit_nature.problems`)
-========================================
+Lattice Problems (:mod:`qiskit_nature.problems.second_quantization.lattice`)
+=============================================================================
 
-.. currentmodule:: qiskit_nature.problems
+.. currentmodule:: qiskit_nature.problems.second_quantization.lattice
 
 
-Second-Quantization Problems
-++++++++++++++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   second_quantization
-
-Sampling Problems
+Lattice
 +++++++++++++++++
 
 .. autosummary::
    :toctree:
 
-   sampling
-   
+   lattice
+
+Models
++++++++++++++++++
+
+.. autosummary::
+   :toctree:
+
+   models
 """

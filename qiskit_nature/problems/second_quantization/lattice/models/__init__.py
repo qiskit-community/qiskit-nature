@@ -11,26 +11,18 @@
 # that they have been altered from the originals.
 
 """
-Problems (:mod:`qiskit_nature.problems`)
-========================================
+Models (:mod:`qiskit_nature.problems.second_quantization.lattice.models`)
+==============================================================================================
 
-.. currentmodule:: qiskit_nature.problems
+.. currentmodule:: qiskit_nature.problems.second_quantization.lattice.models
 
-
-Second-Quantization Problems
-++++++++++++++++++++++++++++
-
+Fermi-Hubbard Model
+=======================
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
+   :nosignatures:
 
-   second_quantization
-
-Sampling Problems
-+++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   sampling
-   
+   FermiHubbardModel
 """
+
+from .fermi_hubbard_model import FermiHubbardModel
