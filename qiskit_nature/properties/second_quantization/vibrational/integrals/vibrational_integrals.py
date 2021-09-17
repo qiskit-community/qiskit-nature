@@ -156,7 +156,7 @@ class VibrationalIntegrals(ABC):
                 # permutations (lower triangular indices) for the next step
                 index_list.append(zip(cycle([mode]), iter_1))
                 for m, n in iter_2:
-                    if (mode - 1, m, n, power, kinetic_term) in coeff_cache.keys():
+                    if (mode - 1, m, n, power, kinetic_term) in coeff_cache:
                         # value already in cache
                         continue
                     coeff_cache[(mode - 1, m, n, power, kinetic_term)] = self.basis.eval_integral(
