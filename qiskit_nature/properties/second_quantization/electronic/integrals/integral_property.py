@@ -132,9 +132,9 @@ class IntegralProperty(ElectronicProperty):
     def second_q_ops(self) -> List[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
         ints = None
-        if ElectronicBasis.SO in self._electronic_integrals.keys():
+        if ElectronicBasis.SO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.SO]
-        elif ElectronicBasis.MO in self._electronic_integrals.keys():
+        elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
         return [sum(int.to_second_q_op() for int in ints.values()).reduce()]  # type: ignore
 
