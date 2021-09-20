@@ -78,18 +78,22 @@ class ElectronicStructureResult(EigenstateResult):
     # construct the circuit of the GS from here (if the algorithm supports this)
 
     @property
-    def total_energies(self) -> np.ndarray:
+    def total_energies(self) -> Optional[np.ndarray]:
         """Returns ground state energy if nuclear_repulsion_energy is available from driver"""
+        if self.electronic_energies is None:
+            return None
         nre = self.nuclear_repulsion_energy if self.nuclear_repulsion_energy is not None else 0
         # Adding float to np.ndarray adds it to each entry
         return self.electronic_energies + nre
 
     @property
-    def electronic_energies(self) -> np.ndarray:
+    def electronic_energies(self) -> Optional[np.ndarray]:
         """Returns electronic part of ground state energy"""
         # TODO the fact that this property is computed on the fly breaks the `.combine()`
         # functionality
         # Adding float to np.ndarray adds it to each entry
+        if self.computed_energies is None:
+            return None
         return self.computed_energies + self.extracted_transformer_energy
 
     @property
@@ -181,6 +185,8 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def electronic_dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """Returns electronic dipole moment"""
+        if self.computed_dipole_moment is None or self.extracted_transformer_dipoles is None:
+            return None
         return [
             _dipole_tuple_add(comp_dip, extr_dip)
             for comp_dip, extr_dip in zip(
@@ -282,14 +288,15 @@ class ElectronicStructureResult(EigenstateResult):
         lines = []
         lines.append("=== GROUND STATE ENERGY ===")
         lines.append(" ")
-        lines.append(
-            "* Electronic ground state energy (Hartree): {}".format(
-                round(self.electronic_energies[0], 12)
+        if self.electronic_energies:
+            lines.append(
+                "* Electronic ground state energy (Hartree): {}".format(
+                    round(self.electronic_energies[0], 12)
+                )
             )
-        )
-        lines.append("  - computed part:      {}".format(round(self.computed_energies[0], 12)))
-        for name, value in self.extracted_transformer_energies.items():
-            lines.append("  - {} extracted energy part: {}".format(name, round(value, 12)))
+            lines.append("  - computed part:      {}".format(round(self.computed_energies[0], 12)))
+            for name, value in self.extracted_transformer_energies.items():
+                lines.append("  - {} extracted energy part: {}".format(name, round(value, 12)))
         if self.nuclear_repulsion_energy is not None:
             lines.append(
                 "~ Nuclear repulsion energy (Hartree): {}".format(
@@ -302,7 +309,7 @@ class ElectronicStructureResult(EigenstateResult):
                 )
             )
 
-        if len(self.computed_energies) > 1:
+        if self.computed_energies is not None and len(self.computed_energies) > 1:
             lines.append(" ")
             lines.append("=== EXCITED STATE ENERGIES ===")
             lines.append(" ")
