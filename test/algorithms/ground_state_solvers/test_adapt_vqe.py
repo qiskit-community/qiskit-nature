@@ -11,7 +11,9 @@
 # that they have been altered from the originals.
 
 """ Test of the Adaptive VQE ground state calculations """
+import contextlib
 import copy
+import io
 import unittest
 
 from typing import cast
@@ -65,6 +67,39 @@ class TestAdaptVQE(QiskitNatureTestCase):
         calc = AdaptVQE(self.qubit_converter, solver)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+
+    def test_print_result(self):
+        """Regression test against issues with printing results."""
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        calc = AdaptVQE(self.qubit_converter, solver)
+        res = calc.solve(self.problem)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            print(res)
+        # do NOT change the below! Lines have been truncated as to not force exact numerical matches
+        expected = """\
+            === GROUND STATE ENERGY ===
+
+            * Electronic ground state energy (Hartree): -1.857
+              - computed part:      -1.857
+            ~ Nuclear repulsion energy (Hartree): 0.719
+            > Total ground state energy (Hartree): -1.137
+
+            === MEASURED OBSERVABLES ===
+
+              0:  # Particles: 2.000 S: 0.000 S^2: 0.000 M: 0.000
+
+            === DIPOLE MOMENTS ===
+
+            ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.38
+
+              0:
+              * Electronic dipole moment (a.u.): [0.0  0.0  1.38
+                - computed part:      [0.0  0.0  1.38
+              > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.
+                             (debye): [0.0  0.0  0.0]  Total: 0.
+        """
+        for truth, expected in zip(out.getvalue().split("\n"), expected.split("\n")):
+            assert truth.strip().startswith(expected.strip())
 
     def test_aux_ops_reusability(self):
         """Test that the auxiliary operators can be reused"""

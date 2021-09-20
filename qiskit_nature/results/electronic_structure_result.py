@@ -36,6 +36,7 @@ class ElectronicStructureResult(EigenstateResult):
         self._nuclear_repulsion_energy: Optional[float] = None
         self._nuclear_dipole_moment: Optional[DipoleTuple] = None
         self._computed_energies: Optional[np.ndarray] = None
+        self._computed_dipole_moment: Optional[List[DipoleTuple]] = None
         self._extracted_transformer_energies: Dict[str, float] = {}
         self._extracted_transformer_dipoles: Optional[List[Dict[str, DipoleTuple]]] = None
         self._reverse_dipole_sign: bool = False
