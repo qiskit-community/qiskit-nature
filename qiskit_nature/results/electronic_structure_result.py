@@ -161,12 +161,15 @@ class ElectronicStructureResult(EigenstateResult):
     def dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """Returns dipole moment"""
         edm = self.electronic_dipole_moment
+        if edm is None:
+            return None
+        nrd = self.nuclear_dipole_moment if self.nuclear_dipole_moment is not None else (0, 0, 0)
         if self.reverse_dipole_sign:
             edm = [
                 cast(DipoleTuple, tuple(-1 * x if x is not None else None for x in dip))
                 for dip in edm
             ]
-        return [_dipole_tuple_add(dip, self.nuclear_dipole_moment) for dip in edm]
+        return [_dipole_tuple_add(dip, nrd) for dip in edm]
 
     @property
     def dipole_moment_in_debye(self) -> Optional[List[DipoleTuple]]:
