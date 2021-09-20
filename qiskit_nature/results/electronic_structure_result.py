@@ -288,7 +288,7 @@ class ElectronicStructureResult(EigenstateResult):
         lines = []
         lines.append("=== GROUND STATE ENERGY ===")
         lines.append(" ")
-        if self.electronic_energies:
+        if self.electronic_energies is not None:
             lines.append(
                 "* Electronic ground state energy (Hartree): {}".format(
                     round(self.electronic_energies[0], 12)
