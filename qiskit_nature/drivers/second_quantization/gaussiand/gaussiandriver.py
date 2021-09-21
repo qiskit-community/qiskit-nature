@@ -63,7 +63,7 @@ class GaussianDriver(ElectronicStructureDriver):
         super().__init__()
         GaussianDriver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
-            raise QiskitNatureError("Invalid config for Gaussian Driver '{}'".format(config))
+            raise QiskitNatureError(f"Invalid config for Gaussian Driver '{config}'")
 
         if isinstance(config, list):
             config = "\n".join(config)
@@ -99,7 +99,7 @@ class GaussianDriver(ElectronicStructureDriver):
         elif molecule.units == UnitsType.BOHR:
             units = "Bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+            raise QiskitNatureError(f"Unknown unit '{molecule.units.value}'")
         cfg1 = f"# {method.value}/{basis} UNITS={units} scf(conventional)\n\n"
         name = "".join([name for (name, _) in molecule.geometry])
         geom = "\n".join(

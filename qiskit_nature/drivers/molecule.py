@@ -87,9 +87,7 @@ class Molecule:
     def _check_consistency(geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]):
         if masses is not None and len(masses) != len(geometry):
             raise ValueError(
-                "Length of masses {} must match length of geometries {}".format(
-                    len(masses), len(geometry)
-                )
+                f"Length of masses {len(masses)} must match length of geometries {len(geometry)}"
             )
 
     @classmethod

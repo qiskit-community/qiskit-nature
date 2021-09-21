@@ -120,12 +120,12 @@ class QubitConverter:
                 if z2symmetry_reduction != "auto":
                     raise ValueError(
                         "The only string-like option for z2symmetry_reduction is "
-                        "'auto', not {}".format(z2symmetry_reduction)
+                        f"'auto', not {z2symmetry_reduction}"
                     )
             elif not np.all(np.isin(z2symmetry_reduction, [-1, 1])):
                 raise ValueError(
                     "z2symmetry_reduction tapering values list must "
-                    "contain -1's and/or 1's only but was {}".format(z2symmetry_reduction)
+                    f"contain -1's and/or 1's only but was {z2symmetry_reduction}"
                 )
 
         self._z2symmetry_reduction = z2symmetry_reduction
@@ -338,9 +338,8 @@ class QubitConverter:
             if len(self._z2symmetry_reduction) != len(z2_symmetries.symmetries):
                 raise QiskitNatureError(
                     "z2symmetry_reduction tapering values list has "
-                    "invalid length {} should be {}".format(
-                        len(self._z2symmetry_reduction), len(z2_symmetries.symmetries)
-                    )
+                    f"invalid length {len(self._z2symmetry_reduction)} "
+                    f"should be {len(z2_symmetries.symmetries)}"
                 )
             # Check all operators commute with main operator's symmetry
             logger.debug("Sanity check that operator commutes with the symmetry")

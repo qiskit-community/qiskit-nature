@@ -55,7 +55,7 @@ class FCIDumpDriver(ElectronicStructureDriver):
         super().__init__()
 
         if not isinstance(fcidump_input, str):
-            raise QiskitNatureError("The fcidump_input must be str, not '{}'".format(fcidump_input))
+            raise QiskitNatureError(f"The fcidump_input must be str, not '{fcidump_input}'")
         self._fcidump_input = fcidump_input
 
     def run(self) -> ElectronicStructureDriverResult:
