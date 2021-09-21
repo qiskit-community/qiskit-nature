@@ -143,7 +143,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
                     hij_b[i - 1 - norb][a - 1 - norb] = x
                 else:
                     raise QiskitNatureError(
-                        "Unkown 1-electron integral indices encountered in " f"'{(i, a)}'"
+                        "Unknown 1-electron integral indices encountered in " f"'{(i, a)}'"
                     ) from ex
         else:
             try:
