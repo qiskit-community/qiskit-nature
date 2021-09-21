@@ -55,7 +55,7 @@ class FCIDumpDriver(FermionicDriver):
         super().__init__()
 
         if not isinstance(fcidump_input, str):
-            raise QiskitNatureError("The fcidump_input must be str, not '{}'".format(fcidump_input))
+            raise QiskitNatureError(f"The fcidump_input must be str, not '{fcidump_input}'")
         self._fcidump_input = fcidump_input
 
         if (
@@ -64,7 +64,7 @@ class FCIDumpDriver(FermionicDriver):
             and not all(sym in QMolecule.symbols for sym in atoms)
         ):
             raise QiskitNatureError(
-                "The atoms must be a list of valid atomic symbols, not '{}'".format(atoms)
+                f"The atoms must be a list of valid atomic symbols, not '{atoms}'"
             )
         self.atoms = atoms
 

@@ -72,13 +72,12 @@ class VibrationalStructureResult(EigenstateResult):
         lines.append("=== GROUND STATE ENERGY ===")
         lines.append(" ")
         lines.append(
-            "* Vibrational ground state energy (cm^-1): {}".format(
-                np.round(self.computed_vibrational_energies[0], 12)
-            )
+            "* Vibrational ground state energy "
+            f"(cm^-1): {np.round(self.computed_vibrational_energies[0], 12)}"
         )
         if len(self.num_occupied_modals_per_mode) > 0:
             lines.append("The number of occupied modals is")
         for i, m in enumerate(self.num_occupied_modals_per_mode):
-            lines.append("- Mode {}: {}".format(i, m))
+            lines.append(f"- Mode {i}: {m}")
 
         return lines
