@@ -80,7 +80,7 @@ class FermiHubbardModel:
 
         Args:
             display_format: If sparse, the label is represented sparsely during output.
-                            If dense, the label is represented densely during output. Defaults to "dense".
+                If dense, the label is represented densely during output. Defaults to "dense".
 
         Returns:
             FermionicOp: The Hamiltonian of the Fermi-Hubbard model.

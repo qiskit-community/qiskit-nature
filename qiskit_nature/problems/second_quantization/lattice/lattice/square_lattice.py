@@ -12,6 +12,7 @@
 
 """Square lattice"""
 from typing import Tuple, Union
+import numpy as np
 from .hyper_cubic import HyperCubic
 
 
@@ -42,3 +43,15 @@ class SquareLattice(HyperCubic):
             onsite_parameter=onsite_parameter,
             boundary_condition=boundary_condition,
         )
+
+    @classmethod
+    def from_adjacency_matrix(cls, input_adjacency_matrix: np.ndarray):
+        """Not implemented.
+
+        Args:
+            input_adjacency_matrix: Adjacency matrix with real or complex matrix elements.
+
+        Raises:
+            NotImplementedError
+        """
+        raise NotImplementedError()

@@ -11,10 +11,11 @@
 # that they have been altered from the originals.
 
 """Triangular lattice"""
-from typing import Tuple, Union
+from typing import List, Tuple, Union, Optional, Sequence, Callable
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
+from matplotlib.colors import Colormap
 from retworkx import PyGraph
 from retworkx.visualization import mpl_draw
 from .lattice import Lattice
@@ -133,7 +134,8 @@ class TriangularLattice(Lattice):
 
         else:
             raise ValueError(
-                f"Invalid `boundary condition` {boundary_condition} is given. `boundary condition` must be `open` or `periodic`."
+                f"Invalid `boundary condition` {boundary_condition} is given."
+                "`boundary condition` must be `open` or `periodic`."
             )
         super().__init__(graph)
 
@@ -142,8 +144,7 @@ class TriangularLattice(Lattice):
         """Not implemented.
 
         Args:
-            input_adjacency_matrix: input_adjacency_matrix: Adjacency matrix with real or complex matrix elements.
-
+            input_adjacency_matrix: Adjacency matrix with real or complex matrix elements.
         Raises:
             NotImplementedError
         """
@@ -151,15 +152,46 @@ class TriangularLattice(Lattice):
 
     def draw(
         self,
-        pos: dict = None,
-        ax: Axes = None,
+        pos: Optional[dict] = None,
+        ax: Optional[Axes] = None,
         arrows: bool = True,
+        arrowstyle: Optional[str] = None,
+        arrow_size: int = 10,
         with_labels: bool = False,
-        boundary_edges: bool = False,
+        node_list: Optional[list] = None,
+        edge_list: Optional[list] = None,
+        node_size: Union[int, list] = 300,
+        node_color: Union[
+            str,
+            Tuple[float, float, float],
+            Tuple[float, float, float],
+            List[Union[str, Tuple[float, float, float], Tuple[float, float, float, float]]],
+        ] = "#1f78b4",
+        node_shape: str = "o",
+        alpha: Optional[float] = None,
+        cmap: Optional[Colormap] = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
+        linewidths: Union[float, Sequence] = 1.0,
+        width: Union[float, Sequence] = 1.0,
+        edge_color: Union[str, Sequence] = "k",
+        edge_cmap: Optional[Colormap] = None,
+        edge_vmin: Optional[float] = None,
+        edge_vmax: Optional[float] = None,
+        style: str = "solid",
+        labels: Optional[Callable] = None,
+        edge_labels: Optional[Callable] = None,
+        font_size: int = 12,
+        font_color: str = "k",
+        font_weight: str = "normal",
+        font_family: str = "sans-serif",
+        label: Optional[str] = None,
+        connectionstyle: str = "arc3",
         self_loop: bool = False,
+        boundary_edges: bool = False,
         **kwargs,
     ):
-        """Draw the lattice
+        r"""Draw the lattice.
 
         Args:
             pos: An optional dictionary (or
@@ -172,11 +204,11 @@ class TriangularLattice(Lattice):
             arrows: For :class:`~retworkx.PyDiGraph` objects if ``True``
                 draw arrowheads. (defaults to ``True``) Note, that the Arrows will
                 be the same color as edges.
-            arrowstyle (str): An optional string for directed graphs to choose
+            arrowstyle: An optional string for directed graphs to choose
                 the style of the arrowsheads. See
                 :class:`matplotlib.patches.ArrowStyle` for more options. By default the
                 value is set to ``'-\|>'``.
-            arrow_size (int): For directed graphs, choose the size of the arrow
+            arrow_size: For directed graphs, choose the size of the arrow
                 head's length and width. See
                 :class:`matplotlib.patches.FancyArrowPatch` attribute and constructor
                 kwarg ``mutation_scale`` for more info. Defaults to 10.
@@ -184,11 +216,11 @@ class TriangularLattice(Lattice):
                 labels will only be drawn if the ``edge_labels`` parameter is set to a
                 function. Defaults to ``False``.
 
-            node_list (list): An optional list of node indices in the graph to
+            node_list: An optional list of node indices in the graph to
                 draw. If not specified all nodes will be drawn.
-            edge_list (list): An option list of edges in the graph to draw. If not
+            edge_list: An option list of edges in the graph to draw. If not
                 specified all edges will be drawn
-            node_size (Union[int, list]): Optional size of nodes. If an array is
+            node_size: Optional size of nodes. If an array is
                 specified it must be the same length as node_list. Defaults to 300
             node_color: Optional node color. Can be a single color or
                 a sequence of colors with the same length as node_list. Color can be
@@ -196,38 +228,38 @@ class TriangularLattice(Lattice):
                 are specified they will be mapped to colors using the ``cmap`` and
                 ``vmin``,``vmax`` parameters. See :func:`matplotlib.scatter` for more
                 details. Defaults to ``'#1f78b4'``)
-            node_shape (str): The optional shape node. The specification is the
+            node_shape: The optional shape node. The specification is the
                 same as the :func:`matplotlib.pyplot.scatter` function's ``marker``
                 kwarg, valid options are one of
                 ``['s', 'o', '^', '>', 'v', '<', 'd', 'p', 'h', '8']``. Defaults to
                 ``'o'``
-            alpha (float): Optional value for node and edge transparency
-            cmap (Colormap): An optional Matplotlib colormap
+            alpha: Optional value for node and edge transparency
+            cmap: An optional Matplotlib colormap
                 object for mapping intensities of nodes
-            vmin (float): Optional minimum value for node colormap scaling
-            vmax (float): Optional minimum value for node colormap scaling
-            linewidths (Union[float, sequence]): An optional line width for symbol
+            vmin: Optional minimum value for node colormap scaling
+            vmax: Optional minimum value for node colormap scaling
+            linewidths: An optional line width for symbol
                 borders. If a sequence is specified it must be the same length as
                 node_list. Defaults to 1.0
-            width (Union[float, sequence]): An optional width to use for edges. Can
+            width: An optional width to use for edges. Can
                 either be a float or sequence  of floats. If a sequence is specified
                 it must be the same length as node_list. Defaults to 1.0
-            edge_color (Union[str, sequence]): color or array of colors (default='k')
+            edge_color: color or array of colors (default='k')
                 Edge color. Can be a single color or a sequence of colors with the same
                 length as edge_list. Color can be string or rgb (or rgba) tuple of
                 floats from 0-1. If numeric values are specified they will be
                 mapped to colors using the ``edge_cmap`` and ``edge_vmin``,
                 ``edge_vmax`` parameters.
-            edge_cmap (Colormap): An optional Matplotlib
+            edge_cmap: An optional Matplotlib
                 colormap for mapping intensities of edges.
-            edge_vmin (float): Optional minimum value for edge colormap scaling
-            edge_vmax (float): Optional maximum value for node colormap scaling
-            style (str): An optional string to specify the edge line style.
+            edge_vmin: Optional minimum value for edge colormap scaling
+            edge_vmax: Optional maximum value for node colormap scaling
+            style: An optional string to specify the edge line style.
                 For example, ``'-'``, ``'--'``, ``'-.'``, ``':'`` or words like
                 ``'solid'`` or ``'dashed'``. See the
                 :class:`matplotlib.patches.FancyArrowPatch` attribute and kwarg
                 ``linestyle`` for more details. Defaults to ``'solid'``.
-            labels (func): An optional callback function that will be passed a
+            labels: An optional callback function that will be passed a
                 node payload and return a string label for the node. For example::
 
                     labels=str
@@ -238,7 +270,7 @@ class TriangularLattice(Lattice):
                     labels=lambda node: node['label']
 
                 could be used if the node payloads are dictionaries.
-            edge_labels (func): An optional callback function that will be passed
+            edge_labels: An optional callback function that will be passed
                 an edge payload and return a string label for the edge. For example::
 
                     edge_labels=str
@@ -250,16 +282,16 @@ class TriangularLattice(Lattice):
 
                 could be used if the edge payloads are dictionaries. If this is set
                 edge labels will be drawn in the visualization.
-            font_size (int): An optional fontsize to use for text labels, By
+            font_size: An optional fontsize to use for text labels, By
                 default a value of 12 is used for nodes and 10 for edges.
-            font_color (str): An optional font color for strings. By default
+            font_color: An optional font color for strings. By default
                 ``'k'`` (ie black) is set.
-            font_weight (str): An optional string used to specify the font weight.
+            font_weight: An optional string used to specify the font weight.
                 By default a value of ``'normal'`` is used.
-            font_family (str): An optional font family to use for strings. By
+            font_family: An optional font family to use for strings. By
                 default ``'sans-serif'`` is used.
-            label (str): An optional string label to use for the graph legend.
-            connectionstyle (str): An optional value used to create a curved arc
+            label: An optional string label to use for the graph legend.
+            connectionstyle: An optional value used to create a curved arc
                 of rounding radius rad. For example,
                 ``connectionstyle='arc3,rad=0.2'``. See
                 :class:`matplotlib.patches.ConnectionStyle` and
@@ -267,6 +299,7 @@ class TriangularLattice(Lattice):
                 this is set to ``"arc3"``.
             self_loop: Draw self-loops in a lattice. Defaults to False.
             boundary_edges: Draw edges from the boundaries. Defaults to False.
+            **kwargs: Kwargs for drawing the lattice.
 
         Returns:
             A matplotlib figure for the visualization if not running with an
@@ -280,10 +313,76 @@ class TriangularLattice(Lattice):
             graph.remove_edges_from(self.boundary_edges)
 
         if self_loop:
-            mpl_draw(graph, pos, ax, arrows, with_labels, **kwargs)
+            mpl_draw(
+                graph=self.graph,
+                pos=pos,
+                ax=ax,
+                arrows=arrows,
+                arrowstyle=arrowstyle,
+                arrow_size=arrow_size,
+                with_labels=with_labels,
+                node_list=node_list,
+                edge_list=edge_list,
+                node_size=node_size,
+                node_color=node_color,
+                node_shape=node_shape,
+                alpha=alpha,
+                cmap=cmap,
+                vmin=vmin,
+                vmax=vmax,
+                linewidths=linewidths,
+                width=width,
+                edge_color=edge_color,
+                edge_cmap=edge_cmap,
+                edge_vmin=edge_vmin,
+                edge_vmax=edge_vmax,
+                style=style,
+                labels=labels,
+                edge_labels=edge_labels,
+                font_size=font_size,
+                font_color=font_color,
+                font_weight=font_weight,
+                font_family=font_family,
+                label=label,
+                connectionstyle=connectionstyle,
+                **kwargs,
+            )
             plt.draw()
         elif not self_loop:
             self_loops = [(i, i) for i in range(self.num_nodes) if graph.has_edge(i, i)]
             graph.remove_edges_from(self_loops)
-            mpl_draw(graph, pos, ax, arrows, with_labels, **kwargs)
+            mpl_draw(
+                graph=self.graph,
+                pos=pos,
+                ax=ax,
+                arrows=arrows,
+                arrowstyle=arrowstyle,
+                arrow_size=arrow_size,
+                with_labels=with_labels,
+                node_list=node_list,
+                edge_list=edge_list,
+                node_size=node_size,
+                node_color=node_color,
+                node_shape=node_shape,
+                alpha=alpha,
+                cmap=cmap,
+                vmin=vmin,
+                vmax=vmax,
+                linewidths=linewidths,
+                width=width,
+                edge_color=edge_color,
+                edge_cmap=edge_cmap,
+                edge_vmin=edge_vmin,
+                edge_vmax=edge_vmax,
+                style=style,
+                labels=labels,
+                edge_labels=edge_labels,
+                font_size=font_size,
+                font_color=font_color,
+                font_weight=font_weight,
+                font_family=font_family,
+                label=label,
+                connectionstyle=connectionstyle,
+                **kwargs,
+            )
             plt.draw()

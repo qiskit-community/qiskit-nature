@@ -32,5 +32,4 @@ Sampling Problems
    :toctree:
 
    sampling
-   
 """
