@@ -81,12 +81,12 @@ def _build_qeom_hopping_ops(
     to_be_executed_list = []
     for idx in range(size):
         to_be_executed_list += [excitations_list[idx], excitations_list[idx][::-1]]
-        hopping_operators["E_{}".format(idx)] = None
-        hopping_operators["Edag_{}".format(idx)] = None
-        type_of_commutativities["E_{}".format(idx)] = None
-        type_of_commutativities["Edag_{}".format(idx)] = None
-        excitation_indices["E_{}".format(idx)] = excitations_list[idx]
-        excitation_indices["Edag_{}".format(idx)] = excitations_list[idx][::-1]
+        hopping_operators[f"E_{idx}"] = None
+        hopping_operators[f"Edag_{idx}"] = None
+        type_of_commutativities[f"E_{idx}"] = None
+        type_of_commutativities[f"Edag_{idx}"] = None
+        excitation_indices[f"E_{idx}"] = excitations_list[idx]
+        excitation_indices[f"Edag_{idx}"] = excitations_list[idx][::-1]
 
     result = parallel_map(
         _build_single_hopping_operator,
@@ -133,8 +133,8 @@ def _build_single_hopping_operator(
                     commutativities.append(False)
             else:
                 raise QiskitNatureError(
-                    "Symmetry {} is nor commute neither anti-commute "
-                    "to exciting operator.".format(symmetry.to_label())
+                    f"Symmetry {symmetry.to_label()} neither commutes nor anti-commutes "
+                    "with excitation operator."
                 )
 
     return qubit_op, commutativities

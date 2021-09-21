@@ -60,7 +60,7 @@ class HDF5Driver(ElectronicStructureDriver):
             hdf5_file = os.path.abspath(os.path.join(self.work_path, hdf5_file))
 
         if not os.path.isfile(hdf5_file):
-            raise LookupError("HDF5 file not found: {}".format(hdf5_file))
+            raise LookupError(f"HDF5 file not found: {hdf5_file}")
 
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         molecule = QMolecule(hdf5_file)

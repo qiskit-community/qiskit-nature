@@ -66,7 +66,7 @@ class HDF5Driver(FermionicDriver):
             hdf5_file = os.path.abspath(os.path.join(self.work_path, hdf5_file))
 
         if not os.path.isfile(hdf5_file):
-            raise LookupError("HDF5 file not found: {}".format(hdf5_file))
+            raise LookupError(f"HDF5 file not found: {hdf5_file}")
 
         molecule = QMolecule(hdf5_file)
         molecule.load()

@@ -63,7 +63,7 @@ class PSI4Driver(ElectronicStructureDriver):
         super().__init__()
         PSI4Driver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
-            raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
+            raise QiskitNatureError(f"Invalid config for PSI4 Driver '{config}'")
 
         if isinstance(config, list):
             config = "\n".join(config)
@@ -100,7 +100,7 @@ class PSI4Driver(ElectronicStructureDriver):
         elif molecule.units == UnitsType.BOHR:
             units = "bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+            raise QiskitNatureError(f"Unknown unit '{molecule.units.value}'")
         name = "".join([name for (name, _) in molecule.geometry])
         geom = "\n".join(
             [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
@@ -173,7 +173,7 @@ class PSI4Driver(ElectronicStructureDriver):
         input_text += ["import warnings"]
         input_text += ["from qiskit_nature.drivers.qmolecule import QMolecule"]
         input_text += ["warnings.filterwarnings('ignore', category=DeprecationWarning)"]
-        input_text += ['_q_molecule = QMolecule("{0}")'.format(Path(molecule.filename).as_posix())]
+        input_text += [f'_q_molecule = QMolecule("{Path(molecule.filename).as_posix()}")']
         input_text += ["warnings.filterwarnings('default', category=DeprecationWarning)"]
 
         with open(template_file, "r", encoding="utf8") as file:
@@ -238,7 +238,7 @@ class PSI4Driver(ElectronicStructureDriver):
             if process is not None:
                 process.kill()
 
-            raise QiskitNatureError("{} run has failed".format(PSI4)) from ex
+            raise QiskitNatureError(f"{PSI4} run has failed") from ex
 
         if process.returncode != 0:
             errmsg = ""
@@ -247,6 +247,4 @@ class PSI4Driver(ElectronicStructureDriver):
                 for i, _ in enumerate(lines):
                     logger.error(lines[i])
                     errmsg += lines[i] + "\n"
-            raise QiskitNatureError(
-                "{} process return code {}\n{}".format(PSI4, process.returncode, errmsg)
-            )
+            raise QiskitNatureError(f"{PSI4} process return code {process.returncode}\n{errmsg}")

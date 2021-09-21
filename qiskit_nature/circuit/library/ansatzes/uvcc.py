@@ -236,7 +236,7 @@ class UVCC(EvolvedOperatorAnsatz):
         elif callable(self.excitations):
             generators = [self.excitations]
         else:
-            raise QiskitNatureError("Invalid excitation configuration: {}".format(self.excitations))
+            raise QiskitNatureError(f"Invalid excitation configuration: {self.excitations}")
 
         return generators
 

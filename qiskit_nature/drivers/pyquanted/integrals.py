@@ -84,7 +84,7 @@ def _calculate_integrals(molecule, basis="sto3g", hf_method="rhf", tol=1e-8, max
     elif hf_method == "uhf":
         solver = uhf(molecule, bfs)
     else:
-        raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
+        raise QiskitNatureError(f"Invalid hf_method type: {hf_method}")
     ehf = solver.converge(tol=tol, maxiters=maxiters)
     logger.debug("PyQuante2 processing information:\n%s", solver)
     if hasattr(solver, "orbs"):
@@ -207,7 +207,7 @@ def _check_molecule_format(val):
                     continue
                 if new_val:
                     new_val += "; "
-                new_val += "{} {} {} {}".format(atm[0], atm[1], atm[2], atm[3])
+                new_val += f"{atm[0]} {atm[1]} {atm[2]} {atm[3]}"
             return new_val
         except Exception as exc:
             raise QiskitNatureError("Failed to convert atom string: " + val) from exc
