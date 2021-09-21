@@ -133,7 +133,7 @@ def _build_single_hopping_operator(
                     commutativities.append(False)
             else:
                 raise QiskitNatureError(
-                    f"Symmetry {symmetry.to_label()} is neither commutes nor anti-commutes "
+                    f"Symmetry {symmetry.to_label()} neither commutes nor anti-commutes "
                     "with excitation operator."
                 )
 
