@@ -163,7 +163,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
                             hijkl_bb[i - 1 - norb][a - 1 - norb][j - 1 - norb][b - 1 - norb] = x
                 else:
                     raise QiskitNatureError(
-                        "Unkown 2-electron integral indices encountered in " f"'{(i, a, j, b)}'"
+                        "Unknown 2-electron integral indices encountered in " f"'{(i, a, j, b)}'"
                     ) from ex
 
     # iterate over still empty elements in 1-electron matrix and populate with symmetric ones
