@@ -101,7 +101,7 @@ class Extrapolator(ABC):
         elif mode == "l1":
             return SieveExtrapolator(**kwargs)
         else:
-            raise QiskitNatureError("No extrapolator called {}".format(mode))
+            raise QiskitNatureError(f"No extrapolator called {mode}")
 
 
 class PolynomialExtrapolator(Extrapolator):
@@ -363,7 +363,7 @@ class PCAExtrapolator(Extrapolator):
         elif self._kernel in ["linear", "poly", "rbf", "sigmoid", "cosine"]:
             self._pca_model = KernelPCA(kernel=self._kernel, fit_inverse_transform=True)
         else:
-            raise QiskitNatureError("PCA kernel type {} not found".format(self._kernel))
+            raise QiskitNatureError(f"PCA kernel type {self._kernel} not found")
 
     def extrapolate(
         self, points: List[float], param_dict: Optional[Dict[float, List[float]]]

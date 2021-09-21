@@ -56,9 +56,7 @@ class BaseTestDriverFCIDump(ABC):
 
     def test_driver_inactive_energy(self):
         """driver inactive energy test"""
-        self.log.debug(
-            "QMolecule inactive energy is {}".format(self.qmolecule.nuclear_repulsion_energy)
-        )
+        self.log.debug("QMolecule inactive energy is %s", self.qmolecule.nuclear_repulsion_energy)
         self.assertAlmostEqual(
             self.qmolecule.nuclear_repulsion_energy,
             self.nuclear_repulsion_energy,
@@ -67,25 +65,23 @@ class BaseTestDriverFCIDump(ABC):
 
     def test_driver_num_molecular_orbitals(self):
         """driver num orbitals test"""
-        self.log.debug(
-            "QMolecule Number of orbitals is {}".format(self.qmolecule.num_molecular_orbitals)
-        )
+        self.log.debug("QMolecule Number of orbitals is %s", self.qmolecule.num_molecular_orbitals)
         self.assertEqual(self.qmolecule.num_molecular_orbitals, self.num_molecular_orbitals)
 
     def test_driver_num_alpha(self):
         """driver num alpha test"""
-        self.log.debug("QMolecule Number of alpha electrons is {}".format(self.qmolecule.num_alpha))
+        self.log.debug("QMolecule Number of alpha electrons is %s", self.qmolecule.num_alpha)
         self.assertEqual(self.qmolecule.num_alpha, self.num_alpha)
 
     def test_driver_num_beta(self):
         """driver num beta test"""
-        self.log.debug("QMolecule Number of beta electrons is {}".format(self.qmolecule.num_beta))
+        self.log.debug("QMolecule Number of beta electrons is %s", self.qmolecule.num_beta)
         self.assertEqual(self.qmolecule.num_beta, self.num_beta)
 
     def test_driver_mo_onee_ints(self):
         """driver alpha mo onee ints test"""
         self.log.debug(
-            "QMolecule MO alpha one electron integrals are {}".format(self.qmolecule.mo_onee_ints)
+            "QMolecule MO alpha one electron integrals are %s", self.qmolecule.mo_onee_ints
         )
         self.assertEqual(self.qmolecule.mo_onee_ints.shape, self.mo_onee.shape)
         np.testing.assert_array_almost_equal(
@@ -99,7 +95,7 @@ class BaseTestDriverFCIDump(ABC):
         if self.mo_onee_b is None:
             return
         self.log.debug(
-            "QMolecule MO beta one electron integrals are {}".format(self.qmolecule.mo_onee_ints_b)
+            "QMolecule MO beta one electron integrals are %s", self.qmolecule.mo_onee_ints_b
         )
         self.assertEqual(self.qmolecule.mo_onee_ints_b.shape, self.mo_onee_b.shape)
         np.testing.assert_array_almost_equal(
@@ -111,9 +107,7 @@ class BaseTestDriverFCIDump(ABC):
     def test_driver_mo_eri_ints(self):
         """driver alpha-alpha mo eri ints test"""
         self.log.debug(
-            "QMolecule MO alpha-alpha two electron integrals are {}".format(
-                self.qmolecule.mo_eri_ints
-            )
+            "QMolecule MO alpha-alpha two electron integrals are %s", self.qmolecule.mo_eri_ints
         )
         self.assertEqual(self.qmolecule.mo_eri_ints.shape, self.mo_eri.shape)
         np.testing.assert_array_almost_equal(
@@ -125,9 +119,7 @@ class BaseTestDriverFCIDump(ABC):
         if self.mo_eri_ba is None:
             return
         self.log.debug(
-            "QMolecule MO beta-alpha two electron integrals are {}".format(
-                self.qmolecule.mo_eri_ints_ba
-            )
+            "QMolecule MO beta-alpha two electron integrals are %s", self.qmolecule.mo_eri_ints_ba
         )
         self.assertEqual(self.qmolecule.mo_eri_ints_ba.shape, self.mo_eri_ba.shape)
         np.testing.assert_array_almost_equal(
@@ -141,9 +133,7 @@ class BaseTestDriverFCIDump(ABC):
         if self.mo_eri_bb is None:
             return
         self.log.debug(
-            "QMolecule MO beta-beta two electron integrals are {}".format(
-                self.qmolecule.mo_eri_ints_bb
-            )
+            "QMolecule MO beta-beta two electron integrals are %s", self.qmolecule.mo_eri_ints_bb
         )
         self.assertEqual(self.qmolecule.mo_eri_ints_bb.shape, self.mo_eri_bb.shape)
         np.testing.assert_array_almost_equal(

@@ -137,7 +137,7 @@ def _calculate_integrals(mol, hf_method="rhf", conv_tol=1e-9, max_cycle=50, init
     elif hf_method == "uhf":
         m_f = scf.UHF(mol)
     else:
-        raise QiskitNatureError("Invalid hf_method type: {}".format(hf_method))
+        raise QiskitNatureError(f"Invalid hf_method type: {hf_method}")
 
     m_f.conv_tol = conv_tol
     m_f.max_cycle = max_cycle

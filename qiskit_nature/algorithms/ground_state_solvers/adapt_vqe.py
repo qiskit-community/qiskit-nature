@@ -205,10 +205,10 @@ class AdaptVQE(GroundStateEigensolver):
             prev_op_indices.append(max_grad_index)
             # log gradients
             if logger.isEnabledFor(logging.INFO):
-                gradlog = "\nGradients in iteration #{}".format(str(iteration))
+                gradlog = f"\nGradients in iteration #{str(iteration)}"
                 gradlog += "\nID: Excitation Operator: Gradient  <(*) maximum>"
                 for i, grad in enumerate(cur_grads):
-                    gradlog += "\n{}: {}: {}".format(str(i), str(grad[1]), str(grad[0]))
+                    gradlog += f"\n{str(i)}: {str(grad[1])}: {str(grad[0])}"
                     if grad[1] == max_grad[1]:
                         gradlog += "\t(*)"
                 logger.info(gradlog)

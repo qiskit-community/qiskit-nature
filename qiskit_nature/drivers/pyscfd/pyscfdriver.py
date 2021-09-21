@@ -109,7 +109,7 @@ class PySCFDriver(FermionicDriver):
         )
         self._check_valid()
         if not isinstance(atom, str) and not isinstance(atom, list):
-            raise QiskitNatureError("Invalid atom input for PYSCF Driver '{}'".format(atom))
+            raise QiskitNatureError(f"Invalid atom input for PYSCF Driver '{atom}'")
         if hf_method is None:
             hf_method = HFMethodType.RHF
         if init_guess is None:
@@ -195,16 +195,16 @@ class PySCFDriver(FermionicDriver):
 
         q_mol.origin_driver_name = "PYSCF"
         cfg = [
-            "atom={}".format(atom),
-            "unit={}".format(units),
-            "charge={}".format(charge),
-            "spin={}".format(spin),
-            "basis={}".format(basis),
-            "hf_method={}".format(hf_method),
-            "conv_tol={}".format(self._conv_tol),
-            "max_cycle={}".format(self._max_cycle),
-            "init_guess={}".format(self._init_guess),
-            "max_memory={}".format(self._max_memory),
+            f"atom={atom}",
+            f"unit={units}",
+            f"charge={charge}",
+            f"spin={spin}",
+            f"basis={basis}",
+            f"hf_method={hf_method}",
+            f"conv_tol={self._conv_tol}",
+            f"max_cycle={self._max_cycle}",
+            f"init_guess={self._init_guess}",
+            f"max_memory={self._max_memory}",
             "",
         ]
         q_mol.origin_driver_config = "\n".join(cfg)

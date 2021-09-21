@@ -106,7 +106,7 @@ class GaussianForcesDriver(BosonicDriver):
         elif self.molecule.units == UnitsType.BOHR:
             units = "Bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
+            raise QiskitNatureError(f"Unknown unit '{self.molecule.units.value}'")
         cfg1 = f"#p B3LYP/{self.basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
         name = "".join([name for (name, _) in self.molecule.geometry])
         geom = "\n".join(

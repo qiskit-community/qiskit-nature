@@ -293,23 +293,17 @@ class ElectronicStructureResult(EigenstateResult):
         lines.append(" ")
         if self.electronic_energies is not None:
             lines.append(
-                "* Electronic ground state energy (Hartree): {}".format(
-                    round(self.electronic_energies[0], 12)
-                )
+                f"* Electronic ground state energy (Hartree): {round(self.electronic_energies[0], 12)}"
             )
-            lines.append("  - computed part:      {}".format(round(self.computed_energies[0], 12)))
+            lines.append(f"  - computed part:      {round(self.computed_energies[0], 12)}")
             for name, value in self.extracted_transformer_energies.items():
-                lines.append("  - {} extracted energy part: {}".format(name, round(value, 12)))
+                lines.append(f"  - {name} extracted energy part: {round(value, 12)}")
         if self.nuclear_repulsion_energy is not None:
             lines.append(
-                "~ Nuclear repulsion energy (Hartree): {}".format(
-                    round(self.nuclear_repulsion_energy, 12)
-                )
+                f"~ Nuclear repulsion energy (Hartree): {round(self.nuclear_repulsion_energy, 12)}"
             )
             lines.append(
-                "> Total ground state energy (Hartree): {}".format(
-                    round(self.total_energies[0], 12)
-                )
+                f"> Total ground state energy (Hartree): {round(self.total_energies[0], 12)}"
             )
 
         if self.computed_energies is not None and len(self.computed_energies) > 1:
@@ -319,13 +313,11 @@ class ElectronicStructureResult(EigenstateResult):
             for idx, (elec_energy, total_energy) in enumerate(
                 zip(self.electronic_energies[1:], self.total_energies[1:])
             ):
-                lines.append("{: 3d}: ".format(idx + 1))
+                lines.append(f"{(idx + 1): 3d}: ")
                 lines.append(
-                    "* Electronic excited state energy (Hartree): {}".format(round(elec_energy, 12))
+                    f"* Electronic excited state energy (Hartree): {round(elec_energy, 12)}"
                 )
-                lines.append(
-                    "> Total excited state energy (Hartree): {}".format(round(total_energy, 12))
-                )
+                lines.append(f"> Total excited state energy (Hartree): {round(total_energy, 12)}")
 
         if self.has_observables():
             lines.append(" ")
@@ -339,15 +331,15 @@ class ElectronicStructureResult(EigenstateResult):
                     self.magnetization,
                 )
             ):
-                line = "{: 3d}: ".format(idx)
+                line = f"{idx: 3d}: "
                 if num_particles is not None:
-                    line += " # Particles: {:.3f}".format(num_particles)
+                    line += f" # Particles: {num_particles:.3f}"
                 if spin is not None:
-                    line += " S: {:.3f}".format(spin)
+                    line += f" S: {spin:.3f}"
                 if total_angular_momentum is not None:
-                    line += " S^2: {:.3f}".format(total_angular_momentum)
+                    line += f" S^2: {total_angular_momentum:.3f}"
                 if magnetization is not None:
-                    line += " M: {:.3f}".format(magnetization)
+                    line += f" M: {magnetization:.3f}"
                 lines.append(line)
 
         if self.has_dipole():
@@ -356,9 +348,7 @@ class ElectronicStructureResult(EigenstateResult):
             lines.append(" ")
             if self.nuclear_dipole_moment is not None:
                 lines.append(
-                    "~ Nuclear dipole moment (a.u.): {}".format(
-                        _dipole_to_string(self.nuclear_dipole_moment)
-                    )
+                    f"~ Nuclear dipole moment (a.u.): {_dipole_to_string(self.nuclear_dipole_moment)}"
                 )
                 lines.append(" ")
             for idx, (elec_dip, comp_dip, extr_dip, dip, tot_dip, dip_db, tot_dip_db,) in enumerate(
@@ -372,25 +362,19 @@ class ElectronicStructureResult(EigenstateResult):
                     self.total_dipole_moment_in_debye,
                 )
             ):
-                lines.append("{: 3d}: ".format(idx))
-                lines.append(
-                    "  * Electronic dipole moment (a.u.): {}".format(_dipole_to_string(elec_dip))
-                )
-                lines.append("    - computed part:      {}".format(_dipole_to_string(comp_dip)))
+                lines.append(f"{idx: 3d}: ")
+                lines.append(f"  * Electronic dipole moment (a.u.): {_dipole_to_string(elec_dip)}")
+                lines.append(f"    - computed part:      {_dipole_to_string(comp_dip)}")
                 for name, ex_dip in extr_dip.items():
-                    lines.append(
-                        "    - {} extracted energy part: {}".format(name, _dipole_to_string(ex_dip))
-                    )
+                    lines.append(f"    - {name} extracted energy part: {_dipole_to_string(ex_dip)}")
                 if self.nuclear_dipole_moment is not None:
                     lines.append(
-                        "  > Dipole moment (a.u.): {}  Total: {}".format(
-                            _dipole_to_string(dip), _float_to_string(tot_dip)
-                        )
+                        f"  > Dipole moment (a.u.): { _dipole_to_string(dip)}  "
+                        f"Total: {_float_to_string(tot_dip)}"
                     )
                     lines.append(
-                        "                 (debye): {}  Total: {}".format(
-                            _dipole_to_string(dip_db), _float_to_string(tot_dip_db)
-                        )
+                        f"                 (debye): {_dipole_to_string(dip_db)}  "
+                        f"Total: {_float_to_string(tot_dip_db)}"
                     )
                 lines.append(" ")
 
