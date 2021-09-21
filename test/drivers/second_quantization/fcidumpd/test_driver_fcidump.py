@@ -71,7 +71,7 @@ class BaseTestDriverFCIDump(ABC):
         )
 
         with self.subTest("inactive energy"):
-            self.log.debug("inactive energy: {}".format(electronic_energy.nuclear_repulsion_energy))
+            self.log.debug("inactive energy: %s", electronic_energy.nuclear_repulsion_energy)
             self.assertAlmostEqual(
                 electronic_energy.nuclear_repulsion_energy,
                 self.nuclear_repulsion_energy,
@@ -80,7 +80,7 @@ class BaseTestDriverFCIDump(ABC):
 
         mo_onee_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
         with self.subTest("1-body alpha"):
-            self.log.debug("MO one electron integrals are {}".format(mo_onee_ints))
+            self.log.debug("MO one electron integrals are %s", mo_onee_ints)
             self.assertEqual(mo_onee_ints._matrices[0].shape, self.mo_onee.shape)
             np.testing.assert_array_almost_equal(
                 np.absolute(mo_onee_ints._matrices[0]),
@@ -99,7 +99,7 @@ class BaseTestDriverFCIDump(ABC):
 
         mo_eri_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         with self.subTest("2-body alpha-alpha"):
-            self.log.debug("MO two electron integrals {}".format(mo_eri_ints))
+            self.log.debug("MO two electron integrals %s", mo_eri_ints)
             self.assertEqual(mo_eri_ints._matrices[0].shape, self.mo_eri.shape)
             np.testing.assert_array_almost_equal(
                 np.absolute(mo_eri_ints._matrices[0]), np.absolute(self.mo_eri), decimal=4
@@ -124,15 +124,15 @@ class BaseTestDriverFCIDump(ABC):
         particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
 
         with self.subTest("orbital number"):
-            self.log.debug("Number of orbitals is {}".format(particle_number.num_spin_orbitals))
+            self.log.debug("Number of orbitals is %s", particle_number.num_spin_orbitals)
             self.assertEqual(particle_number.num_spin_orbitals, self.num_molecular_orbitals * 2)
 
         with self.subTest("alpha electron number"):
-            self.log.debug("Number of alpha electrons is {}".format(particle_number.num_alpha))
+            self.log.debug("Number of alpha electrons is %s", particle_number.num_alpha)
             self.assertEqual(particle_number.num_alpha, self.num_alpha)
 
         with self.subTest("beta electron number"):
-            self.log.debug("Number of beta electrons is {}".format(particle_number.num_beta))
+            self.log.debug("Number of beta electrons is %s", particle_number.num_beta)
             self.assertEqual(particle_number.num_beta, self.num_beta)
 
 

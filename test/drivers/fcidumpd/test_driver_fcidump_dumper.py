@@ -53,27 +53,27 @@ class BaseTestDriverFCIDumpDumper(ABC):
 
     def test_dumped_inactive_energy(self):
         """dumped inactive energy test"""
-        self.log.debug("Dumped inactive energy is {:g}".format(self.dumped["ECORE"]))
+        self.log.debug("Dumped inactive energy is %g", self.dumped["ECORE"])
         self.assertAlmostEqual(self.dumped["ECORE"], self.core_energy, places=3)
 
     def test_dumped_num_molecular_orbitals(self):
         """dumped number of orbitals test"""
-        self.log.debug("Dumped number of orbitals is {:d}".format(self.dumped["NORB"]))
+        self.log.debug("Dumped number of orbitals is %d", self.dumped["NORB"])
         self.assertEqual(self.dumped["NORB"], self.num_molecular_orbitals)
 
     def test_dumped_num_electrons(self):
         """dumped number of electrons test"""
-        self.log.debug("Dumped number of electrons is {:d}".format(self.dumped["NELEC"]))
+        self.log.debug("Dumped number of electrons is %d", self.dumped["NELEC"])
         self.assertEqual(self.dumped["NELEC"], self.num_electrons)
 
     def test_dumped_spin_number(self):
         """dumped spin number test"""
-        self.log.debug("Dumped spin number is {:d}".format(self.dumped["MS2"]))
+        self.log.debug("Dumped spin number is %d", self.dumped["MS2"])
         self.assertEqual(self.dumped["MS2"], self.spin_number)
 
     def test_dumped_wave_function_sym(self):
         """dumped wave function symmetry test"""
-        self.log.debug("Dumped wave function symmetry is {:d}".format(self.dumped["ISYM"]))
+        self.log.debug("Dumped wave function symmetry is %d", self.dumped["ISYM"])
         self.assertEqual(self.dumped["ISYM"], self.wf_symmetry)
 
     def test_dumped_orbital_syms(self):

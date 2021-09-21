@@ -249,7 +249,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("aer_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 
         solver = VQEUCCFactory(
@@ -337,7 +337,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("aer_simulator_statevector")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
@@ -363,7 +363,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("aer_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
@@ -394,7 +394,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             backend = Aer.get_backend("aer_simulator")
         except ImportError as ex:  # pylint: disable=broad-except
-            self.skipTest("Aer doesn't appear to be installed. Error: '{}'".format(str(ex)))
+            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)

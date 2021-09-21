@@ -53,13 +53,13 @@ def dump(
     mos = range(norb)
     with open(outpath, "w", encoding="utf8") as outfile:
         # print header
-        outfile.write("&FCI NORB={:4d},NELEC={:4d},MS2={:4d}\n".format(norb, nelec, ms2))
+        outfile.write(f"&FCI NORB={norb:4d},NELEC={nelec:4d},MS2={ms2:4d}\n")
         if orbsym is None:
             outfile.write(" ORBSYM=" + "1," * norb + "\n")
         else:
             assert len(orbsym) == norb
             outfile.write(" ORBSYM=" + ",".join(orbsym) + "\n")
-        outfile.write(" ISYM={:d},\n&END\n".format(isym))
+        outfile.write(f" ISYM={isym:d},\n&END\n")
         # append 2e integrals
         _dump_2e_ints(hijkl, mos, outfile)
         if hijkl_ba is not None:
@@ -146,4 +146,4 @@ def _dump_2e_ints(
 
 
 def _write_to_outfile(outfile: TextIO, value: float, indices: Tuple):
-    outfile.write("{:23.16E}{:4d}{:4d}{:4d}{:4d}\n".format(value, *indices))
+    outfile.write(f"{value:23.16E}{indices[0]:4d}{indices[1]:4d}{indices[2]:4d}{indices[3]:4d}\n")

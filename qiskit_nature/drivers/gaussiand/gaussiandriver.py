@@ -77,7 +77,7 @@ class GaussianDriver(FermionicDriver):
         )
         GaussianDriver._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
-            raise QiskitNatureError("Invalid config for Gaussian Driver '{}'".format(config))
+            raise QiskitNatureError(f"Invalid config for Gaussian Driver '{config}'")
         if hf_method is None:
             hf_method = HFMethodType.RHF
         if isinstance(config, list):
@@ -102,7 +102,7 @@ class GaussianDriver(FermionicDriver):
         elif self.molecule.units == UnitsType.BOHR:
             units = "Bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
+            raise QiskitNatureError(f"Unknown unit '{self.molecule.units.value}'")
         cfg1 = f"# {self.hf_method}/{self.basis} UNITS={units} scf(conventional)\n\n"
         name = "".join([name for (name, _) in self.molecule.geometry])
         geom = "\n".join(
