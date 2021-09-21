@@ -88,7 +88,7 @@ class PyQuanteDriver(FermionicDriver):
         validate_min("maxiters", maxiters, 1)
         self._check_valid()
         if not isinstance(atoms, str) and not isinstance(atoms, list):
-            raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
+            raise QiskitNatureError(f"Invalid atom input for PYQUANTE Driver '{atoms}'")
         if hf_method is None:
             hf_method = HFMethodType.RHF
         if isinstance(atoms, list):
@@ -152,14 +152,14 @@ class PyQuanteDriver(FermionicDriver):
 
         q_mol.origin_driver_name = "PYQUANTE"
         cfg = [
-            "atoms={}".format(atoms),
-            "units={}".format(units),
-            "charge={}".format(charge),
-            "multiplicity={}".format(multiplicity),
-            "basis={}".format(basis),
-            "hf_method={}".format(hf_method),
-            "tol={}".format(self._tol),
-            "maxiters={}".format(self._maxiters),
+            f"atoms={atoms}",
+            f"units={units}",
+            f"charge={charge}",
+            f"multiplicity={multiplicity}",
+            f"basis={basis}",
+            f"hf_method={hf_method}",
+            f"tol={self._tol}",
+            f"maxiters={self._maxiters}",
             "",
         ]
         q_mol.origin_driver_config = "\n".join(cfg)

@@ -48,63 +48,61 @@ class TestDriver(ABC):
 
     def test_driver_hf_energy(self):
         """driver hf energy test"""
-        self.log.debug("QMolecule HF energy: {}".format(self.qmolecule.hf_energy))
+        self.log.debug("QMolecule HF energy: %s", self.qmolecule.hf_energy)
         self.assertAlmostEqual(self.qmolecule.hf_energy, -1.117, places=3)
 
     def test_driver_nuclear_repulsion_energy(self):
         """driver nuclear repulsion energy test"""
         self.log.debug(
-            "QMolecule Nuclear repulsion energy: {}".format(self.qmolecule.nuclear_repulsion_energy)
+            "QMolecule Nuclear repulsion energy: %s", self.qmolecule.nuclear_repulsion_energy
         )
         self.assertAlmostEqual(self.qmolecule.nuclear_repulsion_energy, 0.72, places=2)
 
     def test_driver_num_molecular_orbitals(self):
         """driver num molecular orbitals test"""
-        self.log.debug(
-            "QMolecule Number of orbitals is {}".format(self.qmolecule.num_molecular_orbitals)
-        )
+        self.log.debug("QMolecule Number of orbitals is %s", self.qmolecule.num_molecular_orbitals)
         self.assertEqual(self.qmolecule.num_molecular_orbitals, 2)
 
     def test_driver_num_alpha(self):
         """driver num alpha test"""
-        self.log.debug("QMolecule Number of alpha electrons is {}".format(self.qmolecule.num_alpha))
+        self.log.debug("QMolecule Number of alpha electrons is %s", self.qmolecule.num_alpha)
         self.assertEqual(self.qmolecule.num_alpha, 1)
 
     def test_driver_num_beta(self):
         """driver num beta test"""
-        self.log.debug("QMolecule Number of beta electrons is {}".format(self.qmolecule.num_beta))
+        self.log.debug("QMolecule Number of beta electrons is %s", self.qmolecule.num_beta)
         self.assertEqual(self.qmolecule.num_beta, 1)
 
     def test_driver_molecular_charge(self):
         """driver molecular charge test"""
-        self.log.debug("QMolecule molecular charge is {}".format(self.qmolecule.molecular_charge))
+        self.log.debug("QMolecule molecular charge is %s", self.qmolecule.molecular_charge)
         self.assertEqual(self.qmolecule.molecular_charge, 0)
 
     def test_driver_multiplicity(self):
         """driver multiplicity test"""
-        self.log.debug("QMolecule multiplicity is {}".format(self.qmolecule.multiplicity))
+        self.log.debug("QMolecule multiplicity is %s", self.qmolecule.multiplicity)
         self.assertEqual(self.qmolecule.multiplicity, 1)
 
     def test_driver_num_atoms(self):
         """driver num atoms test"""
-        self.log.debug("QMolecule num atoms {}".format(self.qmolecule.num_atoms))
+        self.log.debug("QMolecule num atoms %s", self.qmolecule.num_atoms)
         self.assertEqual(self.qmolecule.num_atoms, 2)
 
     def test_driver_atom_symbol(self):
         """driver atom symbol test"""
-        self.log.debug("QMolecule atom symbol {}".format(self.qmolecule.atom_symbol))
+        self.log.debug("QMolecule atom symbol %s", self.qmolecule.atom_symbol)
         self.assertSequenceEqual(self.qmolecule.atom_symbol, ["H", "H"])
 
     def test_driver_atom_xyz(self):
         """driver atom xyz test"""
-        self.log.debug("QMolecule atom xyz {}".format(self.qmolecule.atom_xyz))
+        self.log.debug("QMolecule atom xyz %s", self.qmolecule.atom_xyz)
         np.testing.assert_array_almost_equal(
             self.qmolecule.atom_xyz, [[0.0, 0.0, 0.0], [0.0, 0.0, 1.3889]], decimal=4
         )
 
     def test_driver_mo_coeff(self):
         """driver mo coeff test"""
-        self.log.debug("QMolecule MO coeffs xyz {}".format(self.qmolecule.mo_coeff))
+        self.log.debug("QMolecule MO coeffs xyz %s", self.qmolecule.mo_coeff)
         self.assertEqual(self.qmolecule.mo_coeff.shape, (2, 2))
         np.testing.assert_array_almost_equal(
             np.absolute(self.qmolecule.mo_coeff),
@@ -114,14 +112,14 @@ class TestDriver(ABC):
 
     def test_driver_orbital_energies(self):
         """driver orbital energies test"""
-        self.log.debug("QMolecule orbital energies {}".format(self.qmolecule.orbital_energies))
+        self.log.debug("QMolecule orbital energies %s", self.qmolecule.orbital_energies)
         np.testing.assert_array_almost_equal(
             self.qmolecule.orbital_energies, [-0.5806, 0.6763], decimal=4
         )
 
     def test_driver_mo_onee_ints(self):
         """driver mo onee ints test"""
-        self.log.debug("QMolecule MO one electron integrals {}".format(self.qmolecule.mo_onee_ints))
+        self.log.debug("QMolecule MO one electron integrals %s", self.qmolecule.mo_onee_ints)
         self.assertEqual(self.qmolecule.mo_onee_ints.shape, (2, 2))
         np.testing.assert_array_almost_equal(
             np.absolute(self.qmolecule.mo_onee_ints),
@@ -131,7 +129,7 @@ class TestDriver(ABC):
 
     def test_driver_mo_eri_ints(self):
         """driver mo eri ints test"""
-        self.log.debug("QMolecule MO two electron integrals {}".format(self.qmolecule.mo_eri_ints))
+        self.log.debug("QMolecule MO two electron integrals %s", self.qmolecule.mo_eri_ints)
         self.assertEqual(self.qmolecule.mo_eri_ints.shape, (2, 2, 2, 2))
         np.testing.assert_array_almost_equal(
             np.absolute(self.qmolecule.mo_eri_ints),
@@ -144,9 +142,7 @@ class TestDriver(ABC):
 
     def test_driver_dipole_integrals(self):
         """driver dipole integrals test"""
-        self.log.debug(
-            "QMolecule has dipole integrals {}".format(self.qmolecule.has_dipole_integrals())
-        )
+        self.log.debug("QMolecule has dipole integrals %s", self.qmolecule.has_dipole_integrals())
         if self.qmolecule.has_dipole_integrals():
             self.assertEqual(self.qmolecule.x_dip_mo_ints.shape, (2, 2))
             self.assertEqual(self.qmolecule.y_dip_mo_ints.shape, (2, 2))

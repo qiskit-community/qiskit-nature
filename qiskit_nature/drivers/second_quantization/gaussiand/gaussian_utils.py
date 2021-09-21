@@ -65,7 +65,7 @@ def run_g16(cfg: str) -> str:
         if process is not None:
             process.kill()
 
-        raise QiskitNatureError("{} run has failed".format(_GAUSSIAN_16_DESC)) from ex
+        raise QiskitNatureError(f"{_GAUSSIAN_16_DESC} run has failed") from ex
 
     if process.returncode != 0:
         errmsg = ""
@@ -78,7 +78,7 @@ def run_g16(cfg: str) -> str:
                 logger.error(lines[i])
                 errmsg += lines[i] + "\n"
         raise QiskitNatureError(
-            "{} process return code {}\n{}".format(_GAUSSIAN_16_DESC, process.returncode, errmsg)
+            f"{_GAUSSIAN_16_DESC} process return code {process.returncode}\n{errmsg}"
         )
 
     all_text = ""

@@ -153,7 +153,7 @@ class PySCFDriver(ElectronicStructureDriver):
             atom = atom.replace("\n", ";")
         else:
             raise QiskitNatureError(
-                "`atom` must be either a `str` or `List[str]`, but you passed {}".format(str(atom))
+                f"`atom` must be either a `str` or `List[str]`, but you passed {atom}"
             )
 
         validate_min("max_cycle", max_cycle, 1)
@@ -258,8 +258,7 @@ class PySCFDriver(ElectronicStructureDriver):
         """Sets the Exchange-Correlation functional library."""
         if xcf_library not in ("libxc", "xcfun"):
             raise QiskitNatureError(
-                "Invalid XCF library. It can be either 'libxc' or 'xcfun', not "
-                "'{}'".format(xcf_library)
+                "Invalid XCF library. It can be either 'libxc' or 'xcfun', not " f"'{xcf_library}'"
             )
         self._xcf_library = xcf_library
 
@@ -510,7 +509,7 @@ class PySCFDriver(ElectronicStructureDriver):
             method_name = self.method.value.upper()
             method_cls = getattr(scf, method_name)
         except AttributeError as exc:
-            raise QiskitNatureError("Failed to load {} HF object.".format(method_name)) from exc
+            raise QiskitNatureError(f"Failed to load {method_name} HF object.") from exc
 
         self._calc = method_cls(self._mol)
 
@@ -573,23 +572,23 @@ class PySCFDriver(ElectronicStructureDriver):
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
         cfg = [
-            "atom={}".format(self._atom),
-            "unit={}".format(self._unit.value),
-            "charge={}".format(self._charge),
-            "spin={}".format(self._spin),
-            "basis={}".format(self._basis),
-            "method={}".format(self.method.value),
-            "conv_tol={}".format(self._conv_tol),
-            "max_cycle={}".format(self._max_cycle),
-            "init_guess={}".format(self._init_guess),
-            "max_memory={}".format(self._max_memory),
+            f"atom={self._atom}",
+            f"unit={self._unit.value}",
+            f"charge={self._charge}",
+            f"spin={self._spin}",
+            f"basis={self._basis}",
+            f"method={self.method.value}",
+            f"conv_tol={self._conv_tol}",
+            f"max_cycle={self._max_cycle}",
+            f"init_guess={self._init_guess}",
+            f"max_memory={self._max_memory}",
         ]
 
         if self.method.value.lower() in ("rks", "roks", "uks"):
             cfg.extend(
                 [
-                    "xc_functional={}".format(self._xc_functional),
-                    "xcf_library={}".format(self._xcf_library),
+                    f"xc_functional={self._xc_functional}",
+                    f"xcf_library={self._xcf_library}",
                 ]
             )
 

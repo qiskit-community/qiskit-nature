@@ -76,7 +76,7 @@ class PSI4Driver(FermionicDriver):
         )
         self._check_valid()
         if not isinstance(config, str) and not isinstance(config, list):
-            raise QiskitNatureError("Invalid config for PSI4 Driver '{}'".format(config))
+            raise QiskitNatureError(f"Invalid config for PSI4 Driver '{config}'")
         if hf_method is None:
             hf_method = HFMethodType.RHF
         if isinstance(config, list):
@@ -93,7 +93,7 @@ class PSI4Driver(FermionicDriver):
     @staticmethod
     def _check_valid():
         if PSI4_APP is None:
-            raise QiskitNatureError("Could not locate {}".format(PSI4))
+            raise QiskitNatureError(f"Could not locate {PSI4}")
 
     def _from_molecule_to_str(self) -> str:
         units = None
@@ -102,7 +102,7 @@ class PSI4Driver(FermionicDriver):
         elif self.molecule.units == UnitsType.BOHR:
             units = "bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(self.molecule.units.value))
+            raise QiskitNatureError(f"Unknown unit '{self.molecule.units.value}'")
         name = "".join([name for (name, _) in self.molecule.geometry])
         geom = "\n".join(
             [name + " " + " ".join(map(str, coord)) for (name, coord) in self.molecule.geometry]
@@ -139,7 +139,7 @@ class PSI4Driver(FermionicDriver):
         input_text += "import warnings\n"
         input_text += "from qiskit_nature.drivers.qmolecule import QMolecule\n"
         input_text += "warnings.filterwarnings('ignore', category=DeprecationWarning)\n"
-        input_text += '_q_molecule = QMolecule("{0}")\n'.format(Path(molecule.filename).as_posix())
+        input_text += f'_q_molecule = QMolecule("{Path(molecule.filename).as_posix()}")\n'
         input_text += "warnings.filterwarnings('default', category=DeprecationWarning)\n"
 
         with open(template_file, "r", encoding="utf8") as file:
@@ -202,7 +202,7 @@ class PSI4Driver(FermionicDriver):
             if process is not None:
                 process.kill()
 
-            raise QiskitNatureError("{} run has failed".format(PSI4)) from ex
+            raise QiskitNatureError(f"{PSI4} run has failed") from ex
 
         if process.returncode != 0:
             errmsg = ""
@@ -211,6 +211,4 @@ class PSI4Driver(FermionicDriver):
                 for i, _ in enumerate(lines):
                     logger.error(lines[i])
                     errmsg += lines[i] + "\n"
-            raise QiskitNatureError(
-                "{} process return code {}\n{}".format(PSI4, process.returncode, errmsg)
-            )
+            raise QiskitNatureError(f"{PSI4} process return code {process.returncode}\n{errmsg}")
