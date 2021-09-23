@@ -120,17 +120,23 @@ class QubitMapper(ABC):
             # save the respective Pauli string in the pauli_str list.
             for position, char in enumerate(label):
                 if char == "+":
-                    ret_op &= times_creation_op(position, pauli_table)
+                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
                 elif char == "-":
-                    ret_op &= times_annihilation_op(position, pauli_table)
+                    ret_op = ret_op.compose(
+                        times_annihilation_op(position, pauli_table), front=True
+                    )
                 elif char == "N":
                     # The occupation number operator N is given by `+-`.
-                    ret_op &= times_annihilation_op(position, pauli_table)
-                    ret_op &= times_creation_op(position, pauli_table)
+                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
+                    ret_op = ret_op.compose(
+                        times_annihilation_op(position, pauli_table), front=True
+                    )
                 elif char == "E":
                     # The `emptiness number` operator E is given by `-+` = (I - N).
-                    ret_op &= times_creation_op(position, pauli_table)
-                    ret_op &= times_annihilation_op(position, pauli_table)
+                    ret_op = ret_op.compose(
+                        times_annihilation_op(position, pauli_table), front=True
+                    )
+                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
                 elif char == "I":
                     continue
 
