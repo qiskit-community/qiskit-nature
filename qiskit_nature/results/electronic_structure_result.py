@@ -294,7 +294,8 @@ class ElectronicStructureResult(EigenstateResult):
         lines.append(" ")
         if self.electronic_energies is not None:
             lines.append(
-                f"* Electronic ground state energy (Hartree): {_complex_to_string(self.electronic_energies[0], 12)}"
+                "* Electronic ground state energy (Hartree): "
+                f"{_complex_to_string(self.electronic_energies[0], 12)}"
             )
             lines.append(
                 f"  - computed part:      {_complex_to_string(self.computed_energies[0], 12)}"
@@ -303,10 +304,12 @@ class ElectronicStructureResult(EigenstateResult):
                 lines.append(f"  - {name} extracted energy part: {_complex_to_string(value, 12)}")
         if self.nuclear_repulsion_energy is not None:
             lines.append(
-                f"~ Nuclear repulsion energy (Hartree): {_complex_to_string(self.nuclear_repulsion_energy, 12)}"
+                "~ Nuclear repulsion energy (Hartree): "
+                f"{_complex_to_string(self.nuclear_repulsion_energy, 12)}"
             )
             lines.append(
-                f"> Total ground state energy (Hartree): {_complex_to_string(self.total_energies[0], 12)}"
+                "> Total ground state energy (Hartree): "
+                f"{_complex_to_string(self.total_energies[0], 12)}"
             )
 
         if self.computed_energies is not None and len(self.computed_energies) > 1:

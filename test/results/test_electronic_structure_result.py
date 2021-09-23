@@ -23,6 +23,7 @@ from qiskit_nature.results import ElectronicStructureResult
 
 
 class TestElectronicStructureResult(QiskitNatureTestCase):
+    # pylint: disable=attribute-defined-outside-init
     """Additional tests asserting some edge cases of the ElectronicStructureResult."""
 
     def _assert_printed_result(self, result):
