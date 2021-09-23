@@ -282,17 +282,17 @@ class ElectronicStructureResult(EigenstateResult):
         lines.append("=== GROUND STATE ENERGY ===")
         lines.append(" ")
         lines.append(
-            f"* Electronic ground state energy (Hartree): {round(self.electronic_energies[0], 12)}"
+            f"* Electronic ground state energy (Hartree): {round(self.electronic_energies[0].real, 12)}"
         )
         lines.append(f"  - computed part:      {round(self.computed_energies[0], 12)}")
         for name, value in self.extracted_transformer_energies.items():
-            lines.append(f"  - {name} extracted energy part: {round(value, 12)}")
+            lines.append(f"  - {name} extracted energy part: {round(value.real, 12)}")
         if self.nuclear_repulsion_energy is not None:
             lines.append(
                 f"~ Nuclear repulsion energy (Hartree): { round(self.nuclear_repulsion_energy, 12)}"
             )
             lines.append(
-                f"> Total ground state energy (Hartree): {round(self.total_energies[0], 12)}"
+                f"> Total ground state energy (Hartree): {round(self.total_energies[0].real, 12)}"
             )
 
         if len(self.computed_energies) > 1:
@@ -304,9 +304,11 @@ class ElectronicStructureResult(EigenstateResult):
             ):
                 lines.append(f"{(idx + 1): 3d}: ")
                 lines.append(
-                    f"* Electronic excited state energy (Hartree): {round(elec_energy, 12)}"
+                    f"* Electronic excited state energy (Hartree): {round(elec_energy.real, 12)}"
                 )
-                lines.append(f"> Total excited state energy (Hartree): {round(total_energy, 12)}")
+                lines.append(
+                    f"> Total excited state energy (Hartree): {round(total_energy.real, 12)}"
+                )
 
         if self.has_observables():
             lines.append(" ")
@@ -383,7 +385,7 @@ def _element_add(x: Optional[float], y: Optional[float]):
 
 
 def _dipole_to_string(dipole: DipoleTuple):
-    dips = [round(x, 8) if x is not None else x for x in dipole]
+    dips = [round(x.real, 8) if x is not None else x for x in dipole]
     value = "["
     for i, _ in enumerate(dips):
         value += _float_to_string(dips[i]) if dips[i] is not None else "None"
@@ -395,4 +397,6 @@ def _float_to_string(value: Optional[float], precision: int = 8) -> str:
     if value is None:
         return "None"
     else:
-        return "0.0" if value == 0 else ("{:." + str(precision) + "f}").format(value).rstrip("0")
+        return (
+            "0.0" if value == 0 else ("{:." + str(precision) + "f}").format(value.real).rstrip("0")
+        )
