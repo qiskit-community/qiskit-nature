@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Tuple, cast
 import numpy as np
 
 from qiskit_nature.constants import DEBYE
+
 from .eigenstate_result import EigenstateResult
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all
@@ -293,17 +294,19 @@ class ElectronicStructureResult(EigenstateResult):
         lines.append(" ")
         if self.electronic_energies is not None:
             lines.append(
-                f"* Electronic ground state energy (Hartree): {round(self.electronic_energies[0], 12)}"
+                f"* Electronic ground state energy (Hartree): {_complex_to_string(self.electronic_energies[0], 12)}"
             )
-            lines.append(f"  - computed part:      {round(self.computed_energies[0], 12)}")
+            lines.append(
+                f"  - computed part:      {_complex_to_string(self.computed_energies[0], 12)}"
+            )
             for name, value in self.extracted_transformer_energies.items():
-                lines.append(f"  - {name} extracted energy part: {round(value, 12)}")
+                lines.append(f"  - {name} extracted energy part: {_complex_to_string(value, 12)}")
         if self.nuclear_repulsion_energy is not None:
             lines.append(
-                f"~ Nuclear repulsion energy (Hartree): {round(self.nuclear_repulsion_energy, 12)}"
+                f"~ Nuclear repulsion energy (Hartree): {_complex_to_string(self.nuclear_repulsion_energy, 12)}"
             )
             lines.append(
-                f"> Total ground state energy (Hartree): {round(self.total_energies[0], 12)}"
+                f"> Total ground state energy (Hartree): {_complex_to_string(self.total_energies[0], 12)}"
             )
 
         if self.computed_energies is not None and len(self.computed_energies) > 1:
@@ -315,9 +318,11 @@ class ElectronicStructureResult(EigenstateResult):
             ):
                 lines.append(f"{(idx + 1): 3d}: ")
                 lines.append(
-                    f"* Electronic excited state energy (Hartree): {round(elec_energy, 12)}"
+                    f"* Electronic excited state energy (Hartree): {_complex_to_string(elec_energy, 12)}"
                 )
-                lines.append(f"> Total excited state energy (Hartree): {round(total_energy, 12)}")
+                lines.append(
+                    f"> Total excited state energy (Hartree): {_complex_to_string(total_energy, 12)}"
+                )
 
         if self.has_observables():
             lines.append(" ")
@@ -370,11 +375,11 @@ class ElectronicStructureResult(EigenstateResult):
                 if self.nuclear_dipole_moment is not None:
                     lines.append(
                         f"  > Dipole moment (a.u.): { _dipole_to_string(dip)}  "
-                        f"Total: {_float_to_string(tot_dip)}"
+                        f"Total: {_complex_to_string(tot_dip)}"
                     )
                     lines.append(
                         f"                 (debye): {_dipole_to_string(dip_db)}  "
-                        f"Total: {_float_to_string(tot_dip_db)}"
+                        f"Total: {_complex_to_string(tot_dip_db)}"
                     )
                 lines.append(" ")
 
@@ -394,16 +399,30 @@ def _element_add(x: Optional[float], y: Optional[float]):
 
 
 def _dipole_to_string(dipole: DipoleTuple):
-    dips = [round(x, 8) if x is not None else x for x in dipole]
     value = "["
-    for i, _ in enumerate(dips):
-        value += _float_to_string(dips[i]) if dips[i] is not None else "None"
-        value += "  " if i < len(dips) - 1 else "]"
+    for i, dip in enumerate(dipole):
+        value += _complex_to_string(dip, 8) if dip is not None else "None"
+        value += "  " if i < len(dipole) - 1 else "]"
     return value
 
 
-def _float_to_string(value: Optional[float], precision: int = 8) -> str:
+def _complex_to_string(value: Optional[complex], precision: int = 8) -> str:
     if value is None:
         return "None"
     else:
-        return "0.0" if value == 0 else ("{:." + str(precision) + "f}").format(value).rstrip("0")
+        real = (
+            "0.0"
+            if round(value.real, precision) == 0
+            else ("{:." + str(precision) + "f}").format(value.real).rstrip("0")
+        )
+        imag = (
+            ""
+            if round(value.imag, precision) == 0
+            else ("{:." + str(precision) + "f}").format(value.imag).rstrip("0") + "j"
+        )
+        string = real
+        if imag != "" and value.imag > 0:
+            string += "+" + imag
+        elif imag != "" and value.imag < 0:
+            string += imag
+        return string
