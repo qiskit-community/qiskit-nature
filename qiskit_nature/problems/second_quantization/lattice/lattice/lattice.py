@@ -11,12 +11,13 @@
 # that they have been altered from the originals.
 
 """The Lattice class"""
-from typing import List, Tuple, Union, Optional, Sequence, Callable
-import numpy as np
+from typing import Callable, List, Optional, Sequence, Tuple, Union
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.colors import Colormap
-from retworkx import PyGraph, NodeIndices, adjacency_matrix, WeightedEdgeList
+from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
 
 
@@ -31,16 +32,15 @@ class Lattice:
         Raises:
             ValueError: A given graph is invalid.
         """
-        if not graph.multigraph:
-            if graph.edges() == [None] * graph.num_edges():
-                weighted_edges = [edge + (1.0,) for edge in graph.edge_list()]
-                for start, end, weight in weighted_edges:
-                    graph.update_edge(start, end, weight)
-            self._graph = graph
-        else:
+        if graph.multigraph:
             raise ValueError(
                 f"Invalid `multigraph` {graph.multigraph} is given. `multigraph` must be `False`."
             )
+        if graph.edges() == [None] * graph.num_edges():
+            weighted_edges = [edge + (1.0,) for edge in graph.edge_list()]
+            for start, end, weight in weighted_edges:
+                graph.update_edge(start, end, weight)
+        self._graph = graph
 
     @property
     def graph(self) -> PyGraph:

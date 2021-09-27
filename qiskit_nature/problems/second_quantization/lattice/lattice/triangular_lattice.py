@@ -11,13 +11,15 @@
 # that they have been altered from the originals.
 
 """Triangular lattice"""
-from typing import List, Tuple, Union, Optional, Sequence, Callable
-import numpy as np
+from typing import Callable, List, Optional, Sequence, Tuple, Union
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.colors import Colormap
 from retworkx import PyGraph
 from retworkx.visualization import mpl_draw
+
 from .lattice import Lattice
 
 
@@ -150,6 +152,7 @@ class TriangularLattice(Lattice):
         """
         raise NotImplementedError()
 
+    # pylint: disable=arguments-differ
     def draw(
         self,
         pos: Optional[dict] = None,
@@ -307,82 +310,45 @@ class TriangularLattice(Lattice):
         """
         graph = self.graph
 
-        if boundary_edges:
-            pass
-        elif not boundary_edges:
+        if not boundary_edges:
             graph.remove_edges_from(self.boundary_edges)
 
-        if self_loop:
-            mpl_draw(
-                graph=self.graph,
-                pos=pos,
-                ax=ax,
-                arrows=arrows,
-                arrowstyle=arrowstyle,
-                arrow_size=arrow_size,
-                with_labels=with_labels,
-                node_list=node_list,
-                edge_list=edge_list,
-                node_size=node_size,
-                node_color=node_color,
-                node_shape=node_shape,
-                alpha=alpha,
-                cmap=cmap,
-                vmin=vmin,
-                vmax=vmax,
-                linewidths=linewidths,
-                width=width,
-                edge_color=edge_color,
-                edge_cmap=edge_cmap,
-                edge_vmin=edge_vmin,
-                edge_vmax=edge_vmax,
-                style=style,
-                labels=labels,
-                edge_labels=edge_labels,
-                font_size=font_size,
-                font_color=font_color,
-                font_weight=font_weight,
-                font_family=font_family,
-                label=label,
-                connectionstyle=connectionstyle,
-                **kwargs,
-            )
-            plt.draw()
-        elif not self_loop:
+        if not self_loop:
             self_loops = [(i, i) for i in range(self.num_nodes) if graph.has_edge(i, i)]
             graph.remove_edges_from(self_loops)
-            mpl_draw(
-                graph=self.graph,
-                pos=pos,
-                ax=ax,
-                arrows=arrows,
-                arrowstyle=arrowstyle,
-                arrow_size=arrow_size,
-                with_labels=with_labels,
-                node_list=node_list,
-                edge_list=edge_list,
-                node_size=node_size,
-                node_color=node_color,
-                node_shape=node_shape,
-                alpha=alpha,
-                cmap=cmap,
-                vmin=vmin,
-                vmax=vmax,
-                linewidths=linewidths,
-                width=width,
-                edge_color=edge_color,
-                edge_cmap=edge_cmap,
-                edge_vmin=edge_vmin,
-                edge_vmax=edge_vmax,
-                style=style,
-                labels=labels,
-                edge_labels=edge_labels,
-                font_size=font_size,
-                font_color=font_color,
-                font_weight=font_weight,
-                font_family=font_family,
-                label=label,
-                connectionstyle=connectionstyle,
-                **kwargs,
-            )
-            plt.draw()
+
+        mpl_draw(
+            graph=graph,
+            pos=pos,
+            ax=ax,
+            arrows=arrows,
+            arrowstyle=arrowstyle,
+            arrow_size=arrow_size,
+            with_labels=with_labels,
+            node_list=node_list,
+            edge_list=edge_list,
+            node_size=node_size,
+            node_color=node_color,
+            node_shape=node_shape,
+            alpha=alpha,
+            cmap=cmap,
+            vmin=vmin,
+            vmax=vmax,
+            linewidths=linewidths,
+            width=width,
+            edge_color=edge_color,
+            edge_cmap=edge_cmap,
+            edge_vmin=edge_vmin,
+            edge_vmax=edge_vmax,
+            style=style,
+            labels=labels,
+            edge_labels=edge_labels,
+            font_size=font_size,
+            font_color=font_color,
+            font_weight=font_weight,
+            font_family=font_family,
+            label=label,
+            connectionstyle=connectionstyle,
+            **kwargs,
+        )
+        plt.draw()
