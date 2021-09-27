@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Tuple, cast
 import numpy as np
 
 from qiskit_nature.constants import DEBYE
+
 from .eigenstate_result import EigenstateResult
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all
@@ -36,6 +37,7 @@ class ElectronicStructureResult(EigenstateResult):
         self._nuclear_repulsion_energy: Optional[float] = None
         self._nuclear_dipole_moment: Optional[DipoleTuple] = None
         self._computed_energies: Optional[np.ndarray] = None
+        self._computed_dipole_moment: Optional[List[DipoleTuple]] = None
         self._extracted_transformer_energies: Dict[str, float] = {}
         self._extracted_transformer_dipoles: Optional[List[Dict[str, DipoleTuple]]] = None
         self._reverse_dipole_sign: bool = False
@@ -77,18 +79,22 @@ class ElectronicStructureResult(EigenstateResult):
     # construct the circuit of the GS from here (if the algorithm supports this)
 
     @property
-    def total_energies(self) -> np.ndarray:
+    def total_energies(self) -> Optional[np.ndarray]:
         """Returns ground state energy if nuclear_repulsion_energy is available from driver"""
+        if self.electronic_energies is None:
+            return None
         nre = self.nuclear_repulsion_energy if self.nuclear_repulsion_energy is not None else 0
         # Adding float to np.ndarray adds it to each entry
         return self.electronic_energies + nre
 
     @property
-    def electronic_energies(self) -> np.ndarray:
+    def electronic_energies(self) -> Optional[np.ndarray]:
         """Returns electronic part of ground state energy"""
         # TODO the fact that this property is computed on the fly breaks the `.combine()`
         # functionality
         # Adding float to np.ndarray adds it to each entry
+        if self.computed_energies is None:
+            return None
         return self.computed_energies + self.extracted_transformer_energy
 
     @property
@@ -156,12 +162,15 @@ class ElectronicStructureResult(EigenstateResult):
     def dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """Returns dipole moment"""
         edm = self.electronic_dipole_moment
+        if edm is None:
+            return None
+        nrd = self.nuclear_dipole_moment if self.nuclear_dipole_moment is not None else (0, 0, 0)
         if self.reverse_dipole_sign:
             edm = [
                 cast(DipoleTuple, tuple(-1 * x if x is not None else None for x in dip))
                 for dip in edm
             ]
-        return [_dipole_tuple_add(dip, self.nuclear_dipole_moment) for dip in edm]
+        return [_dipole_tuple_add(dip, nrd) for dip in edm]
 
     @property
     def dipole_moment_in_debye(self) -> Optional[List[DipoleTuple]]:
@@ -180,6 +189,8 @@ class ElectronicStructureResult(EigenstateResult):
     @property
     def electronic_dipole_moment(self) -> Optional[List[DipoleTuple]]:
         """Returns electronic dipole moment"""
+        if self.computed_dipole_moment is None or self.extracted_transformer_dipoles is None:
+            return None
         return [
             _dipole_tuple_add(comp_dip, extr_dip)
             for comp_dip, extr_dip in zip(
@@ -281,6 +292,7 @@ class ElectronicStructureResult(EigenstateResult):
         lines = []
         lines.append("=== GROUND STATE ENERGY ===")
         lines.append(" ")
+<<<<<<< HEAD
         lines.append(
             "* Electronic ground state energy (Hartree): {}".format(
                 round(self.electronic_energies[0], 12)
@@ -299,9 +311,29 @@ class ElectronicStructureResult(EigenstateResult):
                 "> Total ground state energy (Hartree): {}".format(
                     round(self.total_energies[0], 12)
                 )
+=======
+        if self.electronic_energies is not None:
+            lines.append(
+                "* Electronic ground state energy (Hartree): "
+                f"{_complex_to_string(self.electronic_energies[0], 12)}"
+            )
+            lines.append(
+                f"  - computed part:      {_complex_to_string(self.computed_energies[0], 12)}"
+            )
+            for name, value in self.extracted_transformer_energies.items():
+                lines.append(f"  - {name} extracted energy part: {_complex_to_string(value, 12)}")
+        if self.nuclear_repulsion_energy is not None:
+            lines.append(
+                "~ Nuclear repulsion energy (Hartree): "
+                f"{_complex_to_string(self.nuclear_repulsion_energy, 12)}"
+            )
+            lines.append(
+                "> Total ground state energy (Hartree): "
+                f"{_complex_to_string(self.total_energies[0], 12)}"
+>>>>>>> 3df2e2a (Fix #368 (#369))
             )
 
-        if len(self.computed_energies) > 1:
+        if self.computed_energies is not None and len(self.computed_energies) > 1:
             lines.append(" ")
             lines.append("=== EXCITED STATE ENERGIES ===")
             lines.append(" ")
@@ -313,7 +345,14 @@ class ElectronicStructureResult(EigenstateResult):
                     "* Electronic excited state energy (Hartree): {}".format(round(elec_energy, 12))
                 )
                 lines.append(
+<<<<<<< HEAD
                     "> Total excited state energy (Hartree): {}".format(round(total_energy, 12))
+=======
+                    f"* Electronic excited state energy (Hartree): {_complex_to_string(elec_energy, 12)}"
+                )
+                lines.append(
+                    f"> Total excited state energy (Hartree): {_complex_to_string(total_energy, 12)}"
+>>>>>>> 3df2e2a (Fix #368 (#369))
                 )
 
         if self.has_observables():
@@ -372,6 +411,7 @@ class ElectronicStructureResult(EigenstateResult):
                     )
                 if self.nuclear_dipole_moment is not None:
                     lines.append(
+<<<<<<< HEAD
                         "  > Dipole moment (a.u.): {}  Total: {}".format(
                             _dipole_to_string(dip), _float_to_string(tot_dip)
                         )
@@ -380,6 +420,14 @@ class ElectronicStructureResult(EigenstateResult):
                         "                 (debye): {}  Total: {}".format(
                             _dipole_to_string(dip_db), _float_to_string(tot_dip_db)
                         )
+=======
+                        f"  > Dipole moment (a.u.): { _dipole_to_string(dip)}  "
+                        f"Total: {_complex_to_string(tot_dip)}"
+                    )
+                    lines.append(
+                        f"                 (debye): {_dipole_to_string(dip_db)}  "
+                        f"Total: {_complex_to_string(tot_dip_db)}"
+>>>>>>> 3df2e2a (Fix #368 (#369))
                     )
                 lines.append(" ")
 
@@ -399,16 +447,30 @@ def _element_add(x: Optional[float], y: Optional[float]):
 
 
 def _dipole_to_string(dipole: DipoleTuple):
-    dips = [round(x, 8) if x is not None else x for x in dipole]
     value = "["
-    for i, _ in enumerate(dips):
-        value += _float_to_string(dips[i]) if dips[i] is not None else "None"
-        value += "  " if i < len(dips) - 1 else "]"
+    for i, dip in enumerate(dipole):
+        value += _complex_to_string(dip, 8) if dip is not None else "None"
+        value += "  " if i < len(dipole) - 1 else "]"
     return value
 
 
-def _float_to_string(value: Optional[float], precision: int = 8) -> str:
+def _complex_to_string(value: Optional[complex], precision: int = 8) -> str:
     if value is None:
         return "None"
     else:
-        return "0.0" if value == 0 else ("{:." + str(precision) + "f}").format(value).rstrip("0")
+        real = (
+            "0.0"
+            if round(value.real, precision) == 0
+            else ("{:." + str(precision) + "f}").format(value.real).rstrip("0")
+        )
+        imag = (
+            ""
+            if round(value.imag, precision) == 0
+            else ("{:." + str(precision) + "f}").format(value.imag).rstrip("0") + "j"
+        )
+        string = real
+        if imag != "" and value.imag > 0:
+            string += "+" + imag
+        elif imag != "" and value.imag < 0:
+            string += imag
+        return string
