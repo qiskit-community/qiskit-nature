@@ -292,26 +292,6 @@ class ElectronicStructureResult(EigenstateResult):
         lines = []
         lines.append("=== GROUND STATE ENERGY ===")
         lines.append(" ")
-<<<<<<< HEAD
-        lines.append(
-            "* Electronic ground state energy (Hartree): {}".format(
-                round(self.electronic_energies[0], 12)
-            )
-        )
-        lines.append("  - computed part:      {}".format(round(self.computed_energies[0], 12)))
-        for name, value in self.extracted_transformer_energies.items():
-            lines.append("  - {} extracted energy part: {}".format(name, round(value, 12)))
-        if self.nuclear_repulsion_energy is not None:
-            lines.append(
-                "~ Nuclear repulsion energy (Hartree): {}".format(
-                    round(self.nuclear_repulsion_energy, 12)
-                )
-            )
-            lines.append(
-                "> Total ground state energy (Hartree): {}".format(
-                    round(self.total_energies[0], 12)
-                )
-=======
         if self.electronic_energies is not None:
             lines.append(
                 "* Electronic ground state energy (Hartree): "
@@ -330,7 +310,6 @@ class ElectronicStructureResult(EigenstateResult):
             lines.append(
                 "> Total ground state energy (Hartree): "
                 f"{_complex_to_string(self.total_energies[0], 12)}"
->>>>>>> 3df2e2a (Fix #368 (#369))
             )
 
         if self.computed_energies is not None and len(self.computed_energies) > 1:
@@ -345,14 +324,10 @@ class ElectronicStructureResult(EigenstateResult):
                     "* Electronic excited state energy (Hartree): {}".format(round(elec_energy, 12))
                 )
                 lines.append(
-<<<<<<< HEAD
-                    "> Total excited state energy (Hartree): {}".format(round(total_energy, 12))
-=======
                     f"* Electronic excited state energy (Hartree): {_complex_to_string(elec_energy, 12)}"
                 )
                 lines.append(
                     f"> Total excited state energy (Hartree): {_complex_to_string(total_energy, 12)}"
->>>>>>> 3df2e2a (Fix #368 (#369))
                 )
 
         if self.has_observables():
@@ -411,23 +386,12 @@ class ElectronicStructureResult(EigenstateResult):
                     )
                 if self.nuclear_dipole_moment is not None:
                     lines.append(
-<<<<<<< HEAD
-                        "  > Dipole moment (a.u.): {}  Total: {}".format(
-                            _dipole_to_string(dip), _float_to_string(tot_dip)
-                        )
-                    )
-                    lines.append(
-                        "                 (debye): {}  Total: {}".format(
-                            _dipole_to_string(dip_db), _float_to_string(tot_dip_db)
-                        )
-=======
                         f"  > Dipole moment (a.u.): { _dipole_to_string(dip)}  "
                         f"Total: {_complex_to_string(tot_dip)}"
                     )
                     lines.append(
                         f"                 (debye): {_dipole_to_string(dip_db)}  "
                         f"Total: {_complex_to_string(tot_dip_db)}"
->>>>>>> 3df2e2a (Fix #368 (#369))
                     )
                 lines.append(" ")
 
