@@ -202,7 +202,7 @@ class TriangularLattice(Lattice):
                 positions as values. If not specified a spring layout positioning will
                 be computed. See `layout_functions` for functions that compute
                 node positions.
-            ax: An optional Matplotlib Axes object to draw the
+            ax: An optional Axes object to draw the
                 graph in.
             arrows: For :class:`~retworkx.PyDiGraph` objects if ``True``
                 draw arrowheads. (defaults to ``True``) Note, that the Arrows will
@@ -237,7 +237,7 @@ class TriangularLattice(Lattice):
                 ``['s', 'o', '^', '>', 'v', '<', 'd', 'p', 'h', '8']``. Defaults to
                 ``'o'``
             alpha: Optional value for node and edge transparency
-            cmap: An optional Matplotlib colormap
+            cmap: An optional Colormap
                 object for mapping intensities of nodes
             vmin: Optional minimum value for node colormap scaling
             vmax: Optional minimum value for node colormap scaling
@@ -285,10 +285,10 @@ class TriangularLattice(Lattice):
 
                 could be used if the edge payloads are dictionaries. If this is set
                 edge labels will be drawn in the visualization.
-            font_size: An optional fontsize to use for text labels, By
+            font_size: An optional font size to use for text labels, By
                 default a value of 12 is used for nodes and 10 for edges.
             font_color: An optional font color for strings. By default
-                ``'k'`` (ie black) is set.
+                ``'k'`` (i.e. black) is set.
             font_weight: An optional string used to specify the font weight.
                 By default a value of ``'normal'`` is used.
             font_family: An optional font family to use for strings. By

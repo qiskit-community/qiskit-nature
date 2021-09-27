@@ -94,24 +94,37 @@ class Lattice:
     ) -> "Lattice":
         """Return an instance of Lattice from the number of nodes and the list of edges.
 
-        Returns:
+        Args:
             num_nodes: The number of nodes.
             weighted_edges: A list of tuples consisting of two nodes and the weight between them.
+        Returns:
+            Lattice generated from lists of nodes and edges.
         """
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(num_nodes))
         graph.add_edges_from(weighted_edges)
         return cls(graph)
 
-    def to_adjacency_matrix(self) -> np.ndarray:
+    def to_adjacency_matrix(self, weighted: bool = True) -> np.ndarray:
         """Return the hopping matrix from weighted edges.
         The weighted edge list is interpreted as the upper triangular matrix.
+        Args:
+            weighted: The matrix elements are 0 or 1 when it is true.
+                Otherwise, the weights on edges are returned as a matrix.
+        Returns:
+            The adjacency matrix of the input graph.
         """
-        real_part = adjacency_matrix(self.graph, weight_fn=np.real)
-        real_part = real_part - (1 / 2) * np.diag(real_part.diagonal())
-        imag_part = adjacency_matrix(self.graph, weight_fn=np.imag)
-        imag_part = np.triu(imag_part) - np.triu(imag_part).T
-        return real_part + 1.0j * imag_part
+        if weighted:
+            real_part = adjacency_matrix(self.graph, weight_fn=np.real)
+            real_part = real_part - (1.0 / 2.0) * np.diag(np.diag(real_part))
+            imag_part = adjacency_matrix(self.graph, weight_fn=np.imag)
+            imag_part = np.triu(imag_part) - np.triu(imag_part).T
+            ad_mat = real_part + 1.0j * imag_part
+        else:
+            ad_mat = adjacency_matrix(self.graph, weight_fn=lambda x: 1)
+            ad_mat = ad_mat - np.diag((1.0 / 2.0) * np.diag(ad_mat))
+
+        return ad_mat
 
     def draw(
         self,
@@ -161,7 +174,7 @@ class Lattice:
                 positions as values. If not specified a spring layout positioning will
                 be computed. See `layout_functions` for functions that compute
                 node positions.
-            ax: An optional Matplotlib Axes object to draw the
+            ax: An optional Axes object to draw the
                 graph in.
             arrows: For :class:`~retworkx.PyDiGraph` objects if ``True``
                 draw arrowheads. (defaults to ``True``) Note, that the Arrows will
@@ -196,7 +209,7 @@ class Lattice:
                 ``['s', 'o', '^', '>', 'v', '<', 'd', 'p', 'h', '8']``. Defaults to
                 ``'o'``
             alpha: Optional value for node and edge transparency
-            cmap: An optional Matplotlib colormap
+            cmap: An optional Colormap
                 object for mapping intensities of nodes
             vmin: Optional minimum value for node colormap scaling
             vmax: Optional minimum value for node colormap scaling
@@ -244,10 +257,10 @@ class Lattice:
 
                 could be used if the edge payloads are dictionaries. If this is set
                 edge labels will be drawn in the visualization.
-            font_size: An optional fontsize to use for text labels, By
+            font_size: An optional font size to use for text labels, By
                 default a value of 12 is used for nodes and 10 for edges.
             font_color: An optional font color for strings. By default
-                ``'k'`` (ie black) is set.
+                ``'k'`` (i.e. black) is set.
             font_weight: An optional string used to specify the font weight.
                 By default a value of ``'normal'`` is used.
             font_family: An optional font family to use for strings. By

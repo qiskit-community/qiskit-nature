@@ -18,6 +18,8 @@ ao
 april
 arginine
 args
+arrowsheads
+arrowstyle
 arxiv
 asparagine
 aspartic
@@ -58,14 +60,17 @@ clbits
 clifford
 cliffords
 cls
+cmap
 cnot
 codec
 coeff
 coeffs
+colormap
 commutativities
 conda
 conf
 config
+connectionstyle
 coord
 coords
 coul
@@ -216,6 +221,7 @@ libor
 libxc
 lih
 lijh
+linewidths
 linux
 ljik
 lk
@@ -224,6 +230,7 @@ lookback
 lysine
 macos
 makefile
+matplotlib
 maxdepth
 maxiter
 maxiters
@@ -298,6 +305,7 @@ phenylalanine
 phonons
 polypeptides
 popovas
+pos
 posteriori
 pre
 prebuilt
@@ -334,6 +342,8 @@ rebranding
 refactor
 regs
 repr
+rgb
+rgba
 rhf
 rhs
 robert
@@ -431,6 +441,8 @@ verbatim
 vibrational
 vibrationalop
 vibro
+vmax
+vmin
 vqe
 vscf
 vwn
