@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The `ElectronicStructureResult` did not initialize the `_computed_dipole_moment` variable causing
+    critical errors when trying to print a result from an algorithm which does not compute these
+    observables. Proper initialization fixes this issue.
+    Printing the result would also fail when `complex` numbers were stored. This has also been remedied.
