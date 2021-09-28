@@ -112,6 +112,7 @@ class HyperCubic(Lattice):
                             self.boundary_edges.append((node_a, node_b))
                         elif node_a > node_b:
                             graph.add_edge(node_b, node_a, np.conjugate(edge_parameter[dim]))
+                            self.boundary_edges.append((node_a, node_b))
             else:
                 raise ValueError(
                     f"Invalid `boundary condition` {boundary_condition[dim]} is given."

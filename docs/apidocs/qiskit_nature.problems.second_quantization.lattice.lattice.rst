@@ -1,4 +1,4 @@
-.. _qiskit_nature-problems-second_quantizatioin-lattice-lattice:
+.. _qiskit_nature-problems-second_quantization-lattice-lattice:
 
 .. automodule:: qiskit_nature.problems.second_quantization.lattice.lattice
    :no-members:
