@@ -108,9 +108,11 @@ class Lattice:
     def to_adjacency_matrix(self, weighted: bool = True) -> np.ndarray:
         """Return the hopping matrix from weighted edges.
         The weighted edge list is interpreted as the upper triangular matrix.
+
         Args:
             weighted: The matrix elements are 0 or 1 when it is true.
                 Otherwise, the weights on edges are returned as a matrix.
+
         Returns:
             The adjacency matrix of the input graph.
         """
