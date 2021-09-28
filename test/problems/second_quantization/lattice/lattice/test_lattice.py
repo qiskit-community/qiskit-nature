@@ -13,6 +13,7 @@
 """Test for Lattice."""
 from test import QiskitNatureTestCase
 import numpy as np
+from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
 from qiskit_nature.problems.second_quantization.lattice.lattice import Lattice
 
@@ -21,7 +22,7 @@ class TestLattice(QiskitNatureTestCase):
     """Test Lattice."""
 
     def test_init(self):
-        """Test for init of Lattice."""
+        """Test init."""
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(6))
         weighted_edge_list = [
@@ -146,3 +147,15 @@ class TestLattice(QiskitNatureTestCase):
         self.assertTrue(
             is_isomorphic(lattice.graph, target_lattice.graph, edge_matcher=lambda x, y: x == y)
         )
+
+    def test_to_adjacency_matrix(self):
+        """Test to_adjacency_matrix."""
+        graph = PyGraph(multigraph=False)
+        graph.add_nodes_from(range(3))
+        weighted_edge_list = [(0, 1, 1.0 + 1.0j), (0, 2, -1.0), (2, 2, 3)]
+        graph.add_edges_from(weighted_edge_list)
+        lattice = Lattice(graph)
+
+        target_matrix = np.array([[0, 1 + 1j, -1.0], [1 - 1j, 0, 0], [-1.0, 0, 3.0]])
+
+        assert_array_equal(lattice.to_adjacency_matrix(), target_matrix)

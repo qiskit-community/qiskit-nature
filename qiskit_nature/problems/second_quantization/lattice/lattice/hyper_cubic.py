@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """The Hyper-Cubic Lattice"""
+from math import pi
 from typing import List, Tuple, Union, Optional, Sequence, Callable
 from itertools import product
 import numpy as np
@@ -113,6 +114,33 @@ class HyperCubic(Lattice):
                     f"Invalid `boundary condition` {boundary_condition[dim]} is given."
                     "`boundary condition` must be `open` or `periodic`."
                 )
+
+        if self.dim == 1:
+            if self.boundary_conditions == ("open",):
+                self.position = {i: [i, 0] for i in range(self.size[0])}
+            elif self.boundary_conditions == ("periodic",):
+                theta = 2 * pi / self.size[0]
+                self.position = {
+                    i: [np.cos(i * theta), np.sin(i * theta)] for i in range(self.size[0])
+                }
+        elif self.dim == 2:
+            position_dict = {}
+            for index in range(np.prod(size)):
+                x = index % self.size[0]
+                y = index // self.size[0]
+                if self.boundary_conditions[1] == "open":
+                    return_x = x
+                elif self.boundary_conditions[1] == "periodic":
+                    return_x = x + 0.2 * np.sin(pi * y / (self.size[1] - 1))
+                if self.boundary_conditions[0] == "open":
+                    return_y = y
+                elif self.boundary_conditions[0] == "periodic":
+                    return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
+                position_dict[index] = [return_x, return_y]
+            self.position = position_dict
+        else:
+            self.position = None
+
         super().__init__(graph)
 
     @classmethod
@@ -284,6 +312,9 @@ class HyperCubic(Lattice):
             interactive backend (like in jupyter) or if ``ax`` is not set.
         """
         graph = self.graph
+
+        if pos is None:
+            pos = self.position
 
         if not boundary_edges:
             graph.remove_edges_from(self.boundary_edges)

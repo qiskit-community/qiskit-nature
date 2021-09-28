@@ -116,11 +116,14 @@ class Lattice:
         """
         if weighted:
             real_part = adjacency_matrix(self.graph, weight_fn=np.real)
+            print(real_part)
             real_part = real_part - (1.0 / 2.0) * np.diag(np.diag(real_part))
+            print(real_part)
             imag_part = adjacency_matrix(self.graph, weight_fn=np.imag)
             imag_part = np.triu(imag_part) - np.triu(imag_part).T
+            print(imag_part)
             ad_mat = real_part + 1.0j * imag_part
-        else:
+        if not weighted:
             ad_mat = adjacency_matrix(self.graph, weight_fn=lambda x: 1)
             ad_mat = ad_mat - np.diag((1.0 / 2.0) * np.diag(ad_mat))
 

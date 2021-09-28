@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 
 """Triangular lattice"""
+from math import pi
 from typing import Callable, List, Optional, Sequence, Tuple, Union
-
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
@@ -133,12 +133,24 @@ class TriangularLattice(Lattice):
                 node_b = 0
                 graph.add_edge(node_a, node_b, edge_parameter[2])
                 self.boundary_edges.append((node_a, node_b))
-
         else:
             raise ValueError(
                 f"Invalid `boundary condition` {boundary_condition} is given."
                 "`boundary condition` must be `open` or `periodic`."
             )
+
+        position_dict = {}
+        for index in range(np.prod(self.size)):
+            x = index % self.size[0]
+            y = index // self.size[0]
+            if self.boundary_condition == "open":
+                return_x = x
+                return_y = y
+            elif self.boundary_condition == "periodic":
+                return_x = x + 0.2 * np.sin(pi * y / (self.size[1] - 1))
+                return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
+            position_dict[index] = [return_x, return_y]
+        self.position = position_dict
         super().__init__(graph)
 
     @classmethod
@@ -309,6 +321,9 @@ class TriangularLattice(Lattice):
             interactive backend (like in jupyter) or if ``ax`` is not set.
         """
         graph = self.graph
+
+        if pos is None:
+            pos = self.position
 
         if not boundary_edges:
             graph.remove_edges_from(self.boundary_edges)
