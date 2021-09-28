@@ -13,6 +13,7 @@
 """Test for HyperCubic."""
 from test import QiskitNatureTestCase
 import numpy as np
+from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
 from qiskit_nature.problems.second_quantization.lattice.lattice import HyperCubic
 
@@ -44,6 +45,14 @@ class TestHyperCubic(QiskitNatureTestCase):
                 (1, 5, -2.0 - 2.0j),
                 (2, 6, -2.0 - 2.0j),
                 (3, 7, -2.0 - 2.0j),
+                (0, 0, 5.0),
+                (1, 1, 5.0),
+                (2, 2, 5.0),
+                (3, 3, 5.0),
+                (4, 4, 5.0),
+                (5, 5, 5.0),
+                (6, 6, 5.0),
+                (7, 7, 5.0),
             ]
             target_graph.add_edges_from(weighted_edge_list)
             self.assertTrue(
@@ -70,8 +79,32 @@ class TestHyperCubic(QiskitNatureTestCase):
                 (1, 5, -2.0 - 2.0j),
                 (2, 6, -2.0 - 2.0j),
                 (3, 7, -2.0 - 2.0j),
+                (0, 0, 5.0),
+                (1, 1, 5.0),
+                (2, 2, 5.0),
+                (3, 3, 5.0),
+                (4, 4, 5.0),
+                (5, 5, 5.0),
+                (6, 6, 5.0),
+                (7, 7, 5.0),
             }
-            self.assertEqual(set(hyper_cubic.weighted_edge_list), target_set)
+            self.assertSetEqual(set(hyper_cubic.weighted_edge_list), target_set)
+
+        with self.subTest("Check the adjacency matrix."):
+            target_matrix = np.array(
+                [
+                    [5.0, 1.0 + 1.0j, -1.0, 0.0, -2.0 - 2.0j, 0.0, 0.0, 0.0],
+                    [1.0 - 1.0j, 5.0, 0.0, -1.0, 0.0, -2.0 - 2.0j, 0.0, 0.0],
+                    [-1.0, 0.0, 5.0, 1.0 + 1.0j, 0.0, 0.0, -2.0 - 2.0j, 0.0],
+                    [0.0, -1.0, 1.0 - 1.0j, 5.0, 0.0, 0.0, 0.0, -2.0 - 2.0j],
+                    [-2.0 + 2.0j, 0.0, 0.0, 0.0, 5.0, 1.0 + 1.0j, -1.0, 0.0],
+                    [0.0, -2.0 + 2.0j, 0.0, 0.0, 1.0 - 1.0j, 5.0, 0.0, -1.0],
+                    [0.0, 0.0, -2.0 + 2.0j, 0.0, -1.0, 0.0, 5.0, 1.0 + 1.0j],
+                    [0.0, 0.0, 0.0, -2.0 + 2.0j, 0.0, -1.0, 1.0 - 1.0j, 5.0],
+                ]
+            )
+
+            assert_array_equal(hyper_cubic.to_adjacency_matrix(), target_matrix)
 
     def test_from_adjacency_matrix(self):
         """Test from_adjacency_matrix."""

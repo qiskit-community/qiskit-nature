@@ -29,7 +29,7 @@ class TestLattice(QiskitNatureTestCase):
             (0, 1, 1.0 + 1.0j),
             (0, 2, -1.0),
             (2, 3, 2.0),
-            (4, 2, -1.0),
+            (2, 4, -1.0),
             (4, 4, 3.0),
             (2, 5, -1.0),
         ]
@@ -44,9 +44,9 @@ class TestLattice(QiskitNatureTestCase):
             target_graph.add_nodes_from(range(6))
             target_weighted_edge_list = [
                 (4, 4, 3.0),
-                (1, 0, 1 + 1j),
+                (0, 1, 1 + 1j),
                 (2, 3, 2.0),
-                (4, 2, -1.0),
+                (2, 4, -1.0),
                 (2, 5, -1.0),
                 (0, 2, -1),
             ]
@@ -68,7 +68,7 @@ class TestLattice(QiskitNatureTestCase):
                 (2, 5, -1.0),
                 (0, 2, -1.0),
                 (2, 3, 2.0),
-                (4, 2, -1.0),
+                (2, 4, -1.0),
             }
             self.assertEqual(set(lattice.weighted_edge_list), target_set)
 
@@ -80,7 +80,7 @@ class TestLattice(QiskitNatureTestCase):
             (0, 1, 1.0 + 1.0j),
             (0, 2, -1.0),
             (2, 3, 2.0),
-            (4, 2, -1.0),
+            (2, 4, -1.0),
             (4, 4, 3.0),
             (2, 5, -1.0),
         ]
@@ -97,7 +97,7 @@ class TestLattice(QiskitNatureTestCase):
             (0, 1, 1.0 + 1.0j),
             (0, 2, -1.0),
             (2, 3, 2.0),
-            (4, 2, -1.0),
+            (2, 4, -1.0),
             (4, 4, 3.0),
             (2, 5, -1.0),
         ]

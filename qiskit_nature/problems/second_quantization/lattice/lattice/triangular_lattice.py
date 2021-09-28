@@ -43,7 +43,7 @@ class TriangularLattice(Lattice):
             boundary_condition: Boundary condition for each direction. Defaults to "open".
 
         Raises:
-            ValueError: Given edge parameter or boundary condition are invalid values.
+            ValueError: Given size, edge parameter or boundary condition are invalid values.
         """
         self.rows = rows
         self.cols = cols
@@ -51,13 +51,18 @@ class TriangularLattice(Lattice):
         self.dim = 2
         self.boundary_condition = boundary_condition
 
+        if rows <= 2 and cols <= 2:
+            raise ValueError("Either `rows` or `cols` must be greater than 2.")
+
         if isinstance(edge_parameter, (int, float, complex)):
             edge_parameter = (edge_parameter, edge_parameter, edge_parameter)
         elif isinstance(edge_parameter, tuple):
             if len(edge_parameter) == 3:
                 pass
             else:
-                ValueError(f"The length of `edge_parameter` must be 3, not {len(edge_parameter)}.")
+                raise ValueError(
+                    f"The length of `edge_parameter` must be 3, not {len(edge_parameter)}."
+                )
 
         self.edge_parameter = edge_parameter
         self.onsite_parameter = onsite_parameter
@@ -102,36 +107,54 @@ class TriangularLattice(Lattice):
             pass
         elif boundary_condition == "periodic":
             # x direction
-            if edge_parameter[0] != 0.0:
-                for y in range(cols):
-                    node_a = (y + 1) * rows - 1
-                    node_b = node_a - (rows - 1)
-                    graph.add_edge(node_a, node_b, edge_parameter[0])
-                    self.boundary_edges.append((node_a, node_b))
+            if rows > 2:
+                if edge_parameter[0] != 0.0:
+                    for y in range(cols):
+                        node_a = (y + 1) * rows - 1
+                        node_b = node_a - (rows - 1)
+                        if node_a < node_b:
+                            graph.add_edge(node_a, node_b, edge_parameter[0])
+                            self.boundary_edges.append((node_a, node_b))
+                        elif node_a > node_b:
+                            graph.add_edge(node_b, node_a, np.conjugate(edge_parameter[0]))
+                            self.boundary_edges.append((node_b, node_a))
             # y direction
-            if edge_parameter[1] != 0.0:
-                for x in range(rows):
-                    node_a = rows * (cols - 1) + x
-                    node_b = node_a % rows
-                    graph.add_edge(node_a, node_b, edge_parameter[1])
-                    self.boundary_edges.append((node_a, node_b))
+            if cols > 2:
+                if edge_parameter[1] != 0.0:
+                    for x in range(rows):
+                        node_a = rows * (cols - 1) + x
+                        node_b = node_a % rows
+                        if node_a < node_b:
+                            graph.add_edge(node_a, node_b, edge_parameter[1])
+                            self.boundary_edges.append((node_a, node_b))
+                        elif node_a > node_b:
+                            graph.add_edge(node_b, node_a, np.conjugate(edge_parameter[1]))
+                            self.boundary_edges.append((node_b, node_a))
             # diagonal direction
             if edge_parameter[2] != 0.0:
                 for y in range(cols - 1):
                     node_a = (y + 1) * rows - 1
                     node_b = node_a - (rows - 1) + rows
-                    graph.add_edge(node_a, node_b, edge_parameter[2])
-                    self.boundary_edges.append((node_a, node_b))
+                    if node_a < node_b:
+                        graph.add_edge(node_a, node_b, edge_parameter[2])
+                        self.boundary_edges.append((node_a, node_b))
+                    elif node_a > node_b:
+                        graph.add_edge(node_b, node_a, np.conjugate(edge_parameter[2]))
+                        self.boundary_edges.append((node_b, node_a))
 
                 for x in range(rows - 1):
                     node_a = rows * (cols - 1) + x
                     node_b = node_a % rows + 1
-                    graph.add_edge(node_a, node_b, edge_parameter[2])
-                    self.boundary_edges.append((node_a, node_b))
+                    if node_a < node_b:
+                        graph.add_edge(node_a, node_b, edge_parameter[2])
+                        self.boundary_edges.append((node_a, node_b))
+                    elif node_a > node_b:
+                        graph.add_edge(node_b, node_a, np.conjugate(edge_parameter[2]))
+                        self.boundary_edges.append((node_b, node_a))
 
                 node_a = rows * cols - 1
                 node_b = 0
-                graph.add_edge(node_a, node_b, edge_parameter[2])
+                graph.add_edge(node_b, node_a, np.conjugate(edge_parameter[2]))
                 self.boundary_edges.append((node_a, node_b))
         else:
             raise ValueError(
