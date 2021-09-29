@@ -16,20 +16,25 @@ Lattice Problems (:mod:`qiskit_nature.problems.second_quantization.lattice`)
 
 .. currentmodule:: qiskit_nature.problems.second_quantization.lattice
 
-
 Lattice
-+++++++++++++++++
-
+==============
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
 
-   lattice
+   Lattice
+   HyperCubic
+   LineLattice
+   SquareLattice
+   TriangularLattice
 
 Models
-+++++++++++++++++
-
+=======
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
 
-   models
+   FermiHubbardModel
+
+==========
 """
+from .lattice import HyperCubic, Lattice, LineLattice, SquareLattice, TriangularLattice
+from .models import FermiHubbardModel
