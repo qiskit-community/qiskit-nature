@@ -3,3 +3,7 @@ features:
   - |
     Exposes the `callback` option of the `VQE` algorithm in the VQE factory classes. It also adds a
     general `kwargs` dictionary which allows passing any additional arguments to the VQE.
+fixes:
+  - |
+    This also ensures that the getter/setter methods of the VQE factories actually affect the
+    constructed VQE instance.
