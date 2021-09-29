@@ -12,10 +12,10 @@
 
 """Line lattice"""
 import numpy as np
-from .hyper_cubic import HyperCubic
+from .hyper_cubic_lattice import HyperCubicLattice
 
 
-class LineLattice(HyperCubic):
+class LineLattice(HyperCubicLattice):
     """Line lattice."""
 
     def __init__(

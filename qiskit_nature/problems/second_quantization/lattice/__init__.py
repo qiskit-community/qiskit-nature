@@ -13,6 +13,7 @@
 """
 Lattice Problems (:mod:`qiskit_nature.problems.second_quantization.lattice`)
 =============================================================================
+Various lattice structures are defined in a Lattice class.
 
 .. currentmodule:: qiskit_nature.problems.second_quantization.lattice
 
@@ -22,7 +23,7 @@ Lattice
    :toctree: ../stubs/
 
    Lattice
-   HyperCubic
+   HyperCubicLattice
    LineLattice
    SquareLattice
    TriangularLattice

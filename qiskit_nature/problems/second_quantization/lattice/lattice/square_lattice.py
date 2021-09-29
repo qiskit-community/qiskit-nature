@@ -13,10 +13,10 @@
 """Square lattice"""
 from typing import Tuple, Union
 import numpy as np
-from .hyper_cubic import HyperCubic
+from .hyper_cubic_lattice import HyperCubicLattice
 
 
-class SquareLattice(HyperCubic):
+class SquareLattice(HyperCubicLattice):
     """Square lattice."""
 
     def __init__(

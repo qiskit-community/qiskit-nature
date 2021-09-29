@@ -23,7 +23,7 @@ Lattice
    :nosignatures:
 
    Lattice
-   HyperCubic
+   HyperCubicLattice
    LineLattice
    SquareLattice
    TriangularLattice
@@ -31,7 +31,7 @@ Lattice
 
 
 from .lattice import Lattice
-from .hyper_cubic import HyperCubic
+from .hyper_cubic_lattice import HyperCubicLattice
 from .line_lattice import LineLattice
 from .square_lattice import SquareLattice
 from .triangular_lattice import TriangularLattice

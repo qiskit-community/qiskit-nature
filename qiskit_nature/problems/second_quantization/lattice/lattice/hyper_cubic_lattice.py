@@ -23,7 +23,7 @@ from retworkx.visualization import mpl_draw
 from .lattice import Lattice
 
 
-class HyperCubic(Lattice):
+class HyperCubicLattice(Lattice):
     """Hyper-cubic lattice in d dimension."""
 
     def __init__(
@@ -215,7 +215,7 @@ class HyperCubic(Lattice):
                 draw arrowheads. (defaults to ``True``) Note, that the Arrows will
                 be the same color as edges.
             arrowstyle: An optional string for directed graphs to choose
-                the style of the arrowsheads. See
+                the style of the arrowheads. See
                 :class:`matplotlib.patches.ArrowStyle` for more options. By default the
                 value is set to ``'-\|>'``.
             arrow_size: For directed graphs, choose the size of the arrow
