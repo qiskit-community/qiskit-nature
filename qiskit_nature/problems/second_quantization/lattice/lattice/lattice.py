@@ -27,7 +27,7 @@ class Lattice:
     def __init__(self, graph: PyGraph) -> None:
         """
         Args:
-            graph: Input graph for Lattice. `multigraph` must be False.
+            graph: Input graph for Lattice. `graph.multigraph` must be False.
 
         Raises:
             ValueError: A given graph is invalid.
@@ -53,7 +53,7 @@ class Lattice:
         return self.graph.num_nodes()
 
     @property
-    def nodes(self) -> NodeIndices:
+    def node_indexes(self) -> NodeIndices:
         """Return the node indexes."""
         return self.graph.node_indexes()
 
@@ -68,13 +68,13 @@ class Lattice:
 
     @classmethod
     def from_adjacency_matrix(cls, input_adjacency_matrix: np.ndarray) -> "Lattice":
-        """Return an instance of Lattice from a given hopping_matrix.
+        """Return an instance of Lattice from a given adjacency matrix.
 
         Args:
             input_adjacency_matrix: Adjacency matrix with real or complex matrix elements.
 
         Returns:
-            Lattice generated from a given adjacency_matrix.
+            Lattice generated from a given adjacency matrix.
         """
 
         col_length, row_length = input_adjacency_matrix.shape
@@ -89,7 +89,7 @@ class Lattice:
         return cls(graph)
 
     @classmethod
-    def from_nodes_edges(
+    def from_nodes_and_edges(
         cls, num_nodes: int, weighted_edges: List[Tuple[int, int, complex]]
     ) -> "Lattice":
         """Return an instance of Lattice from the number of nodes and the list of edges.
@@ -106,8 +106,9 @@ class Lattice:
         return cls(graph)
 
     def to_adjacency_matrix(self, weighted: bool = True) -> np.ndarray:
-        """Return the hopping matrix from weighted edges.
+        """Return its adjacency matrix from weighted edges.
         The weighted edge list is interpreted as the upper triangular matrix.
+        Defaults to True.
 
         Args:
             weighted: The matrix elements are 0 or 1 when it is true.
@@ -121,7 +122,7 @@ class Lattice:
             imag_part = adjacency_matrix(self.graph, weight_fn=np.imag)
             imag_part = np.triu(imag_part) - np.triu(imag_part).T
             ad_mat = real_part + 1.0j * imag_part
-        if not weighted:
+        else:
             ad_mat = adjacency_matrix(self.graph, weight_fn=lambda x: 1)
 
         return ad_mat

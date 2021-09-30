@@ -32,7 +32,7 @@ class FermiHubbardModel:
     @property
     def lattice(self) -> Lattice:
         """Return a copy of the input lattice."""
-        return (self._lattice).copy()
+        return self._lattice.copy()
 
     def hopping_matrix(self) -> np.ndarray:
         """Return the hopping matrix
@@ -40,7 +40,7 @@ class FermiHubbardModel:
         Returns:
             The hopping matrix.
         """
-        return self.lattice.to_adjacency_matrix()
+        return self._lattice.to_adjacency_matrix()
 
     @classmethod
     def uniform_parameters(
@@ -74,6 +74,34 @@ class FermiHubbardModel:
                 graph.add_edge(node_a, node_a, uniform_onsite_potential)
 
         return cls(Lattice(graph), onsite_interaction)
+
+    @classmethod
+    def from_parameters(
+        cls, hopping_matrix: np.ndarray, onsite_interaction: complex
+    ) -> "FermiHubbardModel":
+        """Return the Hamiltonian of the Fermi-Hubbard model
+        from the given hopping matrix and on-site interaction.
+
+        Args:
+            hopping_matrix: A real or complex valued square matrix.
+            onsite_interaction: The strength of the on-site interaction.
+
+        Returns:
+            FermiHubbardModel: The Fermi-Hubbard model generated
+                                from the given hopping matrix and on-site interaction.
+
+        Raises:
+            ValueError: If the shape of the hopping matrix is invalid.
+        """
+        shape = hopping_matrix.shape
+        if len(shape) == 2 and shape[0] == shape[1]:
+            lat = Lattice.from_adjacency_matrix(hopping_matrix)
+            return cls(lat, onsite_interaction)
+        else:
+            raise ValueError(
+                f"Invalid shape of `hopping_matrix`, {shape},  is given."
+                "It must be a square matrix."
+            )
 
     def second_q_ops(self, display_format: Optional[str] = None) -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
@@ -121,28 +149,3 @@ class FermiHubbardModel:
         ham = kinetic_ham + interaction_ham
 
         return FermionicOp(ham, register_length=register_length, display_format=display_format)
-
-    @classmethod
-    def from_parameters(
-        cls, hopping_matrix: np.ndarray, onsite_interaction: float
-    ) -> "FermiHubbardModel":
-        """Return the Hamiltonian of the Fermi-Hubbard model
-        from the given hopping matrix and on-site interaction.
-
-        Args:
-            hopping_matrix: A real or complex valued square matrix.
-            onsite_interaction: The strength of the on-site interaction.
-
-        Returns:
-            FermiHubbardModel: The Fermi-Hubbard model generated
-                                from the given hopping matrix and on-site interaction.
-
-        Raises:
-            ValueError: If the shape of the hopping matrix is invalid.
-        """
-        shape = hopping_matrix.shape
-        if len(shape) == 2 and shape[0] == shape[1]:
-            lat = Lattice.from_adjacency_matrix(hopping_matrix)
-            return cls(lat, onsite_interaction)
-        else:
-            raise ValueError(f"Invalid shape of `hopping_matrix`, {shape},  is given.")

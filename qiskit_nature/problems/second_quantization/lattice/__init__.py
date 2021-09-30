@@ -36,5 +36,5 @@ Models
    FermiHubbardModel
 
 """
-from .lattice import HyperCubic, Lattice, LineLattice, SquareLattice, TriangularLattice
+from .lattice import HyperCubicLattice, Lattice, LineLattice, SquareLattice, TriangularLattice
 from .models import FermiHubbardModel

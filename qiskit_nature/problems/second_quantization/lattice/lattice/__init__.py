@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 
-from .hyper_cubic import HyperCubic
+from .hyper_cubic_lattice import HyperCubicLattice
 from .lattice import Lattice
 from .line_lattice import LineLattice
 from .square_lattice import SquareLattice

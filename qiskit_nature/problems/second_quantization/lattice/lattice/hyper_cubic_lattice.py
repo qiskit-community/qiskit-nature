@@ -35,10 +35,10 @@ class HyperCubicLattice(Lattice):
     ) -> None:
         """
         Args:
-            size: Lengths of each direction.
+            size: Lengths of each dimension.
             edge_parameter: Weights on the unit edges. Defaults to 1.0.
-            onsite_parameter: Weights on the self loop. Defaults to 0.0.
-            boundary_condition: Boundary condition for each direction. Defaults to "open".
+            onsite_parameter: Weight on the self loops. Defaults to 0.0.
+            boundary_condition: Boundary condition for each dimension. Defaults to "open".
 
         Raises:
             ValueError: Given edge parameter or boundary condition are invalid values.

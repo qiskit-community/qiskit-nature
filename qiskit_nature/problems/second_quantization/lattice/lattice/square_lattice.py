@@ -32,7 +32,7 @@ class SquareLattice(HyperCubicLattice):
             rows: Length of the x direction.
             cols: Length of the y direction.
             edge_parameter: Weights on the unit edges. Defaults to 1.0.
-            onsite_parameter: Weights on the self loop. Defaults to 0.0.
+            onsite_parameter: Weight on the self loops. Defaults to 0.0.
             boundary_condition: Boundary condition for each direction. Defaults to "open".
         """
         self.rows = rows
