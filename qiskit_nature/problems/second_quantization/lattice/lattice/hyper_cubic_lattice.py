@@ -38,10 +38,14 @@ class HyperCubicLattice(Lattice):
             size: Lengths of each dimension.
             edge_parameter: Weights on the unit edges. Defaults to 1.0.
             onsite_parameter: Weight on the self loops. Defaults to 0.0.
-            boundary_condition: Boundary condition for each dimension. Defaults to "open".
+            boundary_condition: Boundary condition for each dimension.
+                Boundary condition must be specified by "open" or "periodic".
+                Defaults to "open".
 
         Raises:
             ValueError: Given edge parameter or boundary condition are invalid values.
+            RuntimeError: When edge parameter is a tuple,
+                the length of edge parameter is not the same as that of size.
         """
 
         self.dim = len(size)
@@ -55,8 +59,10 @@ class HyperCubicLattice(Lattice):
             if len(edge_parameter) == self.dim:
                 pass
             else:
-                raise ValueError(
-                    f"The length of `edge_parameter` must be the same as that of size, {self.dim}."
+                raise RuntimeError(
+                    "size mismatch, "
+                    f"`edge_parameter`: {len(edge_parameter)}, `size`: {self.dim}."
+                    "The length of `edge_parameter` must be the same as that of size."
                 )
 
         self.edge_parameter = edge_parameter
@@ -81,13 +87,14 @@ class HyperCubicLattice(Lattice):
 
         coordinates = list(product(*map(range, size)))
         base = np.array([np.prod(size[:i]) for i in range(self.dim)], dtype=int)
-        for dim in range(self.dim):
-            if edge_parameter[dim] != 0.0:
-                for coord in coordinates:
-                    if coord[dim] != size[dim] - 1:
-                        node_a = np.dot(coord, base)
-                        node_b = node_a + base[dim]
-                        graph.add_edge(node_a, node_b, edge_parameter[dim])
+        for i in range(self.dim):
+            if edge_parameter[i] == 0.0:
+                continue
+            for coord in coordinates:
+                if coord[i] != size[i] - 1:
+                    node_a = np.dot(coord, base)
+                    node_b = node_a + base[i]
+                    graph.add_edge(node_a, node_b, edge_parameter[i])
 
         # onsite parameter
         if onsite_parameter != 0.0:
@@ -146,6 +153,10 @@ class HyperCubicLattice(Lattice):
             self.position = None
 
         super().__init__(graph)
+
+    @staticmethod
+    def _arxiliary():
+        return None
 
     @classmethod
     def from_adjacency_matrix(cls, input_adjacency_matrix: np.ndarray):

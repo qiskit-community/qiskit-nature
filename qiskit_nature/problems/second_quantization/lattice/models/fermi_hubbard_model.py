@@ -141,7 +141,7 @@ class FermiHubbardModel:
                         kinetic_ham.append((f"-_{index_left} +_{index_right}", -weight))
 
         # on-site interaction terms
-        for node in self._lattice.nodes:
+        for node in self._lattice.node_indexes:
             index_up = 2 * node
             index_down = 2 * node + 1
             interaction_ham.append((f"N_{index_up} N_{index_down}", self.onsite_interaction))

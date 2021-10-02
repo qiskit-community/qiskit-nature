@@ -10,9 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Lattice class"""
+"""General Lattice"""
 from typing import Callable, List, Optional, Sequence, Tuple, Union
-
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
@@ -22,7 +21,7 @@ from retworkx.visualization import mpl_draw
 
 
 class Lattice:
-    """Lattice class."""
+    """General Lattice."""
 
     def __init__(self, graph: PyGraph) -> None:
         """
@@ -30,11 +29,12 @@ class Lattice:
             graph: Input graph for Lattice. `graph.multigraph` must be False.
 
         Raises:
-            ValueError: A given graph is invalid.
+            ValueError: If `graph.multigraph` is True for a given graph, it is invalid.
         """
         if graph.multigraph:
             raise ValueError(
-                f"Invalid `multigraph` {graph.multigraph} is given. `multigraph` must be `False`."
+                f"Invalid `graph.multigraph` {graph.multigraph} is given. "
+                "`graph.multigraph` must be `False`."
             )
         if graph.edges() == [None] * graph.num_edges():
             weighted_edges = [edge + (1.0,) for edge in graph.edge_list()]

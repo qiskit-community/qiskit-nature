@@ -10,16 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test for HyperCubic."""
+"""Test for HyperCubicLattice."""
 from test import QiskitNatureTestCase
 import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
-from qiskit_nature.problems.second_quantization.lattice.lattice import HyperCubic
+from qiskit_nature.problems.second_quantization.lattice.lattice import HyperCubicLattice
 
 
 class TestHyperCubic(QiskitNatureTestCase):
-    """Test HyperCubic."""
+    """Test HyperCubicLattice."""
 
     def test_init(self):
         """Test init."""
@@ -27,7 +27,7 @@ class TestHyperCubic(QiskitNatureTestCase):
         edge_parameter = (1.0 + 1.0j, -1.0, -2.0 - 2.0j)
         onsite_parameter = 5.0
         boundary_condition = ("open", "periodic", "open")
-        hyper_cubic = HyperCubic(size, edge_parameter, onsite_parameter, boundary_condition)
+        hyper_cubic = HyperCubicLattice(size, edge_parameter, onsite_parameter, boundary_condition)
 
         with self.subTest("Check the graph."):
             target_graph = PyGraph(multigraph=False)
@@ -63,7 +63,7 @@ class TestHyperCubic(QiskitNatureTestCase):
             self.assertEqual(hyper_cubic.num_nodes, 8)
 
         with self.subTest("Check the set of nodes."):
-            self.assertSetEqual(set(hyper_cubic.nodes), set(range(8)))
+            self.assertSetEqual(set(hyper_cubic.node_indexes), set(range(8)))
 
         with self.subTest("Check the set of weights."):
             target_set = {
@@ -112,7 +112,7 @@ class TestHyperCubic(QiskitNatureTestCase):
         edge_parameter = (1.0 + 1.0j, -1.0, -2.0 - 2.0j)
         onsite_parameter = 5.0
         boundary_condition = ("open", "periodic", "open")
-        hyper_cubic = HyperCubic(size, edge_parameter, onsite_parameter, boundary_condition)
+        hyper_cubic = HyperCubicLattice(size, edge_parameter, onsite_parameter, boundary_condition)
         input_adjacency_matrix = np.ones((8, 8))
         with self.assertRaises(NotImplementedError):
             hyper_cubic.from_adjacency_matrix(input_adjacency_matrix)

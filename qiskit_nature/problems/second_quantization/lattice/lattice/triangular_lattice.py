@@ -41,7 +41,9 @@ class TriangularLattice(Lattice):
             edge_parameter: Weights on the unit edges.
                 This is specified as a tuple of length 3 or a single number.Defaults to 1.0,
             onsite_parameter: Weight on the self loops. Defaults to 0.0.
-            boundary_condition: Boundary condition for each direction. Defaults to "open".
+            boundary_condition: Boundary condition for each direction.
+                Boundary condition must be specified by "open" or "periodic".
+                Defaults to "open".
 
         Raises:
             ValueError: Given size, edge parameter or boundary condition are invalid values.

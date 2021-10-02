@@ -53,7 +53,7 @@ class TestLineLattice(QiskitNatureTestCase):
             self.assertEqual(linelattice.num_nodes, 6)
 
         with self.subTest("Check the set of nodes."):
-            self.assertSetEqual(set(linelattice.nodes), set(range(6)))
+            self.assertSetEqual(set(linelattice.node_indexes), set(range(6)))
 
         with self.subTest("Check the set of weights."):
             target_set = {

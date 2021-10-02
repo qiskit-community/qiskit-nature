@@ -30,7 +30,9 @@ class LineLattice(HyperCubicLattice):
             num_nodes: The number of sites.
             edge_parameter: Weight on the edges. Defaults to 1.0.
             onsite_parameter: Weight on the self loops. Defaults to 0.0.
-            boundary_condition: Boundary condition. Defaults to "open".
+            boundary_condition: Boundary condition.
+                Boundary condition must be specified by "open" or "periodic".
+                Defaults to "open".
         """
 
         super().__init__(

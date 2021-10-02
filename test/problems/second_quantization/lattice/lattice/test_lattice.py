@@ -59,7 +59,7 @@ class TestLattice(QiskitNatureTestCase):
             self.assertEqual(lattice.num_nodes, 6)
 
         with self.subTest("Check the set of nodes."):
-            self.assertSetEqual(set(lattice.nodes), set(range(6)))
+            self.assertSetEqual(set(lattice.node_indexes), set(range(6)))
 
         with self.subTest("Check the set of weights."):
             target_set = {
@@ -142,7 +142,7 @@ class TestLattice(QiskitNatureTestCase):
             (0, 2, -1.0),
             (0, 1, 1.0 + 1.0j),
         ]
-        target_lattice = Lattice.from_nodes_edges(target_num_nodes, target_weighted_edge_list)
+        target_lattice = Lattice.from_nodes_and_edges(target_num_nodes, target_weighted_edge_list)
 
         self.assertTrue(
             is_isomorphic(lattice.graph, target_lattice.graph, edge_matcher=lambda x, y: x == y)
