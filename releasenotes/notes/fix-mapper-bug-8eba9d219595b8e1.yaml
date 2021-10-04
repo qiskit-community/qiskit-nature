@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed an issue where the existing Mapper was incorrectly mapping the creation operator :math:`+`
+    and the annihilation operator :math:`-`. It used to be that :math:`+` was mapped to
+    :math:`\sigma_+` and :math:`-` was mapped to :math:`\sigma_-`, but it is correct that
+    :math:`+` is mapped to :math:`\sigma_-` and :math:`-` is mapped to :math`\sigma_+`.
