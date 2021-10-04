@@ -51,38 +51,18 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         expected_hopping_operators = (
             {
                 "E_0": PauliSumOp.from_list(
-                    [("IIXX", 0.25), ("IIYX", -0.25j), ("IIXY", 0.25j), ("IIYY", 0.25)]
-                ),
-                "Edag_0": PauliSumOp.from_list(
                     [("IIXX", 0.25), ("IIYX", 0.25j), ("IIXY", -0.25j), ("IIYY", 0.25)]
                 ),
-                "E_1": PauliSumOp.from_list(
-                    [("XXII", 0.25), ("YXII", -0.25j), ("XYII", 0.25j), ("YYII", 0.25)]
+                "Edag_0": PauliSumOp.from_list(
+                    [("IIXX", 0.25), ("IIYX", -0.25j), ("IIXY", 0.25j), ("IIYY", 0.25)]
                 ),
-                "Edag_1": PauliSumOp.from_list(
+                "E_1": PauliSumOp.from_list(
                     [("XXII", 0.25), ("YXII", 0.25j), ("XYII", -0.25j), ("YYII", 0.25)]
                 ),
-                "E_2": PauliSumOp.from_list(
-                    [
-                        ("XXXX", 0.0625),
-                        ("YXXX", -0.0625j),
-                        ("XYXX", 0.0625j),
-                        ("YYXX", 0.0625),
-                        ("XXYX", -0.0625j),
-                        ("YXYX", -0.0625),
-                        ("XYYX", 0.0625),
-                        ("YYYX", -0.0625j),
-                        ("XXXY", 0.0625j),
-                        ("YXXY", 0.0625),
-                        ("XYXY", -0.0625),
-                        ("YYXY", 0.0625j),
-                        ("XXYY", 0.0625),
-                        ("YXYY", -0.0625j),
-                        ("XYYY", 0.0625j),
-                        ("YYYY", 0.0625),
-                    ]
+                "Edag_1": PauliSumOp.from_list(
+                    [("XXII", 0.25), ("YXII", -0.25j), ("XYII", 0.25j), ("YYII", 0.25)]
                 ),
-                "Edag_2": PauliSumOp.from_list(
+                "E_2": PauliSumOp.from_list(
                     [
                         ("XXXX", 0.0625),
                         ("YXXX", 0.0625j),
@@ -99,6 +79,26 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                         ("XXYY", 0.0625),
                         ("YXYY", 0.0625j),
                         ("XYYY", -0.0625j),
+                        ("YYYY", 0.0625),
+                    ]
+                ),
+                "Edag_2": PauliSumOp.from_list(
+                    [
+                        ("XXXX", 0.0625),
+                        ("YXXX", -0.0625j),
+                        ("XYXX", 0.0625j),
+                        ("YYXX", 0.0625),
+                        ("XXYX", -0.0625j),
+                        ("YXYX", -0.0625),
+                        ("XYYX", 0.0625),
+                        ("YYYX", -0.0625j),
+                        ("XXXY", 0.0625j),
+                        ("YXXY", 0.0625),
+                        ("XYXY", -0.0625),
+                        ("YYXY", 0.0625j),
+                        ("XXYY", 0.0625),
+                        ("YXYY", -0.0625j),
+                        ("XYYY", 0.0625j),
                         ("YYYY", 0.0625),
                     ]
                 ),

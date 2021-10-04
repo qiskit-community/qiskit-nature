@@ -87,16 +87,16 @@ class QubitMapper(ABC):
             # 0. Some utilities
 
         def times_creation_op(position, pauli_table):
-            # The creation operator is given by 0.5*(X + 1j*Y)
+            # The creation operator is given by 0.5*(X - 1j*Y)
             real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
-            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
+            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
 
             return real_part + imag_part
 
         def times_annihilation_op(position, pauli_table):
-            # The annihilation operator is given by 0.5*(X - 1j*Y)
+            # The annihilation operator is given by 0.5*(X + 1j*Y)
             real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
-            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
+            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
 
             return real_part + imag_part
 
@@ -120,17 +120,23 @@ class QubitMapper(ABC):
             # save the respective Pauli string in the pauli_str list.
             for position, char in enumerate(label):
                 if char == "+":
-                    ret_op &= times_creation_op(position, pauli_table)
+                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
                 elif char == "-":
-                    ret_op &= times_annihilation_op(position, pauli_table)
+                    ret_op = ret_op.compose(
+                        times_annihilation_op(position, pauli_table), front=True
+                    )
                 elif char == "N":
                     # The occupation number operator N is given by `+-`.
-                    ret_op &= times_creation_op(position, pauli_table)
-                    ret_op &= times_annihilation_op(position, pauli_table)
+                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
+                    ret_op = ret_op.compose(
+                        times_annihilation_op(position, pauli_table), front=True
+                    )
                 elif char == "E":
                     # The `emptiness number` operator E is given by `-+` = (I - N).
-                    ret_op &= times_annihilation_op(position, pauli_table)
-                    ret_op &= times_creation_op(position, pauli_table)
+                    ret_op = ret_op.compose(
+                        times_annihilation_op(position, pauli_table), front=True
+                    )
+                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
                 elif char == "I":
                     continue
 
