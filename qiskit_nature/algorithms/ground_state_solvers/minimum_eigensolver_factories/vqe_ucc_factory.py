@@ -216,7 +216,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
 
-        # TODO: leverage reusability of VQE after fixing
+        # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
         vqe = VQE(
             ansatz=ansatz,
