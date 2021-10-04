@@ -55,6 +55,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         # TODO extract it somewhere
         expected_hopping_operators = (
             {
+<<<<<<< HEAD
                 "E_0": PauliSumOp(
                     SparsePauliOp(
                         [
@@ -184,6 +185,59 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                         ],
                     ),
                     coeff=1.0,
+=======
+                "E_0": PauliSumOp.from_list(
+                    [("IIXX", 1), ("IIYX", 1j), ("IIXY", -1j), ("IIYY", 1)]
+                ),
+                "Edag_0": PauliSumOp.from_list(
+                    [("IIXX", -1), ("IIYX", 1j), ("IIXY", -1j), ("IIYY", -1)]
+                ),
+                "E_1": PauliSumOp.from_list(
+                    [("XXII", 1), ("YXII", 1j), ("XYII", -1j), ("YYII", 1)]
+                ),
+                "Edag_1": PauliSumOp.from_list(
+                    [("XXII", -1), ("YXII", 1j), ("XYII", -1j), ("YYII", -1)]
+                ),
+                "E_2": PauliSumOp.from_list(
+                    [
+                        ("XXXX", 1),
+                        ("YXXX", 1j),
+                        ("XYXX", -1j),
+                        ("YYXX", 1),
+                        ("XXYX", 1j),
+                        ("YXYX", -1),
+                        ("XYYX", 1),
+                        ("YYYX", 1j),
+                        ("XXXY", -1j),
+                        ("YXXY", 1),
+                        ("XYXY", -1),
+                        ("YYXY", -1j),
+                        ("XXYY", 1),
+                        ("YXYY", 1j),
+                        ("XYYY", -1j),
+                        ("YYYY", 1),
+                    ]
+                ),
+                "Edag_2": PauliSumOp.from_list(
+                    [
+                        ("XXXX", 1),
+                        ("YXXX", -1j),
+                        ("XYXX", 1j),
+                        ("YYXX", 1),
+                        ("XXYX", -1j),
+                        ("YXYX", -1),
+                        ("XYYX", 1),
+                        ("YYYX", -1j),
+                        ("XXXY", 1j),
+                        ("YXXY", 1),
+                        ("XYXY", -1),
+                        ("YYXY", 1j),
+                        ("XXYY", 1),
+                        ("YXYY", -1j),
+                        ("XYYY", 1j),
+                        ("YYYY", 1),
+                    ]
+>>>>>>> 3e66f54 (Fix mapper (#357))
                 ),
             },
             {"E_0": [], "Edag_0": [], "E_1": [], "Edag_1": [], "E_2": [], "Edag_2": []},
