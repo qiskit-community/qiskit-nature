@@ -75,6 +75,7 @@ cp -r $SOURCE_DIR/$DOC_DIR_PO/ nature/docs
 cp $SOURCE_DIR/setup.py nature/.
 cp $SOURCE_DIR/requirements-dev.txt nature/.
 cp $SOURCE_DIR/requirements.txt nature/.
+cp $SOURCE_DIR/README.md nature/.
 cp $SOURCE_DIR/qiskit_nature/VERSION.txt nature/qiskit_nature/.
 
 # git checkout translationDocs
