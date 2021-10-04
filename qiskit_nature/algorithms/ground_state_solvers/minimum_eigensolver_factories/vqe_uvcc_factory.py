@@ -81,9 +81,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-        self._vqe = VQE(
-            **kwargs,
-        )
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
         self.initial_point = initial_point
@@ -93,68 +90,67 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self.ansatz = ansatz
         self.initial_state = initial_state
         self.callback = callback
+        self._kwargs = kwargs
 
     @property
     def quantum_instance(self) -> QuantumInstance:
         """Getter of the quantum instance."""
-        return self._vqe.quantum_instance
+        return self._quantum_instance
 
     @quantum_instance.setter
     def quantum_instance(self, q_instance: QuantumInstance) -> None:
         """Setter of the quantum instance."""
-        self._vqe.quantum_instance = q_instance
+        self._quantum_instance = q_instance
 
     @property
     def optimizer(self) -> Optional[Optimizer]:
         """Getter of the optimizer."""
-        return self._vqe.optimizer
+        return self._optimizer
 
     @optimizer.setter
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """Setter of the optimizer."""
-        self._vqe.optimizer = optimizer
+        self._optimizer = optimizer
 
     @property
     def initial_point(self) -> Optional[np.ndarray]:
         """Getter of the initial point."""
-        return self._vqe.initial_point
+        return self._initial_point
 
     @initial_point.setter
     def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
         """Setter of the initial point."""
-        self._vqe.initial_point = initial_point
+        self._initial_point = initial_point
 
     @property
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """Getter of the gradient function"""
-        return self._vqe.gradient
+        return self._gradient
 
     @gradient.setter
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
         """Setter of the gradient function"""
-        self._vqe.gradient = gradient
+        self._gradient = gradient
 
     @property
     def expectation(self) -> Optional[ExpectationBase]:
         """Getter of the expectation."""
-        return self._vqe.expectation
+        return self._expectation
 
     @expectation.setter
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
         """Setter of the expectation."""
-        self._vqe.expectation = expectation
+        self._expectation = expectation
 
-    # TODO: remove dependence on private VQE variable
-    # https://github.com/Qiskit/qiskit-terra/issues/7093
     @property
     def include_custom(self) -> bool:
         """Getter of the ``include_custom`` setting for the ``expectation`` setting."""
-        return self._vqe._include_custom
+        return self._include_custom
 
     @include_custom.setter
     def include_custom(self, include_custom: bool) -> None:
         """Setter of the ``include_custom`` setting for the ``expectation`` setting."""
-        self._vqe._include_custom = include_custom
+        self._include_custom = include_custom
 
     @property
     def ansatz(self) -> Optional[UVCC]:
@@ -178,17 +174,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         the :class:`~.VSCF`."""
         self._initial_state = initial_state
 
-    # TODO: remove dependence on private VQE variable
-    # https://github.com/Qiskit/qiskit-terra/issues/7093
     @property
     def callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
         """Returns the callback."""
-        return self._vqe._callback
+        return self._callback
 
     @callback.setter
     def callback(self, callback: Optional[Callable[[int, np.ndarray, float, float], None]]) -> None:
         """Sets the callback."""
-        self._vqe._callback = callback
+        self._callback = callback
 
     def get_solver(  # type: ignore[override]
         self,
@@ -224,9 +218,21 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
 
-        self._vqe.ansatz = ansatz
+        # TODO: leverage reusability of VQE after fixing
+        # https://github.com/Qiskit/qiskit-terra/issues/7093
+        vqe = VQE(
+            ansatz=ansatz,
+            quantum_instance=self.quantum_instance,
+            optimizer=self.optimizer,
+            initial_point=self.initial_point,
+            gradient=self.gradient,
+            expectation=self.expectation,
+            include_custom=self.include_custom,
+            callback=self.callback,
+            **self._kwargs,
+        )
 
-        return self._vqe
+        return vqe
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()
