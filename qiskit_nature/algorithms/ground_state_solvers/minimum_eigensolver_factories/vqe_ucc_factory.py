@@ -112,8 +112,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @optimizer.setter
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """Setter of the optimizer."""
-        if optimizer is None:
-            return
         self._vqe.optimizer = optimizer
 
     @property
@@ -124,8 +122,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @initial_point.setter
     def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
         """Setter of the initial point."""
-        if initial_point is None:
-            return
         self._vqe.initial_point = initial_point
 
     @property
@@ -136,8 +132,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @gradient.setter
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
         """Setter of the gradient function"""
-        if gradient is None:
-            return
         self._vqe.gradient = gradient
 
     @property
@@ -148,10 +142,10 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @expectation.setter
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
         """Setter of the expectation."""
-        if expectation is None:
-            return
         self._vqe.expectation = expectation
 
+    # TODO: remove dependence on private VQE variable
+    # https://github.com/Qiskit/qiskit-terra/issues/7093
     @property
     def include_custom(self) -> bool:
         """Getter of the ``include_custom`` setting for the ``expectation`` setting."""
@@ -184,6 +178,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         the :class:`~.HartreeFock`."""
         self._initial_state = initial_state
 
+    # TODO: remove dependence on private VQE variable
+    # https://github.com/Qiskit/qiskit-terra/issues/7093
     @property
     def callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
         """Returns the callback."""
@@ -192,8 +188,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @callback.setter
     def callback(self, callback: Optional[Callable[[int, np.ndarray, float, float], None]]) -> None:
         """Sets the callback."""
-        if callback is None:
-            return
         self._vqe._callback = callback
 
     def get_solver(  # type: ignore[override]

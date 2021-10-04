@@ -144,6 +144,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """Setter of the expectation."""
         self._vqe.expectation = expectation
 
+    # TODO: remove dependence on private VQE variable
+    # https://github.com/Qiskit/qiskit-terra/issues/7093
     @property
     def include_custom(self) -> bool:
         """Getter of the ``include_custom`` setting for the ``expectation`` setting."""
@@ -176,6 +178,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         the :class:`~.VSCF`."""
         self._initial_state = initial_state
 
+    # TODO: remove dependence on private VQE variable
+    # https://github.com/Qiskit/qiskit-terra/issues/7093
     @property
     def callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
         """Returns the callback."""
