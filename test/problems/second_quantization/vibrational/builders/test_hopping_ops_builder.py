@@ -16,7 +16,6 @@ from test.algorithms.excited_state_solvers.test_bosonic_esc_calculation import (
     _DummyBosonicDriver,
 )
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info import SparsePauliOp
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.mappers.second_quantization import DirectMapper
@@ -52,137 +51,6 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         # TODO extract it somewhere
         expected_hopping_operators = (
             {
-<<<<<<< HEAD
-                "E_0": PauliSumOp(
-                    SparsePauliOp(
-                        [
-                            [True, True, False, False, False, False, False, False],
-                            [True, True, False, False, False, True, False, False],
-                            [True, True, False, False, True, False, False, False],
-                            [True, True, False, False, True, True, False, False],
-                        ],
-                        coeffs=[0.25 + 0.0j, 0.0 - 0.25j, 0.0 + 0.25j, 0.25 + 0.0j],
-                    ),
-                    coeff=1.0,
-                ),
-                "Edag_0": PauliSumOp(
-                    SparsePauliOp(
-                        [
-                            [True, True, False, False, False, False, False, False],
-                            [True, True, False, False, False, True, False, False],
-                            [True, True, False, False, True, False, False, False],
-                            [True, True, False, False, True, True, False, False],
-                        ],
-                        coeffs=[0.25 + 0.0j, 0.0 + 0.25j, 0.0 - 0.25j, 0.25 + 0.0j],
-                    ),
-                    coeff=1.0,
-                ),
-                "E_1": PauliSumOp(
-                    SparsePauliOp(
-                        [
-                            [False, False, True, True, False, False, False, False],
-                            [False, False, True, True, False, False, False, True],
-                            [False, False, True, True, False, False, True, False],
-                            [False, False, True, True, False, False, True, True],
-                        ],
-                        coeffs=[0.25 + 0.0j, 0.0 - 0.25j, 0.0 + 0.25j, 0.25 + 0.0j],
-                    ),
-                    coeff=1.0,
-                ),
-                "Edag_1": PauliSumOp(
-                    SparsePauliOp(
-                        [
-                            [False, False, True, True, False, False, False, False],
-                            [False, False, True, True, False, False, False, True],
-                            [False, False, True, True, False, False, True, False],
-                            [False, False, True, True, False, False, True, True],
-                        ],
-                        coeffs=[0.25 + 0.0j, 0.0 + 0.25j, 0.0 - 0.25j, 0.25 + 0.0j],
-                    ),
-                    coeff=1.0,
-                ),
-                "E_2": PauliSumOp(
-                    SparsePauliOp(
-                        [
-                            [True, True, True, True, False, False, False, False],
-                            [True, True, True, True, False, False, False, True],
-                            [True, True, True, True, False, False, True, False],
-                            [True, True, True, True, False, False, True, True],
-                            [True, True, True, True, False, True, False, False],
-                            [True, True, True, True, False, True, False, True],
-                            [True, True, True, True, False, True, True, False],
-                            [True, True, True, True, False, True, True, True],
-                            [True, True, True, True, True, False, False, False],
-                            [True, True, True, True, True, False, False, True],
-                            [True, True, True, True, True, False, True, False],
-                            [True, True, True, True, True, False, True, True],
-                            [True, True, True, True, True, True, False, False],
-                            [True, True, True, True, True, True, False, True],
-                            [True, True, True, True, True, True, True, False],
-                            [True, True, True, True, True, True, True, True],
-                        ],
-                        coeffs=[
-                            0.0625 + 0.0j,
-                            0.0 - 0.0625j,
-                            0.0 + 0.0625j,
-                            0.0625 + 0.0j,
-                            0.0 - 0.0625j,
-                            -0.0625 + 0.0j,
-                            0.0625 + 0.0j,
-                            0.0 - 0.0625j,
-                            0.0 + 0.0625j,
-                            0.0625 + 0.0j,
-                            -0.0625 + 0.0j,
-                            0.0 + 0.0625j,
-                            0.0625 + 0.0j,
-                            0.0 - 0.0625j,
-                            0.0 + 0.0625j,
-                            0.0625 + 0.0j,
-                        ],
-                    ),
-                    coeff=1.0,
-                ),
-                "Edag_2": PauliSumOp(
-                    SparsePauliOp(
-                        [
-                            [True, True, True, True, False, False, False, False],
-                            [True, True, True, True, False, False, False, True],
-                            [True, True, True, True, False, False, True, False],
-                            [True, True, True, True, False, False, True, True],
-                            [True, True, True, True, False, True, False, False],
-                            [True, True, True, True, False, True, False, True],
-                            [True, True, True, True, False, True, True, False],
-                            [True, True, True, True, False, True, True, True],
-                            [True, True, True, True, True, False, False, False],
-                            [True, True, True, True, True, False, False, True],
-                            [True, True, True, True, True, False, True, False],
-                            [True, True, True, True, True, False, True, True],
-                            [True, True, True, True, True, True, False, False],
-                            [True, True, True, True, True, True, False, True],
-                            [True, True, True, True, True, True, True, False],
-                            [True, True, True, True, True, True, True, True],
-                        ],
-                        coeffs=[
-                            0.0625 + 0.0j,
-                            0.0 + 0.0625j,
-                            0.0 - 0.0625j,
-                            0.0625 + 0.0j,
-                            0.0 + 0.0625j,
-                            -0.0625 + 0.0j,
-                            0.0625 + 0.0j,
-                            0.0 + 0.0625j,
-                            0.0 - 0.0625j,
-                            0.0625 + 0.0j,
-                            -0.0625 + 0.0j,
-                            0.0 - 0.0625j,
-                            0.0625 + 0.0j,
-                            0.0 + 0.0625j,
-                            0.0 - 0.0625j,
-                            0.0625 + 0.0j,
-                        ],
-                    ),
-                    coeff=1.0,
-=======
                 "E_0": PauliSumOp.from_list(
                     [("IIXX", 0.25), ("IIYX", 0.25j), ("IIXY", -0.25j), ("IIYY", 0.25)]
                 ),
@@ -234,7 +102,6 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                         ("XYYY", 0.0625j),
                         ("YYYY", 0.0625),
                     ]
->>>>>>> 3e66f54 (Fix mapper (#357))
                 ),
             },
             {},
