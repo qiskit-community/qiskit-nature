@@ -125,7 +125,7 @@ class HyperCubicLattice(Lattice):
 
         super().__init__(graph)
 
-        # default position
+        # default position for one and two-dimensional cases.
         if self.dim == 1:
             if self.boundary_conditions[0] == "open":
                 self.pos = {i: [i, 0] for i in range(self.size[0])}
@@ -136,6 +136,8 @@ class HyperCubicLattice(Lattice):
             self.pos = {}
             for index in range(np.prod(self.size)):
                 # maps an index to two-dimensional coordinate
+                # the positions are shifted so that the edges between boundaries can be seen
+                # for the periodic cases.
                 x = index % self.size[0]
                 y = index // self.size[0]
                 if self.boundary_conditions[1] == "open":

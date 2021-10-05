@@ -140,7 +140,7 @@ class TriangularLattice(Lattice):
                 f"Invalid `boundary condition` {boundary_condition} is given."
                 "`boundary condition` must be `open` or `periodic`."
             )
-
+        super().__init__(graph)
         # default position
         self.pos = {}
         for index in range(np.prod(self.size)):
@@ -152,11 +152,10 @@ class TriangularLattice(Lattice):
                 return_y = y
             elif self.boundary_condition == "periodic":
                 # For the periodic boundary conditions,
-                # the positionis are shifted so that the edges between boundaries can be seen.
+                # the positions are shifted so that the edges between boundaries can be seen.
                 return_x = x + 0.2 * np.sin(pi * y / (self.size[1] - 1))
                 return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
             self.pos[index] = [return_x, return_y]
-        super().__init__(graph)
 
     # pylint: disable=missing-param-doc
     def draw_without_boundary(
