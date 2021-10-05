@@ -48,7 +48,7 @@ class VQEProgram(VQEClient):
         store_intermediate: bool = False,
     ) -> None:
         warn_deprecated(
-            version="0.2.1",
+            version="0.3.0",
             old_type=DeprecatedType.CLASS,
             old_name="VQEProgram",
             new_name="VQEClient",
@@ -90,7 +90,7 @@ class VQEProgramResult(VQERuntimeResult):
     def __init__(self) -> None:
         super().__init__()
         warn_deprecated(
-            version="0.2.1",
+            version="0.3.0",
             old_type=DeprecatedType.CLASS,
             old_name="VQEProgramResult",
             new_name="VQERuntimeResult",
