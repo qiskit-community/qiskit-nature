@@ -84,14 +84,3 @@ class TestLineLattice(QiskitNatureTestCase):
             )
 
             assert_array_equal(linelattice.to_adjacency_matrix(), target_matrix)
-
-    def test_from_adjacency_matrix(self):
-        """Test from_adjacency_matrix."""
-        num_nodes = 6
-        edge_parameter = 1.0 + 1.0j
-        onsite_parameter = 1.0
-        boundary_condition = "open"
-        linelattice = LineLattice(num_nodes, edge_parameter, onsite_parameter, boundary_condition)
-        input_adjacency_matrix = np.ones((6, 6))
-        with self.assertRaises(NotImplementedError):
-            linelattice.from_adjacency_matrix(input_adjacency_matrix)

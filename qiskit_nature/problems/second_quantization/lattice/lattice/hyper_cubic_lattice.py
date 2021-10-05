@@ -15,11 +15,9 @@ from math import pi
 from typing import List, Tuple, Union, Optional, Sequence, Callable
 from itertools import product
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.colors import Colormap
 from retworkx import PyGraph
-from retworkx.visualization import mpl_draw
 from .lattice import Lattice
 
 
@@ -44,7 +42,7 @@ class HyperCubicLattice(Lattice):
 
         Raises:
             ValueError: Given edge parameter or boundary condition are invalid values.
-            RuntimeError: When edge parameter is a tuple,
+            TypeError: When edge parameter is a tuple,
                 the length of edge parameter is not the same as that of size.
         """
 
@@ -59,7 +57,7 @@ class HyperCubicLattice(Lattice):
             if len(edge_parameter) == self.dim:
                 pass
             else:
-                raise RuntimeError(
+                raise TypeError(
                     "size mismatch, "
                     f"`edge_parameter`: {len(edge_parameter)}, `size`: {self.dim}."
                     "The length of `edge_parameter` must be the same as that of size."
@@ -73,9 +71,7 @@ class HyperCubicLattice(Lattice):
         if isinstance(boundary_condition, str):
             boundary_condition = (boundary_condition,) * self.dim
         elif isinstance(boundary_condition, tuple):
-            if len(boundary_condition) == self.dim:
-                pass
-            else:
+            if len(boundary_condition) != self.dim:
                 raise ValueError(
                     f"The length of `boundary_condition` must be the same as that of size, {self.dim}."
                 )
@@ -85,58 +81,56 @@ class HyperCubicLattice(Lattice):
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(np.prod(size)))
 
+        # add edges excluding the boundary edges
         coordinates = list(product(*map(range, size)))
         base = np.array([np.prod(size[:i]) for i in range(self.dim)], dtype=int)
-        for i in range(self.dim):
-            if edge_parameter[i] == 0.0:
-                continue
-            for coord in coordinates:
+        for coord in coordinates:
+            for i in range(self.dim):
                 if coord[i] != size[i] - 1:
                     node_a = np.dot(coord, base)
                     node_b = node_a + base[i]
                     graph.add_edge(node_a, node_b, edge_parameter[i])
 
-        # onsite parameter
-        if onsite_parameter != 0.0:
-            for node_a in range(np.prod(size)):
-                graph.add_edge(node_a, node_a, onsite_parameter)
+        # self-loops
+        for node_a in range(np.prod(size)):
+            graph.add_edge(node_a, node_a, onsite_parameter)
 
         self.boundary_edges = []
         # boundary condition
-        for dim in range(self.dim):
-            if boundary_condition[dim] == "open":
-                pass
-            elif boundary_condition[dim] == "periodic":
-                if size[dim] > 2:
-                    size_list = list(size)
-                    size_list[dim] = 1
-                    coordinates = list(product(*map(range, size_list)))
-                    for coord in coordinates:
-                        node_b = np.dot(coord, base)
-                        node_a = node_b + base[dim] * (size[dim] - 1)
-                        if node_a < node_b:
-                            graph.add_edge(node_a, node_b, edge_parameter[dim])
-                            self.boundary_edges.append((node_a, node_b))
-                        elif node_a > node_b:
-                            graph.add_edge(node_b, node_a, np.conjugate(edge_parameter[dim]))
-                            self.boundary_edges.append((node_a, node_b))
-            else:
+        for i in range(self.dim):
+            if boundary_condition[i] == "periodic":
+                if size[i] <= 2:  # TODO add comments why size[i] <= 2
+                    continue
+                size_list = list(size)
+                size_list[i] = 1
+                coordinates = list(product(*map(range, size_list)))
+                for coord in coordinates:
+                    node_b = np.dot(coord, base)
+                    node_a = node_b + base[i] * (size[i] - 1)
+                    if node_a < node_b:
+                        graph.add_edge(node_a, node_b, edge_parameter[i])
+                        self.boundary_edges.append((node_a, node_b))
+                    elif node_a > node_b:
+                        graph.add_edge(node_b, node_a, edge_parameter[i].conjugate())
+                        self.boundary_edges.append((node_a, node_b))
+            elif boundary_condition[i] != "open":
                 raise ValueError(
-                    f"Invalid `boundary condition` {boundary_condition[dim]} is given."
+                    f"Invalid `boundary condition` {boundary_condition[i]} is given."
                     "`boundary condition` must be `open` or `periodic`."
                 )
 
+        super().__init__(graph)
+
+        # default position
         if self.dim == 1:
-            if self.boundary_conditions == ("open",):
-                self.position = {i: [i, 0] for i in range(self.size[0])}
-            elif self.boundary_conditions == ("periodic",):
+            if self.boundary_conditions[0] == "open":
+                self.pos = {i: [i, 0] for i in range(self.size[0])}
+            elif self.boundary_conditions[0] == "periodic":
                 theta = 2 * pi / self.size[0]
-                self.position = {
-                    i: [np.cos(i * theta), np.sin(i * theta)] for i in range(self.size[0])
-                }
+                self.pos = {i: [np.cos(i * theta), np.sin(i * theta)] for i in range(self.size[0])}
         elif self.dim == 2:
-            position_dict = {}
-            for index in range(np.prod(size)):
+            self.pos = {}
+            for index in range(np.prod(self.size)):
                 x = index % self.size[0]
                 y = index // self.size[0]
                 if self.boundary_conditions[1] == "open":
@@ -147,32 +141,12 @@ class HyperCubicLattice(Lattice):
                     return_y = y
                 elif self.boundary_conditions[0] == "periodic":
                     return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
-                position_dict[index] = [return_x, return_y]
-            self.position = position_dict
-        else:
-            self.position = None
+                self.pos[index] = [return_x, return_y]
 
-        super().__init__(graph)
-
-    @staticmethod
-    def _arxiliary():
-        return None
-
-    @classmethod
-    def from_adjacency_matrix(cls, input_adjacency_matrix: np.ndarray):
-        """Not implemented.
-
-        Args:
-            input_adjacency_matrix: Adjacency matrix with real or complex matrix elements.
-
-        Raises:
-            NotImplementedError
-        """
-        raise NotImplementedError()
-
-    # pylint: disable=arguments-differ
-    def draw(
+    # pylint: disable=missing-param-doc
+    def draw_without_boundary(
         self,
+        self_loop: bool = False,
         pos: Optional[dict] = None,
         ax: Optional[Axes] = None,
         arrows: bool = True,
@@ -208,119 +182,16 @@ class HyperCubicLattice(Lattice):
         font_family: str = "sans-serif",
         label: Optional[str] = None,
         connectionstyle: str = "arc3",
-        self_loop: bool = False,
-        boundary_edges: bool = False,
         **kwargs,
     ):
         r"""Draw the lattice.
 
         Args:
-            pos: An optional dictionary (or
-                a :class:`~retworkx.Pos2DMapping` object) with nodes as keys and
-                positions as values. If not specified a spring layout positioning will
-                be computed. See `layout_functions` for functions that compute
-                node positions.
-            ax: An optional Axes object to draw the
-                graph in.
-            arrows: For :class:`~retworkx.PyDiGraph` objects if ``True``
-                draw arrowheads. (defaults to ``True``) Note, that the Arrows will
-                be the same color as edges.
-            arrowstyle: An optional string for directed graphs to choose
-                the style of the arrowheads. See
-                :class:`matplotlib.patches.ArrowStyle` for more options. By default the
-                value is set to ``'-\|>'``.
-            arrow_size: For directed graphs, choose the size of the arrow
-                head's length and width. See
-                :class:`matplotlib.patches.FancyArrowPatch` attribute and constructor
-                kwarg ``mutation_scale`` for more info. Defaults to 10.
-            with_labels: Set to ``True`` to draw labels on the nodes. Edge
-                labels will only be drawn if the ``edge_labels`` parameter is set to a
-                function. Defaults to ``False``.
-
-            node_list: An optional list of node indices in the graph to
-                draw. If not specified all nodes will be drawn.
-            edge_list: An option list of edges in the graph to draw. If not
-                specified all edges will be drawn
-            node_size: Optional size of nodes. If an array is
-                specified it must be the same length as node_list. Defaults to 300
-            node_color: Optional node color. Can be a single color or
-                a sequence of colors with the same length as node_list. Color can be
-                string or rgb (or rgba) tuple of floats from 0-1. If numeric values
-                are specified they will be mapped to colors using the ``cmap`` and
-                ``vmin``,``vmax`` parameters. See :func:`matplotlib.scatter` for more
-                details. Defaults to ``'#1f78b4'``)
-            node_shape: The optional shape node. The specification is the
-                same as the :func:`matplotlib.pyplot.scatter` function's ``marker``
-                kwarg, valid options are one of
-                ``['s', 'o', '^', '>', 'v', '<', 'd', 'p', 'h', '8']``. Defaults to
-                ``'o'``
-            alpha: Optional value for node and edge transparency
-            cmap: An optional Colormap
-                object for mapping intensities of nodes
-            vmin: Optional minimum value for node colormap scaling
-            vmax: Optional minimum value for node colormap scaling
-            linewidths: An optional line width for symbol
-                borders. If a sequence is specified it must be the same length as
-                node_list. Defaults to 1.0
-            width: An optional width to use for edges. Can
-                either be a float or sequence  of floats. If a sequence is specified
-                it must be the same length as node_list. Defaults to 1.0
-            edge_color: color or array of colors (default='k')
-                Edge color. Can be a single color or a sequence of colors with the same
-                length as edge_list. Color can be string or rgb (or rgba) tuple of
-                floats from 0-1. If numeric values are specified they will be
-                mapped to colors using the ``edge_cmap`` and ``edge_vmin``,
-                ``edge_vmax`` parameters.
-            edge_cmap: An optional Matplotlib
-                colormap for mapping intensities of edges.
-            edge_vmin: Optional minimum value for edge colormap scaling
-            edge_vmax: Optional maximum value for node colormap scaling
-            style: An optional string to specify the edge line style.
-                For example, ``'-'``, ``'--'``, ``'-.'``, ``':'`` or words like
-                ``'solid'`` or ``'dashed'``. See the
-                :class:`matplotlib.patches.FancyArrowPatch` attribute and kwarg
-                ``linestyle`` for more details. Defaults to ``'solid'``.
-            labels: An optional callback function that will be passed a
-                node payload and return a string label for the node. For example::
-
-                    labels=str
-
-                could be used to just return a string cast of the node's data payload.
-                Or something like::
-
-                    labels=lambda node: node['label']
-
-                could be used if the node payloads are dictionaries.
-            edge_labels: An optional callback function that will be passed
-                an edge payload and return a string label for the edge. For example::
-
-                    edge_labels=str
-
-                could be used to just return a string cast of the edge's data payload.
-                Or something like::
-
-                    edge_labels=lambda edge: edge['label']
-
-                could be used if the edge payloads are dictionaries. If this is set
-                edge labels will be drawn in the visualization.
-            font_size: An optional font size to use for text labels, By
-                default a value of 12 is used for nodes and 10 for edges.
-            font_color: An optional font color for strings. By default
-                ``'k'`` (i.e. black) is set.
-            font_weight: An optional string used to specify the font weight.
-                By default a value of ``'normal'`` is used.
-            font_family: An optional font family to use for strings. By
-                default ``'sans-serif'`` is used.
-            label: An optional string label to use for the graph legend.
-            connectionstyle: An optional value used to create a curved arc
-                of rounding radius rad. For example,
-                ``connectionstyle='arc3,rad=0.2'``. See
-                :class:`matplotlib.patches.ConnectionStyle` and
-                :class:`matplotlib.patches.FancyArrowPatch` for more info. By default
-                this is set to ``"arc3"``.
-            self_loop: Draw self-loops in a lattice. Defaults to False.
-            boundary_edges: Draw edges from the boundaries. Defaults to False.
-            **kwargs: Kwargs for drawing the lattice.
+            self_loop: Draw self-loops in the lattice. Defaults to False.
+            **kwargs : Kwargs for retworkx.visualization.mpl_draw.
+                Please see
+                https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
+                for details.
 
         Returns:
             A matplotlib figure for the visualization if not running with an
@@ -329,17 +200,16 @@ class HyperCubicLattice(Lattice):
         graph = self.graph
 
         if pos is None:
-            pos = self.position
+            if self.dim == 1:
+                pos = {i: [i, 0] for i in range(self.size[0])}
+            elif self.dim == 2:
+                pos = {i: [i % self.size[0], i // self.size[0]] for i in range(np.prod(self.size))}
 
-        if not boundary_edges:
-            graph.remove_edges_from(self.boundary_edges)
+        graph.remove_edges_from(self.boundary_edges)
 
-        if not self_loop:
-            self_loops = [(i, i) for i in range(self.num_nodes) if graph.has_edge(i, i)]
-            graph.remove_edges_from(self_loops)
-
-        mpl_draw(
+        self._mpl(
             graph=graph,
+            self_loop=self_loop,
             pos=pos,
             ax=ax,
             arrows=arrows,
@@ -372,4 +242,3 @@ class HyperCubicLattice(Lattice):
             connectionstyle=connectionstyle,
             **kwargs,
         )
-        plt.draw()

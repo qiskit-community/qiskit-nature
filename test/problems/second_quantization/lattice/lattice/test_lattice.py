@@ -89,37 +89,7 @@ class TestLattice(QiskitNatureTestCase):
         lattice_copy = lattice.copy()
         self.assertTrue(is_isomorphic(lattice_copy.graph, graph, edge_matcher=lambda x, y: x == y))
 
-    def test_from_adjacency_matrix(self):
-        """Test from_adjacency_matrix."""
-        graph = PyGraph(multigraph=False)
-        graph.add_nodes_from(range(6))
-        weighted_edge_list = [
-            (0, 1, 1.0 + 1.0j),
-            (0, 2, -1.0),
-            (2, 3, 2.0),
-            (2, 4, -1.0),
-            (4, 4, 3.0),
-            (2, 5, -1.0),
-        ]
-        graph.add_edges_from(weighted_edge_list)
-        lattice = Lattice(graph)
-        input_adjacency_matrix = np.array(
-            [
-                [0, 1.0 + 1.0j, -1.0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 2.0, -1.0, -1.0],
-                [0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 3.0, 0],
-                [0, 0, 0, 0, 0, 0],
-            ]
-        )
-        target_lattice = Lattice.from_adjacency_matrix(input_adjacency_matrix)
-
-        self.assertTrue(
-            is_isomorphic(lattice.graph, target_lattice.graph, edge_matcher=lambda x, y: x == y)
-        )
-
-    def test_from_nodes_edges(self):
+    def test_from_nodes_and_edges(self):
         """Test from_nodes_edges."""
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(6))

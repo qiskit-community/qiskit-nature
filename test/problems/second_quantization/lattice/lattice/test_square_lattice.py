@@ -94,15 +94,3 @@ class TestSquareLattice(QiskitNatureTestCase):
             )
 
             assert_array_equal(square.to_adjacency_matrix(), target_matrix)
-
-    def test_from_adjacency_matrix(self):
-        """Test from_adjacency_matrix."""
-        rows = 3
-        cols = 2
-        edge_parameter = (1.0 + 1.0j, 2.0 + 2.0j)
-        onsite_parameter = 1.0
-        boundary_condition = ("periodic", "open")
-        square = SquareLattice(rows, cols, edge_parameter, onsite_parameter, boundary_condition)
-        input_adjacency_matrix = np.ones((6, 6))
-        with self.assertRaises(NotImplementedError):
-            square.from_adjacency_matrix(input_adjacency_matrix)

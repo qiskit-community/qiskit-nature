@@ -13,6 +13,7 @@
 """The Fermi-Hubbard model"""
 from typing import Optional
 import numpy as np
+from retworkx import PyGraph
 from qiskit_nature.problems.second_quantization.lattice.lattice import Lattice
 from qiskit_nature.operators.second_quantization import FermionicOp
 
@@ -75,7 +76,7 @@ class FermiHubbardModel:
 
         return cls(Lattice(graph), onsite_interaction)
 
-    @classmethod
+    @classmethod  # TODO
     def from_parameters(
         cls, hopping_matrix: np.ndarray, onsite_interaction: complex
     ) -> "FermiHubbardModel":
@@ -93,10 +94,19 @@ class FermiHubbardModel:
         Raises:
             ValueError: If the shape of the hopping matrix is invalid.
         """
+        # make a graph from the hopping matrix.
+        # This should be replaced by from_adjacency_matrix of retworkx.
         shape = hopping_matrix.shape
         if len(shape) == 2 and shape[0] == shape[1]:
-            lat = Lattice.from_adjacency_matrix(hopping_matrix)
-            return cls(lat, onsite_interaction)
+            graph = PyGraph(multigraph=False)
+            graph.add_nodes_from(range(shape[0]))
+            for source_index in range(shape[0]):
+                for target_index in range(source_index, shape[0]):
+                    weight = hopping_matrix[source_index, target_index]
+                    if not weight == 0.0:
+                        graph.add_edge(source_index, target_index, weight)
+            lattice = Lattice(graph)
+            return cls(lattice, onsite_interaction)
         else:
             raise ValueError(
                 f"Invalid shape of `hopping_matrix`, {shape},  is given."

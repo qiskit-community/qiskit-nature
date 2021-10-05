@@ -24,7 +24,7 @@ class TestHyperCubic(QiskitNatureTestCase):
     def test_init(self):
         """Test init."""
         size = (2, 2, 2)
-        edge_parameter = (1.0 + 1.0j, -1.0, -2.0 - 2.0j)
+        edge_parameter = (1.0 + 1.0j, 0.0, -2.0 - 2.0j)
         onsite_parameter = 5.0
         boundary_condition = ("open", "periodic", "open")
         hyper_cubic = HyperCubicLattice(size, edge_parameter, onsite_parameter, boundary_condition)
@@ -37,10 +37,10 @@ class TestHyperCubic(QiskitNatureTestCase):
                 (2, 3, 1.0 + 1.0j),
                 (4, 5, 1.0 + 1.0j),
                 (6, 7, 1.0 + 1.0j),
-                (0, 2, -1.0),
-                (1, 3, -1.0),
-                (4, 6, -1.0),
-                (5, 7, -1.0),
+                (0, 2, 0.0),
+                (1, 3, 0.0),
+                (4, 6, 0.0),
+                (5, 7, 0.0),
                 (0, 4, -2.0 - 2.0j),
                 (1, 5, -2.0 - 2.0j),
                 (2, 6, -2.0 - 2.0j),
@@ -71,10 +71,10 @@ class TestHyperCubic(QiskitNatureTestCase):
                 (2, 3, 1.0 + 1.0j),
                 (4, 5, 1.0 + 1.0j),
                 (6, 7, 1.0 + 1.0j),
-                (0, 2, -1.0),
-                (1, 3, -1.0),
-                (4, 6, -1.0),
-                (5, 7, -1.0),
+                (0, 2, 0.0),
+                (1, 3, 0.0),
+                (4, 6, 0.0),
+                (5, 7, 0.0),
                 (0, 4, -2.0 - 2.0j),
                 (1, 5, -2.0 - 2.0j),
                 (2, 6, -2.0 - 2.0j),
@@ -93,26 +93,15 @@ class TestHyperCubic(QiskitNatureTestCase):
         with self.subTest("Check the adjacency matrix."):
             target_matrix = np.array(
                 [
-                    [5.0, 1.0 + 1.0j, -1.0, 0.0, -2.0 - 2.0j, 0.0, 0.0, 0.0],
-                    [1.0 - 1.0j, 5.0, 0.0, -1.0, 0.0, -2.0 - 2.0j, 0.0, 0.0],
-                    [-1.0, 0.0, 5.0, 1.0 + 1.0j, 0.0, 0.0, -2.0 - 2.0j, 0.0],
-                    [0.0, -1.0, 1.0 - 1.0j, 5.0, 0.0, 0.0, 0.0, -2.0 - 2.0j],
-                    [-2.0 + 2.0j, 0.0, 0.0, 0.0, 5.0, 1.0 + 1.0j, -1.0, 0.0],
-                    [0.0, -2.0 + 2.0j, 0.0, 0.0, 1.0 - 1.0j, 5.0, 0.0, -1.0],
-                    [0.0, 0.0, -2.0 + 2.0j, 0.0, -1.0, 0.0, 5.0, 1.0 + 1.0j],
-                    [0.0, 0.0, 0.0, -2.0 + 2.0j, 0.0, -1.0, 1.0 - 1.0j, 5.0],
+                    [5.0, 1.0 + 1.0j, 0.0, 0.0, -2.0 - 2.0j, 0.0, 0.0, 0.0],
+                    [1.0 - 1.0j, 5.0, 0.0, 0.0, 0.0, -2.0 - 2.0j, 0.0, 0.0],
+                    [0.0, 0.0, 5.0, 1.0 + 1.0j, 0.0, 0.0, -2.0 - 2.0j, 0.0],
+                    [0.0, 0.0, 1.0 - 1.0j, 5.0, 0.0, 0.0, 0.0, -2.0 - 2.0j],
+                    [-2.0 + 2.0j, 0.0, 0.0, 0.0, 5.0, 1.0 + 1.0j, 0.0, 0.0],
+                    [0.0, -2.0 + 2.0j, 0.0, 0.0, 1.0 - 1.0j, 5.0, 0.0, 0.0],
+                    [0.0, 0.0, -2.0 + 2.0j, 0.0, 0.0, 0.0, 5.0, 1.0 + 1.0j],
+                    [0.0, 0.0, 0.0, -2.0 + 2.0j, 0.0, 0.0, 1.0 - 1.0j, 5.0],
                 ]
             )
 
             assert_array_equal(hyper_cubic.to_adjacency_matrix(), target_matrix)
-
-    def test_from_adjacency_matrix(self):
-        """Test from_adjacency_matrix."""
-        size = (2, 2, 2)
-        edge_parameter = (1.0 + 1.0j, -1.0, -2.0 - 2.0j)
-        onsite_parameter = 5.0
-        boundary_condition = ("open", "periodic", "open")
-        hyper_cubic = HyperCubicLattice(size, edge_parameter, onsite_parameter, boundary_condition)
-        input_adjacency_matrix = np.ones((8, 8))
-        with self.assertRaises(NotImplementedError):
-            hyper_cubic.from_adjacency_matrix(input_adjacency_matrix)

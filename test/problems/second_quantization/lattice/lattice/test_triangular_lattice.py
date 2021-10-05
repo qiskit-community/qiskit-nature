@@ -23,12 +23,86 @@ from qiskit_nature.problems.second_quantization.lattice.lattice.triangular_latti
 class TestTriangularLattice(QiskitNatureTestCase):
     """Test TriangularLattice."""
 
-    def test_init(self):
-        """Test init."""
+    def test_init_open(self):
+        """Test init for the open boundary conditions."""
         rows = 3
         cols = 2
         edge_parameter = (1.0 + 1.0j, 2.0 + 2.0j, 3.0 + 3.0j)
-        onsite_parameter = 1.0
+        onsite_parameter = 0.0
+        boundary_condition = "open"
+        triangular = TriangularLattice(
+            rows, cols, edge_parameter, onsite_parameter, boundary_condition
+        )
+        with self.subTest("Check the graph."):
+            target_graph = PyGraph(multigraph=False)
+            target_graph.add_nodes_from(range(6))
+            weighted_list = [
+                (0, 1, 1.0 + 1.0j),
+                (1, 2, 1.0 + 1.0j),
+                (3, 4, 1.0 + 1.0j),
+                (4, 5, 1.0 + 1.0j),
+                (0, 3, 2.0 + 2.0j),
+                (1, 4, 2.0 + 2.0j),
+                (2, 5, 2.0 + 2.0j),
+                (0, 4, 3.0 + 3.0j),
+                (1, 5, 3.0 + 3.0j),
+                (0, 0, 0.0),
+                (1, 1, 0.0),
+                (2, 2, 0.0),
+                (3, 3, 0.0),
+                (4, 4, 0.0),
+                (5, 5, 0.0),
+            ]
+            target_graph.add_edges_from(weighted_list)
+            self.assertTrue(
+                is_isomorphic(triangular.graph, target_graph, edge_matcher=lambda x, y: x == y)
+            )
+
+        with self.subTest("Check the number of nodes."):
+            self.assertEqual(triangular.num_nodes, 6)
+
+        with self.subTest("Check the set of nodes."):
+            self.assertSetEqual(set(triangular.node_indexes), set(range(6)))
+
+        with self.subTest("Check the set of weights."):
+            target_set = {
+                (0, 1, 1.0 + 1.0j),
+                (1, 2, 1.0 + 1.0j),
+                (3, 4, 1.0 + 1.0j),
+                (4, 5, 1.0 + 1.0j),
+                (0, 3, 2.0 + 2.0j),
+                (1, 4, 2.0 + 2.0j),
+                (2, 5, 2.0 + 2.0j),
+                (0, 4, 3.0 + 3.0j),
+                (1, 5, 3.0 + 3.0j),
+                (0, 0, 0.0),
+                (1, 1, 0.0),
+                (2, 2, 0.0),
+                (3, 3, 0.0),
+                (4, 4, 0.0),
+                (5, 5, 0.0),
+            }
+            self.assertSetEqual(set(triangular.weighted_edge_list), target_set)
+
+        with self.subTest("Check the adjacency matrix."):
+            target_matrix = np.array(
+                [
+                    [0.0, 1.0 + 1.0j, 0.0, 2.0 + 2.0j, 3.0 + 3.0j, 0],
+                    [1.0 - 1.0j, 0.0, 1.0 + 1.0j, 0.0, 2.0 + 2.0j, 3.0 + 3.0j],
+                    [0.0, 1.0 - 1.0j, 0.0, 0.0, 0.0, 2.0 + 2.0j],
+                    [2.0 - 2.0j, 0.0, 0.0, 0.0, 1.0 + 1.0j, 0.0],
+                    [3.0 - 3.0j, 2.0 - 2.0j, 0.0, 1.0 - 1.0j, 0.0, 1.0 + 1.0j],
+                    [0.0, 3.0 - 3.0j, 2.0 - 2.0j, 0.0, 1.0 - 1.0j, 0.0],
+                ]
+            )
+            assert_array_equal(triangular.to_adjacency_matrix(), target_matrix)
+
+    def test_init_periodic(self):
+        """Test init for the periodic boundary conditions."""
+        rows = 3
+        cols = 2
+        edge_parameter = (1.0 + 1.0j, 2.0 + 2.0j, 3.0 + 3.0j)
+        onsite_parameter = 0.0
         boundary_condition = "periodic"
         triangular = TriangularLattice(
             rows, cols, edge_parameter, onsite_parameter, boundary_condition
@@ -52,12 +126,12 @@ class TestTriangularLattice(QiskitNatureTestCase):
                 (1, 3, 3.0 - 3.0j),
                 (2, 4, 3.0 - 3.0j),
                 (0, 5, 3.0 - 3.0j),
-                (0, 0, 1.0),
-                (1, 1, 1.0),
-                (2, 2, 1.0),
-                (3, 3, 1.0),
-                (4, 4, 1.0),
-                (5, 5, 1.0),
+                (0, 0, 0.0),
+                (1, 1, 0.0),
+                (2, 2, 0.0),
+                (3, 3, 0.0),
+                (4, 4, 0.0),
+                (5, 5, 0.0),
             ]
             target_graph.add_edges_from(weighted_list)
             self.assertTrue(
@@ -87,38 +161,24 @@ class TestTriangularLattice(QiskitNatureTestCase):
                 (1, 3, 3.0 - 3.0j),
                 (2, 4, 3.0 - 3.0j),
                 (0, 5, 3.0 - 3.0j),
-                (0, 0, 1.0),
-                (1, 1, 1.0),
-                (2, 2, 1.0),
-                (3, 3, 1.0),
-                (4, 4, 1.0),
-                (5, 5, 1.0),
+                (0, 0, 0.0),
+                (1, 1, 0.0),
+                (2, 2, 0.0),
+                (3, 3, 0.0),
+                (4, 4, 0.0),
+                (5, 5, 0.0),
             }
             self.assertSetEqual(set(triangular.weighted_edge_list), target_set)
 
         with self.subTest("Check the adjacency matrix."):
             target_matrix = np.array(
                 [
-                    [1.0, 1.0 + 1.0j, 1.0 - 1.0j, 2.0 + 2.0j, 3.0 + 3.0j, 3.0 - 3.0j],
-                    [1.0 - 1.0j, 1.0, 1.0 + 1.0j, 3.0 - 3.0j, 2.0 + 2.0j, 3.0 + 3.0j],
-                    [1.0 + 1.0j, 1.0 - 1.0j, 1.0, 3.0 + 3.0j, 3.0 - 3.0j, 2.0 + 2.0j],
-                    [2.0 - 2.0j, 3.0 + 3.0j, 3.0 - 3.0j, 1.0, 1.0 + 1.0j, 1.0 - 1.0j],
-                    [3.0 - 3.0j, 2.0 - 2.0j, 3.0 + 3.0j, 1.0 - 1.0j, 1.0, 1.0 + 1.0j],
-                    [3.0 + 3.0j, 3.0 - 3.0j, 2.0 - 2.0j, 1.0 + 1.0j, 1.0 - 1.0j, 1.0],
+                    [0.0, 1.0 + 1.0j, 1.0 - 1.0j, 2.0 + 2.0j, 3.0 + 3.0j, 3.0 - 3.0j],
+                    [1.0 - 1.0j, 0.0, 1.0 + 1.0j, 3.0 - 3.0j, 2.0 + 2.0j, 3.0 + 3.0j],
+                    [1.0 + 1.0j, 1.0 - 1.0j, 0.0, 3.0 + 3.0j, 3.0 - 3.0j, 2.0 + 2.0j],
+                    [2.0 - 2.0j, 3.0 + 3.0j, 3.0 - 3.0j, 0.0, 1.0 + 1.0j, 1.0 - 1.0j],
+                    [3.0 - 3.0j, 2.0 - 2.0j, 3.0 + 3.0j, 1.0 - 1.0j, 0.0, 1.0 + 1.0j],
+                    [3.0 + 3.0j, 3.0 - 3.0j, 2.0 - 2.0j, 1.0 + 1.0j, 1.0 - 1.0j, 0.0],
                 ]
             )
             assert_array_equal(triangular.to_adjacency_matrix(), target_matrix)
-
-    def test_from_adjacency_matrix(self):
-        """Test from_adjacency_matrix."""
-        rows = 3
-        cols = 2
-        edge_parameter = (1.0 + 1.0j, 2.0 + 2.0j, 3.0 + 3.0j)
-        onsite_parameter = 1.0
-        boundary_condition = "periodic"
-        triangular = TriangularLattice(
-            rows, cols, edge_parameter, onsite_parameter, boundary_condition
-        )
-        input_adjacency_matrix = np.ones((6, 6))
-        with self.assertRaises(NotImplementedError):
-            triangular.from_adjacency_matrix(input_adjacency_matrix)
