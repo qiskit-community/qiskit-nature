@@ -26,7 +26,7 @@ from qiskit.opflow import OperatorBase
 
 from ..deprecation import warn_deprecated, DeprecatedType
 
-from .vqe_runtime_client import VQEClient, VQERuntimeResult
+from .vqe_client import VQEClient, VQERuntimeResult
 
 
 class VQEProgram(VQEClient):

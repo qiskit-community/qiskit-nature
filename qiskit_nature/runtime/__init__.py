@@ -31,6 +31,6 @@ algorithms and scripts in the cloud.
 """
 
 from .vqe_program import VQEProgram, VQEProgramResult
-from .vqe_runtime_client import VQEClient, VQERuntimeResult
+from .vqe_client import VQEClient, VQERuntimeResult
 
 __all__ = ["VQEProgram", "VQEProgramResult", "VQEClient", "VQERuntimeResult"]
