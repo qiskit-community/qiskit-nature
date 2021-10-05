@@ -38,7 +38,8 @@ class TriangularLattice(Lattice):
             cols: Length of the y direction.
             edge_parameter: Weights on the unit edges.
                 This is specified as a tuple of length 3 or a single number.Defaults to 1.0,
-            onsite_parameter: Weight on the self loops. Defaults to 0.0.
+            onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
+                Defaults to 0.0.
             boundary_condition: Boundary condition for each direction.
                 Boundary condition must be specified by "open" or "periodic".
                 Defaults to "open".
@@ -52,7 +53,8 @@ class TriangularLattice(Lattice):
         self.dim = 2
         self.boundary_condition = boundary_condition
 
-        if rows < 2 or cols < 2 or (rows, cols) == (2, 2):  # TODO (1, *), (*, 1), (2, 2) は除く
+        if rows < 2 or cols < 2 or (rows, cols) == (2, 2):
+            # If it's True, triangular lattice can't be well defined.
             raise ValueError(
                 "Both of `rows` and `cols` must not be (2, 2)"
                 "and must be greater than or equal to 2."
@@ -72,7 +74,7 @@ class TriangularLattice(Lattice):
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(np.prod(self.size)))
 
-        # add edges excluding boundaries
+        # add edges excluding the boundary edges
         coordinates = list(product(*map(range, np.array([rows, cols]))))
         for x, y in coordinates:
             node_a = y * rows + x
@@ -90,12 +92,12 @@ class TriangularLattice(Lattice):
                     continue
                 graph.add_edge(node_a, node_b, edge_parameter[i])
 
-        # self-loop
+        # add self-loops
         for x, y in coordinates:
             node_a = y * rows + x
             graph.add_edge(node_a, node_a, onsite_parameter)
 
-        # boundary condition
+        # depend on boundary condition
         self.boundary_edges = []
         # add edges when the boundary condition is periodic.
         if boundary_condition == "periodic":
@@ -105,9 +107,7 @@ class TriangularLattice(Lattice):
                 for y in range(cols):
                     node_a = (y + 1) * rows - 1
                     node_b = node_a - (rows - 1)  # node_b < node_a
-                    graph.add_edge(
-                        node_b, node_a, edge_parameter[0].conjugate()
-                    )  # TODO　why conjugate?
+                    graph.add_edge(node_b, node_a, edge_parameter[0].conjugate())
                     self.boundary_edges.append((node_b, node_a))
             # The periodic boundary condition in the y direction.
             # It makes sense only when cols is greater than 2.
@@ -115,7 +115,7 @@ class TriangularLattice(Lattice):
                 for x in range(rows):
                     node_a = rows * (cols - 1) + x
                     node_b = x  # node_b < node_a
-                    graph.add_edge(node_b, node_a, edge_parameter[1].conjugate())  # TODO
+                    graph.add_edge(node_b, node_a, edge_parameter[1].conjugate())
                     self.boundary_edges.append((node_b, node_a))
             # The periodic boundary condition in the diagonal direction.
             for y in range(cols - 1):
@@ -144,12 +144,15 @@ class TriangularLattice(Lattice):
         # default position
         self.pos = {}
         for index in range(np.prod(self.size)):
+            # maps an index to two-dimensional coordinate
             x = index % self.size[0]
             y = index // self.size[0]
             if self.boundary_condition == "open":
                 return_x = x
                 return_y = y
             elif self.boundary_condition == "periodic":
+                # For the periodic boundary conditions,
+                # the positionis are shifted so that the edges between boundaries can be seen.
                 return_x = x + 0.2 * np.sin(pi * y / (self.size[1] - 1))
                 return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
             self.pos[index] = [return_x, return_y]

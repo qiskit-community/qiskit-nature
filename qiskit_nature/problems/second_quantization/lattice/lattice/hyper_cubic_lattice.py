@@ -35,7 +35,8 @@ class HyperCubicLattice(Lattice):
         Args:
             size: Lengths of each dimension.
             edge_parameter: Weights on the unit edges. Defaults to 1.0.
-            onsite_parameter: Weight on the self loops. Defaults to 0.0.
+            onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
+                Defaults to 0.0.
             boundary_condition: Boundary condition for each dimension.
                 Boundary condition must be specified by "open" or "periodic".
                 Defaults to "open".
@@ -91,15 +92,18 @@ class HyperCubicLattice(Lattice):
                     node_b = node_a + base[i]
                     graph.add_edge(node_a, node_b, edge_parameter[i])
 
-        # self-loops
+        # add self-loops
         for node_a in range(np.prod(size)):
             graph.add_edge(node_a, node_a, onsite_parameter)
 
+        # depend on the boundary condition
         self.boundary_edges = []
-        # boundary condition
         for i in range(self.dim):
+            # add edges when the boundary condition is periodic.
+            # The periodic boundary condition in the i-th direction.
+            # It makes sense only when size[i] is greater than 2.
             if boundary_condition[i] == "periodic":
-                if size[i] <= 2:  # TODO add comments why size[i] <= 2
+                if size[i] <= 2:
                     continue
                 size_list = list(size)
                 size_list[i] = 1
@@ -131,6 +135,7 @@ class HyperCubicLattice(Lattice):
         elif self.dim == 2:
             self.pos = {}
             for index in range(np.prod(self.size)):
+                # maps an index to two-dimensional coordinate
                 x = index % self.size[0]
                 y = index // self.size[0]
                 if self.boundary_conditions[1] == "open":

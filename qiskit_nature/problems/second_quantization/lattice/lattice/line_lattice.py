@@ -28,7 +28,8 @@ class LineLattice(HyperCubicLattice):
         Args:
             num_nodes: The number of sites.
             edge_parameter: Weight on the edges. Defaults to 1.0.
-            onsite_parameter: Weight on the self loops. Defaults to 0.0.
+            onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
+                Defaults to 0.0.
             boundary_condition: Boundary condition.
                 Boundary condition must be specified by "open" or "periodic".
                 Defaults to "open".

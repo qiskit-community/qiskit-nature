@@ -110,11 +110,11 @@ class Lattice:
     @staticmethod
     def _mpl(graph: PyGraph, self_loop: bool, **kwargs):
         """
-        Auxiliary function for drawing a lattice using matplotlib.
+        Auxiliary function for drawing the lattice using matplotlib.
 
         Args:
             graph : graph to be drawn.
-            self_loop : Draw self-loops in a lattice.
+            self_loop : Draw self-loops, which are edges connecting a node to itself.
             **kwargs : Kwargs for drawing the lattice.
 
         Returns:

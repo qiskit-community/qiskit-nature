@@ -13,7 +13,11 @@
 """
 Lattice Problems (:mod:`qiskit_nature.problems.second_quantization.lattice`)
 =============================================================================
-Various lattice structures are defined in a Lattice class.
+Lattice class is for making a general lattice,
+which is a graph with complex-valued weights on its edges.
+HyperCubicLattice class and others provides standard lattices with translational symmetry.
+’Models' includes classes that define Hamiltonians on a lattice.
+The weights of Lattice can be used for coupling constants or hopping parameters of a model.
 
 .. currentmodule:: qiskit_nature.problems.second_quantization.lattice
 
