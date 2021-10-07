@@ -76,7 +76,7 @@ class FermiHubbardModel:
 
         return cls(Lattice(graph), onsite_interaction)
 
-    @classmethod  # TODO
+    @classmethod
     def from_parameters(
         cls, hopping_matrix: np.ndarray, onsite_interaction: complex
     ) -> "FermiHubbardModel":
