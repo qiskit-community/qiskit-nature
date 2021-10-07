@@ -48,7 +48,13 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
     def test_setters_getters(self):
         """Test Getter/Setter"""
 
+        with self.subTest("Quantum Instance"):
+            self.assertEqual(self._vqe_uvcc_factory.quantum_instance, self.quantum_instance)
+            self._vqe_uvcc_factory.quantum_instance = None
+            self.assertEqual(self._vqe_uvcc_factory.quantum_instance, None)
+
         with self.subTest("Optimizer"):
+            self.assertEqual(self._vqe_uvcc_factory.optimizer, None)
             optimizer = COBYLA()
             self._vqe_uvcc_factory.optimizer = optimizer
             self.assertEqual(self._vqe_uvcc_factory.optimizer, optimizer)
