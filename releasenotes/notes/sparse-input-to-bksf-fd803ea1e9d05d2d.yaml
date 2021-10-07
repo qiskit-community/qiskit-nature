@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Allow input operator to BravyiKitaevSuperFastMapper to be FermionicOp in
+    sparse storage format. Previously, all input was interpreted as dense storage
+    format, which raised an error when parsing sparse format as dense failed.
