@@ -92,6 +92,25 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
+    def test_vqe_uccsd_with_callback(self):
+        """Test VQE UCCSD with callback."""
+
+        def callback(nfev, parameters, energy, stddev):
+            # pylint: disable=unused-argument
+            print(f"iterations {nfev}: energy: {energy}")
+
+        solver = VQEUCCFactory(
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            callback=callback,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            res = calc.solve(self.electronic_structure_problem)
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+        for idx, line in enumerate(out.getvalue().split("\n")):
+            if line.strip():
+                self.assertTrue(line.startswith(f"iterations {idx+1}: energy: "))
+
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
