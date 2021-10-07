@@ -12,6 +12,8 @@
 
 """ Test Numerical qEOM excited states calculation """
 
+import contextlib
+import io
 import unittest
 import warnings
 
@@ -119,6 +121,29 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         results = esc.solve(self.vibrational_problem)
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
+
+    def test_vqe_uvccsd_with_callback(self):
+        """Test VQE UVCCSD with callback."""
+
+        def callback(nfev, parameters, energy, stddev):
+            # pylint: disable=unused-argument
+            print(f"iterations {nfev}: energy: {energy}")
+
+        optimizer = COBYLA(maxiter=5000)
+        solver = VQEUVCCFactory(
+            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            optimizer=optimizer,
+            callback=callback,
+        )
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        esc = QEOM(gsc, "sd")
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            results = esc.solve(self.vibrational_problem)
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
+        for idx, line in enumerate(out.getvalue().split("\n")):
+            if line.strip():
+                self.assertTrue(line.startswith(f"iterations {idx+1}: energy: "))
 
 
 if __name__ == "__main__":
