@@ -63,7 +63,7 @@ class ElectronicEnergy(IntegralProperty):
         self._reference_energy = reference_energy
 
         # Additional, purely informational data (i.e. currently not used by the Stack itself).
-        self._orbital_enerfies: np.ndarray = None
+        self._orbital_energies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
 

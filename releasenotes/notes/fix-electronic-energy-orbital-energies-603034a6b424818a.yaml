@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixed a typo in the `ElectronicEnergy._orbital_energies` variable name.
