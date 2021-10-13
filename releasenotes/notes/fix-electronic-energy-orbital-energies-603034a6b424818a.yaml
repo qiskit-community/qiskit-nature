@@ -1,4 +1,5 @@
 ---
 fixes:
   - |
-    Fixed a typo in the `ElectronicEnergy._orbital_energies` variable name.
+    Fixed a typo in the `ElectronicEnergy._orbital_energies` variable name and
+    ensures the correct behavior of the `orbital_energies` property getter.

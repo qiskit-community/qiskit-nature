@@ -88,7 +88,7 @@ class ElectronicEnergy(IntegralProperty):
         self._reference_energy = reference_energy
 
     @property
-    def orbital_energies(self) -> np.ndarray:
+    def orbital_energies(self) -> Optional[np.ndarray]:
         """Returns the orbital energies.
 
         If no spin-distinction is made, this is a 1-D array, otherwise it is a 2-D array.
@@ -96,7 +96,7 @@ class ElectronicEnergy(IntegralProperty):
         return self._orbital_energies
 
     @orbital_energies.setter
-    def orbital_energies(self, orbital_energies: np.ndarray) -> None:
+    def orbital_energies(self, orbital_energies: Optional[np.ndarray]) -> None:
         """Sets the orbital energies."""
         self._orbital_energies = orbital_energies
 
