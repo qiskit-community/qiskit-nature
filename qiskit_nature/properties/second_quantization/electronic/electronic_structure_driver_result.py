@@ -14,6 +14,7 @@
 
 from typing import List, Tuple, cast
 
+from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -98,20 +99,15 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
         return ret
 
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns the list of :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s
-        given by the properties contained in this one."""
-        ops: List[FermionicOp] = []
-        # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
-        for cls in [
-            ElectronicEnergy,
-            ParticleNumber,
-            AngularMomentum,
-            Magnetization,
-            ElectronicDipoleMoment,
-        ]:
-            prop = self.get_property(cls)  # type: ignore
-            if prop is None:
-                continue
-            ops.extend(prop.second_q_ops())
+    def second_q_ops(self) -> ListOrDict[FermionicOp]:
+        """Returns a list or dictionary of
+        :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
+        contained in this one."""
+        ops: ListOrDict[FermionicOp] = {}
+        for prop in iter(self):
+            second_q_ops = prop.second_q_ops()
+            if isinstance(second_q_ops, dict):
+                ops.update(second_q_ops)
+            else:
+                ops[prop.name] = second_q_ops
         return ops

@@ -155,12 +155,14 @@ class AdaptVQE(GroundStateEigensolver):
         """
         second_q_ops = problem.second_q_ops()
 
+        # TODO: remove dependence on Energy property name keywords
+        hamiltonian = second_q_ops.pop("ElectronicEnergy")
         self._main_operator = self._qubit_converter.convert(
-            second_q_ops[0],
+            hamiltonian,
             num_particles=problem.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
-        aux_ops = self._qubit_converter.convert_match(second_q_ops[1:])
+        aux_ops = self._qubit_converter.convert_match(second_q_ops)
 
         if aux_operators is not None:
             for aux_op in aux_operators:

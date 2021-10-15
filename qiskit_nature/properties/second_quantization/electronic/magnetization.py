@@ -14,6 +14,7 @@
 
 from typing import cast, List
 
+from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -60,7 +61,7 @@ class Magnetization(ElectronicProperty):
             qmol.num_molecular_orbitals * 2,
         )
 
-    def second_q_ops(self) -> List[FermionicOp]:
+    def second_q_ops(self) -> ListOrDict[FermionicOp]:
         """Returns a list containing the magnetization operator."""
         op = FermionicOp(
             [
@@ -70,7 +71,7 @@ class Magnetization(ElectronicProperty):
             register_length=self._num_spin_orbitals,
             display_format="sparse",
         )
-        return [op]
+        return {self.name: op}
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
@@ -89,7 +90,7 @@ class Magnetization(ElectronicProperty):
             if aux_op_eigenvalues is None:
                 continue
 
-            if aux_op_eigenvalues[2] is not None:
-                result.magnetization.append(aux_op_eigenvalues[2][0].real)  # type: ignore
+            if aux_op_eigenvalues[self.name] is not None:
+                result.magnetization.append(aux_op_eigenvalues[self.name][0].real)  # type: ignore
             else:
                 result.magnetization.append(None)

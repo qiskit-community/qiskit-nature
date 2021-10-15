@@ -181,9 +181,9 @@ class ElectronicStructureProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first aux_value is the evaluated number of particles
-            num_particles_aux = aux_values[0][0]
+            num_particles_aux = aux_values["ParticleNumber"][0]
             # the second aux_value is the total angular momentum which (for singlets) should be zero
-            total_angular_momentum_aux = aux_values[1][0]
+            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
             particle_number = cast(
                 ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )

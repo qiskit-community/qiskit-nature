@@ -36,7 +36,7 @@ class TestAngularMomentum(QiskitNatureTestCase):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = self.prop.second_q_ops()
+        ops = list(self.prop.second_q_ops().values())
         self.assertEqual(len(ops), 1)
         with open(
             self.get_resource_path(

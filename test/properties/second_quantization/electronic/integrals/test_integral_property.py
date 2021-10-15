@@ -82,7 +82,7 @@ class TestIntegralProperty(QiskitNatureTestCase):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        second_q_ops = self.prop.second_q_ops()
+        second_q_ops = list(self.prop.second_q_ops().values())
         expected = [
             ("+_0 -_1 +_2 -_3", (1 + 0j)),
             ("+_0 -_1 -_2 +_3", (-1 + 0j)),

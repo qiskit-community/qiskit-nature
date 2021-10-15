@@ -110,12 +110,16 @@ class TestAdaptVQE(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = ElectronicEnergy(
-            [
-                OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
-                TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
-            ]
-        ).second_q_ops()
+        aux_ops = list(
+            ElectronicEnergy(
+                [
+                    OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
+                    TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
+                ]
+            )
+            .second_q_ops()
+            .values()
+        )
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.problem)

@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Optional
 
+from qiskit_nature import ListOrDict
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
@@ -129,14 +130,14 @@ class IntegralProperty(ElectronicProperty):
             f"The {self.__class__.__name__}.integral_operator is not implemented!"
         )
 
-    def second_q_ops(self) -> List[FermionicOp]:
+    def second_q_ops(self) -> ListOrDict[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
         ints = None
         if ElectronicBasis.SO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.SO]
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
-        return [sum(int.to_second_q_op() for int in ints.values()).reduce()]  # type: ignore
+        return {self.name: sum(int.to_second_q_op() for int in ints.values()).reduce()}  # type: ignore
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":

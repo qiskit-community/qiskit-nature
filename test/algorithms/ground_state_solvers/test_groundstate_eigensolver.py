@@ -127,12 +127,16 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = ElectronicEnergy(
-            [
-                OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
-                TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
-            ],
-        ).second_q_ops()
+        aux_ops = list(
+            ElectronicEnergy(
+                [
+                    OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
+                    TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
+                ],
+            )
+            .second_q_ops()
+            .values()
+        )
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.electronic_structure_problem)
@@ -148,16 +152,17 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        _, *aux_ops = self.qubit_converter.convert_match(
+        aux_ops = self.qubit_converter.convert_match(
             self.electronic_structure_problem.second_q_ops()
         )
+        aux_ops.pop("ElectronicEnergy")
         return calc, res, aux_ops
 
     def test_eval_op_single(self):
         """Test evaluating a single additional operator"""
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because in this test we test a single operator evaluation
-        add_aux_op = aux_ops[0][0]
+        add_aux_op = aux_ops["ParticleNumber"][0]
 
         # now we have the ground state calculation evaluate it
         add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
@@ -178,8 +183,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Test evaluating a list of additional operators"""
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3]
+        expected_results = {"ParticleNumber": 2, "AngularMomentum": 0, "Magnetization": 0}
+        add_aux_op = [op for name, op in aux_ops.items() if name]
 
         # now we have the ground state calculation evaluate them
         add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
@@ -192,8 +197,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Test evaluating a list of additional operators incl. `None`"""
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3] + [None]
+        expected_results = {"ParticleNumber": 2, "AngularMomentum": 0, "Magnetization": 0}
+        add_aux_op = [op for name, op in aux_ops.items() if name] + [None]
 
         # now we have the ground state calculation evaluate them
         add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
@@ -207,10 +212,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Test evaluating a dict of additional operators"""
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3]
-        # now we convert it into a dictionary
-        add_aux_op = dict(zip(expected_results.keys(), add_aux_op))
+        expected_results = {"ParticleNumber": 2, "AngularMomentum": 0, "Magnetization": 0}
+        add_aux_op = {name: op for name, op in aux_ops.items() if name}
 
         # now we have the ground state calculation evaluate them
         add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
@@ -222,10 +225,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Test evaluating a dict of additional operators incl. `None`"""
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3]
-        # now we convert it into a dictionary
-        add_aux_op = dict(zip(expected_results.keys(), add_aux_op))
+        expected_results = {"ParticleNumber": 2, "AngularMomentum": 0, "Magnetization": 0}
+        add_aux_op = {name: op for name, op in aux_ops.items() if name}
         add_aux_op["None"] = None
 
         # now we have the ground state calculation evaluate them
@@ -250,7 +251,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops()["ElectronicEnergy"]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
@@ -284,7 +285,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops()["ElectronicEnergy"]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz

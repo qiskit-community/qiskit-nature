@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Optional, Tuple, cast
 
+from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -203,9 +204,18 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             reverse_dipole_sign=qmol.reverse_dipole_sign,
         )
 
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns a list of dipole moment operators along all Cartesian axes."""
-        return [dip.second_q_ops()[0] for dip in self._properties.values()]
+    def second_q_ops(self) -> ListOrDict[FermionicOp]:
+        """Returns a list or dictionary of
+        :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
+        contained in this one."""
+        ops: ListOrDict[FermionicOp] = {}
+        for prop in iter(self):
+            second_q_ops = prop.second_q_ops()
+            if isinstance(second_q_ops, dict):
+                ops.update(second_q_ops)
+            else:
+                ops[prop.name] = second_q_ops
+        return ops
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
@@ -227,25 +237,24 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             if aux_op_eigenvalues is None:
                 continue
 
-            if len(aux_op_eigenvalues) >= 6:
-                dipole_moment = []
-                for moment in aux_op_eigenvalues[3:6]:
-                    if moment is not None:
-                        dipole_moment += [moment[0].real]  # type: ignore
-                    else:
-                        dipole_moment += [None]
+            axes_order = {"x": 0, "y": 1, "z": 2}
+            dipole_moment = [None] * 3
+            for prop in iter(self):
+                moment = aux_op_eigenvalues.get(prop.name, None)
+                if moment is not None:
+                    dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
 
-                result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
-                dipole_shifts: Dict[str, Dict[str, complex]] = {}
-                for prop in self._properties.values():
-                    for name, shift in prop._shift.items():
-                        if name not in dipole_shifts.keys():
-                            dipole_shifts[name] = {}
-                        dipole_shifts[name][prop._axis] = shift
+            result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
+            dipole_shifts: Dict[str, Dict[str, complex]] = {}
+            for prop in self._properties.values():
+                for name, shift in prop._shift.items():
+                    if name not in dipole_shifts.keys():
+                        dipole_shifts[name] = {}
+                    dipole_shifts[name][prop._axis] = shift
 
-                result.extracted_transformer_dipoles.append(
-                    {
-                        name: cast(DipoleTuple, (shift["x"], shift["y"], shift["z"]))
-                        for name, shift in dipole_shifts.items()
-                    }
-                )
+            result.extracted_transformer_dipoles.append(
+                {
+                    name: cast(DipoleTuple, (shift["x"], shift["y"], shift["z"]))
+                    for name, shift in dipole_shifts.items()
+                }
+            )

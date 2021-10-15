@@ -49,11 +49,17 @@ Submodules
 
 """
 
+from typing import Dict, List, Optional, TypeVar, Union
+
 from .version import __version__
 from .exceptions import QiskitNatureError, UnsupportMethodError
+
+_T = TypeVar("_T")
+ListOrDict = Union[List[Optional[_T]], Dict[str, _T]]
 
 __all__ = [
     "__version__",
     "QiskitNatureError",
     "UnsupportMethodError",
+    "ListOrDict",
 ]

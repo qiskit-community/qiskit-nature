@@ -14,6 +14,7 @@
 
 from typing import List, Optional, Tuple
 
+from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
@@ -58,12 +59,12 @@ class OccupiedModals(VibrationalProperty):
 
         return cls()
 
-    def second_q_ops(self) -> List[VibrationalOp]:
+    def second_q_ops(self) -> ListOrDict[VibrationalOp]:
         """Returns a list of operators each evaluating the occupied modal on a mode."""
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 
-        ops = [self._get_mode_op(mode) for mode in range(num_modes)]
+        ops = {str(mode): self._get_mode_op(mode) for mode in range(num_modes)}
         return ops
 
     def _get_mode_op(self, mode: int) -> VibrationalOp:
@@ -103,8 +104,8 @@ class OccupiedModals(VibrationalProperty):
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             occ_modals = []
             for mode in range(num_modes):
-                if aux_op_eigenvalues[mode] is not None:
-                    occ_modals.append(aux_op_eigenvalues[mode][0].real)  # type: ignore
+                if aux_op_eigenvalues[str(mode)] is not None:
+                    occ_modals.append(aux_op_eigenvalues[str(mode)][0].real)  # type: ignore
                 else:
                     occ_modals.append(None)
             result.num_occupied_modals_per_mode.append(occ_modals)  # type: ignore

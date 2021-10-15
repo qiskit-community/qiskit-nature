@@ -15,7 +15,7 @@
 from abc import abstractmethod
 from typing import Any, List, Type, TypeVar, Union
 
-from qiskit_nature import QiskitNatureError
+from qiskit_nature import ListOrDict, QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
@@ -34,7 +34,7 @@ class SecondQuantizedProperty(Property):
     """
 
     @abstractmethod
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
+    def second_q_ops(self) -> ListOrDict[SecondQuantizedOp]:
         """Returns the list of second quantized operators associated with this Property."""
 
     @classmethod
@@ -74,8 +74,8 @@ class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty
     second-quantized properties."""
 
     @abstractmethod
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
+    def second_q_ops(self) -> ListOrDict[SecondQuantizedOp]:
         """
-        Returns the list of second quantized operators given by the properties contained in this
-        group.
+        Returns a list or dictionary of second quantized operators given by the properties contained
+        in this group.
         """

@@ -19,6 +19,7 @@ import itertools
 
 import numpy as np
 
+from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -102,7 +103,7 @@ class AngularMomentum(ElectronicProperty):
             qmol.num_molecular_orbitals * 2,
         )
 
-    def second_q_ops(self) -> List[FermionicOp]:
+    def second_q_ops(self) -> ListOrDict[FermionicOp]:
         """Returns a list containing the angular momentum operator."""
         x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
         y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
@@ -112,7 +113,7 @@ class AngularMomentum(ElectronicProperty):
 
         h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
-        return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
+        return {self.name: (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()}
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
@@ -132,8 +133,8 @@ class AngularMomentum(ElectronicProperty):
             if aux_op_eigenvalues is None:
                 continue
 
-            if aux_op_eigenvalues[1] is not None:
-                total_angular_momentum = aux_op_eigenvalues[1][0].real  # type: ignore
+            if aux_op_eigenvalues[self.name] is not None:
+                total_angular_momentum = aux_op_eigenvalues[self.name][0].real  # type: ignore
                 result.total_angular_momentum.append(total_angular_momentum)
 
                 if expected is not None:
