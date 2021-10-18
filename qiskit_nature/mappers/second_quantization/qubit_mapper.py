@@ -87,21 +87,25 @@ class QubitMapper(ABC):
 
         times_creation_op = []
         times_annihilation_op = []
-        times_N_op = []
-        times_E_op = []
-        for i, paulis in enumerate(pauli_table):
+        times_occupation_number_op = []
+        times_emptiness_number_op = []
+        for paulis in pauli_table:
             real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
-            imag_part = SparsePauliOp(paulis[1], coeffs=[-0.5j])
-            times_creation_op.append(real_part + imag_part)
-
             imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
-            times_annihilation_op.append(real_part + imag_part)
+
+            # The creation operator is given by 0.5*(X - 1j*Y)
+            creation_op = real_part - imag_part
+            times_creation_op.append(creation_op)
+
+            # The annihilation operator is given by 0.5*(X + 1j*Y)
+            annihilation_op = real_part + imag_part
+            times_annihilation_op.append(annihilation_op)
 
             # The occupation number operator N is given by `+-`.
-            times_N_op.append(times_annihilation_op[-1].compose(times_creation_op[-1]))
+            times_occupation_number_op.append(creation_op.compose(annihilation_op, front=True))
 
             # The `emptiness number` operator E is given by `-+` = (I - N).
-            times_E_op.append(times_creation_op[-1].compose(times_annihilation_op[-1]))
+            times_emptiness_number_op.append(annihilation_op.compose(creation_op, front=True))
 
         # make sure ret_op_list is not empty by including a zero op
         ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
@@ -126,9 +130,9 @@ class QubitMapper(ABC):
                 elif char == "-":
                     ret_op = ret_op.compose(times_annihilation_op[position], front=True)
                 elif char == "N":
-                    ret_op = ret_op.compose(times_N_op[position], front=True)
+                    ret_op = ret_op.compose(times_occupation_number_op[position], front=True)
                 elif char == "E":
-                    ret_op = ret_op.compose(times_E_op[position], front=True)
+                    ret_op = ret_op.compose(times_emptiness_number_op[position], front=True)
                 elif char == "I":
                     continue
 
