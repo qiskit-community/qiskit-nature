@@ -38,7 +38,7 @@ class HyperCubicLattice(Lattice):
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
             boundary_condition: Boundary condition for each dimension.
-                Boundary condition must be specified by "open" or "periodic".
+                The available boundary conditions are: "open", "periodic".
                 Defaults to "open".
 
         Raises:

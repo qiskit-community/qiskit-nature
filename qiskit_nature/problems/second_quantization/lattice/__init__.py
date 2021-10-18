@@ -13,11 +13,12 @@
 """
 Lattice Problems (:mod:`qiskit_nature.problems.second_quantization.lattice`)
 =============================================================================
-Lattice class is for making a general lattice,
+The `Lattice` class is used to generate a general lattice,
 which is a graph with complex-valued weights on its edges.
-HyperCubicLattice class and others provides standard lattices with translational symmetry.
-’Models' includes classes that define Hamiltonians on a lattice.
-The weights of Lattice can be used for coupling constants or hopping parameters of a model.
+The `HyperCubicLattice` class and others provide standard lattices with certain
+translational symmetries.
+`Models` include classes that define Hamiltonians on a lattice.
+The weights of a `Lattice` object can be used for coupling constants or hopping parameters in a model.
 
 .. currentmodule:: qiskit_nature.problems.second_quantization.lattice
 
