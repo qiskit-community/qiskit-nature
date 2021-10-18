@@ -15,7 +15,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
@@ -84,26 +83,28 @@ class QubitMapper(ABC):
                 f"operator register length {second_q_op.register_length}"
             )
 
-            # 0. Some utilities
+        # 0. Some utilities
 
-        def times_creation_op(position, pauli_table):
-            # The creation operator is given by 0.5*(X - 1j*Y)
-            real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
-            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[-0.5j])
+        times_creation_op = []
+        times_annihilation_op = []
+        times_N_op = []
+        times_E_op = []
+        for i, paulis in enumerate(pauli_table):
+            real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
+            imag_part = SparsePauliOp(paulis[1], coeffs=[-0.5j])
+            times_creation_op.append(real_part + imag_part)
 
-            return real_part + imag_part
+            imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
+            times_annihilation_op.append(real_part + imag_part)
 
-        def times_annihilation_op(position, pauli_table):
-            # The annihilation operator is given by 0.5*(X + 1j*Y)
-            real_part = SparsePauliOp(pauli_table[position][0], coeffs=[0.5])
-            imag_part = SparsePauliOp(pauli_table[position][1], coeffs=[0.5j])
+            # The occupation number operator N is given by `+-`.
+            times_N_op.append(times_annihilation_op[-1].compose(times_creation_op[-1]))
 
-            return real_part + imag_part
+            # The `emptiness number` operator E is given by `-+` = (I - N).
+            times_E_op.append(times_creation_op[-1].compose(times_annihilation_op[-1]))
 
-        # 1. Initialize an operator list with the identity scaled by the `self.coeff`
-        all_false = np.full(nmodes, False)
-
-        ret_op_list = []
+        # make sure ret_op_list is not empty by including a zero op
+        ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
 
         # TODO to_list() is not an attribute of SecondQuantizedOp. Change the former to have this or
         #   change the signature above to take FermionicOp?
@@ -114,29 +115,20 @@ class QubitMapper(ABC):
         )
         for label, coeff in label_coeff_list:
 
-            ret_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[coeff])
+            # 1. Initialize an operator list with the identity scaled by the `self.coeff`
+            ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
 
             # Go through the label and replace the fermion operators by their qubit-equivalent, then
             # save the respective Pauli string in the pauli_str list.
             for position, char in enumerate(label):
                 if char == "+":
-                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
+                    ret_op = ret_op.compose(times_creation_op[position], front=True)
                 elif char == "-":
-                    ret_op = ret_op.compose(
-                        times_annihilation_op(position, pauli_table), front=True
-                    )
+                    ret_op = ret_op.compose(times_annihilation_op[position], front=True)
                 elif char == "N":
-                    # The occupation number operator N is given by `+-`.
-                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
-                    ret_op = ret_op.compose(
-                        times_annihilation_op(position, pauli_table), front=True
-                    )
+                    ret_op = ret_op.compose(times_N_op[position], front=True)
                 elif char == "E":
-                    # The `emptiness number` operator E is given by `-+` = (I - N).
-                    ret_op = ret_op.compose(
-                        times_annihilation_op(position, pauli_table), front=True
-                    )
-                    ret_op = ret_op.compose(times_creation_op(position, pauli_table), front=True)
+                    ret_op = ret_op.compose(times_E_op[position], front=True)
                 elif char == "I":
                     continue
 
@@ -147,5 +139,12 @@ class QubitMapper(ABC):
                     )
             ret_op_list.append(ret_op)
 
-        zero_op = SparsePauliOp(Pauli((all_false, all_false)), coeffs=[0])
-        return PauliSumOp(sum(ret_op_list, zero_op)).reduce()
+        def _sum(ops: List[SparsePauliOp]) -> SparsePauliOp:
+            # This is equivalent to `sum`, but this reduces the overhead of `SparsePauliOp._add`,
+            # i.e., stack of arrays.
+            while len(ops) > 1:
+                ops.append(ops[0] + ops[1])
+                ops = ops[2:]
+            return ops[0]
+
+        return PauliSumOp(_sum(ret_op_list).simplify())
