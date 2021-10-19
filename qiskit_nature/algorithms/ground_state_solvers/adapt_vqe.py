@@ -21,11 +21,12 @@ import logging
 import numpy as np
 
 from qiskit.algorithms import VQE
-from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import OperatorBase, PauliSumOp
+from qiskit.circuit import QuantumCircuit,Parameter
+from qiskit.opflow import OperatorBase, PauliSumOp,CircuitOp
+from qiskit.opflow.state_fns.state_fn import StateFn
 from qiskit.utils.validation import validate_min
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.circuit.library import UCC
+from qiskit_nature.circuit.library import UCC, ansatzes
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
@@ -33,7 +34,9 @@ from qiskit_nature.results import ElectronicStructureResult
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
-
+from qiskit.opflow.gradients import Gradient, NaturalGradient, QFI, Hessian
+from qiskit.opflow.state_fns import OperatorStateFn,CircuitStateFn
+from qiskit.opflow.list_ops import ListOp
 logger = logging.getLogger(__name__)
 
 
@@ -91,7 +94,7 @@ class AdaptVQE(GroundStateEigensolver):
             List of pairs consisting of gradient and excitation operator.
         """
         res = []
-        # compute gradients for all excitation in operator pool
+        '''# compute gradients for all excitation in operator pool
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
@@ -103,8 +106,21 @@ class AdaptVQE(GroundStateEigensolver):
             energy_results = energy_evaluation(np.asarray(parameter_sets))
             # compute gradient
             gradient = (energy_results[0] - energy_results[1]) / (2 * self._delta)
-            res.append((np.abs(gradient), exc))
-
+            res.append((np.abs(gradient), exc))'''
+        a= Parameter('a')
+        b= Parameter('b')
+        parameter_sets = [a,b]
+        for exc in self._excitation_pool:
+            #qc=self._ansatz.operators + [exc]
+            self._ansatz.operators= self._ansatz.operators + [exc]
+            qc= self._ansatz
+            op=~StateFn(self._main_operator)@CircuitStateFn(primitive=qc,coeff=1.)
+            state_grad = Gradient(grad_method='param_shift').convert(operator=op, params=parameter_sets)
+            # Assign the parameters and evaluate the gradient
+            value_dict = { a: -1, b: 1}
+            state_grad_result = state_grad.assign_parameters(value_dict).eval()
+            print('State gradient computed with parameter shift', state_grad_result)
+            res.append(np.abs(state_grad_result))
         return res
 
     @staticmethod
