@@ -11,13 +11,87 @@
 # that they have been altered from the originals.
 
 """General Lattice."""
+from functools import wraps
+from inspect import signature
 from typing import Callable, List, Optional, Sequence, Tuple, Union
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.colors import Colormap
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
+
+
+def _add_signature(func_with_signature):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        sig = signature(func)
+        sig_func = signature(func_with_signature)
+        post_params = []
+        pre_params = []
+
+        for k, v in sig.parameters.items():
+            if str(v)[0] == "*":
+                post_params.append(sig.parameters[k])
+            else:
+                pre_params.append(sig.parameters[k])
+
+        wrapper.__signature__ = sig.replace(
+            parameters=pre_params + list(sig_func.parameters.values()) + post_params
+        )
+        wrapper.__annotations__ = {**func.__annotations__, **func_with_signature.__annotations__}
+
+        return wrapper
+
+    return decorator
+
+
+# pylint: disable=unused-argument
+def _draw_signature(
+    pos: Optional[dict] = None,
+    ax: Optional[Axes] = None,
+    arrows: bool = True,
+    arrowstyle: Optional[str] = None,
+    arrow_size: int = 10,
+    with_labels: bool = False,
+    node_list: Optional[list] = None,
+    edge_list: Optional[list] = None,
+    node_size: Union[int, list] = 300,
+    node_color: Union[
+        str,
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        List[Union[str, Tuple[float, float, float], Tuple[float, float, float, float]]],
+    ] = "#1f78b4",
+    node_shape: str = "o",
+    alpha: Optional[float] = None,
+    cmap: Optional[Colormap] = None,
+    vmin: Optional[float] = None,
+    vmax: Optional[float] = None,
+    linewidths: Union[float, Sequence] = 1.0,
+    width: Union[float, Sequence] = 1.0,
+    edge_color: Union[str, Sequence] = "k",
+    edge_cmap: Optional[Colormap] = None,
+    edge_vmin: Optional[float] = None,
+    edge_vmax: Optional[float] = None,
+    style: str = "solid",
+    labels: Optional[Callable] = None,
+    edge_labels: Optional[Callable] = None,
+    font_size: int = 12,
+    font_color: str = "k",
+    font_weight: str = "normal",
+    font_family: str = "sans-serif",
+    label: Optional[str] = None,
+    connectionstyle: str = "arc3",
+):
+    pass
+
+
+_add_draw_signature = _add_signature(_draw_signature)
 
 
 class Lattice:
@@ -132,45 +206,10 @@ class Lattice:
         )
         plt.draw()
 
-    # pylint: disable=missing-param-doc
+    @_add_draw_signature
     def draw(
         self,
         self_loop: bool = False,
-        pos: Optional[dict] = None,
-        ax: Optional[Axes] = None,
-        arrows: bool = True,
-        arrowstyle: Optional[str] = None,
-        arrow_size: int = 10,
-        with_labels: bool = False,
-        node_list: Optional[list] = None,
-        edge_list: Optional[list] = None,
-        node_size: Union[int, list] = 300,
-        node_color: Union[
-            str,
-            Tuple[float, float, float],
-            Tuple[float, float, float],
-            List[Union[str, Tuple[float, float, float], Tuple[float, float, float, float]]],
-        ] = "#1f78b4",
-        node_shape: str = "o",
-        alpha: Optional[float] = None,
-        cmap: Optional[Colormap] = None,
-        vmin: Optional[float] = None,
-        vmax: Optional[float] = None,
-        linewidths: Union[float, Sequence] = 1.0,
-        width: Union[float, Sequence] = 1.0,
-        edge_color: Union[str, Sequence] = "k",
-        edge_cmap: Optional[Colormap] = None,
-        edge_vmin: Optional[float] = None,
-        edge_vmax: Optional[float] = None,
-        style: str = "solid",
-        labels: Optional[Callable] = None,
-        edge_labels: Optional[Callable] = None,
-        font_size: int = 12,
-        font_color: str = "k",
-        font_weight: str = "normal",
-        font_family: str = "sans-serif",
-        label: Optional[str] = None,
-        connectionstyle: str = "arc3",
         **kwargs,
     ):
         """Draw the lattice.
@@ -185,40 +224,10 @@ class Lattice:
 
         graph = self.graph
 
-        if pos is None:
-            pos = self.pos
+        if "pos" not in kwargs:
+            kwargs["pos"] = self.pos
         self._mpl(
             graph=graph,
             self_loop=self_loop,
-            pos=pos,
-            ax=ax,
-            arrows=arrows,
-            arrowstyle=arrowstyle,
-            arrow_size=arrow_size,
-            with_labels=with_labels,
-            node_list=node_list,
-            edge_list=edge_list,
-            node_size=node_size,
-            node_color=node_color,
-            node_shape=node_shape,
-            alpha=alpha,
-            cmap=cmap,
-            vmin=vmin,
-            vmax=vmax,
-            linewidths=linewidths,
-            width=width,
-            edge_color=edge_color,
-            edge_cmap=edge_cmap,
-            edge_vmin=edge_vmin,
-            edge_vmax=edge_vmax,
-            style=style,
-            labels=labels,
-            edge_labels=edge_labels,
-            font_size=font_size,
-            font_color=font_color,
-            font_weight=font_weight,
-            font_family=font_family,
-            label=label,
-            connectionstyle=connectionstyle,
             **kwargs,
         )

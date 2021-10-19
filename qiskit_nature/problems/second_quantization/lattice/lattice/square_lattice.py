@@ -12,6 +12,7 @@
 
 """Square lattice"""
 from typing import Tuple, Union
+
 from .hyper_cubic_lattice import HyperCubicLattice
 
 

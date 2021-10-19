@@ -11,14 +11,14 @@
 # that they have been altered from the originals.
 
 """Triangular lattice"""
-from math import pi
-from typing import Callable, List, Optional, Sequence, Tuple, Union
 from itertools import product
+from math import pi
+from typing import Callable, List, Optional, Tuple, Union
+
 import numpy as np
-from matplotlib.axes import Axes
-from matplotlib.colors import Colormap
 from retworkx import PyGraph
-from .lattice import Lattice
+
+from .lattice import Lattice, _add_draw_signature
 
 
 class TriangularLattice(Lattice):
@@ -157,45 +157,10 @@ class TriangularLattice(Lattice):
                 return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
             self.pos[index] = [return_x, return_y]
 
-    # pylint: disable=missing-param-doc
+    @_add_draw_signature
     def draw_without_boundary(
         self,
         self_loop: bool = False,
-        pos: Optional[dict] = None,
-        ax: Optional[Axes] = None,
-        arrows: bool = True,
-        arrowstyle: Optional[str] = None,
-        arrow_size: int = 10,
-        with_labels: bool = False,
-        node_list: Optional[list] = None,
-        edge_list: Optional[list] = None,
-        node_size: Union[int, list] = 300,
-        node_color: Union[
-            str,
-            Tuple[float, float, float],
-            Tuple[float, float, float],
-            List[Union[str, Tuple[float, float, float], Tuple[float, float, float, float]]],
-        ] = "#1f78b4",
-        node_shape: str = "o",
-        alpha: Optional[float] = None,
-        cmap: Optional[Colormap] = None,
-        vmin: Optional[float] = None,
-        vmax: Optional[float] = None,
-        linewidths: Union[float, Sequence] = 1.0,
-        width: Union[float, Sequence] = 1.0,
-        edge_color: Union[str, Sequence] = "k",
-        edge_cmap: Optional[Colormap] = None,
-        edge_vmin: Optional[float] = None,
-        edge_vmax: Optional[float] = None,
-        style: str = "solid",
-        labels: Optional[Callable] = None,
-        edge_labels: Optional[Callable] = None,
-        font_size: int = 12,
-        font_color: str = "k",
-        font_weight: str = "normal",
-        font_family: str = "sans-serif",
-        label: Optional[str] = None,
-        connectionstyle: str = "arc3",
         **kwargs,
     ):
         r"""Draw the lattice.
@@ -213,46 +178,18 @@ class TriangularLattice(Lattice):
         """
         graph = self.graph
 
-        if pos is None:
+        if "pos" not in kwargs:
             if self.dim == 1:
-                pos = {i: [i, 0] for i in range(self.size[0])}
+                kwargs["pos"] = {i: [i, 0] for i in range(self.size[0])}
             elif self.dim == 2:
-                pos = {i: [i % self.size[0], i // self.size[0]] for i in range(np.prod(self.size))}
+                kwargs["pos"] = {
+                    i: [i % self.size[0], i // self.size[0]] for i in range(np.prod(self.size))
+                }
 
         graph.remove_edges_from(self.boundary_edges)
 
         self._mpl(
             graph=graph,
             self_loop=self_loop,
-            pos=pos,
-            ax=ax,
-            arrows=arrows,
-            arrowstyle=arrowstyle,
-            arrow_size=arrow_size,
-            with_labels=with_labels,
-            node_list=node_list,
-            edge_list=edge_list,
-            node_size=node_size,
-            node_color=node_color,
-            node_shape=node_shape,
-            alpha=alpha,
-            cmap=cmap,
-            vmin=vmin,
-            vmax=vmax,
-            linewidths=linewidths,
-            width=width,
-            edge_color=edge_color,
-            edge_cmap=edge_cmap,
-            edge_vmin=edge_vmin,
-            edge_vmax=edge_vmax,
-            style=style,
-            labels=labels,
-            edge_labels=edge_labels,
-            font_size=font_size,
-            font_color=font_color,
-            font_weight=font_weight,
-            font_family=font_family,
-            label=label,
-            connectionstyle=connectionstyle,
             **kwargs,
         )
