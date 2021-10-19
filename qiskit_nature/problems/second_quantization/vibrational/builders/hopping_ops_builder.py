@@ -71,10 +71,10 @@ def _build_qeom_hopping_ops(
     to_be_executed_list = []
     for idx in range(size):
         to_be_executed_list += [excitations_list[idx], excitations_list[idx][::-1]]
-        hopping_operators["E_{}".format(idx)] = None
-        hopping_operators["Edag_{}".format(idx)] = None
-        excitation_indices["E_{}".format(idx)] = excitations_list[idx]
-        excitation_indices["Edag_{}".format(idx)] = excitations_list[idx][::-1]
+        hopping_operators[f"E_{idx}"] = None
+        hopping_operators[f"Edag_{idx}"] = None
+        excitation_indices[f"E_{idx}"] = excitations_list[idx]
+        excitation_indices[f"Edag_{idx}"] = excitations_list[idx][::-1]
 
     result = parallel_map(
         _build_single_hopping_operator,

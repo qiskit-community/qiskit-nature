@@ -97,7 +97,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         PyQuanteDriver.check_installed()
         PyQuanteDriver.check_method_supported(method)
         if not isinstance(atoms, str) and not isinstance(atoms, list):
-            raise QiskitNatureError("Invalid atom input for PYQUANTE Driver '{}'".format(atoms))
+            raise QiskitNatureError(f"Invalid atom input for PYQUANTE Driver '{atoms}'")
 
         if isinstance(atoms, list):
             atoms = ";".join(atoms)
@@ -239,14 +239,14 @@ class PyQuanteDriver(ElectronicStructureDriver):
 
         q_mol.origin_driver_name = "PYQUANTE"
         cfg = [
-            "atoms={}".format(atoms),
-            "units={}".format(units.value),
-            "charge={}".format(charge),
-            "multiplicity={}".format(multiplicity),
-            "basis={}".format(basis.value),
-            "method={}".format(method.value),
-            "tol={}".format(self._tol),
-            "maxiters={}".format(self._maxiters),
+            f"atoms={atoms}",
+            f"units={units.value}",
+            f"charge={charge}",
+            f"multiplicity={multiplicity}",
+            f"basis={basis.value}",
+            f"method={method.value}",
+            f"tol={self._tol}",
+            f"maxiters={self._maxiters}",
             "",
         ]
         q_mol.origin_driver_config = "\n".join(cfg)

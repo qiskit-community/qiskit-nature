@@ -108,7 +108,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             [2.2973803125, 3, 3, 3, 3],
         ]
         for i, entry in enumerate(watson.data):
-            msg = "mode[{}]={} does not match expected {}".format(i, entry, expected[i])
+            msg = f"mode[{i}]={entry} does not match expected {expected[i]}"
             self.assertAlmostEqual(entry[0], expected[i][0], msg=msg)
             self.assertListEqual(entry[1:], expected[i][1:], msg=msg)
 

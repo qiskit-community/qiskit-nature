@@ -83,7 +83,7 @@ class BOPESSampler:
                 if not isinstance(self._extrapolator, WindowExtrapolator):
                     raise QiskitNatureError(
                         "If num_bootstrap >= 2 then the extrapolator must be an instance "
-                        "of WindowExtrapolator, got {} instead".format(self._extrapolator)
+                        f"of WindowExtrapolator, got {self._extrapolator} instead"
                     )
                 self._num_bootstrap = num_bootstrap
                 self._extrapolator.window = num_bootstrap  # window for extrapolator

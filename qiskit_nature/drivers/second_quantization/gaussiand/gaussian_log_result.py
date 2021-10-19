@@ -57,7 +57,7 @@ class GaussianLogResult:
             self._log = log
 
         else:
-            raise ValueError("Invalid input for Gaussian Log Parser '{}'".format(log))
+            raise ValueError(f"Invalid input for Gaussian Log Parser '{log}'")
 
     @property
     def log(self) -> List[str]:
@@ -111,9 +111,9 @@ class GaussianLogResult:
         constants = []
         pattern_constants = ""
         for i in range(indices):
-            pattern_constants += r"\s+(?P<index{}>\w+)".format(i + 1)
+            pattern_constants += fr"\s+(?P<index{i + 1}>\w+)"
         for i in range(3):
-            pattern_constants += r"\s+(?P<const{}>[+-]?\d+\.\d+)".format(i + 1)
+            pattern_constants += fr"\s+(?P<const{i + 1}>[+-]?\d+\.\d+)"
 
         # Find the section of interest
         i = 0
@@ -143,9 +143,9 @@ class GaussianLogResult:
                     if const is not None:
                         clist = []  # type: List[Union[str, float]]
                         for i in range(indices):
-                            clist.append(const.group("index{}".format(i + 1)))
+                            clist.append(const.group(f"index{i + 1}"))
                         for i in range(3):
-                            clist.append(float(const.group("const{}".format(i + 1))))
+                            clist.append(float(const.group(f"const{i + 1}")))
                         constants.append(tuple(clist))
                     else:
                         break  # End of matching lines

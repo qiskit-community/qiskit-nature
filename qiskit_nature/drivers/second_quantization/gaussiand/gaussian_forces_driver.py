@@ -106,7 +106,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         elif molecule.units == UnitsType.BOHR:
             units = "Bohr"
         else:
-            raise QiskitNatureError("Unknown unit '{}'".format(molecule.units.value))
+            raise QiskitNatureError(f"Unknown unit '{molecule.units.value}'")
         cfg1 = f"#p B3LYP/{basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
         name = "".join([name for (name, _) in molecule.geometry])
         geom = "\n".join(

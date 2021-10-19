@@ -42,6 +42,9 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")
 
+        if second_q_op.display_format == "sparse":
+            second_q_op = FermionicOp(second_q_op._to_dense_label_data(), display_format="dense")
+
         edge_list = _bksf_edge_list_fermionic_op(second_q_op)
         sparse_pauli = _convert_operator(second_q_op, edge_list)
 
