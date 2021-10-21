@@ -110,11 +110,14 @@ class AdaptVQE(GroundStateEigensolver):
         a= Parameter('a')
         b= Parameter('b')
         parameter_sets = [a,b]
+        self._ansatz.operators= self._ansatz.operators + theta 
         for exc in self._excitation_pool:
             #qc=self._ansatz.operators + [exc]
             self._ansatz.operators= self._ansatz.operators + [exc]
-            qc= self._ansatz
-            op=~StateFn(self._main_operator)@CircuitStateFn(primitive=qc,coeff=1.)
+            param_dict = dict(zip(self._ansatz.parameters, parameter_sets))
+            wave_function = self._ansatz.assign_parameters(param_dict)
+            #vqe._ansatz= self._ansatz
+            op=~StateFn(self._main_operator)@CircuitStateFn(primitive=wave_function,coeff=1.)
             state_grad = Gradient(grad_method='param_shift').convert(operator=op, params=parameter_sets)
             # Assign the parameters and evaluate the gradient
             value_dict = { a: -1, b: 1}
