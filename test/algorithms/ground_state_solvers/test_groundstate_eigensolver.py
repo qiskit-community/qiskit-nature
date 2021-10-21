@@ -140,6 +140,28 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
 
+    def test_dict_based_aux_ops(self):
+        """Test the `test_dict_based_aux_ops` variant"""
+        solver = NumPyMinimumEigensolverFactory()
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem, dict_based_aux_ops=True)
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+        self.assertTrue(np.all(isinstance(aux_op, dict) for aux_op in res.aux_operator_eigenvalues))
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["ParticleNumber"][0], 2.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["ParticleNumber"][1], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["AngularMomentum"][0], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["AngularMomentum"][1], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["Magnetization"][0], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["Magnetization"][1], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["DipoleMomentX"][0], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["DipoleMomentX"][1], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["DipoleMomentY"][0], 0.0, places=6)
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["DipoleMomentY"][1], 0.0, places=6)
+        self.assertAlmostEqual(
+            res.aux_operator_eigenvalues[0]["DipoleMomentZ"][0], -1.3889487, places=6
+        )
+        self.assertAlmostEqual(res.aux_operator_eigenvalues[0]["DipoleMomentZ"][1], 0.0, places=6)
+
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))

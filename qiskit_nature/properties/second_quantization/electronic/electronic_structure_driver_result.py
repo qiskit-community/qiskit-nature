@@ -116,10 +116,10 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
                 prop = self.get_property(cls)  # type: ignore
                 if prop is None:
                     continue
-                ops.extend(prop.second_q_ops())
+                ops.extend(prop.second_q_ops(return_list))
             return ops
 
         ops: Dict[str, FermionicOp] = {}
         for prop in iter(self):
-            ops.update(prop.second_q_ops())
+            ops.update(prop.second_q_ops(return_list))
         return ops

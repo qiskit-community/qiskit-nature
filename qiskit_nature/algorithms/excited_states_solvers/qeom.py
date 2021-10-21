@@ -80,6 +80,7 @@ class QEOM(ExcitedStatesSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[List[SecondQuantizedOp]] = None,
+        dict_based_aux_ops: bool = False,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -89,6 +90,8 @@ class QEOM(ExcitedStatesSolver):
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            dict_based_aux_ops: if True, the auxiliary operators will be stored in a `dict` rather
+                than `list`.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -105,7 +108,7 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem)
 
         # 2. Prepare the excitation operators
-        second_q_ops = problem.second_q_ops()
+        second_q_ops = problem.second_q_ops(return_list=not dict_based_aux_ops)
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
         elif isinstance(second_q_ops, dict):

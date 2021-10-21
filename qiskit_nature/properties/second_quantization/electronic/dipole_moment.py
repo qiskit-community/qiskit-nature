@@ -209,11 +209,11 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
         contained in this one."""
         if return_list:
-            return [dip.second_q_ops()[0] for dip in self._properties.values()]
+            return [dip.second_q_ops(return_list)[0] for dip in self._properties.values()]
 
         ops: Dict[str, FermionicOp] = {}
         for prop in iter(self):
-            ops.update(prop.second_q_ops())
+            ops.update(prop.second_q_ops(return_list))
         return ops
 
     def interpret(self, result: EigenstateResult) -> None:

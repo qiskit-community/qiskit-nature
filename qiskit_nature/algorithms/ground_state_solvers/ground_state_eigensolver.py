@@ -66,12 +66,15 @@ class GroundStateEigensolver(GroundStateSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        dict_based_aux_ops: bool = False,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            dict_based_aux_ops: if True, the auxiliary operators will be stored in a `dict` rather
+                than `list`.
 
         Raises:
             NotImplementedError: If an operator in ``aux_operators`` is not of type
@@ -84,7 +87,7 @@ class GroundStateEigensolver(GroundStateSolver):
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        second_q_ops = problem.second_q_ops()
+        second_q_ops = problem.second_q_ops(return_list=not dict_based_aux_ops)
 
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]

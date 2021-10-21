@@ -44,12 +44,15 @@ class GroundStateSolver(ABC):
         self,
         problem: BaseProblem,
         aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        dict_based_aux_ops: bool = False,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            dict_based_aux_ops: if True, the auxiliary operators will be stored in a `dict` rather
+                than `list`.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
