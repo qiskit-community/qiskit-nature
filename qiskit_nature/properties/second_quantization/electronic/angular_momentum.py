@@ -19,11 +19,11 @@ import itertools
 
 import numpy as np
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
@@ -113,7 +113,9 @@ class AngularMomentum(ElectronicProperty):
 
         h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
-        return {self.name: (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()}
+        return ListOrDict(
+            {self.name: (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()}
+        )
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:

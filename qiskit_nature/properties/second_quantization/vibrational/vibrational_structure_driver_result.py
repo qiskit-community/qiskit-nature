@@ -12,12 +12,12 @@
 
 """The VibrationalStructureDriverResult class."""
 
-from typing import List, cast
+from typing import Dict, cast
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
+from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
@@ -80,11 +80,9 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         """Returns a list or dictionary of
         :class:`~qiskit_nature.operators.second_quantization.VibrationalOp`s given by the properties
         contained in this one."""
-        ops: ListOrDict[VibrationalOp] = {}
+        ops = ListOrDict()
         for prop in iter(self):
             second_q_ops = prop.second_q_ops()
-            if isinstance(second_q_ops, dict):
-                ops.update(second_q_ops)
-            else:
-                ops[prop.name] = second_q_ops
+            ops.update(second_q_ops)
+        ops.main_key = "VibrationalEnergy"
         return ops

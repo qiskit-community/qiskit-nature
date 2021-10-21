@@ -14,11 +14,11 @@
 
 from typing import cast, Dict, List, Optional, Tuple
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
+from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
@@ -141,7 +141,7 @@ class VibrationalEnergy(VibrationalProperty):
                 break
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
-        return {self.name: sum(ops)}  # type: ignore
+        return ListOrDict({self.name: sum(ops)})  # type: ignore
 
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.

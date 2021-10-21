@@ -17,11 +17,11 @@ from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
 
@@ -166,7 +166,7 @@ class ParticleNumber(ElectronicProperty):
             register_length=self._num_spin_orbitals,
             display_format="sparse",
         )
-        return {self.name: op}
+        return ListOrDict({self.name: op})
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:

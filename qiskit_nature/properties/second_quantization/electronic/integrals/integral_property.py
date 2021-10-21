@@ -14,10 +14,10 @@
 
 from typing import Dict, List, Optional
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
+from ....types import ListOrDict
 from ...second_quantized_property import LegacyDriverResult
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 from ..types import ElectronicProperty
@@ -137,7 +137,9 @@ class IntegralProperty(ElectronicProperty):
             ints = self._electronic_integrals[ElectronicBasis.SO]
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
-        return {self.name: sum(int.to_second_q_op() for int in ints.values()).reduce()}  # type: ignore
+        return ListOrDict(  # type: ignore
+            {self.name: sum(int.to_second_q_op() for int in ints.values()).reduce()}
+        )
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":

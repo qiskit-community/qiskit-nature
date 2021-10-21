@@ -21,10 +21,11 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import ListOrDict, QiskitNatureError
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.mappers.second_quantization import QubitMapper
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.properties.types import ListOrDict, ListOrDictType
 
 logger = logging.getLogger(__name__)
 
@@ -219,9 +220,11 @@ class QubitConverter:
 
     def convert_match(
         self,
-        second_q_ops: Union[SecondQuantizedOp, ListOrDict[SecondQuantizedOp]],
+        second_q_ops: Union[
+            SecondQuantizedOp, ListOrDictType[SecondQuantizedOp], ListOrDict[SecondQuantizedOp]
+        ],
         suppress_none: bool = False,
-    ) -> Union[PauliSumOp, ListOrDict[Optional[PauliSumOp]]]:
+    ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
         """Convert further operators to match that done in :meth:`convert`, or as set by
             :meth:`force_match`.
 
@@ -241,48 +244,43 @@ class QubitConverter:
         """
         # To allow a single operator to be converted, but use the same logic that does the
         # actual conversions, we make a single entry list of it here and unwrap to return.
-        wrapped = False
+        wrapped_type = type(second_q_ops)
+
         if isinstance(second_q_ops, SecondQuantizedOp):
             second_q_ops = [second_q_ops]
-            wrapped = True
             suppress_none = False  # When only a single op we will return None back
 
-        # TODO: refactor!
-        # The following 6 lines occur multiple times in the code base because they deal with the
-        # iteration over a `ListOrDict` object. This could easily be extracted if `ListOrDict` were
-        # made a proper class rather than just a `TypeVar`. Terra also has this concept so for its
-        # aux_operators so if we come up with a good and general interface we may extract it into
-        # Terra.
-        if isinstance(second_q_ops, list):
-            qubit_ops = [None] * len(second_q_ops)
-            iter_s_ops = enumerate(second_q_ops)
-        else:
-            qubit_ops = {}
-            iter_s_ops = second_q_ops.items()
+        if not isinstance(second_q_ops, ListOrDict):
+            second_q_ops = ListOrDict(second_q_ops)
 
-        for name, second_q_op in iter_s_ops:
+        qubit_ops = ListOrDict()
+        for name, second_q_op in iter(second_q_ops):
             qubit_ops[name] = self._map(second_q_op)
 
-        if isinstance(second_q_ops, list):
-            reduced_ops = [None] * len(second_q_ops)
-            iter_q_ops = enumerate(qubit_ops)
-        else:
-            reduced_ops = {}
-            iter_q_ops = qubit_ops.items()
-
-        for name, qubit_op in iter_q_ops:
+        reduced_ops = ListOrDict()
+        for name, qubit_op in iter(qubit_ops):
             reduced_ops[name] = self._two_qubit_reduce(qubit_op, self._num_particles)
 
-        tapered_ops = self._symmetry_reduce(reduced_ops, suppress_none)
+        tapered_ops = self._symmetry_reduce(reduced_ops)
 
-        if wrapped:
-            tapered_ops = tapered_ops[0]
+        if issubclass(wrapped_type, SecondQuantizedOp):
+            tapered_ops = list(iter(tapered_ops))[0][1]
+        elif wrapped_type == list:
+            if suppress_none:
+                tapered_ops = [op for _, op in iter(tapered_ops) if op is not None]
+            else:
+                tapered_ops = [op for _, op in iter(tapered_ops)]
+        elif wrapped_type == dict:
+            tapered_ops = dict(iter(tapered_ops))
 
         return tapered_ops
 
     def map(
-        self, second_q_ops: Union[SecondQuantizedOp, ListOrDict[SecondQuantizedOp]]
-    ) -> Union[PauliSumOp, ListOrDict[Optional[PauliSumOp]]]:
+        self,
+        second_q_ops: Union[
+            SecondQuantizedOp, ListOrDictType[SecondQuantizedOp], ListOrDict[SecondQuantizedOp]
+        ],
+    ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
         """A convenience method to map second quantized operators based on current mapper.
 
         Args:
@@ -294,10 +292,20 @@ class QubitConverter:
         """
         if isinstance(second_q_ops, SecondQuantizedOp):
             qubit_ops = self._map(second_q_ops)
-        elif isinstance(second_q_ops, list):
-            qubit_ops = [self._map(second_q_op) for second_q_op in second_q_ops]
         else:
-            qubit_ops = {name: self._map(second_q_op) for name, second_q_op in second_q_ops.items()}
+            wrapped_type = type(second_q_ops)
+
+            if not isinstance(second_q_ops, ListOrDict):
+                second_q_ops = ListOrDict(second_q_ops)
+
+            qubit_ops = ListOrDict()
+            for name, second_q_op in iter(second_q_ops):
+                qubit_ops[name] = self._map(second_q_op)
+
+            if wrapped_type == list:
+                qubit_ops = [op for _, op in iter(qubit_ops)]
+            elif wrapped_type == dict:
+                qubit_ops = dict(iter(qubit_ops))
 
         return qubit_ops
 
@@ -382,39 +390,27 @@ class QubitConverter:
 
         return tapered_qubit_op, z2_symmetries
 
-    def _symmetry_reduce(
-        self, qubit_ops: ListOrDict[PauliSumOp], suppress_none: bool
-    ) -> List[Optional[PauliSumOp]]:
+    def _symmetry_reduce(self, qubit_ops: ListOrDict[PauliSumOp]) -> ListOrDict[PauliSumOp]:
 
         if self._z2symmetries is None or self._z2symmetries.is_empty():
             tapered_qubit_ops = qubit_ops
         else:
-            if isinstance(qubit_ops, list):
-                iter_ops = enumerate(qubit_ops)
-            else:
-                iter_ops = qubit_ops.items()
-
             logger.debug("Checking operators commute with symmetry:")
             symmetry_ops = []
             for symmetry in self._z2symmetries.symmetries:
                 symmetry_ops.append(PauliSumOp.from_list([(symmetry.to_label(), 1.0)]))
             commuted = {}
-            for name, qubit_op in iter_ops:
+            for name, qubit_op in iter(qubit_ops):
                 commutes = QubitConverter._check_commutes(symmetry_ops, qubit_op)
                 commuted[name] = commutes
                 logger.debug("Qubit operators commuted with symmetry %s", commuted)
 
             # Tapering values were set from prior convert so we go ahead and taper operators
-            if isinstance(qubit_ops, list):
-                tapered_qubit_ops = [None] * len(qubit_ops)
-            else:
-                tapered_qubit_ops = {}
+            tapered_qubit_ops = ListOrDict()
             for name, commutes in commuted.items():
                 if commutes:
                     tapered_qubit_ops[name] = self._z2symmetries.taper(qubit_ops[name])
 
-        if suppress_none:
-            return [op for op in tapered_qubit_ops if op is not None]
         return tapered_qubit_ops
 
     @staticmethod

@@ -51,7 +51,7 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
             )
         )
         driver_result = driver.run()
-        fermionic_op = driver_result.second_q_ops()[0]
+        fermionic_op = driver_result.second_q_ops()["ElectronicEnergy"]
         mapper = JordanWignerMapper()
         qubit_op = mapper.map(fermionic_op)
 

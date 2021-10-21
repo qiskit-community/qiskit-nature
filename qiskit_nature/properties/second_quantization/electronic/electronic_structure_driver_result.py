@@ -12,13 +12,13 @@
 
 """The ElectronicStructureDriverResult class."""
 
-from typing import List, Tuple, cast
+from typing import Dict, List, Tuple, cast
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
+from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from ..driver_metadata import DriverMetadata
 from .angular_momentum import AngularMomentum
@@ -103,11 +103,9 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         """Returns a list or dictionary of
         :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
         contained in this one."""
-        ops: ListOrDict[FermionicOp] = {}
+        ops = ListOrDict()
         for prop in iter(self):
             second_q_ops = prop.second_q_ops()
-            if isinstance(second_q_ops, dict):
-                ops.update(second_q_ops)
-            else:
-                ops[prop.name] = second_q_ops
+            ops.update(second_q_ops)
+        ops.main_key = "ElectronicEnergy"
         return ops

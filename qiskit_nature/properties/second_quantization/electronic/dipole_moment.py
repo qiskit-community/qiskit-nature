@@ -14,13 +14,13 @@
 
 from typing import Dict, List, Optional, Tuple, cast
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ..second_quantized_property import LegacyDriverResult
 from ...grouped_property import GroupedProperty
+from ...types import ListOrDict
+from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .types import ElectronicProperty
@@ -208,14 +208,14 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         """Returns a list or dictionary of
         :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
         contained in this one."""
-        ops: ListOrDict[FermionicOp] = {}
+        ops: Dict[str, FermionicOp] = {}
         for prop in iter(self):
             second_q_ops = prop.second_q_ops()
             if isinstance(second_q_ops, dict):
                 ops.update(second_q_ops)
             else:
                 ops[prop.name] = second_q_ops
-        return ops
+        return ListOrDict(ops)
 
     # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:

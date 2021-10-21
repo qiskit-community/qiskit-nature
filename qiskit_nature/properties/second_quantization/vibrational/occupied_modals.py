@@ -14,11 +14,11 @@
 
 from typing import List, Optional, Tuple
 
-from qiskit_nature import ListOrDict
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
+from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
@@ -64,7 +64,7 @@ class OccupiedModals(VibrationalProperty):
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 
-        ops = {str(mode): self._get_mode_op(mode) for mode in range(num_modes)}
+        ops = ListOrDict({str(mode): self._get_mode_op(mode) for mode in range(num_modes)})
         return ops
 
     def _get_mode_op(self, mode: int) -> VibrationalOp:

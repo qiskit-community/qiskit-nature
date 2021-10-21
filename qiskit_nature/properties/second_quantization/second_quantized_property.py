@@ -15,12 +15,13 @@
 from abc import abstractmethod
 from typing import Any, List, Type, TypeVar, Union
 
-from qiskit_nature import ListOrDict, QiskitNatureError
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
 from ..grouped_property import GroupedProperty
 from ..property import Property
+from ..types import ListOrDict
 
 LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 

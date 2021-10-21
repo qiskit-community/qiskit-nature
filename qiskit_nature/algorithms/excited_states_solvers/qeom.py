@@ -106,10 +106,10 @@ class QEOM(ExcitedStatesSolver):
 
         # 2. Prepare the excitation operators
         # TODO: remove dependence on Energy property name keywords
-        hamiltonian = problem.second_q_ops().pop("ElectronicEnergy", None)
-        if hamiltonian is None:
-            hamiltonian = problem.second_q_ops().pop("VibrationalEnergy")
-        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(hamiltonian)
+        second_q_ops = problem.second_q_ops()
+        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(
+            second_q_ops.pop(second_q_ops.main_key)
+        )
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
