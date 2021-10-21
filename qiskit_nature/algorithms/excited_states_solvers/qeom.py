@@ -105,11 +105,15 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem)
 
         # 2. Prepare the excitation operators
-        # TODO: remove dependence on Energy property name keywords
         second_q_ops = problem.second_q_ops()
-        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(
-            second_q_ops.pop(second_q_ops.main_key)
-        )
+        if isinstance(second_q_ops, list):
+            main_second_q_op = second_q_ops[0]
+        elif isinstance(second_q_ops, dict):
+            main_second_q_op = second_q_ops.pop(problem.main_property_name)
+        else:
+            raise TypeError("TODO")
+
+        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(main_second_q_op)
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators

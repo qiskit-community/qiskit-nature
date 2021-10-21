@@ -17,12 +17,12 @@ from typing import Dict, List, Optional
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ....types import ListOrDict
 from ...second_quantized_property import LegacyDriverResult
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 from ..types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
+from ....types import ListOrDictType
 
 
 class IntegralProperty(ElectronicProperty):
@@ -130,16 +130,20 @@ class IntegralProperty(ElectronicProperty):
             f"The {self.__class__.__name__}.integral_operator is not implemented!"
         )
 
-    def second_q_ops(self) -> ListOrDict[FermionicOp]:
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
         """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
         ints = None
         if ElectronicBasis.SO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.SO]
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
-        return ListOrDict(  # type: ignore
-            {self.name: sum(int.to_second_q_op() for int in ints.values()).reduce()}
-        )
+
+        op = sum(int.to_second_q_op() for int in ints.values()).reduce()
+
+        if return_list:
+            return [op]
+
+        return {self.name: op}
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":

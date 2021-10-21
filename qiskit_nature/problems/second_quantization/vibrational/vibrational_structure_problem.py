@@ -23,6 +23,7 @@ from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.properties.types import ListOrDictType
 from qiskit_nature.properties.second_quantization.vibrational import (
     VibrationalStructureDriverResult,
 )
@@ -55,8 +56,9 @@ class VibrationalStructureProblem(BaseProblem):
         super().__init__(bosonic_driver, transformers)
         self.num_modals = num_modals
         self.truncation_order = truncation_order
+        self.main_property_name = "VibrationalEnergy"
 
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
 
@@ -101,7 +103,7 @@ class VibrationalStructureProblem(BaseProblem):
         basis = HarmonicBasis(num_modals)
         self._grouped_property_transformed.basis = basis
 
-        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
+        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops(return_list)
 
         return second_quantized_ops_list
 
@@ -194,7 +196,8 @@ class VibrationalStructureProblem(BaseProblem):
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
             for mode in range(self.grouped_property_transformed.num_modes):
-                if aux_values is None or not np.isclose(aux_values[str(mode)][0], 1):
+                _key = str(mode) if isinstance(aux_values, dict) else mode
+                if aux_values is None or not np.isclose(aux_values[_key][0], 1):
                     return False
             return True
 

@@ -42,7 +42,7 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         num_modals = [num_modals] * num_modes
         vibrational_problem = VibrationalStructureProblem(driver, num_modals, truncation_order)
         second_quantized_ops = vibrational_problem.second_q_ops()
-        vibrational_op = second_quantized_ops["VibrationalEnergy"]
+        vibrational_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():

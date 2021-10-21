@@ -49,7 +49,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops["ElectronicEnergy"]
+        electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -64,7 +64,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            for second_quantized_op in second_quantized_ops.values():
+            for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
@@ -90,7 +90,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
 
         electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops["ElectronicEnergy"]
+        electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -105,7 +105,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            for second_quantized_op in second_quantized_ops.values():
+            for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
@@ -137,7 +137,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             electronic_structure_problem = ElectronicStructureProblem(driver)
 
             second_quantized_ops = electronic_structure_problem.second_q_ops()
-            electr_sec_quant_op = second_quantized_ops["ElectronicEnergy"]
+            electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -153,7 +153,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            for second_quantized_op in second_quantized_ops.values():
+            for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
@@ -182,7 +182,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
 
             electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
             second_quantized_ops = electronic_structure_problem.second_q_ops()
-            electr_sec_quant_op = second_quantized_ops["ElectronicEnergy"]
+            electr_sec_quant_op = second_quantized_ops[0]
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -202,7 +202,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            for second_quantized_op in second_quantized_ops.values():
+            for second_quantized_op in second_quantized_ops:
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(

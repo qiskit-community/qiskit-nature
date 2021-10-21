@@ -41,7 +41,7 @@ class TestElectronicDipoleMoment(QiskitNatureTestCase):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = list(self.prop.second_q_ops().values())
+        ops = self.prop.second_q_ops()
         self.assertEqual(len(ops), 3)
         with open(
             self.get_resource_path(

@@ -18,11 +18,11 @@ from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
-from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
+from ...types import ListOrDictType
 
 
 class VibrationalEnergy(VibrationalProperty):
@@ -133,7 +133,7 @@ class VibrationalEnergy(VibrationalProperty):
         """
         return self._vibrational_integrals.get(num_body_terms, None)
 
-    def second_q_ops(self) -> ListOrDict[VibrationalOp]:
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[VibrationalOp]:
         """Returns a list containing the Hamiltonian constructed by the stored integrals."""
         ops = []
         for num_body, ints in self._vibrational_integrals.items():
@@ -141,7 +141,10 @@ class VibrationalEnergy(VibrationalProperty):
                 break
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
-        return ListOrDict({self.name: sum(ops)})  # type: ignore
+
+        if return_list:
+            return [sum(ops)]
+        return {self.name: sum(ops)}
 
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.

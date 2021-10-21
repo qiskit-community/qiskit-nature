@@ -25,7 +25,9 @@ from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.drivers import BaseDriver as LegacyBaseDriver
 from qiskit_nature.drivers.second_quantization import BaseDriver
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
+from qiskit_nature.properties.types import ListOrDictType
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
@@ -96,6 +98,8 @@ class BaseProblem(ABC):
         self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
         self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
 
+        self._main_property_name: str = ""
+
     @property  # type: ignore[misc]
     @deprecate_property(
         "0.2.0",
@@ -131,12 +135,22 @@ class BaseProblem(ABC):
         return self._grouped_property_transformed
 
     @property
+    def main_property_name(self) -> str:
+        """Returns the name of the property producing the main operator."""
+        return self._main_property_name
+
+    @main_property_name.setter
+    def main_property_name(self, name: str) -> None:
+        """Sets the name of the property producing the main operator."""
+        self._main_property_name = name
+
+    @property
     def num_particles(self) -> Optional[Tuple[int, int]]:
         """Returns the number of particles, if available."""
         return None
 
     @abstractmethod
-    def second_q_ops(self):
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
 

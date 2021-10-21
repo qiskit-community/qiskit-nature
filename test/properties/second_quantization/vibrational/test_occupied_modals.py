@@ -35,7 +35,7 @@ class TestOccupiedModals(QiskitNatureTestCase):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = list(self.prop.second_q_ops().values())
+        ops = self.prop.second_q_ops()
         expected = [
             [("NIIIIIIII", (1 + 0j)), ("INIIIIIII", (1 + 0j))],
             [("IINIIIIII", (1 + 0j)), ("IIINIIIII", (1 + 0j)), ("IIIINIIII", (1 + 0j))],

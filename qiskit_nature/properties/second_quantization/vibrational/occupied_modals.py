@@ -18,10 +18,10 @@ from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
 
-from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
+from ...types import ListOrDictType
 
 
 class OccupiedModals(VibrationalProperty):
@@ -59,13 +59,15 @@ class OccupiedModals(VibrationalProperty):
 
         return cls()
 
-    def second_q_ops(self) -> ListOrDict[VibrationalOp]:
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[VibrationalOp]:
         """Returns a list of operators each evaluating the occupied modal on a mode."""
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 
-        ops = ListOrDict({str(mode): self._get_mode_op(mode) for mode in range(num_modes)})
-        return ops
+        if return_list:
+            return [self._get_mode_op(mode) for mode in range(num_modes)]
+
+        return {str(mode): self._get_mode_op(mode) for mode in range(num_modes)}
 
     def _get_mode_op(self, mode: int) -> VibrationalOp:
         """Constructs an operator to evaluate which modal of a given mode is occupied.
@@ -104,8 +106,9 @@ class OccupiedModals(VibrationalProperty):
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             occ_modals = []
             for mode in range(num_modes):
-                if aux_op_eigenvalues[str(mode)] is not None:
-                    occ_modals.append(aux_op_eigenvalues[str(mode)][0].real)  # type: ignore
+                _key = str(mode) if isinstance(aux_op_eigenvalues, dict) else mode
+                if aux_op_eigenvalues[_key] is not None:
+                    occ_modals.append(aux_op_eigenvalues[_key][0].real)  # type: ignore
                 else:
                     occ_modals.append(None)
             result.num_occupied_modals_per_mode.append(occ_modals)  # type: ignore

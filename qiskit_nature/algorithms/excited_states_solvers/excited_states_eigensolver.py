@@ -79,12 +79,23 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         # by the user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
 
+        if isinstance(second_q_ops, list):
+            main_second_q_op = second_q_ops[0]
+            aux_second_q_ops = second_q_ops[1:]
+        elif isinstance(second_q_ops, dict):
+            main_second_q_op = second_q_ops.pop(problem.main_property_name, None)
+            if main_second_q_op is None:
+                raise ValueError("TODO")
+            aux_second_q_ops = second_q_ops
+        else:
+            raise TypeError("TODO")
+
         main_operator = self._qubit_converter.convert(
-            second_q_ops.pop(second_q_ops.main_key),
+            main_second_q_op,
             num_particles=problem.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
-        aux_ops = self._qubit_converter.convert_match(second_q_ops)
+        aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
         if aux_operators is not None:
             for aux_op in aux_operators:

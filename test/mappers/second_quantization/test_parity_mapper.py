@@ -51,7 +51,7 @@ class TestParityMapper(QiskitNatureTestCase):
             )
         )
         driver_result = driver.run()
-        fermionic_op = driver_result.second_q_ops()["ElectronicEnergy"]
+        fermionic_op = driver_result.second_q_ops()[0]
         mapper = ParityMapper()
         qubit_op = mapper.map(fermionic_op)
 

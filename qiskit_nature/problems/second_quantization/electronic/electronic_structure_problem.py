@@ -25,6 +25,7 @@ from qiskit_nature.drivers import QMolecule
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.properties.types import ListOrDictType
 from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicStructureDriverResult,
     ParticleNumber,
@@ -52,12 +53,13 @@ class ElectronicStructureProblem(BaseProblem):
             transformers: A list of transformations to be applied to the driver result.
         """
         super().__init__(driver, transformers)
+        self.main_property_name = "ElectronicEnergy"
 
     @property
     def num_particles(self) -> Tuple[int, int]:
         return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
 
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
         """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
         provided.
 
@@ -93,7 +95,7 @@ class ElectronicStructureProblem(BaseProblem):
             self._grouped_property = driver_result
             self._grouped_property_transformed = self._transform(self._grouped_property)
 
-        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
+        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops(return_list)
 
         return second_quantized_ops_list
 
@@ -181,9 +183,15 @@ class ElectronicStructureProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first aux_value is the evaluated number of particles
-            num_particles_aux = aux_values["ParticleNumber"][0]
+            try:
+                num_particles_aux = aux_values["ParticleNumber"][0]
+            except TypeError:
+                num_particles_aux = aux_values[0][0]
             # the second aux_value is the total angular momentum which (for singlets) should be zero
-            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+            try:
+                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+            except TypeError:
+                total_angular_momentum_aux = aux_values[1][0]
             particle_number = cast(
                 ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )

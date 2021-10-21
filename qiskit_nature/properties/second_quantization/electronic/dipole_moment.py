@@ -19,11 +19,11 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from ...grouped_property import GroupedProperty
-from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .types import ElectronicProperty
+from ...types import ListOrDictType
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -204,20 +204,18 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             reverse_dipole_sign=qmol.reverse_dipole_sign,
         )
 
-    def second_q_ops(self) -> ListOrDict[FermionicOp]:
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
         """Returns a list or dictionary of
         :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
         contained in this one."""
+        if return_list:
+            return [dip.second_q_ops()[0] for dip in self._properties.values()]
+
         ops: Dict[str, FermionicOp] = {}
         for prop in iter(self):
-            second_q_ops = prop.second_q_ops()
-            if isinstance(second_q_ops, dict):
-                ops.update(second_q_ops)
-            else:
-                ops[prop.name] = second_q_ops
-        return ListOrDict(ops)
+            ops.update(prop.second_q_ops())
+        return ops
 
-    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
@@ -237,10 +235,16 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             if aux_op_eigenvalues is None:
                 continue
 
+            if isinstance(aux_op_eigenvalues, list) and len(aux_op_eigenvalues) < 6:
+                continue
+
             axes_order = {"x": 0, "y": 1, "z": 2}
             dipole_moment = [None] * 3
             for prop in iter(self):
-                moment = aux_op_eigenvalues.get(prop.name, None)
+                try:
+                    moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]
+                except KeyError:
+                    moment = aux_op_eigenvalues.get(prop.name, None)
                 if moment is not None:
                     dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
 

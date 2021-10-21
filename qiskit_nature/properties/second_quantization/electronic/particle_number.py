@@ -21,9 +21,9 @@ from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
-from ...types import ListOrDict
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
+from ...types import ListOrDictType
 
 LOGGER = logging.getLogger(__name__)
 
@@ -159,16 +159,19 @@ class ParticleNumber(ElectronicProperty):
             qmol.mo_occ_b,
         )
 
-    def second_q_ops(self) -> ListOrDict[FermionicOp]:
+    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
         """Returns a list containing the particle number operator."""
         op = FermionicOp(
             [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
             register_length=self._num_spin_orbitals,
             display_format="sparse",
         )
-        return ListOrDict({self.name: op})
 
-    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
+        if return_list:
+            return [op]
+
+        return {self.name: op}
+
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
@@ -186,8 +189,10 @@ class ParticleNumber(ElectronicProperty):
             if aux_op_eigenvalues is None:
                 continue
 
-            if aux_op_eigenvalues[self.name] is not None:
-                n_particles = aux_op_eigenvalues[self.name][0].real  # type: ignore
+            _key = self.name if isinstance(aux_op_eigenvalues, dict) else 0
+
+            if aux_op_eigenvalues[_key] is not None:
+                n_particles = aux_op_eigenvalues[_key][0].real  # type: ignore
                 result.num_particles.append(n_particles)
 
                 if not np.isclose(

@@ -43,7 +43,7 @@ class TestDirectMapper(QiskitNatureTestCase):
         vibration_energy = driver_result.get_property("VibrationalEnergy")
         vibration_energy.basis = HarmonicBasis(num_modals)
 
-        vibration_op = vibration_energy.second_q_ops()["VibrationalEnergy"]
+        vibration_op = vibration_energy.second_q_ops()[0]
 
         mapper = DirectMapper()
         qubit_op = mapper.map(vibration_op)

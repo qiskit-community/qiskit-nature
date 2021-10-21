@@ -44,9 +44,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
             )
         )
         driver_result = driver.run()
-        fermionic_op = driver_result.get_property("ElectronicEnergy").second_q_ops()[
-            "ElectronicEnergy"
-        ]
+        fermionic_op = driver_result.get_property("ElectronicEnergy").second_q_ops()[0]
 
         with self.subTest("Check type of fermionic operator"):
             assert isinstance(fermionic_op, FermionicOp)
@@ -77,7 +75,7 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
         reduced = ElectronicEnergy(
             [electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)]
         )
-        fermionic_op = reduced.second_q_ops()["ElectronicEnergy"]
+        fermionic_op = reduced.second_q_ops()[0]
 
         with self.subTest("Check type of fermionic operator"):
             assert isinstance(fermionic_op, FermionicOp)
