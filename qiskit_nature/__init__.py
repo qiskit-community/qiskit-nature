@@ -49,11 +49,18 @@ Submodules
 
 """
 
+from typing import Dict, List, Optional, TypeVar, Union
 from .version import __version__
 from .exceptions import QiskitNatureError, UnsupportMethodError
+
+# pylint: disable=invalid-name
+T = TypeVar("T")
+ListOrDictType = Union[List[Optional[T]], Dict[Union[int, str], T]]
+
 
 __all__ = [
     "__version__",
     "QiskitNatureError",
     "UnsupportMethodError",
+    "ListOrDictType",
 ]

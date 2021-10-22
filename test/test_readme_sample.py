@@ -67,7 +67,7 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         # generate the second-quantized operators
         second_q_ops = problem.second_q_ops()
-        main_op = second_q_ops.main
+        main_op = second_q_ops[0]
         print(type(main_op), main_op)
 
         particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")

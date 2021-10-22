@@ -14,6 +14,7 @@
 
 from typing import List, Optional, Tuple
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
@@ -21,7 +22,6 @@ from qiskit_nature.results import EigenstateResult
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
-from ...types import ListOrDictType
 
 
 class OccupiedModals(VibrationalProperty):
@@ -99,7 +99,7 @@ class OccupiedModals(VibrationalProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore[assignment]
 
         num_modes = len(self._basis._num_modals_per_mode)
 

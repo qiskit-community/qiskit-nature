@@ -13,7 +13,7 @@
 """A converter from Second-Quantized to Qubit Operators."""
 import copy
 import logging
-from typing import cast, Callable, List, Optional, Tuple, Union
+from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -21,11 +21,12 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import QiskitNatureError
+from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.mappers.second_quantization import QubitMapper
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.properties.types import ListOrDict, ListOrDictType
+
+from .utils import ListOrDict
 
 logger = logging.getLogger(__name__)
 
@@ -220,9 +221,7 @@ class QubitConverter:
 
     def convert_match(
         self,
-        second_q_ops: Union[
-            SecondQuantizedOp, ListOrDictType[SecondQuantizedOp], ListOrDict[SecondQuantizedOp]
-        ],
+        second_q_ops: Union[SecondQuantizedOp, ListOrDictType[SecondQuantizedOp]],
         suppress_none: bool = False,
     ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
         """Convert further operators to match that done in :meth:`convert`, or as set by
@@ -250,36 +249,35 @@ class QubitConverter:
             second_q_ops = [second_q_ops]
             suppress_none = False  # When only a single op we will return None back
 
-        if not isinstance(second_q_ops, ListOrDict):
-            second_q_ops = ListOrDict(second_q_ops)
+        wrapped_second_q_ops: ListOrDict[SecondQuantizedOp] = ListOrDict(second_q_ops)
 
-        qubit_ops = ListOrDict()
-        for name, second_q_op in iter(second_q_ops):
+        qubit_ops: ListOrDict[PauliSumOp] = ListOrDict()
+        for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self._map(second_q_op)
 
-        reduced_ops = ListOrDict()
+        reduced_ops: ListOrDict[PauliSumOp] = ListOrDict()
         for name, qubit_op in iter(qubit_ops):
             reduced_ops[name] = self._two_qubit_reduce(qubit_op, self._num_particles)
 
         tapered_ops = self._symmetry_reduce(reduced_ops)
 
+        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
+
         if issubclass(wrapped_type, SecondQuantizedOp):
-            tapered_ops = list(iter(tapered_ops))[0][1]
+            returned_ops = list(iter(tapered_ops))[0][1]
         elif wrapped_type == list:
             if suppress_none:
-                tapered_ops = [op for _, op in iter(tapered_ops) if op is not None]
+                returned_ops = [op for _, op in iter(tapered_ops) if op is not None]
             else:
-                tapered_ops = [op for _, op in iter(tapered_ops)]
+                returned_ops = [op for _, op in iter(tapered_ops)]
         elif wrapped_type == dict:
-            tapered_ops = dict(iter(tapered_ops))
+            returned_ops = dict(iter(tapered_ops))
 
-        return tapered_ops
+        return returned_ops
 
     def map(
         self,
-        second_q_ops: Union[
-            SecondQuantizedOp, ListOrDictType[SecondQuantizedOp], ListOrDict[SecondQuantizedOp]
-        ],
+        second_q_ops: Union[SecondQuantizedOp, ListOrDictType[SecondQuantizedOp]],
     ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
         """A convenience method to map second quantized operators based on current mapper.
 
@@ -295,11 +293,10 @@ class QubitConverter:
         else:
             wrapped_type = type(second_q_ops)
 
-            if not isinstance(second_q_ops, ListOrDict):
-                second_q_ops = ListOrDict(second_q_ops)
+            wrapped_second_q_ops: ListOrDict[SecondQuantizedOp] = ListOrDict(second_q_ops)
 
             qubit_ops = ListOrDict()
-            for name, second_q_op in iter(second_q_ops):
+            for name, second_q_op in iter(wrapped_second_q_ops):
                 qubit_ops[name] = self._map(second_q_op)
 
             if wrapped_type == list:

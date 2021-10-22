@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Tuple, cast
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -27,7 +28,6 @@ from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
-from ...types import ListOrDictType
 
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
@@ -101,11 +101,12 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
         """Returns a list or dictionary of
-        :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
+        :class:`~qiskit_nature.operators.second_quantization.FermionicOp`s given by the properties
         contained in this one."""
+        ops: ListOrDictType[FermionicOp]
 
         if return_list:
-            ops: List[FermionicOp] = []
+            ops = []
             for cls in [
                 ElectronicEnergy,
                 ParticleNumber,
@@ -119,7 +120,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
                 ops.extend(prop.second_q_ops(return_list))
             return ops
 
-        ops: Dict[str, FermionicOp] = {}
+        ops = {}
         for prop in iter(self):
             ops.update(prop.second_q_ops(return_list))
         return ops

@@ -17,6 +17,7 @@ from typing import List, Union, Optional
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
@@ -82,6 +83,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         # by the user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops(return_list=not dict_based_aux_ops)
 
+        aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
             aux_second_q_ops = second_q_ops[1:]
@@ -100,6 +102,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
+        # TODO: add dict-support to extra aux_operators and handle compatibility with dict_based_aux_ops
         if aux_operators is not None:
             for aux_op in aux_operators:
                 if isinstance(aux_op, SecondQuantizedOp):

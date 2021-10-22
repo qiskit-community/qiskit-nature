@@ -19,7 +19,7 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
-from qiskit_nature import QiskitNatureError
+from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
@@ -27,7 +27,6 @@ from qiskit_nature.drivers import BaseDriver as LegacyBaseDriver
 from qiskit_nature.drivers.second_quantization import BaseDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
-from qiskit_nature.properties.types import ListOrDictType
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer

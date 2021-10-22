@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Optional
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
@@ -22,7 +23,6 @@ from ..bases import ElectronicBasis, ElectronicBasisTransform
 from ..types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
-from ....types import ListOrDictType
 
 
 class IntegralProperty(ElectronicProperty):
@@ -138,7 +138,7 @@ class IntegralProperty(ElectronicProperty):
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
 
-        op = sum(int.to_second_q_op() for int in ints.values()).reduce()
+        op = sum(int.to_second_q_op() for int in ints.values()).reduce()  # type: ignore[union-attr]
 
         if return_list:
             return [op]

@@ -107,6 +107,7 @@ class GroundStateEigensolver(GroundStateSolver):
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
+        # TODO: add dict-support to extra aux_operators and handle compatibility with dict_based_aux_ops
         if aux_operators is not None:
             for aux_op in aux_operators:
                 if isinstance(aux_op, SecondQuantizedOp):

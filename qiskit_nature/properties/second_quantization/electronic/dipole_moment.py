@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Optional, Tuple, cast
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -23,7 +24,6 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .types import ElectronicProperty
-from ...types import ListOrDictType
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -208,10 +208,12 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         """Returns a list or dictionary of
         :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
         contained in this one."""
+        ops: ListOrDictType[FermionicOp]
         if return_list:
-            return [dip.second_q_ops(return_list)[0] for dip in self._properties.values()]
+            ops = [dip.second_q_ops(return_list)[0] for dip in self._properties.values()]
+            return ops
 
-        ops: Dict[str, FermionicOp] = {}
+        ops = {}
         for prop in iter(self):
             ops.update(prop.second_q_ops(return_list))
         return ops
@@ -230,7 +232,8 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore[assignment]
+
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             if aux_op_eigenvalues is None:
                 continue
@@ -241,10 +244,11 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             axes_order = {"x": 0, "y": 1, "z": 2}
             dipole_moment = [None] * 3
             for prop in iter(self):
+                moment: Optional[Tuple[complex, complex]]
                 try:
-                    moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]
+                    moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]  # type: ignore
                 except KeyError:
-                    moment = aux_op_eigenvalues.get(prop.name, None)
+                    moment = aux_op_eigenvalues.get(prop.name, None)  # type: ignore
                 if moment is not None:
                     dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
 

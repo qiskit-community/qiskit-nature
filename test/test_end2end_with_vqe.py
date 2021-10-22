@@ -46,7 +46,7 @@ class TestEnd2End(QiskitNatureTestCase):
             problem.grouped_property_transformed.get_property("ParticleNumber").num_alpha,
             problem.grouped_property_transformed.get_property("ParticleNumber").num_beta,
         )
-        main_op = second_q_ops.pop(second_q_ops.main_key)
+        main_op = second_q_ops[0]
         self.qubit_op = converter.convert(main_op, num_particles)
         self.aux_ops = converter.convert_match(second_q_ops)
         self.reference_energy = -1.857275027031588

@@ -17,13 +17,13 @@ from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
-from ...types import ListOrDictType
 
 LOGGER = logging.getLogger(__name__)
 
@@ -184,7 +184,7 @@ class ParticleNumber(ElectronicProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore[assignment]
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             if aux_op_eigenvalues is None:
                 continue
