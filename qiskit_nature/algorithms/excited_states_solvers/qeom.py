@@ -114,8 +114,6 @@ class QEOM(ExcitedStatesSolver):
             main_second_q_op = second_q_ops[0]
         elif isinstance(second_q_ops, dict):
             main_second_q_op = second_q_ops.pop(problem.main_property_name)
-        else:
-            raise TypeError("TODO")
 
         self._untapered_qubit_op_main = self._gsc._qubit_converter.map(main_second_q_op)
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)

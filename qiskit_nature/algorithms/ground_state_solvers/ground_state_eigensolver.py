@@ -79,8 +79,8 @@ class GroundStateEigensolver(GroundStateSolver):
                 than `list`.
 
         Raises:
-            NotImplementedError: If an operator in ``aux_operators`` is not of type
-                ``FermionicOperator``.
+            ValueError: if the grouped property object returned by the driver does not contain a
+                main property as requested by the problem being solved (`problem.main_property_name`)
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -96,12 +96,14 @@ class GroundStateEigensolver(GroundStateSolver):
             main_second_q_op = second_q_ops[0]
             aux_second_q_ops = second_q_ops[1:]
         elif isinstance(second_q_ops, dict):
-            main_second_q_op = second_q_ops.pop(problem.main_property_name, None)
+            name = problem.main_property_name
+            main_second_q_op = second_q_ops.pop(name, None)
             if main_second_q_op is None:
-                raise ValueError("TODO")
+                raise ValueError(
+                    f"The main `SecondQuantizedOp` associated with the {name} property cannot be "
+                    "`None`."
+                )
             aux_second_q_ops = second_q_ops
-        else:
-            raise TypeError("TODO")
 
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
@@ -123,8 +125,6 @@ class GroundStateEigensolver(GroundStateSolver):
                     aux_ops.append(converted_aux_op)
                 elif isinstance(aux_ops, dict):
                     aux_ops[name] = converted_aux_op
-                else:
-                    raise TypeError("TODO")
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform

@@ -14,7 +14,7 @@
 
 from typing import Dict, List, cast
 
-from .... import ListOrDictType
+from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
