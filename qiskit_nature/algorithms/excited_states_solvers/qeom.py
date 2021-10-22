@@ -30,6 +30,7 @@ from qiskit.opflow import (
     PauliSumOp,
 )
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
@@ -79,7 +80,7 @@ class QEOM(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[SecondQuantizedOp]] = None,
+        aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
         dict_based_aux_ops: bool = False,
     ) -> EigenstateResult:
         """Run the excited-states calculation.

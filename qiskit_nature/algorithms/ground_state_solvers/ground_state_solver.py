@@ -22,6 +22,7 @@ from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.opflow import OperatorBase, PauliSumOp
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
@@ -43,7 +44,7 @@ class GroundStateSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
         dict_based_aux_ops: bool = False,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.

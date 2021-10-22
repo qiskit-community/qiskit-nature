@@ -12,13 +12,14 @@
 
 """The calculation of excited states via an Eigensolver algorithm"""
 
-from typing import List, Union, Optional
+from typing import Union, Optional
 
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
@@ -59,7 +60,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
         dict_based_aux_ops: bool = False,
     ) -> EigenstateResult:
         """Compute Ground and Excited States properties.
@@ -102,13 +103,21 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
-        # TODO: add dict-support to extra aux_operators and handle compatibility with dict_based_aux_ops
         if aux_operators is not None:
-            for aux_op in aux_operators:
+            wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
+                aux_operators
+            )
+            for name, aux_op in iter(wrapped_aux_operators):
                 if isinstance(aux_op, SecondQuantizedOp):
-                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                    converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
-                    aux_ops.append(aux_op)
+                    converted_aux_op = aux_op
+                if isinstance(aux_ops, list):
+                    aux_ops.append(converted_aux_op)
+                elif isinstance(aux_ops, dict):
+                    aux_ops[name] = converted_aux_op
+                else:
+                    raise TypeError("TODO")
 
         if isinstance(self._solver, EigensolverFactory):
             # this must be called after transformation.transform

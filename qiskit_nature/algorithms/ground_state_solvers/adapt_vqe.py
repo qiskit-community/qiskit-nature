@@ -24,10 +24,12 @@ from qiskit.algorithms import VQE
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.utils.validation import validate_min
+from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult
 
@@ -136,7 +138,7 @@ class AdaptVQE(GroundStateEigensolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
         dict_based_aux_ops: bool = False,
     ) -> "AdaptVQEResult":
         """Computes the ground state.
@@ -158,6 +160,7 @@ class AdaptVQE(GroundStateEigensolver):
         """
         second_q_ops = problem.second_q_ops(return_list=not dict_based_aux_ops)
 
+        aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
             aux_second_q_ops = second_q_ops[1:]
@@ -176,13 +179,21 @@ class AdaptVQE(GroundStateEigensolver):
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
-        # TODO: add dict-support to extra aux_operators and handle compatibility with dict_based_aux_ops
         if aux_operators is not None:
-            for aux_op in aux_operators:
+            wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
+                aux_operators
+            )
+            for name, aux_op in iter(wrapped_aux_operators):
                 if isinstance(aux_op, SecondQuantizedOp):
-                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                    converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
-                    aux_ops.append(aux_op)
+                    converted_aux_op = aux_op
+                if isinstance(aux_ops, list):
+                    aux_ops.append(converted_aux_op)
+                elif isinstance(aux_ops, dict):
+                    aux_ops[name] = converted_aux_op
+                else:
+                    raise TypeError("TODO")
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             vqe = self._solver.get_solver(problem, self._qubit_converter)
