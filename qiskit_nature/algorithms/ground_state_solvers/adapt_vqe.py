@@ -108,19 +108,15 @@ class AdaptVQE(GroundStateEigensolver):
             gradient = (energy_results[0] - energy_results[1]) / (2 * self._delta)
             res.append((np.abs(gradient), exc))'''
         a= Parameter('a')
-        b= Parameter('b')
-        parameter_sets = [a,b]
-        self._ansatz.operators= self._ansatz.operators + theta 
+        parameter_sets = theta + [-a] + theta + [a]
         for exc in self._excitation_pool:
-            #qc=self._ansatz.operators + [exc]
-            self._ansatz.operators= self._ansatz.operators + [exc]
-            param_dict = dict(zip(self._ansatz.parameters, parameter_sets))
-            wave_function = self._ansatz.assign_parameters(param_dict)
+            self._ansatz.operators= self._excitation_list + [exc]
             vqe._ansatz= self._ansatz
-            op=~StateFn(self._main_operator)@CircuitStateFn(primitive=wave_function,coeff=1.)
-            state_grad = Gradient(grad_method='param_shift').convert(operator=op, params=parameter_sets)
+            if isinstance(self._ansatz, QuantumCircuit):
+                op=~StateFn(primitive=self._main_operator)@CircuitStateFn(primitive=self._ansatz,coeff=1.0,is_measurement=True)
+                state_grad = Gradient(grad_method='param_shift').convert(operator=op, params=parameter_sets)
             # Assign the parameters and evaluate the gradient
-            value_dict = { a: -1, b: 1}
+            value_dict = { a: 1}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
             print('State gradient computed with parameter shift', state_grad_result)
             res.append(np.abs(state_grad_result))
