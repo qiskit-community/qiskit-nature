@@ -205,9 +205,15 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         )
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
-        """Returns a list or dictionary of
-        :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s given by the properties
-        contained in this one."""
+        """Returns the second quantized dipole moment operators.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         ops: ListOrDictType[FermionicOp]
         if return_list:
             ops = [dip.second_q_ops(return_list)[0] for dip in self._properties.values()]

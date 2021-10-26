@@ -160,7 +160,15 @@ class ParticleNumber(ElectronicProperty):
         )
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
-        """Returns a list containing the particle number operator."""
+        """Returns the second quantized particle number operator.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         op = FermionicOp(
             [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
             register_length=self._num_spin_orbitals,

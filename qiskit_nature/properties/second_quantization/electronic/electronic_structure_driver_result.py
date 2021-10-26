@@ -100,9 +100,15 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         return ret
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
-        """Returns a list or dictionary of
-        :class:`~qiskit_nature.operators.second_quantization.FermionicOp`s given by the properties
-        contained in this one."""
+        """Returns the second quantized operators associated with the properties in this group.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         ops: ListOrDictType[FermionicOp]
 
         if return_list:

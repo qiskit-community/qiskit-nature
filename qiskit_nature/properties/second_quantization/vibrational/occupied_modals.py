@@ -60,7 +60,15 @@ class OccupiedModals(VibrationalProperty):
         return cls()
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[VibrationalOp]:
-        """Returns a list of operators each evaluating the occupied modal on a mode."""
+        """Returns the second quantized operators indicating the occupied modals per mode.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `VibrationalOp` objects.
+        """
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 

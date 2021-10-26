@@ -62,7 +62,15 @@ class Magnetization(ElectronicProperty):
         )
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
-        """Returns a list containing the magnetization operator."""
+        """Returns the second quantized magnetization operator.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `SecondQuantizedOp` objects.
+        """
         op = FermionicOp(
             [
                 (f"N_{o}", 0.5 if o < self._num_spin_orbitals // 2 else -0.5)

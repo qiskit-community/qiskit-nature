@@ -150,11 +150,14 @@ class BaseProblem(ABC):
 
     @abstractmethod
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
-        """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
-        provided.
+        """Returns the second quantized operators associated with this Property.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: ... .
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
         raise NotImplementedError()
 

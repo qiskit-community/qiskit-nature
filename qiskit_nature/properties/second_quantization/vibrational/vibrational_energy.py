@@ -134,7 +134,15 @@ class VibrationalEnergy(VibrationalProperty):
         return self._vibrational_integrals.get(num_body_terms, None)
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[VibrationalOp]:
-        """Returns a list containing the Hamiltonian constructed by the stored integrals."""
+        """Returns the second quantized vibrational energy operator.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `VibrationalOp` objects.
+        """
         ops = []
         for num_body, ints in self._vibrational_integrals.items():
             if self._truncation_order is not None and num_body > self._truncation_order:

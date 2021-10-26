@@ -131,7 +131,15 @@ class IntegralProperty(ElectronicProperty):
         )
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
-        """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
+        """Returns the second quantized operator constructed from the contained electronic integrals.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         ints = None
         if ElectronicBasis.SO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.SO]

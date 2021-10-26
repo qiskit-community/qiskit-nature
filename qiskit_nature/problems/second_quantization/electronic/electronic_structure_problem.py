@@ -60,13 +60,18 @@ class ElectronicStructureProblem(BaseProblem):
         return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
-        """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
-        provided.
+        """Returns the second quantized operators associated with this Property.
+
+        If the arguments are returned as a `list`, the operators are in the following order: the
+        Hamiltonian operator, total particle number operator, total angular momentum operator, total
+        magnetization operator, and (if available) x, y, z dipole operators.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: Hamiltonian operator,
-            total particle number operator, total angular momentum operator, total magnetization
-            operator, and (if available) x, y, z dipole operators.
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
         driver_result = self.driver.run()
 

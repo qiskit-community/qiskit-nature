@@ -59,12 +59,17 @@ class VibrationalStructureProblem(BaseProblem):
         self.main_property_name = "VibrationalEnergy"
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
-        """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
-        provided.
+        """Returns the second quantized operators created based on the driver and transformations.
+
+        If the arguments are returned as a `list`, the operators are in the following order: the
+        Vibrational Hamiltonian operator, occupied modal operators for each mode.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: Vibrational Hamiltonian operator,
-            occupied modal operators for each mode.
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
         driver_result = self.driver.run()
 

@@ -104,7 +104,15 @@ class AngularMomentum(ElectronicProperty):
         )
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
-        """Returns a list containing the angular momentum operator."""
+        """Returns the second quantized angular momentum operator.
+
+        Args:
+            return_list: a boolean, indicating whether the operators are returned as a `list` or
+                `dict` (in the latter case the keys are the Property names).
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
         y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
         z_h1, z_h2 = _calc_s_z_squared_ints(self._num_spin_orbitals)
