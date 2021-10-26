@@ -13,7 +13,7 @@
 """A converter from Second-Quantized to Qubit Operators."""
 import copy
 import logging
-from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
