@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Hyper-Cubic Lattice"""
+"""The hyper-cubic lattice"""
 from itertools import product
 from math import pi
 from typing import Callable, List, Optional, Tuple, Union
@@ -37,6 +37,7 @@ class HyperCubicLattice(Lattice):
             edge_parameter = (1.0, -2.0, 3.0),
             onsite_parameter = 2.0,
             boundary_condition = ("open", "open", "open")
+            )
 
     is a three-dimensional lattice of size 3 by 4 by 5, which has weights 1.0, -2.0, 3.0 on edges
     in x, y, and z directions, respectively, and weights 2.0 on self-loops.
@@ -181,7 +182,7 @@ class HyperCubicLattice(Lattice):
         self_loop: bool = False,
         **kwargs,
     ):
-        r"""Draw the lattice.
+        r"""Draw the lattice with no edges between the boundaries.
 
         Args:
             self_loop: Draw self-loops in the lattice. Defaults to False.

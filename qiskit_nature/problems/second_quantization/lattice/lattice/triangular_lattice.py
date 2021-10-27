@@ -43,10 +43,8 @@ class TriangularLattice(Lattice):
                 Defaults to 1.0,
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
-            boundary_condition: Boundary condition for each direction.
+            boundary_condition: Boundary condition for the lattice.
                 The available boundary conditions are: "open", "periodic".
-                When it is a single value, it is interpreted as a tuple of length 3
-                consisting of the same values.
                 Defaults to "open".
 
         Raises:
@@ -168,7 +166,7 @@ class TriangularLattice(Lattice):
         self_loop: bool = False,
         **kwargs,
     ):
-        r"""Draw the lattice.
+        r"""Draw the lattice with no edges between the boundaries.
 
         Args:
             self_loop: Draw self-loops in the lattice. Defaults to False.

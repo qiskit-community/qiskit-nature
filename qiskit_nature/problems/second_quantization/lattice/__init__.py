@@ -18,7 +18,8 @@ which is a graph with complex-valued weights on its edges.
 The `HyperCubicLattice` class and others provide standard lattices with certain
 translational symmetries.
 `Models` include classes that define Hamiltonians on a lattice.
-The weights of a `Lattice` object can be used for coupling constants or hopping parameters in a model.
+It takes a lattice object and model parameters as input and
+generates a Hamiltonian defined on the lattice.
 
 .. currentmodule:: qiskit_nature.problems.second_quantization.lattice
 
