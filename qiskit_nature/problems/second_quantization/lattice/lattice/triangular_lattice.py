@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Triangular lattice"""
+"""The triangular lattice"""
 from itertools import product
 from math import pi
 from typing import Callable, List, Optional, Tuple, Union
@@ -36,12 +36,17 @@ class TriangularLattice(Lattice):
         Args:
             rows: Length of the x direction.
             cols: Length of the y direction.
-            edge_parameter: Weights on the unit edges.
-                This is specified as a tuple of length 3 or a single number.Defaults to 1.0,
+            edge_parameter: Weights on the edges in x, y and diagonal directions.
+                This is specified as a tuple of length 3 or a single value.
+                When it is a single value, it is interpreted as a tuple of length 3
+                consisting of the same values.
+                Defaults to 1.0,
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
             boundary_condition: Boundary condition for each direction.
-                Boundary condition must be specified by "open" or "periodic".
+                The available boundary conditions are: "open", "periodic".
+                When it is a single value, it is interpreted as a tuple of length 3
+                consisting of the same values.
                 Defaults to "open".
 
         Raises:

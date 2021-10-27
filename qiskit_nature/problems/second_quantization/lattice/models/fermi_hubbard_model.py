@@ -89,10 +89,11 @@ class FermiHubbardModel:
 
         Returns:
             FermiHubbardModel: The Fermi-Hubbard model generated
-                                from the given hopping matrix and on-site interaction.
+                from the given hopping matrix and on-site interaction.
 
         Raises:
-            ValueError: If the shape of the hopping matrix is invalid.
+            ValueError: If the hopping matrix is not square matrix,
+                it is invalid.
         """
         # make a graph from the hopping matrix.
         # This should be replaced by from_adjacency_matrix of retworkx.

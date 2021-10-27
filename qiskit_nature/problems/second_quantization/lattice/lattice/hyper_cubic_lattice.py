@@ -22,7 +22,26 @@ from .lattice import Lattice, _add_draw_signature
 
 
 class HyperCubicLattice(Lattice):
-    """Hyper-cubic lattice in d dimension."""
+    """Hyper-cubic lattice in d dimension.
+
+    The :class:`HyperCubicLattice` can be initialized with
+    tuples of `size`, `edge_parameters`, and `boundary_conditions`.
+    For example,
+
+    .. jupyter-execute::
+
+        from qiskit_nature.problems.second_quantization.lattice import HyperCubicLattice
+
+        lattice = HyperCubicLattice(
+            size = (3, 4, 5),
+            edge_parameter = (1.0, -2.0, 3.0),
+            onsite_parameter = 2.0,
+            boundary_condition = ("open", "open", "open")
+
+    is a three-dimensional lattice of size 3 by 4 by 5, which has weights 1.0, -2.0, 3.0 on edges
+    in x, y, and z directions, respectively, and weights 2.0 on self-loops.
+    The boundary conditions are "open" for all the directions.
+    """
 
     def __init__(
         self,
@@ -34,11 +53,17 @@ class HyperCubicLattice(Lattice):
         """
         Args:
             size: Lengths of each dimension.
-            edge_parameter: Weights on the unit edges. Defaults to 1.0.
+            edge_parameter: Weights on the edges in each direction.
+                When it is a single value, it is interpreted as a tuple of the same length as `size`
+                consisting of the same values.
+                Defaults to 1.0.
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
+                This is uniform over the lattice points.
                 Defaults to 0.0.
             boundary_condition: Boundary condition for each dimension.
                 The available boundary conditions are: "open", "periodic".
+                When it is a single value, it is interpreted as a tuple of the same length as `size`
+                consisting of the same values.
                 Defaults to "open".
 
         Raises:
@@ -100,8 +125,8 @@ class HyperCubicLattice(Lattice):
         self.boundary_edges = []
         for i in range(self.dim):
             # add edges when the boundary condition is periodic.
-            # The periodic boundary condition in the i-th direction.
-            # It makes sense only when size[i] is greater than 2.
+            # when the boundary condition in the i-th direction is periodic,
+            # it makes sense only when size[i] is greater than 2.
             if boundary_condition[i] == "periodic":
                 if size[i] <= 2:
                     continue

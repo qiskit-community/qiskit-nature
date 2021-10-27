@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Lattice"""
+"""A class containing information about the Lattice."""
 from .hyper_cubic_lattice import HyperCubicLattice
 from .lattice import Lattice
 from .line_lattice import LineLattice
