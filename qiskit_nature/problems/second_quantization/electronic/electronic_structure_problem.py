@@ -204,15 +204,15 @@ class ElectronicStructureProblem(BaseProblem):
     def symmetry_sector_locator(
         self,
         z2_symmetries: Z2Symmetries,
-        qconv: QubitConverter,
+        converter: QubitConverter,
     ) -> Optional[List[int]]:
         """Given the detected Z2Symmetries this determines the correct sector of the tapered
         operator that contains the ground state we need and returns that information.
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            qconv: the qubit convertor instance used for the operator conversion that symmetries
-                are to be determined for.
+            converter: the qubit converter instance used for the operator conversion that
+                symmetries are to be determined for.
 
         Returns:
             The sector of the tapered operators with the problem solution.
@@ -223,7 +223,7 @@ class ElectronicStructureProblem(BaseProblem):
         hf_bitstr = hartree_fock_bitstring_mapped(
             num_spin_orbitals=self.num_spin_orbitals,
             num_particles=self.num_particles,
-            qubit_converter=qconv,
+            qubit_converter=converter,
             match_convert=False,
         )
         sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)

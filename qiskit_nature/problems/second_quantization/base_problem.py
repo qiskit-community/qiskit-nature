@@ -153,7 +153,7 @@ class BaseProblem(ABC):
     def symmetry_sector_locator(
         self,
         z2_symmetries: Z2Symmetries,
-        qconv: QubitConverter,
+        converter: QubitConverter,
     ) -> Optional[List[int]]:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
@@ -161,8 +161,8 @@ class BaseProblem(ABC):
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            qconv: the qubit convertor instance used for the operator conversion that symmetries
-                are to be determined for.
+            converter: the qubit converter instance used for the operator conversion that
+                symmetries are to be determined for.
 
         Returns:
             the sector of the tapered operators with the problem solution

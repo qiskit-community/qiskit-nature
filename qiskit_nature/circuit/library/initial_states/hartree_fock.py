@@ -91,7 +91,7 @@ def hartree_fock_bitstring_mapped(
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.
     bits = []
-    for i, bit in enumerate(qubit_op.primitive.paulis.x[0]):
+    for i, bit in enumerate(qubit_op.primitive.table.X[0]):
         bits.append(bit)
 
     return bits
