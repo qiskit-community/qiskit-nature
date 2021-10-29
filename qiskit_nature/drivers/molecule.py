@@ -343,11 +343,11 @@ class Molecule:
 
     def _get_perturbed_geom(self) -> List[Tuple[str, List[float]]]:
         """get perturbed geometry"""
-        if self.perturbations is None or self._degrees_of_freedom is None:
+        if self.perturbations is None or self.degrees_of_freedom is None:
             return self._geometry
 
         geometry = copy.deepcopy(self._geometry)
-        for per, dof in zip(self.perturbations, self._degrees_of_freedom):
+        for per, dof in zip(self.perturbations, self.degrees_of_freedom):
             geometry = dof(per, geometry)
         return geometry
 
@@ -412,3 +412,13 @@ class Molecule:
     def perturbations(self, value: Optional[List[float]]) -> None:
         """Set perturbations"""
         self._perturbations = value
+
+    @property
+    def degrees_of_freedom(self) -> Optional[List[Callable]]:
+        """Get degrees_of_freedom"""
+        return self._degrees_of_freedom
+
+    @degrees_of_freedom.setter
+    def degrees_of_freedom(self, value: Optional[List[Callable]]) -> None:
+        """Set degrees_of_freedom"""
+        self._degrees_of_freedom = value
