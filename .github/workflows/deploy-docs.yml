@@ -36,7 +36,7 @@ jobs:
         shell: bash
       - name: Install Dependencies
         run: |
-          pip install jupyter sphinx_rtd_theme 'matplotlib<3.3.0' qiskit-terra[visualization]
+          pip install jupyter sphinx_rtd_theme qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
         shell: bash
       - name: Build and publish
@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install jupyter sphinx_rtd_theme 'matplotlib<3.3.0' qiskit-terra[visualization] torchvision tox
+          pip install jupyter sphinx_rtd_theme qiskit-terra[visualization] torchvision tox
           sudo apt-get install -y pandoc graphviz
         shell: bash
       - name: Build and publish
