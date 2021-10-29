@@ -221,6 +221,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
 
     @requires_extra_library
     def test_sector_locator_h2o(self):
+        """Test sector locator."""
         driver = PySCFDriver(
             atom="O 0.0000 0.0000 0.1173; H 0.0000 0.07572 -0.4692;H 0.0000 -0.07572 -0.4692",
             basis="sto-3g",
@@ -238,6 +239,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
 
     @requires_extra_library
     def test_sector_locator_homonuclear(self):
+        """Test sector locator."""
         molecule = Molecule(
             geometry=[("Li", [0.0, 0.0, 0.0]), ("Li", [0.0, 0.0, 2.771])], charge=0, multiplicity=1
         )
