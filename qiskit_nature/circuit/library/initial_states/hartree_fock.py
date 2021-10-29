@@ -46,7 +46,7 @@ class HartreeFock(QuantumCircuit):
             num_spin_orbitals, num_particles, qubit_converter, True
         )
         # Construct the circuit for this bitstring. Since this is defined as an initial state
-        # circuit its assumed that this is applied first to the qubits that are initialised to
+        # circuit its assumed that this is applied first to the qubits that are initialized to
         # the zero state. Hence we just need to account for all True entries and set those.
         qr = QuantumRegister(len(bitstr), "q")
         super().__init__(qr, name="HF")

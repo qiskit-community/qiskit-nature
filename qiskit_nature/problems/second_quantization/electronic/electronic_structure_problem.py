@@ -59,6 +59,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_spin_orbitals(self) -> int:
+        """Returns the number of spin orbitals."""
         return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
     def second_q_ops(self) -> List[SecondQuantizedOp]:
