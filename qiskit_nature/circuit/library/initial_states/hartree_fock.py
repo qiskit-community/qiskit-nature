@@ -62,7 +62,8 @@ def hartree_fock_bitstring_mapped(
     qubit_converter: QubitConverter,
     match_convert: bool = True,
 ) -> List[bool]:
-    """
+    """Compute the bitstring representing the mapped Hartree-Fock state for the specified system.
+
     Args:
         num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
         num_particles: The number of particles as a tuple (alpha, beta) containing the number of
@@ -72,6 +73,9 @@ def hartree_fock_bitstring_mapped(
             or just do mapping and possibly two qubit reduction but no tapering. The latter
             is an advanced usage - e.g. if we are trying to auto-select the tapering sector
             then we would not want any match conversion done on a converter that was set to taper.
+
+    Returns:
+        The bitstring representing the mapped state of the Hartree-Fock state as array of bools.
     """
 
     # get the bitstring encoding the Hartree Fock state
@@ -91,7 +95,7 @@ def hartree_fock_bitstring_mapped(
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.
     bits = []
-    for i, bit in enumerate(qubit_op.primitive.table.X[0]):
+    for bit in qubit_op.primitive.table.X[0]:
         bits.append(bit)
 
     return bits
