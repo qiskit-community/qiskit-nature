@@ -107,23 +107,19 @@ class AdaptVQE(GroundStateEigensolver):
             # compute gradient
             gradient = (energy_results[0] - energy_results[1]) / (2 * self._delta)
             res.append((np.abs(gradient), exc))'''
-        a= Parameter('a')
         for exc in self._excitation_pool:
             self._ansatz.operators= self._excitation_list + [exc]
-            param=list(vqe.ansatz.parameters)
-            param_sets=param.append(a)
             vqe.ansatz= self._ansatz
-            if isinstance(self._ansatz, QuantumCircuit):
-                op=~StateFn(primitive=self._main_operator)@CircuitStateFn(primitive=self._ansatz,coeff=1.0,is_measurement=True)
-                #print("op",op)
-                state_grad = Gradient(grad_method='param_shift').convert(operator=op, params=param_sets)
-                #print("state grad", state_grad)
+            param_sets=list(vqe.ansatz.parameters)
+            op=~StateFn(primitive=self._main_operator)@CircuitStateFn(primitive=self._ansatz,coeff=1.0,is_measurement=True)
+            #print("op",op)
+            state_grad = Gradient(grad_method='param_shift').convert(operator=op, params=param_sets)
+            #print("state grad", state_grad)
+            print("param_sets",param_sets)
             # Assign the parameters and evaluate the gradient
-            len1=len(param)
-            #print(param)
-            #print("theta:", theta)
-            value_dict = {a:0.0,param[len1-1]:theta}
+            value_dict=dict(zip(param_sets,theta+[0.0]))
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
+            print("theta", theta)
             print('State gradient computed with parameter shift', state_grad_result)
             res.append(np.abs(state_grad_result))
         return res
@@ -247,6 +243,7 @@ class AdaptVQE(GroundStateEigensolver):
                 alternating_sequence = True
                 break
             # add new excitation to self._ansatz
+            print(max_grad)
             self._excitation_list.append(max_grad[1])
             theta.append(0.0)
             # run VQE on current Ansatz
