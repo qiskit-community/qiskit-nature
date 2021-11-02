@@ -69,7 +69,7 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.6",
     extras_require={
-        'pyscf': ["pyscf<2.0.0; sys_platform == 'darwin'", "pyscf; sys_platform != 'win32'"],
+        'pyscf': ["pyscf<2.0.0; sys_platform == 'darwin'", "pyscf; sys_platform == 'linux'"],
     },
     zip_safe=False
 )
