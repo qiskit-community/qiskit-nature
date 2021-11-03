@@ -50,8 +50,8 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
 
         ## Simplify and sort the result
         sparse_pauli = sparse_pauli.simplify()
-        indices = sparse_pauli.table.argsort()
-        table = sparse_pauli.table[indices]
+        indices = sparse_pauli.paulis.argsort()
+        table = sparse_pauli.paulis[indices]
         coeffs = sparse_pauli.coeffs[indices]
         sorted_sparse_pauli = SparsePauliOp(table, coeffs)
 
