@@ -415,10 +415,10 @@ class Molecule:
 
     @property
     def degrees_of_freedom(self) -> Optional[List[Callable]]:
-        """Get degrees_of_freedom"""
+        """Get the Molecule's degrees of freedom"""
         return self._degrees_of_freedom
 
     @degrees_of_freedom.setter
     def degrees_of_freedom(self, value: Optional[List[Callable]]) -> None:
-        """Set degrees_of_freedom"""
+        """Sets the Molecule's degrees of freedom"""
         self._degrees_of_freedom = value
