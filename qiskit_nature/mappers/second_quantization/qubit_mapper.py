@@ -143,12 +143,4 @@ class QubitMapper(ABC):
                     )
             ret_op_list.append(ret_op)
 
-        def _sum(ops: List[SparsePauliOp]) -> SparsePauliOp:
-            # This is equivalent to `sum`, but this reduces the overhead of `SparsePauliOp._add`,
-            # i.e., stack of arrays.
-            while len(ops) > 1:
-                ops.append(ops[0] + ops[1])
-                ops = ops[2:]
-            return ops[0]
-
-        return PauliSumOp(_sum(ret_op_list).simplify())
+        return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())
