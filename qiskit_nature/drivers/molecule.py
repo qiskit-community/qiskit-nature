@@ -63,7 +63,8 @@ class Molecule:
         Molecule._check_consistency(geometry, masses)
 
         self._geometry = geometry
-        self._degrees_of_freedom = degrees_of_freedom
+        self._degrees_of_freedom = None
+        self.degrees_of_freedom = degrees_of_freedom
         self._multiplicity = multiplicity
         self._charge = charge
         self._masses = masses
