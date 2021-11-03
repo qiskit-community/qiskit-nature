@@ -55,7 +55,6 @@ Utilities such as excitation generators for use with the ansatzes.
 """
 
 from .ansatzes import (
-    EvolvedOperatorAnsatz,
     UCC,
     UCCSD,
     PUCCD,
@@ -68,7 +67,6 @@ from .ansatzes import (
 from .initial_states import HartreeFock, VSCF
 
 __all__ = [
-    "EvolvedOperatorAnsatz",
     "UCC",
     "UCCSD",
     "PUCCD",

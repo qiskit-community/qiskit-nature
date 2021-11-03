@@ -12,7 +12,6 @@
 """Qiskit Nature Circuit Library Ansatzes."""
 
 from .chc import CHC
-from .evolved_operator_ansatz import EvolvedOperatorAnsatz
 from .puccd import PUCCD
 from .succd import SUCCD
 from .ucc import UCC
@@ -22,7 +21,6 @@ from .uvccsd import UVCCSD
 
 __all__ = [
     "CHC",
-    "EvolvedOperatorAnsatz",
     "PUCCD",
     "SUCCD",
     "UCC",
