@@ -19,7 +19,7 @@ import warnings
 
 from test import QiskitNatureTestCase
 
-from qiskit import BasicAer
+from qiskit import Aer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
 
@@ -113,7 +113,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         """Test with VQE plus UVCCSD"""
         optimizer = COBYLA(maxiter=5000)
         solver = VQEUVCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            QuantumInstance(Aer.get_backend("aer_simulator_statevector")),
             optimizer=optimizer,
         )
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -125,15 +125,14 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
     def test_vqe_uvccsd_with_callback(self):
         """Test VQE UVCCSD with callback."""
 
-        def callback(nfev, parameters, energy, stddev):
-            # pylint: disable=unused-argument
+        def cb_callback(nfev, parameters, energy, stddev):
             print(f"iterations {nfev}: energy: {energy}")
 
         optimizer = COBYLA(maxiter=5000)
         solver = VQEUVCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            QuantumInstance(Aer.get_backend("aer_simulator_statevector")),
             optimizer=optimizer,
-            callback=callback,
+            callback=cb_callback,
         )
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
