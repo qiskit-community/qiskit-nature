@@ -83,7 +83,7 @@ def hartree_fock_bitstring_mapped(
 
     # encode the bitstring as a `FermionicOp`
     label = ["+" if bit else "I" for bit in bitstr]
-    bitstr_op = FermionicOp("".join(label), display_format="dense")
+    bitstr_op = FermionicOp("".join(label), display_format="sparse")
 
     # map the `FermionicOp` to a qubit operator
     qubit_op: PauliSumOp = (

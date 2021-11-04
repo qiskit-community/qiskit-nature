@@ -420,7 +420,7 @@ class QubitConverter:
                     elif not suppress_none:
                         tapered_qubit_ops.append(None)
             else:
-                logger.debug("Tapering operators - no check done for commute with symmetry:")
+                logger.debug("Tapering operators whether they commute with symmetry or not:")
                 tapered_qubit_ops = []
                 for qubit_op in qubit_ops:
                     tapered_qubit_ops.append(self._z2symmetries.taper(qubit_op))
