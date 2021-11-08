@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import ListOrDictType
-from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring_mapped
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -58,6 +58,11 @@ class ElectronicStructureProblem(BaseProblem):
     @property
     def num_particles(self) -> Tuple[int, int]:
         return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
+
+    @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the number of spin orbitals."""
+        return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
     def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators associated with this Property.
@@ -208,23 +213,34 @@ class ElectronicStructureProblem(BaseProblem):
 
         return partial(filter_criterion, self)
 
-    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
-        """Given the detected Z2Symmetries can determine the correct sector of the tapered
-        operators so the correct one can be returned
+    def symmetry_sector_locator(
+        self,
+        z2_symmetries: Z2Symmetries,
+        converter: QubitConverter,
+    ) -> Optional[List[int]]:
+        """Given the detected Z2Symmetries this determines the correct sector of the tapered
+        operator that contains the ground state we need and returns that information.
 
         Args:
             z2_symmetries: the z2 symmetries object.
+            converter: the qubit converter instance used for the operator conversion that
+                symmetries are to be determined for.
 
         Returns:
             The sector of the tapered operators with the problem solution.
         """
-        hf_bitstr = hartree_fock_bitstring(
-            num_spin_orbitals=z2_symmetries.symmetries[0].num_qubits,
+        # We need the HF bitstring mapped to the qubit space but without any tapering done
+        # by the converter (just qubit mapping and any two qubit reduction) since we are
+        # going to determine the tapering sector
+        hf_bitstr = hartree_fock_bitstring_mapped(
+            num_spin_orbitals=self.num_spin_orbitals,
             num_particles=self.num_particles,
+            qubit_converter=converter,
+            match_convert=False,
         )
-        sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
+        sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
-        return sector_locator
+        return sector
 
     @staticmethod
     def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:

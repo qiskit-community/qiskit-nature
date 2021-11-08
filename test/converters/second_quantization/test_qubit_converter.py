@@ -189,20 +189,24 @@ class TestQubitConverter(QiskitNatureTestCase):
         """Test mapping to qubit operator with z2 symmetry tapering"""
         z2_sector = [-1, 1, -1]
 
-        def finder(z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
+        def cb_finder(
+            z2_symmetries: Z2Symmetries, converter: QubitConverter
+        ) -> Optional[List[int]]:
             return z2_sector if not z2_symmetries.is_empty() else None
 
-        def find_none(_z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
+        def cb_find_none(
+            _z2_symmetries: Z2Symmetries, converter: QubitConverter
+        ) -> Optional[List[int]]:
             return None
 
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper, z2symmetry_reduction="auto")
 
         with self.subTest("Locator returns None, should be untapered operator"):
-            qubit_op = qubit_conv.convert(self.h2_op, sector_locator=find_none)
+            qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_find_none)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
 
-        qubit_op = qubit_conv.convert(self.h2_op, sector_locator=finder)
+        qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_finder)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
         with self.subTest("convert_match()"):
@@ -215,12 +219,14 @@ class TestQubitConverter(QiskitNatureTestCase):
         """Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction"""
         z2_sector = [-1]
 
-        def finder(z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
+        def cb_finder(
+            z2_symmetries: Z2Symmetries, converter: QubitConverter
+        ) -> Optional[List[int]]:
             return z2_sector if not z2_symmetries.is_empty() else None
 
         mapper = ParityMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction="auto")
-        qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, sector_locator=finder)
+        qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, sector_locator=cb_finder)
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
         self.assertEqual(qubit_conv.num_particles, self.num_particles)
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
