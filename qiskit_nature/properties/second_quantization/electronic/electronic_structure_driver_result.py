@@ -12,7 +12,7 @@
 
 """The ElectronicStructureDriverResult class."""
 
-from typing import Dict, List, Tuple, cast
+from typing import List, Tuple, cast
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers import Molecule
