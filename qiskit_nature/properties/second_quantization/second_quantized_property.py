@@ -34,12 +34,10 @@ class SecondQuantizedProperty(Property):
     """
 
     @abstractmethod
-    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators associated with this Property.
 
-        Args:
-            return_list: a boolean, indicating whether the operators are returned as a `list` or
-                `dict` (in the latter case the keys are the Property names).
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
             A `list` or `dict` of `SecondQuantizedOp` objects.
@@ -82,12 +80,10 @@ class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty
     second-quantized properties."""
 
     @abstractmethod
-    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators associated with the properties in this group.
 
-        Args:
-            return_list: a boolean, indicating whether the operators are returned as a `list` or
-                `dict` (in the latter case the keys are the Property names).
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
             A `list` or `dict` of `SecondQuantizedOp` objects.

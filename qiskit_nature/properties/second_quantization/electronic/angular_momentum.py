@@ -19,7 +19,7 @@ import itertools
 
 import numpy as np
 
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -103,12 +103,10 @@ class AngularMomentum(ElectronicProperty):
             qmol.num_molecular_orbitals * 2,
         )
 
-    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
         """Returns the second quantized angular momentum operator.
 
-        Args:
-            return_list: a boolean, indicating whether the operators are returned as a `list` or
-                `dict` (in the latter case the keys are the Property names).
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
             A `list` or `dict` of `FermionicOp` objects.
@@ -124,7 +122,7 @@ class AngularMomentum(ElectronicProperty):
 
         op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()
 
-        if return_list:
+        if not settings.dict_aux_operators:
             return [op]
 
         return {self.name: op}

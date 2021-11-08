@@ -53,13 +53,15 @@ from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
     ListOrDict as ListOrDictType,
 )
 
-from .version import __version__
 from .exceptions import QiskitNatureError, UnsupportMethodError
+from .settings import settings
+from .version import __version__
 
 
 __all__ = [
     "__version__",
+    "ListOrDictType",
     "QiskitNatureError",
     "UnsupportMethodError",
-    "ListOrDictType",
+    "settings",
 ]

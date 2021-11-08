@@ -14,7 +14,7 @@
 
 from typing import Dict, List, Optional, Tuple, cast
 
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -204,24 +204,22 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             reverse_dipole_sign=qmol.reverse_dipole_sign,
         )
 
-    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
         """Returns the second quantized dipole moment operators.
 
-        Args:
-            return_list: a boolean, indicating whether the operators are returned as a `list` or
-                `dict` (in the latter case the keys are the Property names).
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
             A `list` or `dict` of `FermionicOp` objects.
         """
         ops: ListOrDictType[FermionicOp]
-        if return_list:
-            ops = [dip.second_q_ops(return_list)[0] for dip in self._properties.values()]
+        if not settings.dict_aux_operators:
+            ops = [dip.second_q_ops()[0] for dip in self._properties.values()]
             return ops
 
         ops = {}
         for prop in iter(self):
-            ops.update(prop.second_q_ops(return_list))
+            ops.update(prop.second_q_ops())
         return ops
 
     def interpret(self, result: EigenstateResult) -> None:

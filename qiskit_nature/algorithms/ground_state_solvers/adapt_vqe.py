@@ -139,15 +139,12 @@ class AdaptVQE(GroundStateEigensolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-        dict_based_aux_ops: bool = False,
     ) -> "AdaptVQEResult":
         """Computes the ground state.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
-            dict_based_aux_ops: if True, the auxiliary operators will be stored in a `dict` rather
-                than `list`.
 
         Raises:
             QiskitNatureError: if a solver other than VQE or a ansatz other than UCCSD is provided
@@ -160,7 +157,7 @@ class AdaptVQE(GroundStateEigensolver):
             information about the AdaptVQE algorithm like the number of iterations, finishing
             criterion, and the final maximum gradient.
         """
-        second_q_ops = problem.second_q_ops(return_list=not dict_based_aux_ops)
+        second_q_ops = problem.second_q_ops()
 
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):

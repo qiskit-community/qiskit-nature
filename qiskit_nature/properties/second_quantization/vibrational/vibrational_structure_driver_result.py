@@ -14,7 +14,7 @@
 
 from typing import cast
 
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
@@ -76,27 +76,25 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
 
         return ret
 
-    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[VibrationalOp]:
+    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
         """Returns the second quantized operators associated with the properties in this group.
 
-        Args:
-            return_list: a boolean, indicating whether the operators are returned as a `list` or
-                `dict` (in the latter case the keys are the Property names).
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
             A `list` or `dict` of `VibrationalOp` objects.
         """
         ops: ListOrDictType[VibrationalOp]
-        if return_list:
+        if not settings.dict_aux_operators:
             ops = []
             for cls in [VibrationalEnergy, OccupiedModals]:
                 prop = self.get_property(cls)  # type: ignore
                 if prop is None:
                     continue
-                ops.extend(prop.second_q_ops(return_list))
+                ops.extend(prop.second_q_ops())
             return ops
 
         ops = {}
         for prop in iter(self):
-            ops.update(prop.second_q_ops(return_list))
+            ops.update(prop.second_q_ops())
         return ops

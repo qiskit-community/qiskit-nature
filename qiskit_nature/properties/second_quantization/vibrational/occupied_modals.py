@@ -14,7 +14,7 @@
 
 from typing import List, Optional, Tuple
 
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
@@ -59,12 +59,10 @@ class OccupiedModals(VibrationalProperty):
 
         return cls()
 
-    def second_q_ops(self, return_list: bool = True) -> ListOrDictType[VibrationalOp]:
+    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
         """Returns the second quantized operators indicating the occupied modals per mode.
 
-        Args:
-            return_list: a boolean, indicating whether the operators are returned as a `list` or
-                `dict` (in the latter case the keys are the Property names).
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
             A `list` or `dict` of `VibrationalOp` objects.
@@ -72,7 +70,7 @@ class OccupiedModals(VibrationalProperty):
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
 
-        if return_list:
+        if not settings.dict_aux_operators:
             return [self._get_mode_op(mode) for mode in range(num_modes)]
 
         return {str(mode): self._get_mode_op(mode) for mode in range(num_modes)}
