@@ -400,7 +400,7 @@ class QubitConverter:
             for name, qubit_op in iter(qubit_ops):
                 commutes = QubitConverter._check_commutes(symmetry_ops, qubit_op)
                 commuted[name] = commutes
-                logger.debug("Qubit operators commuted with symmetry %s", commuted)
+                logger.debug("Qubit operator '%s' commuted with symmetry: %s", name, commutes)
 
             # Tapering values were set from prior convert so we go ahead and taper operators
             tapered_qubit_ops = ListOrDict()
