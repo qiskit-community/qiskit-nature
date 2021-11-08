@@ -12,6 +12,8 @@
 
 """Qiskit Nature Settings."""
 
+import warnings
+
 
 class QiskitNatureSettings:
     """Global settings for Qiskit Nature."""
@@ -23,11 +25,13 @@ class QiskitNatureSettings:
     def dict_aux_operators(self) -> bool:
         """Return whether `aux_operators` are dictionary- or list-based."""
         if not self._dict_aux_operators:
-            raise DeprecationWarning(
-                "List-based `aux_operators` are deprecated as of version 0.3.0 and support for them"
-                " will be removed no sooner than 3 months after the release. Instead, use "
-                "dict-based `aux_operators`. You can switch to the dict-based interface "
-                "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
+            warnings.warn(
+                DeprecationWarning(
+                    "List-based `aux_operators` are deprecated as of version 0.3.0 and support for "
+                    "them will be removed no sooner than 3 months after the release. Instead, use "
+                    "dict-based `aux_operators`. You can switch to the dict-based interface "
+                    "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
+                )
             )
 
         return self._dict_aux_operators
@@ -36,11 +40,13 @@ class QiskitNatureSettings:
     def dict_aux_operators(self, dict_aux_operators: bool) -> None:
         """Set whether `aux_operators` are dictionary- or list-based."""
         if not dict_aux_operators:
-            raise DeprecationWarning(
-                "List-based `aux_operators` are deprecated as of version 0.3.0 and support for them"
-                " will be removed no sooner than 3 months after the release. Instead, use "
-                "dict-based `aux_operators`. You can switch to the dict-based interface "
-                "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
+            warnings.warn(
+                DeprecationWarning(
+                    "List-based `aux_operators` are deprecated as of version 0.3.0 and support for "
+                    "them will be removed no sooner than 3 months after the release. Instead, use "
+                    "dict-based `aux_operators`. You can switch to the dict-based interface "
+                    "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
+                )
             )
 
         self._dict_aux_operators = dict_aux_operators
