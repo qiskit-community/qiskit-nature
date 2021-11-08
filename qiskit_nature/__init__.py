@@ -49,13 +49,12 @@ Submodules
 
 """
 
-from typing import Dict, List, Optional, TypeVar, Union
+from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
+    ListOrDict as ListOrDictType,
+)
+
 from .version import __version__
 from .exceptions import QiskitNatureError, UnsupportMethodError
-
-# pylint: disable=invalid-name
-T = TypeVar("T")
-ListOrDictType = Union[List[Optional[T]], Dict[Union[int, str], T]]
 
 
 __all__ = [
