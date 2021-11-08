@@ -138,11 +138,6 @@ class BaseProblem(ABC):
         """Returns the name of the property producing the main operator."""
         return self._main_property_name
 
-    @main_property_name.setter
-    def main_property_name(self, name: str) -> None:
-        """Sets the name of the property producing the main operator."""
-        self._main_property_name = name
-
     @property
     def num_particles(self) -> Optional[Tuple[int, int]]:
         """Returns the number of particles, if available."""

@@ -56,7 +56,7 @@ class VibrationalStructureProblem(BaseProblem):
         super().__init__(bosonic_driver, transformers)
         self.num_modals = num_modals
         self.truncation_order = truncation_order
-        self.main_property_name = "VibrationalEnergy"
+        self._main_property_name = "VibrationalEnergy"
 
     def second_q_ops(self, return_list: bool = True) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators created based on the driver and transformations.

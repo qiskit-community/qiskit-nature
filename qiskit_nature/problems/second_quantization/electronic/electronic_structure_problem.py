@@ -53,7 +53,7 @@ class ElectronicStructureProblem(BaseProblem):
             transformers: A list of transformations to be applied to the driver result.
         """
         super().__init__(driver, transformers)
-        self.main_property_name = "ElectronicEnergy"
+        self._main_property_name = "ElectronicEnergy"
 
     @property
     def num_particles(self) -> Tuple[int, int]:
