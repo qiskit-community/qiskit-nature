@@ -72,7 +72,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
     def test_LiH(self):
         """Lih test"""
         inter_dist = 1.6
-        self.driver1 = PySCFDriver(
+        driver1 = PySCFDriver(
             atom="Li .0 .0 .0; H .0 .0 " + str(inter_dist),
             unit=UnitsType.ANGSTROM,
             charge=0,
@@ -83,12 +83,12 @@ class TestAdaptVQE(QiskitNatureTestCase):
             num_electrons=2,
             num_molecular_orbitals=3,
         )
-        self.problem1 = ElectronicStructureProblem(self.driver1, [transformer])
+        problem1 = ElectronicStructureProblem(driver1, [transformer])
         # properties = driver1_reduced.run()
         self.expected = -1.85727503
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
-        res = calc.solve(self.problem1)
+        res = calc.solve(problem1)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_print_result(self):
