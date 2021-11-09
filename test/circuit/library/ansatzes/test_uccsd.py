@@ -108,3 +108,40 @@ class TestUCCSD(QiskitNatureTestCase):
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
+    @unpack
+    @data(
+        (
+            6,
+            (1, 1),
+            [
+                FermionicOp([("+-IIII", 1j), ("-+IIII", 1j)], display_format="dense"),
+                FermionicOp([("+I-III", 1j), ("-I+III", 1j)], display_format="dense"),
+                FermionicOp([("I+-III", 1j), ("I-+III", 1j)], display_format="dense"),
+                FermionicOp([("III+-I", 1j), ("III-+I", 1j)], display_format="dense"),
+                FermionicOp([("III+I-", 1j), ("III-I+", 1j)], display_format="dense"),
+                FermionicOp([("IIII+-", 1j), ("IIII-+", 1j)], display_format="dense"),
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
+                FermionicOp([("+-I+I-", 1j), ("-+I-I+", -1j)], display_format="dense"),
+                FermionicOp([("+-II+-", 1j), ("-+II-+", -1j)], display_format="dense"),
+                FermionicOp([("+I-+-I", 1j), ("-I+-+I", -1j)], display_format="dense"),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
+                FermionicOp([("+I-I+-", 1j), ("-I+I-+", -1j)], display_format="dense"),
+                FermionicOp([("I+-+-I", 1j), ("I-+-+I", -1j)], display_format="dense"),
+                FermionicOp([("I+-+I-", 1j), ("I-+-I+", -1j)], display_format="dense"),
+                FermionicOp([("I+-I+-", 1j), ("I-+I-+", -1j)], display_format="dense"),
+            ],
+        ),
+    )
+    def test_uccsd_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+        """Tests the generalized UCCSD Ansatz."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = UCCSD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            generalized=True,
+        )
+
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)

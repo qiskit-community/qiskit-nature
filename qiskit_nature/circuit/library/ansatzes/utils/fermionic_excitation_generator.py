@@ -10,15 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-This method is used by the :class:`~.UCC` Ansatz in order to construct its excitation operators. It
-must be called for each type of excitation (singles, doubles, etc.) that is to be considered in the
-Ansatz.
+These utility methods are used by the :class:`~.UCC` Ansatz in order to construct its excitation
+operators. The `generate_fermionic_excitations` method must be called for each type of excitation
+(singles, doubles, etc.) that is to be considered in the Ansatz.
 Some keyword arguments are allowed through which the excitations can be filtered to fit the user's
 needs. `alpha_spin` and `beta_spin` are boolean flags which can be set to `False` in order to
 disable the inclusion of alpha-spin or beta-spin excitation, respectively.
 `max_spin_excitation` takes an integer value which defines the maximum number of excitations that
 can occur within the same spin. Thus, setting `max_spin_excitation=1` and `num_excitations=2` yields
 only those double excitations which do not excite the same spin species twice.
+`generalized` is another boolean flag which enables generalized excitations which are effectively
+ignoring the spin orbital occupancies. Therefore, the excitations are only determined based on the
+number of spin orbitals and are independent from the number of particles.
 """
 
 from typing import Iterator, List, Tuple, Optional
@@ -29,6 +32,67 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def get_alpha_excitations(
+    num_alpha: int,
+    num_spin_orbitals: int,
+    generalized: bool = False,
+) -> List[Tuple[int, int]]:
+    """Generates all possible single alpha-electron excitations.
+
+    This method assumes block-ordered spin-orbitals.
+
+    Args:
+        num_alpha: the number of alpha electrons.
+        num_spin_orbitals: the total number of spin-orbitals (alpha + alpha spin).
+        generalized: boolean flag whether or not to use generalized excitations, which ignore the
+            occupation of the spin orbitals. As such, the set of generalized excitations is only
+            determined from the number of spin orbitals and independent from the number of alpha
+            electrons.
+
+    Returns:
+        The list of excitations encoded as tuples. Each tuple is a pair. The first entry contains
+        the occupied spin orbital index and the second entry the unoccupied one.
+    """
+    if generalized:
+        return list(itertools.combinations(range(num_spin_orbitals // 2), 2))
+
+    alpha_occ = range(num_alpha)
+    alpha_unocc = range(num_alpha, num_spin_orbitals // 2)
+
+    return list(itertools.product(alpha_occ, alpha_unocc))
+
+
+def get_beta_excitations(
+    num_beta: int,
+    num_spin_orbitals: int,
+    generalized: bool = False,
+) -> List[Tuple[int, int]]:
+    """Generates all possible single beta-electron excitations.
+
+    This method assumes block-ordered spin-orbitals.
+
+    Args:
+        num_beta: the number of beta electrons.
+        num_spin_orbitals: the total number of spin-orbitals (alpha + beta spin).
+        generalized: boolean flag whether or not to use generalized excitations, which ignore the
+            occupation of the spin orbitals. As such, the set of generalized excitations is only
+            determined from the number of spin orbitals and independent from the number of beta
+            electrons.
+
+    Returns:
+        The list of excitations encoded as tuples. Each tuple is a pair. The first entry contains
+        the occupied spin orbital index and the second entry the unoccupied one.
+    """
+    if generalized:
+        return list(itertools.combinations(range(num_spin_orbitals // 2, num_spin_orbitals), 2))
+
+    beta_index_offset = num_spin_orbitals // 2
+    beta_occ = range(beta_index_offset, beta_index_offset + num_beta)
+    beta_unocc = range(beta_index_offset + num_beta, num_spin_orbitals)
+
+    return list(itertools.product(beta_occ, beta_unocc))
+
+
 def generate_fermionic_excitations(
     num_excitations: int,
     num_spin_orbitals: int,
@@ -36,6 +100,7 @@ def generate_fermionic_excitations(
     alpha_spin: bool = True,
     beta_spin: bool = True,
     max_spin_excitation: Optional[int] = None,
+    generalized: bool = False,
 ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
@@ -52,6 +117,10 @@ def generate_fermionic_excitations(
                              this to 1 and `num_excitations` to 2 in order to obtain only
                              mixed-spin double excitations (alpha,beta) but no pure-spin double
                              excitations (alpha,alpha or beta,beta).
+        generalized: boolean flag whether or not to use generalized excitations, which ignore the
+            occupation of the spin orbitals. As such, the set of generalized excitations is only
+            determined from the number of spin orbitals and independent from the number of
+            particles.
 
     Returns:
         The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair. The
@@ -60,20 +129,12 @@ def generate_fermionic_excitations(
     """
     alpha_excitations: List[Tuple[int, int]] = []
     if alpha_spin:
-        # generate alpha-spin orbital indices for occupied and unoccupied ones
-        alpha_occ = list(range(num_particles[0]))
-        alpha_unocc = list(range(num_particles[0], num_spin_orbitals // 2))
-        # the Cartesian product of these lists gives all possible single alpha-spin excitations
-        alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
+        alpha_excitations = get_alpha_excitations(num_particles[0], num_spin_orbitals, generalized)
         logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
     beta_excitations: List[Tuple[int, int]] = []
     if beta_spin:
-        # generate beta-spin orbital indices for occupied and unoccupied ones
-        beta_occ = list(range(num_spin_orbitals // 2, num_spin_orbitals // 2 + num_particles[1]))
-        beta_unocc = list(range(num_spin_orbitals // 2 + num_particles[1], num_spin_orbitals))
-        # the Cartesian product of these lists gives all possible single beta-spin excitations
-        beta_excitations = list(itertools.product(beta_occ, beta_unocc))
+        beta_excitations = get_beta_excitations(num_particles[1], num_spin_orbitals, generalized)
         logger.debug("Generated list of single beta excitations: %s", beta_excitations)
 
     if not alpha_excitations and not beta_excitations:

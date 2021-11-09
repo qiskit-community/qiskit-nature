@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Support was added for generalized fermionic excitations. These kinds of
+    excitations are effectively ignoring the orbital occupancies and instead
+    yield all possible excitations within a spin species.
