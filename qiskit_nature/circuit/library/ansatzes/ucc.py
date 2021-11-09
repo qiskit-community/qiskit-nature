@@ -124,6 +124,7 @@ class UCC(EvolvedOperatorAnsatz):
         beta_spin: bool = True,
         max_spin_excitation: Optional[int] = None,
         generalized: bool = False,
+        spin_flip: bool = False,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
     ):
@@ -161,6 +162,7 @@ class UCC(EvolvedOperatorAnsatz):
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
+            spin_flip: boolean flag whether or not to allow spin flips to occur.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
@@ -172,6 +174,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
         self._generalized = generalized
+        self._spin_flip = spin_flip
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
@@ -321,6 +324,7 @@ class UCC(EvolvedOperatorAnsatz):
             "beta_spin": self._beta_spin,
             "max_spin_excitation": self._max_spin_excitation,
             "generalized": self._generalized,
+            "spin_flip": self._spin_flip,
         }
 
         if isinstance(self.excitations, str):

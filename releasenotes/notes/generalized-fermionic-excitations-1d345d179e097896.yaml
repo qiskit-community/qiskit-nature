@@ -4,3 +4,5 @@ features:
     Support was added for generalized fermionic excitations. These kinds of
     excitations are effectively ignoring the orbital occupancies and instead
     yield all possible excitations within a spin species.
+    Furthermore, another option was added which can be used to enabled spin-
+    flipped excitations.

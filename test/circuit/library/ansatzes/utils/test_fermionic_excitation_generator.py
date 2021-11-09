@@ -176,3 +176,28 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
             num_excitations, num_spin_orbitals, num_particles, generalized=True
         )
         self.assertEqual(excitations, expect)
+
+    @unpack
+    @data(
+        (1, 4, [1, 1], [((0,), (1,)), ((0,), (3,)), ((2,), (1,)), ((2,), (3,))]),
+        (2, 4, [1, 1], [((0, 2), (1, 3))]),
+        (
+            2,
+            6,
+            [1, 1],
+            [
+                ((0, 3), (1, 2)),
+                ((0, 3), (1, 4)),
+                ((0, 3), (1, 5)),
+                ((0, 3), (2, 4)),
+                ((0, 3), (2, 5)),
+                ((0, 3), (4, 5)),
+            ],
+        ),
+    )
+    def test_spin_flip_excitations(self, num_excitations, num_spin_orbitals, num_particles, expect):
+        """Test allowing spin-flipped excitations."""
+        excitations = generate_fermionic_excitations(
+            num_excitations, num_spin_orbitals, num_particles, spin_flip=True
+        )
+        self.assertEqual(excitations, expect)
