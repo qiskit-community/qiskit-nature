@@ -23,7 +23,10 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 
 from .ucc import UCC
-from .utils.fermionic_excitation_generator import generate_fermionic_excitations
+from .utils.fermionic_excitation_generator import (
+    generate_fermionic_excitations,
+    get_alpha_excitations,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +60,7 @@ class SUCCD(UCC):
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
         include_singles: Tuple[bool, bool] = (False, False),
+        generalized: bool = False,
     ):
         """
 
@@ -69,6 +73,10 @@ class SUCCD(UCC):
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
+            generalized: boolean flag whether or not to use generalized excitations, which ignore
+                the occupation of the spin orbitals. As such, the set of generalized excitations is
+                only determined from the number of spin orbitals and independent from the number of
+                particles.
 
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
@@ -83,6 +91,7 @@ class SUCCD(UCC):
             alpha_spin=True,
             beta_spin=True,
             max_spin_excitation=None,
+            generalized=generalized,
             reps=reps,
             initial_state=initial_state,
         )
@@ -132,10 +141,9 @@ class SUCCD(UCC):
         beta_index_shift = num_spin_orbitals // 2
 
         # generate alpha-spin orbital indices for occupied and unoccupied ones
-        alpha_occ = list(range(num_electrons))
-        alpha_unocc = list(range(num_electrons, beta_index_shift))
-        # the Cartesian product of these lists gives all possible single alpha-spin excitations
-        alpha_excitations = list(itertools.product(alpha_occ, alpha_unocc))
+        alpha_excitations = get_alpha_excitations(
+            num_electrons, num_spin_orbitals, self._generalized
+        )
         logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
         # Find all possible double excitations constructed from the list of single excitations.
