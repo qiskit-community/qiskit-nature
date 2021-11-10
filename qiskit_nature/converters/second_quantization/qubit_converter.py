@@ -431,7 +431,7 @@ class QubitConverter:
     def _check_commutes(cliffords: List[PauliSumOp], qubit_op: PauliSumOp) -> bool:
         commutes = []
         for clifford in cliffords:
-            commuting_rows = qubit_op.primitive.table.commutes_with_all(clifford.primitive.table)
+            commuting_rows = qubit_op.primitive.paulis.commutes_with_all(clifford.primitive.paulis)
             commutes.append(len(commuting_rows) == qubit_op.primitive.size)
         does_commute = bool(np.all(commutes))
         logger.debug("  '%s' commutes: %s, %s", id(qubit_op), does_commute, commutes)
