@@ -34,7 +34,7 @@ class UCCSD(UCC):
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
         generalized: bool = False,
-        spin_flip: bool = False,
+        preserve_spin: bool = True,
     ):
         """
         Args:
@@ -49,7 +49,7 @@ class UCCSD(UCC):
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
-            spin_flip: boolean flag whether or not to allow spin flips to occur.
+        preserve_spin: boolean flag whether or not to preserve the particle spins.
         """
         super().__init__(
             qubit_converter=qubit_converter,
@@ -60,7 +60,7 @@ class UCCSD(UCC):
             beta_spin=True,
             max_spin_excitation=None,
             generalized=generalized,
-            spin_flip=spin_flip,
+            preserve_spin=preserve_spin,
             reps=reps,
             initial_state=initial_state,
         )

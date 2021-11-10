@@ -101,7 +101,7 @@ def generate_fermionic_excitations(
     beta_spin: bool = True,
     max_spin_excitation: Optional[int] = None,
     generalized: bool = False,
-    spin_flip: bool = False,
+    preserve_spin: bool = True,
 ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
@@ -122,7 +122,7 @@ def generate_fermionic_excitations(
             occupation of the spin orbitals. As such, the set of generalized excitations is only
             determined from the number of spin orbitals and independent from the number of
             particles.
-        spin_flip: boolean flag whether or not to allow spin flips to occur.
+        preserve_spin: boolean flag whether or not to preserve the particle spins.
 
     Returns:
         The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair. The
@@ -132,7 +132,20 @@ def generate_fermionic_excitations(
     alpha_excitations: List[Tuple[int, int]] = []
     beta_excitations: List[Tuple[int, int]] = []
 
-    if spin_flip:
+    if preserve_spin:
+        if alpha_spin:
+            alpha_excitations = get_alpha_excitations(
+                num_particles[0], num_spin_orbitals, generalized
+            )
+            logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
+
+        if beta_spin:
+            beta_excitations = get_beta_excitations(
+                num_particles[1], num_spin_orbitals, generalized
+            )
+            logger.debug("Generated list of single beta excitations: %s", beta_excitations)
+
+    else:
         # We can reuse our existing implementation for the scenario involving spin flips by
         # generating the single excitations of an _interleaved_ spin orbital system.
         # For this, we can reuse the alpha single excitation generator in a system of double the
@@ -160,19 +173,6 @@ def generate_fermionic_excitations(
         # NOTE: we sort the lists to ensure that non-spin flipped variants take higher precedence
         alpha_excitations = sorted(alpha_excitations)
         beta_excitations = sorted(beta_excitations)
-
-    else:
-        if alpha_spin:
-            alpha_excitations = get_alpha_excitations(
-                num_particles[0], num_spin_orbitals, generalized
-            )
-            logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
-
-        if beta_spin:
-            beta_excitations = get_beta_excitations(
-                num_particles[1], num_spin_orbitals, generalized
-            )
-            logger.debug("Generated list of single beta excitations: %s", beta_excitations)
 
     if not alpha_excitations and not beta_excitations:
         # nothing to do, let's return early

@@ -180,7 +180,7 @@ class TestUCCSD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_uccsd_ansatz_spin_flip(self, num_spin_orbitals, num_particles, expect):
+    def test_uccsd_ansatz_preserve_spin(self, num_spin_orbitals, num_particles, expect):
         """Tests UCCSD Ansatz with spin flips."""
         converter = QubitConverter(JordanWignerMapper())
 
@@ -188,7 +188,7 @@ class TestUCCSD(QiskitNatureTestCase):
             qubit_converter=converter,
             num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
-            spin_flip=True,
+            preserve_spin=False,
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)

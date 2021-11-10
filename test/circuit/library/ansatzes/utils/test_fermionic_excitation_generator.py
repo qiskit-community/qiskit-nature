@@ -195,9 +195,11 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_spin_flip_excitations(self, num_excitations, num_spin_orbitals, num_particles, expect):
+    def test_preserve_spin_excitations(
+        self, num_excitations, num_spin_orbitals, num_particles, expect
+    ):
         """Test allowing spin-flipped excitations."""
         excitations = generate_fermionic_excitations(
-            num_excitations, num_spin_orbitals, num_particles, spin_flip=True
+            num_excitations, num_spin_orbitals, num_particles, preserve_spin=False
         )
         self.assertEqual(excitations, expect)
