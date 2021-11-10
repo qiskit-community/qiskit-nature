@@ -26,8 +26,8 @@ from qiskit_nature.mappers.second_quantization import bksf
 
 def _sort_simplify(sparse_pauli):
     sparse_pauli = sparse_pauli.simplify()
-    indices = sparse_pauli.table.argsort()
-    table = sparse_pauli.table[indices]
+    indices = sparse_pauli.paulis.argsort()
+    table = sparse_pauli.paulis[indices]
     coeffs = sparse_pauli.coeffs[indices]
     sparse_pauli = SparsePauliOp(table, coeffs)
     return sparse_pauli
