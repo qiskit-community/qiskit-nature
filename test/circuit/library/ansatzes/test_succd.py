@@ -110,3 +110,43 @@ class TestSUCCD(QiskitNatureTestCase):
         """Test an error is raised when the number of alpha and beta electrons differ."""
         with self.assertRaises(QiskitNatureError):
             SUCCD(num_particles=(2, 1))
+
+    @unpack
+    @data(
+        (
+            6,
+            (1, 1),
+            [
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
+                FermionicOp([("+-I+I-", 1j), ("-+I-I+", -1j)], display_format="dense"),
+                FermionicOp([("+-II+-", 1j), ("-+II-+", -1j)], display_format="dense"),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
+                FermionicOp([("+I-I+-", 1j), ("-I+I-+", -1j)], display_format="dense"),
+                FermionicOp([("I+-I+-", 1j), ("I-+I-+", -1j)], display_format="dense"),
+            ],
+        ),
+        (
+            6,
+            (2, 2),
+            [
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
+                FermionicOp([("+-I+I-", 1j), ("-+I-I+", -1j)], display_format="dense"),
+                FermionicOp([("+-II+-", 1j), ("-+II-+", -1j)], display_format="dense"),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
+                FermionicOp([("+I-I+-", 1j), ("-I+I-+", -1j)], display_format="dense"),
+                FermionicOp([("I+-I+-", 1j), ("I-+I-+", -1j)], display_format="dense"),
+            ],
+        ),
+    )
+    def test_puccd_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+        """Tests the generalized SUCCD Ansatz."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = SUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            generalized=True,
+        )
+
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)

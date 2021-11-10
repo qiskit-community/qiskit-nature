@@ -33,6 +33,8 @@ class UCCSD(UCC):
         num_spin_orbitals: Optional[int] = None,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
+        generalized: bool = False,
+        preserve_spin: bool = True,
     ):
         """
         Args:
@@ -43,6 +45,11 @@ class UCCSD(UCC):
             num_spin_orbitals: the number of spin orbitals.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
+            generalized: boolean flag whether or not to use generalized excitations, which ignore
+                the occupation of the spin orbitals. As such, the set of generalized excitations is
+                only determined from the number of spin orbitals and independent from the number of
+                particles.
+        preserve_spin: boolean flag whether or not to preserve the particle spins.
         """
         super().__init__(
             qubit_converter=qubit_converter,
@@ -52,6 +59,8 @@ class UCCSD(UCC):
             alpha_spin=True,
             beta_spin=True,
             max_spin_excitation=None,
+            generalized=generalized,
+            preserve_spin=preserve_spin,
             reps=reps,
             initial_state=initial_state,
         )
