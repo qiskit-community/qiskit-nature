@@ -43,8 +43,9 @@ Models
 
 """
 from .lattice import (
-    Lattice,
+    DrawStyle,
     HyperCubicLattice,
+    Lattice,
     LineLattice,
     SquareLattice,
     TriangularLattice,

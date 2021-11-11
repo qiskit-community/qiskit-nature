@@ -11,8 +11,7 @@
 # that they have been altered from the originals.
 
 """General Lattice."""
-from functools import wraps
-from inspect import signature
+from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -23,75 +22,80 @@ from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
 
 
-def _add_signature(func_with_signature):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
+@dataclass
+class DrawStyle:
+    """A stylesheet for lattice figure.
+    Please see
+    https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
+    for each elements.
+    """
 
-        sig = signature(func)
-        sig_func = signature(func_with_signature)
-        post_params = []
-        pre_params = []
+    # position
+    pos: Optional[dict] = None
 
-        for k, v in sig.parameters.items():
-            if str(v)[0] == "*":
-                post_params.append(sig.parameters[k])
-            else:
-                pre_params.append(sig.parameters[k])
+    # Matplotlib Axes object
+    ax: Optional[Axes] = None  # pylint:disable=invalid-name
 
-        wrapper.__signature__ = sig.replace(
-            parameters=pre_params + list(sig_func.parameters.values()) + post_params
-        )
-        wrapper.__annotations__ = {**func.__annotations__, **func_with_signature.__annotations__}
+    with_labels: bool = False
 
-        return wrapper
+    node_list: Optional[list] = None
 
-    return decorator
+    edge_list: Optional[list] = None
 
+    node_size: Union[int, list] = 300
 
-# pylint: disable=unused-argument
-def _draw_signature(
-    pos: Optional[dict] = None,
-    ax: Optional[Axes] = None,
-    arrows: bool = True,
-    arrowstyle: Optional[str] = None,
-    arrow_size: int = 10,
-    with_labels: bool = False,
-    node_list: Optional[list] = None,
-    edge_list: Optional[list] = None,
-    node_size: Union[int, list] = 300,
     node_color: Union[
         str,
         Tuple[float, float, float],
         Tuple[float, float, float],
         List[Union[str, Tuple[float, float, float], Tuple[float, float, float, float]]],
-    ] = "#1f78b4",
-    node_shape: str = "o",
-    alpha: Optional[float] = None,
-    cmap: Optional[Colormap] = None,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    linewidths: Union[float, Sequence] = 1.0,
-    width: Union[float, Sequence] = 1.0,
-    edge_color: Union[str, Sequence] = "k",
-    edge_cmap: Optional[Colormap] = None,
-    edge_vmin: Optional[float] = None,
-    edge_vmax: Optional[float] = None,
-    style: str = "solid",
-    labels: Optional[Callable] = None,
-    edge_labels: Optional[Callable] = None,
-    font_size: int = 12,
-    font_color: str = "k",
-    font_weight: str = "normal",
-    font_family: str = "sans-serif",
-    label: Optional[str] = None,
-    connectionstyle: str = "arc3",
-):
-    pass
+    ] = "#1f78b4"
 
+    node_shape: str = "o"
 
-_add_draw_signature = _add_signature(_draw_signature)
+    # node and edge transparency
+    alpha: Optional[float] = None
+
+    # Matplotlib colormap object
+    cmap: Optional[Colormap] = None
+
+    # minimum value for node colormap scaling
+    vmin: Optional[float] = None
+
+    # minimum value for node colormap scaling
+    vmax: Optional[float] = None
+
+    linewidths: Union[float, Sequence] = 1.0
+
+    width: Union[float, Sequence] = 1.0
+
+    edge_color: Union[str, Sequence] = "k"
+
+    edge_cmap: Optional[Colormap] = None
+
+    # minimum value for edge colormap scaling
+    edge_vmin: Optional[float] = None
+
+    # maximum value for node colormap scaling
+    edge_vmax: Optional[float] = None
+
+    style: str = "solid"
+
+    labels: Optional[Callable] = None
+
+    edge_labels: Optional[Callable] = None
+
+    font_size: int = 12
+
+    font_color: str = "k"
+
+    font_weight: str = "normal"
+
+    font_family: str = "sans-serif"
+
+    label: Optional[str] = None
+
+    connectionstyle: str = "arc3"
 
 
 class Lattice:
@@ -207,17 +211,16 @@ class Lattice:
         )
         plt.draw()
 
-    @_add_draw_signature
     def draw(
         self,
         self_loop: bool = False,
-        **kwargs,
+        style: Optional[DrawStyle] = None,
     ):
         """Draw the lattice.
 
         Args:
             self_loop : Draw self-loops in the lattice. Defaults to False.
-            **kwargs : Kwargs for retworkx.visualization.mpl_draw.
+            style : Styles for retworkx.visualization.mpl_draw.
                 Please see
                 https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
                 for details.
@@ -225,10 +228,16 @@ class Lattice:
 
         graph = self.graph
 
-        if "pos" not in kwargs:
-            kwargs["pos"] = self.pos
+        if style is None:
+            style = DrawStyle()
+        elif not isinstance(style, DrawStyle):
+            style = DrawStyle(**style)
+
+        if style.pos is None:
+            style.pos = self.pos
+
         self._mpl(
             graph=graph,
             self_loop=self_loop,
-            **kwargs,
+            **asdict(style),
         )
