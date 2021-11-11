@@ -14,11 +14,155 @@
 from dataclasses import asdict
 from itertools import product
 from math import pi
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 from retworkx import PyGraph
 
 from .lattice import DrawStyle, Lattice
+
+
+def _coordinate_to_index(coord: np.ndarray, size: Tuple[int, ...]) -> int:
+    """Convert the coordinate of a lattice point to an integer for labeling.
+        When size=(l0, l1, l2, ...), then a coordinate (x0, x1, x2, ...) is converted as
+        x0 + x1*l0 + x2*l0*l1 + ... .
+    Args:
+        coord: Input coordinate to be converted.
+        size: Lengths of each dimension.
+
+    Returns:
+        int: Return x0 + x1*l0 + x2*l0*l1 + ...
+            when coord=np.array([x0, x1, x2...]) and size=(l0, l1, l2, ...).
+    """
+    dim = len(size)
+    base = np.array([np.prod(size[:i]) for i in range(dim)], dtype=int)
+    return np.dot(coord, base).item()
+
+
+def _self_loops(size: Tuple[int, ...], onsite_parameter: complex) -> List[Tuple[int, int, complex]]:
+    """Return a list consisting of the self-loops on all the nodes.
+    Args:
+        size : Lengths of each dimension.
+        onsite_parameter: Weight of the self-loops.
+    Returns:
+        List[Tuple[int, int, complex]] : List of the self-loops.
+    """
+    num_nodes = np.prod(size)
+    return [(node_a, node_a, onsite_parameter) for node_a in range(num_nodes)]
+
+
+def _bulk_edges(
+    size: Tuple[int, ...], edge_parameter: Tuple[complex, ...]
+) -> List[Tuple[int, int, complex]]:
+    """Return a list consisting of the edges in th bulk, which don't cross the boundaries.
+
+    Args:
+        size : Lengths of each dimension.
+        edge_parameter : Weights on the edges in each direction.
+
+    Returns:
+        List[Tuple[int, int, complex]] : List of weighted edges that don't cross the boundaries.
+    """
+    list_of_edges = []
+    dim = len(size)
+    coordinates = list(product(*map(range, size)))
+    # add edges excluding the boundary edges
+    for coord in np.array(coordinates):
+        for i in range(dim):
+            if coord[i] != size[i] - 1:
+                relative_vector = np.eye(dim, dtype=int)[i]
+                node_a = _coordinate_to_index(coord, size)
+                node_b = _coordinate_to_index(coord + relative_vector, size)
+                list_of_edges.append((node_a, node_b, edge_parameter[i]))
+    return list_of_edges
+
+
+def _boundary_edges(
+    size: Tuple[int, ...], edge_parameter: Tuple[complex, ...], boundary_condition: Tuple[str, ...]
+) -> List[Tuple[int, int, complex]]:
+    """Return a list consisting of the edges that cross the boundaries
+        depending on the boundary conditions.
+
+    Args:
+        size : Lengths of each dimension.
+        edge_parameter : Weights on the edges in each direction.
+        boundary_condition : Boundary condition for each dimension.
+            The available boundary conditions are: "open", "periodic".
+    Raises:
+        ValueError: Given boundary condition is invalid values.
+    Returns:
+        List[Tuple[int, int, complex]]: List of weighted edges that cross the boundaries.
+    """
+    list_of_edges = []
+    dim = len(size)
+    for i in range(dim):
+        # add edges when the boundary condition is periodic.
+        # when the boundary condition in the i-th direction is periodic,
+        # it makes sense only when size[i] is greater than 2.
+        if boundary_condition[i] == "periodic":
+            if size[i] <= 2:
+                continue
+            size_list = list(size)
+            size_list[i] = 1
+            coordinates = list(product(*map(range, size_list)))
+            relative_vector = np.eye(dim, dtype=int)[i]
+            for coord in np.array(coordinates):
+                node_b = _coordinate_to_index(coord, size)
+                node_a = _coordinate_to_index((coord - relative_vector) % size, size)
+                list_of_edges.append((node_b, node_a, edge_parameter[i].conjugate()))
+
+        elif boundary_condition[i] != "open":
+            raise ValueError(
+                f"Invalid `boundary condition` {boundary_condition[i]} is given."
+                "`boundary condition` must be `open` or `periodic`."
+            )
+    return list_of_edges
+
+
+def _default_position(
+    size: Tuple[int, ...], boundary_condition: Tuple[str, ...]
+) -> Optional[Dict[int, List[float]]]:
+    """return a dictionary of default positions for visualization of a one- or two-dimensional lattice.
+
+    Args:
+        size : Lengths of each dimension.
+        boundary_condition : Boundary condition for each dimension.
+            The available boundary conditions are: "open", "periodic".
+
+    Returns:
+        Optional[Dict[int, List[float]]]: The keys are the labels of lattice points,
+            and the values are two-dimensional coordinates.
+            When the dimension is larger than 2, it returns None.
+    """
+    dim = len(size)
+    if dim == 1:
+        if boundary_condition[0] == "open":
+            pos = {i: [float(i), 0.0] for i in range(size[0])}
+        elif boundary_condition[0] == "periodic":
+            theta = 2 * pi / size[0]
+            pos = {
+                i: np.array([np.cos(i * theta), np.sin(i * theta)]).tolist() for i in range(size[0])
+            }
+    elif dim == 2:
+        pos = {}
+        width = np.array([0.0, 0.0])
+        for i in (0, 1):
+            if boundary_condition[i] == "periodic":
+                # the positions are shifted along the y-direction
+                # when the boundary condition in the x-direction is periodic and vice versa.
+                # The width of the shift is fixed to 0.2.
+                width[(i + 1) % 2] = 0.2
+        for index in range(np.prod(size)):
+            # maps an index to two-dimensional coordinate
+            # the positions are shifted so that the edges between boundaries can be seen
+            # for the periodic cases.
+            coord = np.array(divmod(index, size[0]))[::-1] + width * np.sin(
+                pi * np.array(divmod(index, size[0])) / (np.array(size)[::-1] - 1)
+            )
+            pos[index] = coord.tolist()
+    else:
+        pos = None
+
+    return pos
 
 
 class HyperCubicLattice(Lattice):
@@ -106,74 +250,27 @@ class HyperCubicLattice(Lattice):
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(np.prod(size)))
 
-        # a d-dimensional coordinate [x0, x1, x2, ...] is mapped to an integer.
-        # as xo + x1*size[0] + x2*size[0]*size[1] + ... .
-        coordinates = list(product(*map(range, size)))
-        base = np.array([np.prod(size[:i]) for i in range(self.dim)], dtype=int)
         # add edges excluding the boundary edges
-        for coord in coordinates:
-            for i in range(self.dim):
-                if coord[i] != size[i] - 1:
-                    # node_b is the neighboring site in the i-th dirction of node_a.
-                    node_a = np.dot(coord, base)
-                    node_b = node_a + base[i]
-                    graph.add_edge(node_a, node_b, edge_parameter[i])
+        bulk_edge_list = _bulk_edges(self.size, self.edge_parameter)
+        graph.add_edges_from(bulk_edge_list)
 
         # add self-loops.
-        for node_a in range(np.prod(size)):
-            graph.add_edge(node_a, node_a, onsite_parameter)
+        self_loop_list = _self_loops(self.size, self.onsite_parameter)
+        graph.add_edges_from(self_loop_list)
+
+        # add edges that cross the boundaries
+        boundary_edge_list = _boundary_edges(
+            self.size, self.edge_parameter, self.boundary_condition
+        )
+        graph.add_edges_from(boundary_edge_list)
 
         # a list of edges that depend on the boundary condition
-        self.boundary_edges = []
-        for i in range(self.dim):
-            # add edges when the boundary condition is periodic.
-            # when the boundary condition in the i-th direction is periodic,
-            # it makes sense only when size[i] is greater than 2.
-            if boundary_condition[i] == "periodic":
-                if size[i] <= 2:
-                    continue
-                size_list = list(size)
-                size_list[i] = 1
-                # a list of the target nodes of the edges that cross the boundaries.
-                coordinates = list(product(*map(range, size_list)))
-                for coord in coordinates:
-                    node_b = np.dot(coord, base)
-                    node_a = node_b + base[i] * (size[i] - 1)  # node_b < node_a
-                    graph.add_edge(node_b, node_a, edge_parameter[i].conjugate())
-                    self.boundary_edges.append((node_a, node_b))
-
-            elif boundary_condition[i] != "open":
-                raise ValueError(
-                    f"Invalid `boundary condition` {boundary_condition[i]} is given."
-                    "`boundary condition` must be `open` or `periodic`."
-                )
+        self.boundary_edges = [(edge[0], edge[1]) for edge in boundary_edge_list]
 
         super().__init__(graph)
 
         # default position for one and two-dimensional cases.
-        if self.dim == 1:
-            if self.boundary_condition[0] == "open":
-                self.pos = {i: [i, 0] for i in range(self.size[0])}
-            elif self.boundary_condition[0] == "periodic":
-                theta = 2 * pi / self.size[0]
-                self.pos = {i: [np.cos(i * theta), np.sin(i * theta)] for i in range(self.size[0])}
-        elif self.dim == 2:
-            self.pos = {}
-            width = np.array([0.0, 0.0])
-            for i in (0, 1):
-                if self.boundary_condition[i] == "periodic":
-                    # the positions are shifted along the y-direction
-                    # when the boundary condition in the x-direction is periodic and vice versa.
-                    # The width of the shift is fixed to 0.2.
-                    width[(i + 1) % 2] = 0.2
-            for index in range(np.prod(self.size)):
-                # maps an index to two-dimensional coordinate
-                # the positions are shifted so that the edges between boundaries can be seen
-                # for the periodic cases.
-                xy_coord = np.array(divmod(index, self.size[0]))[::-1] + width * np.sin(
-                    pi * np.array(divmod(index, self.size[0])) / (np.array(self.size)[::-1] - 1)
-                )
-                self.pos[index] = list(xy_coord)
+        self.pos = _default_position(size, boundary_condition)
 
     def draw_without_boundary(
         self,
