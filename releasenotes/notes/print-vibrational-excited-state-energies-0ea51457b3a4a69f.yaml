@@ -1,5 +1,5 @@
 ---
 fixes:
   - |
-    Fixes the formatting of the occupied modals and adds the exicted state energies
+    Fixes the formatting of the occupied modals and adds the excited state energies
     when printing a :class:`~qiskit_nature.results.VibrationalStructureResult`.
