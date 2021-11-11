@@ -27,7 +27,7 @@ class VibrationalStructureResult(EigenstateResult):
         super().__init__()
         self._algorithm_result: Optional[AlgorithmResult] = None
         self._computed_vibrational_energies: Optional[np.ndarray] = None
-        self._num_occupied_modals_per_mode: Optional[List[float]] = None
+        self._num_occupied_modals_per_mode: Optional[List[List[float]]] = None
 
     @property
     def algorithm_result(self) -> Optional[AlgorithmResult]:
@@ -53,12 +53,12 @@ class VibrationalStructureResult(EigenstateResult):
         self._computed_vibrational_energies = value
 
     @property
-    def num_occupied_modals_per_mode(self) -> Optional[List[float]]:
+    def num_occupied_modals_per_mode(self) -> Optional[List[List[float]]]:
         """Returns the number of occupied modal per mode"""
         return self._num_occupied_modals_per_mode
 
     @num_occupied_modals_per_mode.setter
-    def num_occupied_modals_per_mode(self, value: List[float]) -> None:
+    def num_occupied_modals_per_mode(self, value: List[List[float]]) -> None:
         """Sets measured number of modes"""
         self._num_occupied_modals_per_mode = value
 
@@ -78,7 +78,7 @@ class VibrationalStructureResult(EigenstateResult):
         if len(self.num_occupied_modals_per_mode) > 0:
             lines.append("The number of occupied modals for each mode is: ")
             for i, m in enumerate(self.num_occupied_modals_per_mode[0]):
-                lines.append(f"- Mode {i}: {m}")
+                lines.append(f"- Mode {i}: {np.round(m, 12)}")
 
         if (
             self.computed_vibrational_energies is not None
@@ -96,7 +96,7 @@ class VibrationalStructureResult(EigenstateResult):
                 if idx < len(self.num_occupied_modals_per_mode):
                     lines.append("The number of occupied modals for each mode is")
                     for i, m in enumerate(self.num_occupied_modals_per_mode[idx]):
-                        lines.append(f"- Mode {i}: {m}")
+                        lines.append(f"- Mode {i}: {np.round(m, 12)}")
                 lines.append(" ")
 
         return lines
