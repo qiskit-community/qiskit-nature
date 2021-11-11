@@ -148,14 +148,16 @@ class TriangularLattice(Lattice):
         # default position
         self.pos = {}
         for index in range(np.prod(self.size)):
-            # maps an index to two-dimensional coordinate
-            xy_coord = np.array(divmod(index, rows))[::-1]
+            width = 0.0
             if self.boundary_condition == "periodic":
                 # For the periodic boundary conditions,
                 # the positions are shifted so that the edges between boundaries can be seen.
-                xy_coord = xy_coord + 0.2 * np.sin(
-                    pi * xy_coord[::-1] / (np.array(self.size)[::-1] - 1)
-                )
+                # `width` is the width of the shift when the boundary condition is periodic.
+                width = 0.2
+            # maps an index to two-dimensional coordinate
+            xy_coord = np.array(divmod(index, rows))[::-1] + width * np.sin(
+                pi * np.array(divmod(index, rows)) / (np.array(self.size)[::-1] - 1)
+            )
             self.pos[index] = list(xy_coord)
 
     def draw_without_boundary(

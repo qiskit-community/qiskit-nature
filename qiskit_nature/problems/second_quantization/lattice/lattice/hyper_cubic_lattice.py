@@ -162,14 +162,16 @@ class HyperCubicLattice(Lattice):
             width = np.array([0.0, 0.0])
             for i in (0, 1):
                 if self.boundary_condition[i] == "periodic":
+                    # the positions are shifted along the y-direction
+                    # when the boundary condition in the x-direction is periodic and vice versa.
+                    # The width of the shift is fixed to 0.2.
                     width[(i + 1) % 2] = 0.2
             for index in range(np.prod(self.size)):
                 # maps an index to two-dimensional coordinate
                 # the positions are shifted so that the edges between boundaries can be seen
                 # for the periodic cases.
-                xy_coord = np.array(divmod(index, self.size[0]))[::-1]
-                xy_coord = xy_coord + width * np.sin(
-                    pi * xy_coord[::-1] / (np.array(self.size)[::-1] - 1)
+                xy_coord = np.array(divmod(index, self.size[0]))[::-1] + width * np.sin(
+                    pi * np.array(divmod(index, self.size[0])) / (np.array(self.size)[::-1] - 1)
                 )
                 self.pos[index] = list(xy_coord)
 
