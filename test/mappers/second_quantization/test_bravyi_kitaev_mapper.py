@@ -70,27 +70,27 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):
-            op = FermionicOp("+")
+            op = FermionicOp("+", display_format="dense")
             expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
             self.assertEqual(BravyiKitaevMapper().map(op), expected)
 
         with self.subTest("test -"):
-            op = FermionicOp("-")
+            op = FermionicOp("-", display_format="dense")
             expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
             self.assertEqual(BravyiKitaevMapper().map(op), expected)
 
         with self.subTest("test N"):
-            op = FermionicOp("N")
+            op = FermionicOp("N", display_format="dense")
             expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
             self.assertEqual(BravyiKitaevMapper().map(op), expected)
 
         with self.subTest("test E"):
-            op = FermionicOp("E")
+            op = FermionicOp("E", display_format="dense")
             expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
             self.assertEqual(BravyiKitaevMapper().map(op), expected)
 
         with self.subTest("test I"):
-            op = FermionicOp("I")
+            op = FermionicOp("I", display_format="dense")
             expected = PauliSumOp.from_list([("I", 1)])
             self.assertEqual(BravyiKitaevMapper().map(op), expected)
 
