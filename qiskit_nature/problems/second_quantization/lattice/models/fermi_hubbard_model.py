@@ -41,7 +41,7 @@ class FermiHubbardModel:
         Returns:
             The hopping matrix.
         """
-        return self._lattice.to_adjacency_matrix()
+        return self._lattice.to_adjacency_matrix(weighted=True)
 
     @classmethod
     def uniform_parameters(
@@ -63,9 +63,7 @@ class FermiHubbardModel:
         """
         graph = lattice.graph
         for node_a, node_b, _ in graph.weighted_edge_list():
-            if node_a == node_b:
-                pass
-            else:
+            if node_a != node_b:
                 graph.update_edge(node_a, node_b, uniform_hopping)
 
         for node_a in graph.node_indexes():
@@ -139,18 +137,15 @@ class FermiHubbardModel:
                     if node_a < node_b:
                         index_left = 2 * node_a + spin
                         index_right = 2 * node_b + spin
-                        kinetic_ham.append((f"+_{index_left} -_{index_right}", weight))
-                        kinetic_ham.append(
-                            (f"-_{index_left} +_{index_right}", -np.conjugate(weight))
-                        )
+                        hopping_parameter = weight
                     elif node_a > node_b:
                         index_left = 2 * node_b + spin
                         index_right = 2 * node_a + spin
-                        kinetic_ham.append(
-                            (f"+_{index_left} -_{index_right}", np.conjugate(weight))
-                        )
-                        kinetic_ham.append((f"-_{index_left} +_{index_right}", -weight))
-
+                        hopping_parameter = np.conjugate(weight)
+                    kinetic_ham.append((f"+_{index_left} -_{index_right}", hopping_parameter))
+                    kinetic_ham.append(
+                        (f"-_{index_left} +_{index_right}", -np.conjugate(hopping_parameter))
+                    )
         # on-site interaction terms
         for node in self._lattice.node_indexes:
             index_up = 2 * node

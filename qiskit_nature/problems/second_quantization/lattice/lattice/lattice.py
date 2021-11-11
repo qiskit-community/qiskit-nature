@@ -159,14 +159,14 @@ class Lattice:
         graph.add_edges_from(weighted_edges)
         return cls(graph)
 
-    def to_adjacency_matrix(self, weighted: bool = True) -> np.ndarray:
+    def to_adjacency_matrix(self, weighted: bool = False) -> np.ndarray:
         """Return its adjacency matrix from weighted edges.
         The weighted edge list is interpreted as the upper triangular matrix.
         Defaults to True.
 
         Args:
-            weighted: The matrix elements are 0 or 1 when it is true.
-                Otherwise, the weights on edges are returned as a matrix.
+            weighted: The matrix elements are 0 or 1 when it is False.
+                Otherwise, the weights on edges are returned as the matrix elements.
 
         Returns:
             The adjacency matrix of the input graph.
@@ -176,6 +176,7 @@ class Lattice:
             imag_part = adjacency_matrix(self.graph, weight_fn=np.imag)
             imag_part = np.triu(imag_part) - np.triu(imag_part).T
             ad_mat = real_part + 1.0j * imag_part
+
         else:
             ad_mat = adjacency_matrix(self.graph, weight_fn=lambda x: 1)
 

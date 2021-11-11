@@ -95,7 +95,7 @@ class TestTriangularLattice(QiskitNatureTestCase):
                     [0.0, 3.0 - 3.0j, 2.0 - 2.0j, 0.0, 1.0 - 1.0j, 0.0],
                 ]
             )
-            assert_array_equal(triangular.to_adjacency_matrix(), target_matrix)
+            assert_array_equal(triangular.to_adjacency_matrix(weighted=True), target_matrix)
 
     def test_init_periodic(self):
         """Test init for the periodic boundary conditions."""
@@ -181,4 +181,4 @@ class TestTriangularLattice(QiskitNatureTestCase):
                     [3.0 + 3.0j, 3.0 - 3.0j, 2.0 - 2.0j, 1.0 + 1.0j, 1.0 - 1.0j, 0.0],
                 ]
             )
-            assert_array_equal(triangular.to_adjacency_matrix(), target_matrix)
+            assert_array_equal(triangular.to_adjacency_matrix(weighted=True), target_matrix)

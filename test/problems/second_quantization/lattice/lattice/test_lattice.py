@@ -127,5 +127,7 @@ class TestLattice(QiskitNatureTestCase):
         lattice = Lattice(graph)
 
         target_matrix = np.array([[0, 1 + 1j, -1.0], [1 - 1j, 0, 0], [-1.0, 0, 3.0]])
+        assert_array_equal(lattice.to_adjacency_matrix(weighted=True), target_matrix)
 
+        target_matrix = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 1]])
         assert_array_equal(lattice.to_adjacency_matrix(), target_matrix)

@@ -13,7 +13,7 @@
 """The triangular lattice"""
 from itertools import product
 from math import pi
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 from retworkx import PyGraph
@@ -148,17 +148,14 @@ class TriangularLattice(Lattice):
         self.pos = {}
         for index in range(np.prod(self.size)):
             # maps an index to two-dimensional coordinate
-            x = index % self.size[0]
-            y = index // self.size[0]
-            if self.boundary_condition == "open":
-                return_x = x
-                return_y = y
-            elif self.boundary_condition == "periodic":
+            xy_coord = np.array(divmod(index, rows))[::-1]
+            if self.boundary_condition == "periodic":
                 # For the periodic boundary conditions,
                 # the positions are shifted so that the edges between boundaries can be seen.
-                return_x = x + 0.2 * np.sin(pi * y / (self.size[1] - 1))
-                return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
-            self.pos[index] = [return_x, return_y]
+                xy_coord = xy_coord + 0.2 * np.sin(
+                    pi * xy_coord[::-1] / (np.array(self.size)[::-1] - 1)
+                )
+            self.pos[index] = list(xy_coord)
 
     @_add_draw_signature
     def draw_without_boundary(

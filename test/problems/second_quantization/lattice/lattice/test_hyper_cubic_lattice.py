@@ -104,4 +104,4 @@ class TestHyperCubic(QiskitNatureTestCase):
                 ]
             )
 
-            assert_array_equal(hyper_cubic.to_adjacency_matrix(), target_matrix)
+            assert_array_equal(hyper_cubic.to_adjacency_matrix(weighted=True), target_matrix)

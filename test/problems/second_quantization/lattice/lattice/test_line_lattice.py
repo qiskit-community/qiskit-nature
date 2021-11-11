@@ -83,4 +83,4 @@ class TestLineLattice(QiskitNatureTestCase):
                 ]
             )
 
-            assert_array_equal(linelattice.to_adjacency_matrix(), target_matrix)
+            assert_array_equal(linelattice.to_adjacency_matrix(weighted=True), target_matrix)
