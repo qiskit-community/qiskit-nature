@@ -69,7 +69,7 @@ class VibrationalStructureResult(EigenstateResult):
     def formatted(self) -> List[str]:
         """Formatted result as a list of strings"""
         lines = []
-        lines.append("=== GROUND STATE ENERGY ===")
+        lines.append("=== GROUND STATE ===")
         lines.append(" ")
         lines.append(
             "* Vibrational ground state energy "
@@ -77,7 +77,26 @@ class VibrationalStructureResult(EigenstateResult):
         )
         if len(self.num_occupied_modals_per_mode) > 0:
             lines.append("The number of occupied modals is")
-        for i, m in enumerate(self.num_occupied_modals_per_mode):
-            lines.append(f"- Mode {i}: {m}")
+            for i, m in enumerate(self.num_occupied_modals_per_mode[0]):
+                lines.append(f"- Mode {i}: {m}")
+
+        if (
+            self.computed_vibrational_energies is not None
+            and len(self.computed_vibrational_energies) > 1
+        ):
+            lines.append(" ")
+            lines.append("=== EXCITED STATES ===")
+            lines.append(" ")
+
+            for idx, vib_energy in enumerate(self.computed_vibrational_energies[1:]):
+                lines.append(
+                    f"* {(idx + 1): 3d}: Vibrational excited state energy "
+                    f"(cm^-1): {np.round(vib_energy, 12)}"
+                )
+                if idx < len(self.num_occupied_modals_per_mode):
+                    lines.append("The number of occupied modals is")
+                    for i, m in enumerate(self.num_occupied_modals_per_mode[idx]):
+                        lines.append(f"- Mode {i}: {m}")
+                lines.append(" ")
 
         return lines
