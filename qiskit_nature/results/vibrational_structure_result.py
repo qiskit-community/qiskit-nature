@@ -76,7 +76,7 @@ class VibrationalStructureResult(EigenstateResult):
             f"(cm^-1): {np.round(self.computed_vibrational_energies[0], 12)}"
         )
         if len(self.num_occupied_modals_per_mode) > 0:
-            lines.append("The number of occupied modals is")
+            lines.append("The number of occupied modals for each mode is: ")
             for i, m in enumerate(self.num_occupied_modals_per_mode[0]):
                 lines.append(f"- Mode {i}: {m}")
 
@@ -94,7 +94,7 @@ class VibrationalStructureResult(EigenstateResult):
                     f"(cm^-1): {np.round(vib_energy, 12)}"
                 )
                 if idx < len(self.num_occupied_modals_per_mode):
-                    lines.append("The number of occupied modals is")
+                    lines.append("The number of occupied modals for each mode is")
                     for i, m in enumerate(self.num_occupied_modals_per_mode[idx]):
                         lines.append(f"- Mode {i}: {m}")
                 lines.append(" ")
