@@ -14,7 +14,7 @@
 from dataclasses import asdict
 from itertools import product
 from math import pi
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from retworkx import PyGraph
