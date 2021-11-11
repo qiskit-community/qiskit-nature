@@ -12,7 +12,7 @@
 
 """A class containing information about the Lattice."""
 from .hyper_cubic_lattice import HyperCubicLattice
-from .lattice import Lattice
+from .lattice import DrawStyle, Lattice
 from .line_lattice import LineLattice
 from .square_lattice import SquareLattice
 from .triangular_lattice import TriangularLattice
