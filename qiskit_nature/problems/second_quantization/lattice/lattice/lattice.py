@@ -166,7 +166,7 @@ class Lattice:
     def to_adjacency_matrix(self, weighted: bool = False) -> np.ndarray:
         """Return its adjacency matrix from weighted edges.
         The weighted edge list is interpreted as the upper triangular matrix.
-        Defaults to True.
+        Defaults to False.
 
         Args:
             weighted: The matrix elements are 0 or 1 when it is False.
