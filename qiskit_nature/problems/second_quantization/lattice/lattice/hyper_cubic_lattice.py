@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """The hyper-cubic lattice"""
+from dataclasses import asdict
 from itertools import product
 from math import pi
 from typing import Callable, List, Optional, Tuple, Union
@@ -18,7 +19,7 @@ from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 from retworkx import PyGraph
 
-from .lattice import Lattice, _add_draw_signature
+from .lattice import DrawStyle, Lattice
 
 
 class HyperCubicLattice(Lattice):
@@ -176,17 +177,16 @@ class HyperCubicLattice(Lattice):
                     return_y = y + 0.2 * np.sin(pi * x / (self.size[0] - 1))
                 self.pos[index] = [return_x, return_y]
 
-    @_add_draw_signature
     def draw_without_boundary(
         self,
         self_loop: bool = False,
-        **kwargs,
+        style: Optional[DrawStyle] = None,
     ):
         r"""Draw the lattice with no edges between the boundaries.
 
         Args:
             self_loop: Draw self-loops in the lattice. Defaults to False.
-            **kwargs : Kwargs for retworkx.visualization.mpl_draw.
+            style : Styles for retworkx.visualization.mpl_draw.
                 Please see
                 https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
                 for details.
@@ -197,11 +197,17 @@ class HyperCubicLattice(Lattice):
         """
         graph = self.graph
 
-        if "pos" not in kwargs:
+        if style is None:
+            style = DrawStyle()
+        elif not isinstance(style, DrawStyle):
+            style = DrawStyle(**style)
+
+        if style.pos is None:
+            style.pos = self.pos
             if self.dim == 1:
-                kwargs["pos"] = {i: [i, 0] for i in range(self.size[0])}
+                style.pos = {i: [i, 0] for i in range(self.size[0])}
             elif self.dim == 2:
-                kwargs["pos"] = {
+                style.pos = {
                     i: [i % self.size[0], i // self.size[0]] for i in range(np.prod(self.size))
                 }
 
@@ -210,5 +216,5 @@ class HyperCubicLattice(Lattice):
         self._mpl(
             graph=graph,
             self_loop=self_loop,
-            **kwargs,
+            **asdict(style),
         )
