@@ -54,7 +54,7 @@ def _self_loops(size: Tuple[int, ...], onsite_parameter: complex) -> List[Tuple[
 def _bulk_edges(
     size: Tuple[int, ...], edge_parameter: Tuple[complex, ...]
 ) -> List[Tuple[int, int, complex]]:
-    """Return a list consisting of the edges in th bulk, which don't cross the boundaries.
+    """Return a list consisting of the edges in the bulk, which don't cross the boundaries.
 
     Args:
         size : Lengths of each dimension.
@@ -112,8 +112,10 @@ def _boundary_edges(
                 node_b = _coordinate_to_index(coord, size)
                 node_a = _coordinate_to_index((coord - relative_vector) % size, size)
                 list_of_edges.append((node_b, node_a, edge_parameter[i].conjugate()))
+        elif boundary_condition[i] == BoundaryCondition.OPEN:
+            continue
 
-        elif boundary_condition[i] != BoundaryCondition.OPEN:
+        else:
             raise ValueError(
                 f"Invalid `boundary condition` {boundary_condition[i]} is given."
                 "`boundary condition` must be `BoundaryCondition.OPEN` or `BoundaryCondition.PERIODIC`."
@@ -124,7 +126,7 @@ def _boundary_edges(
 def _default_position(
     size: Tuple[int, ...], boundary_condition: Tuple[BoundaryCondition, ...]
 ) -> Optional[Dict[int, List[float]]]:
-    """return a dictionary of default positions for visualization of a one- or two-dimensional lattice.
+    """Return a dictionary of default positions for visualization of a one- or two-dimensional lattice.
 
     Args:
         size : Lengths of each dimension.

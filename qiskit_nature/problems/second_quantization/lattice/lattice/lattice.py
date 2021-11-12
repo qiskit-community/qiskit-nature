@@ -27,7 +27,7 @@ class DrawStyle:
     """A stylesheet for lattice figure.
     Please see
     https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
-    for each elements.
+    for each element.
     """
 
     # position

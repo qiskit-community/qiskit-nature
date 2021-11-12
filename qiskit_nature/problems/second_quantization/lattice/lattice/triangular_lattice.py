@@ -147,7 +147,7 @@ def _boundary_edges(
 def _default_position(
     size: Tuple[int, int], boundary_condition: BoundaryCondition
 ) -> Dict[int, List[float]]:
-    """return a dictionary of default positions for visualization of a two-dimensional lattice.
+    """Return a dictionary of default positions for visualization of a two-dimensional lattice.
 
     Args:
         size : Lengths of each dimension.
