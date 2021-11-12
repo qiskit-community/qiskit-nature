@@ -41,8 +41,9 @@ Part of this interfacing code --- specifically, the Fortran file `qcmatrixio.F` 
 compilation to a Python native extension. However, Qiskit comes with pre-built binaries
 for most common platforms.
 
-When using the existing Windows pre-built binary with anaconda, the library `libifcoremd.dll`
-is required in order to load it. In case it is missing, it can be installed as follows:
+When using the existing Windows pre-built binary, the library `libifcoremd.dll`
+is required in order to load it. In case it is missing, there is a simple way to get it
+for Anaconda (Qiskit recommended platform):
 
 .. code:: sh
 
