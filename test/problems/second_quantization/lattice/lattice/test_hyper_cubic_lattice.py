@@ -15,7 +15,10 @@ from test import QiskitNatureTestCase
 import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
-from qiskit_nature.problems.second_quantization.lattice.lattice import HyperCubicLattice
+from qiskit_nature.problems.second_quantization.lattice import (
+    BoundaryCondition,
+    HyperCubicLattice,
+)
 
 
 class TestHyperCubic(QiskitNatureTestCase):
@@ -26,7 +29,11 @@ class TestHyperCubic(QiskitNatureTestCase):
         size = (2, 2, 2)
         edge_parameter = (1.0 + 1.0j, 0.0, -2.0 - 2.0j)
         onsite_parameter = 5.0
-        boundary_condition = ("open", "periodic", "open")
+        boundary_condition = (
+            BoundaryCondition.OPEN,
+            BoundaryCondition.PERIODIC,
+            BoundaryCondition.OPEN,
+        )
         hyper_cubic = HyperCubicLattice(size, edge_parameter, onsite_parameter, boundary_condition)
 
         with self.subTest("Check the graph."):

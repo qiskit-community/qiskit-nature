@@ -10,10 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""A class containing information about the Lattice."""
-from .boundary_condition import BoundaryCondition
-from .hyper_cubic_lattice import HyperCubicLattice
-from .lattice import DrawStyle, Lattice
-from .line_lattice import LineLattice
-from .square_lattice import SquareLattice
-from .triangular_lattice import TriangularLattice
+"""
+This module declares the available boundary conditions.
+"""
+
+from enum import Enum
+
+
+class BoundaryCondition(Enum):
+    """Boundary condition Enum"""
+
+    OPEN = "open"
+    PERIODIC = "periodic"

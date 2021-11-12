@@ -43,6 +43,7 @@ Models
 
 """
 from .lattice import (
+    BoundaryCondition,
     DrawStyle,
     HyperCubicLattice,
     Lattice,

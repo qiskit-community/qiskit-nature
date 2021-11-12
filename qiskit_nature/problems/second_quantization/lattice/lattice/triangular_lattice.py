@@ -20,6 +20,7 @@ import numpy as np
 from retworkx import PyGraph
 
 from .lattice import DrawStyle, Lattice
+from .boundary_condition import BoundaryCondition
 
 
 def _coordinate_to_index(coord: np.ndarray, size: Tuple[int, int]) -> int:
@@ -84,7 +85,9 @@ def _bulk_edges(
 
 
 def _boundary_edges(
-    size: Tuple[int, int], edge_parameter: Tuple[complex, complex, complex], boundary_condition: str
+    size: Tuple[int, int],
+    edge_parameter: Tuple[complex, complex, complex],
+    boundary_condition: BoundaryCondition,
 ) -> List[Tuple[int, int, complex]]:
     """Return a list consisting of the edges that cross the boundaries
         depending on the boundary conditions.
@@ -93,7 +96,8 @@ def _boundary_edges(
         size : Lengths of each dimension.
         edge_parameter : Weights on the edges in each direction.
         boundary_condition : Boundary condition for each dimension.
-            The available boundary conditions are: "open", "periodic".
+            The available boundary conditions are:
+            BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
     Raises:
         ValueError: Given boundary condition is invalid values.
     Returns:
@@ -102,7 +106,7 @@ def _boundary_edges(
     list_of_edges = []
     rows, cols = size
     # add edges when the boundary condition is periodic.
-    if boundary_condition == "periodic":
+    if boundary_condition == BoundaryCondition.PERIODIC:
         # The periodic boundary condition in the x direction.
         # It makes sense only when rows is greater than 2.
         if rows > 2:
@@ -132,28 +136,31 @@ def _boundary_edges(
         node_b = 0  # node_b < node_a
         list_of_edges.append((node_b, node_a, edge_parameter[2].conjugate()))
 
-    elif boundary_condition != "open":
+    elif boundary_condition != BoundaryCondition.OPEN:
         raise ValueError(
             f"Invalid `boundary condition` {boundary_condition} is given."
-            "`boundary condition` must be `open` or `periodic`."
+            "`boundary condition` must be `BoundaryCondition.OPEN` or `BoundaryCondition.PERIODIC`."
         )
     return list_of_edges
 
 
-def _default_position(size: Tuple[int, int], boundary_condition: str) -> Dict[int, List[float]]:
+def _default_position(
+    size: Tuple[int, int], boundary_condition: BoundaryCondition
+) -> Dict[int, List[float]]:
     """return a dictionary of default positions for visualization of a two-dimensional lattice.
 
     Args:
         size : Lengths of each dimension.
         boundary_condition : Boundary condition for the lattice.
-                The available boundary conditions are: "open", "periodic".
+                The available boundary conditions are:
+                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
     Returns:
         Dict[int, List[float]] : The keys are the labels of lattice points,
             and the values are two-dimensional coordinates.
     """
     pos = {}
     width = 0.0
-    if boundary_condition == "periodic":
+    if boundary_condition == BoundaryCondition.PERIODIC:
         # the positions are shifted along the x- and y-direction
         # when the boundary condition is periodic.
         # The width of the shift is fixed to 0.2.
@@ -178,7 +185,7 @@ class TriangularLattice(Lattice):
         cols: int,
         edge_parameter: Union[complex, Tuple[complex, complex, complex]] = 1.0,
         onsite_parameter: complex = 0.0,
-        boundary_condition: str = "open",
+        boundary_condition: BoundaryCondition = BoundaryCondition.OPEN,
     ) -> None:
         """
         Args:
@@ -192,8 +199,9 @@ class TriangularLattice(Lattice):
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
             boundary_condition: Boundary condition for the lattice.
-                The available boundary conditions are: "open", "periodic".
-                Defaults to "open".
+                The available boundary conditions are:
+                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
+                Defaults to BoundaryCondition.OPEN.
 
         Raises:
             ValueError: Given size, edge parameter or boundary condition are invalid values.

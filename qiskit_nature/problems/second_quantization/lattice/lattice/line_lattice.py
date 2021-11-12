@@ -12,6 +12,7 @@
 
 """The line lattice"""
 from .hyper_cubic_lattice import HyperCubicLattice
+from .boundary_condition import BoundaryCondition
 
 
 class LineLattice(HyperCubicLattice):
@@ -22,7 +23,7 @@ class LineLattice(HyperCubicLattice):
         num_nodes: int,
         edge_parameter: complex = 1.0,
         onsite_parameter: complex = 0.0,
-        boundary_condition: str = "open",
+        boundary_condition: BoundaryCondition = BoundaryCondition.OPEN,
     ) -> None:
         """
         Args:
@@ -31,8 +32,9 @@ class LineLattice(HyperCubicLattice):
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
             boundary_condition: Boundary condition.
-                The available boundary conditions are: "open", "periodic".
-                Defaults to "open".
+                The available boundary conditions are:
+                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
+                Defaults to BoundaryCondition.OPEN.
         """
 
         super().__init__(

@@ -15,7 +15,8 @@ from test import QiskitNatureTestCase
 from numpy.testing import assert_array_equal
 import numpy as np
 from retworkx import PyGraph, is_isomorphic
-from qiskit_nature.problems.second_quantization.lattice.lattice.triangular_lattice import (
+from qiskit_nature.problems.second_quantization.lattice import (
+    BoundaryCondition,
     TriangularLattice,
 )
 
@@ -29,7 +30,7 @@ class TestTriangularLattice(QiskitNatureTestCase):
         cols = 2
         edge_parameter = (1.0 + 1.0j, 2.0 + 2.0j, 3.0 + 3.0j)
         onsite_parameter = 0.0
-        boundary_condition = "open"
+        boundary_condition = BoundaryCondition.OPEN
         triangular = TriangularLattice(
             rows, cols, edge_parameter, onsite_parameter, boundary_condition
         )
@@ -103,7 +104,7 @@ class TestTriangularLattice(QiskitNatureTestCase):
         cols = 2
         edge_parameter = (1.0 + 1.0j, 2.0 + 2.0j, 3.0 + 3.0j)
         onsite_parameter = 0.0
-        boundary_condition = "periodic"
+        boundary_condition = BoundaryCondition.PERIODIC
         triangular = TriangularLattice(
             rows, cols, edge_parameter, onsite_parameter, boundary_condition
         )

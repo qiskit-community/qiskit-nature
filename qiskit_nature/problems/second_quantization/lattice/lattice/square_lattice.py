@@ -14,6 +14,7 @@
 from typing import Tuple, Union
 
 from .hyper_cubic_lattice import HyperCubicLattice
+from .boundary_condition import BoundaryCondition
 
 
 class SquareLattice(HyperCubicLattice):
@@ -25,7 +26,9 @@ class SquareLattice(HyperCubicLattice):
         cols: int,
         edge_parameter: Union[complex, Tuple[complex, complex]] = 1.0,
         onsite_parameter: complex = 0.0,
-        boundary_condition: Union[str, Tuple[str, str]] = "open",
+        boundary_condition: Union[
+            BoundaryCondition, Tuple[BoundaryCondition, BoundaryCondition]
+        ] = BoundaryCondition.OPEN,
     ) -> None:
         """
         Args:
@@ -38,10 +41,11 @@ class SquareLattice(HyperCubicLattice):
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
             boundary_condition: Boundary condition for each direction.
-                The available boundary conditions are: "open", "periodic".
+                The available boundary conditions are:
+                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
                 When it is a single value, it is interpreted as a tuple of length 2
                 consisting of the same values.
-                Defaults to "open".
+                Defaults to BoundaryCondition.OPEN.
         """
         self.rows = rows
         self.cols = cols

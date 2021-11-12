@@ -19,6 +19,7 @@ import numpy as np
 from retworkx import PyGraph
 
 from .lattice import DrawStyle, Lattice
+from .boundary_condition import BoundaryCondition
 
 
 def _coordinate_to_index(coord: np.ndarray, size: Tuple[int, ...]) -> int:
@@ -77,7 +78,9 @@ def _bulk_edges(
 
 
 def _boundary_edges(
-    size: Tuple[int, ...], edge_parameter: Tuple[complex, ...], boundary_condition: Tuple[str, ...]
+    size: Tuple[int, ...],
+    edge_parameter: Tuple[complex, ...],
+    boundary_condition: Tuple[BoundaryCondition, ...],
 ) -> List[Tuple[int, int, complex]]:
     """Return a list consisting of the edges that cross the boundaries
         depending on the boundary conditions.
@@ -86,7 +89,7 @@ def _boundary_edges(
         size : Lengths of each dimension.
         edge_parameter : Weights on the edges in each direction.
         boundary_condition : Boundary condition for each dimension.
-            The available boundary conditions are: "open", "periodic".
+            The available boundary conditions are: BoundaryCondition.OPEN and BoundaryCondition.PERIODIC.
     Raises:
         ValueError: Given boundary condition is invalid values.
     Returns:
@@ -98,7 +101,7 @@ def _boundary_edges(
         # add edges when the boundary condition is periodic.
         # when the boundary condition in the i-th direction is periodic,
         # it makes sense only when size[i] is greater than 2.
-        if boundary_condition[i] == "periodic":
+        if boundary_condition[i] == BoundaryCondition.PERIODIC:
             if size[i] <= 2:
                 continue
             size_list = list(size)
@@ -110,23 +113,23 @@ def _boundary_edges(
                 node_a = _coordinate_to_index((coord - relative_vector) % size, size)
                 list_of_edges.append((node_b, node_a, edge_parameter[i].conjugate()))
 
-        elif boundary_condition[i] != "open":
+        elif boundary_condition[i] != BoundaryCondition.OPEN:
             raise ValueError(
                 f"Invalid `boundary condition` {boundary_condition[i]} is given."
-                "`boundary condition` must be `open` or `periodic`."
+                "`boundary condition` must be `BoundaryCondition.OPEN` or `BoundaryCondition.PERIODIC`."
             )
     return list_of_edges
 
 
 def _default_position(
-    size: Tuple[int, ...], boundary_condition: Tuple[str, ...]
+    size: Tuple[int, ...], boundary_condition: Tuple[BoundaryCondition, ...]
 ) -> Optional[Dict[int, List[float]]]:
     """return a dictionary of default positions for visualization of a one- or two-dimensional lattice.
 
     Args:
         size : Lengths of each dimension.
         boundary_condition : Boundary condition for each dimension.
-            The available boundary conditions are: "open", "periodic".
+            The available boundary conditions are: BoundaryCondition.OPEN and BoundaryCondition.PERIODIC.
 
     Returns:
         Optional[Dict[int, List[float]]]: The keys are the labels of lattice points,
@@ -135,9 +138,9 @@ def _default_position(
     """
     dim = len(size)
     if dim == 1:
-        if boundary_condition[0] == "open":
+        if boundary_condition[0] == BoundaryCondition.OPEN:
             pos = {i: [float(i), 0.0] for i in range(size[0])}
-        elif boundary_condition[0] == "periodic":
+        elif boundary_condition[0] == BoundaryCondition.PERIODIC:
             theta = 2 * pi / size[0]
             pos = {
                 i: np.array([np.cos(i * theta), np.sin(i * theta)]).tolist() for i in range(size[0])
@@ -146,7 +149,7 @@ def _default_position(
         pos = {}
         width = np.array([0.0, 0.0])
         for i in (0, 1):
-            if boundary_condition[i] == "periodic":
+            if boundary_condition[i] == BoundaryCondition.PERIODIC:
                 # the positions are shifted along the y-direction
                 # when the boundary condition in the x-direction is periodic and vice versa.
                 # The width of the shift is fixed to 0.2.
@@ -174,18 +177,21 @@ class HyperCubicLattice(Lattice):
 
     .. jupyter-execute::
 
-        from qiskit_nature.problems.second_quantization.lattice import HyperCubicLattice
+        from qiskit_nature.problems.second_quantization.lattice import (
+            BoundaryCondition,
+            HyperCubicLattice,
+            )
 
         lattice = HyperCubicLattice(
             size = (3, 4, 5),
             edge_parameter = (1.0, -2.0, 3.0),
             onsite_parameter = 2.0,
-            boundary_condition = ("open", "open", "open")
+            boundary_condition = (BoundaryCondition.OPEN, BoundaryCondition.OPEN, BoundaryCondition.OPEN)
             )
 
     is a three-dimensional lattice of size 3 by 4 by 5, which has weights 1.0, -2.0, 3.0 on edges
     in x, y, and z directions, respectively, and weights 2.0 on self-loops.
-    The boundary conditions are "open" for all the directions.
+    The boundary conditions are open for all the directions.
     """
 
     def __init__(
@@ -193,7 +199,9 @@ class HyperCubicLattice(Lattice):
         size: Tuple[int, ...],
         edge_parameter: Union[complex, Tuple[complex, ...]] = 1.0,
         onsite_parameter: complex = 0.0,
-        boundary_condition: Union[str, Tuple[str, ...]] = "open",
+        boundary_condition: Union[
+            BoundaryCondition, Tuple[BoundaryCondition, ...]
+        ] = BoundaryCondition.OPEN,
     ) -> None:
         """
         Args:
@@ -206,15 +214,15 @@ class HyperCubicLattice(Lattice):
                 This is uniform over the lattice points.
                 Defaults to 0.0.
             boundary_condition: Boundary condition for each dimension.
-                The available boundary conditions are: "open", "periodic".
+                The available boundary conditions are:
+                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
                 When it is a single value, it is interpreted as a tuple of the same length as `size`
                 consisting of the same values.
-                Defaults to "open".
+                Defaults to BoundaryCondition.OPEN.
 
         Raises:
-            ValueError: Given edge parameter or boundary condition are invalid values.
-            TypeError: When edge parameter is a tuple,
-                the length of edge parameter is not the same as that of size.
+            ValueError: When edge parameter or boundary condition is a tuple,
+                the length of that is not the same as that of size.
         """
 
         self.dim = len(size)
@@ -226,7 +234,7 @@ class HyperCubicLattice(Lattice):
             edge_parameter = (edge_parameter,) * self.dim
         elif isinstance(edge_parameter, tuple):
             if len(edge_parameter) != self.dim:
-                raise TypeError(
+                raise ValueError(
                     "size mismatch, "
                     f"`edge_parameter`: {len(edge_parameter)}, `size`: {self.dim}."
                     "The length of `edge_parameter` must be the same as that of size."
@@ -237,12 +245,14 @@ class HyperCubicLattice(Lattice):
         self.onsite_parameter = onsite_parameter
 
         # boundary condition
-        if isinstance(boundary_condition, str):
+        if isinstance(boundary_condition, BoundaryCondition):
             boundary_condition = (boundary_condition,) * self.dim
         elif isinstance(boundary_condition, tuple):
             if len(boundary_condition) != self.dim:
                 raise ValueError(
-                    f"The length of `boundary_condition` must be the same as that of size, {self.dim}."
+                    "size mismatch, "
+                    f"`boundary_condition`: {len(boundary_condition)}, `size`: {self.dim}."
+                    "The length of `boundary_condition` must be the same as that of size."
                 )
 
         self.boundary_condition = boundary_condition

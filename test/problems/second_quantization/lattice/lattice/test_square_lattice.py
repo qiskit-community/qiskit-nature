@@ -15,7 +15,10 @@ from test import QiskitNatureTestCase
 from numpy.testing import assert_array_equal
 import numpy as np
 from retworkx import PyGraph, is_isomorphic
-from qiskit_nature.problems.second_quantization.lattice.lattice.square_lattice import SquareLattice
+from qiskit_nature.problems.second_quantization.lattice import (
+    BoundaryCondition,
+    SquareLattice,
+)
 
 
 class TestSquareLattice(QiskitNatureTestCase):
@@ -27,7 +30,7 @@ class TestSquareLattice(QiskitNatureTestCase):
         cols = 2
         edge_parameter = (1.0 + 1.0j, 2.0 + 2.0j)
         onsite_parameter = 1.0
-        boundary_condition = ("periodic", "open")
+        boundary_condition = (BoundaryCondition.PERIODIC, BoundaryCondition.OPEN)
         square = SquareLattice(rows, cols, edge_parameter, onsite_parameter, boundary_condition)
 
         with self.subTest("Check the graph."):
