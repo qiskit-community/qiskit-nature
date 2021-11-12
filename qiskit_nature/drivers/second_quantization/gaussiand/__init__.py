@@ -39,7 +39,16 @@ as needed by Qiskit Nature modules, has been made available. It is licensed unde
 
 Part of this interfacing code --- specifically, the Fortran file `qcmatrixio.F` --- requires
 compilation to a Python native extension. However, Qiskit comes with pre-built binaries
-for most common platforms. If there is no pre-built binary matching your platform, then it will be
+for most common platforms.
+
+When using the existing Windows pre-built binary with anaconda, the library `libifcoremd.dll`
+is required in order to load it. In case it is missing, it can be installed as follows:
+
+.. code:: sh
+
+    conda install -c anaconda intel-fortran-rt
+
+If there is no pre-built binary matching your platform, then it will be
 necessary to compile this file as per the instructions below.
 
 Compiling the Fortran Interfacing Code
