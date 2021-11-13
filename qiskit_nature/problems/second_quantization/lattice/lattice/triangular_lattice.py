@@ -135,11 +135,12 @@ def _boundary_edges(
         node_a = rows * cols - 1
         node_b = 0  # node_b < node_a
         list_of_edges.append((node_b, node_a, edge_parameter[2].conjugate()))
-
-    elif boundary_condition != BoundaryCondition.OPEN:
+    elif boundary_condition == BoundaryCondition.OPEN:
+        pass
+    else:
         raise ValueError(
             f"Invalid `boundary condition` {boundary_condition} is given."
-            "`boundary condition` must be `BoundaryCondition.OPEN` or `BoundaryCondition.PERIODIC`."
+            "`boundary condition` must be " + " or ".join(str(bc) for bc in BoundaryCondition)
         )
     return list_of_edges
 
