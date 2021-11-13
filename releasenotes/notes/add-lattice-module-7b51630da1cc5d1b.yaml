@@ -4,7 +4,7 @@ features:
     Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.Lattice`
     for the generation of general lattices.
 
-    Add: :class`qiskit_nature.problems.second_quantization.lattice.lattice.HyperCubicLattice`
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.HyperCubicLattice`
     for the generation of arbitrary d-dimensional lattices.
 
     Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.LineLattice`
