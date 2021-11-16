@@ -21,12 +21,12 @@ import logging
 import numpy as np
 
 from qiskit.algorithms import VQE
-from qiskit.circuit import QuantumCircuit, Parameter
-from qiskit.opflow import OperatorBase, PauliSumOp, CircuitOp
-from qiskit.opflow.state_fns.state_fn import StateFn
+from qiskit.circuit import QuantumCircuit
+from qiskit.opflow import OperatorBase, PauliSumOp,CircuitStateFn
 from qiskit.utils.validation import validate_min
+from qiskit.opflow.gradients import Gradient
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.circuit.library import UCC, ansatzes
+from qiskit_nature.circuit.library import UCC
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
@@ -34,9 +34,6 @@ from qiskit_nature.results import ElectronicStructureResult
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
-from qiskit.opflow.gradients import Gradient, NaturalGradient, QFI, Hessian
-from qiskit.opflow.state_fns import OperatorStateFn, CircuitStateFn
-from qiskit.opflow.list_ops import ListOp
 
 logger = logging.getLogger(__name__)
 
@@ -93,21 +90,24 @@ class AdaptVQE(GroundStateEigensolver):
 
         Returns:
             List of pairs consisting of gradient and excitation operator.
+            parameters = ParameterVector("θ", self._num_parameters)
+            times = ParameterVector("t", self.reps * len(self.operators))
         """
-        res = []
+        res=[]
         for exc in self._excitation_pool:
             self._ansatz.operators = self._excitation_list + [exc]
             vqe.ansatz = self._ansatz
-            param_sets = list(vqe.ansatz.parameters)
-            op = vqe.construct_expectation(param_sets, self._main_operator)
-            state_grad = Gradient(grad_method="param_shift").convert(operator=op, params=param_sets)
+            param_sets = vqe._ansatz_params 
+            print(param_sets)
+            op = vqe.construct_expectation(theta, self._main_operator)
+            state_grad = Gradient(grad_method="param_shift",epsilon=1.).convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
-            value_dict = dict(zip(param_sets, theta + [0.0]))
+            value_dict = {param_sets[-1]:0.0}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
             print("State gradient computed with parameter shift", state_grad_result)
             res.append((np.abs(state_grad_result[-1]), exc))
         return res
-
+       
     @staticmethod
     def _check_cyclicity(indices: List[int]) -> bool:
         """
@@ -227,7 +227,6 @@ class AdaptVQE(GroundStateEigensolver):
                 alternating_sequence = True
                 break
             # add new excitation to self._ansatz
-            # print(max_grad)
             self._excitation_list.append(max_grad[1])
             theta.append(0.0)
             # run VQE on current Ansatz
