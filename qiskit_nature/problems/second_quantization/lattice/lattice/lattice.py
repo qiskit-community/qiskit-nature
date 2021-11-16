@@ -14,10 +14,9 @@
 from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.axes import Axes
-from matplotlib.colors import Colormap
+from qiskit.exceptions import MissingOptionalLibraryError
+from qiskit.tools.visualization import HAS_MATPLOTLIB
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
 
@@ -34,7 +33,7 @@ class DrawStyle:
     pos: Optional[dict] = None
 
     # Matplotlib Axes object
-    ax: Optional[Axes] = None  # pylint:disable=invalid-name
+    ax: Optional["Axes"] = None  # pylint:disable=invalid-name
 
     with_labels: bool = False
 
@@ -57,7 +56,7 @@ class DrawStyle:
     alpha: Optional[float] = None
 
     # Matplotlib colormap object
-    cmap: Optional[Colormap] = None
+    cmap: Optional["Colormap"] = None
 
     # minimum value for node colormap scaling
     vmin: Optional[float] = None
@@ -71,7 +70,7 @@ class DrawStyle:
 
     edge_color: Union[str, Sequence] = "k"
 
-    edge_cmap: Optional[Colormap] = None
+    edge_cmap: Optional["Colormap"] = None
 
     # minimum value for edge colormap scaling
     edge_vmin: Optional[float] = None
@@ -199,7 +198,16 @@ class Lattice:
         Returns:
             A matplotlib figure for the visualization if not running with an
             interactive backend (like in jupyter) or if ``ax`` is not set.
+
+        Raises:
+            MissingOptionalLibraryError: Requires matplotlib.
+
         """
+        if not HAS_MATPLOTLIB:
+            raise MissingOptionalLibraryError(
+                libname="Matplotlib", name="_mpl", pip_install="pip install matplotlib"
+            )
+        from matplotlib import pyplot as plt
 
         if not self_loop:
             self_loops = [(i, i) for i in range(graph.num_nodes()) if graph.has_edge(i, i)]
