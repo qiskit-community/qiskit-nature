@@ -363,7 +363,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         The following conditions are checked:
         - the list of excitations consists of pairs of tuples
-        - each pair of excitation indices has the same legnth
+        - each pair of excitation indices has the same length
         - the indices within each excitation pair are unique
 
         Args:
