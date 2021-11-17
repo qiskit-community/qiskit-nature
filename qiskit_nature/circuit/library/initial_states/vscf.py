@@ -75,7 +75,7 @@ class VSCF(QuantumCircuit):
         super().__init__(qr, name="VSCF")
 
         # add gates in the right positions
-        for i, bit in enumerate(qubit_op.primitive.table.X[0]):
+        for i, bit in enumerate(qubit_op.primitive.paulis.x[0]):
             if bit:
                 self.x(i)
 

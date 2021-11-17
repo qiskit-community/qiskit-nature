@@ -102,6 +102,7 @@ dimens
 dimensionality
 discoverable
 distinguishability
+dll
 dof
 doi
 dt
@@ -218,6 +219,7 @@ lda
 len
 leucine
 levinthal
+libifcoremd
 libor
 libxc
 lih
@@ -281,6 +283,7 @@ num
 numpy
 numpyeigensolver
 observables
+occupancies
 ok
 ollitrault
 onee
@@ -406,6 +409,7 @@ tavernelli
 taylor
 tdg
 tensored
+terra
 th
 threonine
 toctree
@@ -434,6 +438,7 @@ unary
 uncompiled
 undirected
 unitaries
+unitstype
 untransforms
 utils
 uvcc
