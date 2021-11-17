@@ -20,6 +20,11 @@ from qiskit.tools.visualization import HAS_MATPLOTLIB
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
 
+if HAS_MATPLOTLIB:
+    # pylint: disable=unused-import
+    from matplotlib.axes import Axes
+    from matplotlib.colors import Colormap
+
 
 @dataclass
 class DrawStyle:
