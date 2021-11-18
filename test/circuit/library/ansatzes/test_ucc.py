@@ -110,6 +110,11 @@ class TestUCC(QiskitNatureTestCase):
             (2, 2),
             [((0, 1, 4), (2, 4, 6))],
         ),
+        (
+            8,
+            (2, 2),
+            [((0, 1, 1), (2, 3, 6))],
+        ),
     )
     def test_custom_excitations(self, num_spin_orbitals, num_particles, excitations):
         """Tests if an error is raised when the excitations have a wrong format"""

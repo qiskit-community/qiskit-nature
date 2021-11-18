@@ -374,26 +374,29 @@ class UCC(EvolvedOperatorAnsatz):
         """
         logger.debug("Checking excitation list...")
 
-        if any(len(exc) != 2 for exc in excitations):
-            raise QiskitNatureError(
-                "The obtained UCC excitations have an invalid format. "
-                "The expected format is a list of excitation pairs ((occupied), (virtual)), "
-                "e.g. [((0, 2), (4, 6)), ((0, 2), (4, 7)), ...]"
-            )
+        error_message = "{error} in the following UCC excitation: {excitation}"
 
-        if any(len(exc[0]) != len(exc[1]) for exc in excitations):
-            raise QiskitNatureError(
-                "The obtained UCC excitations have an invalid format. "
-                "Excitation pairs ((occupied), (virtual)) should be specified with "
-                "tuples of the same length, e.g. [((0, 2), (4, 6)), ((0, 2), (4, 7)), ...]"
-            )
+        for excitation in excitations:
+            if len(excitation) != 2:
+                raise QiskitNatureError(
+                    error_message.format(error="Invalid number of tuples", excitation=excitation)
+                    + "; Two tuples are expected, e.g. ((0, 1, 4), (2, 3, 6))"
+                )
 
-        if any(any(i in exc[0] for i in exc[1]) for exc in excitations):
-            raise QiskitNatureError(
-                "The obtained UCC excitations have an invalid format."
-                "The indices within each excitation pair ((occupied), (virtual)) should be unique "
-                "e.g. [((0, 2), (4, 6)), ((0, 2), (4, 7)), ...]"
-            )
+            if len(excitation[0]) != len(excitation[1]):
+                raise QiskitNatureError(
+                    error_message.format(
+                        error="Different number of occupied and virtual indices",
+                        excitation=excitation,
+                    )
+                )
+
+            if any(i in excitation[0] for i in excitation[1]) or any(
+                len(set(indices)) != len(indices) for indices in excitation
+            ):
+                raise QiskitNatureError(
+                    error_message.format(error="Duplicated indices", excitation=excitation)
+                )
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
