@@ -21,7 +21,11 @@ from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
+from qiskit_nature.mappers.second_quantization import (
+    BravyiKitaevMapper,
+    JordanWignerMapper,
+    ParityMapper,
+)
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.algorithms import (
@@ -105,6 +109,16 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         converter = QubitConverter(
             ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
+        self._solve_with_vqe_mes(converter)
+
+    def test_vqe_mes_bk(self):
+        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping"""
+        converter = QubitConverter(BravyiKitaevMapper())
+        self._solve_with_vqe_mes(converter)
+
+    def test_vqe_mes_bk_auto(self):
+        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping + auto symmetry"""
+        converter = QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")
         self._solve_with_vqe_mes(converter)
 
     def _solve_with_vqe_mes(self, converter: QubitConverter):
