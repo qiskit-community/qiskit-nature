@@ -122,7 +122,7 @@ def _build_single_hopping_operator(
         for symmetry in z2_symmetries.symmetries:
             symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
             paulis = qubit_op.primitive.paulis
-            len_paulis = len(qubit_op.primitive.paulis)
+            len_paulis = len(paulis)
             commuting = len(paulis.commutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
             anticommuting = (
                 len(paulis.anticommutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
