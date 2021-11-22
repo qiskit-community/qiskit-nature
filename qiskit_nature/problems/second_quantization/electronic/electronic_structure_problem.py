@@ -236,7 +236,7 @@ class ElectronicStructureProblem(BaseProblem):
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
-            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
+            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z, hf_str)) else 1
             taper_coeff.append(coeff)
 
         return taper_coeff
