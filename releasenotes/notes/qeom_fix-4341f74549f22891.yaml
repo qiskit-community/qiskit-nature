@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    Fixes QEOM such that when using parity mapping with two_qubit_reduction,
+    or Z2 symmetries with any mapping, that the excited states are computed
+    as expected.
+
+    Fix the electronic structure problem sector locator such that the 'auto'
+    Z2 symmetry conversion, of the qubit converter, results in the ground state
+    for such problems and not some other value due to incorrect sector selection.

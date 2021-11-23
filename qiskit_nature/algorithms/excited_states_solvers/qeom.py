@@ -112,7 +112,9 @@ class QEOM(ExcitedStatesSolver):
         elif isinstance(second_q_ops, dict):
             main_second_q_op = second_q_ops.pop(problem.main_property_name)
 
-        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(main_second_q_op)
+        self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
+            main_second_q_op, problem.num_particles
+        )
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
