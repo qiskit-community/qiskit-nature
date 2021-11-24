@@ -3,7 +3,7 @@ fixes:
   - |
     Fixes the formatting of the occupied modals and adds the excited state energies
     when printing a :class:`~qiskit_nature.results.VibrationalStructureResult`.
-  - |
-    Changes the return type of 
+    
+    Fixes the return type of 
     :meth:`~qiskit_nature.results.VibrationalStructureResult.num_occupied_modals_per_mode` 
     from ``Optional[List[float]]`` to ``Optional[List[List[float]]]``
