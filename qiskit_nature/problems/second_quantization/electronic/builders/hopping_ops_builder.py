@@ -114,16 +114,18 @@ def _build_single_hopping_operator(
         label[unocc] = "-"
     fer_op = FermionicOp(("".join(label), 4.0 ** len(excitation[0])), display_format="sparse")
 
-    qubit_op: PauliSumOp = qubit_converter.convert_match(fer_op)
+    qubit_op: PauliSumOp = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
     z2_symmetries = qubit_converter.z2symmetries
 
     commutativities = []
     if not z2_symmetries.is_empty():
         for symmetry in z2_symmetries.symmetries:
             symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
-            commuting = qubit_op.primitive.table.commutes_with_all(symmetry_op.primitive.table)
-            anticommuting = qubit_op.primitive.table.anticommutes_with_all(
-                symmetry_op.primitive.table
+            paulis = qubit_op.primitive.paulis
+            len_paulis = len(paulis)
+            commuting = len(paulis.commutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
+            anticommuting = (
+                len(paulis.anticommutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
             )
 
             if commuting != anticommuting:  # only one of them is True
