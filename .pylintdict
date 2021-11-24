@@ -97,6 +97,7 @@ dimens
 dimensionality
 discoverable
 distinguishability
+dll
 dof
 doi
 dt
@@ -212,6 +213,7 @@ lda
 len
 leucine
 levinthal
+libifcoremd
 libor
 libxc
 lih
