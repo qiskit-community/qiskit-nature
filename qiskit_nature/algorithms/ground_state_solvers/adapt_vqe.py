@@ -151,6 +151,10 @@ class AdaptVQE(GroundStateEigensolver):
                 or if the algorithm finishes due to an unforeseen reason.
             ValueError: if the grouped property object returned by the driver does not contain a
                 main property as requested by the problem being solved (`problem.main_property_name`)
+            QiskitNatureError: if the user-provided `aux_operators` contain a name which clashes
+                with an internally constructed auxiliary operator. Note: the names used for the
+                internal auxiliary operators correspond to the `Property.name` attributes which
+                generated the respective operators.
 
         Returns:
             An AdaptVQEResult which is an ElectronicStructureResult but also includes runtime
@@ -192,6 +196,12 @@ class AdaptVQE(GroundStateEigensolver):
                 if isinstance(aux_ops, list):
                     aux_ops.append(converted_aux_op)
                 elif isinstance(aux_ops, dict):
+                    if name in aux_ops.keys():
+                        raise QiskitNatureError(
+                            f"The key '{name}' is already taken by an internally constructed "
+                            "auxliliary operator! Please use a different name for your custom "
+                            "operator."
+                        )
                     aux_ops[name] = converted_aux_op
 
         if isinstance(self._solver, MinimumEigensolverFactory):

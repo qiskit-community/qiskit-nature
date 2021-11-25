@@ -17,7 +17,7 @@ from typing import Union, Optional
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -71,6 +71,10 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         Raises:
             ValueError: if the grouped property object returned by the driver does not contain a
                 main property as requested by the problem being solved (`problem.main_property_name`)
+            QiskitNatureError: if the user-provided `aux_operators` contain a name which clashes
+                with an internally constructed auxiliary operator. Note: the names used for the
+                internal auxiliary operators correspond to the `Property.name` attributes which
+                generated the respective operators.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -114,6 +118,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                 if isinstance(aux_ops, list):
                     aux_ops.append(converted_aux_op)
                 elif isinstance(aux_ops, dict):
+                    if name in aux_ops.keys():
+                        raise QiskitNatureError(
+                            f"The key '{name}' is already taken by an internally constructed "
+                            "auxliliary operator! Please use a different name for your custom "
+                            "operator."
+                        )
                     aux_ops[name] = converted_aux_op
 
         if isinstance(self._solver, EigensolverFactory):
