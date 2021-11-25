@@ -197,8 +197,9 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip install -U pylint
-          make lint
+          # disable for now
+          # pip install -U pylint
+          # make lint
         shell: bash
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
         uses: ./.github/actions/run-tests
@@ -308,7 +309,7 @@ jobs:
           path: docs/_build/html/artifacts/tutorials.tar.gz
         if: ${{ matrix.python-version == 3.8 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
   Deprecation_Messages_and_Coverage:
-    needs: [Nature]
+    needs: [Checks, Nature, Tutorials]
     runs-on: ubuntu-latest
     strategy:
       matrix:
