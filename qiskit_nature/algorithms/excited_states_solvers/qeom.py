@@ -103,7 +103,7 @@ class QEOM(ExcitedStatesSolver):
             )
 
         # 1. Run ground state calculation
-        groundstate_result = self._gsc.solve(problem)
+        groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
         second_q_ops = problem.second_q_ops()
