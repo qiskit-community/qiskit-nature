@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Runs checks for the excitations in a UCC ansatz when the excitations were created by a function.
+    If the excitations are not in the expected format the checks raise a 
+    :class:`qiskit_nature.QiskitNatureError`.
