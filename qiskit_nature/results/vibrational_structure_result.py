@@ -27,7 +27,7 @@ class VibrationalStructureResult(EigenstateResult):
         super().__init__()
         self._algorithm_result: Optional[AlgorithmResult] = None
         self._computed_vibrational_energies: Optional[np.ndarray] = None
-        self._num_occupied_modals_per_mode: Optional[List[float]] = None
+        self._num_occupied_modals_per_mode: Optional[List[List[float]]] = None
 
     @property
     def algorithm_result(self) -> Optional[AlgorithmResult]:
@@ -53,12 +53,12 @@ class VibrationalStructureResult(EigenstateResult):
         self._computed_vibrational_energies = value
 
     @property
-    def num_occupied_modals_per_mode(self) -> Optional[List[float]]:
+    def num_occupied_modals_per_mode(self) -> Optional[List[List[float]]]:
         """Returns the number of occupied modal per mode"""
         return self._num_occupied_modals_per_mode
 
     @num_occupied_modals_per_mode.setter
-    def num_occupied_modals_per_mode(self, value: List[float]) -> None:
+    def num_occupied_modals_per_mode(self, value: List[List[float]]) -> None:
         """Sets measured number of modes"""
         self._num_occupied_modals_per_mode = value
 
@@ -69,15 +69,34 @@ class VibrationalStructureResult(EigenstateResult):
     def formatted(self) -> List[str]:
         """Formatted result as a list of strings"""
         lines = []
-        lines.append("=== GROUND STATE ENERGY ===")
+        lines.append("=== GROUND STATE ===")
         lines.append(" ")
         lines.append(
             "* Vibrational ground state energy "
             f"(cm^-1): {np.round(self.computed_vibrational_energies[0], 12)}"
         )
         if len(self.num_occupied_modals_per_mode) > 0:
-            lines.append("The number of occupied modals is")
-        for i, m in enumerate(self.num_occupied_modals_per_mode):
-            lines.append(f"- Mode {i}: {m}")
+            lines.append("The number of occupied modals for each mode is: ")
+            for i, m in enumerate(self.num_occupied_modals_per_mode[0]):
+                lines.append(f"- Mode {i}: {np.round(m, 12)}")
+
+        if (
+            self.computed_vibrational_energies is not None
+            and len(self.computed_vibrational_energies) > 1
+        ):
+            lines.append(" ")
+            lines.append("=== EXCITED STATES ===")
+            lines.append(" ")
+
+            for idx, vib_energy in enumerate(self.computed_vibrational_energies[1:]):
+                lines.append(
+                    f"* {(idx + 1): 3d}: Vibrational excited state energy "
+                    f"(cm^-1): {np.round(vib_energy, 12)}"
+                )
+                if idx < len(self.num_occupied_modals_per_mode):
+                    lines.append("The number of occupied modals for each mode is")
+                    for i, m in enumerate(self.num_occupied_modals_per_mode[idx]):
+                        lines.append(f"- Mode {i}: {np.round(m, 12)}")
+                lines.append(" ")
 
         return lines
