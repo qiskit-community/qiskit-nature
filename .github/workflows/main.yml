@@ -197,9 +197,8 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          # disable for now
-          # pip install -U pylint
-          # make lint
+          pip install -U pylint
+          make lint
         shell: bash
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
         uses: ./.github/actions/run-tests
