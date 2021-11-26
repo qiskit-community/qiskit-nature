@@ -22,7 +22,7 @@ import numpy as np
 
 from qiskit.algorithms import VQE
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import OperatorBase, PauliSumOp,CircuitStateFn
+from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.utils.validation import validate_min
 from qiskit.opflow.gradients import Gradient
 from qiskit_nature.exceptions import QiskitNatureError
@@ -48,6 +48,7 @@ class AdaptVQE(GroundStateEigensolver):
         threshold: float = 1e-5,
         delta: float = 1,
         max_iterations: Optional[int] = None,
+        gradient: Optional[Gradient] = None,
     ) -> None:
         """
         Args:
@@ -57,21 +58,35 @@ class AdaptVQE(GroundStateEigensolver):
             delta: the finite difference step size for the gradient computation. It has a minimum
                 value of 1e-5.
             max_iterations: the maximum number of iterations of the AdaptVQE algorithm.
+            gradient: a class that converts operator expression to the first-order gradient based on the method mentioned.
         """
         validate_min("threshold", threshold, 1e-15)
         validate_min("delta", delta, 1e-5)
+
+        if gradient is None:
+            gradient=Gradient(grad_method="param_shift")
 
         super().__init__(qubit_converter, solver)
 
         self._threshold = threshold
         self._delta = delta
         self._max_iterations = max_iterations
+        self._gradient = gradient
 
         self._excitation_pool: List[OperatorBase] = []
         self._excitation_list: List[OperatorBase] = []
 
         self._main_operator: PauliSumOp = None
         self._ansatz: QuantumCircuit = None
+        
+    
+    @property
+    def gradient(self) -> Optional[Gradient]:
+        return self._gradient
+    
+    @gradient.setter
+    def gradient(self,grad : Optional[Gradient]):
+        self._gradient=grad
 
     def returns_groundstate(self) -> bool:
         return True
@@ -96,11 +111,13 @@ class AdaptVQE(GroundStateEigensolver):
         res=[]
         for exc in self._excitation_pool:
             self._ansatz.operators = self._excitation_list + [exc]
-            vqe.ansatz = self._ansatz
+            if self.gradient._grad_method.analytic:
+                vqe.ansatz = self._ansatz
+            else:
+                vqe.ansatz = self._ansatz.decompose()
             param_sets = vqe._ansatz_params 
-            print(param_sets)
             op = vqe.construct_expectation(theta, self._main_operator)
-            state_grad = Gradient(grad_method="param_shift",epsilon=1.).convert(operator=op, params=param_sets)
+            state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
             value_dict = {param_sets[-1]:0.0}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()

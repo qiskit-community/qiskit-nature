@@ -26,6 +26,7 @@ from qiskit.providers.basicaer import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
+from qiskit.opflow.gradients import Gradient
 from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import UnitsType
@@ -69,6 +70,22 @@ class TestAdaptVQE(QiskitNatureTestCase):
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
+    def test_param_shift(self):
+        """ test for param_shift method"""
+        solver=VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        grad=Gradient(grad_method="param_shift")
+        calc= AdaptVQE(self.qubit_converter,solver,gradient=grad)
+        res=calc.solve(self.problem)
+        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+    
+    def test_fin_diff(self):
+        """ test for fin_diff method"""
+        solver=VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        grad=Gradient(grad_method="fin_diff")
+        calc= AdaptVQE(self.qubit_converter,solver,gradient=grad)
+        res=calc.solve(self.problem)
+        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+
     def test_LiH(self):
         """Lih test"""
         inter_dist = 1.6
@@ -84,7 +101,6 @@ class TestAdaptVQE(QiskitNatureTestCase):
             num_molecular_orbitals=3,
         )
         problem1 = ElectronicStructureProblem(driver1, [transformer])
-        # properties = driver1_reduced.run()
         self.expected = -1.85727503
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
