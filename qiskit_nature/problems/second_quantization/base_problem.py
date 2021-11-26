@@ -227,7 +227,7 @@ class BaseProblem(ABC):
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
                              Z2 symmetries stored in this instance are the basis for the
                              commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are:
+            excitations: the types of excitations to consider. The simple cases for this input are
 
                 :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
                 :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
