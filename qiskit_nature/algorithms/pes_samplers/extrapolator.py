@@ -76,13 +76,13 @@ class Extrapolator(ABC):
         Factory method for constructing extrapolators.
 
         Args:
-            mode: Extrapolator to instantiate. Can be one of:
+            mode: Extrapolator to instantiate. Can be one of
                 - 'window'
                 - 'poly'
                 - 'diff_model'
                 - 'pca'
                 - 'l1'
-            kwargs: arguments to be passed to the constructor of an extrapolator
+            **kwargs: arguments to be passed to the constructor of an extrapolator
 
         Returns:
             A newly created extrapolator instance.
