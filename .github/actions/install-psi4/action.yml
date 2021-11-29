@@ -26,7 +26,7 @@ runs:
         source "$CONDA/etc/profile.d/conda.sh"
         conda activate psi4env
         if [ "${{ inputs.os }}" == "windows-latest" ]; then
-          conda install -y psi4 python=${{ inputs.python-version }} -c conda-forge -c psi4/label/dev
+          conda install -y psi4=1.5a1.dev196 python=${{ inputs.python-version }} -c conda-forge -c psi4/label/dev
           psi4 --test
         else
           conda install -y psi4 python=${{ inputs.python-version }} -c psi4
