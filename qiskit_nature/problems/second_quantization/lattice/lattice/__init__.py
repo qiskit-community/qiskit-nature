@@ -13,7 +13,7 @@
 """A class containing information about the Lattice."""
 from .boundary_condition import BoundaryCondition
 from .hyper_cubic_lattice import HyperCubicLattice
-from .lattice import DrawStyle, Lattice
+from .lattice import LatticeDrawStyle, Lattice
 from .line_lattice import LineLattice
 from .square_lattice import SquareLattice
 from .triangular_lattice import TriangularLattice

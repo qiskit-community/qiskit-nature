@@ -27,7 +27,7 @@ if HAS_MATPLOTLIB:
 
 
 @dataclass
-class DrawStyle:
+class LatticeDrawStyle:
     """A stylesheet for lattice figure.
     Please see
     https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
@@ -227,7 +227,7 @@ class Lattice:
     def draw(
         self,
         self_loop: bool = False,
-        style: Optional[DrawStyle] = None,
+        style: Optional[LatticeDrawStyle] = None,
     ):
         """Draw the lattice.
 
@@ -242,9 +242,9 @@ class Lattice:
         graph = self.graph
 
         if style is None:
-            style = DrawStyle()
-        elif not isinstance(style, DrawStyle):
-            style = DrawStyle(**style)
+            style = LatticeDrawStyle()
+        elif not isinstance(style, LatticeDrawStyle):
+            style = LatticeDrawStyle(**style)
 
         if style.pos is None:
             style.pos = self.pos

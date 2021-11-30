@@ -44,7 +44,7 @@ Models
 """
 from .lattice import (
     BoundaryCondition,
-    DrawStyle,
+    LatticeDrawStyle,
     HyperCubicLattice,
     Lattice,
     LineLattice,
