@@ -14,6 +14,7 @@
 
 from typing import cast, Dict, List, Optional, Tuple
 
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.results import EigenstateResult
@@ -132,15 +133,25 @@ class VibrationalEnergy(VibrationalProperty):
         """
         return self._vibrational_integrals.get(num_body_terms, None)
 
-    def second_q_ops(self) -> List[VibrationalOp]:
-        """Returns a list containing the Hamiltonian constructed by the stored integrals."""
+    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
+        """Returns the second quantized vibrational energy operator.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `VibrationalOp` objects.
+        """
         ops = []
         for num_body, ints in self._vibrational_integrals.items():
             if self._truncation_order is not None and num_body > self._truncation_order:
                 break
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
-        return [sum(ops)]  # type: ignore
+
+        if not settings.dict_aux_operators:
+            return [sum(ops)]  # type: ignore[list-item]
+
+        return {self.name: sum(ops)}  # type: ignore[dict-item]
 
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.

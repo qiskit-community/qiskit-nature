@@ -30,6 +30,7 @@ from qiskit.opflow import (
     PauliSumOp,
 )
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
@@ -79,7 +80,7 @@ class QEOM(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[SecondQuantizedOp]] = None,
+        aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -102,13 +103,18 @@ class QEOM(ExcitedStatesSolver):
             )
 
         # 1. Run ground state calculation
-        groundstate_result = self._gsc.solve(problem)
+        groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
-        self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
-            problem.second_q_ops()[0], problem.num_particles
-        )
+        second_q_ops = problem.second_q_ops()
+        if isinstance(second_q_ops, list):
+            main_second_q_op = second_q_ops[0]
+        elif isinstance(second_q_ops, dict):
+            main_second_q_op = second_q_ops.pop(problem.main_property_name)
 
+        self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
+            main_second_q_op, problem.num_particles
+        )
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators

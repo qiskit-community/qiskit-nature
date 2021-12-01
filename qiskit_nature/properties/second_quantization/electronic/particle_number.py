@@ -17,6 +17,7 @@ from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -158,16 +159,25 @@ class ParticleNumber(ElectronicProperty):
             qmol.mo_occ_b,
         )
 
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns a list containing the particle number operator."""
+    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+        """Returns the second quantized particle number operator.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         op = FermionicOp(
             [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
             register_length=self._num_spin_orbitals,
             display_format="sparse",
         )
-        return [op]
 
-    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
+        if not settings.dict_aux_operators:
+            return [op]
+
+        return {self.name: op}
+
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
@@ -180,13 +190,15 @@ class ParticleNumber(ElectronicProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore[assignment]
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             if aux_op_eigenvalues is None:
                 continue
 
-            if aux_op_eigenvalues[0] is not None:
-                n_particles = aux_op_eigenvalues[0][0].real  # type: ignore
+            _key = self.name if isinstance(aux_op_eigenvalues, dict) else 0
+
+            if aux_op_eigenvalues[_key] is not None:
+                n_particles = aux_op_eigenvalues[_key][0].real  # type: ignore
                 result.num_particles.append(n_particles)
 
                 if not np.isclose(
