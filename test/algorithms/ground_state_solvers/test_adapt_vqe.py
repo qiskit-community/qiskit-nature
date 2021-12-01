@@ -71,19 +71,19 @@ class TestAdaptVQE(QiskitNatureTestCase):
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_param_shift(self):
-        """ test for param_shift method"""
-        solver=VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
-        grad=Gradient(grad_method="param_shift")
-        calc= AdaptVQE(self.qubit_converter,solver,gradient=grad)
-        res=calc.solve(self.problem)
+        """test for param_shift method"""
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        grad = Gradient(grad_method="param_shift")
+        calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
+        res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
-    
+
     def test_fin_diff(self):
-        """ test for fin_diff method"""
-        solver=VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
-        grad=Gradient(grad_method="fin_diff")
-        calc= AdaptVQE(self.qubit_converter,solver,gradient=grad)
-        res=calc.solve(self.problem)
+        """test for fin_diff method"""
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        grad = Gradient(grad_method="fin_diff", epsilon=1.0)
+        calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
+        res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
     def test_LiH(self):

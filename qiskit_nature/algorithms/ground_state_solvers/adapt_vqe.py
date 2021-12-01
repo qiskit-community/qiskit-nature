@@ -64,7 +64,7 @@ class AdaptVQE(GroundStateEigensolver):
         validate_min("delta", delta, 1e-5)
 
         if gradient is None:
-            gradient=Gradient(grad_method="param_shift")
+            gradient = Gradient(grad_method="param_shift")
 
         super().__init__(qubit_converter, solver)
 
@@ -78,15 +78,14 @@ class AdaptVQE(GroundStateEigensolver):
 
         self._main_operator: PauliSumOp = None
         self._ansatz: QuantumCircuit = None
-        
-    
+
     @property
     def gradient(self) -> Optional[Gradient]:
         return self._gradient
-    
+
     @gradient.setter
-    def gradient(self,grad : Optional[Gradient]):
-        self._gradient=grad
+    def gradient(self, grad: Optional[Gradient]):
+        self._gradient = grad
 
     def returns_groundstate(self) -> bool:
         return True
@@ -108,23 +107,23 @@ class AdaptVQE(GroundStateEigensolver):
             parameters = ParameterVector("θ", self._num_parameters)
             times = ParameterVector("t", self.reps * len(self.operators))
         """
-        res=[]
+        res = []
         for exc in self._excitation_pool:
             self._ansatz.operators = self._excitation_list + [exc]
             if self.gradient._grad_method.analytic:
                 vqe.ansatz = self._ansatz
             else:
                 vqe.ansatz = self._ansatz.decompose()
-            param_sets = vqe._ansatz_params 
+            param_sets = vqe._ansatz_params
             op = vqe.construct_expectation(theta, self._main_operator)
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
-            value_dict = {param_sets[-1]:0.0}
+            value_dict = {param_sets[-1]: 0.0}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
             print("State gradient computed with parameter shift", state_grad_result)
             res.append((np.abs(state_grad_result[-1]), exc))
         return res
-       
+
     @staticmethod
     def _check_cyclicity(indices: List[int]) -> bool:
         """
