@@ -20,6 +20,7 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring_mapped
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
@@ -52,6 +53,7 @@ class ElectronicStructureProblem(BaseProblem):
             transformers: A list of transformations to be applied to the driver result.
         """
         super().__init__(driver, transformers)
+        self._main_property_name = "ElectronicEnergy"
 
     @property
     def num_particles(self) -> Tuple[int, int]:
@@ -62,14 +64,17 @@ class ElectronicStructureProblem(BaseProblem):
         """Returns the number of spin orbitals."""
         return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
-        provided.
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+        """Returns the second quantized operators associated with this Property.
+
+        If the arguments are returned as a `list`, the operators are in the following order: the
+        Hamiltonian operator, total particle number operator, total angular momentum operator, total
+        magnetization operator, and (if available) x, y, z dipole operators.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: Hamiltonian operator,
-            total particle number operator, total angular momentum operator, total magnetization
-            operator, and (if available) x, y, z dipole operators.
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
         driver_result = self.driver.run()
 
@@ -98,9 +103,9 @@ class ElectronicStructureProblem(BaseProblem):
             self._grouped_property = driver_result
             self._grouped_property_transformed = self._transform(self._grouped_property)
 
-        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
+        second_quantized_ops = self._grouped_property_transformed.second_q_ops()
 
-        return second_quantized_ops_list
+        return second_quantized_ops
 
     def hopping_qeom_ops(
         self,
@@ -186,9 +191,15 @@ class ElectronicStructureProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first aux_value is the evaluated number of particles
-            num_particles_aux = aux_values[0][0]
+            try:
+                num_particles_aux = aux_values["ParticleNumber"][0]
+            except TypeError:
+                num_particles_aux = aux_values[0][0]
             # the second aux_value is the total angular momentum which (for singlets) should be zero
-            total_angular_momentum_aux = aux_values[1][0]
+            try:
+                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+            except TypeError:
+                total_angular_momentum_aux = aux_values[1][0]
             particle_number = cast(
                 ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )

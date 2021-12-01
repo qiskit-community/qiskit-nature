@@ -13,9 +13,9 @@
 """The SecondQuantizedProperty base class."""
 
 from abc import abstractmethod
-from typing import Any, List, Type, TypeVar, Union
+from typing import Any, Type, TypeVar, Union
 
-from qiskit_nature import QiskitNatureError
+from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 
@@ -34,8 +34,14 @@ class SecondQuantizedProperty(Property):
     """
 
     @abstractmethod
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Returns the list of second quantized operators associated with this Property."""
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+        """Returns the second quantized operators associated with this Property.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `SecondQuantizedOp` objects.
+        """
 
     @classmethod
     @abstractmethod
@@ -74,8 +80,11 @@ class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty
     second-quantized properties."""
 
     @abstractmethod
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """
-        Returns the list of second quantized operators given by the properties contained in this
-        group.
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+        """Returns the second quantized operators associated with the properties in this group.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
