@@ -31,6 +31,8 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult
+from qiskit_nature.deprecation import deprecate_arguments
+
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
@@ -41,6 +43,7 @@ logger = logging.getLogger(__name__)
 class AdaptVQE(GroundStateEigensolver):
     """A ground state calculation employing the AdaptVQE algorithm."""
 
+    @deprecate_arguments("0.4.0", {"delta": "gradient"})
     def __init__(
         self,
         qubit_converter: QubitConverter,
@@ -104,24 +107,25 @@ class AdaptVQE(GroundStateEigensolver):
 
         Returns:
             List of pairs consisting of gradient and excitation operator.
-            parameters = ParameterVector("θ", self._num_parameters)
-            times = ParameterVector("t", self.reps * len(self.operators))
         """
         res = []
         for exc in self._excitation_pool:
+            # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
-            if self.gradient._grad_method.analytic:
+            if self.gradient.grad_method.analytic:
+                # set the current ansatz
                 vqe.ansatz = self._ansatz
             else:
                 vqe.ansatz = self._ansatz.decompose()
             param_sets = vqe._ansatz_params
             op = vqe.construct_expectation(theta, self._main_operator)
+            # compute gradient
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
             value_dict = {param_sets[-1]: 0.0}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
             print("State gradient computed with parameter shift", state_grad_result)
-            res.append((np.abs(state_grad_result[-1]), exc))
+            logger.info.append((np.abs(state_grad_result[-1]), exc))
         return res
 
     @staticmethod
