@@ -107,7 +107,7 @@ def _find_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> List[i
             _update_used_map(num_qubits, table_z, used_map)
 
     for ind in range(num_qubits):
-        if ind not in used_map.keys():
+        if ind not in used_map:
             unused.append(ind)
 
     return unused
