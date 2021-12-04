@@ -69,7 +69,7 @@ class DipoleMoment(IntegralProperty):
         Raises:
             NotImplementedError: if no AO electronic integrals are available.
         """
-        if ElectronicBasis.AO not in self._electronic_integrals.keys():
+        if ElectronicBasis.AO not in self._electronic_integrals:
             raise NotImplementedError(
                 "Construction of the DipoleMoment's integral operator without AO integrals is not "
                 "yet implemented."
@@ -260,7 +260,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             dipole_shifts: Dict[str, Dict[str, complex]] = {}
             for prop in self._properties.values():
                 for name, shift in prop._shift.items():
-                    if name not in dipole_shifts.keys():
+                    if name not in dipole_shifts:
                         dipole_shifts[name] = {}
                     dipole_shifts[name][prop._axis] = shift
 

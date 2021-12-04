@@ -77,7 +77,7 @@ class IntegralProperty(ElectronicProperty):
         Args:
             integral: the ElectronicIntegrals to add.
         """
-        if integral._basis not in self._electronic_integrals.keys():
+        if integral._basis not in self._electronic_integrals:
             self._electronic_integrals[integral._basis] = {}
         self._electronic_integrals[integral._basis][integral._num_body_terms] = integral
 
