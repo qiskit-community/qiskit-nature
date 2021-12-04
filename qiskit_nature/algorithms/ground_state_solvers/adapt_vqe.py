@@ -125,7 +125,7 @@ class AdaptVQE(GroundStateEigensolver):
             value_dict = {param_sets[-1]: 0.0}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
             print("State gradient computed with parameter shift", state_grad_result)
-            logger.info.append((np.abs(state_grad_result[-1]), exc))
+            logger.info(res.append((np.abs(state_grad_result[-1]), exc)))
         return res
 
     @staticmethod
