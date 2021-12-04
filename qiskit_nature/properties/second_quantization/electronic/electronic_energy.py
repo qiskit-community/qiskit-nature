@@ -241,7 +241,7 @@ class ElectronicEnergy(IntegralProperty):
         Raises:
             NotImplementedError: if no AO electronic integrals are available.
         """
-        if ElectronicBasis.AO not in self._electronic_integrals.keys():
+        if ElectronicBasis.AO not in self._electronic_integrals:
             raise NotImplementedError(
                 "Construction of the Fock operator outside of the AO basis is not yet implemented."
             )
