@@ -16,7 +16,7 @@ import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
-from qiskit.quantum_info import SparsePauliOp
+from qiskit.quantum_info import SparsePauliOp, PauliList
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMapper
@@ -166,6 +166,14 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
             op3 = _sort_simplify(pauli_sum_op_extra.primitive)
             self.assertEqual(op1, op3)
+
+        with self.subTest("Test zero FermiOp"):
+            fermi_op = FermionicOp([("++--", 0.0)], display_format="dense")
+            pauli_op = BravyiKitaevSuperFastMapper().map(fermi_op).primitive
+            x = np.array([], dtype="bool")
+            z = np.array([], dtype="bool")
+            expected_pauli_op = SparsePauliOp(PauliList.from_symplectic(x, z), coeffs=[0.0])
+            self.assertEqual(pauli_op, expected_pauli_op)
 
 
 if __name__ == "__main__":
