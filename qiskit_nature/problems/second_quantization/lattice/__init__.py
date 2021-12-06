@@ -42,7 +42,7 @@ Models
    FermiHubbardModel
 
 """
-from .lattice import (
+from .lattices import (
     BoundaryCondition,
     LatticeDrawStyle,
     HyperCubicLattice,

@@ -12,10 +12,12 @@
 
 """The Fermi-Hubbard model"""
 from typing import Optional
+
 import numpy as np
 from retworkx import PyGraph
-from qiskit_nature.problems.second_quantization.lattice.lattice import Lattice
+
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 
 class FermiHubbardModel:

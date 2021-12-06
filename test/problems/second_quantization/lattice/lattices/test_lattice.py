@@ -12,10 +12,12 @@
 
 """Test for Lattice."""
 from test import QiskitNatureTestCase
+
 import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
-from qiskit_nature.problems.second_quantization.lattice.lattice import Lattice
+
+from qiskit_nature.problems.second_quantization.lattice import Lattice
 
 
 class TestLattice(QiskitNatureTestCase):
