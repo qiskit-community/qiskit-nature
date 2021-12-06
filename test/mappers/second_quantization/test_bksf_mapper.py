@@ -161,6 +161,12 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse.primitive)
             self.assertEqual(op1, op2_from_sparse)
 
+        with self.subTest("Test accepting identity with zero coefficient"):
+            h2_fop_zero_term = h2_fop + FermionicOp([("IIII", 0.0)], display_format="dense")
+            pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
+            op3 = _sort_simplify(pauli_sum_op_extra.primitive)
+            self.assertEqual(op1, op3)
+
 
 if __name__ == "__main__":
     unittest.main()
