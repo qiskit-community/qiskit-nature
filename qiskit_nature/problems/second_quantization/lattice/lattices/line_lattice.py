@@ -36,6 +36,7 @@ class LineLattice(HyperCubicLattice):
                 BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
                 Defaults to BoundaryCondition.OPEN.
         """
+        self._num_nodes = num_nodes
 
         super().__init__(
             size=(num_nodes,),
@@ -43,3 +44,12 @@ class LineLattice(HyperCubicLattice):
             onsite_parameter=onsite_parameter,
             boundary_condition=boundary_condition,
         )
+
+    @property
+    def num_nodes(self) -> int:
+        """Number of nodes
+
+        Returns:
+            The number of nodes for the line lattice
+        """
+        return self._num_nodes

@@ -13,8 +13,8 @@
 """The square lattice"""
 from typing import Tuple, Union
 
-from .hyper_cubic_lattice import HyperCubicLattice
 from .boundary_condition import BoundaryCondition
+from .hyper_cubic_lattice import HyperCubicLattice
 
 
 class SquareLattice(HyperCubicLattice):
@@ -47,11 +47,29 @@ class SquareLattice(HyperCubicLattice):
                 consisting of the same values.
                 Defaults to BoundaryCondition.OPEN.
         """
-        self.rows = rows
-        self.cols = cols
+        self._rows = rows
+        self._cols = cols
         super().__init__(
             size=(rows, cols),
             edge_parameter=edge_parameter,
             onsite_parameter=onsite_parameter,
             boundary_condition=boundary_condition,
         )
+
+    @property
+    def rows(self) -> int:
+        """Length of the x direction
+
+        Returns:
+            the length
+        """
+        return self._rows
+
+    @property
+    def cols(self) -> int:
+        """Length of the y direction
+
+        Returns:
+            the length
+        """
+        return self._cols
