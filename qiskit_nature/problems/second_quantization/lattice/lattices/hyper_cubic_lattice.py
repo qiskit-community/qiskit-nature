@@ -15,11 +15,12 @@ from dataclasses import asdict
 from itertools import product
 from math import pi
 from typing import Dict, List, Optional, Tuple, Union
+
 import numpy as np
 from retworkx import PyGraph
 
-from .lattice import LatticeDrawStyle, Lattice
 from .boundary_condition import BoundaryCondition
+from .lattice import Lattice, LatticeDrawStyle
 
 
 class HyperCubicLattice(Lattice):
@@ -274,10 +275,6 @@ class HyperCubicLattice(Lattice):
                 Please see
                 https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
                 for details.
-
-        Returns:
-            A matplotlib figure for the visualization if not running with an
-            interactive backend (like in jupyter) or if ``ax`` is not set.
         """
         graph = self.graph
 

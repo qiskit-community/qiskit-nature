@@ -243,10 +243,6 @@ class TriangularLattice(Lattice):
                 Please see
                 https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
                 for details.
-
-        Returns:
-            A matplotlib figure for the visualization if not running with an
-            interactive backend (like in jupyter) or if ``ax`` is not set.
         """
         graph = self.graph
 

@@ -148,7 +148,7 @@ class Lattice:
 
     def copy(self) -> "Lattice":
         """Return a copy of the lattice."""
-        return Lattice(self.graph.copy())
+        return self.__class__(self.graph)
 
     @classmethod
     def from_nodes_and_edges(
@@ -200,13 +200,8 @@ class Lattice:
             self_loop : Draw self-loops, which are edges connecting a node to itself.
             **kwargs : Kwargs for drawing the lattice.
 
-        Returns:
-            A matplotlib figure for the visualization if not running with an
-            interactive backend (like in jupyter) or if ``ax`` is not set.
-
         Raises:
             MissingOptionalLibraryError: Requires matplotlib.
-
         """
         if not HAS_MATPLOTLIB:
             raise MissingOptionalLibraryError(

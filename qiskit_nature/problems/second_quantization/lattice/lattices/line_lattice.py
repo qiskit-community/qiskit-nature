@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 
 """The line lattice"""
-from .hyper_cubic_lattice import HyperCubicLattice
 from .boundary_condition import BoundaryCondition
+from .hyper_cubic_lattice import HyperCubicLattice
 
 
 class LineLattice(HyperCubicLattice):
