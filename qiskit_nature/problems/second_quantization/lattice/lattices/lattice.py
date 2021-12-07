@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """General Lattice."""
+from copy import deepcopy
 from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
@@ -148,7 +149,7 @@ class Lattice:
 
     def copy(self) -> "Lattice":
         """Return a copy of the lattice."""
-        return self.__class__(self.graph)
+        return deepcopy(self)
 
     @classmethod
     def from_nodes_and_edges(
