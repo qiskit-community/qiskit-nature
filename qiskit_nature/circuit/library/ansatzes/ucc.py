@@ -129,7 +129,8 @@ class UCC(EvolvedOperatorAnsatz):
         generalized: bool = False,
         preserve_spin: bool = True,
         reps: int = 1,
-        initial_state: QuantumCircuit | None = None,
+        initial_state: Optional[QuantumCircuit] = None,
+        include_imaginary: bool = False,
     ):
         """
 
@@ -171,6 +172,9 @@ class UCC(EvolvedOperatorAnsatz):
                 setting does _not_ influence the `excitations`. When relying on the default
                 generation method (i.e. not providing a `Callable` to `excitations`), these will
                 always be constructed with respect to a `HartreeFock` reference state.
+            include_imaginary: boolean flag which when set to 'True' expands the ansatz to include 
+                               imaginary parts using twice the number of free parameters. Additional operators 
+                               are appended by the '_build_fermionic_excitation_ops()' 
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
@@ -181,6 +185,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._max_spin_excitation = max_spin_excitation
         self._generalized = generalized
         self._preserve_spin = preserve_spin
+        self._include_imaginary = include_imaginary
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
@@ -500,11 +505,17 @@ class UCC(EvolvedOperatorAnsatz):
                 label[occ] = "+"
             for unocc in exc[1]:
                 label[unocc] = "-"
+            # Real part of the wave-function 
             op = FermionicOp("".join(label), display_format="dense")
-            op -= op.adjoint()
-            # we need to account for an additional imaginary phase in the exponent (see also
+            op_adj = op.adjoint()
+            op_minus = 1j*(op - op_adj)
+            # we need to account for an additional imaginary phase in the exponent hence multiplied by 1j (see also
             # `PauliTrotterEvolution.convert`)
-            op *= 1j  # type: ignore
-            operators.append(op)
+            operators.append(op_minus)
+            
+            # Appending the corresponding imaginary part
+            if self._include_imaginary:
+                op_plus = op + op_adj
+                operators.append(op_plus) 
 
         return operators
