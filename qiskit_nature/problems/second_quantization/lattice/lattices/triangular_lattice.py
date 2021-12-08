@@ -11,16 +11,18 @@
 # that they have been altered from the originals.
 
 """The triangular lattice"""
+from __future__ import annotations
+
 from dataclasses import asdict
 from itertools import product
 from math import pi
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 from retworkx import PyGraph
 
-from .lattice import LatticeDrawStyle, Lattice
 from .boundary_condition import BoundaryCondition
+from .lattice import Lattice, LatticeDrawStyle
 
 
 class TriangularLattice(Lattice):
@@ -41,21 +43,22 @@ class TriangularLattice(Lattice):
         base = np.array([np.prod(size[:i]) for i in range(dim)], dtype=int)
         return np.dot(coord, base).item()
 
-    def _self_loops(self) -> List[Tuple[int, int, complex]]:
+    def _self_loops(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the self-loops on all the nodes.
+
         Returns:
-            List[Tuple[int, int, complex]] : List of the self-loops.
+            List of the self-loops.
         """
         size = self.size
         onsite_parameter = self.onsite_parameter
         num_nodes = np.prod(size)
         return [(node_a, node_a, onsite_parameter) for node_a in range(num_nodes)]
 
-    def _bulk_edges(self) -> List[Tuple[int, int, complex]]:
+    def _bulk_edges(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the edges in th bulk, which don't cross the boundaries.
 
         Returns:
-            List[Tuple[int, int, complex]] : List of weighted edges that don't cross the boundaries.
+            List of weighted edges that don't cross the boundaries.
         """
         size = self.size
         edge_parameter = self.edge_parameter
@@ -79,14 +82,14 @@ class TriangularLattice(Lattice):
                 list_of_edges.append((node_a, node_b, edge_parameter[i]))
         return list_of_edges
 
-    def _boundary_edges(self) -> List[Tuple[int, int, complex]]:
+    def _boundary_edges(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the edges that cross the boundaries
             depending on the boundary conditions.
 
         Raises:
             ValueError: Given boundary condition is invalid values.
         Returns:
-            List[Tuple[int, int, complex]]: List of weighted edges that cross the boundaries.
+            List of weighted edges that cross the boundaries.
         """
         list_of_edges = []
         size = self.size
@@ -132,11 +135,11 @@ class TriangularLattice(Lattice):
             )
         return list_of_edges
 
-    def _default_position(self) -> Dict[int, List[float]]:
+    def _default_position(self) -> dict[int, list[float]]:
         """Return a dictionary of default positions for visualization of a two-dimensional lattice.
 
         Returns:
-            Dict[int, List[float]] : The keys are the labels of lattice points,
+            The keys are the labels of lattice points,
                 and the values are two-dimensional coordinates.
         """
         size = self.size
@@ -162,7 +165,7 @@ class TriangularLattice(Lattice):
         self,
         rows: int,
         cols: int,
-        edge_parameter: Union[complex, Tuple[complex, complex, complex]] = 1.0,
+        edge_parameter: Union[complex, tuple[complex, complex, complex]] = 1.0,
         onsite_parameter: complex = 0.0,
         boundary_condition: BoundaryCondition = BoundaryCondition.OPEN,
     ) -> None:

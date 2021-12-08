@@ -11,9 +11,11 @@
 # that they have been altered from the originals.
 
 """General Lattice."""
+from __future__ import annotations
+
 from copy import deepcopy
 from dataclasses import asdict, dataclass
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, Optional, Sequence, Union
 
 import numpy as np
 from qiskit.exceptions import MissingOptionalLibraryError
@@ -39,7 +41,7 @@ class LatticeDrawStyle:
     pos: Optional[dict] = None
 
     # Matplotlib Axes object
-    ax: Optional["Axes"] = None  # pylint:disable=invalid-name
+    ax: Optional[Axes] = None  # pylint:disable=invalid-name
 
     with_labels: bool = False
 
@@ -51,9 +53,9 @@ class LatticeDrawStyle:
 
     node_color: Union[
         str,
-        Tuple[float, float, float],
-        Tuple[float, float, float],
-        List[Union[str, Tuple[float, float, float], Tuple[float, float, float, float]]],
+        tuple[float, float, float],
+        tuple[float, float, float],
+        list[Union[str, tuple[float, float, float], tuple[float, float, float, float]]],
     ] = "#1f78b4"
 
     node_shape: str = "o"
@@ -147,14 +149,14 @@ class Lattice:
         """Return a list of weighted edges."""
         return self.graph.weighted_edge_list()
 
-    def copy(self) -> "Lattice":
+    def copy(self) -> Lattice:
         """Return a copy of the lattice."""
         return deepcopy(self)
 
     @classmethod
     def from_nodes_and_edges(
-        cls, num_nodes: int, weighted_edges: List[Tuple[int, int, complex]]
-    ) -> "Lattice":
+        cls, num_nodes: int, weighted_edges: list[tuple[int, int, complex]]
+    ) -> Lattice:
         """Return an instance of Lattice from the number of nodes and the list of edges.
 
         Args:

@@ -11,10 +11,12 @@
 # that they have been altered from the originals.
 
 """The hyper-cubic lattice"""
+from __future__ import annotations
+
 from dataclasses import asdict
 from itertools import product
 from math import pi
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 from retworkx import PyGraph
@@ -51,11 +53,11 @@ class HyperCubicLattice(Lattice):
 
     def __init__(
         self,
-        size: Tuple[int, ...],
-        edge_parameter: Union[complex, Tuple[complex, ...]] = 1.0,
+        size: tuple[int, ...],
+        edge_parameter: Union[complex, tuple[complex, ...]] = 1.0,
         onsite_parameter: complex = 0.0,
         boundary_condition: Union[
-            BoundaryCondition, Tuple[BoundaryCondition, ...]
+            BoundaryCondition, tuple[BoundaryCondition, ...]
         ] = BoundaryCondition.OPEN,
     ) -> None:
         """
@@ -144,7 +146,7 @@ class HyperCubicLattice(Lattice):
         return self._dim
 
     @property
-    def size(self) -> Tuple[int, ...]:
+    def size(self) -> tuple[int, ...]:
         """Lengths of each dimension.
 
         Returns:
@@ -153,7 +155,7 @@ class HyperCubicLattice(Lattice):
         return self._size
 
     @property
-    def edge_parameter(self) -> Union[complex, Tuple[complex, ...]]:
+    def edge_parameter(self) -> Union[complex, tuple[complex, ...]]:
         """Weights on the edges in each direction.
 
         Returns:
@@ -171,7 +173,7 @@ class HyperCubicLattice(Lattice):
         return self._onsite_parameter
 
     @property
-    def boundary_condition(self) -> Union[BoundaryCondition, Tuple[BoundaryCondition, ...]]:
+    def boundary_condition(self) -> Union[BoundaryCondition, tuple[BoundaryCondition, ...]]:
         """Boundary condition for each dimension.
 
         Returns:
@@ -195,19 +197,19 @@ class HyperCubicLattice(Lattice):
         base = np.array([np.prod(size[:i]) for i in range(dim)], dtype=int)
         return np.dot(coord, base).item()
 
-    def _self_loops(self) -> List[Tuple[int, int, complex]]:
+    def _self_loops(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the self-loops on all the nodes.
         Returns:
-            List[Tuple[int, int, complex]] : List of the self-loops.
+            List of the self-loops.
         """
         num_nodes = np.prod(self._size)
         return [(node_a, node_a, self._onsite_parameter) for node_a in range(num_nodes)]
 
-    def _bulk_edges(self) -> List[Tuple[int, int, complex]]:
+    def _bulk_edges(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the edges in the bulk, which don't cross the boundaries.
 
         Returns:
-            List[Tuple[int, int, complex]] : List of weighted edges that don't cross the boundaries.
+            List of weighted edges that don't cross the boundaries.
         """
         list_of_edges = []
         size = self._size
@@ -224,14 +226,14 @@ class HyperCubicLattice(Lattice):
                     list_of_edges.append((node_a, node_b, edge_parameter[i]))
         return list_of_edges
 
-    def _create_boundary_edges(self) -> List[Tuple[int, int, complex]]:
+    def _create_boundary_edges(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the edges that cross the boundaries
             depending on the boundary conditions.
 
         Raises:
             ValueError: Given boundary condition is invalid values.
         Returns:
-            List[Tuple[int, int, complex]]: List of weighted edges that cross the boundaries.
+            List of weighted edges that cross the boundaries.
         """
         list_of_edges = []
         size = self._size
@@ -263,7 +265,7 @@ class HyperCubicLattice(Lattice):
                 )
         return list_of_edges
 
-    def _default_position(self) -> Optional[Dict[int, List[float]]]:
+    def _default_position(self) -> Optional[dict[int, list[float]]]:
         """Return a dictionary of default positions for visualization of
             a one- or two-dimensional lattice.
 
