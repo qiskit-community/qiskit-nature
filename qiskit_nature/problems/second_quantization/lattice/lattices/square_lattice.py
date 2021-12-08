@@ -11,9 +11,7 @@
 # that they have been altered from the originals.
 
 """The square lattice"""
-from __future__ import annotations
-
-from typing import Union
+from typing import Tuple, Union
 
 from .boundary_condition import BoundaryCondition
 from .hyper_cubic_lattice import HyperCubicLattice
@@ -26,10 +24,10 @@ class SquareLattice(HyperCubicLattice):
         self,
         rows: int,
         cols: int,
-        edge_parameter: Union[complex, tuple[complex, complex]] = 1.0,
+        edge_parameter: Union[complex, Tuple[complex, complex]] = 1.0,
         onsite_parameter: complex = 0.0,
         boundary_condition: Union[
-            BoundaryCondition, tuple[BoundaryCondition, BoundaryCondition]
+            BoundaryCondition, Tuple[BoundaryCondition, BoundaryCondition]
         ] = BoundaryCondition.OPEN,
     ) -> None:
         """
