@@ -136,7 +136,7 @@ class HyperCubicLattice(Lattice):
 
     @property
     def dim(self) -> int:
-        """Dimensions of the hypercubic lattice.
+        """Dimensions of the hyper cubic lattice.
 
         Returns:
             the dimension.
