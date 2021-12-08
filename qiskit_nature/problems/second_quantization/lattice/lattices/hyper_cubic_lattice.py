@@ -80,18 +80,17 @@ class HyperCubicLattice(Lattice):
                 the length of that is not the same as that of size.
         """
 
-        self.dim = len(size)
-
-        self.size = size
+        self._dim = len(size)
+        self._size = size
 
         # edge parameter
         if isinstance(edge_parameter, (int, float, complex)):
-            edge_parameter = (edge_parameter,) * self.dim
+            edge_parameter = (edge_parameter,) * self._dim
         elif isinstance(edge_parameter, tuple):
-            if len(edge_parameter) != self.dim:
+            if len(edge_parameter) != self._dim:
                 raise ValueError(
                     "size mismatch, "
-                    f"`edge_parameter`: {len(edge_parameter)}, `size`: {self.dim}."
+                    f"`edge_parameter`: {len(edge_parameter)}, `size`: {self._dim}."
                     "The length of `edge_parameter` must be the same as that of size."
                 )
 
@@ -101,12 +100,12 @@ class HyperCubicLattice(Lattice):
 
         # boundary condition
         if isinstance(boundary_condition, BoundaryCondition):
-            boundary_condition = (boundary_condition,) * self.dim
+            boundary_condition = (boundary_condition,) * self._dim
         elif isinstance(boundary_condition, tuple):
-            if len(boundary_condition) != self.dim:
+            if len(boundary_condition) != self._dim:
                 raise ValueError(
                     "size mismatch, "
-                    f"`boundary_condition`: {len(boundary_condition)}, `size`: {self.dim}."
+                    f"`boundary_condition`: {len(boundary_condition)}, `size`: {self._dim}."
                     "The length of `boundary_condition` must be the same as that of size."
                 )
 
@@ -124,16 +123,34 @@ class HyperCubicLattice(Lattice):
         graph.add_edges_from(self_loop_list)
 
         # add edges that cross the boundaries
-        boundary_edge_list = self._boundary_edges()
+        boundary_edge_list = self._create_boundary_edges()
         graph.add_edges_from(boundary_edge_list)
 
         # a list of edges that depend on the boundary condition
-        self.boundary_edges = [(edge[0], edge[1]) for edge in boundary_edge_list]
+        self._boundary_edges = [(edge[0], edge[1]) for edge in boundary_edge_list]
 
         super().__init__(graph)
 
         # default position for one and two-dimensional cases.
         self.pos = self._default_position()
+
+    @property
+    def dim(self) -> int:
+        """Dimensions of the hypercubic lattice.
+
+        Returns:
+            the dimension.
+        """
+        return self._dim
+
+    @property
+    def size(self) -> Tuple[int, ...]:
+        """Lengths of each dimension.
+
+        Returns:
+            the size.
+        """
+        return self._size
 
     @property
     def edge_parameter(self) -> Union[complex, Tuple[complex, ...]]:
@@ -173,7 +190,7 @@ class HyperCubicLattice(Lattice):
             Return x0 + x1*l0 + x2*l0*l1 + ...
             when coord=np.array([x0, x1, x2...]) and size=(l0, l1, l2, ...).
         """
-        size = self.size
+        size = self._size
         dim = len(size)
         base = np.array([np.prod(size[:i]) for i in range(dim)], dtype=int)
         return np.dot(coord, base).item()
@@ -183,7 +200,7 @@ class HyperCubicLattice(Lattice):
         Returns:
             List[Tuple[int, int, complex]] : List of the self-loops.
         """
-        num_nodes = np.prod(self.size)
+        num_nodes = np.prod(self._size)
         return [(node_a, node_a, self._onsite_parameter) for node_a in range(num_nodes)]
 
     def _bulk_edges(self) -> List[Tuple[int, int, complex]]:
@@ -193,7 +210,7 @@ class HyperCubicLattice(Lattice):
             List[Tuple[int, int, complex]] : List of weighted edges that don't cross the boundaries.
         """
         list_of_edges = []
-        size = self.size
+        size = self._size
         edge_parameter = self._edge_parameter
         dim = len(size)
         coordinates = list(product(*map(range, size)))
@@ -207,7 +224,7 @@ class HyperCubicLattice(Lattice):
                     list_of_edges.append((node_a, node_b, edge_parameter[i]))
         return list_of_edges
 
-    def _boundary_edges(self) -> List[Tuple[int, int, complex]]:
+    def _create_boundary_edges(self) -> List[Tuple[int, int, complex]]:
         """Return a list consisting of the edges that cross the boundaries
             depending on the boundary conditions.
 
@@ -217,7 +234,7 @@ class HyperCubicLattice(Lattice):
             List[Tuple[int, int, complex]]: List of weighted edges that cross the boundaries.
         """
         list_of_edges = []
-        size = self.size
+        size = self._size
         edge_parameter = self._edge_parameter
         boundary_condition = self._boundary_condition
         dim = len(size)
@@ -255,7 +272,7 @@ class HyperCubicLattice(Lattice):
                 and the values are two-dimensional coordinates.
                 When the dimension is larger than 2, it returns None.
         """
-        size = self.size
+        size = self._size
         boundary_condition = self._boundary_condition
         dim = len(size)
         if dim == 1:
@@ -263,10 +280,7 @@ class HyperCubicLattice(Lattice):
                 pos = {i: [float(i), 0.0] for i in range(size[0])}
             elif boundary_condition[0] == BoundaryCondition.PERIODIC:
                 theta = 2 * pi / size[0]
-                pos = {
-                    i: np.array([np.cos(i * theta), np.sin(i * theta)]).tolist()
-                    for i in range(size[0])
-                }
+                pos = {i: [np.cos(i * theta), np.sin(i * theta)] for i in range(size[0])}
         elif dim == 2:
             pos = {}
             width = np.array([0.0, 0.0])
@@ -311,7 +325,6 @@ class HyperCubicLattice(Lattice):
             style = LatticeDrawStyle(**style)
 
         if style.pos is None:
-            style.pos = self.pos
             if self.dim == 1:
                 style.pos = {i: [i, 0] for i in range(self.size[0])}
             elif self.dim == 2:
@@ -319,7 +332,7 @@ class HyperCubicLattice(Lattice):
                     i: [i % self.size[0], i // self.size[0]] for i in range(np.prod(self.size))
                 }
 
-        graph.remove_edges_from(self.boundary_edges)
+        graph.remove_edges_from(self._boundary_edges)
 
         self._mpl(
             graph=graph,
