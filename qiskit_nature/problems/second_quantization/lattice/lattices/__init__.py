@@ -10,26 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-Problems (:mod:`qiskit_nature.problems`)
-========================================
-
-.. currentmodule:: qiskit_nature.problems
-
-
-Second-Quantization Problems
-++++++++++++++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   second_quantization
-
-Sampling Problems
-+++++++++++++++++
-
-.. autosummary::
-   :toctree:
-
-   sampling
-"""
+"""A class containing information about the Lattice."""
+from .boundary_condition import BoundaryCondition
+from .hyper_cubic_lattice import HyperCubicLattice
+from .lattice import LatticeDrawStyle, Lattice
+from .line_lattice import LineLattice
+from .square_lattice import SquareLattice
+from .triangular_lattice import TriangularLattice
