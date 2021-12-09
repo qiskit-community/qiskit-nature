@@ -24,6 +24,14 @@ Second-Quantization Problems (:mod:`qiskit_nature.problems.second_quantization`)
    BaseProblem
    ElectronicStructureProblem
    VibrationalStructureProblem
+
+Submodules
+==========
+.. autosummary::
+   :toctree: ../stubs/
+
+   lattice
+
 """
 
 from .base_problem import BaseProblem
