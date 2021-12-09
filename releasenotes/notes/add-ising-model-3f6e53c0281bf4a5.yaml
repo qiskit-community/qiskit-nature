@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.models.FermiHubbardModel`
+    implementing the Hamiltonian of the Ising Model.
