@@ -515,7 +515,7 @@ class UCC(EvolvedOperatorAnsatz):
             
             # Appending the corresponding imaginary part
             if self._include_imaginary:
-                op_plus = op + op_adj
+                op_plus = -1*(op + op_adj)
                 operators.append(op_plus) 
 
         return operators
