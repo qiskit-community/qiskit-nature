@@ -109,7 +109,7 @@ class BOPESSampler:
         self._extrapolator = extrapolator
         self._solver = None
         if isinstance(self._gss, GroundStateSolver):
-            self._solver = self._gss.solver # type: ignore
+            self._solver = self._gss.solver  # type: ignore
         self._initial_point = None
         self._qubit_converter = qubit_converter
 
@@ -137,7 +137,6 @@ class BOPESSampler:
             # this will be used when NOT bootstrapping
             # if MinimalEigensolverFactory is used, initialization is delayed
             self._initial_point = self._solver.initial_point  # type: ignore
-
 
     def sample(self, problem: BaseProblem, points: List[float]) -> BOPESSamplerResult:
         """Run the sampler at the given points, potentially with repetitions.
