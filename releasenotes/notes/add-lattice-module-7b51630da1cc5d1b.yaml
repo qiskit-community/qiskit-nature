@@ -1,0 +1,21 @@
+---
+features:
+  - |
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.Lattice`
+    for the generation of general lattices.
+
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.HyperCubicLattice`
+    for the generation of arbitrary d-dimensional lattices.
+
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.LineLattice`
+    for the generation of one-dimensional lattices.
+
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.SquareLattice`
+    for the generation of two-dimensional lattices.
+
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.lattice.TriangularLattice`
+    for the generation of two-dimensional lattices with diagonal edges.
+
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.models.FermiHubbardModel`
+    implementing the Hamiltonian of the Fermi-Hubbard Model.
+
