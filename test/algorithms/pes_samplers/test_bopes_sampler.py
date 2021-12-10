@@ -97,13 +97,15 @@ class TestBOPES(QiskitNatureTestCase):
             degrees_of_freedom=[distance1],
         )
 
-        driver = ElectronicStructureMoleculeDriver(molecule,
-                                                   driver_type=ElectronicStructureDriverType.PYSCF)
+        driver = ElectronicStructureMoleculeDriver(
+            molecule, driver_type=ElectronicStructureDriverType.PYSCF
+        )
         problem = ElectronicStructureProblem(driver)
         converter = QubitConverter(ParityMapper())
         solver = VQEUCCFactory(quantum_instance)
-        sampler = BOPESSampler(solver, bootstrap=True, num_bootstrap=None, extrapolator=None,
-                               qubit_converter=converter)
+        sampler = BOPESSampler(
+            solver, bootstrap=True, num_bootstrap=None, extrapolator=None, qubit_converter=converter
+        )
 
         result = sampler.sample(problem, list(np.linspace(0.6, 0.8, 4)))
 

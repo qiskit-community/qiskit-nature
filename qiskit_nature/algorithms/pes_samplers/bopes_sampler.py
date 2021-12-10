@@ -35,8 +35,7 @@ from ..ground_state_solvers.minimum_eigensolver_factories import MinimumEigensol
 logger = logging.getLogger(__name__)
 
 
-def prepare_problem(problem: BaseProblem,
-                    qubit_converter: QubitConverter):
+def prepare_problem(problem: BaseProblem, qubit_converter: QubitConverter):
     """Prepare raw problem, make necessary adjustments for the computation.
     Args:
         problem: a class encoding a problem to be solved.
@@ -76,7 +75,7 @@ class BOPESSampler:
         bootstrap: bool = True,
         num_bootstrap: Optional[int] = None,
         extrapolator: Optional[Extrapolator] = None,
-        qubit_converter: Optional[QubitConverter] = None
+        qubit_converter: Optional[QubitConverter] = None,
     ) -> None:
         """
         Args:
@@ -131,8 +130,9 @@ class BOPESSampler:
                     "num_bootstrap must be None or an integer greater than or equal to 2"
                 )
 
-        if isinstance(self._gss, GroundStateSolver) and \
-                isinstance(self._solver, VariationalAlgorithm):  # type: ignore
+        if isinstance(self._gss, GroundStateSolver) and isinstance(
+            self._solver, VariationalAlgorithm
+        ):  # type: ignore
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
             # if MinimalEigensolverFactory is used, initialization is delayed
@@ -176,10 +176,11 @@ class BOPESSampler:
         # force the initialization of the solver before starting the computation
         if isinstance(self._gss, MinimumEigensolverFactory):
             if self._qubit_converter is None:
-                raise QiskitNatureError("When using MinimumEigensolverFactory "
-                                        "you must specify a qubit converter")
+                raise QiskitNatureError(
+                    "When using MinimumEigensolverFactory " "you must specify a qubit converter"
+                )
             prepare_problem(problem, self._qubit_converter)
-            self._solver = self._gss.get_solver(problem,self._qubit_converter)
+            self._solver = self._gss.get_solver(problem, self._qubit_converter)
 
         # full dictionary of points
         self._raw_results = self._run_points(points)
