@@ -47,10 +47,10 @@ mypy:
 	python -m mypy qiskit_nature test tools
 
 style:
-	python -m black --check --exclude="gauopen" qiskit_nature test tools
+	python -m black --check --exclude="gauopen" qiskit_nature test tools docs
 
 black:
-	python -m black --exclude="gauopen" qiskit_nature test tools
+	python -m black --exclude="gauopen" qiskit_nature test tools docs
 
 test:
 	python -m unittest discover -v test
