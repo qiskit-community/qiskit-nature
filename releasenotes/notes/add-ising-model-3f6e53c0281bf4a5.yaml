@@ -1,5 +1,7 @@
 ---
 features:
   - |
-    Add: :class:`qiskit_nature.problems.second_quantization.lattice.models.FermiHubbardModel`
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.models.IsingModel`
     implementing the Hamiltonian of the Ising Model.
+    Add: :class:`qiskit_nature.problems.second_quantization.lattice.models.LatticeModel`
+    implementing a base class for Lattice models.

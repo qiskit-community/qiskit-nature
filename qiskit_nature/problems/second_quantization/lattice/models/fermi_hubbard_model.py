@@ -17,10 +17,11 @@ import numpy as np
 from retworkx import PyGraph
 
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.problems.second_quantization.lattice.models import LatticeModel
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 
-class FermiHubbardModel:
+class FermiHubbardModel(LatticeModel):
     """The Fermi-Hubbard model."""
 
     def __init__(self, lattice: Lattice, onsite_interaction: complex) -> None:
@@ -29,21 +30,8 @@ class FermiHubbardModel:
             lattice: Lattice on which the model is defined.
             onsite_interaction: The strength of the on-site interaction.
         """
-        self._lattice = lattice
+        super().__init__(lattice)
         self.onsite_interaction = onsite_interaction
-
-    @property
-    def lattice(self) -> Lattice:
-        """Return a copy of the input lattice."""
-        return self._lattice.copy()
-
-    def hopping_matrix(self) -> np.ndarray:
-        """Return the hopping matrix
-
-        Returns:
-            The hopping matrix.
-        """
-        return self._lattice.to_adjacency_matrix(weighted=True)
 
     @classmethod
     def uniform_parameters(

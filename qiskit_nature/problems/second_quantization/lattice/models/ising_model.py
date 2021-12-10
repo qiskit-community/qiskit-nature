@@ -11,34 +11,18 @@
 # that they have been altered from the originals.
 
 """The Ising model"""
+from typing import Optional
+
 import numpy as np
 from retworkx import PyGraph
 
 from qiskit_nature.operators.second_quantization import SpinOp
+from qiskit_nature.problems.second_quantization.lattice.models import LatticeModel
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 
-class IsingModel:
+class IsingModel(LatticeModel):
     """The Ising model."""
-
-    def __init__(self, lattice: Lattice) -> None:
-        """
-        Args:
-            lattice: Lattice on which the model is defined.
-        """
-        self._lattice = lattice
-
-    @property
-    def lattice(self) -> Lattice:
-        """Return a copy of the input lattice."""
-        return self._lattice.copy()
-
-    def hopping_matrix(self) -> np.ndarray:
-        """Return the hopping matrix
-        Returns:
-            The hopping matrix.
-        """
-        return self._lattice.to_adjacency_matrix(weighted=True)
 
     @classmethod
     def uniform_parameters(
@@ -46,15 +30,28 @@ class IsingModel:
         lattice: Lattice,
         uniform_hopping: complex,
         uniform_onsite_potential: complex,
+        onsite_interaction: complex = None,
     ) -> "IsingModel":
         """Set a uniform hopping parameter and on-site potential over the input lattice.
+
         Args:
             lattice: Lattice on which the model is defined.
             uniform_hopping: The hopping parameter. (or uniform_interaction)
             uniform_onsite_potential: The on-site potential. (or uniform_external_field)
+            onsite_interaction: The strength of the on-site interaction, the Ising model does not
+                have an on-site interaction.
+
         Returns:
             The Ising model with uniform parameters.
+
+        Raises:
+            Warning: If the on-site interaction is not None.
         """
+        if onsite_interaction is not None:
+            raise Warning(
+                "The Ising model does not have on-site interactions. Provided onsite-interaction "
+                "parameter will be ignored."
+            )
         graph = lattice.graph
         for node_a, node_b, _ in graph.weighted_edge_list():
             if node_a != node_b:
@@ -69,15 +66,28 @@ class IsingModel:
         return cls(Lattice(graph))
 
     @classmethod
-    def from_parameters(cls, hopping_matrix: np.ndarray) -> "IsingModel":
+    def from_parameters(
+        cls, hopping_matrix: np.ndarray, onsite_interaction: complex = None
+    ) -> "IsingModel":
         """Return the Hamiltonian of the Ising model from the given hopping matrix.
+
         Args:
             hopping_matrix: A real or complex valued square symmetric matrix.
+            onsite_interaction: The strength of the on-site interaction, the Ising model does not
+                have an on-site interaction.
+
         Returns:
             IsingModel: The Ising model generated from the given hopping matrix.
+
         Raises:
+            Warning: If the on-site interaction is not None.
             ValueError: If the hopping matrix is not square matrix, it is invalid.
         """
+        if onsite_interaction is not None:
+            raise Warning(
+                "The Ising model does not have on-site interactions. Provided onsite-interaction "
+                "parameter will be ignored."
+            )
         # make a graph from the hopping matrix.
         # This should be replaced by from_adjacency_matrix of retworkx.
         shape = hopping_matrix.shape
@@ -97,11 +107,23 @@ class IsingModel:
                 "It must be a square matrix."
             )
 
-    def second_q_ops(self) -> SpinOp:
+    def second_q_ops(self, display_format: Optional[str] = None) -> SpinOp:
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.
+
+        Args:
+            display_format: Not supported for Spin operators.
+
         Returns:
             SpinOp: The Hamiltonian of the Ising model.
+
+        Raises:
+            Warning: If display-format is not None.
         """
+        if display_format is not None:
+            raise Warning(
+                "Spin operators do not support display-format. Provided display-format "
+                "parameter will be ignored."
+            )
         ham = []
         weighted_edge_list = self._lattice.weighted_edge_list
         register_length = self._lattice.num_nodes

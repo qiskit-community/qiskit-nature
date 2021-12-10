@@ -39,6 +39,7 @@ Models
 .. autosummary::
    :toctree: ../stubs/
 
+   LatticeModel
    FermiHubbardModel
    IsingModel
 
@@ -52,4 +53,4 @@ from .lattices import (
     SquareLattice,
     TriangularLattice,
 )
-from .models import FermiHubbardModel, IsingModel
+from .models import LatticeModel, FermiHubbardModel, IsingModel
