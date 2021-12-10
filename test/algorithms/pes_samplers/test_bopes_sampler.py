@@ -33,6 +33,9 @@ from qiskit_nature.drivers.second_quantization import (
 from qiskit_nature.mappers.second_quantization import ParityMapper, JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
+    VQEUCCFactory,
+)
 
 
 class TestBOPES(QiskitNatureTestCase):
@@ -78,6 +81,41 @@ class TestBOPES(QiskitNatureTestCase):
         np.testing.assert_array_almost_equal(
             energies, [-1.13618945, -1.10115033, -1.03518627], decimal=2
         )
+
+    @requires_extra_library
+    def test_h2_bopes_sampler_with_factory(self):
+        """Test BOPES Sampler with Factory"""
+        quantum_instance = QuantumInstance(
+            backend=Aer.get_backend("aer_simulator_statevector"),
+            seed_simulator=self.seed,
+            seed_transpiler=self.seed,
+        )
+        # Molecule
+        distance1 = partial(Molecule.absolute_distance, atom_pair=(1, 0))
+        molecule = Molecule(
+            geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 0.6])],
+            degrees_of_freedom=[distance1],
+        )
+
+        driver = ElectronicStructureMoleculeDriver(molecule,
+                                                   driver_type=ElectronicStructureDriverType.PYSCF)
+        problem = ElectronicStructureProblem(driver)
+        converter = QubitConverter(ParityMapper())
+        solver = VQEUCCFactory(quantum_instance)
+        sampler = BOPESSampler(solver, bootstrap=True, num_bootstrap=None, extrapolator=None,
+                               qubit_converter=converter)
+
+        result = sampler.sample(problem, list(np.linspace(0.6, 0.8, 4)))
+
+        ref_points = [0.6, 0.6666666666666666, 0.7333333333333334, 0.8]
+        ref_energies = [
+            -1.1162853926251162,
+            -1.1327033478688526,
+            -1.137302817836066,
+            -1.1341458916990401,
+        ]
+        np.testing.assert_almost_equal(result.points, ref_points, decimal=3)
+        np.testing.assert_almost_equal(result.energies, ref_energies, decimal=3)
 
     @requires_extra_library
     def test_potential_interface(self):

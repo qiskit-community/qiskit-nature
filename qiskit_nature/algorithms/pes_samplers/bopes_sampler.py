@@ -24,13 +24,46 @@ from qiskit_nature.drivers.second_quantization import (
     ElectronicStructureMoleculeDriver,
     VibrationalStructureMoleculeDriver,
 )
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import BOPESSamplerResult, EigenstateResult
 from ..ground_state_solvers import GroundStateSolver
 from .extrapolator import Extrapolator, WindowExtrapolator
+from ..ground_state_solvers.minimum_eigensolver_factories import MinimumEigensolverFactory
 
 logger = logging.getLogger(__name__)
+
+
+def prepare_problem(problem: BaseProblem,
+                    qubit_converter: QubitConverter):
+    """Prepare raw problem, make necessary adjustments for the computation.
+    Args:
+        problem: a class encoding a problem to be solved.
+        qubit_converter: Qubit converter
+    Returns:
+        problem: a class encoding a problem to be solved.
+    Raises:
+        ValueError: if the grouped property object returned by the driver does not contain a
+            main property as requested by the problem being solved (`problem.main_property_name`)
+    """
+    second_q_ops = problem.second_q_ops()
+    if isinstance(second_q_ops, list):
+        main_second_q_op = second_q_ops[0]
+    elif isinstance(second_q_ops, dict):
+        name = problem.main_property_name
+        main_second_q_op = second_q_ops.pop(name, None)
+        if main_second_q_op is None:
+            raise ValueError(
+                f"The main `SecondQuantizedOp` associated with the {name} property cannot be "
+                "`None`."
+            )
+    main_operator = qubit_converter.convert(
+        main_second_q_op,
+        num_particles=problem.num_particles,
+        sector_locator=problem.symmetry_sector_locator,
+    )
+    return main_operator
 
 
 class BOPESSampler:
@@ -38,15 +71,16 @@ class BOPESSampler:
 
     def __init__(
         self,
-        gss: GroundStateSolver,
+        gss: Union[GroundStateSolver, MinimumEigensolverFactory],
         tolerance: float = 1e-3,
         bootstrap: bool = True,
         num_bootstrap: Optional[int] = None,
         extrapolator: Optional[Extrapolator] = None,
+        qubit_converter: Optional[QubitConverter] = None
     ) -> None:
         """
         Args:
-            gss: GroundStateSolver
+            gss: GroundStateSolver or MinimumEigensolverFactory
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -56,7 +90,7 @@ class BOPESSampler:
                 all previous points will be used for bootstrapping.
             extrapolator: Extrapolator objects that define space/window
                            and method to extrapolate variational parameters.
-
+            qubit_converter: Qubit converter needed when MinimumEigenSolverFactory is used
         Raises:
             QiskitNatureError: If ``num_boostrap`` is an integer smaller than 2, or
                 if ``num_boostrap`` is larger than 2 and the extrapolator is not an instance of
@@ -74,6 +108,11 @@ class BOPESSampler:
         self._points_optparams: Dict[float, List[float]] = None
         self._num_bootstrap = num_bootstrap
         self._extrapolator = extrapolator
+        self._solver = None
+        if isinstance(self._gss, GroundStateSolver):
+            self._solver = self._gss.solver
+        self._initial_point = None
+        self._qubit_converter = qubit_converter
 
         if self._extrapolator:
             if num_bootstrap is None:
@@ -92,10 +131,12 @@ class BOPESSampler:
                     "num_bootstrap must be None or an integer greater than or equal to 2"
                 )
 
-        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if isinstance(self._gss, GroundStateSolver) and \
+                isinstance(self._solver, VariationalAlgorithm):  # type: ignore
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
-            self._initial_point = self._gss.solver.initial_point  # type: ignore
+            # if MinimalEigensolverFactory is used, initialization is delayed
+            self._initial_point = self._solver.initial_point  # type: ignore
 
     def sample(self, problem: BaseProblem, points: List[float]) -> BOPESSamplerResult:
         """Run the sampler at the given points, potentially with repetitions.
@@ -132,6 +173,14 @@ class BOPESSampler:
         if self._driver.molecule is None:
             raise QiskitNatureError("Driver MUST be configured with a Molecule.")
 
+        # force the initialization of the solver before starting the computation
+        if isinstance(self._gss, MinimumEigensolverFactory):
+            if self._qubit_converter is None:
+                raise QiskitNatureError("When using MinimumEigensolverFactory "
+                                        "you must specify a qubit converter")
+            prepare_problem(problem, self._qubit_converter)
+            self._solver = self._gss.get_solver(problem,self._qubit_converter)
+
         # full dictionary of points
         self._raw_results = self._run_points(points)
         # create results dictionary with (point, energy)
@@ -155,9 +204,9 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if isinstance(self._solver, VariationalAlgorithm):  # type: ignore
             self._points_optparams = {}
-            self._gss.solver.initial_point = self._initial_point  # type: ignore
+            self._solver.initial_point = self._initial_point  # type: ignore
 
         # Iterate over the points
         for i, point in enumerate(points):
@@ -199,7 +248,7 @@ class BOPESSampler:
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters
-        if isinstance(self._gss.solver, VariationalAlgorithm) and self._bootstrap:  # type: ignore
+        if isinstance(self._solver, VariationalAlgorithm) and self._bootstrap:  # type: ignore
             prev_points = list(self._points_optparams.keys())
             prev_params = list(self._points_optparams.values())
             n_pp = len(prev_points)
@@ -217,20 +266,28 @@ class BOPESSampler:
                     # find min 'distance' from point to previous points
                     min_index = np.argmin(np.linalg.norm(distances, axis=1))
                     # update initial point
-                    self._gss.solver.initial_point = prev_params[min_index]  # type: ignore
+                    self._solver.initial_point = prev_params[min_index]  # type: ignore
                 else:  # extrapolate using saved parameters
                     opt_params = self._points_optparams
                     param_sets = self._extrapolator.extrapolate(
                         points=[point], param_dict=opt_params
                     )
                     # update initial point, note param_set is a dictionary
-                    self._gss.solver.initial_point = param_sets.get(point)  # type: ignore
+                    self._solver.initial_point = param_sets.get(point)  # type: ignore
 
         # the output is an instance of EigenstateResult
-        result = self._gss.solve(self._problem)
+        if isinstance(self._gss, GroundStateSolver):
+            result = self._gss.solve(self._problem)
+        else:
+            # computation done in _gss is expanded here
+            _main_operator = prepare_problem(self._problem, self._qubit_converter)
+            self._solver = self._gss.get_solver(self._problem, self._qubit_converter)
+
+            raw_mes_result = self._solver.compute_minimum_eigenvalue(_main_operator)
+            result = self._problem.interpret(raw_mes_result)
 
         # Save optimal point to bootstrap
-        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if isinstance(self._solver, VariationalAlgorithm):  # type: ignore
             # at every point evaluation, the optimal params are updated
             optimal_params = result.raw_result.optimal_point  # type: ignore
             self._points_optparams[point] = optimal_params
