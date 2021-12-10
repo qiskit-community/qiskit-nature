@@ -17,8 +17,9 @@ import numpy as np
 from retworkx import PyGraph
 
 from qiskit_nature.operators.second_quantization import SpinOp
-from qiskit_nature.problems.second_quantization.lattice.models import LatticeModel
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
+
+from .lattice_model import LatticeModel
 
 
 class IsingModel(LatticeModel):
