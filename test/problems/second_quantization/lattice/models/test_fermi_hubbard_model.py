@@ -41,15 +41,15 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
                 is_isomorphic(fhm.lattice.graph, lattice.graph, edge_matcher=lambda x, y: x == y)
             )
 
-        with self.subTest("Check the coupling matrix"):
-            coupling_matrix = fhm.coupling_matrix()
+        with self.subTest("Check the hopping matrix"):
+            hopping_matrix = fhm.hopping_matrix()
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, -1.0], [1.0 - 1.0j, 2.0, 0.0], [-1.0, 0.0, 0.0]]
             )
-            assert_array_equal(coupling_matrix, target_matrix)
+            assert_array_equal(hopping_matrix, target_matrix)
 
         with self.subTest("Check the second q op representation."):
-            coupling = [
+            hopping = [
                 ("+_0 -_2", 1.0 + 1.0j),
                 ("-_0 +_2", -(1.0 - 1.0j)),
                 ("+_0 -_4", -1.0),
@@ -68,7 +68,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
                 ("+_4 -_4 +_5 -_5", 10.0),
             ]
 
-            ham = coupling + interaction
+            ham = hopping + interaction
 
             self.assertSetEqual(set(ham), set(fhm.second_q_ops(display_format="sparse").to_list()))
 
@@ -105,15 +105,15 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
                     uniform_fhm.lattice.graph, target_graph, edge_matcher=lambda x, y: x == y
                 )
             )
-        with self.subTest("Check the coupling matrix."):
-            coupling_matrix = uniform_fhm.coupling_matrix()
+        with self.subTest("Check the hopping matrix."):
+            hopping_matrix = uniform_fhm.hopping_matrix()
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, 1.0 + 1.0j], [1.0 - 1.0j, 0.0, 0.0], [1.0 - 1.0j, 0.0, 0.0]]
             )
-            assert_array_equal(coupling_matrix, target_matrix)
+            assert_array_equal(hopping_matrix, target_matrix)
 
         with self.subTest("Check the second q op representation."):
-            coupling = [
+            hopping = [
                 ("+_0 -_2", 1.0 + 1.0j),
                 ("-_0 +_2", -(1.0 - 1.0j)),
                 ("+_0 -_4", 1.0 + 1.0j),
@@ -136,7 +136,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
                 ("+_4 -_4 +_5 -_5", 10.0),
             ]
 
-            ham = coupling + interaction
+            ham = hopping + interaction
 
             self.assertSetEqual(
                 set(ham), set(uniform_fhm.second_q_ops(display_format="sparse").to_list())
@@ -144,12 +144,12 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
 
     def test_from_parameters(self):
         """Test from_parameters."""
-        coupling_matrix = np.array(
+        hopping_matrix = np.array(
             [[1.0, 1.0 + 1.0j, 2.0 + 2.0j], [1.0 - 1.0j, 0.0, 0.0], [2.0 - 2.0j, 0.0, 1.0]]
         )
 
         onsite_interaction = 10.0
-        fhm = FermiHubbardModel.from_parameters(coupling_matrix, onsite_interaction)
+        fhm = FermiHubbardModel.from_parameters(hopping_matrix, onsite_interaction)
         with self.subTest("Check the graph."):
             target_graph = PyGraph(multigraph=False)
             target_graph.add_nodes_from(range(3))
@@ -159,11 +159,11 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
                 is_isomorphic(fhm.lattice.graph, target_graph, edge_matcher=lambda x, y: x == y)
             )
 
-        with self.subTest("Check the coupling matrix."):
-            assert_array_equal(fhm.coupling_matrix(), coupling_matrix)
+        with self.subTest("Check the hopping matrix."):
+            assert_array_equal(fhm.hopping_matrix(), hopping_matrix)
 
         with self.subTest("Check the second q op representation."):
-            coupling = [
+            hopping = [
                 ("+_0 -_2", 1.0 + 1.0j),
                 ("-_0 +_2", -(1.0 - 1.0j)),
                 ("+_0 -_4", 2.0 + 2.0j),
@@ -184,6 +184,6 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
                 ("+_4 -_4 +_5 -_5", onsite_interaction),
             ]
 
-            ham = coupling + interaction
+            ham = hopping + interaction
 
             self.assertSetEqual(set(ham), set(fhm.second_q_ops(display_format="sparse").to_list()))
