@@ -52,7 +52,11 @@ class IsingModel(LatticeModel):
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
-        return super().uniform_parameters(lattice, uniform_hopping, uniform_onsite_potential, None)
+        lattice_model = super().uniform_parameters(
+            lattice, uniform_hopping, uniform_onsite_potential, None
+        )
+        lattice_model.__class__ = IsingModel
+        return lattice_model
 
     @classmethod
     def from_parameters(
@@ -77,7 +81,9 @@ class IsingModel(LatticeModel):
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
-        return super().from_parameters(hopping_matrix, None)
+        lattice_model = super().from_parameters(hopping_matrix, None)
+        lattice_model.__class__ = IsingModel
+        return lattice_model
 
     def second_q_ops(self, display_format: Optional[str] = None) -> SpinOp:
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.
