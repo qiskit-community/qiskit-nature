@@ -12,10 +12,17 @@
 
 """The Property base class."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+import importlib
 import logging
 
+import h5py
+
 from qiskit_nature.results import EigenstateResult
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Property(ABC):
@@ -63,6 +70,51 @@ class Property(ABC):
             result: the result to add meaning to.
         """
         raise NotImplementedError()
+
+    def save(self, filename: str, append: bool = False) -> None:
+        """TODO."""
+        with h5py.File(filename, "a" if append else "w") as file:
+            self.to_hdf5(file)
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """TODO."""
+        group = parent.require_group(self.name)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+
+    # NOTE: can be used on any level
+    @staticmethod
+    def load(filename):
+        """TODO."""
+        with h5py.File(filename, "r") as file:
+            yield from Property.import_and_build_from_hdf5(file)
+            # TODO: get rid of final `None` iteration
+
+    @staticmethod
+    def import_and_build_from_hdf5(h5py_group: h5py.Group):
+        """TODO."""
+        for group in h5py_group.values():
+            module_path = group.attrs.get("__module__", "")
+
+            if not module_path.startswith("qiskit_nature.properties"):
+                LOGGER.warning("Skipping non-native object.")
+                continue
+
+            class_name = group.attrs.get("__class__", "")
+            # TODO: handle missing class_name
+
+            loaded_module = importlib.import_module(module_path)
+            loaded_class = getattr(loaded_module, class_name, None)
+            # TODO: handle missing loaded_class
+            constructor = getattr(loaded_class, "from_hdf5")
+            instance = constructor(group)
+            yield instance
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group):
+        """TODO."""
+        # TODO: uncomment once all sub-classes actually implement this
+        # raise NotImplementedError()
 
 
 class PseudoProperty(Property, ABC):

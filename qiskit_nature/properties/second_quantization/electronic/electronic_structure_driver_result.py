@@ -14,6 +14,8 @@
 
 from typing import List, Tuple, cast
 
+import h5py
+
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
@@ -42,7 +44,19 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
-        self.molecule: "Molecule" = None
+        self.molecule: Molecule = None
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        # TODO: handle Molecule
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicStructureDriverResult":
+        """TODO."""
+        ret = super().from_hdf5(h5py_group)
+        # TODO: handle Molecule
+        return ret
 
     def __str__(self) -> str:
         string = [super().__str__()]

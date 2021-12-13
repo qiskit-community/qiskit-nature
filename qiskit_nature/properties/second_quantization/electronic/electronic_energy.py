@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Optional, cast
 
+import h5py
 import numpy as np
 
 from qiskit_nature.drivers import QMolecule
@@ -66,6 +67,48 @@ class ElectronicEnergy(IntegralProperty):
         self._orbital_energies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        # TODO: unify attribute-naming
+        if self.nuclear_repulsion_energy is not None:
+            group.attrs["Nuclear Repulsion Energy"] = self.nuclear_repulsion_energy
+
+        if self.reference_energy is not None:
+            group.attrs["Reference Energy"] = self.reference_energy
+
+        if self.orbital_energies is not None:
+            group.create_dataset("Orbital Energies", data=self.orbital_energies)
+
+        if self.kinetic is not None:
+            kinetic_group = group.create_group("Kinetic Energy Integrals")
+            self.kinetic.to_hdf5(kinetic_group)
+
+        if self.overlap is not None:
+            overlap_group = group.create_group("Overlap Integrals")
+            self.overlap.to_hdf5(overlap_group)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicEnergy":
+        """TODO."""
+        ret = super().from_hdf5(h5py_group)
+
+        ret.nuclear_repulsion_energy = h5py_group.attrs.get("Nuclear Repulsion Energy", None)
+        ret.reference_energy = h5py_group.attrs.get("Reference Energy", None)
+
+        if "Orbital Energies" in h5py_group.keys():
+            ret.orbital_energies = h5py_group["Orbital Energies"][...]
+
+        if "Kinetic Energy Integrals" in h5py_group.keys():
+            ret.kinetic = ElectronicIntegrals.from_hdf5(h5py_group["Kinetic Energy Integrals"])
+
+        if "Overlap Integrals" in h5py_group.keys():
+            ret.overlap = ElectronicIntegrals.from_hdf5(h5py_group["Overlap Integrals"])
+
+        return ret
 
     @property
     def nuclear_repulsion_energy(self) -> Optional[float]:

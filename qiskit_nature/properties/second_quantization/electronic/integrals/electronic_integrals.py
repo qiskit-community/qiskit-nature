@@ -12,11 +12,13 @@
 
 """A base class for raw electronic integrals."""
 
+import importlib
 import itertools
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List, Optional, Tuple, Union
 
+import h5py
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -90,6 +92,43 @@ class ElectronicIntegrals(ABC):
 
         if basis != ElectronicBasis.SO:
             self._fill_matrices()
+
+    # TODO: at this point it would make sense to have this derive from (Pseudo-)Property
+    # NOTE: the above would also directly cause for this class to get a `name`
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        group = parent.create_group(str(self._num_body_terms))
+
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["basis"] = self._basis.name
+        group.attrs["threshold"] = self._threshold
+
+        if self._basis == ElectronicBasis.SO:
+            group.create_dataset("Spin", data=self._matrices)
+        else:
+            for name, mat in zip(self._matrix_representations, self._matrices):
+                group.create_dataset(name, data=mat)
+
+    # NOTE: if this derives from (Pseudo-)Property, the following can be largely de-duplicated
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicIntegrals":
+        """TODO."""
+        basis = getattr(ElectronicBasis, h5py_group.attrs["basis"])
+        threshold = h5py_group.attrs["threshold"]
+        matrices = tuple(matrix[...] for matrix in h5py_group.values())
+
+        class_name = h5py_group.attrs["__class__"]
+        module_path = h5py_group.attrs["__module__"]
+
+        loaded_module = importlib.import_module(module_path)
+        loaded_class = getattr(loaded_module, class_name, None)
+
+        return loaded_class(
+            basis=basis,
+            matrices=matrices,
+            threshold=threshold,
+        )
 
     def __str__(self) -> str:
         string = [f"({self._basis.name}) {self._num_body_terms}-Body Terms:"]

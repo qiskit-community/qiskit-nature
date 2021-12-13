@@ -12,8 +12,11 @@
 
 """A group of multiple properties."""
 
+import importlib
 from collections.abc import Iterable
 from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
+
+import h5py
 
 from qiskit_nature.results import EigenstateResult
 from .property import Property, PseudoProperty
@@ -104,3 +107,32 @@ class GroupedProperty(Property, Iterable, Generic[T]):
         """
         for prop in self._properties.values():
             prop.interpret(result)
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        for prop in self._properties.values():
+            prop.to_hdf5(group)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "GroupedProperty":
+        """TODO."""
+        module_path = h5py_group.attrs["__module__"]
+        class_name = h5py_group.attrs["__class__"]
+        # TODO: use `.get(..., None)` and handle missing values
+
+        loaded_module = importlib.import_module(module_path)
+        loaded_class = getattr(loaded_module, class_name, None)
+        # TODO: handle missing loaded_class
+
+        # NOTE: the following relies on an initializer which does _NOT_ take any arguments!
+        # Currently, this is not the case in our design. However, I think it should be (see comments
+        # in respective sub-classes).
+        ret = loaded_class()
+
+        for prop in Property.import_and_build_from_hdf5(h5py_group):
+            ret.add_property(prop)
+
+        return ret
