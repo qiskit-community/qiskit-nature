@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """The Ising model"""
-from typing import Optional
+from typing import cast, Optional
 
 import numpy as np
 
@@ -52,7 +52,10 @@ class IsingModel(LatticeModel):
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
-        return super().uniform_parameters(lattice, uniform_hopping, uniform_onsite_potential, None)
+        return cast(
+            IsingModel,
+            super().uniform_parameters(lattice, uniform_hopping, uniform_onsite_potential, None),
+        )
 
     @classmethod
     def from_parameters(
@@ -77,7 +80,7 @@ class IsingModel(LatticeModel):
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
-        return super().from_parameters(coupling_matrix, None)
+        return cast(IsingModel, super().from_parameters(coupling_matrix, None))
 
     def second_q_ops(self, display_format: Optional[str] = None) -> SpinOp:
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.

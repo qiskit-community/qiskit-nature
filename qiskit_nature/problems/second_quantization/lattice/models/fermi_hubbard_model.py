@@ -16,65 +16,12 @@ from typing import Optional
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 from .lattice_model import LatticeModel
 
 
 class FermiHubbardModel(LatticeModel):
     """The Fermi-Hubbard model."""
-
-    def __init__(self, lattice: Lattice, onsite_interaction: complex) -> None:
-        """
-        Args:
-            lattice: Lattice on which the model is defined.
-            onsite_interaction: The strength of the on-site interaction.
-        """
-        super().__init__(lattice)
-        self.onsite_interaction = onsite_interaction
-
-    @classmethod
-    def uniform_parameters(
-        cls,
-        lattice: Lattice,
-        uniform_hopping: complex,
-        uniform_onsite_potential: complex,
-        onsite_interaction: complex,
-    ) -> "FermiHubbardModel":
-        """Set a uniform hopping parameter and on-site potential over the input lattice.
-
-        Args:
-            lattice: Lattice on which the model is defined.
-            uniform_hopping: The hopping parameter.
-            uniform_onsite_potential: The on-site potential.
-            onsite_interaction: The strength of the on-site interaction.
-        Returns:
-            The Fermi-Hubbard model with uniform parameters.
-        """
-        return super().uniform_parameters(
-            lattice, uniform_hopping, uniform_onsite_potential, onsite_interaction
-        )
-
-    @classmethod
-    def from_parameters(
-        cls, coupling_matrix: np.ndarray, onsite_interaction: complex
-    ) -> "FermiHubbardModel":
-        """Return the Hamiltonian of the Fermi-Hubbard model
-        from the given coupling matrix and on-site interaction.
-
-        Args:
-            coupling_matrix: A real or complex valued square matrix.
-            onsite_interaction: The strength of the on-site interaction.
-
-        Returns:
-            FermiHubbardModel: The Fermi-Hubbard model generated
-                from the given coupling matrix and on-site interaction.
-
-        Raises:
-            ValueError: If the coupling matrix is not square matrix,
-                it is invalid.
-        """
-        return super().from_parameters(coupling_matrix, onsite_interaction)
 
     def second_q_ops(self, display_format: Optional[str] = None) -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
@@ -114,7 +61,7 @@ class FermiHubbardModel(LatticeModel):
         for node in self._lattice.node_indexes:
             index_up = 2 * node
             index_down = 2 * node + 1
-            interaction_ham.append((f"N_{index_up} N_{index_down}", self.onsite_interaction))
+            interaction_ham.append((f"N_{index_up} N_{index_down}", self._onsite_interaction))
 
         ham = kinetic_ham + interaction_ham
 
