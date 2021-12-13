@@ -47,7 +47,6 @@ class LatticeModel(ABC):
         return self._lattice.to_adjacency_matrix(weighted=True)
 
     @classmethod
-    @abstractmethod
     def uniform_parameters(
         cls,
         lattice: Lattice,
