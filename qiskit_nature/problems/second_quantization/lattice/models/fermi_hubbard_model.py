@@ -51,11 +51,9 @@ class FermiHubbardModel(LatticeModel):
         Returns:
             The Fermi-Hubbard model with uniform parameters.
         """
-        lattice_model = super().uniform_parameters(
+        return super().uniform_parameters(
             lattice, uniform_hopping, uniform_onsite_potential, onsite_interaction
         )
-        lattice_model.__class__ = FermiHubbardModel
-        return lattice_model
 
     @classmethod
     def from_parameters(
@@ -76,9 +74,7 @@ class FermiHubbardModel(LatticeModel):
             ValueError: If the coupling matrix is not square matrix,
                 it is invalid.
         """
-        lattice_model = super().from_parameters(coupling_matrix, onsite_interaction)
-        lattice_model.__class__ = FermiHubbardModel
-        return lattice_model
+        return super().from_parameters(coupling_matrix, onsite_interaction)
 
     def second_q_ops(self, display_format: Optional[str] = None) -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.

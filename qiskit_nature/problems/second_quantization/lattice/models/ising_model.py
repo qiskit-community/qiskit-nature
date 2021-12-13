@@ -52,9 +52,7 @@ class IsingModel(LatticeModel):
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
-        return super().uniform_parameters(
-            lattice, uniform_hopping, uniform_onsite_potential, None
-        )
+        return super().uniform_parameters(lattice, uniform_hopping, uniform_onsite_potential, None)
 
     @classmethod
     def from_parameters(
