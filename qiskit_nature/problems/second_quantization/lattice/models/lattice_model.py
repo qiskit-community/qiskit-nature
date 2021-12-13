@@ -79,7 +79,6 @@ class LatticeModel(ABC):
         return cls(Lattice(graph), onsite_interaction)
 
     @classmethod
-    @abstractmethod
     def from_parameters(
         cls, coupling_matrix: np.ndarray, onsite_interaction: complex
     ) -> "LatticeModel":
