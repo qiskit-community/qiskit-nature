@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import numpy as np
+from retworkx import PyGraph
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
@@ -24,12 +25,14 @@ from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 class LatticeModel(ABC):
     """Lattice Model"""
 
-    def __init__(self, lattice: Lattice) -> None:
+    def __init__(self, lattice: Lattice, onsite_interaction: Optional[complex] = None) -> None:
         """
         Args:
             lattice: Lattice on which the model is defined.
+            onsite_interaction: The strength of the on-site interaction.
         """
         self._lattice = lattice
+        self._onsite_interaction = onsite_interaction
 
     @property
     def lattice(self) -> Lattice:
@@ -62,7 +65,18 @@ class LatticeModel(ABC):
         Returns:
             The Lattice model with uniform parameters.
         """
-        raise NotImplementedError()
+        graph = lattice.graph
+        for node_a, node_b, _ in graph.weighted_edge_list():
+            if node_a != node_b:
+                graph.update_edge(node_a, node_b, uniform_hopping)
+
+        for node_a in graph.node_indexes():
+            if graph.has_edge(node_a, node_a):
+                graph.update_edge(node_a, node_a, uniform_onsite_potential)
+            else:
+                graph.add_edge(node_a, node_a, uniform_onsite_potential)
+
+        return cls(Lattice(graph), onsite_interaction)
 
     @classmethod
     @abstractmethod
@@ -84,7 +98,24 @@ class LatticeModel(ABC):
             ValueError: If the hopping matrix is not square matrix,
                 it is invalid.
         """
-        raise NotImplementedError()
+        # make a graph from the hopping matrix.
+        # This should be replaced by from_adjacency_matrix of retworkx.
+        shape = hopping_matrix.shape
+        if len(shape) == 2 and shape[0] == shape[1]:
+            graph = PyGraph(multigraph=False)
+            graph.add_nodes_from(range(shape[0]))
+            for source_index in range(shape[0]):
+                for target_index in range(source_index, shape[0]):
+                    weight = hopping_matrix[source_index, target_index]
+                    if not weight == 0.0:
+                        graph.add_edge(source_index, target_index, weight)
+            lattice = Lattice(graph)
+            return cls(lattice, onsite_interaction)
+        else:
+            raise ValueError(
+                f"Invalid shape of `hopping_matrix`, {shape},  is given."
+                "It must be a square matrix."
+            )
 
     @abstractmethod
     def second_q_ops(self, display_format: Optional[str] = None) -> SecondQuantizedOp:
