@@ -59,24 +59,24 @@ class FermiHubbardModel(LatticeModel):
 
     @classmethod
     def from_parameters(
-        cls, hopping_matrix: np.ndarray, onsite_interaction: complex
+        cls, coupling_matrix: np.ndarray, onsite_interaction: complex
     ) -> "FermiHubbardModel":
         """Return the Hamiltonian of the Fermi-Hubbard model
-        from the given hopping matrix and on-site interaction.
+        from the given coupling matrix and on-site interaction.
 
         Args:
-            hopping_matrix: A real or complex valued square matrix.
+            coupling_matrix: A real or complex valued square matrix.
             onsite_interaction: The strength of the on-site interaction.
 
         Returns:
             FermiHubbardModel: The Fermi-Hubbard model generated
-                from the given hopping matrix and on-site interaction.
+                from the given coupling matrix and on-site interaction.
 
         Raises:
-            ValueError: If the hopping matrix is not square matrix,
+            ValueError: If the coupling matrix is not square matrix,
                 it is invalid.
         """
-        lattice_model = super().from_parameters(hopping_matrix, onsite_interaction)
+        lattice_model = super().from_parameters(coupling_matrix, onsite_interaction)
         lattice_model.__class__ = FermiHubbardModel
         return lattice_model
 

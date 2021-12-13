@@ -39,10 +39,10 @@ class LatticeModel(ABC):
         """Return a copy of the input lattice."""
         return self._lattice.copy()
 
-    def hopping_matrix(self) -> np.ndarray:
-        """Return the hopping matrix
+    def coupling_matrix(self) -> np.ndarray:
+        """Return the coupling matrix
         Returns:
-            The hopping matrix.
+            The coupling matrix.
         """
         return self._lattice.to_adjacency_matrix(weighted=True)
 
@@ -81,39 +81,39 @@ class LatticeModel(ABC):
     @classmethod
     @abstractmethod
     def from_parameters(
-        cls, hopping_matrix: np.ndarray, onsite_interaction: complex
+        cls, coupling_matrix: np.ndarray, onsite_interaction: complex
     ) -> "LatticeModel":
         """Return the Hamiltonian of the Lattice model
-        from the given hopping matrix and on-site interaction.
+        from the given coupling matrix and on-site interaction.
 
         Args:
-            hopping_matrix: A real or complex valued square matrix.
+            coupling_matrix: A real or complex valued square matrix.
             onsite_interaction: The strength of the on-site interaction.
 
         Returns:
-            LatticeModel: The Lattice model generated from the given hopping
+            LatticeModel: The Lattice model generated from the given coupling
                 matrix and on-site interaction.
 
         Raises:
-            ValueError: If the hopping matrix is not square matrix,
+            ValueError: If the coupling matrix is not square matrix,
                 it is invalid.
         """
-        # make a graph from the hopping matrix.
+        # make a graph from the coupling matrix.
         # This should be replaced by from_adjacency_matrix of retworkx.
-        shape = hopping_matrix.shape
+        shape = coupling_matrix.shape
         if len(shape) == 2 and shape[0] == shape[1]:
             graph = PyGraph(multigraph=False)
             graph.add_nodes_from(range(shape[0]))
             for source_index in range(shape[0]):
                 for target_index in range(source_index, shape[0]):
-                    weight = hopping_matrix[source_index, target_index]
+                    weight = coupling_matrix[source_index, target_index]
                     if not weight == 0.0:
                         graph.add_edge(source_index, target_index, weight)
             lattice = Lattice(graph)
             return cls(lattice, onsite_interaction)
         else:
             raise ValueError(
-                f"Invalid shape of `hopping_matrix`, {shape},  is given."
+                f"Invalid shape of `coupling_matrix`, {shape},  is given."
                 "It must be a square matrix."
             )
 

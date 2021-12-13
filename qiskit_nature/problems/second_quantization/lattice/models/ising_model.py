@@ -60,28 +60,28 @@ class IsingModel(LatticeModel):
 
     @classmethod
     def from_parameters(
-        cls, hopping_matrix: np.ndarray, onsite_interaction: complex = None
+        cls, coupling_matrix: np.ndarray, onsite_interaction: complex = None
     ) -> "IsingModel":
-        """Return the Hamiltonian of the Ising model from the given hopping matrix.
+        """Return the Hamiltonian of the Ising model from the given coupling matrix.
 
         Args:
-            hopping_matrix: A real or complex valued square symmetric matrix.
+            coupling_matrix: A real or complex valued square symmetric matrix.
             onsite_interaction: The strength of the on-site interaction, the Ising model does not
                 have an on-site interaction.
 
         Returns:
-            IsingModel: The Ising model generated from the given hopping matrix.
+            IsingModel: The Ising model generated from the given coupling matrix.
 
         Raises:
             Warning: If the on-site interaction is not None.
-            ValueError: If the hopping matrix is not square matrix, it is invalid.
+            ValueError: If the coupling matrix is not square matrix, it is invalid.
         """
         if onsite_interaction is not None:
             raise Warning(
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
-        lattice_model = super().from_parameters(hopping_matrix, None)
+        lattice_model = super().from_parameters(coupling_matrix, None)
         lattice_model.__class__ = IsingModel
         return lattice_model
 
@@ -114,7 +114,7 @@ class IsingModel(LatticeModel):
             else:
                 index_left = node_a
                 index_right = node_b
-                hopping_parameter = weight
-                ham.append((f"Z_{index_left} Z_{index_right}", hopping_parameter))
+                coupling_parameter = weight
+                ham.append((f"Z_{index_left} Z_{index_right}", coupling_parameter))
 
-        return SpinOp(ham, spin=1, register_length=register_length)
+        return SpinOp(ham, spin=1 / 2, register_length=register_length)
