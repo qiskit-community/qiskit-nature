@@ -13,12 +13,16 @@
 """The Ising model"""
 from typing import cast, Optional
 
+import logging
+
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import SpinOp
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 from .lattice_model import LatticeModel
+
+logger = logging.getLogger(__name__)
 
 
 class IsingModel(LatticeModel):
@@ -39,16 +43,13 @@ class IsingModel(LatticeModel):
             uniform_hopping: The hopping parameter. (or uniform_interaction)
             uniform_onsite_potential: The on-site potential. (or uniform_external_field)
             onsite_interaction: The strength of the on-site interaction, the Ising model does not
-                have an on-site interaction.
+                have an on-site interaction. If this parameter is specified, it will be ignored.
 
         Returns:
             The Ising model with uniform parameters.
-
-        Raises:
-            Warning: If the on-site interaction is not None.
         """
         if onsite_interaction is not None:
-            raise Warning(
+            logger.warning(
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
@@ -66,17 +67,13 @@ class IsingModel(LatticeModel):
         Args:
             hopping_matrix: A real or complex valued square symmetric matrix.
             onsite_interaction: The strength of the on-site interaction, the Ising model does not
-                have an on-site interaction.
+                have an on-site interaction. If this parameter is specified, it will be ignored.
 
         Returns:
             IsingModel: The Ising model generated from the given hopping matrix.
-
-        Raises:
-            Warning: If the on-site interaction is not None.
-            ValueError: If the hopping matrix is not square matrix, it is invalid.
         """
         if onsite_interaction is not None:
-            raise Warning(
+            logger.warning(
                 "The Ising model does not have on-site interactions. Provided onsite-interaction "
                 "parameter will be ignored."
             )
@@ -86,16 +83,13 @@ class IsingModel(LatticeModel):
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.
 
         Args:
-            display_format: Not supported for Spin operators.
+            display_format: Not supported for Spin operators. If specified, it will be ignored.
 
         Returns:
             SpinOp: The Hamiltonian of the Ising model.
-
-        Raises:
-            Warning: If display-format is not None.
         """
         if display_format is not None:
-            raise Warning(
+            logger.warning(
                 "Spin operators do not support display-format. Provided display-format "
                 "parameter will be ignored."
             )
