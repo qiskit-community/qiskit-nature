@@ -44,7 +44,7 @@ class TestIsingModel(QiskitNatureTestCase):
             )
 
         with self.subTest("Check the coupling matrix"):
-            coupling_matrix = ism.coupling_matrix
+            coupling_matrix = ism.coupling_matrix()
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, -1.0], [1.0 - 1.0j, 2.0, 0.0], [-1.0, 0.0, 0.0]]
             )
@@ -97,7 +97,7 @@ class TestIsingModel(QiskitNatureTestCase):
                 )
             )
         with self.subTest("Check the coupling matrix."):
-            coupling_matrix = uniform_ism.coupling_matrix  # pylint: disable=no-member
+            coupling_matrix = uniform_ism.coupling_matrix()
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, 1.0 + 1.0j], [1.0 - 1.0j, 0.0, 0.0], [1.0 - 1.0j, 0.0, 0.0]]
             )
@@ -133,7 +133,7 @@ class TestIsingModel(QiskitNatureTestCase):
             )
 
         with self.subTest("Check the coupling matrix."):
-            assert_array_equal(ism.coupling_matrix, coupling_matrix)  # pylint: disable=no-member
+            assert_array_equal(ism.coupling_matrix(), coupling_matrix)  # pylint: disable=no-member
 
         with self.subTest("Check the second q op representation."):
             coupling = [

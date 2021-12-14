@@ -11,6 +11,5 @@
 # that they have been altered from the originals.
 
 """Models"""
-from .lattice_model import LatticeModel
 from .fermi_hubbard_model import FermiHubbardModel
 from .ising_model import IsingModel

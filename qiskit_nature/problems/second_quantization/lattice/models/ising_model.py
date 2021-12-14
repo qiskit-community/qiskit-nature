@@ -11,14 +11,13 @@
 # that they have been altered from the originals.
 
 """The Ising model"""
-from typing import cast, Optional
-
 import logging
+from fractions import Fraction
+from typing import Optional
 
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import SpinOp
-from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 from .lattice_model import LatticeModel
 
@@ -28,63 +27,9 @@ logger = logging.getLogger(__name__)
 class IsingModel(LatticeModel):
     """The Ising model."""
 
-    @property
     def coupling_matrix(self) -> np.ndarray:
         """Return the coupling matrix."""
         return self.interaction_matrix()
-
-    @classmethod
-    def uniform_parameters(
-        cls,
-        lattice: Lattice,
-        uniform_interaction: complex,
-        uniform_onsite_potential: complex,
-        onsite_interaction: complex = None,
-    ) -> "IsingModel":
-        """Set a uniform interaction parameter and on-site potential over the input lattice.
-
-        Args:
-            lattice: Lattice on which the model is defined.
-            uniform_interaction: The interaction parameter. (or uniform_interaction)
-            uniform_onsite_potential: The on-site potential. (or uniform_external_field)
-            onsite_interaction: The strength of the on-site interaction, the Ising model does not
-                have an on-site interaction. If this parameter is specified, it will be ignored.
-
-        Returns:
-            The Ising model with uniform parameters.
-        """
-        if onsite_interaction is not None:
-            logger.warning(
-                "The Ising model does not have on-site interactions. Provided onsite-interaction "
-                "parameter will be ignored."
-            )
-        return cast(
-            IsingModel,
-            super().uniform_parameters(
-                lattice, uniform_interaction, uniform_onsite_potential, None
-            ),
-        )
-
-    @classmethod
-    def from_parameters(
-        cls, interaction_matrix: np.ndarray, onsite_interaction: complex = None
-    ) -> "IsingModel":
-        """Return the Hamiltonian of the Ising model from the given interaction matrix.
-
-        Args:
-            interaction_matrix: A real or complex valued square symmetric matrix.
-            onsite_interaction: The strength of the on-site interaction, the Ising model does not
-                have an on-site interaction. If this parameter is specified, it will be ignored.
-
-        Returns:
-            IsingModel: The Ising model generated from the given interaction matrix.
-        """
-        if onsite_interaction is not None:
-            logger.warning(
-                "The Ising model does not have on-site interactions. Provided onsite-interaction "
-                "parameter will be ignored."
-            )
-        return cast(IsingModel, super().from_parameters(interaction_matrix, None))
 
     def second_q_ops(self, display_format: Optional[str] = None) -> SpinOp:
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.
@@ -115,4 +60,4 @@ class IsingModel(LatticeModel):
                 coupling_parameter = weight
                 ham.append((f"Z_{index_left} Z_{index_right}", coupling_parameter))
 
-        return SpinOp(ham, spin=1 / 2, register_length=register_length)
+        return SpinOp(ham, spin=Fraction(1, 2), register_length=register_length)

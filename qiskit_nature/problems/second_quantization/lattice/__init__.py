@@ -39,18 +39,17 @@ Models
 .. autosummary::
    :toctree: ../stubs/
 
-   LatticeModel
    FermiHubbardModel
    IsingModel
 
 """
 from .lattices import (
     BoundaryCondition,
-    LatticeDrawStyle,
     HyperCubicLattice,
     Lattice,
+    LatticeDrawStyle,
     LineLattice,
     SquareLattice,
     TriangularLattice,
 )
-from .models import LatticeModel, FermiHubbardModel, IsingModel
+from .models import FermiHubbardModel, IsingModel
