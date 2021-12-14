@@ -133,7 +133,7 @@ class TestIsingModel(QiskitNatureTestCase):
             )
 
         with self.subTest("Check the coupling matrix."):
-            assert_array_equal(ism.coupling_matrix(), coupling_matrix)  # pylint: disable=no-member
+            assert_array_equal(ism.coupling_matrix(), coupling_matrix)
 
         with self.subTest("Check the second q op representation."):
             coupling = [
