@@ -46,6 +46,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         include_custom: bool = False,
         ansatz: Optional[UCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
+        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
+        **kwargs,
     ) -> None:
         """
         Args:
@@ -72,6 +74,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.HartreeFock` state.
+            callback: a callback that can access the intermediate data during the optimization.
+                Four parameter values are passed to the callback as follows during each evaluation
+                by the optimizer for its current set of parameters as it works towards the minimum.
+                These are: the evaluation count, the optimizer parameters for the
+                ansatz, the evaluated mean and the evaluated standard deviation.`
+            kwargs: any additional keyword arguments will be passed on to the VQE.
         """
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
@@ -81,15 +89,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.include_custom = include_custom
         self.ansatz = ansatz
         self.initial_state = initial_state
-        self._vqe = VQE(
-            ansatz=None,
-            quantum_instance=self._quantum_instance,
-            optimizer=self._optimizer,
-            initial_point=self._initial_point,
-            gradient=self._gradient,
-            expectation=self._expectation,
-            include_custom=self._include_custom,
-        )
+        self.callback = callback
+        self._kwargs = kwargs
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -173,6 +174,16 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         the :class:`~.HartreeFock`."""
         self._initial_state = initial_state
 
+    @property
+    def callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
+        """Returns the callback."""
+        return self._callback
+
+    @callback.setter
+    def callback(self, callback: Optional[Callable[[int, np.ndarray, float, float], None]]) -> None:
+        """Sets the callback."""
+        self._callback = callback
+
     def get_solver(  # type: ignore[override]
         self,
         problem: ElectronicStructureProblem,
@@ -205,9 +216,21 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
 
-        self._vqe.ansatz = ansatz
+        # TODO: leverage re-usability of VQE after fixing
+        # https://github.com/Qiskit/qiskit-terra/issues/7093
+        vqe = VQE(
+            ansatz=ansatz,
+            quantum_instance=self.quantum_instance,
+            optimizer=self.optimizer,
+            initial_point=self.initial_point,
+            gradient=self.gradient,
+            expectation=self.expectation,
+            include_custom=self.include_custom,
+            callback=self.callback,
+            **self._kwargs,
+        )
 
-        return self._vqe
+        return vqe
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()

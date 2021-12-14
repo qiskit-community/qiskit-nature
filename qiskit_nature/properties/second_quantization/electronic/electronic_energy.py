@@ -63,7 +63,7 @@ class ElectronicEnergy(IntegralProperty):
         self._reference_energy = reference_energy
 
         # Additional, purely informational data (i.e. currently not used by the Stack itself).
-        self._orbital_enerfies: np.ndarray = None
+        self._orbital_energies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
 
@@ -88,7 +88,7 @@ class ElectronicEnergy(IntegralProperty):
         self._reference_energy = reference_energy
 
     @property
-    def orbital_energies(self) -> np.ndarray:
+    def orbital_energies(self) -> Optional[np.ndarray]:
         """Returns the orbital energies.
 
         If no spin-distinction is made, this is a 1-D array, otherwise it is a 2-D array.
@@ -96,27 +96,27 @@ class ElectronicEnergy(IntegralProperty):
         return self._orbital_energies
 
     @orbital_energies.setter
-    def orbital_energies(self, orbital_energies: np.ndarray) -> None:
+    def orbital_energies(self, orbital_energies: Optional[np.ndarray]) -> None:
         """Sets the orbital energies."""
         self._orbital_energies = orbital_energies
 
     @property
-    def kinetic(self) -> ElectronicIntegrals:
+    def kinetic(self) -> Optional[ElectronicIntegrals]:
         """Returns the AO kinetic integrals."""
         return self._kinetic
 
     @kinetic.setter
-    def kinetic(self, kinetic: ElectronicIntegrals) -> None:
+    def kinetic(self, kinetic: Optional[ElectronicIntegrals]) -> None:
         """Sets the AO kinetic integrals."""
         self._kinetic = kinetic
 
     @property
-    def overlap(self) -> ElectronicIntegrals:
+    def overlap(self) -> Optional[ElectronicIntegrals]:
         """Returns the AO overlap integrals."""
         return self._overlap
 
     @overlap.setter
-    def overlap(self, overlap: ElectronicIntegrals) -> None:
+    def overlap(self, overlap: Optional[ElectronicIntegrals]) -> None:
         """Sets the AO overlap integrals."""
         self._overlap = overlap
 
@@ -241,7 +241,7 @@ class ElectronicEnergy(IntegralProperty):
         Raises:
             NotImplementedError: if no AO electronic integrals are available.
         """
-        if ElectronicBasis.AO not in self._electronic_integrals.keys():
+        if ElectronicBasis.AO not in self._electronic_integrals:
             raise NotImplementedError(
                 "Construction of the Fock operator outside of the AO basis is not yet implemented."
             )

@@ -42,13 +42,16 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")
 
+        if second_q_op.display_format == "sparse":
+            second_q_op = FermionicOp(second_q_op._to_dense_label_data(), display_format="dense")
+
         edge_list = _bksf_edge_list_fermionic_op(second_q_op)
         sparse_pauli = _convert_operator(second_q_op, edge_list)
 
         ## Simplify and sort the result
         sparse_pauli = sparse_pauli.simplify()
-        indices = sparse_pauli.table.argsort()
-        table = sparse_pauli.table[indices]
+        indices = sparse_pauli.paulis.argsort()
+        table = sparse_pauli.paulis[indices]
         coeffs = sparse_pauli.coeffs[indices]
         sorted_sparse_pauli = SparsePauliOp(table, coeffs)
 

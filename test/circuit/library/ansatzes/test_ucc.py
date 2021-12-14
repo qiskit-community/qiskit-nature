@@ -16,6 +16,7 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
@@ -88,3 +89,47 @@ class TestUCC(QiskitNatureTestCase):
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
+    @unpack
+    @data(
+        # Excitations not a list of pairs
+        (
+            8,
+            (2, 2),
+            [((0, 1, 4), (2, 3, 6), (2, 3, 7))],
+        ),
+        # Excitation pair has not same length
+        (
+            8,
+            (2, 2),
+            [((0, 1, 4), (2, 3, 6, 7))],
+        ),
+        # Excitation pair with non-unique indices
+        (
+            8,
+            (2, 2),
+            [((0, 1, 4), (2, 4, 6))],
+        ),
+        (
+            8,
+            (2, 2),
+            [((0, 1, 1), (2, 3, 6))],
+        ),
+    )
+    def test_custom_excitations(self, num_spin_orbitals, num_particles, excitations):
+        """Tests if an error is raised when the excitations have a wrong format"""
+        converter = QubitConverter(JordanWignerMapper())
+
+        # pylint: disable=unused-argument
+        def custom_excitations(num_spin_orbitals, num_particles):
+            return excitations
+
+        ansatz = UCC(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            excitations=custom_excitations,
+        )
+
+        with self.assertRaises(QiskitNatureError):
+            ansatz.excitation_ops()
