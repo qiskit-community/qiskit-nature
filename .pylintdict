@@ -320,6 +320,7 @@ perturbative
 pes
 phenylalanine
 phonons
+pmatrix
 polypeptides
 popovas
 pos
@@ -378,6 +379,7 @@ rv
 rx
 rxx
 ry
+ryxxy
 ryy
 rz
 rzx
@@ -500,3 +502,4 @@ zi
 zmatrix
 zsh
 zz
+θ

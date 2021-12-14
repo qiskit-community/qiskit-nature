@@ -14,9 +14,18 @@
 Circuit Library (:mod:`qiskit_nature.circuit.library`)
 ======================================================
 
-A collection of circuits used as building blocks or inputs for algorithms.
+A collection of gates and circuits used as building blocks or inputs for algorithms.
 
 .. currentmodule:: qiskit_nature.circuit.library
+
+Gates
+=====
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   RYXXYGate
 
 Initial states
 ==============
@@ -64,6 +73,8 @@ from .ansatzes import (
     UVCCSD,
 )
 
+from .gates import RYXXYGate
+
 from .initial_states import HartreeFock, VSCF
 
 __all__ = [
@@ -76,4 +87,5 @@ __all__ = [
     "UVCC",
     "UVCCSD",
     "VSCF",
+    "RYXXYGate",
 ]
