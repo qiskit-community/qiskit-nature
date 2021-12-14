@@ -11,6 +11,8 @@
 # that they have been altered from the originals.
 
 """Test IsingModel."""
+
+from typing import cast
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -41,21 +43,21 @@ class TestIsingModel(QiskitNatureTestCase):
                 is_isomorphic(ism.lattice.graph, lattice.graph, edge_matcher=lambda x, y: x == y)
             )
 
-        with self.subTest("Check the hopping matrix"):
-            hopping_matrix = ism.hopping_matrix()
+        with self.subTest("Check the coupling matrix"):
+            coupling_matrix = ism.coupling_matrix
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, -1.0], [1.0 - 1.0j, 2.0, 0.0], [-1.0, 0.0, 0.0]]
             )
-            assert_array_equal(hopping_matrix, target_matrix)
+            assert_array_equal(coupling_matrix, target_matrix)
 
         with self.subTest("Check the second q op representation."):
-            hopping = [
+            coupling = [
                 ("Z_0 Z_1", 1.0 + 1.0j),
                 ("Z_0 Z_2", -1.0),
                 ("X_1", 2.0),
             ]
 
-            ham = hopping
+            ham = coupling
 
             self.assertSetEqual(set(ham), set(ism.second_q_ops().to_list()))
 
@@ -70,10 +72,13 @@ class TestIsingModel(QiskitNatureTestCase):
         ]
         graph.add_edges_from(weighted_edge_list)
         lattice = Lattice(graph)
-        uniform_ism = IsingModel.uniform_parameters(
-            lattice,
-            uniform_hopping=1.0 + 1.0j,
-            uniform_onsite_potential=0.0,
+        uniform_ism = cast(
+            IsingModel,
+            IsingModel.uniform_parameters(
+                lattice,
+                uniform_interaction=1.0 + 1.0j,
+                uniform_onsite_potential=0.0,
+            ),
         )
         with self.subTest("Check the graph."):
             target_graph = PyGraph(multigraph=False)
@@ -91,15 +96,15 @@ class TestIsingModel(QiskitNatureTestCase):
                     uniform_ism.lattice.graph, target_graph, edge_matcher=lambda x, y: x == y
                 )
             )
-        with self.subTest("Check the hopping matrix."):
-            hopping_matrix = uniform_ism.hopping_matrix()
+        with self.subTest("Check the coupling matrix."):
+            coupling_matrix = uniform_ism.coupling_matrix
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, 1.0 + 1.0j], [1.0 - 1.0j, 0.0, 0.0], [1.0 - 1.0j, 0.0, 0.0]]
             )
-            assert_array_equal(hopping_matrix, target_matrix)
+            assert_array_equal(coupling_matrix, target_matrix)
 
         with self.subTest("Check the second q op representation."):
-            hopping = [
+            coupling = [
                 ("Z_0 Z_1", 1.0 + 1.0j),
                 ("Z_0 Z_2", 1.0 + 1.0j),
                 ("X_0", 0.0),
@@ -107,17 +112,17 @@ class TestIsingModel(QiskitNatureTestCase):
                 ("X_2", 0.0),
             ]
 
-            ham = hopping
+            ham = coupling
 
             self.assertSetEqual(set(ham), set(uniform_ism.second_q_ops().to_list()))
 
     def test_from_parameters(self):
         """Test from_parameters."""
-        hopping_matrix = np.array(
+        coupling_matrix = np.array(
             [[1.0, 1.0 + 1.0j, 2.0 - 2.0j], [1.0 - 1.0j, 0.0, 0.0], [2.0 + 2.0j, 0.0, 1.0]]
         )
 
-        ism = IsingModel.from_parameters(hopping_matrix)
+        ism = cast(IsingModel, IsingModel.from_parameters(coupling_matrix))
         with self.subTest("Check the graph."):
             target_graph = PyGraph(multigraph=False)
             target_graph.add_nodes_from(range(3))
@@ -127,17 +132,17 @@ class TestIsingModel(QiskitNatureTestCase):
                 is_isomorphic(ism.lattice.graph, target_graph, edge_matcher=lambda x, y: x == y)
             )
 
-        with self.subTest("Check the hopping matrix."):
-            assert_array_equal(ism.hopping_matrix(), hopping_matrix)
+        with self.subTest("Check the coupling matrix."):
+            assert_array_equal(ism.coupling_matrix, coupling_matrix)
 
         with self.subTest("Check the second q op representation."):
-            hopping = [
+            coupling = [
                 ("Z_0 Z_1", 1.0 + 1.0j),
                 ("Z_0 Z_2", 2.0 - 2.0j),
                 ("X_0", 1.0),
                 ("X_2", 1.0),
             ]
 
-            ham = hopping
+            ham = coupling
 
             self.assertSetEqual(set(ham), set(ism.second_q_ops().to_list()))

@@ -23,6 +23,11 @@ from .lattice_model import LatticeModel
 class FermiHubbardModel(LatticeModel):
     """The Fermi-Hubbard model."""
 
+    @property
+    def hopping_matrix(self) -> np.ndarray:
+        """Return the hopping matrix."""
+        return self.interaction_matrix()
+
     def second_q_ops(self, display_format: Optional[str] = None) -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
 

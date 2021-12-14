@@ -39,10 +39,11 @@ class LatticeModel(ABC):
         """Return a copy of the input lattice."""
         return self._lattice.copy()
 
-    def hopping_matrix(self) -> np.ndarray:
-        """Return the hopping matrix
+    def interaction_matrix(self) -> np.ndarray:
+        """Return the interaction matrix
+
         Returns:
-            The hopping matrix.
+            The interaction matrix.
         """
         return self._lattice.to_adjacency_matrix(weighted=True)
 
@@ -50,24 +51,25 @@ class LatticeModel(ABC):
     def uniform_parameters(
         cls,
         lattice: Lattice,
-        uniform_hopping: complex,
+        uniform_interaction: complex,
         uniform_onsite_potential: complex,
         onsite_interaction: complex,
     ) -> "LatticeModel":
-        """Set a uniform hopping parameter and on-site potential over the input lattice.
+        """Set a uniform interaction parameter and on-site potential over the input lattice.
 
         Args:
             lattice: Lattice on which the model is defined.
-            uniform_hopping: The hopping parameter.
+            uniform_interaction: The interaction parameter.
             uniform_onsite_potential: The on-site potential.
             onsite_interaction: The strength of the on-site interaction.
+
         Returns:
             The Lattice model with uniform parameters.
         """
         graph = lattice.graph
         for node_a, node_b, _ in graph.weighted_edge_list():
             if node_a != node_b:
-                graph.update_edge(node_a, node_b, uniform_hopping)
+                graph.update_edge(node_a, node_b, uniform_interaction)
 
         for node_a in graph.node_indexes():
             if graph.has_edge(node_a, node_a):
@@ -79,39 +81,39 @@ class LatticeModel(ABC):
 
     @classmethod
     def from_parameters(
-        cls, hopping_matrix: np.ndarray, onsite_interaction: complex
+        cls, interaction_matrix: np.ndarray, onsite_interaction: complex
     ) -> "LatticeModel":
         """Return the Hamiltonian of the Lattice model
-        from the given hopping matrix and on-site interaction.
+        from the given interaction matrix and on-site interaction.
 
         Args:
-            hopping_matrix: A real or complex valued square matrix.
+            interaction_matrix: A real or complex valued square matrix.
             onsite_interaction: The strength of the on-site interaction.
 
         Returns:
-            LatticeModel: The Lattice model generated from the given hopping
+            LatticeModel: The Lattice model generated from the given interaction
                 matrix and on-site interaction.
 
         Raises:
-            ValueError: If the hopping matrix is not square matrix,
+            ValueError: If the interaction matrix is not square matrix,
                 it is invalid.
         """
-        # make a graph from the hopping matrix.
+        # make a graph from the interaction matrix.
         # This should be replaced by from_adjacency_matrix of retworkx.
-        shape = hopping_matrix.shape
+        shape = interaction_matrix.shape
         if len(shape) == 2 and shape[0] == shape[1]:
             graph = PyGraph(multigraph=False)
             graph.add_nodes_from(range(shape[0]))
             for source_index in range(shape[0]):
                 for target_index in range(source_index, shape[0]):
-                    weight = hopping_matrix[source_index, target_index]
+                    weight = interaction_matrix[source_index, target_index]
                     if not weight == 0.0:
                         graph.add_edge(source_index, target_index, weight)
             lattice = Lattice(graph)
             return cls(lattice, onsite_interaction)
         else:
             raise ValueError(
-                f"Invalid shape of `hopping_matrix`, {shape},  is given."
+                f"Invalid shape of `interaction_matrix`, {shape},  is given."
                 "It must be a square matrix."
             )
 
