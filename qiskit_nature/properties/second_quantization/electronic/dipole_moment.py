@@ -63,27 +63,14 @@ class DipoleMoment(IntegralProperty):
 
         group.attrs["axis"] = self._axis
 
-    # TODO: de-duplicate this from `IntegralProperty`
-    # NOTE: unfortunately this would require a major API change
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> "DipoleMoment":
         """TODO."""
+        integral_property = super().from_hdf5(h5py_group)
+
         axis = h5py_group.attrs["axis"]
 
-        ints = []
-        for basis_group in h5py_group["electronic_integrals"].values():
-            for int_group in basis_group.values():
-                ints.append(ElectronicIntegrals.from_hdf5(int_group))
-
-        shifts = {}
-        for name, shift in h5py_group["shift"].attrs.items():
-            shifts[name] = shift
-
-        return cls(
-            axis,
-            ints,
-            shifts,
-        )
+        return cls(axis, list(integral_property), shift=integral_property._shift)
 
     def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Returns the AO 1-electron integrals.
@@ -129,10 +116,11 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
     def __init__(
         self,
-        # NOTE: I had to make the first argument optional in order to comply with `GroupedProperty`
-        # sub-classes not requiring any arguments. I think this makes sense since we use the
-        # `add_property` method to add properties into a group. The same is done in the
-        # `ElectronicStructureDriverResult` (see `__init__` comment).
+        # NOTE: The fact that this first argument is not optional is a bit inconsistent with the
+        # other `GroupedProperty` (sub-)classes. Especially in the docstring of
+        # `ElectronicStructureDriverResult` we say that group components should be added via the
+        # `add_property` method. Why don't we allow the same here?
+        # Thus, I suggest to make this first argument optional.
         dipole_axes: Optional[List[DipoleMoment]] = None,
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
         nuclear_dipole_moment: Optional[DipoleTuple] = None,
@@ -173,7 +161,9 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicDipoleMoment":
         """TODO."""
-        ret = super().from_hdf5(h5py_group)
+        grouped_property = super().from_hdf5(h5py_group)
+
+        ret = cls(list(grouped_property))
 
         ret.reverse_dipole_sign = h5py_group.attrs["reverse dipole sign"]
         ret.nuclear_dipole_moment = h5py_group.attrs.get("Nuclear Dipole Moment", None)

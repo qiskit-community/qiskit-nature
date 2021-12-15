@@ -94,7 +94,9 @@ class ElectronicEnergy(IntegralProperty):
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicEnergy":
         """TODO."""
-        ret = super().from_hdf5(h5py_group)
+        integral_property = super().from_hdf5(h5py_group)
+
+        ret = cls(list(integral_property), energy_shift=integral_property._shift)
 
         ret.nuclear_repulsion_energy = h5py_group.attrs.get("Nuclear Repulsion Energy", None)
         ret.reference_energy = h5py_group.attrs.get("Reference Energy", None)

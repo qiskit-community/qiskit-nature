@@ -12,7 +12,7 @@
 
 """The IntegralProperty property."""
 
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 
 import h5py
 
@@ -60,14 +60,23 @@ class IntegralProperty(ElectronicProperty):
 
     def __str__(self) -> str:
         string = [super().__str__()]
-        for basis_ints in self._electronic_integrals.values():
-            for ints in basis_ints.values():
-                string += ["\t" + "\n\t".join(str(ints).split("\n"))]
+        for ints in self:
+            string += ["\t" + "\n\t".join(str(ints).split("\n"))]
         if self._shift:
             string += ["\tEnergy Shifts:"]
             for name, shift in self._shift.items():
                 string += [f"\t\t{name} = {shift}"]
         return "\n".join(string)
+
+    def __iter__(self) -> Generator[ElectronicIntegrals, None, None]:
+        """TODO."""
+        return self._generator()
+
+    def _generator(self) -> Generator[ElectronicIntegrals, None, None]:
+        """TODO."""
+        for basis_ints in self._electronic_integrals.values():
+            for ints in basis_ints.values():
+                yield ints
 
     def add_electronic_integral(self, integral: ElectronicIntegrals) -> None:
         """Adds an ElectronicIntegrals instance to the internal storage.
@@ -203,10 +212,6 @@ class IntegralProperty(ElectronicProperty):
         for name, shift in h5py_group["shift"].attrs.items():
             shifts[name] = shift
 
-        # TODO: resolve mismatching __init__ arguments
-        # this class takes a name whereas e.g. the `ElectronicEnergy` subclass does not (but
-        # `DipoleMoment` does again)
-        return cls(
-            ints,
-            shifts,
-        )
+        class_name = h5py_group.attrs.get("__class__", "")
+
+        return IntegralProperty(class_name, ints, shifts)

@@ -54,7 +54,12 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicStructureDriverResult":
         """TODO."""
-        ret = super().from_hdf5(h5py_group)
+        grouped_property = super().from_hdf5(h5py_group)
+
+        ret = cls()
+        for prop in grouped_property:
+            ret.add_property(prop)
+
         # TODO: handle Molecule
         return ret
 
