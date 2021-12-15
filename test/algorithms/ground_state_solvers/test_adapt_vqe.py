@@ -26,7 +26,7 @@ from qiskit.providers.basicaer import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
-from qiskit.opflow.gradients import Gradient
+from qiskit.opflow.gradients import Gradient, NaturalGradient
 from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import UnitsType
@@ -82,6 +82,24 @@ class TestAdaptVQE(QiskitNatureTestCase):
         """test for fin_diff method"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         grad = Gradient(grad_method="fin_diff", epsilon=1.0)
+        calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
+        res = calc.solve(self.problem)
+        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+
+    def test_lin_comb(self):
+        """test for fin_diff method"""
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        grad = Gradient(grad_method="lin_comb", epsilon=1.0)
+        calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
+        res = calc.solve(self.problem)
+        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+
+    def test_natural_gradients(self):
+        """test for fin_diff method"""
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        grad = NaturalGradient(
+            grad_method="lin_comb", qfi_method="lin_comb_full", regularization="ridge"
+        )
         calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)

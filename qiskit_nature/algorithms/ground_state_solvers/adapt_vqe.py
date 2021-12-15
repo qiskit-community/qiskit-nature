@@ -23,6 +23,7 @@ import numpy as np
 from qiskit.algorithms import VQE
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
+from qiskit.opflow.gradients.gradient_base import GradientBase
 from qiskit.utils.validation import validate_min
 from qiskit.opflow.gradients import Gradient
 from qiskit_nature.exceptions import QiskitNatureError
@@ -43,7 +44,11 @@ logger = logging.getLogger(__name__)
 class AdaptVQE(GroundStateEigensolver):
     """A ground state calculation employing the AdaptVQE algorithm."""
 
-    @deprecate_arguments("0.4.0", {"delta": "gradient"})
+    @deprecate_arguments(
+        "0.4.0",
+        {"delta": "gradient"},
+        additional_msg="Instead of Delta=1.0 you have to construct gradient. For example:: Gradient(grad_method='lin_comb', epsilon=1.0)",
+    )
     def __init__(
         self,
         qubit_converter: QubitConverter,
@@ -51,7 +56,7 @@ class AdaptVQE(GroundStateEigensolver):
         threshold: float = 1e-5,
         delta: float = 1,
         max_iterations: Optional[int] = None,
-        gradient: Optional[Gradient] = None,
+        gradient: Optional[GradientBase] = None,
     ) -> None:
         """
         Args:
@@ -83,11 +88,11 @@ class AdaptVQE(GroundStateEigensolver):
         self._ansatz: QuantumCircuit = None
 
     @property
-    def gradient(self) -> Optional[Gradient]:
+    def gradient(self) -> Optional[GradientBase]:
         return self._gradient
 
     @gradient.setter
-    def gradient(self, grad: Optional[Gradient]):
+    def gradient(self, grad: Optional[GradientBase]):
         self._gradient = grad
 
     def returns_groundstate(self) -> bool:
@@ -112,11 +117,8 @@ class AdaptVQE(GroundStateEigensolver):
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
-            if self.gradient.grad_method.analytic:
-                # set the current ansatz
-                vqe.ansatz = self._ansatz
-            else:
-                vqe.ansatz = self._ansatz.decompose()
+            # set the current ansatz
+            vqe.ansatz = self._ansatz.decompose()
             param_sets = vqe._ansatz_params
             op = vqe.construct_expectation(theta, self._main_operator)
             # compute gradient
@@ -124,7 +126,8 @@ class AdaptVQE(GroundStateEigensolver):
             # Assign the parameters and evaluate the gradient
             value_dict = {param_sets[-1]: 0.0}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
-            logger.info("State gradient computed with parameter shift", state_grad_result)
+            # logger.info("State gradient computed with parameter shift", state_grad_result)
+            print("State gradient computed with parameter shift", state_grad_result)
             res.append((np.abs(state_grad_result[-1]), exc))
         return res
 

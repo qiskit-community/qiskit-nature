@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added Qiskit Terra's Gradient Functionality to calculate gradients in AdaptVQE. You can choose 
+    the gradient method and input it while calling ``AdaptVQE``.
+    for example::
+
+      from qiskit.opflow.gradients import Gradient
+      grad = Gradient(grad_method="lin_comb", epsilon=1.0)
+      calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
+
