@@ -42,7 +42,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
             )
 
         with self.subTest("Check the hopping matrix"):
-            hopping_matrix = fhm.hopping_matrix
+            hopping_matrix = fhm.hopping_matrix()
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, -1.0], [1.0 - 1.0j, 2.0, 0.0], [-1.0, 0.0, 0.0]]
             )
@@ -106,7 +106,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
                 )
             )
         with self.subTest("Check the hopping matrix."):
-            hopping_matrix = uniform_fhm.hopping_matrix
+            hopping_matrix = uniform_fhm.hopping_matrix()
             target_matrix = np.array(
                 [[0.0, 1.0 + 1.0j, 1.0 + 1.0j], [1.0 - 1.0j, 0.0, 0.0], [1.0 - 1.0j, 0.0, 0.0]]
             )
@@ -160,7 +160,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
             )
 
         with self.subTest("Check the hopping matrix."):
-            assert_array_equal(fhm.hopping_matrix, hopping_matrix)
+            assert_array_equal(fhm.hopping_matrix(), hopping_matrix)
 
         with self.subTest("Check the second q op representation."):
             hopping = [
