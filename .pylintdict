@@ -18,10 +18,13 @@ ao
 april
 arginine
 args
+arrowheads
+arrowstyle
 arxiv
 asparagine
 aspartic
 atol
+attr
 autosummary
 avogadro
 äquivalenzverbot
@@ -58,14 +61,17 @@ clbits
 clifford
 cliffords
 cls
+cmap
 cnot
 codec
 coeff
 coeffs
+colormap
 commutativities
 conda
 conf
 config
+connectionstyle
 coord
 coords
 coul
@@ -97,6 +103,7 @@ dimens
 dimensionality
 discoverable
 distinguishability
+dll
 dof
 doi
 dt
@@ -164,6 +171,7 @@ hilbert
 histidine
 html
 https
+hubbard
 ia
 iajb
 ifdef
@@ -212,10 +220,12 @@ lda
 len
 leucine
 levinthal
+libifcoremd
 libor
 libxc
 lih
 lijh
+linewidths
 linux
 ljik
 lk
@@ -224,6 +234,7 @@ lookback
 lysine
 macos
 makefile
+matplotlib
 maxdepth
 maxiter
 maxiters
@@ -273,6 +284,7 @@ num
 numpy
 numpyeigensolver
 observables
+occupancies
 ok
 ollitrault
 onee
@@ -280,6 +292,7 @@ oneeints
 onwards
 opflow
 oppenheimer
+optimizers
 orbsym
 ortho
 orthonormal
@@ -298,6 +311,7 @@ phenylalanine
 phonons
 polypeptides
 popovas
+pos
 posteriori
 pre
 prebuilt
@@ -334,6 +348,9 @@ rebranding
 refactor
 regs
 repr
+retworkx
+rgb
+rgba
 rhf
 rhs
 robert
@@ -374,6 +391,7 @@ stereochemistry
 sto
 stober
 str
+stylesheet
 subcircuits
 subclasses
 submodules
@@ -392,6 +410,7 @@ tavernelli
 taylor
 tdg
 tensored
+terra
 th
 threonine
 toctree
@@ -420,6 +439,7 @@ unary
 uncompiled
 undirected
 unitaries
+unitstype
 untransforms
 utils
 uvcc
@@ -431,6 +451,8 @@ verbatim
 vibrational
 vibrationalop
 vibro
+vmax
+vmin
 vqe
 vscf
 vwn

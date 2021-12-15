@@ -20,7 +20,8 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring
+from qiskit_nature import ListOrDictType
+from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring_mapped
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -52,19 +53,28 @@ class ElectronicStructureProblem(BaseProblem):
             transformers: A list of transformations to be applied to the driver result.
         """
         super().__init__(driver, transformers)
+        self._main_property_name = "ElectronicEnergy"
 
     @property
     def num_particles(self) -> Tuple[int, int]:
         return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
 
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
-        provided.
+    @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the number of spin orbitals."""
+        return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
+
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+        """Returns the second quantized operators associated with this Property.
+
+        If the arguments are returned as a `list`, the operators are in the following order: the
+        Hamiltonian operator, total particle number operator, total angular momentum operator, total
+        magnetization operator, and (if available) x, y, z dipole operators.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: Hamiltonian operator,
-            total particle number operator, total angular momentum operator, total magnetization
-            operator, and (if available) x, y, z dipole operators.
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
         driver_result = self.driver.run()
 
@@ -93,9 +103,9 @@ class ElectronicStructureProblem(BaseProblem):
             self._grouped_property = driver_result
             self._grouped_property_transformed = self._transform(self._grouped_property)
 
-        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
+        second_quantized_ops = self._grouped_property_transformed.second_q_ops()
 
-        return second_quantized_ops_list
+        return second_quantized_ops
 
     def hopping_qeom_ops(
         self,
@@ -118,7 +128,7 @@ class ElectronicStructureProblem(BaseProblem):
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
                              Z2 symmetries stored in this instance are the basis for the
                              commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are:
+            excitations: the types of excitations to consider. The simple cases for this input are
 
                 :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
                 :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
@@ -181,9 +191,15 @@ class ElectronicStructureProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first aux_value is the evaluated number of particles
-            num_particles_aux = aux_values[0][0]
+            try:
+                num_particles_aux = aux_values["ParticleNumber"][0]
+            except TypeError:
+                num_particles_aux = aux_values[0][0]
             # the second aux_value is the total angular momentum which (for singlets) should be zero
-            total_angular_momentum_aux = aux_values[1][0]
+            try:
+                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+            except TypeError:
+                total_angular_momentum_aux = aux_values[1][0]
             particle_number = cast(
                 ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )
@@ -197,30 +213,41 @@ class ElectronicStructureProblem(BaseProblem):
 
         return partial(filter_criterion, self)
 
-    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
-        """Given the detected Z2Symmetries can determine the correct sector of the tapered
-        operators so the correct one can be returned
+    def symmetry_sector_locator(
+        self,
+        z2_symmetries: Z2Symmetries,
+        converter: QubitConverter,
+    ) -> Optional[List[int]]:
+        """Given the detected Z2Symmetries this determines the correct sector of the tapered
+        operator that contains the ground state we need and returns that information.
 
         Args:
             z2_symmetries: the z2 symmetries object.
+            converter: the qubit converter instance used for the operator conversion that
+                symmetries are to be determined for.
 
         Returns:
             The sector of the tapered operators with the problem solution.
         """
-        hf_bitstr = hartree_fock_bitstring(
-            num_spin_orbitals=z2_symmetries.symmetries[0].num_qubits,
+        # We need the HF bitstring mapped to the qubit space but without any tapering done
+        # by the converter (just qubit mapping and any two qubit reduction) since we are
+        # going to determine the tapering sector
+        hf_bitstr = hartree_fock_bitstring_mapped(
+            num_spin_orbitals=self.num_spin_orbitals,
             num_particles=self.num_particles,
+            qubit_converter=converter,
+            match_convert=False,
         )
-        sector_locator = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
+        sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
-        return sector_locator
+        return sector
 
     @staticmethod
     def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
-            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z[::-1], hf_str)) else 1
+            coeff = -1 if np.logical_xor.reduce(np.logical_and(sym.z, hf_str)) else 1
             taper_coeff.append(coeff)
 
         return taper_coeff

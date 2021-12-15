@@ -12,8 +12,9 @@
 
 """The VibrationalStructureDriverResult class."""
 
-from typing import List, cast
+from typing import cast
 
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
@@ -75,14 +76,25 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
 
         return ret
 
-    def second_q_ops(self) -> List[VibrationalOp]:
-        """Returns the list of :class:`~qiskit_nature.operators.second_quantization.VibrationalOp`s
-        given by the properties contained in this one."""
-        ops: List[VibrationalOp] = []
-        # TODO: make aux_ops a Dict? Then we don't need to hard-code the order of these properties.
-        for cls in [VibrationalEnergy, OccupiedModals]:
-            prop = self.get_property(cls)  # type: ignore
-            if prop is None:
-                continue
-            ops.extend(prop.second_q_ops())
+    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
+        """Returns the second quantized operators associated with the properties in this group.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `VibrationalOp` objects.
+        """
+        ops: ListOrDictType[VibrationalOp]
+        if not settings.dict_aux_operators:
+            ops = []
+            for cls in [VibrationalEnergy, OccupiedModals]:
+                prop = self.get_property(cls)  # type: ignore
+                if prop is None:
+                    continue
+                ops.extend(prop.second_q_ops())
+            return ops
+
+        ops = {}
+        for prop in iter(self):
+            ops.update(prop.second_q_ops())
         return ops

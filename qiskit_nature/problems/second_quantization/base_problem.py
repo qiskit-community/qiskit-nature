@@ -19,12 +19,13 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
-from qiskit_nature import QiskitNatureError
+from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.drivers import BaseDriver as LegacyBaseDriver
 from qiskit_nature.drivers.second_quantization import BaseDriver
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
@@ -96,6 +97,8 @@ class BaseProblem(ABC):
         self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
         self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
 
+        self._main_property_name: str = ""
+
     @property  # type: ignore[misc]
     @deprecate_property(
         "0.2.0",
@@ -131,17 +134,23 @@ class BaseProblem(ABC):
         return self._grouped_property_transformed
 
     @property
+    def main_property_name(self) -> str:
+        """Returns the name of the property producing the main operator."""
+        return self._main_property_name
+
+    @property
     def num_particles(self) -> Optional[Tuple[int, int]]:
         """Returns the number of particles, if available."""
         return None
 
     @abstractmethod
-    def second_q_ops(self):
-        """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
-        provided.
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+        """Returns the second quantized operators associated with this Property.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: ... .
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
         raise NotImplementedError()
 
@@ -150,13 +159,19 @@ class BaseProblem(ABC):
             data = transformer.transform(data)
         return data
 
-    def symmetry_sector_locator(self, z2_symmetries: Z2Symmetries) -> Optional[List[int]]:
+    def symmetry_sector_locator(
+        self,
+        z2_symmetries: Z2Symmetries,
+        converter: QubitConverter,
+    ) -> Optional[List[int]]:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
         operators so the correct one can be returned
 
         Args:
             z2_symmetries: the z2 symmetries object.
+            converter: the qubit converter instance used for the operator conversion that
+                symmetries are to be determined for.
 
         Returns:
             the sector of the tapered operators with the problem solution
@@ -212,7 +227,7 @@ class BaseProblem(ABC):
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
                              Z2 symmetries stored in this instance are the basis for the
                              commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are:
+            excitations: the types of excitations to consider. The simple cases for this input are
 
                 :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
                 :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).

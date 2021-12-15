@@ -64,8 +64,8 @@ def _compress_pauli_sum_op(
     new_tables = []
     new_coeffs = []
     for term in total_hamiltonian:
-        table_z = term.primitive.table.Z[0]
-        table_x = term.primitive.table.X[0]
+        table_z = term.primitive.paulis.z[0]
+        table_x = term.primitive.paulis.x[0]
         coeffs = term.primitive.coeffs[0]
         new_table_z, new_table_x = _calc_reduced_pauli_tables(
             num_qubits, table_x, table_z, unused_qubits
@@ -103,11 +103,11 @@ def _find_unused_qubits(total_hamiltonian: Union[PauliSumOp, PauliOp]) -> List[i
 
     elif isinstance(total_hamiltonian, PauliSumOp):
         for term in total_hamiltonian:
-            table_z = term.primitive.table.Z[0]
+            table_z = term.primitive.paulis.z[0]
             _update_used_map(num_qubits, table_z, used_map)
 
     for ind in range(num_qubits):
-        if ind not in used_map.keys():
+        if ind not in used_map:
             unused.append(ind)
 
     return unused

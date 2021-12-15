@@ -29,6 +29,7 @@ from qiskit.opflow import AerPauliExpectation, PauliExpectation
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
 
+from qiskit_nature import settings
 from qiskit_nature.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
@@ -92,6 +93,25 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
+    def test_vqe_uccsd_with_callback(self):
+        """Test VQE UCCSD with callback."""
+
+        def callback(nfev, parameters, energy, stddev):
+            # pylint: disable=unused-argument
+            print(f"iterations {nfev}: energy: {energy}")
+
+        solver = VQEUCCFactory(
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            callback=callback,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            res = calc.solve(self.electronic_structure_problem)
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+        for idx, line in enumerate(out.getvalue().split("\n")):
+            if line.strip():
+                self.assertTrue(line.startswith(f"iterations {idx+1}: energy: "))
+
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
@@ -120,6 +140,56 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         assert all(
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
+
+    def test_dict_based_aux_ops(self):
+        """Test the `test_dict_based_aux_ops` variant"""
+        try:
+            settings.dict_aux_operators = True
+            solver = NumPyMinimumEigensolverFactory()
+            calc = GroundStateEigensolver(self.qubit_converter, solver)
+            res = calc.solve(self.electronic_structure_problem)
+            self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+            self.assertTrue(
+                np.all(isinstance(aux_op, dict) for aux_op in res.aux_operator_eigenvalues)
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["ParticleNumber"][0], 2.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["ParticleNumber"][1], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["AngularMomentum"][0], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["AngularMomentum"][1], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["Magnetization"][0], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["Magnetization"][1], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["DipoleMomentX"][0], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["DipoleMomentX"][1], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["DipoleMomentY"][0], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["DipoleMomentY"][1], 0.0, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["DipoleMomentZ"][0], -1.3889487, places=6
+            )
+            self.assertAlmostEqual(
+                res.aux_operator_eigenvalues[0]["DipoleMomentZ"][1], 0.0, places=6
+            )
+        finally:
+            settings.dict_aux_operators = False
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation

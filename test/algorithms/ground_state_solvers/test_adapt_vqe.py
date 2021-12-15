@@ -204,7 +204,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 )
                 vqe = VQE(
                     ansatz=ansatz,
-                    quantum_instance=self._quantum_instance,
+                    quantum_instance=self.quantum_instance,
                     optimizer=L_BFGS_B(),
                 )
                 return vqe
