@@ -45,29 +45,6 @@ class LatticeModel(ABC):
         """
         return self._lattice.to_adjacency_matrix(weighted=True)
 
-    @classmethod
-    def uniform_parameters(
-        cls,
-        lattice: Lattice,
-        uniform_interaction: complex,
-        uniform_onsite_potential: complex,
-    ) -> "LatticeModel":
-        """Set a uniform interaction parameter and on-site potential over the input lattice.
-
-        Args:
-            lattice: Lattice on which the model is defined.
-            uniform_interaction: The interaction parameter.
-            uniform_onsite_potential: The on-site potential.
-
-        Returns:
-            The Lattice model with uniform parameters.
-        """
-        return cls(
-            cls._generate_lattice_from_uniform_parameters(
-                lattice, uniform_interaction, uniform_onsite_potential
-            )
-        )
-
     @staticmethod
     def _generate_lattice_from_uniform_parameters(
         lattice: Lattice,
@@ -86,26 +63,6 @@ class LatticeModel(ABC):
                 graph.add_edge(node_a, node_a, uniform_onsite_potential)
 
         return Lattice(graph)
-
-    @classmethod
-    def from_parameters(
-        cls,
-        interaction_matrix: np.ndarray,
-    ) -> "LatticeModel":
-        """Return the Hamiltonian of the Lattice model
-        from the given interaction matrix and on-site interaction.
-
-        Args:
-            interaction_matrix: A real or complex valued square matrix.
-
-        Returns:
-            LatticeModel: The Lattice model generated from the given interaction
-                matrix and on-site interaction.
-
-        Raises:
-            ValueError: If the interaction matrix is not square matrix, it is invalid.
-        """
-        return cls(cls._generate_lattice_from_parameters(interaction_matrix))
 
     @staticmethod
     def _generate_lattice_from_parameters(interaction_matrix: np.ndarray):
