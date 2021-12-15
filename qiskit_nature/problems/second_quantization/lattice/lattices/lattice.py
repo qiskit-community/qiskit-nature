@@ -16,10 +16,11 @@ from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit.tools.visualization import HAS_MATPLOTLIB
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
+
+from qiskit.exceptions import MissingOptionalLibraryError
+from qiskit.tools.visualization import HAS_MATPLOTLIB
 
 if HAS_MATPLOTLIB:
     # pylint: disable=unused-import
