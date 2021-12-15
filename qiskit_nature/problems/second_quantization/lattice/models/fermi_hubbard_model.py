@@ -39,8 +39,7 @@ class FermiHubbardModel(LatticeModel):
 
     @classmethod
     # pylint: disable=arguments-differ
-    # type: ignore
-    def uniform_parameters(
+    def uniform_parameters(  # type: ignore[override]
         cls,
         lattice: Lattice,
         uniform_interaction: complex,
@@ -65,8 +64,7 @@ class FermiHubbardModel(LatticeModel):
 
     @classmethod
     # pylint: disable=arguments-differ
-    # type: ignore
-    def from_parameters(
+    def from_parameters(  # type: ignore[override]
         cls, interaction_matrix: np.ndarray, onsite_interaction: complex
     ) -> "FermiHubbardModel":
         """Return the Hamiltonian of the Fermi-Hubbard model
