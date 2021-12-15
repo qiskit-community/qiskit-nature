@@ -48,7 +48,7 @@ setuptools.setup(
     author='Qiskit Nature Development Team',
     author_email='hello@qiskit.org',
     license='Apache-2.0',
-    classifiers=(
+    classifiers=[
         "Environment :: Console",
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
@@ -62,7 +62,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering"
-    ),
+    ],
     keywords='qiskit sdk quantum nature chemistry physics',
     packages=setuptools.find_packages(include=['qiskit_nature', 'qiskit_nature.*']),
     install_requires=REQUIREMENTS,
