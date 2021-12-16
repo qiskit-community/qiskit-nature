@@ -85,7 +85,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
         lattice = Lattice(graph)
         uniform_fhm = FermiHubbardModel.uniform_parameters(
             lattice,
-            uniform_hopping=1.0 + 1.0j,
+            uniform_interaction=1.0 + 1.0j,
             uniform_onsite_potential=0.0,
             onsite_interaction=10.0,
         )
