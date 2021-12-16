@@ -136,7 +136,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9, '3.10']
+        python-version: [3.7, 3.8, 3.9, '3.10']
         include:
           - os: macos-latest
             python-version: 3.8
@@ -167,7 +167,7 @@ jobs:
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
-        if: ${{ matrix.python-version >= 3.7 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
@@ -321,10 +321,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: actions/download-artifact@v2
         with:
-          name: ubuntu-latest-3.6
-          path: /tmp/u36
-      - uses: actions/download-artifact@v2
-        with:
           name: ubuntu-latest-3.7
           path: /tmp/u37
       - uses: actions/download-artifact@v2
@@ -360,7 +356,7 @@ jobs:
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u36/nat.dep /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m38/nat.dep /tmp/m310/nat.dep /tmp/w38/nat.dep /tmp/w310/nat.dep || true
+          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m38/nat.dep /tmp/m310/nat.dep /tmp/w38/nat.dep /tmp/w310/nat.dep || true
         shell: bash
       - name: Coverage combine
         run: coverage3 combine /tmp/u37/nat.dat
