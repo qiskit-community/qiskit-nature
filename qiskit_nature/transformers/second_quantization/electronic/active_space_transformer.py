@@ -410,7 +410,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             transformed_property._shift[self.__class__.__name__] = e_inactive
 
         elif isinstance(prop, ParticleNumber):
-            p_n = cast(ParticleNumber, prop)
+            p_n = prop
             active_occ_alpha = p_n.occupation_alpha[self._active_orbs_indices]
             active_occ_beta = p_n.occupation_beta[self._active_orbs_indices]
             transformed_property = ParticleNumber(

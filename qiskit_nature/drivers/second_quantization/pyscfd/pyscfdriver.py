@@ -159,7 +159,7 @@ class PySCFDriver(ElectronicStructureDriver):
         validate_min("max_cycle", max_cycle, 1)
 
         # we use the property-setter to deal with conversion
-        self.atom = atom  # type: ignore
+        self.atom = atom
         self._unit = unit
         self._charge = charge
         self._spin = spin
@@ -337,10 +337,7 @@ class PySCFDriver(ElectronicStructureDriver):
                 if key not in ["self"] and key in args:
                     kwargs[key] = value
 
-        kwargs["atom"] = [  # type: ignore
-            " ".join(map(str, (name, *coord)))  # type: ignore
-            for (name, coord) in molecule.geometry
-        ]
+        kwargs["atom"] = [" ".join(map(str, (name, *coord))) for (name, coord) in molecule.geometry]
         kwargs["charge"] = molecule.charge
         kwargs["spin"] = molecule.multiplicity - 1
         kwargs["unit"] = molecule.units
@@ -367,7 +364,7 @@ class PySCFDriver(ElectronicStructureDriver):
             MissingOptionalLibraryError: If PySCF is not installed.
         """
         try:
-            spec = importlib.util.find_spec("pyscf")  # type: ignore
+            spec = importlib.util.find_spec("pyscf")
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except

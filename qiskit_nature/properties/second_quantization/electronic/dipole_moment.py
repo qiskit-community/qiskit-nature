@@ -236,7 +236,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore[assignment]
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues
 
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             if aux_op_eigenvalues is None:
@@ -250,9 +250,9 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             for prop in iter(self):
                 moment: Optional[Tuple[complex, complex]]
                 try:
-                    moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]  # type: ignore
+                    moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]
                 except KeyError:
-                    moment = aux_op_eigenvalues.get(prop.name, None)  # type: ignore
+                    moment = aux_op_eigenvalues.get(prop.name, None)
                 if moment is not None:
                     dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
 
