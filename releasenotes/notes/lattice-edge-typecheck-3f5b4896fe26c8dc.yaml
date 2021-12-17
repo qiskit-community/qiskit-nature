@@ -1,0 +1,21 @@
+---
+fixes:
+  - |
+    Add a typecheck for the input graphs to
+    :class:`~qiskit_nature.problems.second_quantization.lattice.lattices.Lattice`
+    which asserts that the edge weights of the graph are either numeric (or one of `None` or `{}`
+    which is replaced by a unit weight). This prevents possibly unexpected errors in the
+    application stack when an operator is constructed from the lattice.
+
+    In particular, the following now raises a `ValueError`:
+
+    .. code-block:: python
+
+        from retworkx import PyGraph
+        from qiskit_nature.problems.second_quantization.lattice import Lattice
+
+        graph = PyGraph(multigraph=False)
+        graph.add_nodes_from(range(3))
+        graph.add_edges_from([(0, 1, 1), (1, 2, "banana")])  # banana is not a valid weight!
+
+        lattice = Lattice(graph)
