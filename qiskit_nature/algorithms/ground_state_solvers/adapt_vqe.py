@@ -17,6 +17,7 @@ from typing import Optional, List, Tuple, Union
 import copy
 import re
 import logging
+from warnings import WarningMessage
 
 import numpy as np
 
@@ -277,11 +278,11 @@ class AdaptVQE(GroundStateEigensolver):
                     str(np.abs(max_grad[0])),
                 )
                 threshold_satisfied = True
-            if iteration == 1 and np.abs(max_grad[0]) < self._threshold:
-                logger.warning(
-                    "Gradient choice is not suited as it leads to all non-zero gradients. Try a different gradient method."
-                )
                 break
+            if iteration == 1 and np.abs(max_grad[0]) < self._threshold:
+                raise Warning(
+                    "Gradient choice is not suited as it leads to all non-zero gradients. Try a different gradient method."
+                )   
             # check indices of picked gradients for cycles
             if self._check_cyclicity(prev_op_indices):
                 logger.info("Alternating sequence found. Finishing.")
