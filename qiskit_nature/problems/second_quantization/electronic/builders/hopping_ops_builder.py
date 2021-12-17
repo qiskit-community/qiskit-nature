@@ -66,7 +66,6 @@ def _build_qeom_hopping_ops(
     if isinstance(excitations, (str, int)) or (
         isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
     ):
-        excitations = cast(Union[str, int, List[int]], excitations)
         ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
         excitations_list = ansatz._get_excitation_list()
     else:

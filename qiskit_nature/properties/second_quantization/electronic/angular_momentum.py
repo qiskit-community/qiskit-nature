@@ -139,7 +139,7 @@ class AngularMomentum(ElectronicProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore[assignment]
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             if aux_op_eigenvalues is None:
                 continue
@@ -147,7 +147,7 @@ class AngularMomentum(ElectronicProperty):
             _key = self.name if isinstance(aux_op_eigenvalues, dict) else 1
 
             if aux_op_eigenvalues[_key] is not None:
-                total_angular_momentum = aux_op_eigenvalues[_key][0].real  # type: ignore
+                total_angular_momentum = aux_op_eigenvalues[_key][0].real
                 result.total_angular_momentum.append(total_angular_momentum)
 
                 if expected is not None:
