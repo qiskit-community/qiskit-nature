@@ -23,7 +23,7 @@ import numpy as np
 from qiskit.algorithms import VQE
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
-from qiskit.opflow.gradients import GradientBase,Gradient
+from qiskit.opflow.gradients import GradientBase, Gradient
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import ListOrDictType
@@ -49,7 +49,7 @@ class AdaptVQE(GroundStateEigensolver):
     @deprecate_arguments(
         "0.4.0",
         {"delta": "gradient"},
-        additional_msg="Instead of Delta=1.0 you have to construct gradient. For example:: Gradient(grad_method='lin_comb', epsilon=1.0)",
+        additional_msg="Instead of `delta=1.0` you have to construct a gradient, like so `gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`.",
     )
     def __init__(
         self,
@@ -119,7 +119,7 @@ class AdaptVQE(GroundStateEigensolver):
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
-            # set the current ansatz
+            # the ansatz needs to be decomposed for the gradient to work
             vqe.ansatz = self._ansatz.decompose()
             param_sets = vqe._ansatz_params
             op = vqe.construct_expectation(theta, self._main_operator)
@@ -277,6 +277,10 @@ class AdaptVQE(GroundStateEigensolver):
                     str(np.abs(max_grad[0])),
                 )
                 threshold_satisfied = True
+            if iteration == 1 and np.abs(max_grad[0]) < self._threshold:
+                logger.warning(
+                    "Gradient choice is not suited as it leads to all non-zero gradients. Try a different gradient method."
+                )
                 break
             # check indices of picked gradients for cycles
             if self._check_cyclicity(prev_op_indices):

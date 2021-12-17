@@ -44,6 +44,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+from qiskit.test import slow_test
 
 
 class TestAdaptVQE(QiskitNatureTestCase):
@@ -98,12 +99,13 @@ class TestAdaptVQE(QiskitNatureTestCase):
         """test for fin_diff method"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         grad = NaturalGradient(
-            grad_method="lin_comb", qfi_method="lin_comb_full", regularization="ridge"
+            grad_method="fin_diff", qfi_method="lin_comb_full", regularization="ridge"
         )
         calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
+    @slow_test
     def test_LiH(self):
         """Lih test"""
         inter_dist = 1.6
