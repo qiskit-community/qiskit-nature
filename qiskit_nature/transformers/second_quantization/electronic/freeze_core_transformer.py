@@ -12,7 +12,7 @@
 
 """The Freeze-Core Reduction interface."""
 
-from typing import cast, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
@@ -78,7 +78,6 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
                 "The FreezeCoreTransformer requires an `ElectronicStructureDriverResult`, not a "
                 f"property of type {type(grouped_property)}."
             )
-        grouped_property = cast(ElectronicStructureDriverResult, grouped_property)
 
         molecule = grouped_property.molecule
         particle_number = grouped_property.get_property("ParticleNumber")
