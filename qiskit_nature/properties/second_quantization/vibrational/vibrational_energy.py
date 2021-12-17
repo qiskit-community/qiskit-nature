@@ -149,9 +149,9 @@ class VibrationalEnergy(VibrationalProperty):
             ops.append(ints.to_second_q_op())
 
         if not settings.dict_aux_operators:
-            return [sum(ops)]  # type: ignore[list-item]
+            return [sum(ops)]
 
-        return {self.name: sum(ops)}  # type: ignore[dict-item]
+        return {self.name: sum(ops)}
 
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
