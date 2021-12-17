@@ -19,7 +19,14 @@ import numbers
 
 import numpy as np
 
-from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
+try:
+    import networkx as nx
+
+    HAS_NX = True
+except ImportError:
+    HAS_NX = False
+
+from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix, networkx_converter
 from retworkx.visualization import mpl_draw
 
 from qiskit.exceptions import MissingOptionalLibraryError
@@ -110,15 +117,20 @@ class LatticeDrawStyle:
 class Lattice:
     """General Lattice."""
 
-    def __init__(self, graph: PyGraph) -> None:
+    def __init__(self, graph: Union[PyGraph, nx.Graph]) -> None:
         """
         Args:
-            graph: Input graph for Lattice. `graph.multigraph` must be False.
+            graph: Input graph for Lattice. Can be provided as ``retworkx.PyGraph``, which is
+                used internally, or, for convenience, as ``networkx.Graph``. The graph
+                cannot be a multigraph.
 
         Raises:
             ValueError: If the input graph is a multigraph.
             ValueError: If the graph edges are non-numeric.
         """
+        if HAS_NX and isinstance(graph, nx.Graph):
+            graph = networkx_converter(graph)
+
         if graph.multigraph:
             raise ValueError(
                 f"Invalid `graph.multigraph` {graph.multigraph} is given. "
