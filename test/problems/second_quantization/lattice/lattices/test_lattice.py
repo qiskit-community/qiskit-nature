@@ -158,3 +158,20 @@ class TestLattice(QiskitNatureTestCase):
 
         with self.assertRaises(ValueError):
             _ = Lattice(graph)
+
+    def test_edges_removed(self):
+        """Test the initialization with a graph where edges have been removed."""
+        graph = PyGraph(multigraph=False)
+        graph.add_nodes_from(range(3))
+        graph.add_edges_from([(0, 1, 1), (1, 2, 1)])
+        graph.remove_edge_from_index(0)
+
+        lattice = Lattice(graph)
+
+        target_graph = PyGraph(multigraph=False)
+        target_graph.add_nodes_from(range(3))
+        target_graph.add_edges_from([(1, 2, 1)])
+
+        self.assertTrue(
+            is_isomorphic(lattice.graph, target_graph, edge_matcher=lambda x, y: x == y)
+        )
