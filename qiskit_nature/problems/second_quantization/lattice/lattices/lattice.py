@@ -18,7 +18,11 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 import numbers
 
 import numpy as np
-import networkx as nx
+try:
+    import networkx as nx
+    HAS_NX = True
+except ImportError:
+    HAS_NX = False
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix, networkx_converter
 from retworkx.visualization import mpl_draw
 
@@ -121,7 +125,7 @@ class Lattice:
             ValueError: If the input graph is a multigraph.
             ValueError: If the graph edges are non-numeric.
         """
-        if isinstance(graph, nx.Graph):
+        if HAS_NX and isinstance(graph, nx.Graph):
             graph = networkx_converter(graph)
 
         if graph.multigraph:
@@ -131,7 +135,7 @@ class Lattice:
             )
 
         # validate the edge weights
-        for edge_index, weight in enumerate(graph.edges()):
+        for edge_index, weight in graph.edge_index_map().items():
             if weight is None or weight == {}:
                 # None or {} is updated to be 1
                 graph.update_edge_by_index(edge_index, 1)
