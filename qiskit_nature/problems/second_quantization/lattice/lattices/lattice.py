@@ -15,11 +15,10 @@
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
+import numbers
 
 import numpy as np
 import networkx as nx
-import numbers
-
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix, networkx_converter
 from retworkx.visualization import mpl_draw
 
