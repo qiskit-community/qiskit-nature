@@ -50,6 +50,11 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         """Returns the internal Molecule."""
         return cast(Molecule, self.get_property(Molecule))
 
+    @molecule.setter
+    def molecule(self, mol: Molecule) -> None:
+        """Sets the internal Molecule."""
+        self.add_property(mol)
+
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicStructureDriverResult":
         """TODO."""
