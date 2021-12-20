@@ -19,9 +19,9 @@ import h5py
 import numpy as np
 import scipy.linalg
 
-from .units_type import UnitsType
-
 from qiskit_nature.properties import PseudoProperty
+
+from .units_type import UnitsType
 
 
 class Molecule(PseudoProperty):
