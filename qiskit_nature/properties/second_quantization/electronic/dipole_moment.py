@@ -116,11 +116,6 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
     def __init__(
         self,
-        # NOTE: The fact that this first argument is not optional is a bit inconsistent with the
-        # other `GroupedProperty` (sub-)classes. Especially in the docstring of
-        # `ElectronicStructureDriverResult` we say that group components should be added via the
-        # `add_property` method. Why don't we allow the same here?
-        # Thus, I suggest to make this first argument optional.
         dipole_axes: Optional[List[DipoleMoment]] = None,
         dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
         nuclear_dipole_moment: Optional[DipoleTuple] = None,
