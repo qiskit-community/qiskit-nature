@@ -15,6 +15,7 @@
 import logging
 from typing import List, Optional, Tuple, Union, cast
 
+import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
@@ -133,6 +134,32 @@ class ParticleNumber(ElectronicProperty):
         string += [f"\t{self._num_beta} beta electrons"]
         string += [f"\t\torbital occupation: {self.occupation_beta}"]
         return "\n".join(string)
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
+        group.attrs["num_alpha"] = self._num_alpha
+        group.attrs["num_beta"] = self._num_beta
+        group.attrs["absolute_tolerance"] = self._absolute_tolerance
+        group.attrs["relative_tolerance"] = self._relative_tolerance
+
+        group.create_dataset("occupation_alpha", data=self.occupation_alpha)
+        group.create_dataset("occupation_beta", data=self.occupation_beta)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "ParticleNumber":
+        """TODO."""
+        return ParticleNumber(
+            h5py_group.attrs["num_spin_orbitals"],
+            (h5py_group.attrs["num_alpha"], h5py_group.attrs["num_beta"]),
+            h5py_group["occupation_alpha"],
+            h5py_group["occupation_beta"],
+            h5py_group.attrs["absolute_tolerance"],
+            h5py_group.attrs["relative_tolerance"],
+        )
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
