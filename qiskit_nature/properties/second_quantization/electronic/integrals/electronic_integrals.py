@@ -22,11 +22,12 @@ import h5py
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.properties.property import PseudoProperty
 
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 
 
-class ElectronicIntegrals(ABC):
+class ElectronicIntegrals(PseudoProperty, ABC):
     """A container for raw electronic integrals.
 
     This class is a template for ``n``-body electronic integral containers.
@@ -75,6 +76,7 @@ class ElectronicIntegrals(ABC):
             TypeError: if the provided matrix type does not match with the basis or if the first
                 matrix is ``None``.
         """
+        super().__init__(self.__class__.__name__)
         self._validate_num_body_terms(num_body_terms)
         self._validate_matrices(matrices, basis, num_body_terms)
         self._basis = basis
@@ -93,14 +95,11 @@ class ElectronicIntegrals(ABC):
         if basis != ElectronicBasis.SO:
             self._fill_matrices()
 
-    # TODO: at this point it would make sense to have this derive from (Pseudo-)Property
-    # NOTE: the above would also directly cause for this class to get a `name`
     def to_hdf5(self, parent: h5py.Group):
         """TODO."""
-        group = parent.create_group(str(self._num_body_terms))
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
 
-        group.attrs["__class__"] = self.__class__.__name__
-        group.attrs["__module__"] = self.__class__.__module__
         group.attrs["basis"] = self._basis.name
         group.attrs["threshold"] = self._threshold
 
@@ -110,7 +109,6 @@ class ElectronicIntegrals(ABC):
             for name, mat in zip(self._matrix_representations, self._matrices):
                 group.create_dataset(name, data=mat)
 
-    # NOTE: if this derives from (Pseudo-)Property, the following can be largely de-duplicated
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicIntegrals":
         """TODO."""
