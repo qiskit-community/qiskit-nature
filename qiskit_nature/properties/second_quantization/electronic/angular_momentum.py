@@ -17,6 +17,7 @@ from typing import cast, List, Optional, Tuple
 
 import itertools
 
+import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
@@ -80,6 +81,27 @@ class AngularMomentum(ElectronicProperty):
         if self.spin is not None:
             string += [f"\tExpected spin: {self.spin}"]
         return "\n".join(string)
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
+        if self._spin:
+            group.attrs["spin"] = self._spin
+        group.attrs["absolute_tolerance"] = self._absolute_tolerance
+        group.attrs["relative_tolerance"] = self._relative_tolerance
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "AngularMomentum":
+        """TODO."""
+        return AngularMomentum(
+            h5py_group.attrs["num_spin_orbitals"],
+            h5py_group.attrs.get("spin", None),
+            h5py_group.attrs["absolute_tolerance"],
+            h5py_group.attrs["relative_tolerance"],
+        )
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "AngularMomentum":

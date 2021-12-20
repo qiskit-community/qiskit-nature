@@ -14,6 +14,8 @@
 
 from typing import cast
 
+import h5py
+
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -38,6 +40,18 @@ class Magnetization(ElectronicProperty):
         string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
         return "\n".join(string)
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "Magnetization":
+        """TODO."""
+        return Magnetization(h5py_group.attrs["num_spin_orbitals"])
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
