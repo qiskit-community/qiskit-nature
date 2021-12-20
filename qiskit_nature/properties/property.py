@@ -95,12 +95,14 @@ class Property(ABC):
         """TODO."""
         for group in h5py_group.values():
             module_path = group.attrs.get("__module__", "")
+            class_name = group.attrs.get("__class__", "")
 
-            if not module_path.startswith("qiskit_nature.properties"):
+            if not module_path.startswith("qiskit_nature.properties") and not (
+                module_path == "qiskit_nature.drivers.molecule" and class_name == "Molecule"
+            ):
                 LOGGER.warning("Skipping non-native object.")
                 continue
 
-            class_name = group.attrs.get("__class__", "")
             # TODO: handle missing class_name
 
             loaded_module = importlib.import_module(module_path)

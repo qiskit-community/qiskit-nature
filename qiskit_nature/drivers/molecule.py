@@ -15,13 +15,16 @@
 from typing import Callable, Tuple, List, Optional, cast
 import copy
 
+import h5py
 import numpy as np
 import scipy.linalg
 
 from .units_type import UnitsType
 
+from qiskit_nature.properties import PseudoProperty
 
-class Molecule:
+
+class Molecule(PseudoProperty):
     """Driver-independent Molecule definition.
 
     This module implements an interface for a driver-independent, i.e. generic molecule
@@ -60,6 +63,7 @@ class Molecule:
         Raises:
             ValueError: Length of masses must match length of geometries.
         """
+        super().__init__(self.__class__.__name__)
         Molecule._check_consistency(geometry, masses)
 
         self._geometry = geometry
@@ -70,6 +74,42 @@ class Molecule:
         self._masses = masses
 
         self._perturbations = None  # type: Optional[List[float]]
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        geometry_group = group.create_group("geometry", track_order=True)
+        for (atom, coords) in self._geometry:
+            geometry_group.create_dataset(atom, data=coords)
+
+        group.attrs["multiplicity"] = self._multiplicity
+        group.attrs["charge"] = self._charge
+
+        if self._masses:
+            group.create_dataset("masses", data=self._masses)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "Molecule":
+        """TODO."""
+        geometry = []
+        for atom, coords in h5py_group["geometry"].items():
+            geometry.append((atom, list(coords)))
+
+        multiplicity = h5py_group.attrs["multiplicity"]
+        charge = h5py_group.attrs["charge"]
+
+        masses = None
+        if "masses" in h5py_group.keys():
+            masses = list(h5py_group["masses"])
+
+        return Molecule(
+            geometry,
+            multiplicity,
+            charge,
+            masses=masses,
+        )
 
     def __str__(self) -> str:
         string = ["Molecule:"]

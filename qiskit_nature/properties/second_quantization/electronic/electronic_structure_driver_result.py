@@ -44,12 +44,11 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
-        self.molecule: Molecule = None
 
-    def to_hdf5(self, parent: h5py.Group):
-        """TODO."""
-        super().to_hdf5(parent)
-        # TODO: handle Molecule
+    @property
+    def molecule(self) -> Molecule:
+        """Returns the internal Molecule."""
+        return cast(Molecule, self.get_property(Molecule))
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicStructureDriverResult":
@@ -60,13 +59,10 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         for prop in grouped_property:
             ret.add_property(prop)
 
-        # TODO: handle Molecule
-        return ret
+        # PseudoProperty objects are not included during iteration
+        ret.add_property(grouped_property.get_property(Molecule))
 
-    def __str__(self) -> str:
-        string = [super().__str__()]
-        string += [str(self.molecule)]
-        return "\n".join(string)
+        return ret
 
     @classmethod
     def from_legacy_driver_result(
@@ -106,7 +102,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
             geometry.append((atom, xyz))
 
-        ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
+        ret.add_property(Molecule(geometry, qmol.multiplicity, qmol.molecular_charge))
 
         ret.add_property(
             DriverMetadata(
