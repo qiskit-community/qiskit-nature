@@ -14,6 +14,8 @@
 
 from typing import List, Optional
 
+import h5py
+
 import numpy as np
 
 from ....property import PseudoProperty
@@ -55,6 +57,27 @@ class ElectronicBasisTransform(PseudoProperty):
         string += ["\tBeta coefficients:"]
         string += self._render_coefficients(self.coeff_beta)
         return "\n".join(string)
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["initial_basis"] = self.initial_basis.name
+        group.attrs["final_basis"] = self.final_basis.name
+
+        group.create_dataset("Alpha coefficients", data=self.coeff_alpha)
+        group.create_dataset("Beta coefficients", data=self.coeff_beta)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicBasisTransform":
+        """TODO."""
+        return ElectronicBasisTransform(
+            getattr(ElectronicBasis, h5py_group.attrs["initial_basis"]),
+            getattr(ElectronicBasis, h5py_group.attrs["final_basis"]),
+            h5py_group["Alpha coefficients"][...],
+            h5py_group["Beta coefficients"][...],
+        )
 
     @staticmethod
     def _render_coefficients(coeffs) -> List[str]:
