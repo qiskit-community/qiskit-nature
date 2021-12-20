@@ -115,7 +115,7 @@ class Property(ABC):
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group):
         """TODO."""
-        # TODO: uncomment once all sub-classes actually implement this
+        # TODO: un-comment once all sub-classes actually implement this
         # raise NotImplementedError()
 
 
