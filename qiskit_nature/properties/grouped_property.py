@@ -46,6 +46,17 @@ class GroupedProperty(Property, Iterable, Generic[T]):
         """
         super().__init__(name)
         self._properties: Dict[str, T] = {}
+        self._iterate_pseudo_properties: bool = False
+
+    @property
+    def iterate_pseudo_properties(self) -> bool:
+        """Returns the boolean whether or not to iterate PseudoProperty objects."""
+        return self._iterate_pseudo_properties
+
+    @iterate_pseudo_properties.setter
+    def iterate_pseudo_properties(self, value: bool) -> None:
+        """Sets the boolean whether or not to iterate PseudoProperty objects."""
+        self._iterate_pseudo_properties = value
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
@@ -92,7 +103,7 @@ class GroupedProperty(Property, Iterable, Generic[T]):
         [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
         """
         for prop in self._properties.values():
-            if isinstance(prop, PseudoProperty):
+            if isinstance(prop, PseudoProperty) and not self.iterate_pseudo_properties:
                 continue
             new_property = yield prop
             if new_property is not None:
