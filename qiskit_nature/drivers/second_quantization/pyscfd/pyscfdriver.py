@@ -555,7 +555,7 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_molecule(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
-        coords = self._mol.atom_coords()
+        coords = self._mol.atom_coords(unit=self._unit.value)
         geometry = [(self._mol.atom_pure_symbol(i), list(xyz)) for i, xyz in enumerate(coords)]
 
         driver_result.molecule = Molecule(
