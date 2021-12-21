@@ -113,7 +113,7 @@ class Lattice:
     def __init__(self, graph: PyGraph) -> None:
         """
         Args:
-            graph: Input graph for Lattice.
+            graph: Input graph for Lattice. `graph.multigraph` must be False.
 
         Raises:
             ValueError: If the input graph is a multigraph.
