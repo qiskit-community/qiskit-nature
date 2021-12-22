@@ -20,6 +20,7 @@ import logging
 
 import h5py
 
+from qiskit_nature import __version__
 from qiskit_nature.results import EigenstateResult
 
 LOGGER = logging.getLogger(__name__)
@@ -74,6 +75,8 @@ class Property(ABC):
     def save(self, filename: str, append: bool = False) -> None:
         """TODO."""
         with h5py.File(filename, "a" if append else "w") as file:
+            if not append:
+                file.attrs["__version__"] = __version__
             self.to_hdf5(file)
 
     def to_hdf5(self, parent: h5py.Group) -> None:
@@ -82,13 +85,18 @@ class Property(ABC):
         group.attrs["__class__"] = self.__class__.__name__
         group.attrs["__module__"] = self.__class__.__module__
 
-    # NOTE: can be used on any level
     @staticmethod
     def load(filename):
         """TODO."""
         with h5py.File(filename, "r") as file:
+            if file.attrs["__version__"] != __version__:
+                LOGGER.warning(
+                    "This HDF5 was written with Qiskit Nature version %s but you are using version "
+                    "%s.",
+                    file.attrs["__version__"],
+                    __version__,
+                )
             yield from Property.import_and_build_from_hdf5(file)
-            # TODO: get rid of final `None` iteration
 
     @staticmethod
     def import_and_build_from_hdf5(h5py_group: h5py.Group):
