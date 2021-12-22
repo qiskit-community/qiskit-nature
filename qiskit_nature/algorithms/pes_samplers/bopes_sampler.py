@@ -133,11 +133,11 @@ class BOPESSampler:
 
         if isinstance(self._gss, GroundStateSolver) and isinstance(
             self._solver, VariationalAlgorithm
-        ):  # type: ignore
+        ):
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
             # if MinimalEigensolverFactory is used, initialization is delayed
-            self._initial_point = self._solver.initial_point  # type: ignore
+            self._initial_point = self._solver.initial_point
 
     def sample(self, problem: BaseProblem, points: List[float]) -> BOPESSamplerResult:
         """Run the sampler at the given points, potentially with repetitions.
@@ -207,9 +207,9 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if isinstance(self._solver, VariationalAlgorithm):  # type: ignore
+        if isinstance(self._solver, VariationalAlgorithm):
             self._points_optparams = {}
-            self._solver.initial_point = self._initial_point  # type: ignore
+            self._solver.initial_point = self._initial_point
 
         # Iterate over the points
         for i, point in enumerate(points):
@@ -251,7 +251,7 @@ class BOPESSampler:
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters
-        if isinstance(self._solver, VariationalAlgorithm) and self._bootstrap:  # type: ignore
+        if isinstance(self._solver, VariationalAlgorithm) and self._bootstrap:
             prev_points = list(self._points_optparams.keys())
             prev_params = list(self._points_optparams.values())
             n_pp = len(prev_points)
@@ -269,14 +269,14 @@ class BOPESSampler:
                     # find min 'distance' from point to previous points
                     min_index = np.argmin(np.linalg.norm(distances, axis=1))
                     # update initial point
-                    self._solver.initial_point = prev_params[min_index]  # type: ignore
+                    self._solver.initial_point = prev_params[min_index]
                 else:  # extrapolate using saved parameters
                     opt_params = self._points_optparams
                     param_sets = self._extrapolator.extrapolate(
                         points=[point], param_dict=opt_params
                     )
                     # update initial point, note param_set is a dictionary
-                    self._solver.initial_point = param_sets.get(point)  # type: ignore
+                    self._solver.initial_point = param_sets.get(point)
 
         # the output is an instance of EigenstateResult
         if isinstance(self._gss, GroundStateSolver):
@@ -290,9 +290,9 @@ class BOPESSampler:
             result = self._problem.interpret(raw_mes_result)
 
         # Save optimal point to bootstrap
-        if isinstance(self._solver, VariationalAlgorithm):  # type: ignore
+        if isinstance(self._solver, VariationalAlgorithm):
             # at every point evaluation, the optimal params are updated
-            optimal_params = result.raw_result.optimal_point  # type: ignore
+            optimal_params = result.raw_result.optimal_point
             self._points_optparams[point] = optimal_params
 
         return result
