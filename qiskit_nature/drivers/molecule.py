@@ -39,7 +39,7 @@ class Molecule:
         geometry: List[Tuple[str, List[float]]],
         multiplicity: int = 1,
         charge: int = 0,
-        unit: str = UnitsType.ANGSTROM,
+        unit: UnitsType = UnitsType.ANGSTROM,
         degrees_of_freedom: Optional[List[Callable]] = None,
         masses: Optional[List[float]] = None,
     ) -> None:
