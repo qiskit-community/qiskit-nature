@@ -18,6 +18,7 @@ from test import QiskitNatureTestCase
 from functools import partial
 import numpy as np
 
+from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers import Molecule
 
 
@@ -69,7 +70,10 @@ class TestMolecule(QiskitNatureTestCase):
 
     def test_unit(self):
         """Test Unit"""
-        mol = Molecule(geometry=[("H", [10.0, 2.0, 0.0]), ("H", [0.0, 20.0, 1.0])],unit="Bohr")
+        mol = Molecule(
+            geometry=[("H", [10.0, 2.0, 0.0]), ("H", [0.0, 20.0, 1.0])],
+            unit=UnitsType.BOHR
+        )
         self.assertEqual(mol.geometry[0][1], [5.2917721092, 1.05835442184, 0.0])
         self.assertEqual(mol.geometry[1][1], [0.0, 10.5835442184, 0.52917721092])
 

@@ -18,8 +18,8 @@ import copy
 import numpy as np
 import scipy.linalg
 
-from .units_type import UnitsType
 from qiskit_nature.constants import BOHR
+from .units_type import UnitsType
 
 class Molecule:
     """Driver-independent Molecule definition.
@@ -39,7 +39,7 @@ class Molecule:
         geometry: List[Tuple[str, List[float]]],
         multiplicity: int = 1,
         charge: int = 0,
-        unit: str = "Angstrom",
+        unit: str = UnitsType.ANGSTROM,
         degrees_of_freedom: Optional[List[Callable]] = None,
         masses: Optional[List[float]] = None,
     ) -> None:
@@ -64,13 +64,12 @@ class Molecule:
         Molecule._check_consistency(geometry, masses)
 
         # if unit is Bohr, convert geometry to unit angstrom
-        if unit == "Bohr":
+        if unit == UnitsType.BOHR:
             n_geometry: List[Tuple[str, List[float]]] = []
             for atom, xyz in geometry:
                 ang_xyz = [e * BOHR for e in xyz]
                 n_geometry.append((atom, ang_xyz))
             geometry = n_geometry
-
         self._geometry = geometry
         self._unit = unit
         self._degrees_of_freedom = None
@@ -87,7 +86,7 @@ class Molecule:
         string += [f"\tCharge: {self._charge}"]
         string += ["\tGeometry:"]
         for atom, xyz in self._geometry:
-            if self._unit == "Bohr":
+            if self._unit == UnitsType.BOHR:
                 ang_xyz = [e / BOHR for e in xyz]
                 string += [f"\t\t{atom}\t{ang_xyz}"]
             else:
