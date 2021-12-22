@@ -21,6 +21,7 @@ import scipy.linalg
 from qiskit_nature.constants import BOHR
 from .units_type import UnitsType
 
+
 class Molecule:
     """Driver-independent Molecule definition.
 
