@@ -79,7 +79,8 @@ class BOPESSampler:
     ) -> None:
         """
         Args:
-            gss: GroundStateSolver or MinimumEigensolverFactory
+            gss: GroundStateSolver or MinimumEigensolverFactory. When using
+                MinimumEigensolverFactory, a qubit converter must also be provided.
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -174,10 +175,11 @@ class BOPESSampler:
             raise QiskitNatureError("Driver MUST be configured with a Molecule.")
 
         # force the initialization of the solver before starting the computation
+        # so that we have a solver to tack initial_points
         if isinstance(self._gss, MinimumEigensolverFactory):
             if self._qubit_converter is None:
                 raise QiskitNatureError(
-                    "When using MinimumEigensolverFactory " "you must specify a qubit converter"
+                    "When using MinimumEigensolverFactory you must specify a qubit converter"
                 )
             prepare_problem(problem, self._qubit_converter)
             self._solver = self._gss.get_solver(problem, self._qubit_converter)
