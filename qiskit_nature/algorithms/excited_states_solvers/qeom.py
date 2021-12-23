@@ -238,7 +238,7 @@ class QEOM(ExcitedStatesSolver):
                     all_matrix_operators[f"v_{m_u}_{n_u}"] = v_mat_op
 
         try:
-            z2_symmetries = self._gsc.qubit_converter.z2symmetries  # type: ignore
+            z2_symmetries = self._gsc.qubit_converter.z2symmetries
         except AttributeError:
             z2_symmetries = Z2Symmetries([], [], [])
 

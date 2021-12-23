@@ -144,7 +144,7 @@ class PySCFDriver(FermionicDriver):
             MissingOptionalLibraryError: If PySCF is not installed.
         """
         try:
-            spec = importlib.util.find_spec("pyscf")  # type: ignore
+            spec = importlib.util.find_spec("pyscf")
             if spec is not None:
                 return
         except Exception as ex:  # pylint: disable=broad-except
