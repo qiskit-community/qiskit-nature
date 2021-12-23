@@ -61,7 +61,7 @@ class FCIDumpDriver(FermionicDriver):
         if (
             atoms
             and not isinstance(atoms, list)
-            and not all(sym in QMolecule.symbols for sym in atoms)
+            and not all(sym in QMolecule.symbols for sym in atoms)  # type: ignore
         ):
             raise QiskitNatureError(
                 f"The atoms must be a list of valid atomic symbols, not '{atoms}'"

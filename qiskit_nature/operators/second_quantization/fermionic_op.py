@@ -288,7 +288,7 @@ class FermionicOp(SecondQuantizedOp):
                 self._data = [
                     (
                         self._substituted_label([(c, int(i)) for i, c in enumerate(label)]),
-                        complex(coeff),  # type: ignore
+                        complex(coeff),
                     )
                     for label, coeff in data
                 ]
@@ -298,7 +298,7 @@ class FermionicOp(SecondQuantizedOp):
                         self._substituted_label(
                             [(c[0], int(c[2:])) for c in label.split()]  # type: ignore
                         ),
-                        complex(coeff),  # type: ignore
+                        complex(coeff),
                     )
                     for label, coeff in data
                 ]
@@ -436,7 +436,7 @@ class FermionicOp(SecondQuantizedOp):
     def to_list(
         self,
         display_format: Optional[str] = None,
-    ) -> List[Tuple[str, complex]]:  # type: ignore
+    ) -> List[Tuple[str, complex]]:
         """Returns the operators internal contents in list-format.
 
         Args:

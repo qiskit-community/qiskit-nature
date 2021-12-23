@@ -105,7 +105,7 @@ class OccupiedModals(VibrationalProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore[assignment]
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues
 
         num_modes = len(self._basis._num_modals_per_mode)
 
@@ -114,7 +114,7 @@ class OccupiedModals(VibrationalProperty):
             for mode in range(num_modes):
                 _key = str(mode) if isinstance(aux_op_eigenvalues, dict) else mode
                 if aux_op_eigenvalues[_key] is not None:
-                    occ_modals.append(aux_op_eigenvalues[_key][0].real)  # type: ignore
+                    occ_modals.append(aux_op_eigenvalues[_key][0].real)
                 else:
                     occ_modals.append(None)
-            result.num_occupied_modals_per_mode.append(occ_modals)  # type: ignore
+            result.num_occupied_modals_per_mode.append(occ_modals)
