@@ -12,7 +12,7 @@
 
 """ Bosonic Harmonic Basis """
 
-from typing import Dict, List, Tuple, cast
+from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -164,7 +164,7 @@ class HarmonicBasis(BosonicBasis):
         }
 
         for entry in self._watson.data:  # Entry is coeff (float) followed by indices (ints)
-            coeff0 = cast(float, entry[0])
+            coeff0 = entry[0]
             indices = np.asarray(entry[1:], dtype=int)
 
             kinetic_term = False
