@@ -13,13 +13,13 @@
 """Two-qubit YX - XY interaction gate."""
 
 from typing import Optional
-import numpy as np
 
-from qiskit.circuit.library import CXGate, HGate, RZGate, TGate, TdgGate
+import numpy as np
 from qiskit.circuit.gate import Gate
+from qiskit.circuit.library import CXGate, HGate, RYGate, SdgGate, SGate
+from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.circuit.quantumcircuit import QuantumCircuit
 from qiskit.circuit.quantumregister import QuantumRegister
-from qiskit.circuit.parameterexpression import ParameterValueType
 
 
 class YXMinusXYInteractionGate(Gate):
@@ -124,18 +124,16 @@ class YXMinusXYInteractionGate(Gate):
         circuit = QuantumCircuit(register, name=self.name)
         a, b = register
         rules = [
-            (TGate(), [a], []),
-            (TdgGate(), [b], []),
-            (CXGate(), [a, b], []),
-            (HGate(), [a], []),
+            (SGate(), [a], []),
+            (SGate(), [b], []),
+            (HGate(), [b], []),
             (CXGate(), [b, a], []),
-            (RZGate(theta), [a], []),
+            (RYGate(theta), [a], []),
+            (RYGate(theta), [b], []),
             (CXGate(), [b, a], []),
-            (RZGate(-theta), [a], []),
-            (HGate(), [a], []),
-            (CXGate(), [a, b], []),
-            (TdgGate(), [a], []),
-            (TGate(), [b], []),
+            (HGate(), [b], []),
+            (SdgGate(), [b], []),
+            (SdgGate(), [a], []),
         ]
         for instr, qargs, cargs in rules:
             circuit.append(instr, qargs, cargs)
