@@ -22,7 +22,7 @@ from qiskit.circuit.quantumregister import QuantumRegister
 from qiskit.circuit.parameterexpression import ParameterValueType
 
 
-class RYXXYGate(Gate):
+class YXMinusXYInteractionGate(Gate):
     r"""A parametric 2-qubit :math:`Y \otimes X - X \otimes Y` interaction.
 
     These gates are used in the Givens rotation strategy for preparing
@@ -145,4 +145,4 @@ class RYXXYGate(Gate):
     def inverse(self):
         """Return inverse RYXXY gate."""
         (theta,) = self.params
-        return RYXXYGate(-theta)
+        return YXMinusXYInteractionGate(-theta)

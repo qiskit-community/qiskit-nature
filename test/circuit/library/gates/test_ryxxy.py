@@ -17,7 +17,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Operator
-from qiskit_nature.circuit.library import RYXXYGate
+from qiskit_nature.circuit.library import YXMinusXYInteractionGate
 
 
 class TestRYXXYGate(QiskitNatureTestCase):
@@ -25,31 +25,31 @@ class TestRYXXYGate(QiskitNatureTestCase):
 
     def test_matrix(self):
         """Test matrix."""
-        gate = RYXXYGate(0)
+        gate = YXMinusXYInteractionGate(0)
         expected = np.eye(4)
         np.testing.assert_allclose(gate.to_matrix(), expected, atol=1e-7)
 
-        gate = RYXXYGate(np.pi / 4)
+        gate = YXMinusXYInteractionGate(np.pi / 4)
         a = np.sqrt(2) / 2
         expected = np.array([[1, 0, 0, 0], [0, a, a, 0], [0, -a, a, 0], [0, 0, 0, 1]])
         np.testing.assert_allclose(gate.to_matrix(), expected, atol=1e-7)
 
-        gate = RYXXYGate(np.pi / 2)
+        gate = YXMinusXYInteractionGate(np.pi / 2)
         expected = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0], [0, 0, 0, 1]])
         np.testing.assert_allclose(gate.to_matrix(), expected, atol=1e-7)
 
-        gate = RYXXYGate(np.pi)
+        gate = YXMinusXYInteractionGate(np.pi)
         expected = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
         np.testing.assert_allclose(gate.to_matrix(), expected, atol=1e-7)
 
-        gate = RYXXYGate(2 * np.pi)
+        gate = YXMinusXYInteractionGate(2 * np.pi)
         expected = np.eye(4)
         np.testing.assert_allclose(gate.to_matrix(), expected, atol=1e-7)
 
     def test_inverse(self):
         """Test inverse."""
         theta = np.random.uniform(-10, 10)
-        gate = RYXXYGate(theta)
+        gate = YXMinusXYInteractionGate(theta)
         circuit = QuantumCircuit(2)
         circuit.append(gate, [0, 1])
         circuit.append(gate.inverse(), [0, 1])
@@ -58,7 +58,7 @@ class TestRYXXYGate(QiskitNatureTestCase):
     def test_decompose(self):
         """Test decomposition."""
         theta = np.random.uniform(-10, 10)
-        gate = RYXXYGate(theta)
+        gate = YXMinusXYInteractionGate(theta)
         circuit = QuantumCircuit(2)
         circuit.append(gate, [0, 1])
         decomposed_circuit = circuit.decompose()

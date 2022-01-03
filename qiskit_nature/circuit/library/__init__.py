@@ -73,7 +73,7 @@ from .ansatzes import (
     UVCCSD,
 )
 
-from .gates import RYXXYGate
+from .gates import YXMinusXYInteractionGate
 
 from .initial_states import HartreeFock, VSCF
 
@@ -87,5 +87,5 @@ __all__ = [
     "UVCC",
     "UVCCSD",
     "VSCF",
-    "RYXXYGate",
+    "YXMinusXYInteractionGate",
 ]
