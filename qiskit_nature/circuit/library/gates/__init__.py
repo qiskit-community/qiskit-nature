@@ -11,6 +11,6 @@
 # that they have been altered from the originals.
 """Qiskit Nature Circuit Library Gates."""
 
-from .ryxxy import YXMinusXYInteractionGate
+from .yx_minus_xy_interaction import YXMinusXYInteractionGate
 
 __all__ = ["YXMinusXYInteractionGate"]

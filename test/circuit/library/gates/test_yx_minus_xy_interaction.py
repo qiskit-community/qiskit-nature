@@ -20,8 +20,8 @@ from qiskit.quantum_info import Operator
 from qiskit_nature.circuit.library import YXMinusXYInteractionGate
 
 
-class TestRYXXYGate(QiskitNatureTestCase):
-    """Tests for RYXXY gate"""
+class TestYXMinusXYInteractionGate(QiskitNatureTestCase):
+    """Tests for YXMinusXYInteractionGate gate"""
 
     def test_matrix(self):
         """Test matrix."""

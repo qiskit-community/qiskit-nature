@@ -25,7 +25,7 @@ Gates
    :toctree: ../stubs/
    :nosignatures:
 
-   RYXXYGate
+   YXMinusXYInteractionGate
 
 Initial states
 ==============

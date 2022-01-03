@@ -104,11 +104,11 @@ class YXMinusXYInteractionGate(Gate):
     """
 
     def __init__(self, theta: ParameterValueType, label: Optional[str] = None):
-        """Create new RYXXY gate."""
+        """Create new YXMinusXYInteractionGate gate."""
         super().__init__("ryxxy", 2, [theta], label=label)
 
     def __array__(self, dtype=None):
-        """Return a numpy array for the RYXXY gate."""
+        """Return a numpy array for the YXMinusXYInteractionGate gate."""
         theta = float(self.params[0])
         cos = np.cos(theta)
         sin = np.sin(theta)
@@ -141,6 +141,6 @@ class YXMinusXYInteractionGate(Gate):
         self.definition = circuit
 
     def inverse(self):
-        """Return inverse RYXXY gate."""
+        """Return inverse YXMinusXYInteractionGate gate."""
         (theta,) = self.params
         return YXMinusXYInteractionGate(-theta)
