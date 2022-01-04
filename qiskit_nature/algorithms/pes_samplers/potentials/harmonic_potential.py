@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -263,11 +263,11 @@ class HarmonicPotential(PotentialBase):
         for i in x_min:
             all_of_min = np.concatenate((all_of_min, np.where(xdata_s == xdata_s[i])[0]))
         # array of indices where X is equal to the next smaller value
-        left_of_min = []
+        left_of_min = np.array([], dtype=int)
         if min(all_of_min) > 0:
             left_of_min = np.where(xdata_s == xdata_s[min(all_of_min) - 1])[0]
         # array of indices where X is equal to the next bigger value
-        right_of_min = []
+        right_of_min = np.array([], dtype=int)
         if max(all_of_min) < (xdata_s.size - 1):
             right_of_min = np.where(xdata_s == xdata_s[max(all_of_min) + 1])[0]
         # all those indices together are used for fitting a harmonic
