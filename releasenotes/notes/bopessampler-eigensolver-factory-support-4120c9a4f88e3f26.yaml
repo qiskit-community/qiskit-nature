@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    Added support for
+    :class:`~qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories.MinimumEigensolverFactory`
+    in :class:`~qiskit_nature.algorithms.BOPESSampler`.
+
+    .. code-block:: python
+
+        converter = QubitConverter(ParityMapper())
+        solver = VQEUCCFactory(quantum_instance)
+        sampler = BOPESSampler(
+            solver, bootstrap=True, num_bootstrap=None, extrapolator=None, qubit_converter=converter
+        )

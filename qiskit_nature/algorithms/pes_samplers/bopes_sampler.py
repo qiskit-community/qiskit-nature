@@ -181,6 +181,7 @@ class BOPESSampler:
                 raise QiskitNatureError(
                     "When using MinimumEigensolverFactory you must specify a qubit converter"
                 )
+            # we need a problem with second quantisation applied for creating the solver
             prepare_problem(problem, self._qubit_converter)
             self._solver = self._gss.get_solver(problem, self._qubit_converter)
 
