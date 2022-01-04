@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 
 """Driver-independent Molecule definition."""
 
-from typing import Callable, Tuple, List, Optional
+from typing import Callable, Tuple, List, Optional, cast
 import copy
 
 import numpy as np
@@ -119,7 +119,7 @@ class Molecule:
 
         starting_distance_vector = starting_coord1 - coord2
         starting_l2distance = np.linalg.norm(starting_distance_vector)
-        new_l2distance = function(starting_l2distance, parameter)
+        new_l2distance = function(cast(float, starting_l2distance), parameter)
         new_distance_vector = starting_distance_vector * (new_l2distance / starting_l2distance)
         new_coord1 = coord2 + new_distance_vector
 
