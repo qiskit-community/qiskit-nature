@@ -105,17 +105,27 @@ class Property(ABC):
             module_path = group.attrs.get("__module__", "")
             class_name = group.attrs.get("__class__", "")
 
+            if not class_name:
+                LOGGER.warning("Skipping faulty object without a '__class__' attribute.")
+                continue
+
             if not module_path.startswith("qiskit_nature.properties") and not (
                 module_path == "qiskit_nature.drivers.molecule" and class_name == "Molecule"
             ):
                 LOGGER.warning("Skipping non-native object.")
                 continue
 
-            # TODO: handle missing class_name
-
             loaded_module = importlib.import_module(module_path)
             loaded_class = getattr(loaded_module, class_name, None)
-            # TODO: handle missing loaded_class
+
+            if loaded_class is None:
+                LOGGER.warning(
+                    "Skipping object after failed import attempt of %s from %s",
+                    class_name,
+                    module_path,
+                )
+                continue
+
             constructor = getattr(loaded_class, "from_hdf5")
             instance = constructor(group)
             yield instance
