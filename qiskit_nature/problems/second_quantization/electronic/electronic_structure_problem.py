@@ -139,7 +139,7 @@ class ElectronicStructureProblem(BaseProblem):
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 
-        You cannot call this method before calling `second_q_ops()`.
+        This method should can be used after calling `second_q_ops()`.
 
         Args:
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
