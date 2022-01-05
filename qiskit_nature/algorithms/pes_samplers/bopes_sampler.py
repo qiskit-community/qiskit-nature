@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -181,7 +181,7 @@ class BOPESSampler:
                 raise QiskitNatureError(
                     "When using MinimumEigensolverFactory you must specify a qubit converter"
                 )
-            # we need a problem with second quantisation applied for creating the solver
+            # we need a problem with second quantization applied for creating the solver
             prepare_problem(problem, self._qubit_converter)
             self._solver = self._gss.get_solver(problem, self._qubit_converter)
 
