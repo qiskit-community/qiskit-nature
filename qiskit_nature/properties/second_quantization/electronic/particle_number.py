@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -78,8 +78,8 @@ class ParticleNumber(ElectronicProperty):
             self._occupation_beta = [1.0 for _ in range(self._num_beta)]
             self._occupation_beta += [0.0] * (num_spin_orbitals // 2 - len(self._occupation_beta))
         elif occupation_beta is None:
-            self._occupation_alpha = [o / 2.0 for o in occupation]
-            self._occupation_beta = [o / 2.0 for o in occupation]
+            self._occupation_alpha = [np.ceil(o / 2) for o in occupation]
+            self._occupation_beta = [np.floor(o / 2) for o in occupation]
         else:
             self._occupation_alpha = occupation  # type: ignore
             self._occupation_beta = occupation_beta  # type: ignore
