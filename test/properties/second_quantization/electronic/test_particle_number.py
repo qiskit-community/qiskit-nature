@@ -15,6 +15,8 @@
 import warnings
 from test import QiskitNatureTestCase
 
+import numpy as np
+
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
@@ -48,3 +50,9 @@ class TestParticleNumber(QiskitNatureTestCase):
             "+_7 -_7",
         ]
         self.assertEqual([l for l, _ in ops[0].to_list()], expected)
+
+    def test_non_singlet_occupation(self):
+        """Regression test against occupation computation of non-singlet state."""
+        prop = ParticleNumber(4, (2, 1), [2.0, 1.0])
+        self.assertTrue(np.allclose(prop.occupation_alpha, [1.0, 1.0]))
+        self.assertTrue(np.allclose(prop.occupation_beta, [1.0, 0.0]))
