@@ -109,7 +109,7 @@ class YXMinusXYInteractionGate(Gate):
 
     def __array__(self, dtype=None):
         """Return a numpy array for the YXMinusXYInteractionGate gate."""
-        theta = float(self.params[0])
+        (theta,) = self.params
         cos = np.cos(theta)
         sin = np.sin(theta)
         return np.array(
