@@ -14,6 +14,8 @@
 
 from typing import List, Optional, Tuple
 
+import h5py
+
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
@@ -39,6 +41,11 @@ class OccupiedModals(VibrationalProperty):
                 be set before the second-quantized operator can be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "OccupiedModals":
+        """TODO."""
+        return cls()
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "OccupiedModals":

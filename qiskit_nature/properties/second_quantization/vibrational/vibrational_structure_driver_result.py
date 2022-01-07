@@ -14,11 +14,14 @@
 
 from typing import cast
 
+import h5py
+
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from ..second_quantized_property import LegacyDriverResult
+from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
@@ -47,6 +50,37 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     def num_modes(self, num_modes: int) -> None:
         """Sets the number of modes."""
         self._num_modes = num_modes
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_modes"] = self.num_modes
+
+        if self.basis is not None:
+            self.basis.to_hdf5(group)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalStructureDriverResult":
+        """TODO."""
+        grouped_property = super().from_hdf5(h5py_group)
+        grouped_property.iterate_pseudo_properties = True
+
+        basis: VibrationalBasis = None
+        ret = cls()
+        for prop in grouped_property:
+            if isinstance(prop, VibrationalBasis):
+                basis = prop
+                continue
+            ret.add_property(prop)
+
+        ret.num_modes = h5py_group.attrs["num_modes"]
+
+        if basis is not None:
+            ret.basis = basis
+
+        return ret
 
     @classmethod
     def from_legacy_driver_result(

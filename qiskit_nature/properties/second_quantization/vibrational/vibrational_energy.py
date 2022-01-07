@@ -14,6 +14,8 @@
 
 from typing import cast, Dict, List, Optional, Tuple
 
+import h5py
+
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
@@ -71,6 +73,27 @@ class VibrationalEnergy(VibrationalProperty):
         for ints in self._vibrational_integrals.values():
             string += [f"\t{ints}"]
         return "\n".join(string)
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        ints_group = group.create_group("vibrational_integrals")
+        for integral in self._vibrational_integrals.values():
+            integral.to_hdf5(ints_group)
+
+        if self.truncation_order:
+            group.attrs["truncation_order"] = self.truncation_order
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalEnergy":
+        """TODO."""
+        ints = []
+        for int_group in h5py_group["vibrational_integrals"].values():
+            ints.append(VibrationalIntegrals.from_hdf5(int_group))
+
+        return cls(ints, h5py_group.attrs.get("truncation_order", None))
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":

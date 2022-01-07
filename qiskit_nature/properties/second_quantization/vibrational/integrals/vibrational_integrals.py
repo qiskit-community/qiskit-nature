@@ -17,15 +17,17 @@ from collections import Counter
 from itertools import chain, cycle, permutations, product, tee
 from typing import Dict, List, Optional, Tuple
 
+import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.properties.property import PseudoProperty
 
 from ..bases import VibrationalBasis
 
 
-class VibrationalIntegrals(ABC):
+class VibrationalIntegrals(PseudoProperty, ABC):
     """A container for arbitrary ``n-body`` vibrational integrals.
 
     When these integrals are printed the output will be truncated based on the
@@ -52,10 +54,8 @@ class VibrationalIntegrals(ABC):
         Raises:
             ValueError: if the number of body terms is less than 1.
         """
-        if num_body_terms < 1:
-            raise ValueError(
-                f"The number of body terms must be greater than 0, not '{num_body_terms}'."
-            )
+        super().__init__(f"{num_body_terms}Body{self.__class__.__name__}")
+        self._validate_num_body_terms(num_body_terms)
         self._num_body_terms = num_body_terms
         self._integrals = integrals
         self._basis: VibrationalBasis = None
@@ -95,6 +95,32 @@ class VibrationalIntegrals(ABC):
             count += 1
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_body_terms"] = self._num_body_terms
+
+        dtype = h5py.vlen_dtype(np.dtype("int32"))
+        integrals_dset = group.create_dataset("integrals", (len(self.integrals),), dtype=dtype)
+        coeffs_dset = group.create_dataset("coefficients", (len(self.integrals),), dtype=float)
+
+        for idx, ints in enumerate(self.integrals):
+            coeffs_dset[idx] = ints[0]
+            integrals_dset[idx] = list(ints[1])
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalIntegrals":
+        """TODO."""
+        integrals = []
+        for coeff, ints in zip(h5py_group["coefficients"][...], h5py_group["integrals"][...]):
+            integrals.append((coeff, tuple(ints)))
+
+        ret = cls(h5py_group.attrs["num_body_terms"], integrals)
+
+        return ret
+
     @staticmethod
     def set_truncation(max_num_entries: int) -> None:
         """Set the maximum number of integral values to display before truncation.
@@ -106,6 +132,14 @@ class VibrationalIntegrals(ABC):
             Truncation will be disabled if `max_num_entries` is set to 0.
         """
         VibrationalIntegrals._truncate = max_num_entries
+
+    @staticmethod
+    def _validate_num_body_terms(num_body_terms: int) -> None:
+        """Validates the number of body terms."""
+        if num_body_terms < 1:
+            raise ValueError(
+                f"The number of body terms must be greater than 0, not '{num_body_terms}'."
+            )
 
     def to_basis(self) -> np.ndarray:
         """Maps the integrals into a basis which permits mapping into second-quantization.

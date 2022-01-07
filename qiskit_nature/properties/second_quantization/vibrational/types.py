@@ -63,14 +63,20 @@ class GroupedVibrationalProperty(GroupedSecondQuantizedProperty[T], VibrationalP
     """A GroupedProperty subtype containing purely vibrational properties."""
 
     @property
-    def basis(self) -> VibrationalBasis:
+    def basis(self) -> Optional[VibrationalBasis]:
         """Returns the basis."""
-        return list(self._properties.values())[0].basis
+        for prop in self._properties.values():
+            if isinstance(prop, PseudoProperty):
+                continue
+            return prop.basis
+        return None
 
     @basis.setter
     def basis(self, basis: VibrationalBasis) -> None:
         """Sets the basis."""
         for prop in self._properties.values():
+            if isinstance(prop, PseudoProperty):
+                continue
             prop.basis = basis
 
     def add_property(self, prop: Optional[T]) -> None:

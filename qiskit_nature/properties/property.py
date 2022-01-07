@@ -127,10 +127,10 @@ class Property(ABC):
             yield instance
 
     @classmethod
+    @abstractmethod
     def from_hdf5(cls, h5py_group: h5py.Group):
         """TODO."""
-        # TODO: un-comment once all sub-classes actually implement this
-        # raise NotImplementedError()
+        raise NotImplementedError()
 
 
 class PseudoProperty(Property, ABC):

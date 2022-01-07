@@ -15,8 +15,12 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
+import h5py
 
-class VibrationalBasis(ABC):
+from qiskit_nature.properties import PseudoProperty
+
+
+class VibrationalBasis(PseudoProperty, ABC):
     """The Vibrational basis base class.
 
     This class defines the interface which any vibrational basis must implement. A basis must be
@@ -34,6 +38,7 @@ class VibrationalBasis(ABC):
             num_modals_per_mode: the number of modals to be used for each mode.
             threshold: the threshold value below which an integral coefficient gets neglected.
         """
+        super().__init__(self.__class__.__name__)
         self._num_modals_per_mode = num_modals_per_mode
         self._threshold = threshold
 
@@ -46,6 +51,19 @@ class VibrationalBasis(ABC):
         string = [self.__class__.__name__ + ":"]
         string += [f"\tModals: {self._num_modals_per_mode}"]
         return "\n".join(string)
+
+    def to_hdf5(self, parent: h5py.Group):
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["threshold"] = self._threshold
+        group.create_dataset("num_modals_per_mode", data=self.num_modals_per_mode)
+
+    @classmethod
+    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalBasis":
+        """TODO."""
+        return cls(h5py_group["num_modals_per_mode"][...], h5py_group.attrs.get("threshold", None))
 
     @abstractmethod
     def eval_integral(
