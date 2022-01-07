@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -558,7 +558,7 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_molecule(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
-        coords = self._mol.atom_coords()
+        coords = self._mol.atom_coords(unit="Angstrom")
         geometry = [(self._mol.atom_pure_symbol(i), list(xyz)) for i, xyz in enumerate(coords)]
 
         driver_result.molecule = Molecule(
