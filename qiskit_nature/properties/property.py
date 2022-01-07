@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+from typing import Generator
+
 from abc import ABC, abstractmethod
 import importlib
 import logging
@@ -89,13 +91,13 @@ class Property(ABC):
         group.attrs["__version__"] = self.VERSION
 
     @staticmethod
-    def load(filename):
+    def load(filename) -> Generator[Property, None, None]:
         """TODO."""
         with h5py.File(filename, "r") as file:
             yield from Property.import_and_build_from_hdf5(file)
 
     @staticmethod
-    def import_and_build_from_hdf5(h5py_group: h5py.Group):
+    def import_and_build_from_hdf5(h5py_group: h5py.Group) -> Generator[Property, None, None]:
         """TODO."""
         for group in h5py_group.values():
             module_path = group.attrs.get("__module__", "")
