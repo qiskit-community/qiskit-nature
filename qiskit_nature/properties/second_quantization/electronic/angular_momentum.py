@@ -12,6 +12,8 @@
 
 """The AngularMomentum property."""
 
+from __future__ import annotations
+
 import logging
 from typing import cast, List, Optional, Tuple
 
@@ -82,7 +84,7 @@ class AngularMomentum(ElectronicProperty):
             string += [f"\tExpected spin: {self.spin}"]
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -94,7 +96,7 @@ class AngularMomentum(ElectronicProperty):
         group.attrs["relative_tolerance"] = self._relative_tolerance
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "AngularMomentum":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> AngularMomentum:
         """TODO."""
         return AngularMomentum(
             h5py_group.attrs["num_spin_orbitals"],
@@ -104,7 +106,7 @@ class AngularMomentum(ElectronicProperty):
         )
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "AngularMomentum":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> AngularMomentum:
         """Construct an AngularMomentum instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:

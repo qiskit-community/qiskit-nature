@@ -12,6 +12,8 @@
 
 """The OccupiedModals property."""
 
+from __future__ import annotations
+
 from typing import List, Optional, Tuple
 
 import h5py
@@ -43,12 +45,12 @@ class OccupiedModals(VibrationalProperty):
         super().__init__(self.__class__.__name__, basis)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "OccupiedModals":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> OccupiedModals:
         """TODO."""
         return cls()
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "OccupiedModals":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> OccupiedModals:
         """Construct an OccupiedModals instance from a
         :class:`~qiskit_nature.drivers.WatsonHamiltonian`.
 

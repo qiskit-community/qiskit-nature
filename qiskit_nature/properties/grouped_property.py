@@ -12,6 +12,8 @@
 
 """A group of multiple properties."""
 
+from __future__ import annotations
+
 from collections.abc import Iterable
 from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
 
@@ -127,11 +129,11 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             prop.to_hdf5(group)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "GroupedProperty":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> GroupedProperty:
         """TODO."""
         class_name = h5py_group.attrs.get("__class__", "")
 
-        ret: "GroupedProperty" = GroupedProperty(class_name)
+        ret: GroupedProperty = GroupedProperty(class_name)
 
         for prop in Property.import_and_build_from_hdf5(h5py_group):
             ret.add_property(prop)

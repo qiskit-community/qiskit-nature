@@ -12,6 +12,8 @@
 
 """The ElectronicEnergy property."""
 
+from __future__ import annotations
+
 from typing import Dict, List, Optional, cast
 
 import h5py
@@ -68,7 +70,7 @@ class ElectronicEnergy(IntegralProperty):
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -92,7 +94,7 @@ class ElectronicEnergy(IntegralProperty):
             self.overlap.to_hdf5(overlap_group)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicEnergy":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicEnergy:
         """TODO."""
         integral_property = super().from_hdf5(h5py_group)
 
@@ -166,7 +168,7 @@ class ElectronicEnergy(IntegralProperty):
         self._overlap = overlap
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ElectronicEnergy:
         """Construct an ``ElectronicEnergy`` instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
@@ -239,7 +241,7 @@ class ElectronicEnergy(IntegralProperty):
         h2_bb: Optional[np.ndarray] = None,
         h2_ba: Optional[np.ndarray] = None,
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
-    ) -> "ElectronicEnergy":
+    ) -> ElectronicEnergy:
         """Construct an ``ElectronicEnergy`` from raw integrals in a given basis.
 
         When setting the basis to

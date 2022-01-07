@@ -12,6 +12,8 @@
 
 """The VibrationalStructureDriverResult class."""
 
+from __future__ import annotations
+
 from typing import cast
 
 import h5py
@@ -51,7 +53,7 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         """Sets the number of modes."""
         self._num_modes = num_modes
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -62,7 +64,7 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
             self.basis.to_hdf5(group)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalStructureDriverResult":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalStructureDriverResult:
         """TODO."""
         grouped_property = super().from_hdf5(h5py_group)
         grouped_property.iterate_pseudo_properties = True
@@ -85,7 +87,7 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
-    ) -> "VibrationalStructureDriverResult":
+    ) -> VibrationalStructureDriverResult:
         """Converts a :class:`~qiskit_nature.drivers.WatsonHamiltonian` into an
         ``VibrationalStructureDriverResult``.
 

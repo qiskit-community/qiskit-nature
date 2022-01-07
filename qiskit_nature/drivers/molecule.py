@@ -12,6 +12,8 @@
 
 """Driver-independent Molecule definition."""
 
+from __future__ import annotations
+
 from typing import Callable, Tuple, List, Optional, cast
 import copy
 
@@ -75,7 +77,7 @@ class Molecule(PseudoProperty):
 
         self._perturbations = None  # type: Optional[List[float]]
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -91,7 +93,7 @@ class Molecule(PseudoProperty):
             group.create_dataset("masses", data=self._masses)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "Molecule":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> Molecule:
         """TODO."""
         geometry = []
         for atom, coords in h5py_group["geometry"].items():

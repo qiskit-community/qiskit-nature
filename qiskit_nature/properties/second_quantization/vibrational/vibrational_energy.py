@@ -12,6 +12,8 @@
 
 """The VibrationalEnergy property."""
 
+from __future__ import annotations
+
 from typing import cast, Dict, List, Optional, Tuple
 
 import h5py
@@ -74,7 +76,7 @@ class VibrationalEnergy(VibrationalProperty):
             string += [f"\t{ints}"]
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -87,7 +89,7 @@ class VibrationalEnergy(VibrationalProperty):
             group.attrs["truncation_order"] = self.truncation_order
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalEnergy":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalEnergy:
         """TODO."""
         ints = []
         for int_group in h5py_group["vibrational_integrals"].values():
@@ -96,7 +98,7 @@ class VibrationalEnergy(VibrationalProperty):
         return cls(ints, h5py_group.attrs.get("truncation_order", None))
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> VibrationalEnergy:
         """Construct a VibrationalEnergy instance from a
         :class:`~qiskit_nature.drivers.WatsonHamiltonian`.
 

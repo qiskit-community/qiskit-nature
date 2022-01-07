@@ -12,6 +12,8 @@
 
 """The ElectronicDipoleMoment property."""
 
+from __future__ import annotations
+
 from typing import Dict, List, Optional, Tuple, cast
 
 import h5py
@@ -56,7 +58,7 @@ class DipoleMoment(IntegralProperty):
         name = self.__class__.__name__ + axis.upper()
         super().__init__(name, electronic_integrals, shift=shift)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -64,7 +66,7 @@ class DipoleMoment(IntegralProperty):
         group.attrs["axis"] = self._axis
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "DipoleMoment":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> DipoleMoment:
         """TODO."""
         integral_property = super().from_hdf5(h5py_group)
 
@@ -137,7 +139,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             for dipole in dipole_axes:
                 self.add_property(dipole)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
 
@@ -154,7 +156,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
                 dipole_shift_group.attrs[name] = shift
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicDipoleMoment":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicDipoleMoment:
         """TODO."""
         grouped_property = super().from_hdf5(h5py_group)
 
@@ -193,7 +195,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
-    ) -> Optional["ElectronicDipoleMoment"]:
+    ) -> Optional[ElectronicDipoleMoment]:
         """Construct an ElectronicDipoleMoment instance from a
         :class:`~qiskit_nature.drivers.QMolecule`.
 

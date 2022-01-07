@@ -12,6 +12,8 @@
 
 """The ParticleNumber property."""
 
+from __future__ import annotations
+
 import logging
 from typing import List, Optional, Tuple, Union, cast
 
@@ -135,7 +137,7 @@ class ParticleNumber(ElectronicProperty):
         string += [f"\t\torbital occupation: {self.occupation_beta}"]
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -150,7 +152,7 @@ class ParticleNumber(ElectronicProperty):
         group.create_dataset("occupation_beta", data=self.occupation_beta)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "ParticleNumber":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> ParticleNumber:
         """TODO."""
         return ParticleNumber(
             h5py_group.attrs["num_spin_orbitals"],
@@ -162,7 +164,7 @@ class ParticleNumber(ElectronicProperty):
         )
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ParticleNumber:
         """Construct a ParticleNumber instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:

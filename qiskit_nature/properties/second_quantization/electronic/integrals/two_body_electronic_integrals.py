@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,6 +11,8 @@
 # that they have been altered from the originals.
 
 """The 2-body electronic integrals."""
+
+from __future__ import annotations
 
 from typing import List, Optional, Tuple, Union
 
@@ -84,7 +86,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 filled_matrices.append(self._matrices[0])
         self._matrices = tuple(filled_matrices)
 
-    def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
+    def transform_basis(self, transform: ElectronicBasisTransform) -> TwoBodyElectronicIntegrals:
         # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 

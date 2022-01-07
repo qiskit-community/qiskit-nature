@@ -128,7 +128,7 @@ class Property(ABC):
 
     @classmethod
     @abstractmethod
-    def from_hdf5(cls, h5py_group: h5py.Group):
+    def from_hdf5(cls, h5py_group: h5py.Group) -> Property:
         """TODO."""
         raise NotImplementedError()
 

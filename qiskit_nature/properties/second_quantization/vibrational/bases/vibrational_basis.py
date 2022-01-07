@@ -12,6 +12,8 @@
 
 """The Vibrational basis base class."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
@@ -52,7 +54,7 @@ class VibrationalBasis(PseudoProperty, ABC):
         string += [f"\tModals: {self._num_modals_per_mode}"]
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -61,7 +63,7 @@ class VibrationalBasis(PseudoProperty, ABC):
         group.create_dataset("num_modals_per_mode", data=self.num_modals_per_mode)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalBasis":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalBasis:
         """TODO."""
         return cls(h5py_group["num_modals_per_mode"][...], h5py_group.attrs.get("threshold", None))
 

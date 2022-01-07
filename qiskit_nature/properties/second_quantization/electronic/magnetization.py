@@ -12,6 +12,8 @@
 
 """The Magnetization property."""
 
+from __future__ import annotations
+
 from typing import cast
 
 import h5py
@@ -41,7 +43,7 @@ class Magnetization(ElectronicProperty):
         string += [f"\t{self._num_spin_orbitals} SOs"]
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -49,12 +51,12 @@ class Magnetization(ElectronicProperty):
         group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "Magnetization":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> Magnetization:
         """TODO."""
         return Magnetization(h5py_group.attrs["num_spin_orbitals"])
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> Magnetization:
         """Construct a Magnetization instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:

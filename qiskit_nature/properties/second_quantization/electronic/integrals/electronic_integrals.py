@@ -12,6 +12,8 @@
 
 """A base class for raw electronic integrals."""
 
+from __future__ import annotations
+
 import importlib
 import itertools
 from abc import ABC, abstractmethod
@@ -95,7 +97,7 @@ class ElectronicIntegrals(PseudoProperty, ABC):
         if basis != ElectronicBasis.SO:
             self._fill_matrices()
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -111,7 +113,7 @@ class ElectronicIntegrals(PseudoProperty, ABC):
                 group.create_dataset(name, data=mat)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicIntegrals":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicIntegrals:
         """TODO."""
         basis = getattr(ElectronicBasis, h5py_group.attrs["basis"])
         threshold = h5py_group.attrs["threshold"]
@@ -223,7 +225,7 @@ class ElectronicIntegrals(PseudoProperty, ABC):
         self._matrices = tuple(filled_matrices)
 
     @abstractmethod
-    def transform_basis(self, transform: ElectronicBasisTransform) -> "ElectronicIntegrals":
+    def transform_basis(self, transform: ElectronicBasisTransform) -> ElectronicIntegrals:
         # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 
@@ -302,7 +304,7 @@ class ElectronicIntegrals(PseudoProperty, ABC):
             A list of tuples associating each index with a creation/annihilation operator symbol.
         """
 
-    def add(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+    def add(self, other: ElectronicIntegrals) -> ElectronicIntegrals:
         """Adds two ElectronicIntegrals instances.
 
         Args:
@@ -319,8 +321,8 @@ class ElectronicIntegrals(PseudoProperty, ABC):
         return ret
 
     def compose(
-        self, other: "ElectronicIntegrals", einsum_subscript: Optional[str] = None
-    ) -> Union[complex, "ElectronicIntegrals"]:
+        self, other: ElectronicIntegrals, einsum_subscript: Optional[str] = None
+    ) -> Union[complex, ElectronicIntegrals]:
         """Composes two ``ElectronicIntegrals`` instances.
 
         Args:
@@ -332,7 +334,7 @@ class ElectronicIntegrals(PseudoProperty, ABC):
         """
         raise NotImplementedError()
 
-    def __rmul__(self, other: complex) -> "ElectronicIntegrals":
+    def __rmul__(self, other: complex) -> ElectronicIntegrals:
         ret = deepcopy(self)
         if isinstance(self._matrices, np.ndarray):
             ret._matrices = other * self._matrices
@@ -340,7 +342,7 @@ class ElectronicIntegrals(PseudoProperty, ABC):
             ret._matrices = [other * mat for mat in self._matrices]  # type: ignore
         return ret
 
-    def __add__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+    def __add__(self, other: ElectronicIntegrals) -> ElectronicIntegrals:
         if self._basis != other._basis:
             raise ValueError(
                 f"The basis of self, {self._basis.value}, does not match the basis of other, "
@@ -348,5 +350,5 @@ class ElectronicIntegrals(PseudoProperty, ABC):
             )
         return self.add(other)
 
-    def __sub__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+    def __sub__(self, other: ElectronicIntegrals) -> ElectronicIntegrals:
         return self + (-1.0) * other

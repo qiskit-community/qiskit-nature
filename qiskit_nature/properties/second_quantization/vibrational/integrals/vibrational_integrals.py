@@ -12,6 +12,8 @@
 
 """A container for arbitrary ``n-body`` vibrational integrals."""
 
+from __future__ import annotations
+
 from abc import ABC
 from collections import Counter
 from itertools import chain, cycle, permutations, product, tee
@@ -95,7 +97,7 @@ class VibrationalIntegrals(PseudoProperty, ABC):
             count += 1
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -111,7 +113,7 @@ class VibrationalIntegrals(PseudoProperty, ABC):
             integrals_dset[idx] = list(ints[1])
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "VibrationalIntegrals":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalIntegrals:
         """TODO."""
         integrals = []
         for coeff, ints in zip(h5py_group["coefficients"][...], h5py_group["integrals"][...]):

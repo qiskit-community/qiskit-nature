@@ -12,6 +12,8 @@
 
 """The DriverMetadata class."""
 
+from __future__ import annotations
+
 import h5py
 
 from ..property import PseudoProperty
@@ -40,7 +42,7 @@ class DriverMetadata(PseudoProperty):
         string += ["\t\t" + s for s in self.config.split("\n")]
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -50,7 +52,7 @@ class DriverMetadata(PseudoProperty):
         group.attrs["config"] = self.config
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "DriverMetadata":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> DriverMetadata:
         """TODO."""
         return DriverMetadata(
             h5py_group.attrs["program"],

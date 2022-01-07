@@ -12,6 +12,8 @@
 
 """The IntegralProperty property."""
 
+from __future__ import annotations
+
 from typing import Dict, Generator, List, Optional
 
 import h5py
@@ -163,7 +165,7 @@ class IntegralProperty(ElectronicProperty):
         return {self.name: op}
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> IntegralProperty:
         """This property does not support construction from a legacy driver result (yet).
 
         Args:
@@ -185,7 +187,7 @@ class IntegralProperty(ElectronicProperty):
         """
         raise NotImplementedError()
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -201,7 +203,7 @@ class IntegralProperty(ElectronicProperty):
             shift_group.attrs[name] = shift
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "IntegralProperty":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> IntegralProperty:
         """TODO."""
         ints = []
         for basis_group in h5py_group["electronic_integrals"].values():

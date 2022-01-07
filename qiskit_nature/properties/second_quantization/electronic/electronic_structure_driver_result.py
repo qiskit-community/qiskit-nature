@@ -12,6 +12,8 @@
 
 """The ElectronicStructureDriverResult class."""
 
+from __future__ import annotations
+
 from typing import List, Tuple, cast
 
 import h5py
@@ -56,7 +58,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         self.add_property(mol)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicStructureDriverResult":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicStructureDriverResult:
         """TODO."""
         grouped_property = super().from_hdf5(h5py_group)
         grouped_property.iterate_pseudo_properties = True
@@ -70,7 +72,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
-    ) -> "ElectronicStructureDriverResult":
+    ) -> ElectronicStructureDriverResult:
         """Converts a :class:`~qiskit_nature.drivers.QMolecule` into an
         ``ElectronicStructureDriverResult``.
 

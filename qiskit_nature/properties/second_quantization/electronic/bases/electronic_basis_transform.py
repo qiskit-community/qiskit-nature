@@ -12,6 +12,8 @@
 
 """The ElectronicBasisTransform provides a container of bases transformation data."""
 
+from __future__ import annotations
+
 from typing import List, Optional
 
 import h5py
@@ -58,7 +60,7 @@ class ElectronicBasisTransform(PseudoProperty):
         string += self._render_coefficients(self.coeff_beta)
         return "\n".join(string)
 
-    def to_hdf5(self, parent: h5py.Group):
+    def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
@@ -70,7 +72,7 @@ class ElectronicBasisTransform(PseudoProperty):
         group.create_dataset("Beta coefficients", data=self.coeff_beta)
 
     @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> "ElectronicBasisTransform":
+    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicBasisTransform:
         """TODO."""
         return ElectronicBasisTransform(
             getattr(ElectronicBasis, h5py_group.attrs["initial_basis"]),
