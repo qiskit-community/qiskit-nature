@@ -19,6 +19,7 @@ from typing import List, Tuple, cast
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
+from qiskit_nature.constants import BOHR
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -105,7 +106,8 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
         geometry: List[Tuple[str, List[float]]] = []
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
-            geometry.append((atom, xyz))
+            # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
+            geometry.append((atom, xyz * BOHR))
 
         ret.add_property(Molecule(geometry, qmol.multiplicity, qmol.molecular_charge))
 
