@@ -36,15 +36,15 @@ logger = logging.getLogger(__name__)
 
 
 def prepare_problem(problem: BaseProblem, qubit_converter: QubitConverter):
-    """Prepare raw problem, make necessary adjustments for the computation.
+    """Prepare a raw problem, make necessary adjustments for the computation.
     Args:
-        problem: a class encoding a problem to be solved.
-        qubit_converter: Qubit converter
+        problem: A class encoding a problem to be solved.
+        qubit_converter: A qubit converter
     Returns:
-        problem: a class encoding a problem to be solved.
+        problem: A class encoding a problem to be solved.
     Raises:
-        ValueError: if the grouped property object returned by the driver does not contain a
-            main property as requested by the problem being solved (`problem.main_property_name`)
+        ValueError: If the grouped property object returned by the driver does not contain a
+            main property as requested by the problem being solved (`problem.main_property_name`).
     """
     second_q_ops = problem.second_q_ops()
     if isinstance(second_q_ops, list):
@@ -151,7 +151,7 @@ class BOPESSampler:
             BOPES Sampler Result
 
         Raises:
-            QiskitNatureError: if the driver does not have a molecule specified.
+            QiskitNatureError: If the driver does not have a molecule specified.
         """
         self._problem = problem
         self._driver = problem.driver
@@ -202,7 +202,7 @@ class BOPESSampler:
         """Run the sampler at the given points.
 
         Args:
-            points: the points along the single degree of freedom to evaluate
+            points: The points along the single degree of freedom to evaluate
 
         Returns:
             The results for all points.
