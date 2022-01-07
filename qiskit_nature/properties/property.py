@@ -127,7 +127,9 @@ class Property(ABC):
             yield instance
 
     @classmethod
-    @abstractmethod
+    # TODO: this cannot be marked as an abstract method because this would cause existing custom
+    # Property implementations to fail. Maybe we can figure out a way to raise a warning when a
+    # subclass does not overwrite this method?
     def from_hdf5(cls, h5py_group: h5py.Group) -> Property:
         """TODO."""
         raise NotImplementedError()
