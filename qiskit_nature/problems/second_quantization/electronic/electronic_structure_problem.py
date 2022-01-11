@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,7 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring_mapped
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
@@ -39,7 +39,12 @@ from ..base_problem import BaseProblem
 
 
 class ElectronicStructureProblem(BaseProblem):
-    """Electronic Structure Problem"""
+    """The Electronic Structure Problem.
+
+    The attributes `num_particles` and `num_spin_orbitals` are only available _after_ the
+    `second_q_ops()` method has been called! Note, that if you do so, the method will be executed
+    again when the problem is being solved.
+    """
 
     def __init__(
         self,
@@ -57,11 +62,21 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_particles(self) -> Tuple[int, int]:
+        if self._grouped_property_transformed is None:
+            raise QiskitNatureError(
+                "`num_particles` is only available _after_ `second_q_ops()` has been called! "
+                "Note, that if you run this manually, the method will run again during solving."
+            )
         return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
 
     @property
     def num_spin_orbitals(self) -> int:
         """Returns the number of spin orbitals."""
+        if self._grouped_property_transformed is None:
+            raise QiskitNatureError(
+                "`num_spin_orbitals` is only available _after_ `second_q_ops()` has been called! "
+                "Note, that if you run this manually, the method will run again during solving."
+            )
         return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
     def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
@@ -123,6 +138,8 @@ class ElectronicStructureProblem(BaseProblem):
     ]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
+
+        This method should can be used after calling `second_q_ops()`.
 
         Args:
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
