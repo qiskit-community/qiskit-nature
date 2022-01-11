@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -49,7 +49,10 @@ class AdaptVQE(GroundStateEigensolver):
     @deprecate_arguments(
         "0.4.0",
         {"delta": "gradient"},
-        additional_msg="Instead of `delta=1.0` you have to construct a gradient, like so `gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`.",
+        additional_msg=(
+            "Instead of `delta=1.0` you have to construct a gradient, like so "
+            "`gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`."
+        ),
     )
     def __init__(
         self,
@@ -68,7 +71,8 @@ class AdaptVQE(GroundStateEigensolver):
             delta: the finite difference step size for the gradient computation. It has a minimum
                 value of 1e-5.
             max_iterations: the maximum number of iterations of the AdaptVQE algorithm.
-            gradient: a class that converts operator expression to the first-order gradient based on the method mentioned.
+            gradient: a class that converts operator expression to the first-order gradient based
+                on the method mentioned.
         """
         validate_min("threshold", threshold, 1e-15)
         validate_min("delta", delta, 1e-5)
@@ -91,10 +95,12 @@ class AdaptVQE(GroundStateEigensolver):
 
     @property
     def gradient(self) -> Optional[GradientBase]:
+        """Returns the gradient."""
         return self._gradient
 
     @gradient.setter
     def gradient(self, grad: Optional[GradientBase]):
+        """Sets the gradient."""
         self._gradient = grad
 
     def returns_groundstate(self) -> bool:
@@ -179,6 +185,7 @@ class AdaptVQE(GroundStateEigensolver):
                 with an internally constructed auxiliary operator. Note: the names used for the
                 internal auxiliary operators correspond to the `Property.name` attributes which
                 generated the respective operators.
+            QiskitNatureError: if the chosen gradient method appears to result in all-zero gradients.
 
         Returns:
             An AdaptVQEResult which is an ElectronicStructureResult but also includes runtime
@@ -279,8 +286,9 @@ class AdaptVQE(GroundStateEigensolver):
                 threshold_satisfied = True
                 break
             if iteration == 1 and np.abs(max_grad[0]) < self._threshold:
-                raise Warning(
-                    "Gradient choice is not suited as it leads to all non-zero gradients. Try a different gradient method."
+                raise QiskitNatureError(
+                    "Gradient choice is not suited as it leads to all non-zero gradients. "
+                    "Try a different gradient method."
                 )
             # check indices of picked gradients for cycles
             if self._check_cyclicity(prev_op_indices):

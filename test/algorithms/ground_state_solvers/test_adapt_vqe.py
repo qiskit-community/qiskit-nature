@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -27,6 +27,8 @@ from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit.opflow.gradients import Gradient, NaturalGradient
+from qiskit.test import slow_test
+
 from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import UnitsType
@@ -44,7 +46,6 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from qiskit.test import slow_test
 
 
 class TestAdaptVQE(QiskitNatureTestCase):
