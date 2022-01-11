@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -163,11 +163,11 @@ class CHC(BlueprintCircuit):
         Raises:
             ValueError: only supports single and double excitations at the moment.
         """
-        if self._data is not None:  # type: ignore
+        if self._is_built:
             return
 
-        self._check_configuration()
-        self._data = []  # type: ignore
+        super()._build()
+        self.data.clear()
 
         parameters = ParameterVector("θ", self._num_parameters)
         q = self.qubits
