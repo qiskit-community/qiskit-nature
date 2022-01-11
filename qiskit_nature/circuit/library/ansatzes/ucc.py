@@ -255,7 +255,7 @@ class UCC(EvolvedOperatorAnsatz):
         return True
 
     def _build(self) -> None:
-        if self._data is not None:
+        if self._is_built:
             return
 
         self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]

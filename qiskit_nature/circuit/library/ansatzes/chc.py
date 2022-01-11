@@ -163,11 +163,11 @@ class CHC(BlueprintCircuit):
         Raises:
             ValueError: only supports single and double excitations at the moment.
         """
-        if self._data is not None:  # type: ignore
+        if self._is_built:
             return
 
-        self._check_configuration()
-        self._data = []  # type: ignore
+        super()._build()
+        self.data.clear()
 
         parameters = ParameterVector("θ", self._num_parameters)
         q = self.qubits
