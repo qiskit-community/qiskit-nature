@@ -184,11 +184,10 @@ def _operator_coefficient(term: Tuple) -> float:
 
 def _pauli_id(n_qubits: int, coeff=None) -> SparsePauliOp:
     """Return the identity for `SparsePauliOp` on `n_qubits` qubits."""
-    _coeff = coeff
-    if _coeff is None:
-        _coeff = complex(1.0)
+    if coeff is None:
+        coeff = complex(1.0)
     return SparsePauliOp(
-        Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))), [_coeff]
+        Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))), [coeff]
     )
 
 
