@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes the computation of the spin orbital occupation in a non-singlet state.
+    Previously, a singly occupied MO would result in SO occupations of `0.5` for each spin.
+    Now, the alpha SO will be fully occupied and the beta SO unoccupied.
