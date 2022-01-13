@@ -327,7 +327,7 @@ class FermionicOp(SecondQuantizedOp):
                     or not isinstance(data[0][1], (int, float, complex))
                 ):
                     raise TypeError(
-                        "Data list must be [(str, number)] or [([(int, int), number])]."
+                        "Data list must be [(str, number)] or [([(int, int)], number)]."
                     )
 
             # data: list[tuple[list[tuple[int, int]], complex]],

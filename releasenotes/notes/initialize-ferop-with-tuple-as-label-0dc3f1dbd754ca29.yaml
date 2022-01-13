@@ -3,12 +3,12 @@ features:
   - |
     Support the initialization of FermionicOp with tuple as label.
     :class:`~qiskit_nature.operators.second_quantization.FermionicOp` can be initialized using
-    a tuple `(action, index)` like:
+    a tuple `(action, index)` like::
 
-        from qiskit_nature.operators.second_quantization import FermionicOp
+      from qiskit_nature.operators.second_quantization import FermionicOp
 
-        FermionicOp(
-            [([(0, 2), (1, 10)], 2), ([(0, 3)], 34)],
-            register_length=4,
-            display_format="sparse",
-        )
+      FermionicOp(
+          [([(0, 2), (1, 10)], 2), ([(0, 3)], 34)],
+          register_length=4,
+          display_format="sparse",
+      )
