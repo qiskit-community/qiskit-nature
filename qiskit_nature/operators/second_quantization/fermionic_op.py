@@ -167,10 +167,13 @@ class FermionicOp(SecondQuantizedOp):
 
     are possible labels.
 
-    As a programmatic approach, a list of tuples as labels can be input.
-    FermionicOp can be initialized using a list of tuples `(action, index)`.
-    The action is integer and `0` is an annihilation and `1` is a creation.
-    The following labels are equivalent to those in the sparse case above:
+    As a programmatic approach, you can input a list of tuples as the labels,
+    too. Thus, a FermionicOp can be initialized using a list of tuples of the
+    form, `(action, index)`. `action` is an integer where `0` denotes an
+    annihilation and `1` a creation operation. The `index` is also an integer
+    denoting the fermionic mode.
+    The following labels are equivalent to the example given for sparse labels
+    above:
 
     .. code-block:: python
 
