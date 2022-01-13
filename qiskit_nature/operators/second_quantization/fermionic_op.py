@@ -18,7 +18,7 @@ import re
 import warnings
 from dataclasses import dataclass
 from itertools import product
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -332,13 +332,11 @@ class FermionicOp(SecondQuantizedOp):
 
             # data: list[tuple[list[tuple[int, int]], complex]],
             if isinstance(data[0][0], list) and data[0][0] and isinstance(data[0][0][0], tuple):
+                data = cast(list[tuple[list[tuple[int, int]], complex]], data)
                 self._data = [
                     (
                         _FermionLabel(
-                            [  # type: ignore
-                                _FermionLabelPrimitive(bool(action), index)
-                                for action, index in label
-                            ]
+                            [_FermionLabelPrimitive(bool(action), index) for action, index in label]
                         ),
                         complex(coeff),
                     )
