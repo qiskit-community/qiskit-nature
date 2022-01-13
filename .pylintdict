@@ -53,6 +53,7 @@ cargs
 cartesian
 cbit
 ccx
+cdots
 cfg
 chc
 chiral
@@ -109,6 +110,7 @@ dimensionality
 discoverable
 distinguishability
 dll
+docstring
 dof
 doi
 dt
@@ -229,6 +231,7 @@ kwargs
 kwds
 labelled
 lda
+ldots
 len
 leucine
 levinthal
@@ -243,6 +246,7 @@ ljik
 lk
 logfile
 lookback
+lvert
 lysine
 macos
 majorana
@@ -315,6 +319,7 @@ ortho
 orthonormal
 otimes
 outpath
+overline
 pac
 param
 parameterized
@@ -362,6 +367,7 @@ qubit
 qubits
 qutrit
 radians
+rangle
 rcccx
 rccx
 readme
@@ -404,6 +410,7 @@ setia
 setted
 shende
 sklearn
+slater
 spinop
 springer
 spsa
