@@ -332,7 +332,7 @@ class FermionicOp(SecondQuantizedOp):
 
             # data: list[tuple[list[tuple[int, int]], complex]],
             if isinstance(data[0][0], list) and data[0][0] and isinstance(data[0][0][0], tuple):
-                data = cast(list[tuple[list[tuple[int, int]], complex]], data)
+                data = cast("list[tuple[list[tuple[int, int]], complex]]", data)
                 self._data = [
                     (
                         _FermionLabel(
