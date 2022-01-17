@@ -14,10 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Generator
-
 from abc import ABC, abstractmethod
-import importlib
 import logging
 
 import h5py
@@ -78,63 +75,12 @@ class Property(ABC):
         """
         raise NotImplementedError()
 
-    def save(self, filename: str, append: bool = False) -> None:
-        """TODO."""
-        with h5py.File(filename, "a" if append else "w") as file:
-            self.to_hdf5(file)
-
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         group = parent.require_group(self.name)
         group.attrs["__class__"] = self.__class__.__name__
         group.attrs["__module__"] = self.__class__.__module__
         group.attrs["__version__"] = self.VERSION
-
-    @staticmethod
-    def load(filename) -> Generator[Property, None, None]:
-        """TODO."""
-        with h5py.File(filename, "r") as file:
-            yield from Property.import_and_build_from_hdf5(file)
-
-    @staticmethod
-    def import_and_build_from_hdf5(h5py_group: h5py.Group) -> Generator[Property, None, None]:
-        """TODO."""
-        for group in h5py_group.values():
-            module_path = group.attrs.get("__module__", "")
-            class_name = group.attrs.get("__class__", "")
-
-            if not class_name:
-                LOGGER.warning("Skipping faulty object without a '__class__' attribute.")
-                continue
-
-            if not module_path.startswith("qiskit_nature.properties") and not (
-                module_path == "qiskit_nature.drivers.molecule" and class_name == "Molecule"
-            ):
-                LOGGER.warning("Skipping non-native object.")
-                continue
-
-            loaded_module = importlib.import_module(module_path)
-            loaded_class = getattr(loaded_module, class_name, None)
-
-            if loaded_class is None:
-                LOGGER.warning(
-                    "Skipping object after failed import attempt of %s from %s",
-                    class_name,
-                    module_path,
-                )
-                continue
-
-            constructor = getattr(loaded_class, "from_hdf5")
-            instance = constructor(group)
-            yield instance
-
-    @classmethod
-    # TODO: this cannot be marked as an abstract method because this would cause existing custom
-    # Property implementations to fail. Maybe we can figure out a way to raise a warning when a
-    # subclass does not overwrite this method?
-    def from_hdf5(cls, h5py_group: h5py.Group) -> Property:
-        """TODO."""
-        raise NotImplementedError()
 
 
 class PseudoProperty(Property, ABC):

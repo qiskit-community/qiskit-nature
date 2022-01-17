@@ -19,6 +19,7 @@ from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
 
 import h5py
 
+from qiskit_nature.hdf5 import import_and_build_from_hdf5
 from qiskit_nature.results import EigenstateResult
 from .property import Property, PseudoProperty
 
@@ -135,7 +136,7 @@ class GroupedProperty(Property, Iterable, Generic[T]):
 
         ret: GroupedProperty = GroupedProperty(class_name)
 
-        for prop in Property.import_and_build_from_hdf5(h5py_group):
+        for prop in import_and_build_from_hdf5(h5py_group):
             ret.add_property(prop)
 
         return ret
