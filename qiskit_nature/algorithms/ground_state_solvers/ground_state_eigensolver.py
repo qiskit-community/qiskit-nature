@@ -87,11 +87,21 @@ class GroundStateEigensolver(GroundStateSolver):
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.
         """
+        aux_ops, main_operator = self.prepare_solve(problem, aux_operators)
+        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)
+
+        result = problem.interpret(raw_mes_result)
+        return result
+
+    def prepare_solve(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ):
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
-
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
@@ -105,14 +115,12 @@ class GroundStateEigensolver(GroundStateSolver):
                     "`None`."
                 )
             aux_second_q_ops = second_q_ops
-
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
             num_particles=problem.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
-
         if aux_operators is not None:
             wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
                 aux_operators
@@ -132,19 +140,13 @@ class GroundStateEigensolver(GroundStateSolver):
                             "operator."
                         )
                     aux_ops[name] = converted_aux_op
-
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem, self._qubit_converter)
-
         # if the eigensolver does not support auxiliary operators, reset them
         if not self._solver.supports_aux_operators():
             aux_ops = None
-
-        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)
-
-        result = problem.interpret(raw_mes_result)
-        return result
+        return aux_ops, main_operator
 
     def evaluate_operators(
         self,

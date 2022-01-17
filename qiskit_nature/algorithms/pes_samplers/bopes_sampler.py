@@ -113,6 +113,13 @@ class BOPESSampler:
         """
         self._problem = problem
         self._driver = problem.driver
+        # We have to force the creation of the solver so that we work on the same solver
+        # instance before and after _gss.solve
+        self._gss.prepare_solve(problem, None)
+        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+            # Save initial point passed to min_eigensolver;
+            # this will be used when NOT bootstrapping
+            self._initial_point = self._gss.solver.initial_point
 
         if isinstance(self._driver, DeprecatedBaseDriver):
             warn_deprecated(

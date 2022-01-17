@@ -59,6 +59,19 @@ class GroundStateSolver(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def prepare_solve(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ):
+        """Prepare problem and ground_state_solver state for solve method.
+
+        Args:
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
+        """
+
+    @abstractmethod
     def returns_groundstate(self) -> bool:
         """Whether this class returns only the ground state energy or also the ground state itself.
 
