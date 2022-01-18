@@ -119,7 +119,7 @@ class BOPESSampler:
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
-            self._initial_point = self._gss.solver.initial_point
+            self._initial_point = self._gss.solver.initial_point  # type: ignore
 
         if isinstance(self._driver, DeprecatedBaseDriver):
             warn_deprecated(

@@ -88,7 +88,7 @@ class GroundStateEigensolver(GroundStateSolver):
             :meth:`~.BaseProblem.interpret`.
         """
         aux_ops, main_operator = self.prepare_solve(problem, aux_operators)
-        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)
+        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)  # type: ignore
 
         result = problem.interpret(raw_mes_result)
         return result
