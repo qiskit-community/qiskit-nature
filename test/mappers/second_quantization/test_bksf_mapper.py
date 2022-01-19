@@ -23,6 +23,7 @@ from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMappe
 from qiskit_nature.mappers.second_quantization.bksf import _edge_operator_aij, _edge_operator_bi
 from qiskit_nature.mappers.second_quantization import bksf
 
+from test.mappers.second_quantization.resources.bksf_LiH import FERMIONIC_HAMILTONIAN, QUBIT_HAMILTONIAN
 
 def _sort_simplify(sparse_pauli):
     sparse_pauli = sparse_pauli.simplify()
@@ -160,6 +161,12 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             pauli_sum_op_from_sparse = BravyiKitaevSuperFastMapper().map(h2_fop_sparse)
             op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse.primitive)
             self.assertEqual(op1, op2_from_sparse)
+
+
+    def test_LiH(self):
+        """Test LiH molecule"""
+        pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
+        self.assertEqual(pauli_sum_op._primitive, QUBIT_HAMILTONIAN)
 
 
 if __name__ == "__main__":
