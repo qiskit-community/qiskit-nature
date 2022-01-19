@@ -23,7 +23,7 @@ from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMappe
 from qiskit_nature.mappers.second_quantization.bksf import _edge_operator_aij, _edge_operator_bi
 from qiskit_nature.mappers.second_quantization import bksf
 
-from test.mappers.second_quantization.resources.bksf_LiH import (
+from test.mappers.second_quantization.resources.bksf_lih import (
     FERMIONIC_HAMILTONIAN,
     QUBIT_HAMILTONIAN,
 )
