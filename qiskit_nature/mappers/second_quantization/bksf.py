@@ -324,25 +324,25 @@ def _number_excitation(  # pylint: disable=invalid-name
         b_s = _edge_operator_bi(edge_list, s)
         a_qs = _edge_operator_aij(edge_list, q, s)
         a_qs = -a_qs if s < q else a_qs
-        qubit_op = (a_qs * b_s + b_q * a_qs) * (id_op - b_p)
+        qubit_op = (a_qs.dot(b_s) + b_q.dot(a_qs)).dot(id_op - b_p)
         final_coeff = 1j * 0.25
     elif p == s:
         b_r = _edge_operator_bi(edge_list, r)
         a_qr = _edge_operator_aij(edge_list, q, r)
         a_qr = -a_qr if r < q else a_qr
-        qubit_op = (a_qr * b_r + b_q * a_qr) * (id_op - b_p)
+        qubit_op = (a_qr.dot(b_r) + b_q.dot(a_qr)).dot(id_op - b_p)
         final_coeff = 1j * -0.25
     elif q == r:
         b_s = _edge_operator_bi(edge_list, s)
         a_ps = _edge_operator_aij(edge_list, p, s)
         a_ps = -a_ps if s < p else a_ps
-        qubit_op = (a_ps * b_s + b_p * a_ps) * (id_op - b_q)
+        qubit_op = (a_ps.dot(b_s) + b_p.dot(a_ps)).dot(id_op - b_q)
         final_coeff = 1j * -0.25
     elif q == s:
         b_r = _edge_operator_bi(edge_list, r)
         a_pr = _edge_operator_aij(edge_list, p, r)
         a_pr = -a_pr if r < p else a_pr
-        qubit_op = (a_pr * b_r + b_p * a_pr) * (id_op - b_q)
+        qubit_op = (a_pr.dot(b_r) + b_p.dot(a_pr)).dot(id_op - b_q)
         final_coeff = 1j * 0.25
     else:
         raise ValueError(f"unexpected sequence of indices: {p}, {q}, {r}, {s}")
