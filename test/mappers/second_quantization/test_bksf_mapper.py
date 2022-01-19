@@ -15,6 +15,10 @@
 import unittest
 from test import QiskitNatureTestCase
 
+from test.mappers.second_quantization.resources.bksf_lih import (
+    FERMIONIC_HAMILTONIAN,
+    QUBIT_HAMILTONIAN,
+)
 import numpy as np
 from qiskit.quantum_info import SparsePauliOp
 
@@ -22,11 +26,6 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMapper
 from qiskit_nature.mappers.second_quantization.bksf import _edge_operator_aij, _edge_operator_bi
 from qiskit_nature.mappers.second_quantization import bksf
-
-from test.mappers.second_quantization.resources.bksf_lih import (
-    FERMIONIC_HAMILTONIAN,
-    QUBIT_HAMILTONIAN,
-)
 
 
 def _sort_simplify(sparse_pauli):
