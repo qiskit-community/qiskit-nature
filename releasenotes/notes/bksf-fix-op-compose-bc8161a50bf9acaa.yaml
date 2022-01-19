@@ -2,5 +2,5 @@
 fixes:
   - |
     Fix bug in Bravyi-Kitaev Super-Fast (BKSF) Mapper cause by using obsolete
-    method for composing Pauli operators in one kind of fermionic Hamilitonian
+    method for composing Pauli operators in one kind of fermionic Hamiltonian
     term.
