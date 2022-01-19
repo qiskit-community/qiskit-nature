@@ -46,8 +46,9 @@ class HartreeFock(QuantumCircuit):
         """
         if isinstance(qubit_converter.mapper, BravyiKitaevSuperFastMapper):
             raise TypeError(
-                "Unsupported mapper in qubit_converter: ", type(qubit_converter.mapper),
-                ". See issue 436."
+                "Unsupported mapper in qubit_converter: ",
+                type(qubit_converter.mapper),
+                ". See issue 436.",
             )
         # Get the mapped/tapered hartree fock bitstring as we need it to match to whatever
         # conversion was done by the given qubit converter
