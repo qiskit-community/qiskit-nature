@@ -13,7 +13,7 @@
 """The ground state calculation interface."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -59,16 +59,19 @@ class GroundStateSolver(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def prepare_solve(
+    def get_qubit_operators(
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ):
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]]]:
         """Prepare problem and ground_state_solver state for solve method.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+
+        Returns:
+
         """
 
     @abstractmethod

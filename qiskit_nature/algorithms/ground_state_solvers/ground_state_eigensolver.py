@@ -12,7 +12,7 @@
 
 """Ground state computation using a minimum eigensolver."""
 
-from typing import Union, List, Optional, Dict
+from typing import Union, List, Optional, Dict, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -87,17 +87,17 @@ class GroundStateEigensolver(GroundStateSolver):
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.
         """
-        aux_ops, main_operator = self.prepare_solve(problem, aux_operators)
+        main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
         raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)  # type: ignore
 
         result = problem.interpret(raw_mes_result)
         return result
 
-    def prepare_solve(
+    def get_qubit_operators(
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ):
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]]]:
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
@@ -146,7 +146,7 @@ class GroundStateEigensolver(GroundStateSolver):
         # if the eigensolver does not support auxiliary operators, reset them
         if not self._solver.supports_aux_operators():
             aux_ops = None
-        return aux_ops, main_operator
+        return main_operator, aux_ops
 
     def evaluate_operators(
         self,
