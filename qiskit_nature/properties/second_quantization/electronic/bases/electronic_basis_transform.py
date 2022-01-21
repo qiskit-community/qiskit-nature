@@ -20,11 +20,11 @@ import h5py
 
 import numpy as np
 
-from ....property import PseudoProperty
 from .electronic_basis import ElectronicBasis
+from ....property import Property
 
 
-class ElectronicBasisTransform(PseudoProperty):
+class ElectronicBasisTransform(Property):
     """This class contains the coefficients required to map from one basis into another."""
 
     def __init__(

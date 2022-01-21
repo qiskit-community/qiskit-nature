@@ -24,12 +24,12 @@ import h5py
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.properties.property import PseudoProperty
 
+from ....property import Property
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 
 
-class ElectronicIntegrals(PseudoProperty, ABC):
+class ElectronicIntegrals(Property, ABC):
     """A container for raw electronic integrals.
 
     This class is a template for ``n``-body electronic integral containers.
@@ -101,7 +101,6 @@ class ElectronicIntegrals(PseudoProperty, ABC):
         """TODO."""
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
-        print(self.name)
 
         group.attrs["basis"] = self._basis.name
         group.attrs["threshold"] = self._threshold

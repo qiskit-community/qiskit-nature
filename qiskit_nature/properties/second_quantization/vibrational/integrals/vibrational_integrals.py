@@ -24,12 +24,12 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import VibrationalOp
-from qiskit_nature.properties.property import PseudoProperty
 
 from ..bases import VibrationalBasis
+from ....property import Property
 
 
-class VibrationalIntegrals(PseudoProperty, ABC):
+class VibrationalIntegrals(Property, ABC):
     """A container for arbitrary ``n-body`` vibrational integrals.
 
     When these integrals are printed the output will be truncated based on the

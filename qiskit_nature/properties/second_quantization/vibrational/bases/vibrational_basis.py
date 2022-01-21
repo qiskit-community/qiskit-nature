@@ -19,10 +19,10 @@ from typing import List, Optional
 
 import h5py
 
-from qiskit_nature.properties import PseudoProperty
+from ....property import Property
 
 
-class VibrationalBasis(PseudoProperty, ABC):
+class VibrationalBasis(Property, ABC):
     """The Vibrational basis base class.
 
     This class defines the interface which any vibrational basis must implement. A basis must be

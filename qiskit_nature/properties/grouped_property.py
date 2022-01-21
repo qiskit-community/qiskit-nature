@@ -21,7 +21,7 @@ import h5py
 
 from qiskit_nature.hdf5 import import_and_build_from_hdf5
 from qiskit_nature.results import EigenstateResult
-from .property import Property, PseudoProperty
+from .property import Interpretable, Property
 
 # pylint: disable=invalid-name
 T = TypeVar("T", bound=Property, covariant=True)
@@ -49,17 +49,6 @@ class GroupedProperty(Property, Iterable, Generic[T]):
         """
         super().__init__(name)
         self._properties: Dict[str, T] = {}
-        self._iterate_pseudo_properties: bool = False
-
-    @property
-    def iterate_pseudo_properties(self) -> bool:
-        """Returns the boolean whether or not to iterate PseudoProperty objects."""
-        return self._iterate_pseudo_properties
-
-    @iterate_pseudo_properties.setter
-    def iterate_pseudo_properties(self, value: bool) -> None:
-        """Sets the boolean whether or not to iterate PseudoProperty objects."""
-        self._iterate_pseudo_properties = value
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
@@ -75,7 +64,11 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             prop: the property to be added.
         """
         if prop is not None:
-            self._properties[prop.name] = prop
+            try:
+                name = prop.name
+            except AttributeError:
+                name = prop.__class__.__name__
+            self._properties[name] = prop
 
     def get_property(self, prop: Union[str, Type[Property]]) -> Optional[T]:
         """Gets a property from the group.
@@ -100,14 +93,9 @@ class GroupedProperty(Property, Iterable, Generic[T]):
     def _generator(self) -> Generator[T, T, None]:
         """A generator-iterator method [1] iterating over all internal properties.
 
-        :class:`~qiskit_nature.properties.property.PseudoProperty` objects are automatically
-        excluded.
-
         [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
         """
         for prop in self._properties.values():
-            if isinstance(prop, PseudoProperty) and not self.iterate_pseudo_properties:
-                continue
             new_property = yield prop
             if new_property is not None:
                 self.add_property(new_property)
@@ -119,7 +107,8 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             result: the result to add meaning to.
         """
         for prop in self._properties.values():
-            prop.interpret(result)
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""

@@ -16,10 +16,10 @@ from __future__ import annotations
 
 import h5py
 
-from ..property import PseudoProperty
+from ..property import Property
 
 
-class DriverMetadata(PseudoProperty):
+class DriverMetadata(Property):
     """A meta-data storage container for driver information."""
 
     def __init__(self, program: str, version: str, config: str) -> None:

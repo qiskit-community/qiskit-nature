@@ -21,12 +21,10 @@ import h5py
 import numpy as np
 import scipy.linalg
 
-from qiskit_nature.properties import PseudoProperty
-
 from .units_type import UnitsType
 
 
-class Molecule(PseudoProperty):
+class Molecule:
     """Driver-independent Molecule definition.
 
     This module implements an interface for a driver-independent, i.e. generic molecule
@@ -38,6 +36,8 @@ class Molecule(PseudoProperty):
     cause the original geometry to be returned, and there is a getter to get this value
     directly if its needed.
     """
+
+    VERSION = 1
 
     def __init__(
         self,
@@ -65,7 +65,6 @@ class Molecule(PseudoProperty):
         Raises:
             ValueError: Length of masses must match length of geometries.
         """
-        super().__init__(self.__class__.__name__)
         Molecule._check_consistency(geometry, masses)
 
         self._geometry = geometry
@@ -79,8 +78,10 @@ class Molecule(PseudoProperty):
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
-        super().to_hdf5(parent)
-        group = parent.require_group(self.name)
+        group = parent.require_group(self.__class__.__name__)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
 
         geometry_group = group.create_group("geometry", track_order=True)
         for (atom, coords) in self._geometry:

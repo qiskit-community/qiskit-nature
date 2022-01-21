@@ -14,7 +14,8 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
+from typing import runtime_checkable, Protocol
 import logging
 
 import h5py
@@ -66,15 +67,6 @@ class Property(ABC):
             return
         logger.info(self.__str__())
 
-    @abstractmethod
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        raise NotImplementedError()
-
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         group = parent.require_group(self.name)
@@ -83,12 +75,13 @@ class Property(ABC):
         group.attrs["__version__"] = self.VERSION
 
 
-class PseudoProperty(Property, ABC):
-    """The PseudoProperty type.
-
-    A pseudo-property is a type derived by auxiliary property-related meta data.
-    """
+@runtime_checkable
+class Interpretable(Protocol):
+    """TODO."""
 
     def interpret(self, result: EigenstateResult) -> None:
-        """A PseudoProperty cannot interpret anything."""
-        pass
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+
+        Args:
+            result: the result to add meaning to.
+        """

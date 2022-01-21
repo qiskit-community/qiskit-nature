@@ -47,26 +47,25 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
+        self.molecule: Molecule = None
 
-    @property
-    def molecule(self) -> Molecule:
-        """Returns the internal Molecule."""
-        return cast(Molecule, self.get_property(Molecule))
-
-    @molecule.setter
-    def molecule(self, mol: Molecule) -> None:
-        """Sets the internal Molecule."""
-        self.add_property(mol)
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """TODO."""
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+        self.molecule.to_hdf5(group)
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicStructureDriverResult:
         """TODO."""
         grouped_property = super().from_hdf5(h5py_group)
-        grouped_property.iterate_pseudo_properties = True
 
         ret = cls()
         for prop in grouped_property:
-            ret.add_property(prop)
+            if isinstance(prop, Molecule):
+                ret.molecule = prop
+            else:
+                ret.add_property(prop)
 
         return ret
 
@@ -109,7 +108,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
             # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
             geometry.append((atom, xyz * BOHR))
 
-        ret.add_property(Molecule(geometry, qmol.multiplicity, qmol.molecular_charge))
+        ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
         ret.add_property(
             DriverMetadata(

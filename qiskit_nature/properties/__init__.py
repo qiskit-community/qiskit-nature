@@ -24,7 +24,6 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
 
    Property
    GroupedProperty
-   PseudoProperty
 
 .. autosummary::
    :toctree:
@@ -33,10 +32,8 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
 """
 
 from .grouped_property import GroupedProperty
-from .property import Property, PseudoProperty
 
 __all__ = [
     "Property",
     "GroupedProperty",
-    "PseudoProperty",
 ]
