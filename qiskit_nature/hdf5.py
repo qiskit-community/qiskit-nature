@@ -14,9 +14,15 @@
 
 import importlib
 import logging
-from typing import runtime_checkable, Any, Generator, Protocol
+import sys
+from typing import Any, Generator, Protocol
 
 import h5py
+
+if sys.version_info >= (3, 8):
+    from typing import runtime_checkable
+else:
+    from typing_extensions import runtime_checkable
 
 
 LOGGER = logging.getLogger(__name__)

@@ -15,12 +15,17 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import runtime_checkable, Protocol
 import logging
+import sys
 
 import h5py
 
 from qiskit_nature.results import EigenstateResult
+
+if sys.version_info >= (3, 8):
+    from typing import runtime_checkable, Protocol
+else:
+    from typing_extensions import runtime_checkable, Protocol
 
 LOGGER = logging.getLogger(__name__)
 
