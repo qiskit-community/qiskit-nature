@@ -72,8 +72,8 @@ class GroundStateSolver(ABC):
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-            PauliSumOp qubit operator.
-            Optional[ListOrDictType[PauliSumOp]] with additional auxiliary operators.
+            Qubit operator.
+            Additional auxiliary operators.
         """
 
     @abstractmethod
