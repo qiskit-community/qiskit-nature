@@ -15,14 +15,15 @@
 import importlib
 import logging
 import sys
-from typing import Any, Generator, Protocol
+from typing import Any, Generator
 
 import h5py
 
 if sys.version_info >= (3, 8):
-    from typing import runtime_checkable
+    # pylint: disable=no-name-in-module
+    from typing import runtime_checkable, Protocol
 else:
-    from typing_extensions import runtime_checkable
+    from typing_extensions import runtime_checkable, Protocol
 
 
 LOGGER = logging.getLogger(__name__)

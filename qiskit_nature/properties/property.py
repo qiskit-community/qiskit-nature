@@ -23,6 +23,7 @@ import h5py
 from qiskit_nature.results import EigenstateResult
 
 if sys.version_info >= (3, 8):
+    # pylint: disable=no-name-in-module
     from typing import runtime_checkable, Protocol
 else:
     from typing_extensions import runtime_checkable, Protocol
