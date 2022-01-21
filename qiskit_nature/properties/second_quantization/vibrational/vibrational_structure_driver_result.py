@@ -67,7 +67,6 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalStructureDriverResult:
         """TODO."""
         grouped_property = super().from_hdf5(h5py_group)
-        grouped_property.iterate_pseudo_properties = True
 
         basis: VibrationalBasis = None
         ret = cls()

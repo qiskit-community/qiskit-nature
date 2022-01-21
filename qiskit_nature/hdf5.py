@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""TODO."""
+
 import importlib
 import logging
 from typing import runtime_checkable, Any, Generator, Protocol
@@ -53,6 +55,9 @@ def import_and_build_from_hdf5(h5py_group: h5py.Group) -> Generator[Any, None, N
     """TODO."""
     for group in h5py_group.values():
         module_path = group.attrs.get("__module__", "")
+        if not module_path:
+            continue
+
         class_name = group.attrs.get("__class__", "")
 
         if not class_name:

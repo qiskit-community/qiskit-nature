@@ -46,6 +46,7 @@ class OccupiedModals(VibrationalProperty):
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> OccupiedModals:
+        # pylint: disable=unused-argument
         """TODO."""
         return cls()
 
