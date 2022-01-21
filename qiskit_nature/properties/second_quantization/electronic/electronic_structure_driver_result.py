@@ -24,7 +24,7 @@ from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ..second_quantized_property import LegacyDriverResult
+from ..second_quantized_property import LegacyDriverResult, SecondQuantizedProperty
 from ..driver_metadata import DriverMetadata
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
@@ -140,12 +140,14 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
                 ElectronicDipoleMoment,
             ]:
                 prop = self.get_property(cls)  # type: ignore
-                if prop is None:
+                if prop is None or not isinstance(prop, SecondQuantizedProperty):
                     continue
                 ops.extend(prop.second_q_ops())
             return ops
 
         ops = {}
         for prop in iter(self):
+            if not isinstance(prop, SecondQuantizedProperty):
+                continue
             ops.update(prop.second_q_ops())
         return ops
