@@ -63,15 +63,17 @@ class GroundStateSolver(ABC):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]]]:
-        """Prepare problem and ground_state_solver state for solve method.
-
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        """Construct qubit operators by getting the second quantized operators from the problem
+        (potentially running a driver in doing so [can be computationally expensive])
+        and using a QubitConverter to map + reduce the operators to qubit ops
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
-
+            PauliSumOp qubit operator.
+            Optional[ListOrDictType[PauliSumOp]] with additional auxiliary operators.
         """
 
     @abstractmethod

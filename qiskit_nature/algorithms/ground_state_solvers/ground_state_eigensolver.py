@@ -97,7 +97,7 @@ class GroundStateEigensolver(GroundStateSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]]]:
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
