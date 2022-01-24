@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,10 @@
 
 """Test IntegralProperty"""
 
+import tempfile
 from test import QiskitNatureTestCase
 
+import h5py
 import numpy as np
 
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -106,3 +108,44 @@ class TestIntegralProperty(QiskitNatureTestCase):
             ("+_0 -_0 +_2 -_2", (1 + 0j)),
         ]
         self.assertEqual(second_q_ops[0].to_list(), expected)
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                count = 0
+
+                for name, group in file.items():
+                    count += 1
+                    self.assertEqual(name, "test")
+
+                    ints_1_ao = OneBodyElectronicIntegrals.from_hdf5(
+                        group["electronic_integrals"]["AO"]["OneBodyElectronicIntegrals"]
+                    )
+                    self.assertTrue(np.allclose(ints_1_ao._matrices, self.ints_1_ao._matrices))
+
+                    ints_1_mo = OneBodyElectronicIntegrals.from_hdf5(
+                        group["electronic_integrals"]["MO"]["OneBodyElectronicIntegrals"]
+                    )
+                    self.assertTrue(np.allclose(ints_1_mo._matrices, self.ints_1_mo._matrices))
+
+                    ints_2_ao = TwoBodyElectronicIntegrals.from_hdf5(
+                        group["electronic_integrals"]["AO"]["TwoBodyElectronicIntegrals"]
+                    )
+                    self.assertTrue(np.allclose(ints_2_ao._matrices, self.ints_2_mo._matrices))
+
+                    ints_2_mo = TwoBodyElectronicIntegrals.from_hdf5(
+                        group["electronic_integrals"]["AO"]["TwoBodyElectronicIntegrals"]
+                    )
+                    self.assertTrue(np.allclose(ints_2_mo._matrices, self.ints_2_mo._matrices))
+
+                    self.assertTrue("shift" in group.keys())
+
+                self.assertEqual(count, 1)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        self.skipTest("Testing via ElectronicStructureResult tests.")

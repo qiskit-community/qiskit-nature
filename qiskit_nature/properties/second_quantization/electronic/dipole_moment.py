@@ -145,10 +145,10 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
         group = parent.require_group(self.name)
 
-        group.attrs["reverse dipole sign"] = self._reverse_dipole_sign
+        group.attrs["reverse_dipole_sign"] = self._reverse_dipole_sign
 
         if self._nuclear_dipole_moment is not None:
-            group.attrs["Nuclear Dipole Moment"] = self._nuclear_dipole_moment
+            group.attrs["nuclear_dipole_moment"] = self._nuclear_dipole_moment
 
         dipole_shift_group = group.create_group("dipole_shift")
         if self._dipole_shift is not None:
@@ -162,8 +162,8 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
         ret = cls(list(grouped_property))
 
-        ret.reverse_dipole_sign = h5py_group.attrs["reverse dipole sign"]
-        ret.nuclear_dipole_moment = h5py_group.attrs.get("Nuclear Dipole Moment", None)
+        ret.reverse_dipole_sign = h5py_group.attrs["reverse_dipole_sign"]
+        ret.nuclear_dipole_moment = h5py_group.attrs.get("nuclear_dipole_moment", None)
 
         for name, shift in h5py_group["dipole_shift"].attrs.items():
             ret._dipole_shift[name] = shift

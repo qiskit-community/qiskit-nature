@@ -12,9 +12,11 @@
 
 """Test ParticleNumber Property"""
 
+import tempfile
 import warnings
 from test import QiskitNatureTestCase
 
+import h5py
 import numpy as np
 
 from qiskit_nature.drivers import QMolecule
@@ -56,3 +58,27 @@ class TestParticleNumber(QiskitNatureTestCase):
         prop = ParticleNumber(4, (2, 1), [2.0, 1.0])
         self.assertTrue(np.allclose(prop.occupation_alpha, [1.0, 1.0]))
         self.assertTrue(np.allclose(prop.occupation_beta, [1.0, 0.0]))
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                count = 0
+
+                for name, group in file.items():
+                    count += 1
+                    self.assertEqual(name, "ParticleNumber")
+                    self.assertEqual(group.attrs["num_spin_orbitals"], 8)
+                    self.assertEqual(group.attrs["num_alpha"], 2)
+                    self.assertEqual(group.attrs["num_beta"], 2)
+                    self.assertTrue(np.allclose(group["occupation_alpha"], [1.0, 1.0, 0.0, 0.0]))
+                    self.assertTrue(np.allclose(group["occupation_beta"], [1.0, 1.0, 0.0, 0.0]))
+
+                self.assertEqual(count, 1)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        self.skipTest("Testing via ElectronicStructureResult tests.")

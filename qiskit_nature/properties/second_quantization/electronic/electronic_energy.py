@@ -77,20 +77,20 @@ class ElectronicEnergy(IntegralProperty):
 
         # TODO: unify attribute-naming
         if self.nuclear_repulsion_energy is not None:
-            group.attrs["Nuclear Repulsion Energy"] = self.nuclear_repulsion_energy
+            group.attrs["nuclear_repulsion_energy"] = self.nuclear_repulsion_energy
 
         if self.reference_energy is not None:
-            group.attrs["Reference Energy"] = self.reference_energy
+            group.attrs["reference_energy"] = self.reference_energy
 
         if self.orbital_energies is not None:
-            group.create_dataset("Orbital Energies", data=self.orbital_energies)
+            group.attrs["orbital_energies"] = self.orbital_energies
 
         if self.kinetic is not None:
-            kinetic_group = group.create_group("Kinetic Energy Integrals")
+            kinetic_group = group.create_group("kinetic")
             self.kinetic.to_hdf5(kinetic_group)
 
         if self.overlap is not None:
-            overlap_group = group.create_group("Overlap Integrals")
+            overlap_group = group.create_group("overlap")
             self.overlap.to_hdf5(overlap_group)
 
     @classmethod
@@ -100,17 +100,15 @@ class ElectronicEnergy(IntegralProperty):
 
         ret = cls(list(integral_property), energy_shift=integral_property._shift)
 
-        ret.nuclear_repulsion_energy = h5py_group.attrs.get("Nuclear Repulsion Energy", None)
-        ret.reference_energy = h5py_group.attrs.get("Reference Energy", None)
+        ret.nuclear_repulsion_energy = h5py_group.attrs.get("nuclear_repulsion_energy", None)
+        ret.reference_energy = h5py_group.attrs.get("reference_energy", None)
+        ret.orbital_energies = h5py_group.attrs.get("orbital_energies", None)
 
-        if "Orbital Energies" in h5py_group.keys():
-            ret.orbital_energies = h5py_group["Orbital Energies"][...]
+        if "kinetic" in h5py_group.keys():
+            ret.kinetic = ElectronicIntegrals.from_hdf5(h5py_group["kinetic"])
 
-        if "Kinetic Energy Integrals" in h5py_group.keys():
-            ret.kinetic = ElectronicIntegrals.from_hdf5(h5py_group["Kinetic Energy Integrals"])
-
-        if "Overlap Integrals" in h5py_group.keys():
-            ret.overlap = ElectronicIntegrals.from_hdf5(h5py_group["Overlap Integrals"])
+        if "overlap" in h5py_group.keys():
+            ret.overlap = ElectronicIntegrals.from_hdf5(h5py_group["overlap"])
 
         return ret
 

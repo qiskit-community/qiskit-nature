@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,10 @@
 
 """Test OneBodyElectronicIntegrals."""
 
+import tempfile
 from test import QiskitNatureTestCase
 
+import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -207,3 +209,31 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
 
         self.assertTrue(isinstance(composition, complex))
         self.assertAlmostEqual(composition, expected)
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        random = np.random.rand(2, 2)
+
+        ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (random, random))
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                ints.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                count = 0
+
+                for name, group in file.items():
+                    count += 1
+                    self.assertEqual(name, "OneBodyElectronicIntegrals")
+                    self.assertEqual(group.attrs["basis"], "MO")
+
+                    for matrix in group.values():
+                        count += 1
+                        self.assertTrue(np.allclose(matrix, random))
+
+                self.assertEqual(count, 3)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        self.skipTest("Testing via ElectronicStructureResult tests.")

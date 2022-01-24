@@ -62,12 +62,12 @@ class VibrationalBasis(ABC):
         group.attrs["__version__"] = self.VERSION
 
         group.attrs["threshold"] = self._threshold
-        group.create_dataset("num_modals_per_mode", data=self.num_modals_per_mode)
+        group.attrs["num_modals_per_mode"] = self.num_modals_per_mode
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalBasis:
         """TODO."""
-        return cls(h5py_group["num_modals_per_mode"][...], h5py_group.attrs.get("threshold", None))
+        return cls(h5py_group.attrs["num_modals_per_mode"], h5py_group.attrs.get("threshold", None))
 
     @abstractmethod
     def eval_integral(
