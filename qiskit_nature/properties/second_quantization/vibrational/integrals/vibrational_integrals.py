@@ -26,16 +26,17 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from ..bases import VibrationalBasis
-from ....property import Property
 
 
-class VibrationalIntegrals(Property, ABC):
+class VibrationalIntegrals(ABC):
     """A container for arbitrary ``n-body`` vibrational integrals.
 
     When these integrals are printed the output will be truncated based on the
     ``VibrationalIntegrals._truncate`` value (defaults to 5). Use
     ``VibrationalIntegrals.set_truncation`` to change this value.
     """
+
+    VERSION = 1
 
     _truncate = 5
 
@@ -56,8 +57,8 @@ class VibrationalIntegrals(Property, ABC):
         Raises:
             ValueError: if the number of body terms is less than 1.
         """
-        super().__init__(f"{num_body_terms}Body{self.__class__.__name__}")
         self._validate_num_body_terms(num_body_terms)
+        self.name = f"{num_body_terms}Body{self.__class__.__name__}"
         self._num_body_terms = num_body_terms
         self._integrals = integrals
         self._basis: VibrationalBasis = None
@@ -99,8 +100,10 @@ class VibrationalIntegrals(Property, ABC):
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
-        super().to_hdf5(parent)
         group = parent.require_group(self.name)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
 
         group.attrs["num_body_terms"] = self._num_body_terms
 

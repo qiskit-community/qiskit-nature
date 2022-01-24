@@ -25,11 +25,10 @@ import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ....property import Property
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 
 
-class ElectronicIntegrals(Property, ABC):
+class ElectronicIntegrals(ABC):
     """A container for raw electronic integrals.
 
     This class is a template for ``n``-body electronic integral containers.
@@ -45,6 +44,8 @@ class ElectronicIntegrals(Property, ABC):
     ``ElectronicIntegrals._truncate`` value (defaults to 5). Use
     ``ElectronicIntegrals.set_truncation`` to change this value.
     """
+
+    VERSION = 1
 
     INTEGRAL_TRUNCATION_LEVEL = 1e-12
 
@@ -78,9 +79,9 @@ class ElectronicIntegrals(Property, ABC):
             TypeError: if the provided matrix type does not match with the basis or if the first
                 matrix is ``None``.
         """
-        super().__init__(self.__class__.__name__)
         self._validate_num_body_terms(num_body_terms)
         self._validate_matrices(matrices, basis, num_body_terms)
+        self.name = self.__class__.__name__
         self._basis = basis
         self._num_body_terms = num_body_terms
         self._threshold = threshold
@@ -99,8 +100,10 @@ class ElectronicIntegrals(Property, ABC):
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
-        super().to_hdf5(parent)
         group = parent.require_group(self.name)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
 
         group.attrs["basis"] = self._basis.name
         group.attrs["threshold"] = self._threshold

@@ -19,16 +19,16 @@ from typing import List, Optional
 
 import h5py
 
-from ....property import Property
 
-
-class VibrationalBasis(Property, ABC):
+class VibrationalBasis(ABC):
     """The Vibrational basis base class.
 
     This class defines the interface which any vibrational basis must implement. A basis must be
     applied to the vibrational integrals in order to map them into a second-quantization form. Refer
     to the documentation of :class:`~qiskit_nature.properties.vibrational.integrals` for more details.
     """
+
+    VERSION = 1
 
     def __init__(
         self,
@@ -40,7 +40,7 @@ class VibrationalBasis(Property, ABC):
             num_modals_per_mode: the number of modals to be used for each mode.
             threshold: the threshold value below which an integral coefficient gets neglected.
         """
-        super().__init__(self.__class__.__name__)
+        self.name = self.__class__.__name__
         self._num_modals_per_mode = num_modals_per_mode
         self._threshold = threshold
 
@@ -56,8 +56,10 @@ class VibrationalBasis(Property, ABC):
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
-        super().to_hdf5(parent)
         group = parent.require_group(self.name)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
 
         group.attrs["threshold"] = self._threshold
         group.create_dataset("num_modals_per_mode", data=self.num_modals_per_mode)
