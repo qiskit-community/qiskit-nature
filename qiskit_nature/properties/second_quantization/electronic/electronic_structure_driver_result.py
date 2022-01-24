@@ -49,6 +49,11 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         super().__init__(self.__class__.__name__)
         self.molecule: Molecule = None
 
+    def __str__(self) -> str:
+        string = [super().__str__()]
+        string += [str(self.molecule)]
+        return "\n".join(string)
+
     def to_hdf5(self, parent: h5py.Group) -> None:
         """TODO."""
         super().to_hdf5(parent)
