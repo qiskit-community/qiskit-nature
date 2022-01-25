@@ -20,6 +20,7 @@ import sys
 
 import h5py
 
+from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
 from qiskit_nature.results import EigenstateResult
 
 if sys.version_info >= (3, 8):
@@ -83,6 +84,32 @@ class Property(ABC):
         group.attrs["__class__"] = self.__class__.__name__
         group.attrs["__module__"] = self.__class__.__module__
         group.attrs["__version__"] = self.VERSION
+
+
+class PseudoProperty(Property, ABC):
+    """**DEPRECATED**: The PseudoProperty type.
+
+    A pseudo-property is a type derived by auxiliary property-related meta data.
+    """
+
+    def __init__(self):
+        super().__init__(self.__class__.__name__)
+        warn_deprecated(
+            "0.4.0",
+            DeprecatedType.CLASS,
+            "PseudoProperty",
+            DeprecatedType.CLASS,
+            "Interpretable",
+            additional_msg=(
+                "The PseudoProperty class is deprecated. Instead, of requiring an `interpret()` "
+                "method on the Property base-class, this is now handled via the `Interpretable` "
+                "protocol."
+            ),
+        )
+
+    def interpret(self, result: EigenstateResult) -> None:
+        """A PseudoProperty cannot interpret anything."""
+        pass
 
 
 @runtime_checkable
