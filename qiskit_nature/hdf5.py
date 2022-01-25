@@ -64,6 +64,11 @@ class HDF5Storable(Protocol):
 def save_to_hdf5(obj: HDF5Storable, filename: str, force: bool = False) -> None:
     """A utility to method to store an object to an HDF5 file.
 
+    .. code-block:: python
+
+        property = driver.run()
+        save_to_hdf5(property, "my_driver_result.hdf5")
+
     Args:
         obj: the `HDF5Storable` object to store in the file.
         filename: the path to the HDF5 file.
@@ -88,6 +93,10 @@ def save_to_hdf5(obj: HDF5Storable, filename: str, force: bool = False) -> None:
 
 def load_from_hdf5(filename: str) -> Generator[Any, None, None]:
     """Loads Qiskit Nature objects from an HDF5 file.
+
+    .. code-block:: python
+
+        my_driver_result = load_from_hdf5("my_driver_result.hdf5")
 
     Args:
         filename: the path to the HDF5 file.
