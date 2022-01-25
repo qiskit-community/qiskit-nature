@@ -74,7 +74,11 @@ class Property(ABC):
         logger.info(self.__str__())
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """TODO."""
+        """Stores this instance in a HDF5 group inside of the provided parent group.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
         group = parent.require_group(self.name)
         group.attrs["__class__"] = self.__class__.__name__
         group.attrs["__module__"] = self.__class__.__module__
@@ -83,10 +87,13 @@ class Property(ABC):
 
 @runtime_checkable
 class Interpretable(Protocol):
-    """TODO."""
+    """A protocol determining whether or not an object is interpretable.
+
+    An object is considered interpretable if it implements an `interpret` method.
+    """
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in e object's context.
 
         Args:
             result: the result to add meaning to.

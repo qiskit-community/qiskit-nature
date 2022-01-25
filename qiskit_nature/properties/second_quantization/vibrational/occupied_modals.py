@@ -47,7 +47,14 @@ class OccupiedModals(VibrationalProperty):
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> OccupiedModals:
         # pylint: disable=unused-argument
-        """TODO."""
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
         return cls()
 
     @classmethod
@@ -103,7 +110,6 @@ class OccupiedModals(VibrationalProperty):
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
 
-    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 

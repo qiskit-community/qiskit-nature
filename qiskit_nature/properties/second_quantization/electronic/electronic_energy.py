@@ -71,11 +71,14 @@ class ElectronicEnergy(IntegralProperty):
         self._overlap: ElectronicIntegrals = None
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """TODO."""
+        """Stores this instance in a HDF5 group inside of the provided parent group.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
 
-        # TODO: unify attribute-naming
         if self.nuclear_repulsion_energy is not None:
             group.attrs["nuclear_repulsion_energy"] = self.nuclear_repulsion_energy
 
@@ -95,7 +98,14 @@ class ElectronicEnergy(IntegralProperty):
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicEnergy:
-        """TODO."""
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
         integral_property = super().from_hdf5(h5py_group)
 
         ret = cls(list(integral_property), energy_shift=integral_property._shift)

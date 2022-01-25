@@ -71,11 +71,14 @@ class IntegralProperty(ElectronicProperty):
         return "\n".join(string)
 
     def __iter__(self) -> Generator[ElectronicIntegrals, None, None]:
-        """TODO."""
+        """Returns the generator-iterator method."""
         return self._generator()
 
     def _generator(self) -> Generator[ElectronicIntegrals, None, None]:
-        """TODO."""
+        """A generator-iterator method [1] iterating over all internal ``ElectronicIntegrals``.
+
+        [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
+        """
         for basis_ints in self._electronic_integrals.values():
             for ints in basis_ints.values():
                 yield ints
@@ -188,7 +191,11 @@ class IntegralProperty(ElectronicProperty):
         raise NotImplementedError()
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """TODO."""
+        """Stores this instance in a HDF5 group inside of the provided parent group.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
 
@@ -204,7 +211,14 @@ class IntegralProperty(ElectronicProperty):
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> IntegralProperty:
-        """TODO."""
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
         ints = []
         for basis_group in h5py_group["electronic_integrals"].values():
             for int_group in basis_group.values():

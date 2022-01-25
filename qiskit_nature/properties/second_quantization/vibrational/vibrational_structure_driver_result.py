@@ -54,7 +54,11 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         self._num_modes = num_modes
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """TODO."""
+        """Stores this instance in a HDF5 group inside of the provided parent group.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
 
@@ -65,7 +69,14 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalStructureDriverResult:
-        """TODO."""
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
         grouped_property = super().from_hdf5(h5py_group)
 
         basis: VibrationalBasis = None

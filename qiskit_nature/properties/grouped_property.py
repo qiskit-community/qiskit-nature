@@ -19,7 +19,7 @@ from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
 
 import h5py
 
-from qiskit_nature.hdf5 import import_and_build_from_hdf5
+from qiskit_nature.hdf5 import _import_and_build_from_hdf5
 from qiskit_nature.results import EigenstateResult
 from .property import Interpretable, Property
 
@@ -111,7 +111,13 @@ class GroupedProperty(Property, Iterable, Generic[T]):
                 prop.interpret(result)
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """TODO."""
+        """Stores this instance in a HDF5 group inside of the provided parent group.
+
+        This method also iterates all properties contained in this ``GroupProperty`` instance.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
 
@@ -120,12 +126,22 @@ class GroupedProperty(Property, Iterable, Generic[T]):
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> GroupedProperty:
-        """TODO."""
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        More specifically this method will iterate all groups found within `h5py_group` and
+        constructs the corresponding objects from these groups.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
         class_name = h5py_group.attrs.get("__class__", "")
 
         ret: GroupedProperty = GroupedProperty(class_name)
 
-        for prop in import_and_build_from_hdf5(h5py_group):
+        for prop in _import_and_build_from_hdf5(h5py_group):
             ret.add_property(prop)
 
         return ret

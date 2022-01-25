@@ -138,7 +138,11 @@ class ParticleNumber(ElectronicProperty):
         return "\n".join(string)
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """TODO."""
+        """Stores this instance in a HDF5 group inside of the provided parent group.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
 
@@ -153,7 +157,14 @@ class ParticleNumber(ElectronicProperty):
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> ParticleNumber:
-        """TODO."""
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
         return ParticleNumber(
             h5py_group.attrs["num_spin_orbitals"],
             (h5py_group.attrs["num_alpha"], h5py_group.attrs["num_beta"]),

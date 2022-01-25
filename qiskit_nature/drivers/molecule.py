@@ -77,7 +77,11 @@ class Molecule:
         self._perturbations = None  # type: Optional[List[float]]
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """TODO."""
+        """Stores this instance in a HDF5 group inside of the provided parent group.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
         group = parent.require_group(self.__class__.__name__)
         group.attrs["__class__"] = self.__class__.__name__
         group.attrs["__module__"] = self.__class__.__module__
@@ -95,7 +99,14 @@ class Molecule:
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> Molecule:
-        """TODO."""
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
         geometry = []
         for atom, coords in h5py_group["geometry"].items():
             geometry.append((atom, list(coords)))
