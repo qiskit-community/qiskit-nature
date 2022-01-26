@@ -88,8 +88,10 @@ class Molecule:
         group.attrs["__version__"] = self.VERSION
 
         geometry_group = group.create_group("geometry", track_order=True)
-        for (atom, coords) in self._geometry:
-            geometry_group.create_dataset(atom, data=coords)
+        for idx, geom in enumerate(self._geometry):
+            symbol, coords = geom
+            geometry_group.create_dataset(str(idx), data=coords)
+            geometry_group[str(idx)].attrs["symbol"] = symbol
 
         group.attrs["multiplicity"] = self._multiplicity
         group.attrs["charge"] = self._charge
@@ -108,8 +110,8 @@ class Molecule:
             A new instance of this class.
         """
         geometry = []
-        for atom, coords in h5py_group["geometry"].items():
-            geometry.append((atom, list(coords)))
+        for atom in h5py_group["geometry"].values():
+            geometry.append((atom.attrs["symbol"], list(atom[...])))
 
         multiplicity = h5py_group.attrs["multiplicity"]
         charge = h5py_group.attrs["charge"]
