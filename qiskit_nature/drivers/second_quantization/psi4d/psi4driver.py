@@ -17,15 +17,14 @@ import os
 import subprocess
 import sys
 import tempfile
-import warnings
 from pathlib import Path
 from typing import Union, List, Optional, Any, Dict
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 import qiskit_nature.optionals as _optionals
 
-from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -139,10 +138,6 @@ class PSI4Driver(ElectronicStructureDriver):
         template_file = psi4d_directory.joinpath("_template.txt")
         qiskit_nature_directory = psi4d_directory.parent.parent
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        molecule = QMolecule()
-        warnings.filterwarnings("default", category=DeprecationWarning)
-
         input_text = [cfg]
         input_text += ["import sys"]
         syspath = (
@@ -154,14 +149,14 @@ class PSI4Driver(ElectronicStructureDriver):
         )
 
         input_text += ["sys.path = " + syspath + " + sys.path"]
-        input_text += ["import warnings"]
-        input_text += ["from qiskit_nature.drivers.qmolecule import QMolecule"]
-        input_text += ["warnings.filterwarnings('ignore', category=DeprecationWarning)"]
-        input_text += [f'_q_molecule = QMolecule("{Path(molecule.filename).as_posix()}")']
-        input_text += ["warnings.filterwarnings('default', category=DeprecationWarning)"]
 
         with open(template_file, "r", encoding="utf8") as file:
             input_text += [line.strip("\n") for line in file.readlines()]
+
+        file_fd, hdf5_file = tempfile.mkstemp(suffix=".hdf5")
+        os.close(file_fd)
+
+        input_text += [f'save_to_hdf5(driver_result, "{hdf5_file}", force=True)']
 
         file_fd, input_file = tempfile.mkstemp(suffix=".inp")
         os.close(file_fd)
@@ -195,15 +190,19 @@ class PSI4Driver(ElectronicStructureDriver):
             except Exception:  # pylint: disable=broad-except
                 pass
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        _q_molecule = QMolecule(molecule.filename)
-        warnings.filterwarnings("default", category=DeprecationWarning)
-        _q_molecule.load()
-        # remove internal file
-        _q_molecule.remove_file()
-        _q_molecule.origin_driver_name = "PSI4"
-        _q_molecule.origin_driver_config = cfg
-        return ElectronicStructureDriverResult.from_legacy_driver_result(_q_molecule)
+        driver_result: ElectronicStructureDriverResult = None
+        for prop in load_from_hdf5(hdf5_file):
+            if driver_result is None:
+                driver_result = prop
+            else:
+                raise QiskitNatureError("Found an unexpected number of properties!")
+
+        try:
+            os.remove(hdf5_file)
+        except Exception:  # pylint: disable=broad-except
+            pass
+
+        return driver_result
 
     @staticmethod
     def _run_psi4(input_file, output_file):
