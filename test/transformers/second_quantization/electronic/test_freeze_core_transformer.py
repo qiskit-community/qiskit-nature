@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,8 +21,6 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 
 
-# With Python 3.6 this false positive is being raised for the ElectronicStructureDriverResult
-# pylint: disable=abstract-class-instantiated
 @ddt
 class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
