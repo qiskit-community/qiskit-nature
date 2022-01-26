@@ -115,10 +115,14 @@ class ElectronicEnergy(IntegralProperty):
         ret.orbital_energies = h5py_group.attrs.get("orbital_energies", None)
 
         if "kinetic" in h5py_group.keys():
-            ret.kinetic = ElectronicIntegrals.from_hdf5(h5py_group["kinetic"])
+            ret.kinetic = ElectronicIntegrals.from_hdf5(
+                h5py_group["kinetic"]["OneBodyElectronicIntegrals"]
+            )
 
         if "overlap" in h5py_group.keys():
-            ret.overlap = ElectronicIntegrals.from_hdf5(h5py_group["overlap"])
+            ret.overlap = ElectronicIntegrals.from_hdf5(
+                h5py_group["overlap"]["OneBodyElectronicIntegrals"]
+            )
 
         return ret
 
