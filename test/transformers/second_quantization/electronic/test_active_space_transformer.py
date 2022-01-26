@@ -35,8 +35,6 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 from qiskit_nature.transformers.second_quantization.electronic import ActiveSpaceTransformer
 
 
-# With Python 3.6 this false positive is being raised for the ElectronicStructureDriverResult
-# pylint: disable=abstract-class-instantiated
 @ddt
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""

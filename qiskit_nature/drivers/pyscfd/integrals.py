@@ -95,7 +95,7 @@ def compute_integrals(
 def _check_molecule_format(val):
     """If it seems to be zmatrix rather than xyz format we convert before returning"""
     atoms = [x.strip() for x in val.split(";")]
-    if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
+    if atoms is None or len(atoms) < 1:
         raise QiskitNatureError("Molecule format error: " + val)
 
     # An xyz format has 4 parts in each atom, if not then do zmatrix convert

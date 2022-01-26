@@ -131,7 +131,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         return self.periodic_table.index(atom.lower().capitalize())
 
     periodic_table = [
-        # pylint: disable=bad-option-value,bad-whitespace,line-too-long
+        # pylint: disable=line-too-long
         # fmt: off
         "_",
          "H", "He",

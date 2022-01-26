@@ -102,7 +102,6 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
         pauli_table = []
         # FIND BINARY SUPERSET SIZE
         bin_sup = 1
-        # pylint: disable=comparison-with-callable
         while nmodes > np.power(2, bin_sup):
             bin_sup += 1
         # DEFINE INDEX SETS FOR EVERY FERMIONIC MODE

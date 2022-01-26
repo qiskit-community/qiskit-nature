@@ -21,8 +21,6 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 
 
-# With Python 3.6 this false positive is being raised for the ElectronicStructureDriverResult
-# pylint: disable=abstract-class-instantiated
 @ddt
 class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""

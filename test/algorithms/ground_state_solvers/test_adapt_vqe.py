@@ -169,7 +169,6 @@ class TestAdaptVQE(QiskitNatureTestCase):
                 # Here, we can create essentially any custom excitation pool.
                 # For testing purposes only, we simply select some hopping operator already
                 # available in the ansatz object.
-                # pylint: disable=no-member
                 custom_excitation_pool = [solver.ansatz.operators[2]]
                 solver.ansatz.operators = custom_excitation_pool
                 return solver

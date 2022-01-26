@@ -108,7 +108,6 @@ class DistanceMapBuilder:
         return _fix_qubits(distance)
 
     def _calc_distances_main_chain(self, peptide: Peptide) -> None:
-        # pylint:disable=anomalous-backslash-in-string
         r"""
         Calculates distance between beads based on the number of turns in
         the main chain. Note, here we consider distances between beads

@@ -241,7 +241,7 @@ class HarmonicBasis(BosonicBasis):
                                     index_dict[modes[1]],
                                     kinetic_term=kinetic_term,
                                 )
-                                # pylint: disable=locally-disabled, invalid-name
+                                # pylint: disable=invalid-name
                                 for p in range(num_modals):
                                     for q in range(p + 1):
                                         coeff = coeff2 * self._harmonic_integrals(

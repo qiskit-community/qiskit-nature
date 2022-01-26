@@ -618,7 +618,6 @@ class QMolecule:
         return moh2_qubit
 
     symbols = [
-        # pylint: disable=bad-option-value,bad-whitespace
         "_",
         "H",
         "He",

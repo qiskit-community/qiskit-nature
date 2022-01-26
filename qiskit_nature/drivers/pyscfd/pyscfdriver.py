@@ -147,7 +147,7 @@ class PySCFDriver(FermionicDriver):
             spec = importlib.util.find_spec("pyscf")
             if spec is not None:
                 return
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception as ex:
             logger.debug("PySCF check error %s", str(ex))
             raise MissingOptionalLibraryError(
                 libname="PySCF",

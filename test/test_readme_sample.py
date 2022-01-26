@@ -34,11 +34,10 @@ class TestReadmeSample(QiskitNatureTestCase):
 
         try:
             # pylint: disable=import-outside-toplevel
-            # pylint: disable=unused-import
             from qiskit import Aer
 
             _ = Aer.get_backend("aer_simulator_statevector")
-        except ImportError as ex:  # pylint: disable=broad-except
+        except ImportError as ex:
             self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 

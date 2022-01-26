@@ -25,7 +25,6 @@ class ElectronicBasis(Enum):
     :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
     """
 
-    # pylint: disable=invalid-name
     AO = "atomic"
     MO = "molecular"
     SO = "spin"

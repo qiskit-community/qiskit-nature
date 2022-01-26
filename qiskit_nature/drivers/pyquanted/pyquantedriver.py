@@ -116,7 +116,7 @@ class PyQuanteDriver(FermionicDriver):
             spec = importlib.util.find_spec("pyquante2")
             if spec is not None:
                 return
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception as ex:
             logger.debug("PyQuante2 check error %s", str(ex))
             raise QiskitNatureError(err_msg) from ex
 
