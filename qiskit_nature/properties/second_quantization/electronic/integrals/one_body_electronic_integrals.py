@@ -27,6 +27,8 @@ from ..bases import ElectronicBasis, ElectronicBasisTransform
 class OneBodyElectronicIntegrals(ElectronicIntegrals):
     """The 1-body electronic integrals."""
 
+    _MATRIX_REPRESENTATIONS = ["Alpha", "Beta"]
+
     def __init__(
         self,
         basis: ElectronicBasis,
@@ -50,7 +52,6 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         """
         num_body_terms = 1
         super().__init__(num_body_terms, basis, matrices, threshold)
-        self._matrix_representations = ["Alpha", "Beta"]
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> OneBodyElectronicIntegrals:
         # pylint: disable=line-too-long

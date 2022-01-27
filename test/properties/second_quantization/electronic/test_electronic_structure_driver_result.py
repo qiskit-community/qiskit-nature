@@ -147,7 +147,7 @@ class TestElectronicStructureDriverResult(QiskitNatureTestCase):
             raise self.failureException(msg)
         if first._num_body_terms != second._num_body_terms:
             raise self.failureException(msg)
-        if first._matrix_representations != second._matrix_representations:
+        if first._MATRIX_REPRESENTATIONS != second._MATRIX_REPRESENTATIONS:
             raise self.failureException(msg)
         for f_mat, s_mat in zip(first._matrices, second._matrices):
             if not np.allclose(f_mat, s_mat):

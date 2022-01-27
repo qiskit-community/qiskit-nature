@@ -31,6 +31,8 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
+    _MATRIX_REPRESENTATIONS = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
+
     # TODO: provide symmetry testing functionality?
 
     def __init__(
@@ -60,7 +62,6 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         """
         num_body_terms = 2
         super().__init__(num_body_terms, basis, matrices, threshold)
-        self._matrix_representations = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
 
     def _fill_matrices(self) -> None:
         """Fills the internal matrices where ``None`` placeholders were inserted.

@@ -49,6 +49,8 @@ class ElectronicIntegrals(ABC):
 
     INTEGRAL_TRUNCATION_LEVEL = 1e-12
 
+    _MATRIX_REPRESENTATIONS: List[str] = []
+
     _truncate = 5
 
     def __init__(
@@ -85,7 +87,6 @@ class ElectronicIntegrals(ABC):
         self._basis = basis
         self._num_body_terms = num_body_terms
         self._threshold = threshold
-        self._matrix_representations: List[str] = [""] * len(matrices)
         self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
         if basis == ElectronicBasis.SO:
             self._matrices = np.where(np.abs(matrices) > self._threshold, matrices, 0.0)
@@ -115,7 +116,7 @@ class ElectronicIntegrals(ABC):
         if self._basis == ElectronicBasis.SO:
             group.create_dataset("Spin", data=self._matrices)
         else:
-            for name, mat in zip(self._matrix_representations, self._matrices):
+            for name, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
                 group.create_dataset(name, data=mat)
 
     @classmethod
@@ -128,15 +129,15 @@ class ElectronicIntegrals(ABC):
         Returns:
             A new instance of this class.
         """
-        basis = getattr(ElectronicBasis, h5py_group.attrs["basis"])
-        threshold = h5py_group.attrs["threshold"]
-        matrices = tuple(matrix[...] for matrix in h5py_group.values())
-
         class_name = h5py_group.attrs["__class__"]
         module_path = h5py_group.attrs["__module__"]
 
         loaded_module = importlib.import_module(module_path)
         loaded_class = getattr(loaded_module, class_name, None)
+
+        basis = getattr(ElectronicBasis, h5py_group.attrs["basis"])
+        threshold = h5py_group.attrs["threshold"]
+        matrices = tuple(h5py_group[rep][...] for rep in loaded_class._MATRIX_REPRESENTATIONS)
 
         return loaded_class(
             basis=basis,
@@ -149,7 +150,7 @@ class ElectronicIntegrals(ABC):
         if self._basis == ElectronicBasis.SO:
             string += self._render_matrix_as_sparse_list(self._matrices)
         else:
-            for title, mat in zip(self._matrix_representations, self._matrices):
+            for title, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
                 rendered_matrix = self._render_matrix_as_sparse_list(mat)
                 string += [f"\t{title}"]
                 if not rendered_matrix:
