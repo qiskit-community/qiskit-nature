@@ -22,16 +22,11 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring_mapped
-from qiskit_nature.drivers import QMolecule
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.properties.second_quantization.electronic import (
-    ElectronicStructureDriverResult,
-    ParticleNumber,
-)
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
-from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
@@ -49,7 +44,7 @@ class ElectronicStructureProblem(BaseProblem):
     def __init__(
         self,
         driver: ElectronicStructureDriver,
-        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
+        transformers: Optional[List[BaseTransformer]] = None,
     ):
         """
 
@@ -93,30 +88,8 @@ class ElectronicStructureProblem(BaseProblem):
         """
         driver_result = self.driver.run()
 
-        if self._legacy_driver:
-            self._molecule_data = cast(QMolecule, driver_result)
-            self._grouped_property = ElectronicStructureDriverResult.from_legacy_driver_result(
-                self._molecule_data
-            )
-
-            if self._legacy_transform:
-                self._molecule_data_transformed = self._transform(self._molecule_data)
-                self._grouped_property_transformed = (
-                    ElectronicStructureDriverResult.from_legacy_driver_result(
-                        self._molecule_data_transformed
-                    )
-                )
-
-            else:
-                if not self.transformers:
-                    # if no transformers are supplied, we can still provide
-                    # `molecule_data_transformed` as a copy of `molecule_data`
-                    self._molecule_data_transformed = self._molecule_data
-                self._grouped_property_transformed = self._transform(self._grouped_property)
-
-        else:
-            self._grouped_property = driver_result
-            self._grouped_property_transformed = self._transform(self._grouped_property)
+        self._grouped_property = driver_result
+        self._grouped_property_transformed = self._transform(self._grouped_property)
 
         second_quantized_ops = self._grouped_property_transformed.second_q_ops()
 

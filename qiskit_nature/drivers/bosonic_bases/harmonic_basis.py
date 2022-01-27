@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -241,7 +241,7 @@ class HarmonicBasis(BosonicBasis):
                                     index_dict[modes[1]],
                                     kinetic_term=kinetic_term,
                                 )
-                                # pylint: disable=locally-disabled, invalid-name
+                                # pylint: disable=invalid-name
                                 for p in range(num_modals):
                                     for q in range(p + 1):
                                         coeff = coeff2 * self._harmonic_integrals(
