@@ -1,3 +1,4 @@
+# vim: ft=python
 import numpy
 
 from qiskit_nature.constants import BOHR
