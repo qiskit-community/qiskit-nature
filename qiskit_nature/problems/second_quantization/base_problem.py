@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,23 +12,20 @@
 # This code is part of Qiskit.
 """The Base Problem class."""
 
-import warnings
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
-from qiskit_nature import ListOrDictType, QiskitNatureError
+from qiskit_nature import ListOrDictType
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
-from qiskit_nature.drivers import BaseDriver as LegacyBaseDriver
 from qiskit_nature.drivers.second_quantization import BaseDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 from qiskit_nature.results import EigenstateResult
-from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
@@ -39,8 +36,8 @@ class BaseProblem(ABC):
 
     def __init__(
         self,
-        driver: Union[LegacyBaseDriver, BaseDriver],
-        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
+        driver: BaseDriver,
+        transformers: Optional[List[BaseTransformer]] = None,
     ):
         """
 
@@ -48,48 +45,10 @@ class BaseProblem(ABC):
             driver: A driver encoding the molecule information.
             transformers: A list of transformations to be applied to the driver result.
 
-        Raises:
-            QiskitNatureError: if the driver or any transformer of the legacy stack are mixed with
-                their implementations since version 0.2.0.
         """
 
         self.driver = driver
         self.transformers = transformers or []
-
-        self._legacy_driver = isinstance(driver, LegacyBaseDriver)
-
-        legacy_transformer_present = any(
-            isinstance(trafo, LegacyBaseTransformer) for trafo in self.transformers
-        )
-        new_transformer_present = any(
-            isinstance(trafo, BaseTransformer) for trafo in self.transformers
-        )
-
-        if legacy_transformer_present and new_transformer_present:
-            raise QiskitNatureError(
-                "A mix of current and deprecated transformers is not supported!"
-            )
-
-        if not self._legacy_driver and legacy_transformer_present:
-            # a LegacyBaseTransformer cannot transform the Property results produced by the new
-            # drivers.
-            raise QiskitNatureError(
-                "The deprecated transformers do not support transforming the new Property-based "
-                "drivers!"
-            )
-
-        if self._legacy_driver and new_transformer_present:
-            # a LegacyBaseDriver produces a LegacyDriverResult which cannot be transformed by the
-            # Property-based transformers. However, the LegacyDriverResult can be converted before
-            # iterating through the transformers.
-            warnings.warn(
-                "Mixing a deprecated driver with Property-based transformers is not advised. Please"
-                " consider switching to the new Property-based drivers in "
-                "qiskit_nature.drivers.second_quantization",
-                UserWarning,
-            )
-
-        self._legacy_transform = self._legacy_driver and legacy_transformer_present
 
         self._molecule_data: Optional[LegacyDriverResult] = None
         self._molecule_data_transformed: Optional[LegacyDriverResult] = None
