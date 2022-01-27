@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -148,10 +148,10 @@ class TestBOPES(QiskitNatureTestCase):
         result = bopes.sample(es_problem, points)
         ref_points = [0.6, 0.6666666666666666, 0.7333333333333334, 0.8]
         ref_energies = [
-            -1.1162853926251162,
-            -1.1327033478688526,
-            -1.137302817836066,
-            -1.1341458916990401,
+            -1.1162738,
+            -1.1326904,
+            -1.1372876,
+            -1.1341292,
         ]
         np.testing.assert_almost_equal(result.points, ref_points)
         np.testing.assert_almost_equal(result.energies, ref_energies)

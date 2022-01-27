@@ -239,7 +239,7 @@ class BOPESSampler:
         # Save optimal point to bootstrap
         if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             # at every point evaluation, the optimal params are updated
-            optimal_params = result.raw_result.optimal_point  # type: ignore
+            optimal_params = result.raw_result.optimal_point
             self._points_optparams[point] = optimal_params
 
         return result

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -102,6 +102,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
+          make clean_sphinx
           make style
         if: ${{ !cancelled() }}
         shell: bash
@@ -135,12 +136,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9, '3.10']
         include:
           - os: macos-latest
             python-version: 3.8
-          - os: windows-latest
+          - os: macos-latest
+            python-version: '3.10'
+          - os: windows-2019
             python-version: 3.8
+          - os: windows-2019
+            python-version: '3.10'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -158,22 +163,18 @@ jobs:
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
+        if: ${{ matrix.python-version != '3.10' }}
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
-        if: ${{ matrix.python-version >= 3.7 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            conda install -c rpmuller pyquante2_pure
-          else
-            pip install -U Cython
-            pip install git+https://github.com/rpmuller/pyquante2
-          fi
-        if: ${{ matrix.python-version < 3.9 }}
+          conda install -c rpmuller pyquante2_pure
+        if: ${{ matrix.python-version != '3.10' }}
         shell: bash
       - name: Set up problem matches
         run: |
@@ -320,10 +321,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: actions/download-artifact@v2
         with:
-          name: ubuntu-latest-3.6
-          path: /tmp/u36
-      - uses: actions/download-artifact@v2
-        with:
           name: ubuntu-latest-3.7
           path: /tmp/u37
       - uses: actions/download-artifact@v2
@@ -336,18 +333,30 @@ jobs:
           path: /tmp/u39
       - uses: actions/download-artifact@v2
         with:
+          name: ubuntu-latest-3.10
+          path: /tmp/u310
+      - uses: actions/download-artifact@v2
+        with:
           name: macos-latest-3.8
           path: /tmp/m38
       - uses: actions/download-artifact@v2
         with:
-          name: windows-latest-3.8
+          name: macos-latest-3.10
+          path: /tmp/m310
+      - uses: actions/download-artifact@v2
+        with:
+          name: windows-2019-3.8
           path: /tmp/w38
+      - uses: actions/download-artifact@v2
+        with:
+          name: windows-2019-3.10
+          path: /tmp/w310
       - name: Install Dependencies
         run: pip install -U coverage coveralls diff-cover
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u36/nat.dep /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/m38/nat.dep /tmp/w38/nat.dep || true
+          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m38/nat.dep /tmp/m310/nat.dep /tmp/w38/nat.dep /tmp/w310/nat.dep || true
         shell: bash
       - name: Coverage combine
         run: coverage3 combine /tmp/u37/nat.dat

@@ -5,6 +5,7 @@ al
 alanine
 allclose
 alzheimer
+amino
 aminoacid
 aminoacids
 ancilla
@@ -68,6 +69,7 @@ coeff
 coeffs
 colormap
 commutativities
+commutativity
 conda
 conf
 config
@@ -139,6 +141,7 @@ fermion
 fermionic
 fermionicop
 fermions
+filename
 fmt
 fock
 formatter
@@ -147,6 +150,7 @@ fredkin
 gauopen
 gaussian
 gaussiand
+gcc
 getitem
 getter
 gfortran
@@ -165,6 +169,7 @@ hcore
 heidelberg
 heisenberg
 hermite
+hermitian
 hijkls
 hijs
 hilbert
@@ -188,6 +193,7 @@ intelvem
 interatomic
 internuclear
 ints
+ising
 iso
 isoleucine
 isometry
@@ -245,8 +251,9 @@ mcrz
 mct
 mcu
 mcx
-methionine
 metadata
+meth
+methionine
 microsoft
 minao
 mixin
@@ -258,6 +265,7 @@ mol
 morse
 mpl
 mul
+multi
 multinomial
 mypy
 namelist
@@ -290,6 +298,7 @@ ollitrault
 onee
 oneeints
 onwards
+onsite
 opflow
 oppenheimer
 optimizers
@@ -300,11 +309,13 @@ otimes
 outpath
 pac
 param
+parameterized
 params
 pauli
 paulis
 paulische
 pca
+peptide
 perturbative
 pes
 phenylalanine
@@ -335,18 +346,22 @@ qiskit's
 qmolecule
 qn
 qregs
+quantization
 quantized
 quartic
 qubit
 qubits
 qutrit
+radians
 rcccx
 rccx
 readme
 realise
 rebranding
 refactor
+refactored
 regs
+reinstall
 repr
 retworkx
 rgb
@@ -408,11 +423,13 @@ sys
 sysctl
 tavernelli
 taylor
+tb
 tdg
 tensored
 terra
 th
 threonine
+timestamp
 toctree
 toffoli
 tol
@@ -422,6 +439,8 @@ translational
 transpilation
 trotterization
 tryptophan
+tuple
+tuples
 twoe
 twoeints
 tyrosine
@@ -433,6 +452,7 @@ uccsd
 ucrx
 ucry
 ucrz
+uhf
 ulimit
 un
 unary
@@ -441,6 +461,7 @@ undirected
 unitaries
 unitstype
 untransforms
+username
 utils
 uvcc
 über
@@ -448,6 +469,7 @@ valine
 vals
 variational
 verbatim
+versa
 vibrational
 vibrationalop
 vibro

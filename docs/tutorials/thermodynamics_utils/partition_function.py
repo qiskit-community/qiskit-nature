@@ -46,11 +46,10 @@ class PartitionFunctionBase(ABC):
 
     @abstractmethod
     def get_default_callable(self, pressure=None):
-        """ Get a default partition function callable """
+        """Get a default partition function callable"""
 
     @abstractmethod
-    def get_partition(self, *, part="total",
-                      pressure=None, geometry=None):
+    def get_partition(self, *, part="total", pressure=None, geometry=None):
         """
         Gets a callable to a partition function.
 
@@ -67,19 +66,19 @@ class PartitionFunctionBase(ABC):
 
 class DifferentiableFunction:
     """
-        A wrapper for a differentiable function to facilitate
-        thermodynamic calculations.
+    A wrapper for a differentiable function to facilitate
+    thermodynamic calculations.
 
-        Given a callable function with numerical output, constructs a
-        callable object with the same signature.
+    Given a callable function with numerical output, constructs a
+    callable object with the same signature.
 
-        The derivative (in the 'argument_name' variable) is also callable
-        from the object(.D), as it is either provided analytically on
-        construction or calculated numerically with central finite
-        differences approximation.
+    The derivative (in the 'argument_name' variable) is also callable
+    from the object(.D), as it is either provided analytically on
+    construction or calculated numerically with central finite
+    differences approximation.
     """
 
-    def __init__(self, function, derivative=None, argument_name='t', fd=1E-4):
+    def __init__(self, function, derivative=None, argument_name="t", fd=1e-4):
         """
         Constructor.
         Initializes the object with the given function (and its derivative)
@@ -106,8 +105,8 @@ class DifferentiableFunction:
         if derivative is not None:
             if not callable(derivative):
                 raise ValueError(
-                    "Provided derivative must be callable"
-                    " (and of the same signature)!")
+                    "Provided derivative must be callable" " (and of the same signature)!"
+                )
             self.D = derivative
         else:
             self.argumentName = argument_name
@@ -162,16 +161,14 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
                 at the given pressure.
         """
         if len(self.molecule.masses) != 2:
-            raise ValueError(
-                'Only implemented for diatomic molecules!')
-        is_homonuclear = (self.molecule.masses[0] == self.molecule.masses[1])
+            raise ValueError("Only implemented for diatomic molecules!")
+        is_homonuclear = self.molecule.masses[0] == self.molecule.masses[1]
         if is_homonuclear:
-            return self.get_partition(split='eq', pressure=pressure)
+            return self.get_partition(split="eq", pressure=pressure)
         else:
             return self.get_partition(pressure=pressure)
 
-    def get_partition(self, *, part="total", split=None,
-                      pressure=None, geometry=None):
+    def get_partition(self, *, part="total", split=None, pressure=None, geometry=None):
         """
         The main method for accessing specific components of the partition
         function.
@@ -204,45 +201,53 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
             ValueError: if part is not recognized.
         """
         p = pressure if pressure is not None else 101325
-        r = (geometry if geometry is not None else
-             self.energy_surface.get_equilibrium_geometry(1E-10))  # meters
+        r = (
+            geometry
+            if geometry is not None
+            else self.energy_surface.get_equilibrium_geometry(1e-10)
+        )  # meters
 
         __trans = DifferentiableFunction(
             lambda t: self.eval_translational(p, t),
             # lambda t: self.eval_d_dt_translational(p,t))
-            lambda t: self.eval_d_dt_translational_volume_corrected(p, t))
+            lambda t: self.eval_d_dt_translational_volume_corrected(p, t),
+        )
 
         __vib = DifferentiableFunction(
-            lambda t: self.eval_vibrational(t),
-            lambda t: self.eval_d_dt_vibrational(t))
+            lambda t: self.eval_vibrational(t), lambda t: self.eval_d_dt_vibrational(t)
+        )
 
         __rot = DifferentiableFunction(
-            lambda t: self.eval_rotational(r, t),
-            lambda t: self.eval_d_dt_rotational(r, t))
+            lambda t: self.eval_rotational(r, t), lambda t: self.eval_d_dt_rotational(r, t)
+        )
 
         if split is not None:
-            if not (part.lower().startswith('rot')
-                    or part.lower().startswith('tot')):
+            if not (part.lower().startswith("rot") or part.lower().startswith("tot")):
                 warnings.warn(
                     "Split in para/ortho/mix parts only makes"
                     " sense for Rotational/Total partitions.",
-                    RuntimeWarning)
-            if split.lower().startswith('eq'):
+                    RuntimeWarning,
+                )
+            if split.lower().startswith("eq"):
                 __rot = DifferentiableFunction(
                     lambda t: self.eval_rotational(r, t, True)[0],
-                    lambda t: self.eval_d_dt_rotational(r, t, True)[0])
-            if split.lower().startswith('para'):
+                    lambda t: self.eval_d_dt_rotational(r, t, True)[0],
+                )
+            if split.lower().startswith("para"):
                 __rot = DifferentiableFunction(
                     lambda t: self.eval_rotational(r, t, True)[1],
-                    lambda t: self.eval_d_dt_rotational(r, t, True)[1])
-            if split.lower().startswith('ortho'):
+                    lambda t: self.eval_d_dt_rotational(r, t, True)[1],
+                )
+            if split.lower().startswith("ortho"):
                 __rot = DifferentiableFunction(
                     lambda t: self.eval_rotational(r, t, True)[2],
-                    lambda t: self.eval_d_dt_rotational(r, t, True)[2])
-            if split.lower().startswith('mix'):
+                    lambda t: self.eval_d_dt_rotational(r, t, True)[2],
+                )
+            if split.lower().startswith("mix"):
                 __rot = DifferentiableFunction(
                     lambda t: self.eval_rotational(r, t, True)[3],
-                    lambda t: self.eval_d_dt_rotational(r, t, True)[3])
+                    lambda t: self.eval_d_dt_rotational(r, t, True)[3],
+                )
 
         # __nuc = DifferentiableFunction(
         #     lambda t: self.eval_nuclear(self, t),
@@ -254,23 +259,24 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
 
         __tot = DifferentiableFunction(
             lambda t: __trans(t) * __vib(t) * __rot(t),
-            lambda t: (__trans.D(t) * __vib(t) * __rot(t) +
-                       __trans(t) * __vib.D(t) * __rot(t) +
-                       __trans(t) * __vib(t) * __rot.D(t)
-                       )
+            lambda t: (
+                __trans.D(t) * __vib(t) * __rot(t)
+                + __trans(t) * __vib.D(t) * __rot(t)
+                + __trans(t) * __vib(t) * __rot.D(t)
+            ),
         )
 
-        if part.lower().startswith('trans'):
+        if part.lower().startswith("trans"):
             return __trans
-        if part.lower().startswith('vib'):
+        if part.lower().startswith("vib"):
             return __vib
-        if part.lower().startswith('rot'):
+        if part.lower().startswith("rot"):
             return __rot
         # if partStr.lower().startswith('nuc'):
         #     return self.__nuc
         # if partStr.lower().startswith('ele'):
         #     return self.__ele
-        if part.lower().startswith('tot'):
+        if part.lower().startswith("tot"):
             return __tot
 
         # If we're here - the 'part' string is invalid
@@ -295,24 +301,20 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         """
         m = sum(self.molecule.masses)
 
-        debrog = (
-            (const.H_J_S ** 2 / (2 * np.pi * m * const.KB_J_PER_K * t))
-            ** (1 / 2)
-        )
+        debrog = (const.H_J_S ** 2 / (2 * np.pi * m * const.KB_J_PER_K * t)) ** (1 / 2)
         v = (const.KB_J_PER_K * t) / p
         q_trans = v / debrog ** 3
 
         return q_trans
 
     def eval_d_dt_translational(self, p, t):
-        """ We should not be using that - use the volume corrected one"""
+        """We should not be using that - use the volume corrected one"""
         raise NotImplementedError
 
     def eval_d_dt_translational_fd(self, p, t):
-        """ Finite Difference derivative w.r.t. t of the translational part"""
+        """Finite Difference derivative w.r.t. t of the translational part"""
         diff = 1e-6
-        return (self.eval_translational(p, t + diff) -
-                self.eval_translational(p, t)) / diff
+        return (self.eval_translational(p, t + diff) - self.eval_translational(p, t)) / diff
 
     def eval_d_dt_translational_volume_corrected(self, p, t):
         """
@@ -355,10 +357,12 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         #     nmax = 100
 
         while nv <= nmax:
-            e_n = self.vibrational_structure.vibrational_energy_level(
-                nv) * const.HARTREE_TO_J
-            q_vib_ah += (np.exp(-beta * e_n) if not evaluate_gradient
-                         else (-dbdt * e_n) * np.exp(-beta * e_n))
+            e_n = self.vibrational_structure.vibrational_energy_level(nv) * const.HARTREE_TO_J
+            q_vib_ah += (
+                np.exp(-beta * e_n)
+                if not evaluate_gradient
+                else (-dbdt * e_n) * np.exp(-beta * e_n)
+            )
             nv += 1
 
         return q_vib_ah
@@ -390,10 +394,9 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         return self._eval_vibrational(t, evaluate_gradient=True)
 
     def eval_d_dt_vibrational_fd(self, t):
-        """ Finite Difference derivative w.r.t. t of the vibrational part"""
+        """Finite Difference derivative w.r.t. t of the vibrational part"""
         diff = 1e-6
-        return (self.eval_vibrational(t + diff) -
-                self.eval_vibrational(t)) / diff
+        return (self.eval_vibrational(t + diff) - self.eval_vibrational(t)) / diff
 
     # *************** Rotational part (high-temperature limit) ***************
 
@@ -434,10 +437,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         theta_r = const.HBAR_J_S ** 2 / (2 * intertia * const.KB_J_PER_K)
 
         q_rot_ht_limit = (t / (sigma * theta_r)) * (
-            1
-            + theta_r / (3 * t)
-            + (1 / 15) * (theta_r / t) ** 2
-            + (4 / 315) * (theta_r / t) ** 3
+            1 + theta_r / (3 * t) + (1 / 15) * (theta_r / t) ** 2 + (4 / 315) * (theta_r / t) ** 3
         )
 
         d_dt_q_rot_ht_limit = (
@@ -446,8 +446,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
             - (8 / 315) * (theta_r ** 2 / sigma) * (1 / t) ** 3
         )
 
-        return (q_rot_ht_limit if not evaluate_gradient
-                else d_dt_q_rot_ht_limit)
+        return q_rot_ht_limit if not evaluate_gradient else d_dt_q_rot_ht_limit
 
     def eval_rotational_high_temp(self, r0, t):
         """
@@ -484,13 +483,13 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         of the high temp limit rotational partition function
         """
         diff = 1e-6
-        return (self.eval_rotational_high_temp(r0, t + diff) -
-                self.eval_rotational_high_temp(r0, t)) / diff
+        return (
+            self.eval_rotational_high_temp(r0, t + diff) - self.eval_rotational_high_temp(r0, t)
+        ) / diff
 
     # *************** Rotational part (general derivation) ***************
 
-    def _eval_rotational(self, r, t, split_para_ortho=False,
-                         evaluate_gradient=False):
+    def _eval_rotational(self, r, t, split_para_ortho=False, evaluate_gradient=False):
         """
         Rotational molecular partition function
         See McQuarrie 6-40,41... p. 102 - 107
@@ -532,35 +531,33 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         while j < 1000:
             if j % 2 == 0:
                 # value
-                q_rot_evn += (2 * j + 1) * np.exp(
-                    (-theta_r * j * (j + 1)) / t
-                )
+                q_rot_evn += (2 * j + 1) * np.exp((-theta_r * j * (j + 1)) / t)
                 # derivative d_dT
-                d_q_rot_evn += ((2 * j + 1) *
-                                np.exp((-theta_r * j * (j + 1)) / t)
-                                * (theta_r * j * (j + 1)) / t ** 2
-                                )
+                d_q_rot_evn += (
+                    (2 * j + 1)
+                    * np.exp((-theta_r * j * (j + 1)) / t)
+                    * (theta_r * j * (j + 1))
+                    / t ** 2
+                )
             else:
                 # value
-                q_rot_odd += (2 * j + 1) * np.exp(
-                    (-theta_r * j * (j + 1)) / t
-                )
+                q_rot_odd += (2 * j + 1) * np.exp((-theta_r * j * (j + 1)) / t)
                 # derivative d_dT
-                d_q_rot_odd += ((2 * j + 1) *
-                                np.exp((-theta_r * j * (j + 1)) / t)
-                                * (theta_r * j * (j + 1)) / t ** 2
-                                )
+                d_q_rot_odd += (
+                    (2 * j + 1)
+                    * np.exp((-theta_r * j * (j + 1)) / t)
+                    * (theta_r * j * (j + 1))
+                    / t ** 2
+                )
             j += 1
             e_rot = b_bar * j * (j + 1)
 
         if not split_para_ortho:
-            return (q_rot_evn + q_rot_odd if not evaluate_gradient
-                    else d_q_rot_evn + d_q_rot_odd)
+            return q_rot_evn + q_rot_odd if not evaluate_gradient else d_q_rot_evn + d_q_rot_odd
         else:
             spin = self.molecule.spins[0]
             if (m_a != m_b) or (spin != self.molecule.spins[1]):
-                raise ValueError("Ortho/Para split only allowed"
-                                 " for identical atoms.")
+                raise ValueError("Ortho/Para split only allowed" " for identical atoms.")
             ortho = q_rot_evn if (spin == 1) else q_rot_odd
             d_ortho = d_q_rot_evn if (spin == 1) else d_q_rot_odd
             para = q_rot_odd if (spin == 1) else q_rot_evn
@@ -574,16 +571,13 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
             frac_para = q_rot_para / (q_rot_para + q_rot_ortho)
             q_rot_mix = (para ** frac_para) * (ortho ** (1 - frac_para))
             d_q_rot_mix = (
-                self._d_dx_expr(
-                    para, spin * (2 * spin + 1),
-                    ortho, (spin + 1) * (2 * spin + 1)) * d_para +
-                self._d_dx_expr(
-                    ortho, (spin + 1) * (2 * spin + 1),
-                    para, spin * (2 * spin + 1)) * d_ortho
+                self._d_dx_expr(para, spin * (2 * spin + 1), ortho, (spin + 1) * (2 * spin + 1))
+                * d_para
+                + self._d_dx_expr(ortho, (spin + 1) * (2 * spin + 1), para, spin * (2 * spin + 1))
+                * d_ortho
             )
             if evaluate_gradient:
-                return np.array([d_q_rot_eq, d_q_rot_para,
-                                 d_q_rot_ortho, d_q_rot_mix])
+                return np.array([d_q_rot_eq, d_q_rot_para, d_q_rot_ortho, d_q_rot_mix])
             return np.array([q_rot_eq, q_rot_para, q_rot_ortho, q_rot_mix])
 
     def eval_rotational(self, r, t, split_para_ortho=False):
@@ -605,8 +599,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
             "equilibrium", "para", "ortho" and "mix" values if True
             (or corresponding derivative value(s))
         """
-        return self._eval_rotational(
-            r, t, split_para_ortho, evaluate_gradient=False)
+        return self._eval_rotational(r, t, split_para_ortho, evaluate_gradient=False)
 
     def eval_d_dt_rotational(self, r, t, split_para_ortho=False):
         """
@@ -626,33 +619,34 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
             Single (equilibrium) value if split_para_ortho is False,
             "equilibrium", "para", "ortho" and "mix" values if True
         """
-        return self._eval_rotational(
-            r, t, split_para_ortho, evaluate_gradient=True)
+        return self._eval_rotational(r, t, split_para_ortho, evaluate_gradient=True)
 
     def eval_d_dt_rotational_fd(self, r, t, split_para_ortho=False):
-        """ Finite Difference derivative w.r.t. t of the rotational part"""
+        """Finite Difference derivative w.r.t. t of the rotational part"""
         diff = 1e-6
-        return (self.eval_rotational(r, t + diff, split_para_ortho) -
-                self.eval_rotational(r, t, split_para_ortho)) / diff
+        return (
+            self.eval_rotational(r, t + diff, split_para_ortho)
+            - self.eval_rotational(r, t, split_para_ortho)
+        ) / diff
 
     # ************ Nuclear part (low-temperature approximation) ************
 
     def eval_nuclear(self, p, t):
-        """ Nuclear partition function currently approximated as 1.0 """
+        """Nuclear partition function currently approximated as 1.0"""
         return 1.0
 
     def eval_d_dt_nuclear(self, p, t):
-        """ Nuclear partition function currently approximated as 1.0 """
+        """Nuclear partition function currently approximated as 1.0"""
         return 0.0
 
     # ***************** Electronic part (approximation) *****************
 
     def eval_electronic(self, p, t):
-        """ Electronic partition function currently approximated as 1.0 """
+        """Electronic partition function currently approximated as 1.0"""
         return 1.0
 
     def eval_d_dt_electronic(self, p, t):
-        """ Electronic partition function currently approximated as 1.0 """
+        """Electronic partition function currently approximated as 1.0"""
         return 0.0
 
     # ***************** Electronic part (approximation) *****************
@@ -664,14 +658,11 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         used in (the analytical derivative of) the
         equilibrium ortho-para mixture
         """
-        return (
-            -c * d * x ** (c * x / (c * x + d * y))
-            * y * y ** (d * y / (c * x + d * y))
-            * np.log(y) / (c * x + d * y) ** 2
-            +
-            x ** (c * x / (c * x + d * y)) *
-            y ** (d * y / (c * x + d * y)) *
-            (c / (c * x + d * y) +
-             (-c ** 2 * x / (c * x + d * y)
-              ** 2 + c / (c * x + d * y)) * np.log(x))
+        return -c * d * x ** (c * x / (c * x + d * y)) * y * y ** (
+            d * y / (c * x + d * y)
+        ) * np.log(y) / (c * x + d * y) ** 2 + x ** (c * x / (c * x + d * y)) * y ** (
+            d * y / (c * x + d * y)
+        ) * (
+            c / (c * x + d * y)
+            + (-(c ** 2) * x / (c * x + d * y) ** 2 + c / (c * x + d * y)) * np.log(x)
         )

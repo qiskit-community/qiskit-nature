@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,7 +22,7 @@ import re
 from fractions import Fraction
 from functools import lru_cache, partial, reduce
 from itertools import product
-from typing import List, Optional, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union, cast, Sequence
 
 import numpy as np
 from qiskit.utils.validation import validate_min
@@ -382,7 +382,9 @@ class SpinOp(SecondQuantizedOp):
             rtol = self.rtol
 
         flatten_array, indices = np.unique(
-            np.column_stack(self._spin_array), return_inverse=True, axis=0
+            np.column_stack(cast(Sequence, self._spin_array)),
+            return_inverse=True,
+            axis=0,
         )
         coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
         for i, val in zip(indices, self._coeffs):

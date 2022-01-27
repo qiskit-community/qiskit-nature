@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -158,7 +158,7 @@ class UVCC(EvolvedOperatorAnsatz):
         return True
 
     def _build(self) -> None:
-        if self._data is not None:
+        if self._is_built:
             return
 
         self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]

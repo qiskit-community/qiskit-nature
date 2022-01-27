@@ -26,6 +26,7 @@ from thermodynamics_utils.partition_function import PartitionFunctionBase
 #       work in Joules and (by default) multiply by N_A.
 #       Use 'scale_factor' to rescale (the Joules value) if needed.
 
+
 def helmholtz_free_energy(partition, temperature, scale_factor=const.N_A):
     """
     Calculates the Helmholtz free energy for a given partition functions.
@@ -48,8 +49,7 @@ def helmholtz_free_energy(partition, temperature, scale_factor=const.N_A):
     return scale_factor * formula
 
 
-def thermodynamic_energy(partition, temperature,
-                         scale_factor=const.N_A, *, d_t=1E-4):
+def thermodynamic_energy(partition, temperature, scale_factor=const.N_A, *, d_t=1e-4):
     """
     Calculates the Thermodynamic energy for a given partition function at
     given temperature value(s).
@@ -70,13 +70,16 @@ def thermodynamic_energy(partition, temperature,
         function at the given temperature(s) scaled appropriately.
     """
     formula = (
-        (np.log(partition(temperature + d_t)) -
-         np.log(partition(temperature - d_t)))
-        / (2 * d_t) * temperature ** 2 * const.KB_J_PER_K)
+        (np.log(partition(temperature + d_t)) - np.log(partition(temperature - d_t)))
+        / (2 * d_t)
+        * temperature ** 2
+        * const.KB_J_PER_K
+    )
     # TODO: Find a better way! isinstance does not always work.
-    if 'DifferentiableFunction' in str(type(partition)):
-        formula = (partition.D(temperature) / partition(temperature)
-                   * temperature ** 2 * const.KB_J_PER_K)
+    if "DifferentiableFunction" in str(type(partition)):
+        formula = (
+            partition.D(temperature) / partition(temperature) * temperature ** 2 * const.KB_J_PER_K
+        )
     return scale_factor * formula
 
 
@@ -101,9 +104,10 @@ def entropy(partition, temperature, scale_factor=const.N_A):
         the given temperature(s) scaled appropriately.
     """
 
-    formula = (thermodynamic_energy(partition, temperature, 1.0) -
-               helmholtz_free_energy(partition, temperature, 1.0)
-               ) / temperature
+    formula = (
+        thermodynamic_energy(partition, temperature, 1.0)
+        - helmholtz_free_energy(partition, temperature, 1.0)
+    ) / temperature
     return scale_factor * formula
 
 
@@ -127,8 +131,7 @@ def enthalpy(partition, temperature, scale_factor=const.N_A):
     """
     # Note, scaling in the formula is 1.0 and not the given scale factor,
     #       as the user defined scale_factor will be applied below.
-    formula = (thermodynamic_energy(partition, temperature, 1.0) +
-               temperature * const.KB_J_PER_K)
+    formula = thermodynamic_energy(partition, temperature, 1.0) + temperature * const.KB_J_PER_K
     return scale_factor * formula
 
 
@@ -152,14 +155,14 @@ def gibbs_free_energy(partition, temperature, scale_factor=const.N_A):
     """
     # Note, scaling in the formula is 1.0 and not the given scale factor,
     #       as the user defined scale_factor will be applied below.
-    formula = (enthalpy(partition, temperature, 1.0) -
-               temperature * entropy(partition, temperature, 1.0))
+    formula = enthalpy(partition, temperature, 1.0) - temperature * entropy(
+        partition, temperature, 1.0
+    )
     return scale_factor * formula
 
 
 # In Joules per Kelvin
-def constant_volume_heat_capacity(partition, temperature,
-                                  scale_factor=const.N_A, *, d_t=1E-4):
+def constant_volume_heat_capacity(partition, temperature, scale_factor=const.N_A, *, d_t=1e-4):
     """
     Calculates the Constant-volume Heat capacity for a given partition
     function at given temperature value(s).
@@ -180,14 +183,13 @@ def constant_volume_heat_capacity(partition, temperature,
         partition functions at the given temperature(s) scaled appropriately.
     """
     return (
-        (thermodynamic_energy(partition, temperature + d_t, scale_factor) -
-         thermodynamic_energy(partition, temperature - d_t, scale_factor))
-        / (2 * d_t))
+        thermodynamic_energy(partition, temperature + d_t, scale_factor)
+        - thermodynamic_energy(partition, temperature - d_t, scale_factor)
+    ) / (2 * d_t)
 
 
 # In Joules per Kelvin
-def constant_pressure_heat_capacity(partition, temperature,
-                                    scale_factor=const.N_A, *, d_t=1E-4):
+def constant_pressure_heat_capacity(partition, temperature, scale_factor=const.N_A, *, d_t=1e-4):
     """
     Calculates Constant-pressure Heat capacity of a system for a
     given partition function at given temperature value(s).
@@ -207,8 +209,10 @@ def constant_pressure_heat_capacity(partition, temperature,
         float or numpy.array : The constant-pressure heat capacity a given
         partition functions at the given temperature(s) scaled appropriately.
     """
-    return (enthalpy(partition, temperature + d_t, scale_factor) -
-            enthalpy(partition, temperature - d_t, scale_factor)) / (2 * d_t)
+    return (
+        enthalpy(partition, temperature + d_t, scale_factor)
+        - enthalpy(partition, temperature - d_t, scale_factor)
+    ) / (2 * d_t)
 
 
 ############################################################################
@@ -216,6 +220,7 @@ def constant_pressure_heat_capacity(partition, temperature,
 #   specific components (e.g. translational, rotational, etc.) of a given
 #   partition function.
 ############################################################################
+
 
 class Thermodynamics:
     """
@@ -244,8 +249,7 @@ class Thermodynamics:
                         PartitionFunctionBase
         """
         if not isinstance(partition_function, PartitionFunctionBase):
-            raise ValueError(
-                'PartitionFunctionBase class expected!')
+            raise ValueError("PartitionFunctionBase class expected!")
         self.partition_function = partition_function
         self.set_pressure(pressure)
 
@@ -260,28 +264,26 @@ class Thermodynamics:
         Raises:
             ValueError: Only implemented for diatomic molecules
         """
-        self._callable = self.partition_function.get_default_callable(
-            pressure=pressure)
+        self._callable = self.partition_function.get_default_callable(pressure=pressure)
 
         self.helmholtz_free_energy = partial(
-            helmholtz_free_energy, self._callable, scale_factor=const.N_A)
+            helmholtz_free_energy, self._callable, scale_factor=const.N_A
+        )
 
         self.thermodynamic_energy = partial(
-            thermodynamic_energy, self._callable, scale_factor=const.N_A)
+            thermodynamic_energy, self._callable, scale_factor=const.N_A
+        )
 
-        self.entropy = partial(entropy, self._callable,
-                               scale_factor=const.N_A)
+        self.entropy = partial(entropy, self._callable, scale_factor=const.N_A)
 
-        self.enthalpy = partial(enthalpy, self._callable,
-                                scale_factor=const.N_A)
+        self.enthalpy = partial(enthalpy, self._callable, scale_factor=const.N_A)
 
-        self.gibbs_free_energy = partial(
-            gibbs_free_energy, self._callable, scale_factor=const.N_A)
+        self.gibbs_free_energy = partial(gibbs_free_energy, self._callable, scale_factor=const.N_A)
 
         self.constant_volume_heat_capacity = partial(
-            constant_volume_heat_capacity, self._callable,
-            scale_factor=const.N_A)
+            constant_volume_heat_capacity, self._callable, scale_factor=const.N_A
+        )
 
         self.constant_pressure_heat_capacity = partial(
-            constant_pressure_heat_capacity, self._callable,
-            scale_factor=const.N_A)
+            constant_pressure_heat_capacity, self._callable, scale_factor=const.N_A
+        )

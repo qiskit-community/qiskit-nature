@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -159,7 +159,7 @@ class PySCFDriver(ElectronicStructureDriver):
         validate_min("max_cycle", max_cycle, 1)
 
         # we use the property-setter to deal with conversion
-        self.atom = atom  # type: ignore
+        self.atom = atom
         self._unit = unit
         self._charge = charge
         self._spin = spin
@@ -337,10 +337,7 @@ class PySCFDriver(ElectronicStructureDriver):
                 if key not in ["self"] and key in args:
                     kwargs[key] = value
 
-        kwargs["atom"] = [  # type: ignore
-            " ".join(map(str, (name, *coord)))  # type: ignore
-            for (name, coord) in molecule.geometry
-        ]
+        kwargs["atom"] = [" ".join(map(str, (name, *coord))) for (name, coord) in molecule.geometry]
         kwargs["charge"] = molecule.charge
         kwargs["spin"] = molecule.multiplicity - 1
         kwargs["unit"] = molecule.units
@@ -367,10 +364,10 @@ class PySCFDriver(ElectronicStructureDriver):
             MissingOptionalLibraryError: If PySCF is not installed.
         """
         try:
-            spec = importlib.util.find_spec("pyscf")  # type: ignore
+            spec = importlib.util.find_spec("pyscf")
             if spec is not None:
                 return
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception as ex:
             logger.debug("PySCF check error %s", str(ex))
             raise MissingOptionalLibraryError(
                 libname="PySCF",
@@ -475,7 +472,7 @@ class PySCFDriver(ElectronicStructureDriver):
             The coordinates in XYZ format.
         """
         atoms = [x.strip() for x in val.split(";")]
-        if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
+        if atoms is None or len(atoms) < 1:
             raise QiskitNatureError("Molecule format error: " + val)
 
         # An xyz format has 4 parts in each atom, if not then do zmatrix convert
@@ -534,10 +531,6 @@ class PySCFDriver(ElectronicStructureDriver):
             )
 
     def _construct_driver_result(self) -> ElectronicStructureDriverResult:
-        # NOTE: under Python 3.6, pylint appears to be unable to properly identify this case of
-        # nested abstract classes (cf. https://github.com/Qiskit/qiskit-nature/runs/3245395353).
-        # However, since the tests pass I am adding an exception for this specific case.
-        # pylint: disable=abstract-class-instantiated
         driver_result = ElectronicStructureDriverResult()
 
         self._populate_driver_result_molecule(driver_result)
@@ -558,7 +551,7 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_molecule(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
-        coords = self._mol.atom_coords()
+        coords = self._mol.atom_coords(unit="Angstrom")
         geometry = [(self._mol.atom_pure_symbol(i), list(xyz)) for i, xyz in enumerate(coords)]
 
         driver_result.molecule = Molecule(
