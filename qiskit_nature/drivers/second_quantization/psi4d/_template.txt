@@ -61,8 +61,6 @@ driver_result.add_property(
     ParticleNumber(
         num_spin_orbitals=hf_wavefn.nmo() * 2,
         num_particles=(hf_wavefn.nalpha(), hf_wavefn.nbeta()),
-        occupation=numpy.asarray(hf_wavefn.epsilon_a()),
-        occupation_beta=numpy.asarray(hf_wavefn.epsilon_b()) if _has_B else None,
     )
 )
 
