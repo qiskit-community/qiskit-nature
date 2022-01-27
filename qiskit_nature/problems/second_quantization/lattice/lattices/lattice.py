@@ -11,11 +11,14 @@
 # that they have been altered from the originals.
 
 """General Lattice."""
+
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
+import numbers
 
 import numpy as np
+
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
 
@@ -113,17 +116,24 @@ class Lattice:
             graph: Input graph for Lattice. `graph.multigraph` must be False.
 
         Raises:
-            ValueError: If `graph.multigraph` is True for a given graph, it is invalid.
+            ValueError: If the input graph is a multigraph.
+            ValueError: If the graph edges are non-numeric.
         """
         if graph.multigraph:
             raise ValueError(
                 f"Invalid `graph.multigraph` {graph.multigraph} is given. "
                 "`graph.multigraph` must be `False`."
             )
-        if graph.edges() == [None] * graph.num_edges():
-            weighted_edges = [edge + (1.0,) for edge in graph.edge_list()]
-            for start, end, weight in weighted_edges:
-                graph.update_edge(start, end, weight)
+
+        # validate the edge weights
+        for edge_index, edge in graph.edge_index_map().items():
+            weight = edge[2]
+            if weight is None or weight == {}:
+                # None or {} is updated to be 1
+                graph.update_edge_by_index(edge_index, 1)
+            elif not isinstance(weight, numbers.Number):
+                raise ValueError(f"Unsupported weight {weight} on edge with index {edge_index}.")
+
         self._graph = graph
 
         self.pos: Optional[dict] = None
