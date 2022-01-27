@@ -259,6 +259,8 @@ mol
 morse
 mpl
 mul
+multi
+multigraph
 multinomial
 mypy
 namelist
