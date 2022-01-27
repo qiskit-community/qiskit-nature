@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -116,7 +116,7 @@ class PyQuanteDriver(FermionicDriver):
             spec = importlib.util.find_spec("pyquante2")
             if spec is not None:
                 return
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception as ex:
             logger.debug("PyQuante2 check error %s", str(ex))
             raise QiskitNatureError(err_msg) from ex
 
