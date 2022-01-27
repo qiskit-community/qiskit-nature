@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
-from qiskit.algorithms import MinimumEigensolver
+from qiskit.algorithms import MinimumEigensolver, VariationalAlgorithm
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
@@ -231,3 +231,12 @@ class GroundStateEigensolver(GroundStateSolver):
         # Note, that for some reason the individual results need to be wrapped in lists.
         # See also: VQE._eval_aux_ops()
         return [result]
+
+    def is_variational(self) -> bool:
+        """Checks if the solver is a VariationalAlgorithm
+
+        Returns:
+            True, if the solver is a VariationalAlgorithm.
+            False otherwise.
+        """
+        return isinstance(self._gss.solver, VariationalAlgorithm)

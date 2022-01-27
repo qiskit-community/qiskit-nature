@@ -92,7 +92,7 @@ class BOPESSampler:
                     "num_bootstrap must be None or an integer greater than or equal to 2"
                 )
 
-        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if self._gss.is_variational():
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
             self._initial_point = self._gss.solver.initial_point  # type: ignore
@@ -155,7 +155,7 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if self._gss.is_variational():  # type: ignore
             self._points_optparams = {}
             self._gss.solver.initial_point = self._initial_point  # type: ignore
 
@@ -199,7 +199,7 @@ class BOPESSampler:
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters
-        if isinstance(self._gss.solver, VariationalAlgorithm) and self._bootstrap:  # type: ignore
+        if self._gss.is_variational() and self._bootstrap:
             prev_points = list(self._points_optparams.keys())
             prev_params = list(self._points_optparams.values())
             n_pp = len(prev_points)
@@ -230,7 +230,7 @@ class BOPESSampler:
         result = self._gss.solve(self._problem)
 
         # Save optimal point to bootstrap
-        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if self._gss.is_variational():
             # at every point evaluation, the optimal params are updated
             optimal_params = result.raw_result.optimal_point
             self._points_optparams[point] = optimal_params

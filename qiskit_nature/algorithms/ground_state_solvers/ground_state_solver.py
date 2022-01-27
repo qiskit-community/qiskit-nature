@@ -102,3 +102,13 @@ class GroundStateSolver(ABC):
     def qubit_converter(self):
         """Returns the qubit converter."""
         return self._qubit_converter
+
+    @abstractmethod
+    def is_variational(self) -> bool:
+        """Checks if the solver is a VariationalAlgorithm
+
+        Returns:
+            True, if the solver is a VariationalAlgorithm.
+            False otherwise.
+        """
+        raise NotImplementedError
