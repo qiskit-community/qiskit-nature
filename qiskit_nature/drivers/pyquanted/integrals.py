@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -160,14 +160,14 @@ def _parse_molecule(val, units, charge, multiplicity):
     val = _check_molecule_format(val)
 
     parts = [x.strip() for x in val.split(";")]
-    if parts is None or len(parts) < 1:  # pylint: disable=len-as-condition
+    if parts is None or len(parts) < 1:
         raise QiskitNatureError("Molecule format error: " + val)
     geom = []
     for n, _ in enumerate(parts):
         part = parts[n]
         geom.append(_parse_atom(part))
 
-    if len(geom) < 1:  # pylint: disable=len-as-condition
+    if len(geom) < 1:
         raise QiskitNatureError("Molecule format error: " + val)
 
     try:
@@ -184,7 +184,7 @@ def _parse_molecule(val, units, charge, multiplicity):
 def _check_molecule_format(val):
     """If it seems to be zmatrix rather than xyz format we convert before returning"""
     atoms = [x.strip() for x in val.split(";")]
-    if atoms is None or len(atoms) < 1:  # pylint: disable=len-as-condition
+    if atoms is None or len(atoms) < 1:
         raise QiskitNatureError("Molecule format error: " + val)
 
     # An xyz format has 4 parts in each atom, if not then do zmatrix convert
@@ -216,7 +216,7 @@ def _check_molecule_format(val):
 
 
 def _parse_atom(val):
-    if val is None or len(val) < 1:  # pylint: disable=len-as-condition
+    if val is None or len(val) < 1:
         raise QiskitNatureError("Molecule atom format error: empty")
 
     parts = re.split(r"\s+", val)
