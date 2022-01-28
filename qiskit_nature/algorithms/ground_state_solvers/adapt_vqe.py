@@ -25,6 +25,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.opflow.gradients import GradientBase, Gradient
 from qiskit.utils.validation import validate_min
+from sqlalchemy import Float
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
@@ -108,7 +109,7 @@ class AdaptVQE(GroundStateEigensolver):
 
     def _compute_gradients(
         self,
-        theta: List[float],
+        theta: List[Float],
         vqe: VQE,
     ) -> List[Tuple[float, PauliSumOp]]:
         """
@@ -127,8 +128,10 @@ class AdaptVQE(GroundStateEigensolver):
             self._ansatz.operators = self._excitation_list + [exc]
             # the ansatz needs to be decomposed for the gradient to work
             vqe.ansatz = self._ansatz.decompose()
-            param_sets = vqe._ansatz_params
-            op = vqe.construct_expectation(theta, self._main_operator)
+            param_sets = sorted(vqe.ansatz.parameters,key=lambda p: p.name)
+            #zip will only iterate the length of the shorter list
+            theta1=dict(zip(theta,vqe.ansatz.parameters))
+            op = vqe.construct_expectation(theta1, self._main_operator)
             # compute gradient
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
