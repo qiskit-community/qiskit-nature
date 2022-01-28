@@ -12,15 +12,18 @@
 
 """ Test Gaussian Forces Driver """
 
+import re
 import unittest
 import warnings
 from typing import cast
 
+import qiskit_nature.exceptions
 from test import QiskitNatureTestCase, requires_extra_library
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import (
     GaussianForcesDriver,
+    GaussianLogDriver,
     VibrationalStructureMoleculeDriver,
     VibrationalStructureDriverType,
 )
@@ -30,7 +33,7 @@ from qiskit_nature.properties.second_quantization.vibrational import Vibrational
 class TestDriverGaussianForces(QiskitNatureTestCase):
     """Gaussian Forces Driver tests."""
 
-    _JFC_MOLECULE_EXPECTED = [
+    _C01_REV_EXPECTED = [
         [352.3005875, 2, 2],
         [-352.3005875, -2, -2],
         [631.6153975, 1, 1],
@@ -57,7 +60,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         [1.8255065625, 3, 3, 3, 3],
     ]
 
-    _LOG_FILE_EXPECTED = [
+    _A03_REV_EXPECTED = [
         [352.3005875, 2, 2],
         [-352.3005875, -2, -2],
         [631.6153975, 1, 1],
@@ -85,6 +88,26 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         [2.2973803125, 3, 3, 3, 3],
     ]
 
+    def _get_expected_values(self):
+        """Get expected values based on revision of Gaussian 16 being used."""
+        jcf = "\n\n"  # Empty job control file will error out
+        log_driver = GaussianLogDriver(jcf=jcf)
+        version = "Not found by regex"
+        try:
+            _ = log_driver.run()
+        except qiskit_nature.exceptions.QiskitNatureError as e:
+            matched = re.search("G16Rev\\w+\\.\\w+", e.message)
+            if matched is not None:
+                version = matched[0]
+        if version == "G16RevA.03":
+            return TestDriverGaussianForces._A03_REV_EXPECTED
+        elif version == "G16RevB.01":
+            return TestDriverGaussianForces._A03_REV_EXPECTED
+        elif version == "G16RevC.01":
+            return TestDriverGaussianForces._C01_REV_EXPECTED
+
+        self.fail(f"Unknown gaussian version '{version}'")
+
     @requires_extra_library
     def test_driver_jcf(self):
         """Test the driver works with job control file"""
@@ -103,7 +126,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             ]
         )
         result = driver.run()
-        self._check_driver_result(TestDriverGaussianForces._JFC_MOLECULE_EXPECTED, result)
+        self._check_driver_result(self._get_expected_values(), result)
 
     @requires_extra_library
     def test_driver_molecule(self):
@@ -121,7 +144,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             molecule, basis="6-31g", driver_type=VibrationalStructureDriverType.GAUSSIAN_FORCES
         )
         result = driver.run()
-        self._check_driver_result(TestDriverGaussianForces._JFC_MOLECULE_EXPECTED, result)
+        self._check_driver_result(self._get_expected_values(), result)
 
     def test_driver_logfile(self):
         """Test the driver works with logfile (Gaussian does not need to be installed)"""
@@ -133,7 +156,8 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         )
 
         result = driver.run()
-        self._check_driver_result(TestDriverGaussianForces._LOG_FILE_EXPECTED, result)
+        # Log file being tested was created with revision A.03
+        self._check_driver_result(TestDriverGaussianForces._A03_REV_EXPECTED, result)
 
     def _check_driver_result(self, expected_watson_data, prop):
         with warnings.catch_warnings():
