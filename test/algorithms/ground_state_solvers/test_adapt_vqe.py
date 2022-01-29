@@ -29,6 +29,7 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 from qiskit.opflow.gradients import Gradient, NaturalGradient
 from qiskit.test import slow_test
 
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import UnitsType
@@ -96,15 +97,15 @@ class TestAdaptVQE(QiskitNatureTestCase):
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
-    def test_natural_gradients(self):
-        """test for fin_diff method"""
+    def test_natural_gradients_invalid(self):
+        """test that an exception is thrown when an invalid gradient method is used"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         grad = NaturalGradient(
             grad_method="fin_diff", qfi_method="lin_comb_full", regularization="ridge"
         )
         calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
-        res = calc.solve(self.problem)
-        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+        with self.assertRaises(QiskitNatureError):
+            _ = calc.solve(self.problem)
 
     @slow_test
     def test_LiH(self):

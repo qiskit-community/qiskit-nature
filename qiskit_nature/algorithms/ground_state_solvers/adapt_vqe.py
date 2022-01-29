@@ -25,7 +25,6 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.opflow.gradients import GradientBase, Gradient
 from qiskit.utils.validation import validate_min
-from sqlalchemy import Float
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
@@ -109,7 +108,7 @@ class AdaptVQE(GroundStateEigensolver):
 
     def _compute_gradients(
         self,
-        theta: List[Float],
+        theta: List[float],
         vqe: VQE,
     ) -> List[Tuple[float, PauliSumOp]]:
         """
@@ -128,17 +127,16 @@ class AdaptVQE(GroundStateEigensolver):
             self._ansatz.operators = self._excitation_list + [exc]
             # the ansatz needs to be decomposed for the gradient to work
             vqe.ansatz = self._ansatz.decompose()
-            param_sets = sorted(vqe.ansatz.parameters,key=lambda p: p.name)
-            #zip will only iterate the length of the shorter list
-            theta1=dict(zip(theta,vqe.ansatz.parameters))
+            param_sets = sorted(vqe.ansatz.parameters, key=lambda p: p.name)
+            # zip will only iterate the length of the shorter list
+            theta1 = dict(zip(vqe.ansatz.parameters, theta))
             op = vqe.construct_expectation(theta1, self._main_operator)
             # compute gradient
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
             value_dict = {param_sets[-1]: 0.0}
             state_grad_result = state_grad.assign_parameters(value_dict).eval()
-            # logger.info("State gradient computed with parameter shift", state_grad_result)
-            print("State gradient computed with parameter shift", state_grad_result)
+            logger.info("Gradient computed : %s", str(state_grad_result))
             res.append((np.abs(state_grad_result[-1]), exc))
         return res
 
@@ -282,17 +280,17 @@ class AdaptVQE(GroundStateEigensolver):
                         gradlog += "\t(*)"
                 logger.info(gradlog)
             if np.abs(max_grad[0]) < self._threshold:
+                if iteration == 1:
+                    raise QiskitNatureError(
+                        "Gradient choice is not suited as it leads to all non-zero gradients. "
+                        "Try a different gradient method."
+                    )
                 logger.info(
                     "Adaptive VQE terminated successfully with a final maximum gradient: %s",
                     str(np.abs(max_grad[0])),
                 )
                 threshold_satisfied = True
                 break
-            if iteration == 1 and np.abs(max_grad[0]) < self._threshold:
-                raise QiskitNatureError(
-                    "Gradient choice is not suited as it leads to all non-zero gradients. "
-                    "Try a different gradient method."
-                )
             # check indices of picked gradients for cycles
             if self._check_cyclicity(prev_op_indices):
                 logger.info("Alternating sequence found. Finishing.")
