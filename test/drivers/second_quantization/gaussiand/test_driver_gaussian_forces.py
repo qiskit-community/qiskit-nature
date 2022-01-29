@@ -17,7 +17,6 @@ import unittest
 import warnings
 from typing import cast
 
-import qiskit_nature.exceptions
 from test import QiskitNatureTestCase, requires_extra_library
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
@@ -27,6 +26,7 @@ from qiskit_nature.drivers.second_quantization import (
     VibrationalStructureMoleculeDriver,
     VibrationalStructureDriverType,
 )
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
 
 
@@ -95,18 +95,20 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         version = "Not found by regex"
         try:
             _ = log_driver.run()
-        except qiskit_nature.exceptions.QiskitNatureError as e:
-            matched = re.search("G16Rev\\w+\\.\\w+", e.message)
+        except QiskitNatureError as qne:
+            matched = re.search("G16Rev\\w+\\.\\w+", qne.message)
             if matched is not None:
                 version = matched[0]
         if version == "G16RevA.03":
-            return TestDriverGaussianForces._A03_REV_EXPECTED
+            exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
         elif version == "G16RevB.01":
-            return TestDriverGaussianForces._A03_REV_EXPECTED
+            exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
         elif version == "G16RevC.01":
-            return TestDriverGaussianForces._C01_REV_EXPECTED
+            exp_vals = TestDriverGaussianForces._C01_REV_EXPECTED
+        else:
+            self.fail(f"Unknown gaussian version '{version}'")
 
-        self.fail(f"Unknown gaussian version '{version}'")
+        return exp_vals
 
     @requires_extra_library
     def test_driver_jcf(self):
