@@ -337,12 +337,12 @@ class PyQuanteDriver(ElectronicStructureDriver):
 
         # An xyz format has 4 parts in each atom, if not then do zmatrix convert
         # Allows dummy atoms, using symbol 'X' in zmatrix format for coord computation to xyz
-        parts = [x.strip() for x in atoms[0].split(" ")]
+        parts = [x.strip() for x in atoms[0].split()]
         if len(parts) != 4:
             try:
                 zmat = []
                 for atom in atoms:
-                    parts = [x.strip() for x in atom.split(" ")]
+                    parts = [x.strip() for x in atom.split()]
                     z = [parts[0]]
                     for i in range(1, len(parts), 2):
                         z.append(int(parts[i]))
