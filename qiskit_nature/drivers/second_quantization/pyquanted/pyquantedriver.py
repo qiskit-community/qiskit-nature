@@ -297,24 +297,18 @@ class PyQuanteDriver(ElectronicStructureDriver):
             raise UnsupportMethodError(f"Invalid Pyquante method {method.value}.")
 
     def run(self) -> ElectronicStructureDriverResult:
+        """
+        Returns:
+            ElectronicStructureDriverResult produced by the run driver.
+
+        Raises:
+            QiskitNatureError: if an error during the PyQuante setup or calculation occurred.
+        """
         self._build_molecule()
-        q_mol = self.run_pyquante()
+        self.run_pyquante()
 
-        q_mol.origin_driver_name = "PYQUANTE"
-        cfg = [
-            f"atoms={self.atoms}",
-            f"units={self.units.value}",
-            f"charge={self.charge}",
-            f"multiplicity={self.multiplicity}",
-            f"basis={self.basis.value}",
-            f"method={self.method.value}",
-            f"tol={self._tol}",
-            f"maxiters={self._maxiters}",
-            "",
-        ]
-        q_mol.origin_driver_config = "\n".join(cfg)
-
-        return ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
+        driver_result = self._construct_driver_result()
+        return driver_result
 
     def _build_molecule(self) -> None:
         atoms = self._check_molecule_format(self.atoms)
@@ -386,7 +380,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
 
         return int(float(parts[0])), float(parts[1]), float(parts[2]), float(parts[3])
 
-    def run_pyquante(self) -> QMolecule:
+    def run_pyquante(self):
         """Runs the PyQuante calculation.
 
         This method is part of the public interface to allow the user to easily overwrite it in a
@@ -396,36 +390,39 @@ class PyQuanteDriver(ElectronicStructureDriver):
             QiskitNatureError: If an invalid HF method type was supplied.
         """
         bfs = basisset(self._mol, self.basis.value)
+
+        if self.method == MethodType.RHF:
+            self._calc = rhf(self._mol, bfs)
+        elif self.method == MethodType.ROHF:
+            self._calc = rohf(self._mol, bfs)
+        elif self.method == MethodType.UHF:
+            self._calc = uhf(self._mol, bfs)
+        else:
+            raise QiskitNatureError(f"Invalid method type: {self.method}")
+
+        self._calc.converge(tol=self.tol, maxiters=self.maxiters)
+        logger.debug("PyQuante2 processing information:\n%s", self._calc)
+
+    def _construct_driver_result(self) -> ElectronicStructureDriverResult:
+        bfs = basisset(self._mol, self.basis.value)
+
         integrals = onee_integrals(bfs, self._mol)
         hij = integrals.T + integrals.V
         hijkl = twoe_integrals(bfs)
 
-        # convert overlap integrals to molecular basis
-        # calculate the Hartree-Fock solution of the molecule
-
-        if self.method == MethodType.RHF:
-            solver = rhf(self._mol, bfs)
-        elif self.method == MethodType.ROHF:
-            solver = rohf(self._mol, bfs)
-        elif self.method == MethodType.UHF:
-            solver = uhf(self._mol, bfs)
-        else:
-            raise QiskitNatureError(f"Invalid method type: {self.method}")
-        ehf = solver.converge(tol=self.tol, maxiters=self.maxiters)
-        logger.debug("PyQuante2 processing information:\n%s", solver)
-        if hasattr(solver, "orbs"):
-            orbs = solver.orbs
+        if hasattr(self._calc, "orbs"):
+            orbs = self._calc.orbs
             orbs_b = None
         else:
-            orbs = solver.orbsa
-            orbs_b = solver.orbsb
+            orbs = self._calc.orbsa
+            orbs_b = self._calc.orbsb
         norbs = len(orbs)
-        if hasattr(solver, "orbe"):
-            orbs_energy = solver.orbe
+        if hasattr(self._calc, "orbe"):
+            orbs_energy = self._calc.orbe
             orbs_energy_b = None
         else:
-            orbs_energy = solver.orbea
-            orbs_energy_b = solver.orbeb
+            orbs_energy = self._calc.orbea
+            orbs_energy_b = self._calc.orbeb
         enuke = self._mol.nuclear_repulsion()
         # Get ints in molecular orbital basis
         mohij = simx(hij, orbs)
@@ -447,7 +444,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         warnings.filterwarnings("default", category=DeprecationWarning)
         _q_.origin_driver_version = "?"  # No version info seems available to access
         # Energies and orbits
-        _q_.hf_energy = ehf[0]
+        _q_.hf_energy = self._calc.energy
         _q_.nuclear_repulsion_energy = enuke
         _q_.num_molecular_orbitals = norbs
         _q_.num_alpha = self._mol.nup()
@@ -481,4 +478,18 @@ class PyQuanteDriver(ElectronicStructureDriver):
         _q_.mo_eri_ints_bb = mohijkl_bb
         _q_.mo_eri_ints_ba = mohijkl_ba
 
-        return _q_
+        _q_.origin_driver_name = "PYQUANTE"
+        cfg = [
+            f"atoms={self.atoms}",
+            f"units={self.units.value}",
+            f"charge={self.charge}",
+            f"multiplicity={self.multiplicity}",
+            f"basis={self.basis.value}",
+            f"method={self.method.value}",
+            f"tol={self._tol}",
+            f"maxiters={self._maxiters}",
+            "",
+        ]
+        _q_.origin_driver_config = "\n".join(cfg)
+
+        return ElectronicStructureDriverResult.from_legacy_driver_result(_q_)
