@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,9 @@
 
 """Qiskit Nature Settings."""
 
+from typing import Optional
 import warnings
+from .logging import QiskitNatureLogging
 
 
 class QiskitNatureSettings:
@@ -20,6 +22,7 @@ class QiskitNatureSettings:
 
     def __init__(self):
         self._dict_aux_operators: bool = False
+        self._logging_settings: Optional[QiskitNatureLogging] = None
 
     @property
     def dict_aux_operators(self) -> bool:
@@ -50,6 +53,14 @@ class QiskitNatureSettings:
             )
 
         self._dict_aux_operators = dict_aux_operators
+
+    @property
+    def logging(self) -> QiskitNatureLogging:
+        """Return logging settings."""
+        if self._logging_settings is None:
+            self._logging_settings = QiskitNatureLogging()
+
+        return self._logging_settings
 
 
 settings = QiskitNatureSettings()

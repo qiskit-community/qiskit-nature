@@ -26,8 +26,17 @@ The top-level classes and submodules of qiskit_nature are:
    :toctree: ../stubs/
    :nosignatures:
 
+   QiskitNatureLogging
    QiskitNatureError
    UnsupportMethodError
+
+Globals
+=======
+
+.. autosummary::
+   :toctree:
+
+   settings
 
 Submodules
 ==========
@@ -46,6 +55,7 @@ Submodules
    properties
    results
    runtime
+   settings
    transformers
 
 """
@@ -55,6 +65,7 @@ from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
 )
 
 from .exceptions import QiskitNatureError, UnsupportMethodError
+from .logging import QiskitNatureLogging
 from .settings import settings
 from .version import __version__
 
@@ -62,6 +73,7 @@ from .version import __version__
 __all__ = [
     "__version__",
     "ListOrDictType",
+    "QiskitNatureLogging",
     "QiskitNatureError",
     "UnsupportMethodError",
     "settings",
