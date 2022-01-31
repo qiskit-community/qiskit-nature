@@ -16,7 +16,6 @@ import importlib
 import inspect
 import logging
 import re
-import warnings
 from enum import Enum
 from typing import Union, List, Optional, Any, Dict, Tuple
 
@@ -26,22 +25,37 @@ from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.constants import PERIODIC_TABLE
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.constants import BOHR, PERIODIC_TABLE
+from qiskit_nature.settings import settings
+from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
+from qiskit_nature.properties.second_quantization.electronic import (
+    ElectronicStructureDriverResult,
+    AngularMomentum,
+    Magnetization,
+    ParticleNumber,
+    ElectronicEnergy,
+)
+from qiskit_nature.properties.second_quantization.electronic.bases import (
+    ElectronicBasis,
+    ElectronicBasisTransform,
+)
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
+)
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
-from ...qmolecule import QMolecule
 from ...units_type import UnitsType
 from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
 try:
-    from pyquante2 import rhf, uhf, rohf, basisset, onee_integrals, molecule
+    from pyquante2 import molecule as pyquante_molecule
+    from pyquante2 import rhf, uhf, rohf, basisset, onee_integrals
     from pyquante2.geo.zmatrix import z2xyz
     from pyquante2.ints.integrals import twoe_integrals
-    from pyquante2.utils import simx
 except ImportError:
     logger.info("PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2")
 
@@ -126,8 +140,10 @@ class PyQuanteDriver(ElectronicStructureDriver):
         self._tol = tol
         self._maxiters = maxiters
 
-        self._mol: molecule = None
+        self._mol: pyquante_molecule = None
+        self._bfs: basisset = None
         self._calc: Union[rhf, rohf, uhf] = None
+        self._nmo: int = None
 
     @property
     def atoms(self) -> str:
@@ -324,7 +340,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         if len(geom) < 1:
             raise QiskitNatureError("Molecule format error: " + atoms)
 
-        self._mol = molecule(
+        self._mol = pyquante_molecule(
             geom, units=self.units.value, charge=self.charge, multiplicity=self.multiplicity
         )
 
@@ -389,14 +405,14 @@ class PyQuanteDriver(ElectronicStructureDriver):
         Raises:
             QiskitNatureError: If an invalid HF method type was supplied.
         """
-        bfs = basisset(self._mol, self.basis.value)
+        self._bfs = basisset(self._mol, self.basis.value)
 
         if self.method == MethodType.RHF:
-            self._calc = rhf(self._mol, bfs)
+            self._calc = rhf(self._mol, self._bfs)
         elif self.method == MethodType.ROHF:
-            self._calc = rohf(self._mol, bfs)
+            self._calc = rohf(self._mol, self._bfs)
         elif self.method == MethodType.UHF:
-            self._calc = uhf(self._mol, bfs)
+            self._calc = uhf(self._mol, self._bfs)
         else:
             raise QiskitNatureError(f"Invalid method type: {self.method}")
 
@@ -404,81 +420,35 @@ class PyQuanteDriver(ElectronicStructureDriver):
         logger.debug("PyQuante2 processing information:\n%s", self._calc)
 
     def _construct_driver_result(self) -> ElectronicStructureDriverResult:
-        bfs = basisset(self._mol, self.basis.value)
+        driver_result = ElectronicStructureDriverResult()
 
-        integrals = onee_integrals(bfs, self._mol)
-        hij = integrals.T + integrals.V
-        hijkl = twoe_integrals(bfs)
+        self._populate_driver_result_molecule(driver_result)
+        self._populate_driver_result_metadata(driver_result)
+        self._populate_driver_result_basis_transform(driver_result)
+        self._populate_driver_result_particle_number(driver_result)
+        self._populate_driver_result_electronic_energy(driver_result)
 
-        if hasattr(self._calc, "orbs"):
-            orbs = self._calc.orbs
-            orbs_b = None
-        else:
-            orbs = self._calc.orbsa
-            orbs_b = self._calc.orbsb
-        norbs = len(orbs)
-        if hasattr(self._calc, "orbe"):
-            orbs_energy = self._calc.orbe
-            orbs_energy_b = None
-        else:
-            orbs_energy = self._calc.orbea
-            orbs_energy_b = self._calc.orbeb
-        enuke = self._mol.nuclear_repulsion()
-        # Get ints in molecular orbital basis
-        mohij = simx(hij, orbs)
-        mohij_b = None
-        if orbs_b is not None:
-            mohij_b = simx(hij, orbs_b)
+        if not settings.dict_aux_operators:
+            driver_result.add_property(AngularMomentum(self._nmo * 2))
+            driver_result.add_property(Magnetization(self._nmo * 2))
 
-        eri = hijkl.transform(np.identity(norbs))
-        mohijkl = hijkl.transform(orbs)
-        mohijkl_bb = None
-        mohijkl_ba = None
-        if orbs_b is not None:
-            mohijkl_bb = hijkl.transform(orbs_b)
-            mohijkl_ba = np.einsum("aI,bJ,cK,dL,abcd->IJKL", orbs_b, orbs_b, orbs, orbs, hijkl[...])
+        return driver_result
 
-        # Create driver level molecule object and populate
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        _q_ = QMolecule()
-        warnings.filterwarnings("default", category=DeprecationWarning)
-        _q_.origin_driver_version = "?"  # No version info seems available to access
-        # Energies and orbits
-        _q_.hf_energy = self._calc.energy
-        _q_.nuclear_repulsion_energy = enuke
-        _q_.num_molecular_orbitals = norbs
-        _q_.num_alpha = self._mol.nup()
-        _q_.num_beta = self._mol.ndown()
-        _q_.mo_coeff = orbs
-        _q_.mo_coeff_b = orbs_b
-        _q_.orbital_energies = orbs_energy
-        _q_.orbital_energies_b = orbs_energy_b
-        # Molecule geometry
-        _q_.molecular_charge = self._mol.charge
-        _q_.multiplicity = self._mol.multiplicity
-        _q_.num_atoms = len(self._mol)
-        _q_.atom_symbol = []
-        _q_.atom_xyz = np.empty([len(self._mol), 3])
-        atoms = self._mol.atoms
-        for n_i in range(0, _q_.num_atoms):
-            atuple = atoms[n_i].atuple()
-            _q_.atom_symbol.append(PERIODIC_TABLE[atuple[0]])
-            _q_.atom_xyz[n_i][0] = atuple[1]
-            _q_.atom_xyz[n_i][1] = atuple[2]
-            _q_.atom_xyz[n_i][2] = atuple[3]
-        # 1 and 2 electron integrals
-        _q_.hcore = hij
-        _q_.hcore_b = None
-        _q_.kinetic = integrals.T
-        _q_.overlap = integrals.S
-        _q_.eri = eri
-        _q_.mo_onee_ints = mohij
-        _q_.mo_onee_ints_b = mohij_b
-        _q_.mo_eri_ints = mohijkl
-        _q_.mo_eri_ints_bb = mohijkl_bb
-        _q_.mo_eri_ints_ba = mohijkl_ba
+    def _populate_driver_result_molecule(
+        self, driver_result: ElectronicStructureDriverResult
+    ) -> None:
+        geometry: List[Tuple[str, List[float]]] = []
+        for atom in self._mol.atoms:
+            atuple = atom.atuple()
+            geometry.append((PERIODIC_TABLE[atuple[0]], [a * BOHR for a in atuple[1:]]))
 
-        _q_.origin_driver_name = "PYQUANTE"
+        driver_result.molecule = Molecule(
+            geometry, multiplicity=self._mol.multiplicity, charge=self._mol.charge
+        )
+
+    def _populate_driver_result_metadata(
+        self, driver_result: ElectronicStructureDriverResult
+    ) -> None:
         cfg = [
             f"atoms={self.atoms}",
             f"units={self.units.value}",
@@ -490,6 +460,83 @@ class PyQuanteDriver(ElectronicStructureDriver):
             f"maxiters={self._maxiters}",
             "",
         ]
-        _q_.origin_driver_config = "\n".join(cfg)
 
-        return ElectronicStructureDriverResult.from_legacy_driver_result(_q_)
+        driver_result.add_property(DriverMetadata("PYQUANTE", "?", "\n".join(cfg)))
+
+    def _populate_driver_result_basis_transform(
+        self, driver_result: ElectronicStructureDriverResult
+    ) -> None:
+        if hasattr(self._calc, "orbs"):
+            mo_coeff = self._calc.orbs
+            mo_coeff_b = None
+        else:
+            mo_coeff = self._calc.orbsa
+            mo_coeff_b = self._calc.orbsb
+
+        self._nmo = len(mo_coeff)
+
+        driver_result.add_property(
+            ElectronicBasisTransform(
+                ElectronicBasis.AO,
+                ElectronicBasis.MO,
+                mo_coeff,
+                mo_coeff_b,
+            )
+        )
+
+    def _populate_driver_result_particle_number(
+        self, driver_result: ElectronicStructureDriverResult
+    ) -> None:
+        driver_result.add_property(
+            ParticleNumber(
+                num_spin_orbitals=self._nmo * 2,
+                num_particles=(self._mol.nup(), self._mol.ndown()),
+            )
+        )
+
+    def _populate_driver_result_electronic_energy(
+        self, driver_result: ElectronicStructureDriverResult
+    ) -> None:
+        basis_transform = driver_result.get_property(ElectronicBasisTransform)
+
+        integrals = onee_integrals(self._bfs, self._mol)
+
+        hij = integrals.T + integrals.V
+        hijkl = twoe_integrals(self._bfs)
+
+        one_body_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (hij, None))
+
+        two_body_ao = TwoBodyElectronicIntegrals(
+            ElectronicBasis.AO,
+            (hijkl.transform(np.identity(self._nmo)), None, None, None),
+        )
+
+        one_body_mo = one_body_ao.transform_basis(basis_transform)
+        two_body_mo = two_body_ao.transform_basis(basis_transform)
+
+        electronic_energy = ElectronicEnergy(
+            [one_body_ao, two_body_ao, one_body_mo, two_body_mo],
+            nuclear_repulsion_energy=self._mol.nuclear_repulsion(),
+            reference_energy=self._calc.energy,
+        )
+
+        if hasattr(self._calc, "orbe"):
+            orbs_energy = self._calc.orbe
+            orbs_energy_b = None
+        else:
+            orbs_energy = self._calc.orbea
+            orbs_energy_b = self._calc.orbeb
+
+        orbital_energies = (
+            (orbs_energy, orbs_energy_b) if orbs_energy_b is not None else orbs_energy
+        )
+        electronic_energy.orbital_energies = np.asarray(orbital_energies)
+
+        electronic_energy.kinetic = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (integrals.T, None)
+        )
+        electronic_energy.overlap = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (integrals.S, None)
+        )
+
+        driver_result.add_property(electronic_energy)
