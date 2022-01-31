@@ -18,7 +18,7 @@ import logging
 import re
 import warnings
 from enum import Enum
-from typing import Union, List, Optional, Any, Dict
+from typing import Union, List, Optional, Any, Dict, Tuple
 
 import numpy as np
 
@@ -329,7 +329,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         )
 
     @staticmethod
-    def _check_molecule_format(val: str) -> Union[str, List[str]]:
+    def _check_molecule_format(val: str) -> str:
         """If it seems to be zmatrix rather than xyz format we convert before returning"""
         atoms = [x.strip() for x in val.split(";")]
         if atoms is None or len(atoms) < 1:
@@ -343,7 +343,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
                 zmat = []
                 for atom in atoms:
                     parts = [x.strip() for x in atom.split()]
-                    z = [parts[0]]
+                    z: List[Union[str, int, float]] = [parts[0]]
                     for i in range(1, len(parts), 2):
                         z.append(int(parts[i]))
                         z.append(float(parts[i + 1]))
@@ -363,7 +363,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         return val
 
     @staticmethod
-    def _parse_atom(val: str) -> int:
+    def _parse_atom(val: str) -> Tuple[int, float, float, float]:
         if val is None or len(val) < 1:
             raise QiskitNatureError("Molecule atom format error: empty")
 
