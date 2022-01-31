@@ -26,6 +26,7 @@ from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.constants import PERIODIC_TABLE
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
@@ -378,8 +379,8 @@ class PyQuanteDriver(ElectronicStructureDriver):
 
         parts[0] = parts[0].lower().capitalize()
         if not parts[0].isdigit():
-            if parts[0] in QMolecule.symbols:
-                parts[0] = QMolecule.symbols.index(parts[0])
+            if parts[0] in PERIODIC_TABLE:
+                parts[0] = PERIODIC_TABLE.index(parts[0])
             else:
                 raise QiskitNatureError("Molecule atom symbol error: " + parts[0])
 
@@ -464,7 +465,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         atoms = self._mol.atoms
         for n_i in range(0, _q_.num_atoms):
             atuple = atoms[n_i].atuple()
-            _q_.atom_symbol.append(QMolecule.symbols[atuple[0]])
+            _q_.atom_symbol.append(PERIODIC_TABLE[atuple[0]])
             _q_.atom_xyz[n_i][0] = atuple[1]
             _q_.atom_xyz[n_i][1] = atuple[2]
             _q_.atom_xyz[n_i][2] = atuple[3]
