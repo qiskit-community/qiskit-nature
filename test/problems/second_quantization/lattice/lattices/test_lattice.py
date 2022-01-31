@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -133,3 +133,29 @@ class TestLattice(QiskitNatureTestCase):
 
         target_matrix = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 1]])
         assert_array_equal(lattice.to_adjacency_matrix(), target_matrix)
+
+    def test_nonnumeric_weight_raises(self):
+        """Test the initialization with a graph with non-numeric edge weights raises."""
+        graph = PyGraph(multigraph=False)
+        graph.add_nodes_from(range(3))
+        graph.add_edges_from([(0, 1, 1), (1, 2, "banana")])
+
+        with self.assertRaises(ValueError):
+            _ = Lattice(graph)
+
+    def test_edges_removed(self):
+        """Test the initialization with a graph where edges have been removed."""
+        graph = PyGraph(multigraph=False)
+        graph.add_nodes_from(range(3))
+        graph.add_edges_from([(0, 1, 1), (1, 2, 1)])
+        graph.remove_edge_from_index(0)
+
+        lattice = Lattice(graph)
+
+        target_graph = PyGraph(multigraph=False)
+        target_graph.add_nodes_from(range(3))
+        target_graph.add_edges_from([(1, 2, 1)])
+
+        self.assertTrue(
+            is_isomorphic(lattice.graph, target_graph, edge_matcher=lambda x, y: x == y)
+        )

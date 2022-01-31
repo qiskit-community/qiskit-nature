@@ -400,7 +400,6 @@ class QEOM(ExcitedStatesSolver):
             )
 
         # these matrices are numpy arrays and therefore have the ``shape`` attribute
-        # pylint: disable=unsubscriptable-object
         q_mat = q_mat + q_mat.T - np.identity(q_mat.shape[0]) * q_mat
         w_mat = w_mat + w_mat.T - np.identity(w_mat.shape[0]) * w_mat
         m_mat = m_mat + m_mat.T - np.identity(m_mat.shape[0]) * m_mat
@@ -442,7 +441,6 @@ class QEOM(ExcitedStatesSolver):
         logger.debug("Diagonalizing qeom matrices for excited states...")
         a_mat = np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T.conj()]])
         b_mat = np.matrixlib.bmat([[v_mat, w_mat], [-w_mat.T.conj(), -v_mat.T.conj()]])
-        # pylint: disable=too-many-function-args
         res = linalg.eig(a_mat, b_mat)
         # convert nan value into 0
         res[0][np.where(np.isnan(res[0]))] = 0.0
