@@ -55,7 +55,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
                 strings.
             logfile: Instead of a job control file a log as output from running such a file
                 can optionally be given.
-            normalize: Whether to normalize the factors used in creation of the WatsonHamiltonian
+            normalize: Whether to normalize the factors used in creation of the VibrationalEnergy
                  as returned when this driver is run.
 
         Raises:
@@ -136,5 +136,6 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         else:
             glr = GaussianLogDriver(jcf=self._jcf).run()
 
-        watson = glr.get_watson_hamiltonian(self._normalize)
-        return VibrationalStructureDriverResult.from_legacy_driver_result(watson)
+        driver_result = VibrationalStructureDriverResult()
+        driver_result.add_property(glr.get_vibrational_energy(self._normalize))
+        return driver_result

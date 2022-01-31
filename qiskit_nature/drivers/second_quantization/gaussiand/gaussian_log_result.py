@@ -16,9 +16,9 @@ from typing import Dict, Union, List, Tuple, cast
 import copy
 import logging
 import re
-import warnings
 
-from ...watson_hamiltonian import WatsonHamiltonian
+from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
+from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
 
 logger = logging.getLogger(__name__)
 
@@ -214,50 +214,46 @@ class GaussianLogResult:
         num_indices = len(entry) - 3
         return [a2h_vals + 1 - a2h[cast(str, x)] for x in entry[0:num_indices]]
 
-    def get_watson_hamiltonian(self, normalize: bool = True) -> WatsonHamiltonian:
+    def get_vibrational_energy(self, normalize: bool = True) -> VibrationalEnergy:
         """
-        Get the force constants as a WatsonHamiltonian
+        Get the force constants as a VibrationalEnergy property.
 
         Args:
             normalize: Whether to normalize the factors or not
 
         Returns:
-            A WatsonHamiltonian
+            A VibrationalEnergy property.
         """
-        # Returns [value, idx0, idx1...] from 2 indices (quadratic) to 4 (quartic)
-        qua = self.quadratic_force_constants
-        cub = self.cubic_force_constants
-        qrt = self.quartic_force_constants
-        modes = []
-        for entry in qua:
+        sorted_integrals: Dict[int, List[Tuple[float, Tuple[int, ...]]]] = {1: [], 2: [], 3: []}
+
+        for entry in self.quadratic_force_constants:
             indices = self._process_entry_indices(list(entry))
             if indices:
                 factor = 2.0
                 factor *= self._multinomial(indices) if normalize else 1.0
-                line = [entry[2] / factor]
-                line.extend(indices)
-                modes.append(line)
-                modes.append([-x for x in line])
-        for entry_c in cub:
+                coeff = entry[2] / factor
+                num_body = len(set(indices))
+                sorted_integrals[num_body].append((coeff, tuple(indices)))
+                sorted_integrals[num_body].append((-coeff, tuple(-i for i in indices)))
+
+        for entry_c in self.cubic_force_constants:
             indices = self._process_entry_indices(list(entry_c))
             if indices:
                 factor = 2.0 * math.sqrt(2.0)
                 factor *= self._multinomial(indices) if normalize else 1.0
-                line = [entry_c[3] / factor]
-                line.extend(indices)
-                modes.append(line)
-        for entry_q in qrt:
+                coeff = entry_c[3] / factor
+                num_body = len(set(indices))
+                sorted_integrals[num_body].append((coeff, tuple(indices)))
+
+        for entry_q in self.quartic_force_constants:
             indices = self._process_entry_indices(list(entry_q))
             if indices:
                 factor = 4.0
                 factor *= self._multinomial(indices) if normalize else 1.0
-                line = [entry_q[4] / factor]
-                line.extend(indices)
-                modes.append(line)
+                coeff = entry_q[4] / factor
+                num_body = len(set(indices))
+                sorted_integrals[num_body].append((coeff, tuple(indices)))
 
-        num_modes = len(self.a_to_h_numbering.keys())
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            watson = WatsonHamiltonian(modes, num_modes)
-
-        return watson
+        return VibrationalEnergy(
+            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        )
