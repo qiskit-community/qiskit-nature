@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,7 +25,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self.logfile = self.get_resource_path(
-            "test_driver_gaussian_log.txt", "drivers/second_quantization/gaussiand"
+            "test_driver_gaussian_log_A03.txt", "drivers/second_quantization/gaussiand"
         )
 
     @requires_extra_library

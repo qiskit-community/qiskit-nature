@@ -18,6 +18,7 @@ import warnings
 from typing import cast
 
 from test import QiskitNatureTestCase, requires_extra_library
+from ddt import data, ddt, unpack
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import (
@@ -30,6 +31,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
 
 
+@ddt
 class TestDriverGaussianForces(QiskitNatureTestCase):
     """Gaussian Forces Driver tests."""
 
@@ -148,18 +150,23 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         result = driver.run()
         self._check_driver_result(self._get_expected_values(), result)
 
-    def test_driver_logfile(self):
+    @data(
+        ("A03", _A03_REV_EXPECTED),
+        ("C01", _C01_REV_EXPECTED),
+    )
+    @unpack
+    def test_driver_logfile(self, suffix, expected):
         """Test the driver works with logfile (Gaussian does not need to be installed)"""
 
         driver = GaussianForcesDriver(
             logfile=self.get_resource_path(
-                "test_driver_gaussian_log.txt", "drivers/second_quantization/gaussiand"
+                f"test_driver_gaussian_log_{suffix}.txt", "drivers/second_quantization/gaussiand"
             )
         )
 
         result = driver.run()
         # Log file being tested was created with revision A.03
-        self._check_driver_result(TestDriverGaussianForces._A03_REV_EXPECTED, result)
+        self._check_driver_result(expected, result)
 
     def _check_driver_result(self, expected_watson_data, prop):
         with warnings.catch_warnings():
