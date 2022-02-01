@@ -120,7 +120,7 @@ class Interpretable(Protocol):
     """
 
     def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in e object's context.
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in the object's context.
 
         Args:
             result: the result to add meaning to.
