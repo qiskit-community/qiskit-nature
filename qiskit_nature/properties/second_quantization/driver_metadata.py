@@ -22,6 +22,10 @@ from ..property import Property
 class DriverMetadata(Property):
     """A meta-data storage container for driver information."""
 
+    _HDF5_ATTR_PROGRAM = "program"
+    _HDF5_ATTR_VERSION = "version"
+    _HDF5_ATTR_CONFIG = "config"
+
     def __init__(self, program: str, version: str, config: str) -> None:
         """
         Args:
@@ -51,9 +55,9 @@ class DriverMetadata(Property):
         super().to_hdf5(parent)
         group = parent.require_group(self.name)
 
-        group.attrs["program"] = self.program
-        group.attrs["version"] = self.version
-        group.attrs["config"] = self.config
+        group.attrs[DriverMetadata._HDF5_ATTR_PROGRAM] = self.program
+        group.attrs[DriverMetadata._HDF5_ATTR_VERSION] = self.version
+        group.attrs[DriverMetadata._HDF5_ATTR_CONFIG] = self.config
 
     @classmethod
     def from_hdf5(cls, h5py_group: h5py.Group) -> DriverMetadata:
@@ -66,7 +70,7 @@ class DriverMetadata(Property):
             A new instance of this class.
         """
         return DriverMetadata(
-            h5py_group.attrs["program"],
-            h5py_group.attrs["version"],
-            h5py_group.attrs["config"],
+            h5py_group.attrs[DriverMetadata._HDF5_ATTR_PROGRAM],
+            h5py_group.attrs[DriverMetadata._HDF5_ATTR_VERSION],
+            h5py_group.attrs[DriverMetadata._HDF5_ATTR_CONFIG],
         )
