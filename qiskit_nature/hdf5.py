@@ -20,8 +20,6 @@ from typing import Any, Generator
 
 import h5py
 
-from qiskit_nature import QiskitNatureError
-
 if sys.version_info >= (3, 8):
     # pylint: disable=no-name-in-module
     from typing import runtime_checkable, Protocol
@@ -67,7 +65,7 @@ class HDF5Storable(Protocol):
         ...
 
 
-def save_to_hdf5(obj: HDF5Storable, filename: str, force: bool = False) -> None:
+def save_to_hdf5(obj: HDF5Storable, filename: str, replace: bool = False) -> None:
     """A utility to method to store an object to an HDF5 file.
 
     Below is an example of how you can store the result produced by any driver in an HDF5 file:
@@ -89,19 +87,20 @@ def save_to_hdf5(obj: HDF5Storable, filename: str, force: bool = False) -> None:
     Args:
         obj: the `HDF5Storable` object to store in the file.
         filename: the path to the HDF5 file.
-        force: whether to forcefully overwrite an existing file.
+        replace: whether to forcefully replace an existing file.
 
     Raises:
-        QiskitNatureError: if the file at the given path already exists and forcefully overwriting
-            is not enabled.
+        FileExistsError: if the file at the given path already exists and forcefully overwriting is
+        not enabled.
     """
     if not isinstance(obj, HDF5Storable):
         LOGGER.error("%s is not an instance of %s", obj, HDF5Storable)
         return
 
-    if Path(filename).exists() and not force:
-        raise QiskitNatureError(
-            f"The file at {filename} already exists! Specify `force=True` if you want to overwrite it!"
+    if Path(filename).exists() and not replace:
+        raise FileExistsError(
+            f"The file at {filename} already exists! Specify `replace=True` if you want to "
+            "overwrite it!"
         )
 
     with h5py.File(filename, "w") as file:
