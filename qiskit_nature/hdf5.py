@@ -43,6 +43,12 @@ class HDF5Storable(Protocol):
         attributes of an HDF5 group. Furthermore, a `__version__` should be stored in order to allow
         version handling at runtime.
 
+        The `__version__` attribute should be object-dependent and is not coupled to the version of
+        Qiskit Nature itself. Instead, each `HDF5Storable` has its own `VERSION` class attribute via
+        which the `from_hdf5` implementation should deal with changes to the serialization.
+        Backwards compatibility should be enforced for the duration of a classes lifetime (i.e.
+        until its potential deprecation and removal).
+
         Args:
             parent: the parent HDF5 group.
         """
@@ -64,10 +70,21 @@ class HDF5Storable(Protocol):
 def save_to_hdf5(obj: HDF5Storable, filename: str, force: bool = False) -> None:
     """A utility to method to store an object to an HDF5 file.
 
+    Below is an example of how you can store the result produced by any driver in an HDF5 file:
+
     .. code-block:: python
 
         property = driver.run()
         save_to_hdf5(property, "my_driver_result.hdf5")
+
+    Besides the ability to store :class:`~qiskit_nature.properties.GroupedProperty` objects (like
+    the driver result in the example above) you can also store single objects like so:
+
+    .. code-block:: python
+
+        integrals = OneBodyElectronicIntegrals(ElectronicBasis.AO, (np.random((4, 4)), None))
+        electronic_energy = ElectronicEnergy([integrals], reference_energy=-1.0)
+        save_to_hdf5(electronic_energy, "my_electronic_energy.hdf5")
 
     Args:
         obj: the `HDF5Storable` object to store in the file.
