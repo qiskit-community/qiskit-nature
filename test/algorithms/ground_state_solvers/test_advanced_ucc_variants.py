@@ -86,6 +86,10 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
     @slow_test
     def test_uccsd_hf_qpUCCD(self):
         """paired uccd test"""
+        self.skipTest(
+            "Temporarily skip test until the changes done by "
+            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
+        )
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
@@ -114,6 +118,10 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
     @slow_test
     def test_uccsd_hf_qUCCD0(self):
         """singlet uccd test"""
+        self.skipTest(
+            "Temporarily skip test until the changes done by "
+            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
+        )
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
