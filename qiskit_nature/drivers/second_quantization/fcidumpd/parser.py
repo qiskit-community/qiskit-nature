@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,7 +21,6 @@ from qiskit_nature import QiskitNatureError
 
 
 def parse(fcidump: str) -> Dict[str, Any]:
-    # pylint: disable=wrong-spelling-in-comment
     """Parses a FCIDump output.
 
     Args:
@@ -127,7 +126,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
         x = float(orbital.split()[0])
         # Note: differing naming than ijkl due to E741 and this iajb is inline with this:
         # https://hande.readthedocs.io/en/latest/manual/integrals.html#fcidump-format
-        i, a, j, b = [int(i) for i in orbital.split()[1:]]  # pylint: disable=invalid-name
+        i, a, j, b = [int(i) for i in orbital.split()[1:]]
         if i == a == j == b == 0:
             output["ecore"] = x
         elif a == j == b == 0:
@@ -214,7 +213,6 @@ def _permute_1e_ints(
 def _permute_2e_ints(
     hijkl: np.ndarray, elements: Set[Tuple[int, ...]], norb: int, beta: int = 0
 ) -> None:
-    # pylint: disable=wrong-spelling-in-comment
     for elem in elements.copy():
         shifted = tuple(e - ((e >= norb) * norb) for e in elem)
         # initially look for "transposed" element if spins are equal

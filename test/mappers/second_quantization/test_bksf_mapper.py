@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,6 +15,10 @@
 import unittest
 from test import QiskitNatureTestCase
 
+from test.mappers.second_quantization.resources.bksf_lih import (
+    FERMIONIC_HAMILTONIAN,
+    QUBIT_HAMILTONIAN,
+)
 import numpy as np
 from qiskit.quantum_info import SparsePauliOp, PauliList
 
@@ -174,6 +178,11 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             z = np.array([], dtype="bool")
             expected_pauli_op = SparsePauliOp(PauliList.from_symplectic(x, z), coeffs=[0.0])
             self.assertEqual(pauli_op, expected_pauli_op)
+            
+    def test_LiH(self):
+        """Test LiH molecule"""
+        pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
+        self.assertEqual(pauli_sum_op._primitive, QUBIT_HAMILTONIAN)
 
 
 if __name__ == "__main__":
