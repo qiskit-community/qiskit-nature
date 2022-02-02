@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the wrong inference of register_length in
+    :class:`~qiskit_nature.operators.second_quantization.FermionicOp`.
