@@ -252,15 +252,9 @@ class FermionicOp(SecondQuantizedOp):
 
         self._data: list[tuple[list[tuple[str, int]], complex]]
 
-        if (
-            isinstance(data, list)
-            and isinstance(data[0], tuple)
-            and isinstance(data[0][0], list)
-            and register_length is not None
-        ):
+        if isinstance(data, list) and isinstance(data[0], tuple) and isinstance(data[0][0], list):
             data = cast("list[tuple[list[tuple[str, int]], complex]]", data)
             self._data = data
-            self._register_length = register_length
         else:
             if not isinstance(data, (tuple, list, str)):
                 raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
@@ -307,12 +301,12 @@ class FermionicOp(SecondQuantizedOp):
                     for label, coeff in data
                 ]
 
-            if register_length is None:
-                self._register_length = (
-                    max(max((index for _, index in l), default=0) for l, _ in self._data) + 1
-                )
-            else:
-                self._register_length = register_length
+        if register_length is None:
+            self._register_length = (
+                max(max((index for _, index in l), default=0) for l, _ in self._data) + 1
+            )
+        else:
+            self._register_length = register_length
 
     def _substituted_label(self, label):
         new_label = []
@@ -367,8 +361,11 @@ class FermionicOp(SecondQuantizedOp):
         """Sets the representation of `self` in the console."""
 
         if len(self) == 1:
-            label_tuple, coeff = self.to_list()[0]
-            return f"{coeff} * ({label_tuple[0]}_{label_tuple[1]})"
+            label, coeff = self.to_list()[0]
+            if label:
+                return f"{coeff} * ({label})"
+            else:
+                return f"{coeff}"
         pre = (
             "Fermionic Operator\n"
             f"register length={self.register_length}, number terms={len(self)}\n"

@@ -113,7 +113,7 @@ class TestFermionicOp(QiskitNatureTestCase):
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
         actual = FermionicOp(
-            [("-_2 +_10", 1 + 2j), ("-_12", 56)], register_length=13, display_format="dense"
+            [("-_2 +_10", 1 + 2j), ("-_12", 56 + 0j)], register_length=13, display_format="dense"
         )
         desired = [
             ("II-IIIIIII+II", 1 + 2j),
