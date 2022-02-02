@@ -12,6 +12,8 @@
 
 """Driver-independent Molecule definition."""
 
+from __future__ import annotations
+
 from typing import Callable, Tuple, List, Optional, cast
 import copy
 
@@ -64,13 +66,6 @@ class Molecule:
         """
         Molecule._check_consistency(geometry, masses)
 
-        # if unit is Bohr, convert geometry to unit angstrom
-        if unit == UnitsType.BOHR:
-            n_geometry: List[Tuple[str, List[float]]] = []
-            for atom, xyz in geometry:
-                ang_xyz = [e * BOHR for e in xyz]
-                n_geometry.append((atom, ang_xyz))
-            geometry = n_geometry
         self._geometry = geometry
         self._unit = unit
         self._degrees_of_freedom = None
@@ -85,18 +80,49 @@ class Molecule:
         string = ["Molecule:"]
         string += [f"\tMultiplicity: {self._multiplicity}"]
         string += [f"\tCharge: {self._charge}"]
+        string += [f"\tUnit: {self.units.value}"]
         string += ["\tGeometry:"]
         for atom, xyz in self._geometry:
-            if self._unit == UnitsType.BOHR:
-                ang_xyz = [e / BOHR for e in xyz]
-                string += [f"\t\t{atom}\t{ang_xyz}"]
-            else:
-                string += [f"\t\t{atom}\t{xyz}"]
+            string += [f"\t\t{atom}\t{xyz}"]
         if self._masses is not None:
             string += ["\tMasses:"]
             for mass, (atom, _) in zip(self._masses, self._geometry):
                 string += [f"\t\t{atom}\t{mass}"]
         return "\n".join(string)
+
+    @staticmethod
+    def convert_units(molecule: Molecule, unit: UnitsType) -> Molecule:
+        """Converts a molecule to be in target unit type.
+
+        Args:
+            molecule: the molecule to be converted.
+            unit: the target unit for the molecule's geometry.
+
+        Returns:
+            A Molecule with its geometry stored in the target units.
+        """
+        if molecule.units == unit:
+            return molecule
+
+        factor: float
+        if unit == UnitsType.ANGSTROM and molecule.units == UnitsType.BOHR:
+            factor = BOHR
+        elif unit == UnitsType.BOHR and molecule.units == UnitsType.ANGSTROM:
+            factor = 1.0 / BOHR
+
+        new_geom: List[Tuple[str, List[float]]] = []
+        for atom, xyz in molecule.geometry:
+            ang_xyz = [e * factor for e in xyz]
+            new_geom.append((atom, ang_xyz))
+
+        return Molecule(
+            new_geom,
+            multiplicity=molecule.multiplicity,
+            charge=molecule.charge,
+            unit=unit,
+            degrees_of_freedom=molecule.degrees_of_freedom,
+            masses=molecule.masses,
+        )
 
     @staticmethod
     def _check_consistency(geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]):

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -34,6 +34,7 @@ class TestMolecule(QiskitNatureTestCase):
                 degrees_of_freedom=[stretch],
                 masses=[1, 1],
             )
+            self.assertEqual(mol.units, UnitsType.ANGSTROM)
             self.assertListEqual(mol.geometry, [("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])])
             self.assertEqual(mol.multiplicity, 1)
             self.assertEqual(mol.charge, 0)
@@ -45,6 +46,7 @@ class TestMolecule(QiskitNatureTestCase):
                 geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])],
                 degrees_of_freedom=[stretch],
             )
+            self.assertEqual(mol.units, UnitsType.ANGSTROM)
             self.assertIsNone(mol.masses)
 
         with self.subTest("All params"):
@@ -55,6 +57,7 @@ class TestMolecule(QiskitNatureTestCase):
                 degrees_of_freedom=[stretch],
                 masses=[0.7, 0.8],
             )
+            self.assertEqual(mol.units, UnitsType.ANGSTROM)
             self.assertEqual(mol.multiplicity, 2)
             self.assertEqual(mol.charge, 1)
             self.assertIsNone(mol.perturbations)
@@ -67,11 +70,14 @@ class TestMolecule(QiskitNatureTestCase):
                     masses=[1, 1, 1],
                 )
 
-    def test_unit(self):
-        """Test Unit"""
+    def test_unit_conversion(self):
+        """Test Unit conversion"""
         mol = Molecule(
             geometry=[("H", [10.0, 2.0, 0.0]), ("H", [0.0, 20.0, 1.0])], unit=UnitsType.BOHR
         )
+        self.assertEqual(mol.units, UnitsType.BOHR)
+        mol = Molecule.convert_units(mol, UnitsType.ANGSTROM)
+        self.assertEqual(mol.units, UnitsType.ANGSTROM)
         self.assertEqual(mol.geometry[0][1], [5.2917721092, 1.05835442184, 0.0])
         self.assertEqual(mol.geometry[1][1], [0.0, 10.5835442184, 0.52917721092])
 
