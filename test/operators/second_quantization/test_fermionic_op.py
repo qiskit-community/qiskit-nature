@@ -131,7 +131,7 @@ class TestFermionicOp(QiskitNatureTestCase):
     def test_init_from_tuple_label(self):
         """Test __init__ for tuple"""
         actual = FermionicOp(
-            [([(0, 2), (1, 10)], 1 + 2j), ([(0, 12)], 56)],
+            [([("-", 2), ("+", 10)], 1 + 2j), ([("-", 12)], 56)],
             register_length=13,
             display_format="dense",
         )

@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import re
 import warnings
-from dataclasses import dataclass
 from itertools import product
 from typing import Optional, Union, cast
 
@@ -54,54 +53,6 @@ _MAPPING = {
     ("E", "-"): "-",
     ("E", "E"): "E",
 }
-
-
-@dataclass(frozen=True)
-class _FermionLabelPrimitive:
-    """Represent Label for Fermion +_{n} or -_{n}"""
-
-    is_creation: bool  # if True creation operator, otherwise annihilation operator
-    index: int
-
-    def __str__(self):
-        if self.is_creation:
-            return f"+_{self.index}"
-        return f"-_{self.index}"
-
-    def adjoint(self) -> _FermionLabelPrimitive:
-        """Calculate adjoint
-
-        Returns:
-            The adjoint label
-        """
-        return _FermionLabelPrimitive(not self.is_creation, self.index)
-
-
-@dataclass(frozen=True)
-class _FermionLabel:
-    """Represents list of _FermionLabelPrimitive"""
-
-    label: list[_FermionLabelPrimitive]
-
-    def __str__(self):
-        return " ".join(primitive for primitive in self.label)
-
-    def __add__(self, other):
-        return self.__class__(self.label + other.label)
-
-    def __iter__(self):
-        return self.label.__iter__()
-
-    def __reversed__(self):
-        return self.__class__(reversed(self.label))
-
-    def adjoint(self) -> _FermionLabel:
-        """Calculate adjoint
-
-        Returns:
-            The adjoint label
-        """
-        return self.__class__([fer_label.adjoint() for fer_label in reversed(self.label)])
 
 
 class FermionicOp(SecondQuantizedOp):
@@ -169,17 +120,17 @@ class FermionicOp(SecondQuantizedOp):
 
     As a programmatic approach, you can input a list of tuples as the labels,
     too. Thus, a FermionicOp can be initialized using a list of tuples of the
-    form, `(action, index)`. `action` is an integer where `0` denotes an
-    annihilation and `1` a creation operation. The `index` is also an integer
+    form, `(action, index)`. `action` is a string where `-` denotes an
+    annihilation and `+` a creation operation. The `index` is also an integer
     denoting the fermionic mode.
     The following labels are equivalent to the example given for sparse labels
     above:
 
     .. code-block:: python
 
-        [(1, 0)]
-        [(0, 2)]
-        [(1, 0), (0, 1), (1, 4), (1, 10)]
+        [("+", 0)]
+        [("-", 2)]
+        [("+", 0), ("-", 1), ("+", 4), ("+", 10)]
 
     **Initialization**
 
@@ -269,8 +220,7 @@ class FermionicOp(SecondQuantizedOp):
             tuple[str, complex],
             list[tuple[str, complex]],
             list[tuple[str, float]],
-            list[tuple[list[tuple[int, int]], complex]],
-            list[tuple[_FermionLabel, complex]],
+            list[tuple[list[tuple[str, int]], complex]],
         ],
         register_length: Optional[int] = None,
         display_format: Optional[str] = None,
@@ -300,14 +250,16 @@ class FermionicOp(SecondQuantizedOp):
 
         self.display_format = display_format
 
-        self._data: list[tuple[_FermionLabel, complex]]
+        self._data: list[tuple[list[tuple[str, int]], complex]]
 
         if (
             isinstance(data, list)
-            and isinstance(data[0][0], _FermionLabel)
+            and isinstance(data[0], tuple)
+            and isinstance(data[0][0], list)
             and register_length is not None
         ):
-            self._data = data  # type: ignore
+            data = cast("list[tuple[list[tuple[str, int]], complex]]", data)
+            self._data = data
             self._register_length = register_length
         else:
             if not isinstance(data, (tuple, list, str)):
@@ -321,7 +273,7 @@ class FermionicOp(SecondQuantizedOp):
                     raise TypeError(
                         f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
                     )
-                data = [data]
+                data = [(data[0], complex(data[1]))]
 
             else:
                 if (
@@ -333,20 +285,9 @@ class FermionicOp(SecondQuantizedOp):
                         "Data list must be [(str, number)] or [([(int, int)], number)]."
                     )
 
-            # data: list[tuple[list[tuple[int, int]], complex]],
-            if isinstance(data[0][0], list) and data[0][0] and isinstance(data[0][0][0], tuple):
-                data = cast("list[tuple[list[tuple[int, int]], complex]]", data)
-                self._data = [
-                    (
-                        _FermionLabel(
-                            [_FermionLabelPrimitive(bool(action), index) for action, index in label]
-                        ),
-                        complex(coeff),
-                    )
-                    for label, coeff in data
-                ]
+            data = cast("list[tuple[str, complex]]", data)
             # dense label
-            elif all("_" not in label for label, _ in data):
+            if all("_" not in label for label, _ in data):
                 self._data = [
                     (
                         self._substituted_label([(c, int(i)) for i, c in enumerate(label)]),
@@ -354,15 +295,13 @@ class FermionicOp(SecondQuantizedOp):
                     )
                     for label, coeff in data
                 ]
-            # sparse label
+                # sparse label
                 if register_length is None:
                     register_length = max(len(label) for label, _ in data)
             else:
                 self._data = [
                     (
-                        self._substituted_label(
-                            [(c[0], int(c[2:])) for c in label.split()]  # type: ignore
-                        ),
+                        self._substituted_label([(c[0], int(c[2:])) for c in label.split()]),
                         complex(coeff),
                     )
                     for label, coeff in data
@@ -370,7 +309,7 @@ class FermionicOp(SecondQuantizedOp):
 
             if register_length is None:
                 self._register_length = (
-                    max(max((p.index for p in l), default=0) for l, _ in self._data) + 1
+                    max(max((index for _, index in l), default=0) for l, _ in self._data) + 1
                 )
             else:
                 self._register_length = register_length
@@ -379,22 +318,21 @@ class FermionicOp(SecondQuantizedOp):
         new_label = []
         for c, index in label:
             if c == "+":
-                new_label.append(_FermionLabelPrimitive(True, index))
+                new_label.append(("+", index))
             elif c == "-":
-                new_label.append(_FermionLabelPrimitive(False, index))
+                new_label.append(("-", index))
             elif c == "N":
-                new_label.append(_FermionLabelPrimitive(True, index))
-                new_label.append(_FermionLabelPrimitive(False, index))
+                new_label.append(("+", index))
+                new_label.append(("-", index))
             elif c == "E":
-                new_label.append(_FermionLabelPrimitive(False, index))
-                new_label.append(_FermionLabelPrimitive(True, index))
+                new_label.append(("-", index))
+                new_label.append(("+", index))
             elif c == "I":
                 continue
             else:
                 raise ValueError(f"Invalid label {c}_{index} is given.")
 
-        self._register_length = max_index + 1
-        return _FermionLabel(new_label)
+        return new_label
 
     def __repr__(self) -> str:
         data = self.to_list()
@@ -429,14 +367,17 @@ class FermionicOp(SecondQuantizedOp):
         """Sets the representation of `self` in the console."""
 
         if len(self) == 1:
-            label, coeff = self.to_list()[0]
-            return f"{coeff} * ({label})"
+            label_tuple, coeff = self.to_list()[0]
+            return f"{coeff} * ({label_tuple[0]}_{label_tuple[1]})"
         pre = (
             "Fermionic Operator\n"
             f"register length={self.register_length}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
-            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.to_list()]
+            [
+                f"{coeff} * ( {label_tuple} )" if label_tuple else f"{coeff}"
+                for label_tuple, coeff in self.to_list()
+            ]
         )
         if FermionicOp._truncate and len(ret) > FermionicOp._truncate:
             ret = ret[0 : FermionicOp._truncate - 4] + " ..."
@@ -527,8 +468,8 @@ class FermionicOp(SecondQuantizedOp):
             display_format = self.display_format
         if display_format == "sparse":
             return [
-                (" ".join(str(label) for label in label_data), coeff)
-                for label_data, coeff in self._data
+                (" ".join(f"{char}_{index}" for char, index in label_list), coeff)
+                for label_list, coeff in self._data
             ]
         return self._to_dense_label_data()
 
@@ -565,15 +506,15 @@ class FermionicOp(SecondQuantizedOp):
                     mapped_to_zero = False
 
                     # apply terms sequentially to the current basis state
-                    for label_primitive in reversed(opstring):
-                        occ = occupations[label_primitive.index]
-                        if label_primitive.is_creation == occ:
+                    for char, index in reversed(opstring):
+                        occ = occupations[index]
+                        if (char[0] == "+") == occ:
                             # Applying the creation operator on an occupied state maps to zero. So
                             # does applying the annihilation operator on an unoccupied state.
                             mapped_to_zero = True
                             break
-                        sign *= (-1) ** sum(occupations[: label_primitive.index])
-                        occupations[label_primitive.index] = not occ
+                        sign *= (-1) ** sum(occupations[:index])
+                        occupations[index] = not occ
 
                     # add data point to matrix in the correct row
                     if not mapped_to_zero:
@@ -595,7 +536,10 @@ class FermionicOp(SecondQuantizedOp):
 
     def adjoint(self) -> FermionicOp:
         return FermionicOp(
-            [(label.adjoint(), coeff.conjugate()) for label, coeff in self._data],
+            [
+                ([("+" if c == "-" else "-", i) for c, i in reversed(label)], coeff.conjugate())
+                for label, coeff in self._data
+            ],
             register_length=self.register_length,
             display_format=self.display_format,
         )
@@ -648,9 +592,7 @@ class FermionicOp(SecondQuantizedOp):
         dense_label_data = []
         for label, coeff in self._data:
             label_list = ["I"] * self.register_length
-            for fer_label in label:
-                char = "+" if fer_label.is_creation else "-"
-                index = fer_label.index
+            for char, index in label:
                 if (label_list[index], char) in _ZERO_LABELS:
                     break
                 label_list[index] = _MAPPING[(label_list[index], char)]
