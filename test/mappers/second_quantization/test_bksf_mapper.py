@@ -178,7 +178,7 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             z = np.array([], dtype="bool")
             expected_pauli_op = SparsePauliOp(PauliList.from_symplectic(x, z), coeffs=[0.0])
             self.assertEqual(pauli_op, expected_pauli_op)
-            
+
     def test_LiH(self):
         """Test LiH molecule"""
         pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
