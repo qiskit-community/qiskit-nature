@@ -155,8 +155,8 @@ class ParticleNumber(ElectronicProperty):
         group.create_dataset("occupation_alpha", data=self.occupation_alpha)
         group.create_dataset("occupation_beta", data=self.occupation_beta)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> ParticleNumber:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ParticleNumber:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:

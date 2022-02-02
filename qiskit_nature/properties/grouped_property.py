@@ -124,8 +124,8 @@ class GroupedProperty(Property, Iterable, Generic[T]):
         for prop in self._properties.values():
             prop.to_hdf5(group)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> GroupedProperty:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> GroupedProperty:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         More specifically this method will iterate all groups found within `h5py_group` and

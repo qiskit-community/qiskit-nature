@@ -67,8 +67,8 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         if self.basis is not None:
             self.basis.to_hdf5(group)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalStructureDriverResult:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalStructureDriverResult:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -77,10 +77,10 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         Returns:
             A new instance of this class.
         """
-        grouped_property = super().from_hdf5(h5py_group)
+        grouped_property = GroupedVibrationalProperty.from_hdf5(h5py_group)
 
         basis: VibrationalBasis = None
-        ret = cls()
+        ret = VibrationalStructureDriverResult()
         for prop in grouped_property:
             if isinstance(prop, VibrationalBasis):
                 basis = prop

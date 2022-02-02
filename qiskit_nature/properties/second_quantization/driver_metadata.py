@@ -59,8 +59,8 @@ class DriverMetadata(Property):
         group.attrs[DriverMetadata._HDF5_ATTR_VERSION] = self.version
         group.attrs[DriverMetadata._HDF5_ATTR_CONFIG] = self.config
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> DriverMetadata:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> DriverMetadata:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:

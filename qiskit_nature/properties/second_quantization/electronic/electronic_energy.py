@@ -96,8 +96,8 @@ class ElectronicEnergy(IntegralProperty):
             overlap_group = group.create_group("overlap")
             self.overlap.to_hdf5(overlap_group)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicEnergy:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicEnergy:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -106,9 +106,9 @@ class ElectronicEnergy(IntegralProperty):
         Returns:
             A new instance of this class.
         """
-        integral_property = super().from_hdf5(h5py_group)
+        integral_property = IntegralProperty.from_hdf5(h5py_group)
 
-        ret = cls(list(integral_property), energy_shift=integral_property._shift)
+        ret = ElectronicEnergy(list(integral_property), energy_shift=integral_property._shift)
 
         ret.nuclear_repulsion_energy = h5py_group.attrs.get("nuclear_repulsion_energy", None)
         ret.reference_energy = h5py_group.attrs.get("reference_energy", None)

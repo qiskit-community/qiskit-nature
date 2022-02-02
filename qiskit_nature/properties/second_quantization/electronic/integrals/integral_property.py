@@ -209,8 +209,8 @@ class IntegralProperty(ElectronicProperty):
         for name, shift in self._shift.items():
             shift_group.attrs[name] = shift
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> IntegralProperty:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> IntegralProperty:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:

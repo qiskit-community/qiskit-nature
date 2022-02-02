@@ -119,8 +119,8 @@ class ElectronicIntegrals(ABC):
             for name, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
                 group.create_dataset(name, data=mat)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicIntegrals:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicIntegrals:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:

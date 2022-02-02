@@ -119,8 +119,8 @@ class VibrationalIntegrals(ABC):
             coeffs_dset[idx] = ints[0]
             integrals_dset[idx] = list(ints[1])
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalIntegrals:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalIntegrals:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -133,7 +133,7 @@ class VibrationalIntegrals(ABC):
         for coeff, ints in zip(h5py_group["coefficients"][...], h5py_group["integrals"][...]):
             integrals.append((coeff, tuple(ints)))
 
-        ret = cls(h5py_group.attrs["num_body_terms"], integrals)
+        ret = VibrationalIntegrals(h5py_group.attrs["num_body_terms"], integrals)
 
         return ret
 

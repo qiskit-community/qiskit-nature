@@ -99,8 +99,8 @@ class AngularMomentum(ElectronicProperty):
         group.attrs["absolute_tolerance"] = self._absolute_tolerance
         group.attrs["relative_tolerance"] = self._relative_tolerance
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> AngularMomentum:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> AngularMomentum:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:

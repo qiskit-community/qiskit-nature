@@ -69,8 +69,8 @@ class DipoleMoment(IntegralProperty):
 
         group.attrs["axis"] = self._axis
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> DipoleMoment:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> DipoleMoment:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -79,11 +79,11 @@ class DipoleMoment(IntegralProperty):
         Returns:
             A new instance of this class.
         """
-        integral_property = super().from_hdf5(h5py_group)
+        integral_property = IntegralProperty.from_hdf5(h5py_group)
 
         axis = h5py_group.attrs["axis"]
 
-        return cls(axis, list(integral_property), shift=integral_property._shift)
+        return DipoleMoment(axis, list(integral_property), shift=integral_property._shift)
 
     def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Returns the AO 1-electron integrals.
@@ -170,8 +170,8 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             for name, shift in self._dipole_shift.items():
                 dipole_shift_group.attrs[name] = shift
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicDipoleMoment:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicDipoleMoment:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -180,9 +180,9 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         Returns:
             A new instance of this class.
         """
-        grouped_property = super().from_hdf5(h5py_group)
+        grouped_property = GroupedProperty.from_hdf5(h5py_group)
 
-        ret = cls(list(grouped_property))
+        ret = ElectronicDipoleMoment(list(grouped_property))
 
         ret.reverse_dipole_sign = h5py_group.attrs["reverse_dipole_sign"]
         ret.nuclear_dipole_moment = h5py_group.attrs.get("nuclear_dipole_moment", None)

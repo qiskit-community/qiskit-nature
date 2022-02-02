@@ -54,8 +54,8 @@ class Magnetization(ElectronicProperty):
 
         group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> Magnetization:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> Magnetization:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:

@@ -75,8 +75,8 @@ class ElectronicBasisTransform(Property):
         group.create_dataset("Alpha coefficients", data=self.coeff_alpha)
         group.create_dataset("Beta coefficients", data=self.coeff_beta)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicBasisTransform:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicBasisTransform:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:

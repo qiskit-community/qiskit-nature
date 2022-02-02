@@ -44,8 +44,8 @@ class OccupiedModals(VibrationalProperty):
         """
         super().__init__(self.__class__.__name__, basis)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> OccupiedModals:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> OccupiedModals:
         # pylint: disable=unused-argument
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
@@ -55,7 +55,7 @@ class OccupiedModals(VibrationalProperty):
         Returns:
             A new instance of this class.
         """
-        return cls()
+        return OccupiedModals()
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> OccupiedModals:

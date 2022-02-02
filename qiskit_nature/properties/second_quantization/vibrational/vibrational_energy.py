@@ -92,8 +92,8 @@ class VibrationalEnergy(VibrationalProperty):
         if self.truncation_order:
             group.attrs["truncation_order"] = self.truncation_order
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalEnergy:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalEnergy:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -106,7 +106,7 @@ class VibrationalEnergy(VibrationalProperty):
         for int_group in h5py_group["vibrational_integrals"].values():
             ints.append(VibrationalIntegrals.from_hdf5(int_group))
 
-        return cls(ints, h5py_group.attrs.get("truncation_order", None))
+        return VibrationalEnergy(ints, h5py_group.attrs.get("truncation_order", None))
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> VibrationalEnergy:

@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import importlib
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
@@ -68,8 +69,8 @@ class VibrationalBasis(ABC):
         group.attrs["threshold"] = self._threshold
         group.attrs["num_modals_per_mode"] = self.num_modals_per_mode
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> VibrationalBasis:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalBasis:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -78,7 +79,15 @@ class VibrationalBasis(ABC):
         Returns:
             A new instance of this class.
         """
-        return cls(h5py_group.attrs["num_modals_per_mode"], h5py_group.attrs.get("threshold", None))
+        class_name = h5py_group.attrs["__class__"]
+        module_path = h5py_group.attrs["__module__"]
+
+        loaded_module = importlib.import_module(module_path)
+        loaded_class = getattr(loaded_module, class_name, None)
+
+        return loaded_class(
+            h5py_group.attrs["num_modals_per_mode"], h5py_group.attrs.get("threshold", None)
+        )
 
     @abstractmethod
     def eval_integral(

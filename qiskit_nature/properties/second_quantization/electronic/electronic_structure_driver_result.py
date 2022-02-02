@@ -64,8 +64,8 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         group = parent.require_group(self.name)
         self.molecule.to_hdf5(group)
 
-    @classmethod
-    def from_hdf5(cls, h5py_group: h5py.Group) -> ElectronicStructureDriverResult:
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicStructureDriverResult:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         Args:
@@ -74,9 +74,9 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Returns:
             A new instance of this class.
         """
-        grouped_property = super().from_hdf5(h5py_group)
+        grouped_property = GroupedElectronicProperty.from_hdf5(h5py_group)
 
-        ret = cls()
+        ret = ElectronicStructureDriverResult()
         for prop in grouped_property:
             if isinstance(prop, Molecule):
                 ret.molecule = prop
