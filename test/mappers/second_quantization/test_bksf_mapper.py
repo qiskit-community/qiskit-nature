@@ -26,8 +26,8 @@ from qiskit_nature.mappers.second_quantization import bksf
 
 def _sort_simplify(sparse_pauli):
     sparse_pauli = sparse_pauli.simplify()
-    indices = sparse_pauli.table.argsort()
-    table = sparse_pauli.table[indices]
+    indices = sparse_pauli.paulis.argsort()
+    table = sparse_pauli.paulis[indices]
     coeffs = sparse_pauli.coeffs[indices]
     sparse_pauli = SparsePauliOp(table, coeffs)
     return sparse_pauli
@@ -154,6 +154,12 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
 
         with self.subTest("Map H2 frome sto3g basis result"):
             self.assertEqual(op1, op2)
+
+        with self.subTest("Sparse FermionicOp input"):
+            h2_fop_sparse = h2_fop.to_normal_order()
+            pauli_sum_op_from_sparse = BravyiKitaevSuperFastMapper().map(h2_fop_sparse)
+            op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse.primitive)
+            self.assertEqual(op1, op2_from_sparse)
 
 
 if __name__ == "__main__":

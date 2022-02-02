@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -30,6 +30,7 @@ from qiskit.opflow import (
     PauliSumOp,
 )
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
@@ -79,7 +80,7 @@ class QEOM(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[SecondQuantizedOp]] = None,
+        aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -102,10 +103,18 @@ class QEOM(ExcitedStatesSolver):
             )
 
         # 1. Run ground state calculation
-        groundstate_result = self._gsc.solve(problem)
+        groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
-        self._untapered_qubit_op_main = self._gsc._qubit_converter.map(problem.second_q_ops()[0])
+        second_q_ops = problem.second_q_ops()
+        if isinstance(second_q_ops, list):
+            main_second_q_op = second_q_ops[0]
+        elif isinstance(second_q_ops, dict):
+            main_second_q_op = second_q_ops.pop(problem.main_property_name)
+
+        self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
+            main_second_q_op, problem.num_particles
+        )
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
@@ -229,7 +238,7 @@ class QEOM(ExcitedStatesSolver):
                     all_matrix_operators[f"v_{m_u}_{n_u}"] = v_mat_op
 
         try:
-            z2_symmetries = self._gsc.qubit_converter.z2symmetries  # type: ignore
+            z2_symmetries = self._gsc.qubit_converter.z2symmetries
         except AttributeError:
             z2_symmetries = Z2Symmetries([], [], [])
 
@@ -391,7 +400,6 @@ class QEOM(ExcitedStatesSolver):
             )
 
         # these matrices are numpy arrays and therefore have the ``shape`` attribute
-        # pylint: disable=unsubscriptable-object
         q_mat = q_mat + q_mat.T - np.identity(q_mat.shape[0]) * q_mat
         w_mat = w_mat + w_mat.T - np.identity(w_mat.shape[0]) * w_mat
         m_mat = m_mat + m_mat.T - np.identity(m_mat.shape[0]) * m_mat
@@ -431,9 +439,8 @@ class QEOM(ExcitedStatesSolver):
             2-D array storing the X and Y expansion coefficients
         """
         logger.debug("Diagonalizing qeom matrices for excited states...")
-        a_mat = np.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T.conj()]])  # type: ignore
-        b_mat = np.bmat([[v_mat, w_mat], [-w_mat.T.conj(), -v_mat.T.conj()]])  # type: ignore
-        # pylint: disable=too-many-function-args
+        a_mat = np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T.conj()]])
+        b_mat = np.matrixlib.bmat([[v_mat, w_mat], [-w_mat.T.conj(), -v_mat.T.conj()]])
         res = linalg.eig(a_mat, b_mat)
         # convert nan value into 0
         res[0][np.where(np.isnan(res[0]))] = 0.0

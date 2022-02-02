@@ -46,9 +46,9 @@ class ElectronicStructureDriverType(Enum):
         Get driver class from driver type
 
         Args:
-            driver_type:type of driver to be used. If `AUTO` is selected, it will use
+            driver_type: type of driver to be used. If `AUTO` is selected, it will use
                         the first driver installed and that supports the given method
-                        in the following order:
+                        in the following order
                         `PYSCF`, `PSI4`, `PYQUANTE`, `GAUSSIAN`
             method: Used to verify if the driver supports it.
 
@@ -81,8 +81,8 @@ class ElectronicStructureDriverType(Enum):
                 raise MissingOptionalLibraryError(
                     libname=driver_type, name="ElectronicStructureDriverType"
                 )
-            driver_class.check_installed()  # type: ignore
-            driver_class.check_method_supported(method)  # type: ignore
+            driver_class.check_installed()
+            driver_class.check_method_supported(method)
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class

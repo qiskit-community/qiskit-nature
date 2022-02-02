@@ -1,0 +1,27 @@
+---
+upgrade:
+  - |
+    In order to fix the
+    :class:`~qiskit_nature.problems.second_quantization.ElectronicStructureProblem`
+    :meth:`~qiskit_nature.problems.second_quantization.ElectronicStructureProblem.symmetry_sector_locator`
+    information on the mapping was required and the
+    :class:`~qiskit_nature.converters.second_quantization.QubitConverter` ``sector_locator``
+    parameter callback signature of the
+    :meth:`~qiskit_nature.converters.second_quantization.QubitConverter.convert` method was
+    changed from ``sector_locator: Optional[Callable[[Z2Symmetries], Optional[List[int]]]]``
+    to ``sector_locator: Optional[Callable[[Z2Symmetries, "QubitConverter"], Optional[List[int]]]]``
+    i.e. your supplied callback method must now take a second parameter which is a
+    ``QubitConverter`` instance and when invoked will be the instance upon which the ``convert``
+    was called. If you have created your own sector locator then you will need to update it`s
+    signature otherwise the code will fail when calling it now.
+
+fixes:
+  - |
+    Fixes the creation on the :class:`~qiskit_nature.circuit.library.HartreeFock`
+    initial state which could fail when Z2Symettry reduction was being used via the
+    provided :class:`~qiskit_nature.converters.second_quantization.QubitConverter`.
+
+    Also fixes the :class:`~qiskit_nature.problems.second_quantization.ElectronicStructureProblem`
+    :meth:`~qiskit_nature.problems.second_quantization.ElectronicStructureProblem.symmetry_sector_locator`,
+    which uses the HartreeFock class too, so that it correctly determines the sector
+    containing the ground state when ``auto`` symmetry reduction is used.

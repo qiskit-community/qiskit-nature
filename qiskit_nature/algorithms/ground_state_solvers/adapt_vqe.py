@@ -25,10 +25,12 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.utils.validation import validate_min
 from qiskit.opflow.gradients import Gradient
+from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult
 from qiskit_nature.deprecation import deprecate_arguments
@@ -156,7 +158,7 @@ class AdaptVQE(GroundStateEigensolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
     ) -> "AdaptVQEResult":
         """Computes the ground state.
 
@@ -167,6 +169,12 @@ class AdaptVQE(GroundStateEigensolver):
         Raises:
             QiskitNatureError: if a solver other than VQE or a ansatz other than UCCSD is provided
                 or if the algorithm finishes due to an unforeseen reason.
+            ValueError: if the grouped property object returned by the driver does not contain a
+                main property as requested by the problem being solved (`problem.main_property_name`)
+            QiskitNatureError: if the user-provided `aux_operators` contain a name which clashes
+                with an internally constructed auxiliary operator. Note: the names used for the
+                internal auxiliary operators correspond to the `Property.name` attributes which
+                generated the respective operators.
 
         Returns:
             An AdaptVQEResult which is an ElectronicStructureResult but also includes runtime
@@ -175,19 +183,46 @@ class AdaptVQE(GroundStateEigensolver):
         """
         second_q_ops = problem.second_q_ops()
 
+        aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
+        if isinstance(second_q_ops, list):
+            main_second_q_op = second_q_ops[0]
+            aux_second_q_ops = second_q_ops[1:]
+        elif isinstance(second_q_ops, dict):
+            name = problem.main_property_name
+            main_second_q_op = second_q_ops.pop(name, None)
+            if main_second_q_op is None:
+                raise ValueError(
+                    f"The main `SecondQuantizedOp` associated with the {name} property cannot be "
+                    "`None`."
+                )
+            aux_second_q_ops = second_q_ops
+
         self._main_operator = self._qubit_converter.convert(
-            second_q_ops[0],
+            main_second_q_op,
             num_particles=problem.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
-        aux_ops = self._qubit_converter.convert_match(second_q_ops[1:])
+        aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
         if aux_operators is not None:
-            for aux_op in aux_operators:
+            wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
+                aux_operators
+            )
+            for name, aux_op in iter(wrapped_aux_operators):
                 if isinstance(aux_op, SecondQuantizedOp):
-                    aux_ops.append(self._qubit_converter.convert_match(aux_op, True))
+                    converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
-                    aux_ops.append(aux_op)
+                    converted_aux_op = aux_op
+                if isinstance(aux_ops, list):
+                    aux_ops.append(converted_aux_op)
+                elif isinstance(aux_ops, dict):
+                    if name in aux_ops.keys():
+                        raise QiskitNatureError(
+                            f"The key '{name}' is already taken by an internally constructed "
+                            "auxliliary operator! Please use a different name for your custom "
+                            "operator."
+                        )
+                    aux_ops[name] = converted_aux_op
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             vqe = self._solver.get_solver(problem, self._qubit_converter)

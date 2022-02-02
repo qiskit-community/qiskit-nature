@@ -150,7 +150,7 @@ class VibrationalOp(SecondQuantizedOp):
             # Sparse label
             dense_labels = self._convert_to_dense_labels(data, num_modals)
 
-            ops: List[VibrationalOp] = []
+            ops: List["VibrationalOp"] = []
             for dense_label, coeff in dense_labels:
                 new_op = reduce(
                     lambda a, b: a @ b,

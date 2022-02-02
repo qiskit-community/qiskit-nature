@@ -40,26 +40,65 @@ class HartreeFock(QuantumCircuit):
                            beta-spin electrons in the first and second number, respectively.
             qubit_converter: a QubitConverter instance.
         """
-
-        # get the bitstring encoding the Hartree Fock state
-        bitstr = hartree_fock_bitstring(num_spin_orbitals, num_particles)
-
-        # encode the bitstring as a `FermionicOp`
-        label = ["+" if bit else "I" for bit in bitstr]
-        bitstr_op = FermionicOp("".join(label), display_format="dense")
-
-        # map the `FermionicOp` to a qubit operator
-        qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op)
-
-        # construct the circuit
-        qr = QuantumRegister(qubit_op.num_qubits, "q")
+        # Get the mapped/tapered hartree fock bitstring as we need it to match to whatever
+        # conversion was done by the given qubit converter
+        bitstr = hartree_fock_bitstring_mapped(
+            num_spin_orbitals, num_particles, qubit_converter, True
+        )
+        # Construct the circuit for this bitstring. Since this is defined as an initial state
+        # circuit its assumed that this is applied first to the qubits that are initialized to
+        # the zero state. Hence we just need to account for all True entries and set those.
+        qr = QuantumRegister(len(bitstr), "q")
         super().__init__(qr, name="HF")
 
-        # Add gates in the right positions: we are only interested in the `X` gates because we want
-        # to create particles (0 -> 1) where the initial state introduced a creation (`+`) operator.
-        for i, bit in enumerate(qubit_op.primitive.table.X[0]):
+        for i, bit in enumerate(bitstr):
             if bit:
                 self.x(i)
+
+
+def hartree_fock_bitstring_mapped(
+    num_spin_orbitals: int,
+    num_particles: Tuple[int, int],
+    qubit_converter: QubitConverter,
+    match_convert: bool = True,
+) -> List[bool]:
+    """Compute the bitstring representing the mapped Hartree-Fock state for the specified system.
+
+    Args:
+        num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
+        num_particles: The number of particles as a tuple (alpha, beta) containing the number of
+            alpha- and  beta-spin electrons, respectively.
+        qubit_converter: A QubitConverter instance.
+        match_convert: Whether to use `convert_match` method of the qubit converter (default),
+            or just do mapping and possibly two qubit reduction but no tapering. The latter
+            is an advanced usage - e.g. if we are trying to auto-select the tapering sector
+            then we would not want any match conversion done on a converter that was set to taper.
+
+    Returns:
+        The bitstring representing the mapped state of the Hartree-Fock state as array of bools.
+    """
+
+    # get the bitstring encoding the Hartree Fock state
+    bitstr = hartree_fock_bitstring(num_spin_orbitals, num_particles)
+
+    # encode the bitstring as a `FermionicOp`
+    label = ["+" if bit else "I" for bit in bitstr]
+    bitstr_op = FermionicOp("".join(label), display_format="sparse")
+
+    # map the `FermionicOp` to a qubit operator
+    qubit_op: PauliSumOp = (
+        qubit_converter.convert_match(bitstr_op, check_commutes=False)
+        if match_convert
+        else qubit_converter.convert_only(bitstr_op, num_particles)
+    )
+
+    # We check the mapped operator `x` part of the paulis because we want to have particles
+    # i.e. True, where the initial state introduced a creation (`+`) operator.
+    bits = []
+    for bit in qubit_op.primitive.paulis.x[0]:
+        bits.append(bit)
+
+    return bits
 
 
 def hartree_fock_bitstring(num_spin_orbitals: int, num_particles: Tuple[int, int]) -> List[bool]:

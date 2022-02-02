@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -35,8 +35,6 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 from qiskit_nature.transformers.second_quantization.electronic import ActiveSpaceTransformer
 
 
-# With Python 3.6 this false positive is being raised for the ElectronicStructureDriverResult
-# pylint: disable=abstract-class-instantiated
 @ddt
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""
@@ -319,6 +317,88 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver_result_reduced = trafo.transform(driver_result)
 
         self.assertDriverResult(driver_result_reduced, driver_result)
+
+    def test_tuple_num_electrons_with_manual_orbitals(self):
+        """Regression test against https://github.com/Qiskit/qiskit-nature/issues/434."""
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path(
+                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+            )
+        )
+        driver_result = driver.run()
+
+        trafo = ActiveSpaceTransformer(
+            num_electrons=(1, 1),
+            num_molecular_orbitals=2,
+            active_orbitals=[0, 1],
+        )
+        driver_result_reduced = trafo.transform(driver_result)
+
+        expected = ElectronicStructureDriverResult()
+        expected.add_property(
+            ElectronicEnergy(
+                [
+                    OneBodyElectronicIntegrals(
+                        ElectronicBasis.MO,
+                        (np.asarray([[-1.24943841, 0.0], [0.0, -0.547816138]]), None),
+                    ),
+                    TwoBodyElectronicIntegrals(
+                        ElectronicBasis.MO,
+                        (
+                            np.asarray(
+                                [
+                                    [
+                                        [[0.652098466, 0.0], [0.0, 0.433536565]],
+                                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
+                                    ],
+                                    [
+                                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
+                                        [[0.433536565, 0.0], [0.0, 0.385524695]],
+                                    ],
+                                ]
+                            ),
+                            None,
+                            None,
+                            None,
+                        ),
+                    ),
+                ],
+                energy_shift={"ActiveSpaceTransformer": 0.0},
+            )
+        )
+        expected.add_property(
+            ElectronicDipoleMoment(
+                [
+                    DipoleMoment(
+                        "x",
+                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                        shift={"ActiveSpaceTransformer": 0.0},
+                    ),
+                    DipoleMoment(
+                        "y",
+                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                        shift={"ActiveSpaceTransformer": 0.0},
+                    ),
+                    DipoleMoment(
+                        "z",
+                        [
+                            OneBodyElectronicIntegrals(
+                                ElectronicBasis.MO,
+                                (
+                                    np.asarray(
+                                        [[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]
+                                    ),
+                                    None,
+                                ),
+                            )
+                        ],
+                        shift={"ActiveSpaceTransformer": 0.0},
+                    ),
+                ]
+            )
+        )
+
+        self.assertDriverResult(driver_result_reduced, expected)
 
 
 if __name__ == "__main__":

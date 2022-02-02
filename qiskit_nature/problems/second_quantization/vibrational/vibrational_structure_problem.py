@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -28,7 +28,6 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 )
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
-from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
@@ -43,7 +42,7 @@ class VibrationalStructureProblem(BaseProblem):
         bosonic_driver: VibrationalStructureDriver,
         num_modals: Union[int, List[int]],
         truncation_order: int,
-        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
+        transformers: Optional[List[BaseTransformer]] = None,
     ):
         """
         Args:
@@ -55,37 +54,23 @@ class VibrationalStructureProblem(BaseProblem):
         super().__init__(bosonic_driver, transformers)
         self.num_modals = num_modals
         self.truncation_order = truncation_order
+        self._main_property_name = "VibrationalEnergy"
 
-    def second_q_ops(self) -> List[SecondQuantizedOp]:
-        """Returns a list of `SecondQuantizedOp` created based on a driver and transformations
-        provided.
+    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+        """Returns the second quantized operators created based on the driver and transformations.
+
+        If the arguments are returned as a `list`, the operators are in the following order: the
+        Vibrational Hamiltonian operator, occupied modal operators for each mode.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
         Returns:
-            A list of `SecondQuantizedOp` in the following order: Vibrational Hamiltonian operator,
-            occupied modal operators for each mode.
+            A `list` or `dict` of `SecondQuantizedOp` objects.
         """
         driver_result = self.driver.run()
 
-        if self._legacy_driver:
-            self._molecule_data = cast(WatsonHamiltonian, driver_result)
-            self._grouped_property = VibrationalStructureDriverResult.from_legacy_driver_result(
-                self._molecule_data
-            )
-
-            if self._legacy_transform:
-                self._molecule_data_transformed = self._transform(self._molecule_data)
-                self._grouped_property_transformed = (
-                    VibrationalStructureDriverResult.from_legacy_driver_result(
-                        self._molecule_data_transformed
-                    )
-                )
-
-            else:
-                self._grouped_property_transformed = self._transform(self._grouped_property)
-
-        else:
-            self._grouped_property = driver_result
-            self._grouped_property_transformed = self._transform(self._grouped_property)
+        self._grouped_property = driver_result
+        self._grouped_property_transformed = self._transform(self._grouped_property)
 
         self._grouped_property_transformed = cast(
             VibrationalStructureDriverResult, self._grouped_property_transformed
@@ -101,9 +86,9 @@ class VibrationalStructureProblem(BaseProblem):
         basis = HarmonicBasis(num_modals)
         self._grouped_property_transformed.basis = basis
 
-        second_quantized_ops_list = self._grouped_property_transformed.second_q_ops()
+        second_quantized_ops = self._grouped_property_transformed.second_q_ops()
 
-        return second_quantized_ops_list
+        return second_quantized_ops
 
     def hopping_qeom_ops(
         self,
@@ -126,7 +111,7 @@ class VibrationalStructureProblem(BaseProblem):
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
                              Z2 symmetries stored in this instance are the basis for the
                              commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are:
+            excitations: the types of excitations to consider. The simple cases for this input are
 
                 :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
                 :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
@@ -194,7 +179,8 @@ class VibrationalStructureProblem(BaseProblem):
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
             for mode in range(self.grouped_property_transformed.num_modes):
-                if aux_values is None or not np.isclose(aux_values[mode][0], 1):
+                _key = str(mode) if isinstance(aux_values, dict) else mode
+                if aux_values is None or not np.isclose(aux_values[_key][0], 1):
                     return False
             return True
 

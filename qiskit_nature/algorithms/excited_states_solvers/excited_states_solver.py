@@ -13,10 +13,11 @@
 """ The excited states calculation interface """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from qiskit.opflow import PauliSumOp
 
+from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
@@ -29,7 +30,7 @@ class ExcitedStatesSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[List[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
     ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 

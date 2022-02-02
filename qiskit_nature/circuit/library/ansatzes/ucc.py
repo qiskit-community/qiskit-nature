@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -123,6 +123,8 @@ class UCC(EvolvedOperatorAnsatz):
         alpha_spin: bool = True,
         beta_spin: bool = True,
         max_spin_excitation: Optional[int] = None,
+        generalized: bool = False,
+        preserve_spin: bool = True,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
     ):
@@ -156,6 +158,11 @@ class UCC(EvolvedOperatorAnsatz):
                 this to 1 and `num_excitations` to 2 in order to obtain only mixed-spin double
                 excitations (alpha,beta) but no pure-spin double excitations (alpha,alpha or
                 beta,beta).
+            generalized: boolean flag whether or not to use generalized excitations, which ignore
+                the occupation of the spin orbitals. As such, the set of generalized excitations is
+                only determined from the number of spin orbitals and independent from the number of
+                particles.
+            preserve_spin: boolean flag whether or not to preserve the particle spins.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
@@ -166,6 +173,8 @@ class UCC(EvolvedOperatorAnsatz):
         self._alpha_spin = alpha_spin
         self._beta_spin = beta_spin
         self._max_spin_excitation = max_spin_excitation
+        self._generalized = generalized
+        self._preserve_spin = preserve_spin
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
@@ -246,7 +255,7 @@ class UCC(EvolvedOperatorAnsatz):
         return True
 
     def _build(self) -> None:
-        if self._data is not None:
+        if self._is_built:
             return
 
         self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]
@@ -285,6 +294,8 @@ class UCC(EvolvedOperatorAnsatz):
 
         excitations = self._get_excitation_list()
 
+        self._check_excitation_list(excitations)
+
         logger.debug("Converting excitations into SecondQuantizedOps...")
         excitation_ops = self._build_fermionic_excitation_ops(excitations)
 
@@ -314,6 +325,8 @@ class UCC(EvolvedOperatorAnsatz):
             "alpha_spin": self._alpha_spin,
             "beta_spin": self._beta_spin,
             "max_spin_excitation": self._max_spin_excitation,
+            "generalized": self._generalized,
+            "preserve_spin": self._preserve_spin,
         }
 
         if isinstance(self.excitations, str):
@@ -342,6 +355,46 @@ class UCC(EvolvedOperatorAnsatz):
             raise QiskitNatureError(f"Invalid excitation configuration: {self.excitations}")
 
         return generators
+
+    def _check_excitation_list(self, excitations: Sequence) -> None:
+        """Checks the format of the given excitation operators.
+
+        The following conditions are checked:
+        - the list of excitations consists of pairs of tuples
+        - each pair of excitation indices has the same length
+        - the indices within each excitation pair are unique
+
+        Args:
+            excitations: the list of excitations
+
+        Raises:
+            QiskitNatureError: if format of excitations is invalid
+        """
+        logger.debug("Checking excitation list...")
+
+        error_message = "{error} in the following UCC excitation: {excitation}"
+
+        for excitation in excitations:
+            if len(excitation) != 2:
+                raise QiskitNatureError(
+                    error_message.format(error="Invalid number of tuples", excitation=excitation)
+                    + "; Two tuples are expected, e.g. ((0, 1, 4), (2, 3, 6))"
+                )
+
+            if len(excitation[0]) != len(excitation[1]):
+                raise QiskitNatureError(
+                    error_message.format(
+                        error="Different number of occupied and virtual indices",
+                        excitation=excitation,
+                    )
+                )
+
+            if any(i in excitation[0] for i in excitation[1]) or any(
+                len(set(indices)) != len(indices) for indices in excitation
+            ):
+                raise QiskitNatureError(
+                    error_message.format(error="Duplicated indices", excitation=excitation)
+                )
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the

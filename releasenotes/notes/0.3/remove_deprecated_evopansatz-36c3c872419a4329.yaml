@@ -1,0 +1,8 @@
+---
+
+upgrade:
+  - |
+    The `EvolvedOperatorAnsatz`, from the Nature circuit.library, which was migrated in
+    an earlier release to core Qiskit i.e. Terra, has now been removed. You should change
+    any code that still uses this over to the core Qiskit one, from `qiskit.circuit.library`,
+    as a direct replacement.

@@ -19,6 +19,7 @@ import itertools
 
 import numpy as np
 
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
@@ -102,8 +103,14 @@ class AngularMomentum(ElectronicProperty):
             qmol.num_molecular_orbitals * 2,
         )
 
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns a list containing the angular momentum operator."""
+    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+        """Returns the second quantized angular momentum operator.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
         y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
         z_h1, z_h2 = _calc_s_z_squared_ints(self._num_spin_orbitals)
@@ -112,9 +119,14 @@ class AngularMomentum(ElectronicProperty):
 
         h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
-        return [(h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()]
 
-    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
+        op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()
+
+        if not settings.dict_aux_operators:
+            return [op]
+
+        return {self.name: op}
+
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
@@ -127,13 +139,15 @@ class AngularMomentum(ElectronicProperty):
         if not isinstance(result.aux_operator_eigenvalues, list):
             aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues  # type: ignore
+            aux_operator_eigenvalues = result.aux_operator_eigenvalues
         for aux_op_eigenvalues in aux_operator_eigenvalues:
             if aux_op_eigenvalues is None:
                 continue
 
-            if aux_op_eigenvalues[1] is not None:
-                total_angular_momentum = aux_op_eigenvalues[1][0].real  # type: ignore
+            _key = self.name if isinstance(aux_op_eigenvalues, dict) else 1
+
+            if aux_op_eigenvalues[_key] is not None:
+                total_angular_momentum = aux_op_eigenvalues[_key][0].real
                 result.total_angular_momentum.append(total_angular_momentum)
 
                 if expected is not None:

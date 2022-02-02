@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 
 """Driver-independent Molecule definition."""
 
-from typing import Callable, Tuple, List, Optional
+from typing import Callable, Tuple, List, Optional, cast
 import copy
 
 import numpy as np
@@ -63,7 +63,8 @@ class Molecule:
         Molecule._check_consistency(geometry, masses)
 
         self._geometry = geometry
-        self._degrees_of_freedom = degrees_of_freedom
+        self._degrees_of_freedom = None
+        self.degrees_of_freedom = degrees_of_freedom
         self._multiplicity = multiplicity
         self._charge = charge
         self._masses = masses
@@ -118,7 +119,7 @@ class Molecule:
 
         starting_distance_vector = starting_coord1 - coord2
         starting_l2distance = np.linalg.norm(starting_distance_vector)
-        new_l2distance = function(starting_l2distance, parameter)
+        new_l2distance = function(cast(float, starting_l2distance), parameter)
         new_distance_vector = starting_distance_vector * (new_l2distance / starting_l2distance)
         new_coord1 = coord2 + new_distance_vector
 
@@ -343,11 +344,11 @@ class Molecule:
 
     def _get_perturbed_geom(self) -> List[Tuple[str, List[float]]]:
         """get perturbed geometry"""
-        if self.perturbations is None or self._degrees_of_freedom is None:
+        if self.perturbations is None or self.degrees_of_freedom is None:
             return self._geometry
 
         geometry = copy.deepcopy(self._geometry)
-        for per, dof in zip(self.perturbations, self._degrees_of_freedom):
+        for per, dof in zip(self.perturbations, self.degrees_of_freedom):
             geometry = dof(per, geometry)
         return geometry
 
@@ -412,3 +413,13 @@ class Molecule:
     def perturbations(self, value: Optional[List[float]]) -> None:
         """Set perturbations"""
         self._perturbations = value
+
+    @property
+    def degrees_of_freedom(self) -> Optional[List[Callable]]:
+        """Get the Molecule's degrees of freedom"""
+        return self._degrees_of_freedom
+
+    @degrees_of_freedom.setter
+    def degrees_of_freedom(self, value: Optional[List[Callable]]) -> None:
+        """Sets the Molecule's degrees of freedom"""
+        self._degrees_of_freedom = value

@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Optional
 
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
@@ -76,7 +77,7 @@ class IntegralProperty(ElectronicProperty):
         Args:
             integral: the ElectronicIntegrals to add.
         """
-        if integral._basis not in self._electronic_integrals.keys():
+        if integral._basis not in self._electronic_integrals:
             self._electronic_integrals[integral._basis] = {}
         self._electronic_integrals[integral._basis][integral._num_body_terms] = integral
 
@@ -129,14 +130,26 @@ class IntegralProperty(ElectronicProperty):
             f"The {self.__class__.__name__}.integral_operator is not implemented!"
         )
 
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns a list containing the Hamiltonian constructed by the stored electronic integrals."""
+    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+        """Returns the second quantized operator constructed from the contained electronic integrals.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
         ints = None
         if ElectronicBasis.SO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.SO]
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
-        return [sum(int.to_second_q_op() for int in ints.values()).reduce()]  # type: ignore
+
+        op = sum(int.to_second_q_op() for int in ints.values()).reduce()  # type: ignore[union-attr]
+
+        if not settings.dict_aux_operators:
+            return [op]
+
+        return {self.name: op}
 
     @classmethod
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":

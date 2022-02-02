@@ -335,7 +335,12 @@ class ActiveSpaceTransformer(BaseTransformer):
                 )
             if max(self._active_orbitals) >= particle_number._num_spin_orbitals // 2:
                 raise QiskitNatureError("More orbitals requested than available.")
-            if sum(self._mo_occ_total[self._active_orbitals]) != self._num_electrons:
+            expected_num_electrons = (
+                self._num_electrons
+                if isinstance(self._num_electrons, int)
+                else sum(self._num_electrons)
+            )
+            if sum(self._mo_occ_total[self._active_orbitals]) != expected_num_electrons:
                 raise QiskitNatureError(
                     "The number of electrons in the selected active orbitals "
                     "does not match the specified number of active electrons."
@@ -405,7 +410,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             transformed_property._shift[self.__class__.__name__] = e_inactive
 
         elif isinstance(prop, ParticleNumber):
-            p_n = cast(ParticleNumber, prop)
+            p_n = prop
             active_occ_alpha = p_n.occupation_alpha[self._active_orbs_indices]
             active_occ_beta = p_n.occupation_beta[self._active_orbs_indices]
             transformed_property = ParticleNumber(

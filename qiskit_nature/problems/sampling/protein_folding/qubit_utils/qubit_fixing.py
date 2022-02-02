@@ -50,8 +50,8 @@ def _fix_qubits(
         return PauliOp(Pauli((table_z, table_x)))
 
     for hamiltonian in operator:
-        table_z = np.copy(hamiltonian.primitive.table.Z[0])
-        table_x = np.copy(hamiltonian.primitive.table.X[0])
+        table_z = np.copy(hamiltonian.primitive.paulis.z[0])
+        table_x = np.copy(hamiltonian.primitive.paulis.x[0])
         coeffs = _calc_updated_coeffs(hamiltonian, table_z, has_side_chain_second_bead)
         _preset_binary_vals(table_z, has_side_chain_second_bead)
         new_table = np.concatenate((table_x, table_z), axis=0)

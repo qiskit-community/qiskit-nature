@@ -22,6 +22,7 @@ from qiskit.quantum_info.operators.symplectic import Pauli
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring,
+    hartree_fock_bitstring_mapped,
 )
 from qiskit_nature.mappers.second_quantization import (
     BravyiKitaevMapper,
@@ -96,6 +97,58 @@ class TestHartreeFock(QiskitNatureTestCase):
         ref = QuantumCircuit(6)
         ref.x([0, 1])
         self.assertEqual(state, ref)
+
+    def test_hf_bitstring_mapped(self):
+        """Mapped bitstring test for water"""
+        # Original driver config when creating operator that resulted in symmetries coded
+        # below. The sector [1, -1] is the correct ground sector.
+        # PySCFDriver(
+        #    atom="O 0.0000 0.0000 0.1173; H 0.0000 0.07572 -0.4692;H 0.0000 -0.07572 -0.4692",
+        #    unit=UnitsType.ANGSTROM,
+        #    charge=0,
+        #    spin=0,
+        #    basis='sto-3g',
+        #    hf_method=HFMethodType.RHF)
+        num_spin_orbitals = 14
+        num_particles = (5, 5)
+        converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
+        z2symmetries = Z2Symmetries(
+            symmetries=[Pauli("IZZIIIIZZIII"), Pauli("ZZIZIIZZIZII")],
+            sq_paulis=[Pauli("IIIIIIIIXIII"), Pauli("IIIIIIIIIXII")],
+            sq_list=[3, 2],
+            tapering_values=[1, -1],
+        )
+        with self.subTest("Matched bitsring creation"):
+            converter.force_match(num_particles=num_particles, z2symmetries=z2symmetries)
+            bitstr = hartree_fock_bitstring_mapped(
+                num_spin_orbitals=num_spin_orbitals,
+                num_particles=num_particles,
+                qubit_converter=converter,
+            )
+            ref_matched = [True, False, True, True, False, True, False, True, False, False]
+            self.assertListEqual(bitstr, ref_matched)
+        with self.subTest("Bitsring creation with no tapering"):
+            bitstr = hartree_fock_bitstring_mapped(
+                num_spin_orbitals=num_spin_orbitals,
+                num_particles=num_particles,
+                qubit_converter=converter,
+                match_convert=False,
+            )
+            ref_notaper = [
+                True,
+                False,
+                True,
+                False,
+                True,
+                True,
+                False,
+                True,
+                False,
+                True,
+                False,
+                False,
+            ]
+            self.assertListEqual(bitstr, ref_notaper)
 
 
 if __name__ == "__main__":

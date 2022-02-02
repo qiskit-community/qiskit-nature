@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,6 +14,8 @@
 
 from typing import List, Tuple, cast
 
+from qiskit_nature import ListOrDictType, settings
+from qiskit_nature.constants import BOHR
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -84,7 +86,8 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
         geometry: List[Tuple[str, List[float]]] = []
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
-            geometry.append((atom, xyz))
+            # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
+            geometry.append((atom, xyz * BOHR))
 
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
@@ -98,20 +101,32 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
         return ret
 
-    def second_q_ops(self) -> List[FermionicOp]:
-        """Returns the list of :class:`~qiskit_nature.operators.second_quantization.FermioncOp`s
-        given by the properties contained in this one."""
-        ops: List[FermionicOp] = []
-        # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
-        for cls in [
-            ElectronicEnergy,
-            ParticleNumber,
-            AngularMomentum,
-            Magnetization,
-            ElectronicDipoleMoment,
-        ]:
-            prop = self.get_property(cls)  # type: ignore
-            if prop is None:
-                continue
-            ops.extend(prop.second_q_ops())
+    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+        """Returns the second quantized operators associated with the properties in this group.
+
+        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Returns:
+            A `list` or `dict` of `FermionicOp` objects.
+        """
+        ops: ListOrDictType[FermionicOp]
+
+        if not settings.dict_aux_operators:
+            ops = []
+            for cls in [
+                ElectronicEnergy,
+                ParticleNumber,
+                AngularMomentum,
+                Magnetization,
+                ElectronicDipoleMoment,
+            ]:
+                prop = self.get_property(cls)  # type: ignore
+                if prop is None:
+                    continue
+                ops.extend(prop.second_q_ops())
+            return ops
+
+        ops = {}
+        for prop in iter(self):
+            ops.update(prop.second_q_ops())
         return ops
