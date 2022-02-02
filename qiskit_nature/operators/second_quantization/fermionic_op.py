@@ -355,6 +355,8 @@ class FermionicOp(SecondQuantizedOp):
                     for label, coeff in data
                 ]
             # sparse label
+                if register_length is None:
+                    register_length = max(len(label) for label, _ in data)
             else:
                 self._data = [
                     (
@@ -366,14 +368,16 @@ class FermionicOp(SecondQuantizedOp):
                     for label, coeff in data
                 ]
 
-            if register_length is not None:
+            if register_length is None:
+                self._register_length = (
+                    max(max((p.index for p in l), default=0) for l, _ in self._data) + 1
+                )
+            else:
                 self._register_length = register_length
 
     def _substituted_label(self, label):
-        max_index = 0
         new_label = []
         for c, index in label:
-            max_index = max(max_index, index)
             if c == "+":
                 new_label.append(_FermionLabelPrimitive(True, index))
             elif c == "-":
@@ -715,7 +719,7 @@ class FermionicOp(SecondQuantizedOp):
         Returns:
             The zero-operator of the given length.
         """
-        return FermionicOp(("I_0", 0.0), register_length=register_length, display_format="sparse")
+        return FermionicOp(("", 0.0), register_length=register_length, display_format="sparse")
 
     @classmethod
     def one(cls, register_length: int) -> FermionicOp:
@@ -727,4 +731,4 @@ class FermionicOp(SecondQuantizedOp):
         Returns:
             The unity-operator of the given length.
         """
-        return FermionicOp(("I_0", 1.0), register_length=register_length, display_format="sparse")
+        return FermionicOp(("", 1.0), register_length=register_length, display_format="sparse")

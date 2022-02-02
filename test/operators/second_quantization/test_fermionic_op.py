@@ -141,6 +141,11 @@ class TestFermionicOp(QiskitNatureTestCase):
         ]
         self.assertListEqual(actual.to_list(), desired)
 
+    def test_register_length(self):
+        """Test inference of register_length"""
+        op = FermionicOp([("+_1", 1.0), ("", 1.0)], display_format="dense")
+        self.assertEqual(op.register_length, 2)
+
     def test_neg(self):
         """Test __neg__"""
         fer_op = -FermionicOp("+N-EII", display_format="dense")
