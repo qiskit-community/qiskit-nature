@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 
 """The 2-body electronic integrals."""
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
@@ -60,29 +60,22 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         super().__init__(num_body_terms, basis, matrices, threshold)
         self._matrix_representations = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
 
-    def _fill_matrices(self) -> None:
-        """Fills the internal matrices where ``None`` placeholders were inserted.
+    def _get_matrix(self, index: int = 0) -> np.ndarray:
+        """TODO."""
+        if self._basis == ElectronicBasis.SO:
+            return cast(np.ndarray, self._matrices)
 
-        This method iterates the internal list of matrices and replaces any occurrences of ``None``
-        according to the following rules:
-            1. If the Alpha-Beta matrix (third index) is ``None`` and the Beta-Alpha matrix was not
-               ``None``, its transpose will be used.
-            2. If the Beta-Alpha matrix was ``None``, the Alpha-Alpha matrix is used as is.
-            3. Any other missing matrix gets replaced by the Alpha-Alpha matrix.
-        """
-        filled_matrices = []
-        alpha_beta_spin_idx = 3
-        for idx, mat in enumerate(self._matrices):
-            if mat is not None:
-                filled_matrices.append(mat)
-            elif idx == alpha_beta_spin_idx:
-                if self._matrices[1] is None:
-                    filled_matrices.append(self._matrices[0])
-                else:
-                    filled_matrices.append(self._matrices[1].T)
+        if index >= len(self._matrices):
+            raise IndexError("TODO")
+
+        mat = self._matrices[index]
+        if mat is None:
+            if index == 3:
+                mat = self._matrices[0] if self._matrices[1] is None else self._matrices[1].T
             else:
-                filled_matrices.append(self._matrices[0])
-        self._matrices = tuple(filled_matrices)
+                mat = self._matrices[0]
+
+        return mat
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
         # pylint: disable=line-too-long
@@ -113,6 +106,8 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         coeff_alpha = transform.coeff_alpha
         coeff_beta = transform.coeff_beta
 
+        alpha_equal_beta = transform.is_alpha_equal_beta()
+
         coeff_list = [
             (coeff_alpha, coeff_alpha, coeff_alpha, coeff_alpha),
             (coeff_beta, coeff_beta, coeff_alpha, coeff_alpha),
@@ -120,10 +115,12 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             (coeff_alpha, coeff_alpha, coeff_beta, coeff_beta),
         ]
         matrices: List[Optional[np.ndarray]] = []
-        for mat, coeffs in zip(self._matrices, coeff_list):
+        for idx, (mat, coeffs) in enumerate(zip(self._matrices, coeff_list)):
             if mat is None:
-                matrices.append(None)
-                continue
+                if alpha_equal_beta:
+                    matrices.append(None)
+                    continue
+                mat = self._get_matrix(idx)
             matrices.append(np.einsum(self.EINSUM_AO_TO_MO, mat, *coeffs))
 
         return TwoBodyElectronicIntegrals(transform.final_basis, tuple(matrices))
@@ -146,13 +143,9 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             (1, 1, 1, 1),  # beta-beta-spin
             (1, 0, 0, 1),  # alpha-beta-spin
         )
-        alpha_beta_spin_idx = 3
         for idx, (ao_mat, one_idx) in enumerate(zip(self._matrices, one_indices)):
             if ao_mat is None:
-                if idx == alpha_beta_spin_idx:
-                    ao_mat = self._matrices[0] if self._matrices[1] is None else self._matrices[1].T
-                else:
-                    ao_mat = self._matrices[0]
+                ao_mat = self._get_matrix(idx)
             phys_matrix = np.einsum(self.EINSUM_CHEM_TO_PHYS, ao_mat)
             kron = np.zeros((2, 2, 2, 2))
             kron[one_idx] = 1

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -254,9 +254,9 @@ class ElectronicEnergy(IntegralProperty):
         op = one_e_ints
 
         coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
-        # by reversing the order of the matrices we can construct the (beta, alpha)-ordered Coulomb
-        # integrals
-        coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])
+        coulomb_inv = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (coulomb._get_matrix(1), coulomb._get_matrix(0))
+        )
         exchange = two_e_ints.compose(density, "ijkl,jk->il")
         op += coulomb + coulomb_inv - exchange
 

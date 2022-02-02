@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -43,8 +43,22 @@ class ElectronicBasisTransform(PseudoProperty):
         super().__init__(self.__class__.__name__)
         self.initial_basis = initial_basis
         self.final_basis = final_basis
-        self.coeff_alpha = coeff_alpha
-        self.coeff_beta = coeff_alpha if coeff_beta is None else coeff_beta
+        self._coeff_alpha = coeff_alpha
+        self._coeff_beta = coeff_beta
+
+    @property
+    def coeff_alpha(self) -> np.ndarray:
+        """TODO."""
+        return self._coeff_alpha
+
+    @property
+    def coeff_beta(self) -> np.ndarray:
+        """TODO."""
+        return self._coeff_beta if self._coeff_beta is not None else self._coeff_alpha
+
+    def is_alpha_equal_beta(self) -> bool:
+        """TODO."""
+        return np.allclose(self.coeff_alpha, self.coeff_beta)
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
@@ -52,8 +66,9 @@ class ElectronicBasisTransform(PseudoProperty):
         string += [f"\tFinal basis: {self.final_basis.value}"]
         string += ["\tAlpha coefficients:"]
         string += self._render_coefficients(self.coeff_alpha)
-        string += ["\tBeta coefficients:"]
-        string += self._render_coefficients(self.coeff_beta)
+        if self._coeff_beta is not None:
+            string += ["\tBeta coefficients:"]
+            string += self._render_coefficients(self.coeff_beta)
         return "\n".join(string)
 
     @staticmethod

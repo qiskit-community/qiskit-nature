@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -71,9 +71,9 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[1], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[2], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[3], 16 * mat_aa))
+            self.assertIsNone(ints_mo._matrices[1])
+            self.assertIsNone(ints_mo._matrices[2])
+            self.assertIsNone(ints_mo._matrices[3])
 
         with self.subTest("Alpha and Beta"):
             ints_ao = TwoBodyElectronicIntegrals(
