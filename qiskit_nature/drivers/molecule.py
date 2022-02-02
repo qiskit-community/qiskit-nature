@@ -20,7 +20,6 @@ import copy
 import numpy as np
 import scipy.linalg
 
-from qiskit_nature.constants import BOHR
 from .units_type import UnitsType
 
 
@@ -89,40 +88,6 @@ class Molecule:
             for mass, (atom, _) in zip(self._masses, self._geometry):
                 string += [f"\t\t{atom}\t{mass}"]
         return "\n".join(string)
-
-    @staticmethod
-    def convert_units(molecule: Molecule, unit: UnitsType) -> Molecule:
-        """Converts a molecule to be in target unit type.
-
-        Args:
-            molecule: the molecule to be converted.
-            unit: the target unit for the molecule's geometry.
-
-        Returns:
-            A Molecule with its geometry stored in the target units.
-        """
-        if molecule.units == unit:
-            return molecule
-
-        factor: float
-        if unit == UnitsType.ANGSTROM and molecule.units == UnitsType.BOHR:
-            factor = BOHR
-        elif unit == UnitsType.BOHR and molecule.units == UnitsType.ANGSTROM:
-            factor = 1.0 / BOHR
-
-        new_geom: List[Tuple[str, List[float]]] = []
-        for atom, xyz in molecule.geometry:
-            ang_xyz = [e * factor for e in xyz]
-            new_geom.append((atom, ang_xyz))
-
-        return Molecule(
-            new_geom,
-            multiplicity=molecule.multiplicity,
-            charge=molecule.charge,
-            unit=unit,
-            degrees_of_freedom=molecule.degrees_of_freedom,
-            masses=molecule.masses,
-        )
 
     @staticmethod
     def _check_consistency(geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]):

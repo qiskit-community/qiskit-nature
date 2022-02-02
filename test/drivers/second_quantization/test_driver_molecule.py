@@ -70,17 +70,6 @@ class TestMolecule(QiskitNatureTestCase):
                     masses=[1, 1, 1],
                 )
 
-    def test_unit_conversion(self):
-        """Test Unit conversion"""
-        mol = Molecule(
-            geometry=[("H", [10.0, 2.0, 0.0]), ("H", [0.0, 20.0, 1.0])], unit=UnitsType.BOHR
-        )
-        self.assertEqual(mol.units, UnitsType.BOHR)
-        mol = Molecule.convert_units(mol, UnitsType.ANGSTROM)
-        self.assertEqual(mol.units, UnitsType.ANGSTROM)
-        self.assertEqual(mol.geometry[0][1], [5.2917721092, 1.05835442184, 0.0])
-        self.assertEqual(mol.geometry[1][1], [0.0, 10.5835442184, 0.52917721092])
-
     def test_charge(self):
         """test charge"""
         mol = Molecule(geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])])
