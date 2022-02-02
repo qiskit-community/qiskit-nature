@@ -44,7 +44,11 @@ logger = logging.getLogger(__name__)
 
 
 class AdaptVQE(GroundStateEigensolver):
-    """A ground state calculation employing the AdaptVQE algorithm. The performance of AdaptVQE can significantly depend on the choice of gradient method, QFI solver(if applicable) and the epsilon value."""
+    """A ground state calculation employing the AdaptVQE algorithm.
+
+    The performance of AdaptVQE can significantly depend on the choice of gradient method, QFI
+    solver (if applicable) and the epsilon value.
+    """
 
     @deprecate_arguments(
         "0.4.0",
