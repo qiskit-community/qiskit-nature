@@ -130,9 +130,7 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
     return sparse_pauli
 
 
-def _add_sparse_pauli(  # pylint: disable=missing-return-doc
-    qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp
-) -> SparsePauliOp:
+def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> SparsePauliOp:
     """Return `qubit_op1` + `qubit_op2`, except when either one is `None`.
 
     In the latter case, return the one that is not `None`. In other words, assume
@@ -141,6 +139,8 @@ def _add_sparse_pauli(  # pylint: disable=missing-return-doc
     Args:
       qubit_op1: The first operand
       qubit_op2: The second operand
+    Returns:
+        sparse pauli op
     """
     if qubit_op1 is None:
         return qubit_op2
@@ -510,7 +510,6 @@ def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
 
 
 def _edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
-    # pylint: disable=missing-return-doc
     """Return the edge operator A_ij.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -520,6 +519,8 @@ def _edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
                                     and each pair denotes (from, to)
         i: specifying the edge operator A
         j: specifying the edge operator A
+    Returns:
+        sparse pauli op
     """
     v = np.zeros(edge_list.shape[1])
     w = np.zeros(edge_list.shape[1])
@@ -549,7 +550,6 @@ def _edge_operator_aij(edge_list: np.ndarray, i: int, j: int) -> SparsePauliOp:
 
 
 def _edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
-    # pylint: disable=missing-return-doc
     """Return the edge operator B_i.
 
     The definitions used here are consistent with arXiv:quant-ph/0003137
@@ -558,6 +558,8 @@ def _edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
         edge_list: a 2xE matrix, where E is total number of edges
                                     and each pair denotes (from, to)
         i: index for specifying the edge operator B.
+    Returns:
+        sparse pauli op
     """
     qubit_position_matrix = np.asarray(np.where(edge_list == i))
     qubit_position = qubit_position_matrix[1]

@@ -215,7 +215,7 @@ class CHC(BlueprintCircuit):
                     i = occ[0]
                     r = unocc[0]
                     j = occ[1]
-                    s = unocc[1]  # pylint: disable=locally-disabled, invalid-name
+                    s = unocc[1]  # pylint: disable=invalid-name
 
                     self.sdg(q[r])
 
