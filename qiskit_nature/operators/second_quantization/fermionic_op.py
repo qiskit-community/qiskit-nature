@@ -371,10 +371,7 @@ class FermionicOp(SecondQuantizedOp):
             f"register length={self.register_length}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
-            [
-                f"{coeff} * ( {label_tuple} )" if label_tuple else f"{coeff}"
-                for label_tuple, coeff in self.to_list()
-            ]
+            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.to_list()]
         )
         if FermionicOp._truncate and len(ret) > FermionicOp._truncate:
             ret = ret[0 : FermionicOp._truncate - 4] + " ..."
