@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -314,11 +314,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
         try:
             # pylint: disable=import-outside-toplevel
-            # pylint: disable=unused-import
             from qiskit import Aer
 
             backend = Aer.get_backend("aer_simulator")
-        except ImportError as ex:  # pylint: disable=broad-except
+        except ImportError as ex:
             self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 
@@ -406,7 +405,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             from qiskit import Aer
 
             backend = Aer.get_backend("aer_simulator_statevector")
-        except ImportError as ex:  # pylint: disable=broad-except
+        except ImportError as ex:
             self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 
@@ -432,7 +431,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             from qiskit import Aer
 
             backend = Aer.get_backend("aer_simulator")
-        except ImportError as ex:  # pylint: disable=broad-except
+        except ImportError as ex:
             self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 
@@ -463,7 +462,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             from qiskit import Aer
 
             backend = Aer.get_backend("aer_simulator")
-        except ImportError as ex:  # pylint: disable=broad-except
+        except ImportError as ex:
             self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
             return
 

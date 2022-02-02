@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -108,7 +108,6 @@ class DistanceMapBuilder:
         return _fix_qubits(distance)
 
     def _calc_distances_main_chain(self, peptide: Peptide) -> None:
-        # pylint:disable=anomalous-backslash-in-string
         r"""
         Calculates distance between beads based on the number of turns in
         the main chain. Note, here we consider distances between beads
