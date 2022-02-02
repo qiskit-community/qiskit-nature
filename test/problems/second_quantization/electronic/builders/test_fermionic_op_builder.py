@@ -32,12 +32,13 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
 
     def test_build_fermionic_op_from_ints_both(self):
         """Tests that the correct FermionicOp is built from 1- and 2-body integrals."""
-        expected_num_of_terms_ferm_op = 184
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_two_ints",
             "problems/second_quantization/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
+        expected_num_of_terms_ferm_op = len(expected_fermionic_op)
+
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
                 "H2_631g.hdf5", "transformers/second_quantization/electronic"
@@ -58,12 +59,12 @@ class TestFermionicOpBuilder(QiskitNatureTestCase):
 
     def test_build_fermionic_op_from_ints_one(self):
         """Tests that the correct FermionicOp is built from 1-body integrals."""
-        expected_num_of_terms_ferm_op = 16
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_one_int",
             "problems/second_quantization/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
+        expected_num_of_terms_ferm_op = len(expected_fermionic_op)
 
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
