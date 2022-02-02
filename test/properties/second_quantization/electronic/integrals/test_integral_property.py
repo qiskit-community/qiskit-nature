@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,6 +12,7 @@
 
 """Test IntegralProperty"""
 
+import json
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -83,26 +84,15 @@ class TestIntegralProperty(QiskitNatureTestCase):
     def test_second_q_ops(self):
         """Test second_q_ops."""
         second_q_ops = self.prop.second_q_ops()
-        expected = [
-            ("+_0 -_1 +_2 -_3", (1 + 0j)),
-            ("+_0 -_1 -_2 +_3", (-1 + 0j)),
-            ("+_0 -_1 +_3 -_3", (1 + 0j)),
-            ("+_0 -_1 +_2 -_2", (1 + 0j)),
-            ("-_0 +_1 +_2 -_3", (-1 + 0j)),
-            ("-_0 +_1 -_2 +_3", (1 + 0j)),
-            ("-_0 +_1 +_3 -_3", (-1 + 0j)),
-            ("-_0 +_1 +_2 -_2", (-1 + 0j)),
-            ("+_3 -_3", (1 + 0j)),
-            ("+_2 -_2", (1 + 0j)),
-            ("+_1 -_1 +_2 -_3", (1 + 0j)),
-            ("+_1 -_1 -_2 +_3", (-1 + 0j)),
-            ("+_1 -_1", (1 + 0j)),
-            ("+_1 -_1 +_3 -_3", (1 + 0j)),
-            ("+_1 -_1 +_2 -_2", (1 + 0j)),
-            ("+_0 -_0 +_2 -_3", (1 + 0j)),
-            ("+_0 -_0 -_2 +_3", (-1 + 0j)),
-            ("+_0 -_0", (1 + 0j)),
-            ("+_0 -_0 +_3 -_3", (1 + 0j)),
-            ("+_0 -_0 +_2 -_2", (1 + 0j)),
-        ]
-        self.assertEqual(second_q_ops[0].to_list(), expected)
+        with open(
+            self.get_resource_path(
+                "integral_property_op.json",
+                "properties/second_quantization/electronic/integrals/resources",
+            ),
+            "r",
+            encoding="utf8",
+        ) as file:
+            expected = json.load(file)
+        for op, expected_op in zip(second_q_ops[0].to_list(), expected):
+            self.assertEqual(op[0], expected_op[0])
+            self.assertTrue(np.isclose(op[1], expected_op[1]))

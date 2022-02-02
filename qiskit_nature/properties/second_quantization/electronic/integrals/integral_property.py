@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -144,7 +144,7 @@ class IntegralProperty(ElectronicProperty):
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
 
-        op = sum(int.to_second_q_op() for int in ints.values()).reduce()  # type: ignore[union-attr]
+        op = sum(int.to_second_q_op() for int in ints.values())
 
         if not settings.dict_aux_operators:
             return [op]
