@@ -49,7 +49,7 @@ class OccupiedModals(VibrationalProperty):
         # pylint: disable=unused-argument
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
-        See also :class:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
 
         Args:
             h5py_group: the HDF5 group from which to load the data.

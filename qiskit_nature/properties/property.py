@@ -77,7 +77,7 @@ class Property(ABC):
     def to_hdf5(self, parent: h5py.Group) -> None:
         """Stores this instance in an HDF5 group inside of the provided parent group.
 
-        See also :class:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
 
         Args:
             parent: the parent HDF5 group.
