@@ -88,13 +88,38 @@ class ElectronicIntegrals(ABC):
                 for mat in matrices
             )
 
-    def _get_matrix(self, index: int = 0) -> np.ndarray:
-        """TODO."""
+    def get_matrix(self, index: int = 0) -> np.ndarray:
+        """Returns the integral matrix at the requested index.
+
+        When the integrals are in the :class:`ElectronicBasis.SO` basis the index has no effect
+        because only a single matrix exists.
+        In any other case, the index may not exceed the length of the internal matrices being
+        stored. This length depends on the number of body terms for the specific implementation of
+        this base class.
+
+        Finally, when the internal matrix encountered at the requested index is `None`, it will be
+        replaced by the matrix at index 0, which for most common purposes is the default fallback
+        (pure alpha-spin) integral matrix used in place of other mixed spin matrices.
+        If a subclass must follow another convention it should overwrite the implementation of this
+        method.
+
+        Args:
+            index: the index of the integral matrix to get.
+
+        Returns:
+            The requested integral matrix.
+
+        Raises:
+            IndexError: when the requested index exceeds the number of internal matrices.
+        """
         if isinstance(self._matrices, np.ndarray):
             return self._matrices
 
         if index >= len(self._matrices):
-            raise IndexError("TODO")
+            raise IndexError(
+                f"The requested index {index} exceeds the number of internal matrices "
+                f"{len(self._matrices)}."
+            )
 
         mat = self._matrices[index]
         if mat is None:
@@ -281,9 +306,9 @@ class ElectronicIntegrals(ABC):
                     ret_matrices.append(None)
                     continue
                 if mat_a is None:
-                    mat_a = self._get_matrix(idx)
+                    mat_a = self.get_matrix(idx)
                 if mat_b is None:
-                    mat_b = other._get_matrix(idx)
+                    mat_b = other.get_matrix(idx)
                 ret_matrices.append(mat_a + mat_b)
             ret._matrices = tuple(ret_matrices)
         return ret

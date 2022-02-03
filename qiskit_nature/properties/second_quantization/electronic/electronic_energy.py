@@ -255,7 +255,7 @@ class ElectronicEnergy(IntegralProperty):
 
         coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
         coulomb_inv = OneBodyElectronicIntegrals(
-            ElectronicBasis.AO, (coulomb._get_matrix(1), coulomb._get_matrix(0))
+            ElectronicBasis.AO, (coulomb.get_matrix(1), coulomb.get_matrix(0))
         )
         exchange = two_e_ints.compose(density, "ijkl,jk->il")
         op += coulomb + coulomb_inv - exchange

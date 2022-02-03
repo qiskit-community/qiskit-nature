@@ -48,16 +48,16 @@ class ElectronicBasisTransform(PseudoProperty):
 
     @property
     def coeff_alpha(self) -> np.ndarray:
-        """TODO."""
+        """Returns the alpha-spin coefficient matrix."""
         return self._coeff_alpha
 
     @property
     def coeff_beta(self) -> np.ndarray:
-        """TODO."""
+        """Returns the beta-spin coefficient matrix."""
         return self._coeff_beta if self._coeff_beta is not None else self._coeff_alpha
 
     def is_alpha_equal_beta(self) -> bool:
-        """TODO."""
+        """Returns whether the alpha- and beta-spin coefficient matrices are close."""
         return np.allclose(self.coeff_alpha, self.coeff_beta)
 
     def __str__(self) -> str:

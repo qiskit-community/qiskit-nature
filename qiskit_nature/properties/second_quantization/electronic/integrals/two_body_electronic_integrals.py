@@ -60,13 +60,35 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         super().__init__(num_body_terms, basis, matrices, threshold)
         self._matrix_representations = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
 
-    def _get_matrix(self, index: int = 0) -> np.ndarray:
-        """TODO."""
+    def get_matrix(self, index: int = 0) -> np.ndarray:
+        # pylint: disable=line-too-long
+        """Returns the integral matrix at the requested index.
+
+        When an internal matrix is `None` this method falls back to the alpha-alpha-spin matrix,
+        unless the requested index is 3 (the alpha-beta-spin) matrix and the matrix at index 1 (the
+        beta-alpha-spin matrix) is not `None`, in which case the transpose of the latter matrix will
+        be returned.
+
+        For more details see also
+        :class:`~qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals.ElectronicIntegrals.get_matrix`
+
+        Args:
+            index: the index of the integral matrix to get.
+
+        Returns:
+            The requested integral matrix.
+
+        Raises:
+            IndexError: when the requested index exceeds the number of internal matrices.
+        """
         if self._basis == ElectronicBasis.SO:
             return cast(np.ndarray, self._matrices)
 
         if index >= len(self._matrices):
-            raise IndexError("TODO")
+            raise IndexError(
+                f"The requested index {index} exceeds the number of internal matrices "
+                f"{len(self._matrices)}."
+            )
 
         mat = self._matrices[index]
         if mat is None:
@@ -120,7 +142,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 if alpha_equal_beta:
                     matrices.append(None)
                     continue
-                mat = self._get_matrix(idx)
+                mat = self.get_matrix(idx)
             matrices.append(np.einsum(self.EINSUM_AO_TO_MO, mat, *coeffs))
 
         return TwoBodyElectronicIntegrals(transform.final_basis, tuple(matrices))
@@ -145,7 +167,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         )
         for idx, (ao_mat, one_idx) in enumerate(zip(self._matrices, one_indices)):
             if ao_mat is None:
-                ao_mat = self._get_matrix(idx)
+                ao_mat = self.get_matrix(idx)
             phys_matrix = np.einsum(self.EINSUM_CHEM_TO_PHYS, ao_mat)
             kron = np.zeros((2, 2, 2, 2))
             kron[one_idx] = 1
