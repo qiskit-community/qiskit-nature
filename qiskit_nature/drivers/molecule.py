@@ -41,7 +41,7 @@ class Molecule:
         geometry: List[Tuple[str, List[float]]],
         multiplicity: int = 1,
         charge: int = 0,
-        unit: UnitsType = UnitsType.ANGSTROM,
+        units: UnitsType = UnitsType.ANGSTROM,
         degrees_of_freedom: Optional[List[Callable]] = None,
         masses: Optional[List[float]] = None,
     ) -> None:
@@ -49,9 +49,10 @@ class Molecule:
         Args:
             geometry: A list of atoms defining a given molecule where each item in the list
                 is an atom name together with a list of 3 floats representing the x,y and z
-                Cartesian coordinates of the atom's position in units of **Angstrom**.
+                Cartesian coordinates of the atom's position.
             multiplicity: Multiplicity (2S+1) of the molecule
             charge: Charge on the molecule
+            units: the `UnitsType` of the geometry.
             degrees_of_freedom: List of functions taking a
                 perturbation value and geometry and returns a perturbed
                 geometry. Helper functions for typical perturbations are
@@ -66,7 +67,7 @@ class Molecule:
         Molecule._check_consistency(geometry, masses)
 
         self._geometry = geometry
-        self._unit = unit
+        self._units = units
         self._degrees_of_freedom = None
         self.degrees_of_freedom = degrees_of_freedom
         self._multiplicity = multiplicity
@@ -360,7 +361,7 @@ class Molecule:
     @property
     def units(self):
         """The geometry coordinate units"""
-        return self._unit
+        return self._units
 
     @property
     def atoms(self) -> List[str]:
