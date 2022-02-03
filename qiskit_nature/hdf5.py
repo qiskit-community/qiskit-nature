@@ -35,7 +35,7 @@ class HDF5Storable(Protocol):
     """A Protocol implemented by those classes which support conversion methods for HDF5."""
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """Stores this instance in a HDF5 group inside of the provided parent group.
+        """Stores this instance in an HDF5 group inside of the provided parent group.
 
         Qiskit Nature uses the convention of storing the `__module__` and `__class__` information as
         attributes of an HDF5 group. Furthermore, a `__version__` should be stored in order to allow
@@ -55,6 +55,16 @@ class HDF5Storable(Protocol):
     @staticmethod
     def from_hdf5(h5py_group: h5py.Group) -> Any:
         """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        This method is expected to handle backwards compatibility. This means that even if the
+        classes `VERSION` value has been incremented, this method should be able to construct an
+        instance from an older `__version__` encountered in the provided HDF5 group.
+        In scenarios where full backwards compatibility is impossible due to (for example) an entire
+        restructuring of the class, the user should be informed appropriately.
+
+        Furthermore, if this method encounters a `__version__` number greater than the classes
+        `VERSION` (i.e. an HDF5 group generated from a newer Qiskit Nature) it should _not_ attempt
+        to construct the class and instead inform the user appropriately.
 
         Args:
             h5py_group: the HDF5 group from which to load the data.

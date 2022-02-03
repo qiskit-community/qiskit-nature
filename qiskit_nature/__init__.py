@@ -39,6 +39,7 @@ Submodules
    circuit
    converters
    drivers
+   hdf5
    mappers
    operators
    problems

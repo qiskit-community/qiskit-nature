@@ -61,7 +61,9 @@ class ElectronicBasisTransform(Property):
         return "\n".join(string)
 
     def to_hdf5(self, parent: h5py.Group) -> None:
-        """Stores this instance in a HDF5 group inside of the provided parent group.
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :class:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
 
         Args:
             parent: the parent HDF5 group.
@@ -78,6 +80,8 @@ class ElectronicBasisTransform(Property):
     @staticmethod
     def from_hdf5(h5py_group: h5py.Group) -> ElectronicBasisTransform:
         """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :class:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
 
         Args:
             h5py_group: the HDF5 group from which to load the data.
