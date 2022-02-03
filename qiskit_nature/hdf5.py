@@ -12,19 +12,23 @@
 
 """Qiskit Nature HDF5 Integration."""
 
+from __future__ import annotations
+
 import importlib
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Generator
+from typing import Generator
 
 import h5py
 
+from qiskit_nature.exceptions import QiskitNatureError
+
 if sys.version_info >= (3, 8):
     # pylint: disable=no-name-in-module
-    from typing import runtime_checkable, Protocol
+    from typing import Protocol, runtime_checkable
 else:
-    from typing_extensions import runtime_checkable, Protocol
+    from typing_extensions import Protocol, runtime_checkable
 
 
 LOGGER = logging.getLogger(__name__)
@@ -53,7 +57,7 @@ class HDF5Storable(Protocol):
         ...
 
     @staticmethod
-    def from_hdf5(h5py_group: h5py.Group) -> Any:
+    def from_hdf5(h5py_group: h5py.Group) -> HDF5Storable:
         """Constructs a new instance from the data stored in the provided HDF5 group.
 
         This method is expected to handle backwards compatibility. This means that even if the
@@ -101,7 +105,7 @@ def save_to_hdf5(obj: HDF5Storable, filename: str, replace: bool = False) -> Non
 
     Raises:
         FileExistsError: if the file at the given path already exists and forcefully overwriting is
-        not enabled.
+            not enabled.
     """
     if not isinstance(obj, HDF5Storable):
         LOGGER.error("%s is not an instance of %s", obj, HDF5Storable)
@@ -117,7 +121,9 @@ def save_to_hdf5(obj: HDF5Storable, filename: str, replace: bool = False) -> Non
         obj.to_hdf5(file)
 
 
-def load_from_hdf5(filename: str) -> Generator[Any, None, None]:
+def load_from_hdf5(
+    filename: str, skip_unreadable_data: bool = False
+) -> Generator[HDF5Storable, None, None]:
     """Loads Qiskit Nature objects from an HDF5 file.
 
     .. code-block:: python
@@ -126,15 +132,28 @@ def load_from_hdf5(filename: str) -> Generator[Any, None, None]:
 
     Args:
         filename: the path to the HDF5 file.
+        skip_unreadable_data: if set to True, unreadable data (which can be any of the errors
+                documented below) will be skipped instead of raising those errors.
 
     Yields:
         The objects constructed from the HDF5 groups encountered in the h5py_group.
+
+    Raises:
+        QiskitNatureError: if an object without a `__class__` attribute is encountered.
+        QiskitNatureError: if a non-native object (`__module__` outside of `qiskit_nature`) is
+            encountered.
+        QiskitNatureError: if an import failure occurs because `__class__` cannot be found inside of
+            `__module__`
+        QiskitNatureError: if `__class__` does not implement the
+            :class:`~qiskit_nature.hdf5.HDF5Storable` protocol
     """
     with h5py.File(filename, "r") as file:
-        yield from _import_and_build_from_hdf5(file)
+        yield from _import_and_build_from_hdf5(file, skip_unreadable_data)
 
 
-def _import_and_build_from_hdf5(h5py_group: h5py.Group) -> Generator[Any, None, None]:
+def _import_and_build_from_hdf5(
+    h5py_group: h5py.Group, skip_unreadable_data: bool = False
+) -> Generator[HDF5Storable, None, None]:
     """Imports and builds a Qiskit Nature object from an HDF5 group.
 
     Qiskit Nature uses the convention of storing the `__module__` and `__class__` information as
@@ -143,43 +162,59 @@ def _import_and_build_from_hdf5(h5py_group: h5py.Group) -> Generator[Any, None, 
 
     Args:
         h5py_group: the HDF5 group from which to import and build Qiskit Nature objects.
+        skip_unreadable_data: if set to True, unreadable data (which can be any of the errors
+                documented below) will be skipped instead of raising those errors.
 
     Yields:
         The objects constructed from the HDF5 groups encountered in the h5py_group.
+
+    Raises:
+        QiskitNatureError: if an object without a `__class__` attribute is encountered.
+        QiskitNatureError: if a non-native object (`__module__` outside of `qiskit_nature`) is
+            encountered.
+        QiskitNatureError: if an import failure occurs because `__class__` cannot be found inside of
+            `__module__`
+        QiskitNatureError: if `__class__` does not implement the
+            :class:`~qiskit_nature.hdf5.HDF5Storable` protocol
     """
     for group in h5py_group.values():
         module_path = group.attrs.get("__module__", "")
         if not module_path:
+            # due to how HDF5 groups are being iterated we cannot raise an error here
             continue
 
         class_name = group.attrs.get("__class__", "")
 
         if not class_name:
-            LOGGER.warning("Skipping faulty object without a '__class__' attribute.")
-            continue
+            msg = "faulty object without a '__class__' attribute"
+            if skip_unreadable_data:
+                LOGGER.warning("Skipping %s", msg)
+                continue
+            raise QiskitNatureError("Encountered " + msg)
 
         if not module_path.startswith("qiskit_nature"):
-            LOGGER.warning("Skipping non-native object.")
-            continue
+            msg = "non-native object"
+            if skip_unreadable_data:
+                LOGGER.warning("Skipping %s", msg)
+                continue
+            raise QiskitNatureError("Encountered " + msg)
 
         loaded_module = importlib.import_module(module_path)
         loaded_class = getattr(loaded_module, class_name, None)
 
         if loaded_class is None:
-            LOGGER.warning(
-                "Skipping object after failed import attempt of %s from %s",
-                class_name,
-                module_path,
-            )
-            continue
+            msg = f"import failure of {class_name} from {module_path}"
+            if skip_unreadable_data:
+                LOGGER.warning("Skipping after %s", msg)
+                continue
+            raise QiskitNatureError("Encountered " + msg)
 
         if not issubclass(loaded_class, HDF5Storable):
-            LOGGER.warning(
-                "Skipping object because the loaded class %s is not a subclass of %s",
-                loaded_class,
-                HDF5Storable,
-            )
-            continue
+            msg = f"object of type {loaded_class} which is not an HDF5Storable"
+            if skip_unreadable_data:
+                LOGGER.warning("Skipping %s", msg)
+                continue
+            raise QiskitNatureError("Encountered " + msg)
 
         constructor = getattr(loaded_class, "from_hdf5")
         instance = constructor(group)
