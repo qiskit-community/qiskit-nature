@@ -64,11 +64,12 @@ class HDF5Storable(Protocol):
         classes `VERSION` value has been incremented, this method should be able to construct an
         instance from an older `__version__` encountered in the provided HDF5 group.
         In scenarios where full backwards compatibility is impossible due to (for example) an entire
-        restructuring of the class, the user should be informed appropriately.
+        restructuring of the class, the function should raise a
+        :class:`~qiskit_nature.QiskitNatureError`.
 
         Furthermore, if this method encounters a `__version__` number greater than the classes
         `VERSION` (i.e. an HDF5 group generated from a newer Qiskit Nature) it should _not_ attempt
-        to construct the class and instead inform the user appropriately.
+        to construct the class and instead raise a :class:`~qiskit_nature.QiskitNatureError`.
 
         Args:
             h5py_group: the HDF5 group from which to load the data.
