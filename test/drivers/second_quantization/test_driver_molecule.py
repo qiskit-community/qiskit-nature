@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 from functools import partial
 import numpy as np
 
-from qiskit_nature.drivers import Molecule
+from qiskit_nature.drivers import Molecule, UnitsType
 
 
 class TestMolecule(QiskitNatureTestCase):
@@ -34,6 +34,7 @@ class TestMolecule(QiskitNatureTestCase):
                 degrees_of_freedom=[stretch],
                 masses=[1, 1],
             )
+            self.assertEqual(mol.units, UnitsType.ANGSTROM)
             self.assertListEqual(mol.geometry, [("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])])
             self.assertEqual(mol.multiplicity, 1)
             self.assertEqual(mol.charge, 0)
@@ -45,6 +46,7 @@ class TestMolecule(QiskitNatureTestCase):
                 geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])],
                 degrees_of_freedom=[stretch],
             )
+            self.assertEqual(mol.units, UnitsType.ANGSTROM)
             self.assertIsNone(mol.masses)
 
         with self.subTest("All params"):
@@ -55,6 +57,7 @@ class TestMolecule(QiskitNatureTestCase):
                 degrees_of_freedom=[stretch],
                 masses=[0.7, 0.8],
             )
+            self.assertEqual(mol.units, UnitsType.ANGSTROM)
             self.assertEqual(mol.multiplicity, 2)
             self.assertEqual(mol.charge, 1)
             self.assertIsNone(mol.perturbations)
@@ -66,6 +69,22 @@ class TestMolecule(QiskitNatureTestCase):
                     geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])],
                     masses=[1, 1, 1],
                 )
+
+        with self.subTest("Explicit Angstrom units"):
+            mol = Molecule(
+                geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])],
+                units=UnitsType.ANGSTROM,
+            )
+            self.assertEqual(mol.units, UnitsType.ANGSTROM)
+            self.assertListEqual(mol.geometry, [("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])])
+
+        with self.subTest("Bohr units"):
+            mol = Molecule(
+                geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])],
+                units=UnitsType.BOHR,
+            )
+            self.assertEqual(mol.units, UnitsType.BOHR)
+            self.assertListEqual(mol.geometry, [("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 1.0])])
 
     def test_charge(self):
         """test charge"""
