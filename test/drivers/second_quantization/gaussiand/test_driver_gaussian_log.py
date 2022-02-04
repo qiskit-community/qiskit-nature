@@ -35,7 +35,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
             [
                 "#p B3LYP/6-31g Freq=(Anharm) Int=Ultrafine SCF=VeryTight",
                 "",
-                "CO2 geometry optimization B3LYP/cc-pVTZ",
+                "CO2 geometry optimization B3LYP/6-31g",
                 "",
                 "0 1",
                 "C  -0.848629  2.067624  0.160992",
