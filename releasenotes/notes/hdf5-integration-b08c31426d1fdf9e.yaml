@@ -1,0 +1,25 @@
+---
+features:
+  - |
+    Adds a new HDF5-integration to support storing and loading of (mostly)
+    Property objects using HDF5 files. A similar feature existed in the legacy
+    QMolecule object but the new implementation is handled more general to
+    enable leveraging this integration throughout more parts of the stack in the
+    future.
+
+    To store a driver result of the new drivers in a file you can do:
+
+    .. code-block:: python
+
+        from qiskit_nature.hdf5 import save_to_hdf5
+
+        my_driver_result = driver.run()
+        save_to_hdf5(my_driver_result, "my_driver_result.hdf5")
+
+    and to load it again you would do:
+
+    .. code-block:: python
+
+        from qiskit_nature.hdf5 import load_from_hdf5
+
+        my_driver_result = load_from_hdf5("my_driver_result.hdf5")
