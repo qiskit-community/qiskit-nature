@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -95,6 +95,10 @@ class VibrationalStructureProblem(BaseProblem):
         self._grouped_property_transformed = cast(
             VibrationalStructureDriverResult, self._grouped_property_transformed
         )
+
+        for prop in self._grouped_property_transformed:
+            if hasattr(prop, "truncation_order"):
+                prop.truncation_order = self.truncation_order
 
         num_modes = self._grouped_property_transformed.num_modes
         if isinstance(self.num_modals, int):
