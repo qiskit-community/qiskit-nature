@@ -16,7 +16,9 @@ This module implements the abstract base class for vibrational structure driver 
 
 from abc import abstractmethod
 
-from qiskit_nature.properties.second_quantization.vibrational import VibrationalStructureDriverResult
+from qiskit_nature.properties.second_quantization.vibrational import (
+    VibrationalStructureDriverResult,
+)
 from .base_driver import BaseDriver
 
 
