@@ -16,20 +16,12 @@ import warnings
 from test import QiskitNatureTestCase
 
 import numpy as np
-from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
-from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
 
-from .resources.expected_ops import (
-    _num_modals_2_q_op,
-    _num_modals_3_q_op,
-    _truncation_order_1_op,
-    _truncation_order_2_op,
-)
+from .resources.expected_ops import _truncation_order_1_op, _truncation_order_2_op
 
 
 class TestVibrationalStructureProblem(QiskitNatureTestCase):
@@ -46,21 +38,10 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
             if not np.isclose(f_coeff, s_coeff):
                 raise self.failureException(msg)
 
-    def compare_pauli_sum_op(self, first: PauliSumOp, second: PauliSumOp, msg: str = None) -> None:
-        """Compares two PauliSumOp instances."""
-        for (f_lbl, f_coeff), (s_lbl, s_coeff) in zip(
-            first.primitive.to_list(), second.primitive.to_list()
-        ):
-            if f_lbl != s_lbl:
-                raise self.failureException(msg)
-            if not np.isclose(f_coeff, s_coeff):
-                raise self.failureException(msg)
-
     def setUp(self) -> None:
         """Setup."""
         super().setUp()
         self.addTypeEqualityFunc(VibrationalOp, self.compare_vibrational_op)
-        self.addTypeEqualityFunc(PauliSumOp, self.compare_pauli_sum_op)
 
         logfile = self.get_resource_path(
             "test_driver_gaussian_log_C01.txt",
@@ -111,32 +92,3 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         with self.subTest("Check types in the list of second quantized operators."):
             assert isinstance(vibrational_op, VibrationalOp)
             self.assertEqual(vibrational_op, _truncation_order_1_op)
-
-    def test_tutorial(self):
-        """Test the operators generated in the vibrational structure tutorial."""
-        qubit_converter = QubitConverter(DirectMapper())
-        truncation_order = 2
-
-        with self.subTest("num_modals=2"):
-            num_modals = 2
-            num_modes = self.props.num_modes
-            num_modals = [num_modals] * num_modes
-            vibrational_problem = VibrationalStructureProblem(
-                self.driver, num_modals, truncation_order
-            )
-            second_quantized_ops = vibrational_problem.second_q_ops()
-            vibrational_op = second_quantized_ops[0]
-            qubit_op = qubit_converter.convert(vibrational_op)
-            self.assertEqual(qubit_op, _num_modals_2_q_op)
-
-        with self.subTest("num_modals=3"):
-            num_modals = 3
-            num_modes = self.props.num_modes
-            num_modals = [num_modals] * num_modes
-            vibrational_problem = VibrationalStructureProblem(
-                self.driver, num_modals, truncation_order
-            )
-            second_quantized_ops = vibrational_problem.second_q_ops()
-            vibrational_op = second_quantized_ops[0]
-            qubit_op = qubit_converter.convert(vibrational_op)
-            self.assertEqual(qubit_op, _num_modals_3_q_op)
