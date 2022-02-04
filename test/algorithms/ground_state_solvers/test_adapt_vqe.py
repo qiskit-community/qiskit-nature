@@ -18,7 +18,7 @@ import unittest
 
 from typing import cast
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 
 import numpy as np
 
@@ -42,12 +42,13 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+import qiskit_nature.optionals as _optionals
 
 
 class TestAdaptVQE(QiskitNatureTestCase):
     """Test Adaptive VQE Ground State Calculation"""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
 

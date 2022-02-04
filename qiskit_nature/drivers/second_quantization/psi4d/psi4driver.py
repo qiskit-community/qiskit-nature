@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,12 +19,11 @@ import sys
 import tempfile
 import warnings
 from pathlib import Path
-from shutil import which
 from typing import Union, List, Optional, Any, Dict
 
-from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+import qiskit_nature.optionals as _optionals
 
 from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
@@ -34,11 +33,8 @@ from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
-PSI4 = "psi4"
 
-PSI4_APP = which(PSI4)
-
-
+@_optionals.HAS_PSI4.require_in_instance
 class PSI4Driver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the PSI4 program.
@@ -61,7 +57,6 @@ class PSI4Driver(ElectronicStructureDriver):
             QiskitNatureError: Invalid Input
         """
         super().__init__()
-        PSI4Driver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError(f"Invalid config for PSI4 Driver '{config}'")
 
@@ -71,6 +66,7 @@ class PSI4Driver(ElectronicStructureDriver):
         self._config = config
 
     @staticmethod
+    @_optionals.HAS_PSI4.require_in_call("PSI4Driver from_molecule")
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",
@@ -91,7 +87,6 @@ class PSI4Driver(ElectronicStructureDriver):
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
-        PSI4Driver.check_installed()
         PSI4Driver.check_method_supported(method)
         basis = PSI4Driver.to_driver_basis(basis)
 
@@ -123,17 +118,6 @@ class PSI4Driver(ElectronicStructureDriver):
         if basis == "sto3g":
             return "sto-3g"
         return basis
-
-    @staticmethod
-    def check_installed() -> None:
-        """
-        Checks if PSI4 is installed and available
-
-        Raises:
-            MissingOptionalLibraryError: if not installed.
-        """
-        if PSI4_APP is None:
-            raise MissingOptionalLibraryError(libname="PSI4", name="PSI4Driver")
 
     @staticmethod
     def check_method_supported(method: MethodType) -> None:
@@ -228,7 +212,7 @@ class PSI4Driver(ElectronicStructureDriver):
         process = None
         try:
             with subprocess.Popen(
-                [PSI4, input_file, output_file],
+                [_optionals.PSI4, input_file, output_file],
                 stdout=subprocess.PIPE,
                 universal_newlines=True,
             ) as process:
@@ -238,7 +222,7 @@ class PSI4Driver(ElectronicStructureDriver):
             if process is not None:
                 process.kill()
 
-            raise QiskitNatureError(f"{PSI4} run has failed") from ex
+            raise QiskitNatureError(f"{_optionals.PSI4} run has failed") from ex
 
         if process.returncode != 0:
             errmsg = ""
@@ -247,4 +231,6 @@ class PSI4Driver(ElectronicStructureDriver):
                 for i, _ in enumerate(lines):
                     logger.error(lines[i])
                     errmsg += lines[i] + "\n"
-            raise QiskitNatureError(f"{PSI4} process return code {process.returncode}\n{errmsg}")
+            raise QiskitNatureError(
+                f"{_optionals.PSI4} process return code {process.returncode}\n{errmsg}"
+            )

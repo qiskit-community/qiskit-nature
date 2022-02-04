@@ -12,7 +12,6 @@
 
 """The PySCF Driver."""
 
-import importlib
 import inspect
 import logging
 import os
@@ -23,7 +22,6 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 
 import numpy as np
 from qiskit.utils.validation import validate_min
-from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicStructureDriverResult,
@@ -42,6 +40,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+import qiskit_nature.optionals as _optionals
 
 from ....exceptions import QiskitNatureError
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
@@ -50,7 +49,8 @@ from ...units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 
-try:
+if _optionals.HAS_PYSCF:
+    # pylint: disable=import-error
     from pyscf import __version__ as pyscf_version
     from pyscf import dft, gto, scf
     from pyscf.lib import chkfile as lib_chkfile
@@ -59,8 +59,6 @@ try:
     from pyscf.tools import dump_mat
 
     warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
-except ImportError:
-    logger.info("PySCF is not installed. See https://pyscf.org/install.html")
 
 
 class InitialGuess(Enum):
@@ -72,6 +70,7 @@ class InitialGuess(Enum):
     ATOM = "atom"
 
 
+@_optionals.HAS_PYSCF.require_in_instance
 class PySCFDriver(ElectronicStructureDriver):
     """A Second-Quantization driver for Qiskit Nature using the PySCF library.
 
@@ -144,7 +143,6 @@ class PySCFDriver(ElectronicStructureDriver):
         """
         super().__init__()
         # First, ensure that PySCF is actually installed
-        PySCFDriver.check_installed()
         PySCFDriver.check_method_supported(method)
 
         if isinstance(atom, list):
@@ -313,6 +311,7 @@ class PySCFDriver(ElectronicStructureDriver):
         self._chkfile = chkfile
 
     @staticmethod
+    @_optionals.HAS_PYSCF.require_in_call("PySCFDriver from_molecule")
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",
@@ -328,11 +327,10 @@ class PySCFDriver(ElectronicStructureDriver):
         Returns:
             driver
         """
-        PySCFDriver.check_installed()
         PySCFDriver.check_method_supported(method)
         kwargs = {}
         if driver_kwargs:
-            args = inspect.getfullargspec(PySCFDriver.__init__).args
+            args = inspect.signature(PySCFDriver.__init__).parameters.keys()
             for key, value in driver_kwargs.items():
                 if key not in ["self"] and key in args:
                     kwargs[key] = value
@@ -355,33 +353,6 @@ class PySCFDriver(ElectronicStructureDriver):
             driver acceptable basis
         """
         return basis
-
-    @staticmethod
-    def check_installed() -> None:
-        """Checks that PySCF is actually installed.
-
-        Raises:
-            MissingOptionalLibraryError: If PySCF is not installed.
-        """
-        try:
-            spec = importlib.util.find_spec("pyscf")
-            if spec is not None:
-                return
-        except Exception as ex:
-            logger.debug("PySCF check error %s", str(ex))
-            raise MissingOptionalLibraryError(
-                libname="PySCF",
-                name="PySCFDriver",
-                pip_install="pip install 'qiskit-nature[pyscf]'",
-                msg="See https://pyscf.org/install.html",
-            ) from ex
-
-        raise MissingOptionalLibraryError(
-            libname="PySCF",
-            name="PySCFDriver",
-            pip_install="pip install 'qiskit-nature[pyscf]'",
-            msg="See https://pyscf.org/install.html",
-        )
 
     @staticmethod
     def check_method_supported(method: MethodType) -> None:

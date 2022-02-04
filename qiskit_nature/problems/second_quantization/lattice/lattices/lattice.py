@@ -22,10 +22,9 @@ import numpy as np
 from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
 from retworkx.visualization import mpl_draw
 
-from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit.tools.visualization import HAS_MATPLOTLIB
+from qiskit.utils import optionals as _optionals
 
-if HAS_MATPLOTLIB:
+if _optionals.HAS_MATPLOTLIB:
     # pylint: disable=unused-import
     from matplotlib.axes import Axes
     from matplotlib.colors import Colormap
@@ -203,6 +202,7 @@ class Lattice:
         return ad_mat
 
     @staticmethod
+    @_optionals.HAS_MATPLOTLIB.require_in_call("Lattice _mpl")
     def _mpl(graph: PyGraph, self_loop: bool, **kwargs):
         """
         Auxiliary function for drawing the lattice using matplotlib.
@@ -215,10 +215,6 @@ class Lattice:
         Raises:
             MissingOptionalLibraryError: Requires matplotlib.
         """
-        if not HAS_MATPLOTLIB:
-            raise MissingOptionalLibraryError(
-                libname="Matplotlib", name="_mpl", pip_install="pip install matplotlib"
-            )
         from matplotlib import pyplot as plt
 
         if not self_loop:

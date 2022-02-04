@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,19 +16,19 @@ from typing import cast
 
 import unittest
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 from qiskit_nature.drivers.second_quantization import PSI4Driver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverPSI4Extra(QiskitNatureTestCase):
     """PSI4 Driver extra tests for driver specifics, errors etc"""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PSI4, "psi4 not available.")
     def setUp(self):
         super().setUp()
-        PSI4Driver.check_installed()
 
     def test_input_format_list(self):
         """input as a list"""

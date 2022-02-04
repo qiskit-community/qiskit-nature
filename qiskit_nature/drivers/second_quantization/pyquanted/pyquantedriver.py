@@ -12,7 +12,6 @@
 
 """ PyQuante Driver """
 
-import importlib
 import inspect
 import logging
 import re
@@ -21,7 +20,6 @@ from typing import Union, List, Optional, Any, Dict, Tuple
 
 import numpy as np
 
-from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
@@ -43,6 +41,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+import qiskit_nature.optionals as _optionals
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
@@ -51,13 +50,12 @@ from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
-try:
+if _optionals.HAS_PYQUANTE2:
+    # pylint: disable=import-error
     from pyquante2 import molecule as pyquante_molecule
     from pyquante2 import rhf, uhf, rohf, basisset, onee_integrals
     from pyquante2.geo.zmatrix import z2xyz
     from pyquante2.ints.integrals import twoe_integrals
-except ImportError:
-    logger.info("PyQuante2 is not installed. See https://github.com/rpmuller/pyquante2")
 
 
 class BasisType(Enum):
@@ -84,6 +82,7 @@ class BasisType(Enum):
         raise QiskitNatureError(f"Invalid Basis type basis {basis}.")
 
 
+@_optionals.HAS_PYQUANTE2.require_in_instance
 class PyQuanteDriver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the PyQuante2 library.
@@ -121,7 +120,6 @@ class PyQuanteDriver(ElectronicStructureDriver):
         """
         super().__init__()
         validate_min("maxiters", maxiters, 1)
-        PyQuanteDriver.check_installed()
         PyQuanteDriver.check_method_supported(method)
         if not isinstance(atoms, str) and not isinstance(atoms, list):
             raise QiskitNatureError(f"Invalid atom input for PYQUANTE Driver '{atoms}'")
@@ -228,6 +226,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         self._maxiters = maxiters
 
     @staticmethod
+    @_optionals.HAS_PYQUANTE2.require_in_call("PyQuanteDriver from_molecule")
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",
@@ -243,11 +242,10 @@ class PyQuanteDriver(ElectronicStructureDriver):
         Returns:
             driver
         """
-        PyQuanteDriver.check_installed()
         PyQuanteDriver.check_method_supported(method)
         kwargs = {}
         if driver_kwargs:
-            args = inspect.getfullargspec(PyQuanteDriver.__init__).args
+            args = inspect.signature(PyQuanteDriver.__init__).parameters.keys()
             for key, value in driver_kwargs.items():
                 if key not in ["self"] and key in args:
                     kwargs[key] = value
@@ -272,32 +270,6 @@ class PyQuanteDriver(ElectronicStructureDriver):
             driver acceptable basis
         """
         return BasisType.type_from_string(basis)
-
-    @staticmethod
-    def check_installed() -> None:
-        """
-        Checks if PyQuante is installed and available
-
-        Raises:
-            MissingOptionalLibraryError: if not installed.
-        """
-        try:
-            spec = importlib.util.find_spec("pyquante2")
-            if spec is not None:
-                return
-        except Exception as ex:
-            logger.debug("PyQuante2 check error %s", str(ex))
-            raise MissingOptionalLibraryError(
-                libname="PyQuante2",
-                name="PyQuanteDriver",
-                msg="See https://github.com/rpmuller/pyquante2",
-            ) from ex
-
-        raise MissingOptionalLibraryError(
-            libname="PyQuante2",
-            name="PyQuanteDriver",
-            msg="See https://github.com/rpmuller/pyquante2",
-        )
 
     @staticmethod
     def check_method_supported(method: MethodType) -> None:

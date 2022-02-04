@@ -18,13 +18,14 @@ the issue then ensure changes are made to readme too.
 
 import unittest
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
+import qiskit_nature.optionals as _optionals
 
 
 class TestReadmeSample(QiskitNatureTestCase):
     """Test sample code from readme"""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         # pylint: disable=import-outside-toplevel
