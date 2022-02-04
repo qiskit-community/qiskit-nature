@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Ensures the `VibrationalStructureProblem.truncation_order` gets propagated
+    correctly down to the properties before the `SecondQuantizedOp`s are
+    constructed.
