@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,9 +20,7 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit_nature.properties.second_quantization.vibrational.types import (
-    GroupedVibrationalProperty,
-)
+from qiskit_nature.properties.second_quantization.vibrational import VibrationalStructureDriverResult
 from .vibrational_structure_driver import VibrationalStructureDriver
 from ..molecule import Molecule
 
@@ -145,7 +143,7 @@ class VibrationalStructureMoleculeDriver(VibrationalStructureDriver):
         """set driver kwargs"""
         self._driver_kwargs = value
 
-    def run(self) -> GroupedVibrationalProperty:
+    def run(self) -> VibrationalStructureDriverResult:
         driver_class = VibrationalStructureDriverType.driver_class_from_type(self.driver_type)
         driver = driver_class.from_molecule(  # type: ignore
             self.molecule, self.basis, self.driver_kwargs
