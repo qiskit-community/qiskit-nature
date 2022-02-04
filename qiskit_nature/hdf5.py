@@ -80,7 +80,7 @@ class HDF5Storable(Protocol):
         ...
 
 
-def save_to_hdf5(obj: HDF5Storable, filename: str, replace: bool = False) -> None:
+def save_to_hdf5(obj: HDF5Storable, filename: str, *, replace: bool = False) -> None:
     """A utility to method to store an object to an HDF5 file.
 
     Below is an example of how you can store the result produced by any driver in an HDF5 file:
@@ -123,7 +123,7 @@ def save_to_hdf5(obj: HDF5Storable, filename: str, replace: bool = False) -> Non
 
 
 def load_from_hdf5(
-    filename: str, skip_unreadable_data: bool = False
+    filename: str, *, skip_unreadable_data: bool = False
 ) -> Generator[HDF5Storable, None, None]:
     """Loads Qiskit Nature objects from an HDF5 file.
 
@@ -149,11 +149,11 @@ def load_from_hdf5(
             :class:`~qiskit_nature.hdf5.HDF5Storable` protocol
     """
     with h5py.File(filename, "r") as file:
-        yield from _import_and_build_from_hdf5(file, skip_unreadable_data)
+        yield from _import_and_build_from_hdf5(file, skip_unreadable_data=skip_unreadable_data)
 
 
 def _import_and_build_from_hdf5(
-    h5py_group: h5py.Group, skip_unreadable_data: bool = False
+    h5py_group: h5py.Group, *, skip_unreadable_data: bool = False
 ) -> Generator[HDF5Storable, None, None]:
     """Imports and builds a Qiskit Nature object from an HDF5 group.
 
