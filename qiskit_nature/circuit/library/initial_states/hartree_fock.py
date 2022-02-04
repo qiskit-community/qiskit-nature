@@ -42,7 +42,8 @@ class HartreeFock(QuantumCircuit):
             qubit_converter: a QubitConverter instance.
 
         Raises:
-            TypeError: If qubit_converter contains BravyiKitaevSuperFastMapper.
+            TypeError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
+                https://github.com/Qiskit/qiskit-nature/issues/537 for more information.
         """
         if isinstance(qubit_converter.mapper, BravyiKitaevSuperFastMapper):
             raise TypeError(
