@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,6 +23,7 @@ from typing import Union, List, Optional, Any, Dict
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.constants import PERIODIC_TABLE
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 from ...qmolecule import QMolecule
@@ -310,7 +311,7 @@ class GaussianDriver(ElectronicStructureDriver):
         syms = mel.ian
         xyz = np.reshape(mel.c, (_q_.num_atoms, 3))
         for n_i in range(0, _q_.num_atoms):
-            _q_.atom_symbol.append(QMolecule.symbols[syms[n_i]])
+            _q_.atom_symbol.append(PERIODIC_TABLE[syms[n_i]])
             for idx in range(xyz.shape[1]):
                 coord = xyz[n_i][idx]
                 if abs(coord) < 1e-10:

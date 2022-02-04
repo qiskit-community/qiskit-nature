@@ -477,7 +477,7 @@ class PySCFDriver(ElectronicStructureDriver):
 
         # An xyz format has 4 parts in each atom, if not then do zmatrix convert
         # Allows dummy atoms, using symbol 'X' in zmatrix format for coord computation to xyz
-        parts = [x.strip() for x in atoms[0].split(" ")]
+        parts = [x.strip() for x in atoms[0].split()]
         if len(parts) != 4:
             try:
                 newval = []
