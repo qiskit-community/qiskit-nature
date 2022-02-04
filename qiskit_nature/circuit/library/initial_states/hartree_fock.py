@@ -48,7 +48,7 @@ class HartreeFock(QuantumCircuit):
             raise TypeError(
                 "Unsupported mapper in qubit_converter: ",
                 type(qubit_converter.mapper),
-                ". See https://github.com/Qiskit/qiskit-nature/issues/436",
+                ". See https://github.com/Qiskit/qiskit-nature/issues/537",
             )
         # Get the mapped/tapered hartree fock bitstring as we need it to match to whatever
         # conversion was done by the given qubit converter
