@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -26,7 +26,6 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(".."))
 sys.path.append(os.path.abspath("."))
 
 """
