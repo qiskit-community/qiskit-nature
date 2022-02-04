@@ -19,6 +19,7 @@ the issue then ensure changes are made to readme too.
 import unittest
 
 from test import QiskitNatureTestCase
+from qiskit.utils import optionals
 import qiskit_nature.optionals as _optionals
 
 
@@ -26,22 +27,7 @@ class TestReadmeSample(QiskitNatureTestCase):
     """Test sample code from readme"""
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def setUp(self):
-        super().setUp()
-        # pylint: disable=import-outside-toplevel
-        from qiskit_nature.drivers.second_quantization import PySCFDriver
-
-        PySCFDriver(atom="Li .0 .0 .0; H .0 .0 1.6")
-
-        try:
-            # pylint: disable=import-outside-toplevel
-            from qiskit import Aer
-
-            _ = Aer.get_backend("aer_simulator_statevector")
-        except ImportError as ex:
-            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
-            return
-
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_readme_sample(self):
         """readme sample test"""
         # pylint: disable=import-outside-toplevel,redefined-builtin

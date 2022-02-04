@@ -19,9 +19,9 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit import Aer
+import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
-from qiskit.utils import algorithm_globals, QuantumInstance
+from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 
 from qiskit_nature.algorithms import GroundStateEigensolver, BOPESSampler
 from qiskit_nature.algorithms.pes_samplers import MorsePotential
@@ -119,11 +119,12 @@ class TestBOPES(QiskitNatureTestCase):
         np.testing.assert_array_almost_equal([pot.d_e, pot.m_shift], [0.2107, -1.1419], decimal=3)
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_vqe_bootstrap(self):
         """Test with VQE and bootstrapping."""
         qubit_converter = QubitConverter(JordanWignerMapper())
         quantum_instance = QuantumInstance(
-            backend=Aer.get_backend("aer_simulator_statevector"),
+            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
