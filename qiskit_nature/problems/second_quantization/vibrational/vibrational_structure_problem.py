@@ -96,6 +96,10 @@ class VibrationalStructureProblem(BaseProblem):
             VibrationalStructureDriverResult, self._grouped_property_transformed
         )
 
+        for prop in self._grouped_property_transformed:
+            if hasattr(prop, "truncation_order"):
+                prop.truncation_order = self.truncation_order
+
         num_modes = self._grouped_property_transformed.num_modes
         if isinstance(self.num_modals, int):
             num_modals = [self.num_modals] * num_modes
