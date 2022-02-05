@@ -14,20 +14,21 @@
 Additional optional constants.
 """
 
-from typing import Optional, Callable
-from shutil import which
-from qiskit.utils import LazyDependencyManager, LazyImportTester, LazySubprocessTester
+from typing import Optional, Callable, Iterable, Union
+import shutil
+from qiskit.utils import LazyImportTester, LazySubprocessTester
 
 
-class NatureLazyCommandTester(LazyDependencyManager):
-    """
-    A lazy checker that a command-line tool is available. This just checks if the command is
-    not empty.
+class NatureLazySubprocessTester(LazySubprocessTester):
+    """A lazy checker that a command-line tool is available.
+    First it checks with `shutil.which`.
+    Then it will run the command based on flag passed.
     """
 
     def __init__(
         self,
-        command: str,
+        command: Union[str, Iterable[str]],
+        run: Optional[bool] = True,
         *,
         name: Optional[str] = None,
         callback: Optional[Callable[[bool], None]] = None,
@@ -36,13 +37,20 @@ class NatureLazyCommandTester(LazyDependencyManager):
     ):
         """
         Args:
-            command: the string that make up the command.  For example,``"g16"``.
+            command: the strings that make up the command to be run.  For example,
+                ``["pdflatex", "-version"]``.
+            run: flag to indicate if the command should be run
+
+        Raises:
+            ValueError: if an empty command is given.
         """
-        self._command = "" if command is None else command
-        super().__init__(name=name or self._command, callback=callback, install=install, msg=msg)
+        self._run = run
+        super().__init__(command=command, name=name, callback=callback, install=install, msg=msg)
 
     def _is_available(self):
-        return bool(self._command)
+        if shutil.which(self._command[0]) is None:
+            return False
+        return super()._is_available() if self._run else True
 
 
 HAS_PYQUANTE2 = LazyImportTester(
@@ -67,22 +75,17 @@ HAS_PYSCF = LazyImportTester(
 
 GAUSSIAN_16 = "g16"
 GAUSSIAN_16_DESC = "Gaussian 16"
-G16PROG = which(GAUSSIAN_16)
-
-HAS_GAUSSIAN = NatureLazyCommandTester(
-    G16PROG,
-    name=GAUSSIAN_16_DESC,
+HAS_GAUSSIAN = NatureLazySubprocessTester(
+    GAUSSIAN_16,
+    False,
+    name=GAUSSIAN_16,
     msg="Please check that it is installed correctly",
 )
 
 PSI4 = "psi4"
 PSI4_DESC = "PSI4"
-PSI4PROG = which(PSI4)
-if PSI4PROG is None:
-    PSI4PROG = PSI4
-
-HAS_PSI4 = LazySubprocessTester(
-    (PSI4PROG, "--version"),
+HAS_PSI4 = NatureLazySubprocessTester(
+    (PSI4, "--version"),
     name=PSI4_DESC,
     msg="See https://psicode.org",
 )
