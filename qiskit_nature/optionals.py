@@ -25,8 +25,6 @@ class NatureLazyCommandTester(LazyDependencyManager):
     not empty.
     """
 
-    __slots__ = ("_command",)
-
     def __init__(
         self,
         command: str,

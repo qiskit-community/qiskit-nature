@@ -78,7 +78,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
             _optionals.HAS_GAUSSIAN.require_now("GaussianForcesDriver __init__")
 
     @staticmethod
-    @_optionals.HAS_GAUSSIAN.require_in_call("GaussianForcesDriver from_molecule")
+    @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto-3g",

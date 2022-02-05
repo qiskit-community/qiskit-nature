@@ -66,7 +66,7 @@ class PSI4Driver(ElectronicStructureDriver):
         self._config = config
 
     @staticmethod
-    @_optionals.HAS_PSI4.require_in_call("PSI4Driver from_molecule")
+    @_optionals.HAS_PSI4.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",

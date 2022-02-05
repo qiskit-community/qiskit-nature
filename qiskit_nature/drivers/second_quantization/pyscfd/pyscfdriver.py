@@ -49,16 +49,7 @@ from ...units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 
-if _optionals.HAS_PYSCF:
-    # pylint: disable=import-error
-    from pyscf import __version__ as pyscf_version
-    from pyscf import dft, gto, scf
-    from pyscf.lib import chkfile as lib_chkfile
-    from pyscf.lib import logger as pylogger
-    from pyscf.lib import param
-    from pyscf.tools import dump_mat
-
-    warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
 
 
 class InitialGuess(Enum):
@@ -142,7 +133,10 @@ class PySCFDriver(ElectronicStructureDriver):
         .. _7: https://pyscf.org/pyscf_api_docs/pyscf.lib.html#module-pyscf.lib.chkfile
         """
         super().__init__()
-        # First, ensure that PySCF is actually installed
+        # pylint: disable=import-error
+        from pyscf import gto, scf
+
+        # First, ensure that PySCF supports the method
         PySCFDriver.check_method_supported(method)
 
         if isinstance(atom, list):
@@ -311,7 +305,7 @@ class PySCFDriver(ElectronicStructureDriver):
         self._chkfile = chkfile
 
     @staticmethod
-    @_optionals.HAS_PYSCF.require_in_call("PySCFDriver from_molecule")
+    @_optionals.HAS_PYSCF.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",
@@ -391,6 +385,10 @@ class PySCFDriver(ElectronicStructureDriver):
         # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
         #          or in Z-Matrix format e.g. "H; O 1 1.08; H 2 1.08 1 107.5"
         # other parameters are as per PySCF got.Mole format
+        # pylint: disable=import-error
+        from pyscf import gto
+        from pyscf.lib import logger as pylogger
+        from pyscf.lib import param
 
         atom = self._check_molecule_format(self.atom)
         if self._max_memory is None:
@@ -442,6 +440,9 @@ class PySCFDriver(ElectronicStructureDriver):
         Returns:
             The coordinates in XYZ format.
         """
+        # pylint: disable=import-error
+        from pyscf import gto
+
         atoms = [x.strip() for x in val.split(";")]
         if atoms is None or len(atoms) < 1:
             raise QiskitNatureError("Molecule format error: " + val)
@@ -470,6 +471,10 @@ class PySCFDriver(ElectronicStructureDriver):
         Raises:
             QiskitNatureError: If an invalid HF method type was supplied.
         """
+        # pylint: disable=import-error
+        from pyscf import dft, scf
+        from pyscf.lib import chkfile as lib_chkfile
+
         method_name = None
         method_cls = None
         try:
@@ -535,6 +540,9 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_metadata(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
+        # pylint: disable=import-error
+        from pyscf import __version__ as pyscf_version
+
         cfg = [
             f"atom={self._atom}",
             f"unit={self._unit.value}",
@@ -561,6 +569,9 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_basis_transform(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
+        # pylint: disable=import-error
+        from pyscf.tools import dump_mat
+
         mo_coeff, mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
 
         if logger.isEnabledFor(logging.DEBUG):
@@ -602,6 +613,9 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_electronic_energy(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
+        # pylint: disable=import-error
+        from pyscf import gto
+
         basis_transform = driver_result.get_property(ElectronicBasisTransform)
 
         one_body_ao = OneBodyElectronicIntegrals(

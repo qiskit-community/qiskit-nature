@@ -50,13 +50,6 @@ from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
-if _optionals.HAS_PYQUANTE2:
-    # pylint: disable=import-error
-    from pyquante2 import molecule as pyquante_molecule
-    from pyquante2 import rhf, uhf, rohf, basisset, onee_integrals
-    from pyquante2.geo.zmatrix import z2xyz
-    from pyquante2.ints.integrals import twoe_integrals
-
 
 class BasisType(Enum):
     """Basis Type"""
@@ -119,6 +112,10 @@ class PyQuanteDriver(ElectronicStructureDriver):
             QiskitNatureError: Invalid Input
         """
         super().__init__()
+        # pylint: disable=import-error
+        from pyquante2 import molecule as pyquante_molecule
+        from pyquante2 import rhf, uhf, rohf, basisset
+
         validate_min("maxiters", maxiters, 1)
         PyQuanteDriver.check_method_supported(method)
         if not isinstance(atoms, str) and not isinstance(atoms, list):
@@ -226,7 +223,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         self._maxiters = maxiters
 
     @staticmethod
-    @_optionals.HAS_PYQUANTE2.require_in_call("PyQuanteDriver from_molecule")
+    @_optionals.HAS_PYQUANTE2.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",
@@ -299,6 +296,9 @@ class PyQuanteDriver(ElectronicStructureDriver):
         return driver_result
 
     def _build_molecule(self) -> None:
+        # pylint: disable=import-error
+        from pyquante2 import molecule as pyquante_molecule
+
         atoms = self._check_molecule_format(self.atoms)
 
         parts = [x.strip() for x in atoms.split(";")]
@@ -319,6 +319,9 @@ class PyQuanteDriver(ElectronicStructureDriver):
     @staticmethod
     def _check_molecule_format(val: str) -> str:
         """If it seems to be zmatrix rather than xyz format we convert before returning"""
+        # pylint: disable=import-error
+        from pyquante2.geo.zmatrix import z2xyz
+
         atoms = [x.strip() for x in val.split(";")]
         if atoms is None or len(atoms) < 1:
             raise QiskitNatureError("Molecule format error: " + val)
@@ -377,6 +380,9 @@ class PyQuanteDriver(ElectronicStructureDriver):
         Raises:
             QiskitNatureError: If an invalid HF method type was supplied.
         """
+        # pylint: disable=import-error
+        from pyquante2 import rhf, uhf, rohf, basisset
+
         self._bfs = basisset(self._mol, self.basis.value)
 
         if self.method == MethodType.RHF:
@@ -469,6 +475,10 @@ class PyQuanteDriver(ElectronicStructureDriver):
     def _populate_driver_result_electronic_energy(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
+        # pylint: disable=import-error
+        from pyquante2 import onee_integrals
+        from pyquante2.ints.integrals import twoe_integrals
+
         basis_transform = driver_result.get_property(ElectronicBasisTransform)
 
         integrals = onee_integrals(self._bfs, self._mol)

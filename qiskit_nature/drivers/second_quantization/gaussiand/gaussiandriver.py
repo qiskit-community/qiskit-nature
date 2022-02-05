@@ -73,7 +73,7 @@ class GaussianDriver(ElectronicStructureDriver):
         self._config = config
 
     @staticmethod
-    @_optionals.HAS_GAUSSIAN.require_in_call("GaussianDriver from_molecule")
+    @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto-3g",

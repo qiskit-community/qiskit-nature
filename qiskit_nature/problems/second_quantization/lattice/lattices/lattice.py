@@ -202,7 +202,7 @@ class Lattice:
         return ad_mat
 
     @staticmethod
-    @_optionals.HAS_MATPLOTLIB.require_in_call("Lattice _mpl")
+    @_optionals.HAS_MATPLOTLIB.require_in_call
     def _mpl(graph: PyGraph, self_loop: bool, **kwargs):
         """
         Auxiliary function for drawing the lattice using matplotlib.
@@ -215,6 +215,7 @@ class Lattice:
         Raises:
             MissingOptionalLibraryError: Requires matplotlib.
         """
+        # pylint: disable=unused-import
         from matplotlib import pyplot as plt
 
         if not self_loop:
