@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -28,7 +28,6 @@ def dump(
     orbsym: Optional[List[str]] = None,
     isym: int = 1,
 ) -> None:
-    # pylint: disable=wrong-spelling-in-docstring
     """Generates a FCIDump output.
 
     Args:
@@ -100,7 +99,6 @@ def _dump_2e_ints(
     for b in range(beta):
         idx_offsets[1 - b] += len(mos)
     hijkl_elements = set()
-    # pylint: disable=invalid-name
     for elem in itertools.product(mos, repeat=4):
         if np.isclose(hijkl[elem], 0.0, atol=1e-14):
             continue

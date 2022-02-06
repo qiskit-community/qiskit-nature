@@ -266,6 +266,7 @@ morse
 mpl
 mul
 multi
+multigraph
 multinomial
 mypy
 namelist
@@ -341,6 +342,7 @@ qasm
 qbit
 qcmatrixio
 qeom
+qfi
 qiskit
 qiskit's
 qmolecule
