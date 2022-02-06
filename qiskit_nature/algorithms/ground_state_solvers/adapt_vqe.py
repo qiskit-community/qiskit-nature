@@ -99,11 +99,12 @@ class AdaptVQE(GroundStateEigensolver):
         return self._gradient
 
     @gradient.setter
-    def gradient(self, grad: Optional[GradientBase]):
+    def gradient(self, grad: Optional[GradientBase] = None):
         """Sets the gradient."""
         self._gradient = grad
 
     def returns_groundstate(self) -> bool:
+        """Whether this class returns only the ground state energy or also the ground state itself."""
         return True
 
     def _compute_gradients(
