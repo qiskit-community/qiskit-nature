@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,7 +13,7 @@
 """ Test Driver PyQuante """
 
 import unittest
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import (
@@ -22,12 +22,13 @@ from qiskit_nature.drivers.second_quantization import (
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
 )
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
     """PYQUANTE Driver tests."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYQUANTE2, "pyquante2 not available.")
     def setUp(self):
         super().setUp()
         driver = PyQuanteDriver(
@@ -43,7 +44,7 @@ class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
 class TestDriverPyQuanteMolecule(QiskitNatureTestCase, TestDriver):
     """PYQUANTE Driver molecule tests."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYQUANTE2, "pyquante2 not available.")
     def setUp(self):
         super().setUp()
         driver = ElectronicStructureMoleculeDriver(

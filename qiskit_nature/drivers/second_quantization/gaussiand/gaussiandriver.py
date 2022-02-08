@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,10 +23,12 @@ from typing import Union, List, Optional, Any, Dict
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.constants import PERIODIC_TABLE
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+import qiskit_nature.optionals as _optionals
 
 from ...qmolecule import QMolecule
-from .gaussian_utils import check_valid, run_g16
+from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -35,6 +37,7 @@ from ....exceptions import UnsupportMethodError
 logger = logging.getLogger(__name__)
 
 
+@_optionals.HAS_GAUSSIAN.require_in_instance
 class GaussianDriver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the Gaussian™ 16 program.
@@ -61,7 +64,6 @@ class GaussianDriver(ElectronicStructureDriver):
             QiskitNatureError: Invalid Input
         """
         super().__init__()
-        GaussianDriver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError(f"Invalid config for Gaussian Driver '{config}'")
 
@@ -71,6 +73,7 @@ class GaussianDriver(ElectronicStructureDriver):
         self._config = config
 
     @staticmethod
+    @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto-3g",
@@ -90,7 +93,6 @@ class GaussianDriver(ElectronicStructureDriver):
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
-        GaussianDriver.check_installed()
         GaussianDriver.check_method_supported(method)
         basis = GaussianDriver.to_driver_basis(basis)
 
@@ -122,16 +124,6 @@ class GaussianDriver(ElectronicStructureDriver):
         if basis == "sto3g":
             return "sto-3g"
         return basis
-
-    @staticmethod
-    def check_installed() -> None:
-        """
-        Checks if Gaussian is installed and available
-
-        Raises:
-            MissingOptionalLibraryError: if not installed.
-        """
-        check_valid()
 
     @staticmethod
     def check_method_supported(method: MethodType) -> None:
@@ -310,7 +302,7 @@ class GaussianDriver(ElectronicStructureDriver):
         syms = mel.ian
         xyz = np.reshape(mel.c, (_q_.num_atoms, 3))
         for n_i in range(0, _q_.num_atoms):
-            _q_.atom_symbol.append(QMolecule.symbols[syms[n_i]])
+            _q_.atom_symbol.append(PERIODIC_TABLE[syms[n_i]])
             for idx in range(xyz.shape[1]):
                 coord = xyz[n_i][idx]
                 if abs(coord) < 1e-10:

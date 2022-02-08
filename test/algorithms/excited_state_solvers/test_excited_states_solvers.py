@@ -13,7 +13,7 @@
 """ Test Numerical qEOM excited states calculation """
 
 import unittest
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
@@ -35,12 +35,13 @@ from qiskit_nature.algorithms import (
     ExcitedStatesEigensolver,
     QEOM,
 )
+import qiskit_nature.optionals as _optionals
 
 
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """Test Numerical qEOM excited states calculation"""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8

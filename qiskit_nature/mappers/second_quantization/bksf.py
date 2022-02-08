@@ -86,6 +86,8 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
     """
     sparse_pauli = None
     for term in ferm_op.to_list():
+        if _operator_coefficient(term) == 0:
+            continue
         term_type, facs = _analyze_term(_operator_string(term))
         if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
@@ -127,6 +129,8 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
             else:
                 raise ValueError("Unknown interaction: ", term_type)
 
+    if sparse_pauli is None:
+        sparse_pauli = _pauli_id(edge_list.shape[1], complex(0.0))
     return sparse_pauli
 
 
@@ -178,9 +182,13 @@ def _operator_coefficient(term: Tuple) -> float:
     return term[1]
 
 
-def _pauli_id(n_qubits: int) -> SparsePauliOp:
+def _pauli_id(n_qubits: int, coeff=None) -> SparsePauliOp:
     """Return the identity for `SparsePauliOp` on `n_qubits` qubits."""
-    return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
+    if coeff is None:
+        coeff = complex(1.0)
+    return SparsePauliOp(
+        Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))), [coeff]
+    )
 
 
 def _number_operator(  # pylint: disable=invalid-name
@@ -324,25 +332,25 @@ def _number_excitation(  # pylint: disable=invalid-name
         b_s = _edge_operator_bi(edge_list, s)
         a_qs = _edge_operator_aij(edge_list, q, s)
         a_qs = -a_qs if s < q else a_qs
-        qubit_op = (a_qs * b_s + b_q * a_qs) * (id_op - b_p)
+        qubit_op = (a_qs.dot(b_s) + b_q.dot(a_qs)).dot(id_op - b_p)
         final_coeff = 1j * 0.25
     elif p == s:
         b_r = _edge_operator_bi(edge_list, r)
         a_qr = _edge_operator_aij(edge_list, q, r)
         a_qr = -a_qr if r < q else a_qr
-        qubit_op = (a_qr * b_r + b_q * a_qr) * (id_op - b_p)
+        qubit_op = (a_qr.dot(b_r) + b_q.dot(a_qr)).dot(id_op - b_p)
         final_coeff = 1j * -0.25
     elif q == r:
         b_s = _edge_operator_bi(edge_list, s)
         a_ps = _edge_operator_aij(edge_list, p, s)
         a_ps = -a_ps if s < p else a_ps
-        qubit_op = (a_ps * b_s + b_p * a_ps) * (id_op - b_q)
+        qubit_op = (a_ps.dot(b_s) + b_p.dot(a_ps)).dot(id_op - b_q)
         final_coeff = 1j * -0.25
     elif q == s:
         b_r = _edge_operator_bi(edge_list, r)
         a_pr = _edge_operator_aij(edge_list, p, r)
         a_pr = -a_pr if r < p else a_pr
-        qubit_op = (a_pr * b_r + b_p * a_pr) * (id_op - b_q)
+        qubit_op = (a_pr.dot(b_r) + b_p.dot(a_pr)).dot(id_op - b_q)
         final_coeff = 1j * 0.25
     else:
         raise ValueError(f"unexpected sequence of indices: {p}, {q}, {r}, {s}")
@@ -400,7 +408,7 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
     """Return a `TermType` instance describing the type of interaction given the number of
     number, raising, and lowering operators.
 
-    The number number operators must be 1 or 2. The number of raising operators
+    The number of number operators must be 1 or 2. The number of raising operators
     must be equal to 0, 1 or 2, and the number of raising operators must be equal
     to the number of lowering operators.
 
@@ -448,7 +456,8 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     n_modes = fer_op.register_length
     edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
     for term in fer_op.to_list():
-        _add_edges_for_term(edge_matrix, _operator_string(term))
+        if _operator_coefficient(term) != 0:
+            _add_edges_for_term(edge_matrix, _operator_string(term))
     return edge_matrix
 
 
@@ -499,8 +508,10 @@ def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
         ferm_op: the fermionic operator in the second quantized form
 
     Returns:
-        numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edges
-                        and each pair denotes (from, to)
+        numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edges.
+                       The `i`th edge is given by `(edge_list[0, i], edge_list[1, i])`,
+                       where the index `i` starts at zero.
+
     """
     edge_matrix = _get_adjacency_matrix(ferm_op)
     edge_list_as_2d_array = np.asarray(np.nonzero(edge_matrix))

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -127,6 +127,11 @@ class TestFermionicOp(QiskitNatureTestCase):
         actual = FermionicOp(pre_processing(""), register_length=3, display_format="dense")
         desired = FermionicOp("III", display_format="dense")
         self.assertFermionEqual(actual, desired)
+
+    def test_register_length(self):
+        """Test inference of register_length"""
+        op = FermionicOp([("+_1", 1.0), ("", 1.0)], display_format="dense")
+        self.assertEqual(op.register_length, 2)
 
     def test_neg(self):
         """Test __neg__"""
