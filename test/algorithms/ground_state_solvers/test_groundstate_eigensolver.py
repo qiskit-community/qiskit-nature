@@ -22,12 +22,13 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
+import qiskit
 from qiskit import BasicAer
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import SLSQP, SPSA
 from qiskit.opflow import AerPauliExpectation, PauliExpectation
 from qiskit.test import slow_test
-from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.utils import QuantumInstance, algorithm_globals, optionals
 
 from qiskit_nature import settings
 from qiskit_nature.algorithms import (
@@ -310,16 +311,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
 
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_eval_op_qasm_aer(self):
         """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
-        try:
-            # pylint: disable=import-outside-toplevel
-            from qiskit import Aer
 
-            backend = Aer.get_backend("aer_simulator")
-        except ImportError as ex:
-            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
-            return
+        backend = qiskit.Aer.get_backend("aer_simulator")
 
         solver = VQEUCCFactory(
             optimizer=SLSQP(maxiter=100),
@@ -398,16 +394,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
 
     @slow_test
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_uccsd_hf_aer_statevector(self):
         """uccsd hf test with Aer statevector"""
-        try:
-            # pylint: disable=import-outside-toplevel
-            from qiskit import Aer
 
-            backend = Aer.get_backend("aer_simulator_statevector")
-        except ImportError as ex:
-            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
-            return
+        backend = qiskit.Aer.get_backend("aer_simulator_statevector")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -424,16 +415,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
 
     @slow_test
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
-        try:
-            # pylint: disable=import-outside-toplevel
-            from qiskit import Aer
 
-            backend = Aer.get_backend("aer_simulator")
-        except ImportError as ex:
-            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
-            return
+        backend = qiskit.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -455,16 +441,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.assertAlmostEqual(result.total_energies[0], -1.131, places=2)
 
     @slow_test
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_uccsd_hf_aer_qasm_snapshot(self):
         """uccsd hf test with Aer qasm simulator snapshot."""
-        try:
-            # pylint: disable=import-outside-toplevel
-            from qiskit import Aer
 
-            backend = Aer.get_backend("aer_simulator")
-        except ImportError as ex:
-            self.skipTest(f"Aer doesn't appear to be installed. Error: '{str(ex)}'")
-            return
+        backend = qiskit.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
