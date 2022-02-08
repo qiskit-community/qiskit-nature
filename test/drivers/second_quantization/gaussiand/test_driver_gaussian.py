@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,19 +14,20 @@
 
 import unittest
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers.second_quantization import (
     GaussianDriver,
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
 )
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
     """Gaussian Driver tests."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def setUp(self):
         super().setUp()
         driver = GaussianDriver(
@@ -47,7 +48,7 @@ class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
 class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
     """Gaussian Driver tests."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def setUp(self):
         super().setUp()
         driver = ElectronicStructureMoleculeDriver(

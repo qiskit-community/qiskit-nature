@@ -13,12 +13,10 @@
 """The calculation of points on the Born-Oppenheimer Potential Energy Surface (BOPES)."""
 
 import logging
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict
 
 import numpy as np
 from qiskit.algorithms import VariationalAlgorithm
-from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
-from qiskit_nature.drivers.base_driver import BaseDriver as DeprecatedBaseDriver
 from qiskit_nature.drivers.second_quantization import (
     BaseDriver,
     ElectronicStructureMoleculeDriver,
@@ -67,7 +65,7 @@ class BOPESSampler:
         self._tolerance = tolerance
         self._bootstrap = bootstrap
         self._problem: BaseProblem = None
-        self._driver: Union[DeprecatedBaseDriver, BaseDriver] = None
+        self._driver: BaseDriver = None
         self._points: List[float] = None
         self._energies: List[float] = None
         self._raw_results: Dict[float, EigenstateResult] = None
@@ -121,15 +119,7 @@ class BOPESSampler:
             # this will be used when NOT bootstrapping
             self._initial_point = self._gss.solver.initial_point  # type: ignore
 
-        if isinstance(self._driver, DeprecatedBaseDriver):
-            warn_deprecated(
-                "0.2.0",
-                DeprecatedType.CLASS,
-                f"{self._driver.__class__.__module__}.{self._driver.__class__.__qualname__}",
-                new_name="ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver",
-                additional_msg="from qiskit_nature.drivers.second_quantization",
-            )
-        elif not isinstance(
+        if not isinstance(
             self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
         ):
             raise QiskitNatureError(
@@ -188,15 +178,7 @@ class BOPESSampler:
 
         # update molecule geometry and thus resulting Hamiltonian based on specified point
 
-        if isinstance(self._driver, DeprecatedBaseDriver):
-            warn_deprecated(
-                "0.2.0",
-                DeprecatedType.CLASS,
-                f"{self._driver.__class__.__module__}.{self._driver.__class__.__qualname__}",
-                new_name="ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver",
-                additional_msg="from qiskit_nature.drivers.second_quantization",
-            )
-        elif not isinstance(
+        if not isinstance(
             self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
         ):
             raise QiskitNatureError(
