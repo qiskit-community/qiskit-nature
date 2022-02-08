@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,8 +15,9 @@
 from typing import cast
 
 import unittest
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 from ddt import ddt, data
+from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature.drivers.second_quantization import (
     MethodType,
     ElectronicStructureDriverType,
@@ -27,6 +28,7 @@ from qiskit_nature.drivers.second_quantization import (
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.exceptions import UnsupportMethodError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
@@ -41,7 +43,7 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
             charge=0,
         )
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_invalid_kwarg(self):
         """test invalid kwarg"""
         driver = ElectronicStructureMoleculeDriver(
@@ -60,14 +62,16 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
         (ElectronicStructureDriverType.PYQUANTE, -1.1169989925292956),
         (ElectronicStructureDriverType.GAUSSIAN, -1.1169989967389082),
     )
-    @requires_extra_library
     def test_driver(self, config):
         """test driver"""
         driver_type, hf_energy = config
         driver = ElectronicStructureMoleculeDriver(
             self._molecule, basis="sto3g", driver_type=driver_type
         )
-        driver_result = driver.run()
+        try:
+            driver_result = driver.run()
+        except MissingOptionalLibraryError as ex:
+            self.skipTest(str(ex))
         electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
         self.assertAlmostEqual(electronic_energy.reference_energy, hf_energy, places=5)
 
@@ -76,7 +80,6 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
         ElectronicStructureDriverType.PYQUANTE,
         ElectronicStructureDriverType.GAUSSIAN,
     )
-    @requires_extra_library
     def test_unsupported_method(self, driver_type):
         """test unsupported methods"""
         for method in [MethodType.RKS, MethodType.ROKS, MethodType.UKS]:
@@ -84,7 +87,10 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
                 self._molecule, basis="sto3g", method=method, driver_type=driver_type
             )
             with self.assertRaises(UnsupportMethodError):
-                _ = driver.run()
+                try:
+                    _ = driver.run()
+                except MissingOptionalLibraryError as ex:
+                    self.skipTest(str(ex))
 
 
 @ddt
@@ -140,13 +146,15 @@ class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
         VibrationalStructureDriverType.AUTO,
         VibrationalStructureDriverType.GAUSSIAN_FORCES,
     )
-    @requires_extra_library
     def test_driver(self, driver_type):
         """test driver"""
         driver = VibrationalStructureMoleculeDriver(
             self._molecule, basis="6-31g", driver_type=driver_type
         )
-        result = driver.run()
+        try:
+            result = driver.run()
+        except MissingOptionalLibraryError as ex:
+            self.skipTest(str(ex))
         self._check_driver_result(TestVibrationalStructureMoleculeDriver._MOLECULE_EXPECTED, result)
 
 

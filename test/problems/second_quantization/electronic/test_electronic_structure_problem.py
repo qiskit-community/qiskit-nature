@@ -11,7 +11,8 @@
 # that they have been altered from the originals.
 
 """Tests Electronic Structure Problem."""
-from test import QiskitNatureTestCase, requires_extra_library
+import unittest
+from test import QiskitNatureTestCase
 from test.problems.second_quantization.electronic.resources.resource_reader import (
     read_expected_file,
 )
@@ -34,6 +35,7 @@ from qiskit_nature.transformers.second_quantization.electronic import (
     ActiveSpaceTransformer,
     FreezeCoreTransformer,
 )
+import qiskit_nature.optionals as _optionals
 
 
 class TestElectronicStructureProblem(QiskitNatureTestCase):
@@ -125,7 +127,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
 class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
     """Tests Electronic Structure Problem."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_sector_locator_h2o(self):
         """Test sector locator."""
         driver = PySCFDriver(
@@ -143,7 +145,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
         )
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [1, -1])
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_sector_locator_homonuclear(self):
         """Test sector locator."""
         molecule = Molecule(
