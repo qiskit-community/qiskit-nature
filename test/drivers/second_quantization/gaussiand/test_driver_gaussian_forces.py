@@ -17,7 +17,7 @@ import unittest
 import warnings
 from typing import cast
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
@@ -29,6 +29,7 @@ from qiskit_nature.drivers.second_quantization import (
 )
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
@@ -112,7 +113,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
 
         return exp_vals
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_jcf(self):
         """Test the driver works with job control file"""
         driver = GaussianForcesDriver(
@@ -132,7 +133,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         result = driver.run()
         self._check_driver_result(self._get_expected_values(), result)
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_molecule(self):
         """Test the driver works with Molecule"""
         molecule = Molecule(

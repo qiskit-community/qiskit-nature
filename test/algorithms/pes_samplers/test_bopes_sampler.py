@@ -15,13 +15,13 @@
 import unittest
 from functools import partial
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit import Aer
+import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
-from qiskit.utils import algorithm_globals, QuantumInstance
+from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 
 from qiskit_nature.algorithms import GroundStateEigensolver, BOPESSampler
 from qiskit_nature.algorithms.pes_samplers import MorsePotential
@@ -33,6 +33,7 @@ from qiskit_nature.drivers.second_quantization import (
 from qiskit_nature.mappers.second_quantization import ParityMapper, JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+import qiskit_nature.optionals as _optionals
 
 
 class TestBOPES(QiskitNatureTestCase):
@@ -43,7 +44,7 @@ class TestBOPES(QiskitNatureTestCase):
         self.seed = 50
         algorithm_globals.random_seed = self.seed
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_h2_bopes_sampler(self):
         """Test BOPES Sampler on H2"""
         # Molecule
@@ -79,7 +80,7 @@ class TestBOPES(QiskitNatureTestCase):
             energies, [-1.13618945, -1.10115033, -1.03518627], decimal=2
         )
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_potential_interface(self):
         """Tests potential interface."""
         stretch = partial(Molecule.absolute_distance, atom_pair=(1, 0))
@@ -117,12 +118,13 @@ class TestBOPES(QiskitNatureTestCase):
         np.testing.assert_array_almost_equal([pot.alpha, pot.r_0], [2.235, 0.720], decimal=3)
         np.testing.assert_array_almost_equal([pot.d_e, pot.m_shift], [0.2107, -1.1419], decimal=3)
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_vqe_bootstrap(self):
         """Test with VQE and bootstrapping."""
         qubit_converter = QubitConverter(JordanWignerMapper())
         quantum_instance = QuantumInstance(
-            backend=Aer.get_backend("aer_simulator_statevector"),
+            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )

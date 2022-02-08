@@ -25,9 +25,10 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import PERIODIC_TABLE
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+import qiskit_nature.optionals as _optionals
 
 from ...qmolecule import QMolecule
-from .gaussian_utils import check_valid, run_g16
+from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -36,6 +37,7 @@ from ....exceptions import UnsupportMethodError
 logger = logging.getLogger(__name__)
 
 
+@_optionals.HAS_GAUSSIAN.require_in_instance
 class GaussianDriver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the Gaussian™ 16 program.
@@ -62,7 +64,6 @@ class GaussianDriver(ElectronicStructureDriver):
             QiskitNatureError: Invalid Input
         """
         super().__init__()
-        GaussianDriver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError(f"Invalid config for Gaussian Driver '{config}'")
 
@@ -72,6 +73,7 @@ class GaussianDriver(ElectronicStructureDriver):
         self._config = config
 
     @staticmethod
+    @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto-3g",
@@ -91,7 +93,6 @@ class GaussianDriver(ElectronicStructureDriver):
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
-        GaussianDriver.check_installed()
         GaussianDriver.check_method_supported(method)
         basis = GaussianDriver.to_driver_basis(basis)
 
@@ -123,16 +124,6 @@ class GaussianDriver(ElectronicStructureDriver):
         if basis == "sto3g":
             return "sto-3g"
         return basis
-
-    @staticmethod
-    def check_installed() -> None:
-        """
-        Checks if Gaussian is installed and available
-
-        Raises:
-            MissingOptionalLibraryError: if not installed.
-        """
-        check_valid()
 
     @staticmethod
     def check_method_supported(method: MethodType) -> None:

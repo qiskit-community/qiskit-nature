@@ -14,9 +14,10 @@
 
 import unittest
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 
 from qiskit_nature.drivers.second_quantization import GaussianLogDriver, GaussianLogResult
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverGaussianLog(QiskitNatureTestCase):
@@ -28,7 +29,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
             "test_driver_gaussian_log_A03.txt", "drivers/second_quantization/gaussiand"
         )
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_log_driver(self):
         """Test the driver itself creates log and we can get a result"""
         driver = GaussianLogDriver(
