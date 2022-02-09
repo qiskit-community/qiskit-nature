@@ -56,7 +56,6 @@ class AdaptVQE(GroundStateEigensolver):
             "`gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`."
         ),
     )
-
     def __init__(
         self,
         qubit_converter: QubitConverter,
