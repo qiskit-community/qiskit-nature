@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 import warnings
 from itertools import product
-from typing import Optional, Union, cast
+from typing import Iterable, Optional, Union, cast
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -345,6 +345,10 @@ class FermionicOp(SecondQuantizedOp):
             f"display_format='{self.display_format}'"
             ")"
         )
+
+    def __iter__(self) -> Iterable[tuple[list[tuple[str, int]], complex]]:
+        """Iterate through operator terms."""
+        return iter(self._data)
 
     @classmethod
     def set_truncation(cls, val: int) -> None:
