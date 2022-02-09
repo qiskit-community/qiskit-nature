@@ -8,7 +8,7 @@ features:
       from qiskit_nature.operators.second_quantization import FermionicOp
 
       FermionicOp(
-          [([("-", 2), ("+", 10)], 2 + 0j), ([("-", 3)], 34 + 0j)],
+          [([("-", 2), ("+", 1)], 2 + 0j), ([("-", 3)], 34 + 0j)],
           register_length=4,
           display_format="sparse",
       )
