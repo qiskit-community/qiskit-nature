@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -61,6 +61,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering"
     ],
     keywords='qiskit sdk quantum nature chemistry physics',
@@ -69,7 +70,7 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.6",
     extras_require={
-        'pyscf': ["pyscf; sys_platform != 'win32'"],
+        'pyscf': ["pyscf; python_version < '3.10' and sys_platform != 'win32'"],
     },
     zip_safe=False
 )
