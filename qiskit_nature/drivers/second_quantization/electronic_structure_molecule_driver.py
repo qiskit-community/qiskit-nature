@@ -81,7 +81,8 @@ class ElectronicStructureDriverType(Enum):
                 raise MissingOptionalLibraryError(
                     libname=driver_type, name="ElectronicStructureDriverType"
                 )
-            driver_class.check_installed()
+            # instantiating the object will check if the driver is installed
+            _ = driver_class()
             driver_class.check_method_supported(method)
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)

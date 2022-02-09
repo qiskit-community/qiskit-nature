@@ -73,7 +73,8 @@ class VibrationalStructureDriverType(Enum):
                 raise MissingOptionalLibraryError(
                     libname=driver_type, name="VibrationalStructureDriverType"
                 )
-            driver_class.check_installed()
+            # instantiating the object will check if the driver is installed
+            _ = driver_class()
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
