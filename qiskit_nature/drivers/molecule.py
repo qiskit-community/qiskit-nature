@@ -121,15 +121,13 @@ class Molecule:
         for atom in h5py_group["geometry"].values():
             geometry.append((atom.attrs["symbol"], list(atom[...])))
 
-        units: UnitsType  # pylint: disable=unused-variable
+        units: UnitsType
         for unit in UnitsType:
             if unit.value == h5py_group.attrs["units"]:
                 units = unit
                 break
         else:
             units = UnitsType.ANGSTROM
-
-        # TODO: leverage units after https://github.com/Qiskit/qiskit-nature/issues/477
 
         multiplicity = h5py_group.attrs["multiplicity"]
         charge = h5py_group.attrs["charge"]
@@ -140,8 +138,9 @@ class Molecule:
 
         return Molecule(
             geometry,
-            multiplicity,
-            charge,
+            multiplicity=multiplicity,
+            charge=charge,
+            units=units,
             masses=masses,
         )
 
