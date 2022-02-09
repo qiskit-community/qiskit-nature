@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,10 @@
 
 """The Sum Operator base interface."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from qiskit.opflow.mixins import StarAlgebraMixin
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
@@ -56,7 +58,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_list(self) -> List[Tuple[str, complex]]:
+    def to_list(self) -> list[tuple[str, complex]]:
         """Returns the operators internal contents in list-format."""
         raise NotImplementedError
 
