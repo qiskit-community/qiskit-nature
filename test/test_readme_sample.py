@@ -18,28 +18,13 @@ the issue then ensure changes are made to readme too.
 
 import unittest
 
-import sys
+import contextlib
+import io
 from pathlib import Path
 import re
 from test import QiskitNatureTestCase
 from qiskit.utils import optionals
 import qiskit_nature.optionals as _optionals
-
-
-class Writer:
-    """Custom Writer"""
-
-    def __init__(self):
-        self.encoding = None
-        self.texts = []
-
-    def write(self, text):
-        """write to array"""
-        self.texts.append(text)
-
-    def flush(self):
-        """flush"""
-        pass
 
 
 class TestReadmeSample(QiskitNatureTestCase):
@@ -57,6 +42,8 @@ class TestReadmeSample(QiskitNatureTestCase):
             self.fail(msg=f"{readme_name} not found at {readme_path}")
             return
 
+        # gets the first matched code sample
+        # assumes one code sample to test per readme
         readme_sample = None
         with open(readme_path, encoding="UTF-8") as readme_file:
             match_sample = re.search(
@@ -65,22 +52,22 @@ class TestReadmeSample(QiskitNatureTestCase):
                 flags=re.S,
             )
             if match_sample:
+                # gets the matched string stripping the markdown code block
                 readme_sample = match_sample.group(0)[9:-3]
 
         if readme_sample is None:
             self.skipTest(f"No sample found inside {readme_name}.")
             return
 
-        writer = Writer()
-        sys.stdout = writer
-        try:
-            exec(readme_sample)
-        except Exception as ex:  # pylint: disable=broad-except
-            self.fail(str(ex))
-            return
-        finally:
-            sys.stdout = sys.__stdout__
-        self.assertAlmostEqual(float(writer.texts[0]), -1.8572750301938803, places=6)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            try:
+                exec(readme_sample)
+            except Exception as ex:  # pylint: disable=broad-except
+                self.fail(str(ex))
+                return
+
+        texts = out.getvalue().split("\n")
+        self.assertAlmostEqual(float(texts[0]), -1.8572750301938803, places=6)
 
 
 if __name__ == "__main__":
