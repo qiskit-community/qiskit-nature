@@ -103,7 +103,7 @@ class AdaptVQE(GroundStateEigensolver):
         return self._gradient
 
     @gradient.setter
-    def gradient(self, grad: Optional[GradientBase] = None):
+    def gradient(self, grad: Optional[GradientBase] = None) -> None:
         """Sets the gradient."""
         self._gradient = grad
 

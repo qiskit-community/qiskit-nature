@@ -65,16 +65,16 @@ class TestAdaptVQE(QiskitNatureTestCase):
         self.expected = -1.85727503
 
         self.qubit_converter = QubitConverter(ParityMapper())
-       
+
         self.inter_dist = 1.6
 
         self.driver1 = PySCFDriver(
-            atom="Li .0 .0 .0; H .0 .0 " + str(self.inter_dist), unit=UnitsType.ANGSTROM, basis="sto3g"
+            atom="Li .0 .0 .0; H .0 .0 " + str(self.inter_dist),
+            unit=UnitsType.ANGSTROM,
+            basis="sto3g",
         )
 
-        self.transformer = ActiveSpaceTransformer(
-            num_electrons=2, num_molecular_orbitals=3
-        )
+        self.transformer = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=3)
 
         self.problem1 = ElectronicStructureProblem(self.driver1, [self.transformer])
 
