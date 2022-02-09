@@ -25,7 +25,6 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.opflow.gradients import GradientBase, Gradient
 from qiskit.utils.validation import validate_min
-
 from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
@@ -35,7 +34,6 @@ from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult
 from qiskit_nature.deprecation import deprecate_arguments
-
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
@@ -58,6 +56,7 @@ class AdaptVQE(GroundStateEigensolver):
             "`gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`."
         ),
     )
+
     def __init__(
         self,
         qubit_converter: QubitConverter,
@@ -127,6 +126,7 @@ class AdaptVQE(GroundStateEigensolver):
             List of pairs consisting of gradient and excitation operator.
         """
         res = []
+        # compute gradients for all excitation in operator pool
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
