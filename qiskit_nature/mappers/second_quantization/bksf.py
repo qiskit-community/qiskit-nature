@@ -86,6 +86,8 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
     """
     sparse_pauli = None
     for term in ferm_op.to_list():
+        if _operator_coefficient(term) == 0:
+            continue
         term_type, facs = _analyze_term(_operator_string(term))
         if facs[0][1] == "-":  # keep only one of h.c. pair
             continue
@@ -127,6 +129,8 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
             else:
                 raise ValueError("Unknown interaction: ", term_type)
 
+    if sparse_pauli is None:
+        sparse_pauli = _pauli_id(edge_list.shape[1], complex(0.0))
     return sparse_pauli
 
 
@@ -178,9 +182,13 @@ def _operator_coefficient(term: Tuple) -> float:
     return term[1]
 
 
-def _pauli_id(n_qubits: int) -> SparsePauliOp:
+def _pauli_id(n_qubits: int, coeff=None) -> SparsePauliOp:
     """Return the identity for `SparsePauliOp` on `n_qubits` qubits."""
-    return SparsePauliOp(Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))))
+    if coeff is None:
+        coeff = complex(1.0)
+    return SparsePauliOp(
+        Pauli((np.zeros(n_qubits, dtype=bool), np.zeros(n_qubits, dtype=bool))), [coeff]
+    )
 
 
 def _number_operator(  # pylint: disable=invalid-name
@@ -400,7 +408,7 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
     """Return a `TermType` instance describing the type of interaction given the number of
     number, raising, and lowering operators.
 
-    The number number operators must be 1 or 2. The number of raising operators
+    The number of number operators must be 1 or 2. The number of raising operators
     must be equal to 0, 1 or 2, and the number of raising operators must be equal
     to the number of lowering operators.
 
@@ -448,7 +456,8 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     n_modes = fer_op.register_length
     edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
     for term in fer_op.to_list():
-        _add_edges_for_term(edge_matrix, _operator_string(term))
+        if _operator_coefficient(term) != 0:
+            _add_edges_for_term(edge_matrix, _operator_string(term))
     return edge_matrix
 
 
