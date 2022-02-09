@@ -14,7 +14,7 @@
 
 import tempfile
 import warnings
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 
 import h5py
 
@@ -23,7 +23,7 @@ from qiskit_nature.properties.second_quantization.vibrational import OccupiedMod
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 
 
-class TestOccupiedModals(QiskitNatureTestCase):
+class TestOccupiedModals(PropertyTest):
     """Test OccupiedModals Property"""
 
     def setUp(self):
@@ -58,16 +58,13 @@ class TestOccupiedModals(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 self.prop.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "OccupiedModals")
-                    self.assertEqual(len(group.keys()), 0)
-
-                self.assertEqual(count, 1)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via VibrationalStructureResult tests.")
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = OccupiedModals.from_hdf5(file["OccupiedModals"])
+
+                self.assertEqual(self.prop, read_prop)

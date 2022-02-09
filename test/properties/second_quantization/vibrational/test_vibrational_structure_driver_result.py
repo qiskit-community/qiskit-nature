@@ -12,64 +12,23 @@
 
 """Test VibrationalStructureDriverResult Property"""
 
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 
 import h5py
-import numpy as np
 
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.properties.second_quantization.vibrational import (
-    OccupiedModals,
-    VibrationalEnergy,
     VibrationalStructureDriverResult,
 )
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
-from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
 
 
-class TestVibrationalStructureDriverResult(QiskitNatureTestCase):
+class TestVibrationalStructureDriverResult(PropertyTest):
     """Test VibrationalStructureDriverResult Property"""
-
-    def compare_vibrational_integral(
-        self, first: VibrationalIntegrals, second: VibrationalIntegrals, msg: str = None
-    ) -> None:
-        """Compares two VibrationalIntegral instances."""
-        if first.name != second.name:
-            raise self.failureException(msg)
-
-        if first._num_body_terms != second._num_body_terms:
-            raise self.failureException(msg)
-
-        for f_int, s_int in zip(first._integrals, second._integrals):
-            if not np.isclose(f_int[0], s_int[0]):
-                raise self.failureException(msg)
-
-            if not all(f == s for f, s in zip(f_int[1:], s_int[1:])):
-                raise self.failureException(msg)
-
-    def compare_vibrational_energy(
-        self, first: VibrationalEnergy, second: VibrationalEnergy, msg: str = None
-    ) -> None:
-        # pylint: disable=unused-argument
-        """Compares two VibrationalEnergy instances."""
-        for f_ints, s_ints in zip(
-            first._vibrational_integrals.values(), second._vibrational_integrals.values()
-        ):
-            self.compare_vibrational_integral(f_ints, s_ints)
-
-    def compare_occupied_modals(
-        self, first: OccupiedModals, second: OccupiedModals, msg: str = None
-    ) -> None:
-        # pylint: disable=unused-argument
-        """Compares two OccupiedModals instances."""
-        pass
 
     def setUp(self) -> None:
         """Setup expected object."""
         super().setUp()
-        self.addTypeEqualityFunc(VibrationalIntegrals, self.compare_vibrational_integral)
-        self.addTypeEqualityFunc(VibrationalEnergy, self.compare_vibrational_energy)
-        self.addTypeEqualityFunc(OccupiedModals, self.compare_occupied_modals)
 
         driver = GaussianForcesDriver(
             logfile=self.get_resource_path(

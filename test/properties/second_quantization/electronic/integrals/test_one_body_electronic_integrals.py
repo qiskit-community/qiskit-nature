@@ -13,7 +13,7 @@
 """Test OneBodyElectronicIntegrals."""
 
 import tempfile
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 
 import h5py
 import numpy as np
@@ -28,7 +28,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
+class TestOneBodyElectronicIntegrals(PropertyTest):
     """Test OneBodyElectronicIntegrals."""
 
     def test_init(self):
@@ -220,20 +220,17 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 ints.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "OneBodyElectronicIntegrals")
-                    self.assertEqual(group.attrs["basis"], "MO")
-
-                    for matrix in group.values():
-                        count += 1
-                        self.assertTrue(np.allclose(matrix, random))
-
-                self.assertEqual(count, 3)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via ElectronicStructureResult tests.")
+        random = np.random.rand(2, 2)
+
+        ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (random, random))
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                ints.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                new_ints = OneBodyElectronicIntegrals.from_hdf5(file["OneBodyElectronicIntegrals"])
+
+                self.assertEqual(ints, new_ints)

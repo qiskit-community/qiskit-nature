@@ -14,7 +14,7 @@
 
 import json
 import tempfile
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 from typing import cast
 
 import h5py
@@ -31,7 +31,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestElectronicEnergy(QiskitNatureTestCase):
+class TestElectronicEnergy(PropertyTest):
     """Test ElectronicEnergy Property"""
 
     def setUp(self):
@@ -153,47 +153,13 @@ class TestElectronicEnergy(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 self.prop.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "ElectronicEnergy")
-                    self.assertAlmostEqual(group.attrs["nuclear_repulsion_energy"], 0.71996899)
-                    self.assertAlmostEqual(group.attrs["reference_energy"], -1.1169989966)
-                    self.assertTrue(
-                        np.allclose(group.attrs["orbital_energies"], [-0.58062892, 0.67633625])
-                    )
-
-                    expected_1 = np.asarray([[-1.25633907, 0.0], [0.0, -0.47189601]])
-                    for ints in group["electronic_integrals"]["MO"][
-                        "OneBodyElectronicIntegrals"
-                    ].values():
-                        count += 1
-                        self.assertTrue(np.allclose(ints[...], expected_1))
-
-                    expected_2 = np.asarray(
-                        [
-                            [
-                                [[0.67571015, 0.0], [0.0, 0.66458173]],
-                                [[0.0, 0.1809312], [0.1809312, 0.0]],
-                            ],
-                            [
-                                [[0.0, 0.1809312], [0.1809312, 0.0]],
-                                [[0.66458173, 0.0], [0.0, 0.69857372]],
-                            ],
-                        ]
-                    )
-                    for ints in group["electronic_integrals"]["MO"][
-                        "TwoBodyElectronicIntegrals"
-                    ].values():
-                        count += 1
-                        self.assertTrue(np.allclose(ints[...], expected_2))
-
-                    self.assertTrue("shift" in group.keys())
-
-                self.assertEqual(count, 7)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via ElectronicStructureResult tests.")
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = ElectronicEnergy.from_hdf5(file["ElectronicEnergy"])
+
+                self.assertEqual(self.prop, read_prop)

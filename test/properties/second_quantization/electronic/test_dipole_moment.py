@@ -14,7 +14,7 @@
 
 import json
 import tempfile
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 
 import h5py
 import numpy as np
@@ -28,7 +28,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestElectronicDipoleMoment(QiskitNatureTestCase):
+class TestElectronicDipoleMoment(PropertyTest):
     """Test ElectronicDipoleMoment Property"""
 
     def setUp(self):
@@ -64,46 +64,19 @@ class TestElectronicDipoleMoment(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 self.prop.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "ElectronicDipoleMoment")
-                    self.assertEqual(group.attrs["reverse_dipole_sign"], False)
-                    self.assertTrue(
-                        np.allclose(group.attrs["nuclear_dipole_moment"], [0.0, 0.0, 1.38894871])
-                    )
-
-                    axis_x = DipoleMoment.from_hdf5(group["DipoleMomentX"])
-                    for ints in iter(axis_x):
-                        for mat in ints._matrices:
-                            count += 1
-                            self.assertTrue(np.allclose(mat, np.zeros((2, 2))))
-
-                    axis_y = DipoleMoment.from_hdf5(group["DipoleMomentY"])
-                    for ints in iter(axis_y):
-                        for mat in ints._matrices:
-                            count += 1
-                            self.assertTrue(np.allclose(mat, np.zeros((2, 2))))
-
-                    expected_z = np.asarray([[-0.69447435, 0.92783347], [0.92783347, -0.69447435]])
-                    axis_z = DipoleMoment.from_hdf5(group["DipoleMomentZ"])
-                    for ints in iter(axis_z):
-                        for mat in ints._matrices:
-                            count += 1
-                            self.assertTrue(np.allclose(mat, expected_z))
-
-                    self.assertTrue("dipole_shift" in group.keys())
-
-                self.assertEqual(count, 7)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via ElectronicStructureResult tests.")
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = ElectronicDipoleMoment.from_hdf5(file["ElectronicDipoleMoment"])
+
+                self.assertEqual(self.prop, read_prop)
 
 
-class TestDipoleMoment(QiskitNatureTestCase):
+class TestDipoleMoment(PropertyTest):
     """Test DipoleMoment Property"""
 
     def test_integral_operator(self):
@@ -123,24 +96,16 @@ class TestDipoleMoment(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 prop.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "DipoleMomentX")
-                    self.assertEqual(group.attrs["axis"], "x")
-
-                    for ints in group["electronic_integrals"]["AO"][
-                        "OneBodyElectronicIntegrals"
-                    ].values():
-                        count += 1
-                        self.assertTrue(np.allclose(ints[...], random))
-
-                    self.assertTrue("shift" in group.keys())
-
-                self.assertEqual(count, 3)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via ElectronicStructureResult tests.")
+        random = np.random.random((4, 4))
+        prop = DipoleMoment("x", [OneBodyElectronicIntegrals(ElectronicBasis.AO, (random, None))])
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = DipoleMoment.from_hdf5(file["DipoleMomentX"])
+
+                self.assertEqual(prop, read_prop)

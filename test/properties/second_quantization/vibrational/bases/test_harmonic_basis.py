@@ -128,18 +128,20 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 basis.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "HarmonicBasis")
-                    self.assertTrue(
-                        np.allclose(group.attrs["num_modals_per_mode"], num_modals_per_mode)
-                    )
-
-                self.assertEqual(count, 1)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via VibrationalStructureResult tests.")
+        num_modes = 4
+        num_modals = 2
+        num_modals_per_mode = [num_modals] * num_modes
+        basis = HarmonicBasis(num_modals_per_mode)
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                basis.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = HarmonicBasis.from_hdf5(file["HarmonicBasis"])
+
+                self.assertTrue(
+                    np.allclose(basis.num_modals_per_mode, read_prop.num_modals_per_mode)
+                )

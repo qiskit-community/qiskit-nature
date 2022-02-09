@@ -15,7 +15,7 @@
 import json
 import tempfile
 import warnings
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 
 import h5py
 import numpy as np
@@ -24,7 +24,7 @@ from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import AngularMomentum
 
 
-class TestAngularMomentum(QiskitNatureTestCase):
+class TestAngularMomentum(PropertyTest):
     """Test AngularMomentum Property"""
 
     def setUp(self):
@@ -58,17 +58,13 @@ class TestAngularMomentum(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 self.prop.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "AngularMomentum")
-                    self.assertEqual(group.attrs["num_spin_orbitals"], 8)
-                    self.assertIsNone(group.attrs.get("spin", None))
-
-                self.assertEqual(count, 1)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via ElectronicStructureResult tests.")
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = AngularMomentum.from_hdf5(file["AngularMomentum"])
+
+                self.assertEqual(self.prop, read_prop)

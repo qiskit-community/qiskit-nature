@@ -13,7 +13,7 @@
 """Test IntegralProperty"""
 
 import tempfile
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 
 import h5py
 import numpy as np
@@ -29,7 +29,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestIntegralProperty(QiskitNatureTestCase):
+class TestIntegralProperty(PropertyTest):
     """Test IntegralProperty Property"""
 
     def setUp(self):
@@ -115,37 +115,16 @@ class TestIntegralProperty(QiskitNatureTestCase):
             with h5py.File(tmp_file, "w") as file:
                 self.prop.to_hdf5(file)
 
-            with h5py.File(tmp_file, "r") as file:
-                count = 0
-
-                for name, group in file.items():
-                    count += 1
-                    self.assertEqual(name, "test")
-
-                    ints_1_ao = OneBodyElectronicIntegrals.from_hdf5(
-                        group["electronic_integrals"]["AO"]["OneBodyElectronicIntegrals"]
-                    )
-                    self.assertTrue(np.allclose(ints_1_ao._matrices, self.ints_1_ao._matrices))
-
-                    ints_1_mo = OneBodyElectronicIntegrals.from_hdf5(
-                        group["electronic_integrals"]["MO"]["OneBodyElectronicIntegrals"]
-                    )
-                    self.assertTrue(np.allclose(ints_1_mo._matrices, self.ints_1_mo._matrices))
-
-                    ints_2_ao = TwoBodyElectronicIntegrals.from_hdf5(
-                        group["electronic_integrals"]["AO"]["TwoBodyElectronicIntegrals"]
-                    )
-                    self.assertTrue(np.allclose(ints_2_ao._matrices, self.ints_2_mo._matrices))
-
-                    ints_2_mo = TwoBodyElectronicIntegrals.from_hdf5(
-                        group["electronic_integrals"]["AO"]["TwoBodyElectronicIntegrals"]
-                    )
-                    self.assertTrue(np.allclose(ints_2_mo._matrices, self.ints_2_mo._matrices))
-
-                    self.assertTrue("shift" in group.keys())
-
-                self.assertEqual(count, 1)
-
     def test_from_hdf5(self):
         """Test from_hdf5."""
-        self.skipTest("Testing via ElectronicStructureResult tests.")
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = IntegralProperty.from_hdf5(file["test"])
+
+                self.assertDictEqual(self.prop._shift, read_prop._shift)
+
+                for f_int, s_int in zip(iter(self.prop), iter(read_prop)):
+                    self.assertEqual(f_int, s_int)
