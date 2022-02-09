@@ -13,10 +13,16 @@
 """Test for Lattice."""
 from test import QiskitNatureTestCase
 
+import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
-import networkx as nx
+
 from retworkx import PyGraph, is_isomorphic
+
+from qiskit.utils import optionals as _optionals
+
+if _optionals.HAS_NETWORKX:
+    import networkx as nx
 
 from qiskit_nature.problems.second_quantization.lattice import Lattice
 
@@ -135,6 +141,7 @@ class TestLattice(QiskitNatureTestCase):
         target_matrix = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 1]])
         assert_array_equal(lattice.to_adjacency_matrix(), target_matrix)
 
+    @unittest.skipIf(not _optionals.HAS_NETWORKX, "networkx not available.")
     def test_from_networkx(self):
         """Test initialization from a networkx graph."""
         graph = nx.Graph()
