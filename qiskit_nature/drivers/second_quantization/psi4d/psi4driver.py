@@ -22,8 +22,13 @@ from typing import Union, List, Optional, Any, Dict
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.properties.second_quantization.electronic import (
+    AngularMomentum,
+    ElectronicStructureDriverResult,
+    Magnetization,
+)
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.settings import settings
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
@@ -201,6 +206,11 @@ class PSI4Driver(ElectronicStructureDriver):
             os.remove(hdf5_file)
         except Exception:  # pylint: disable=broad-except
             pass
+
+        num_spin_orbitals = driver_result.get_property("ParticleNumber").num_spin_orbitals
+        if not settings.dict_aux_operators:
+            driver_result.add_property(AngularMomentum(num_spin_orbitals))
+            driver_result.add_property(Magnetization(num_spin_orbitals))
 
         return driver_result
 
