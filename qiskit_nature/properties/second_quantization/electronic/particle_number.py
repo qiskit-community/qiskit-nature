@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional, Tuple, Union, cast
+from typing import Optional, Union, cast
 
 import h5py
 import numpy as np
@@ -47,9 +47,9 @@ class ParticleNumber(ElectronicProperty):
     def __init__(
         self,
         num_spin_orbitals: int,
-        num_particles: Union[int, Tuple[int, int]],
-        occupation: Optional[Union[np.ndarray, List[float]]] = None,
-        occupation_beta: Optional[Union[np.ndarray, List[float]]] = None,
+        num_particles: Union[int, tuple[int, int]],
+        occupation: Optional[Union[np.ndarray, list[float]]] = None,
+        occupation_beta: Optional[Union[np.ndarray, list[float]]] = None,
         absolute_tolerance: float = ABSOLUTE_TOLERANCE,
         relative_tolerance: float = RELATIVE_TOLERANCE,
     ) -> None:
@@ -123,7 +123,7 @@ class ParticleNumber(ElectronicProperty):
         self._num_beta = num_beta
 
     @property
-    def num_particles(self) -> Tuple[int, int]:
+    def num_particles(self) -> tuple[int, int]:
         """Returns the number of electrons."""
         return (self.num_alpha, self.num_beta)
 
@@ -137,7 +137,7 @@ class ParticleNumber(ElectronicProperty):
         return np.asarray(self._occupation_alpha)
 
     @occupation_alpha.setter
-    def occupation_alpha(self, occ_alpha: Union[np.ndarray, List[float]]) -> None:
+    def occupation_alpha(self, occ_alpha: Union[np.ndarray, list[float]]) -> None:
         """Sets the occupation numbers of the alpha-spin orbitals."""
         self._occupation_alpha = occ_alpha
 
@@ -151,7 +151,7 @@ class ParticleNumber(ElectronicProperty):
         return np.asarray(self._occupation_beta)
 
     @occupation_beta.setter
-    def occupation_beta(self, occ_beta: Union[np.ndarray, List[float]]) -> None:
+    def occupation_beta(self, occ_beta: Union[np.ndarray, list[float]]) -> None:
         """Sets the occupation numbers of the beta-spin orbitals."""
         self._occupation_beta = occ_beta
 

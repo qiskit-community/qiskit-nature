@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import importlib
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Optional
 
 import h5py
 
@@ -33,7 +33,7 @@ class VibrationalBasis(ABC):
 
     def __init__(
         self,
-        num_modals_per_mode: List[int],
+        num_modals_per_mode: list[int],
         threshold: float = 1e-6,
     ) -> None:
         """
@@ -46,7 +46,7 @@ class VibrationalBasis(ABC):
         self._threshold = threshold
 
     @property
-    def num_modals_per_mode(self) -> List[int]:
+    def num_modals_per_mode(self) -> list[int]:
         """Returns the number of modals per mode."""
         return self._num_modals_per_mode
 

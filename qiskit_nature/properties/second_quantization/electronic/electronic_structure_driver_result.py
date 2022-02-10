@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple, cast
+from typing import cast
 
 import h5py
 
@@ -123,7 +123,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
             )
         )
 
-        geometry: List[Tuple[str, List[float]]] = []
+        geometry: list[tuple[str, list[float]]] = []
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
             # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
             geometry.append((atom, xyz * BOHR))

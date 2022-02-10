@@ -17,7 +17,7 @@ from __future__ import annotations
 from abc import ABC
 from collections import Counter
 from itertools import chain, cycle, permutations, product, tee
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import h5py
 import numpy as np
@@ -43,7 +43,7 @@ class VibrationalIntegrals(ABC):
     def __init__(
         self,
         num_body_terms: int,
-        integrals: List[Tuple[float, Tuple[int, ...]]],
+        integrals: list[tuple[float, tuple[int, ...]]],
     ) -> None:
         """
         Args:
@@ -84,12 +84,12 @@ class VibrationalIntegrals(ABC):
         self._num_body_terms = num_body_terms
 
     @property
-    def integrals(self) -> List[Tuple[float, Tuple[int, ...]]]:
+    def integrals(self) -> list[tuple[float, tuple[int, ...]]]:
         """Returns the integrals."""
         return self._integrals
 
     @integrals.setter
-    def integrals(self, integrals: List[Tuple[float, Tuple[int, ...]]]) -> None:
+    def integrals(self, integrals: list[tuple[float, tuple[int, ...]]]) -> None:
         """Sets the integrals."""
         self._integrals = integrals
 
@@ -192,7 +192,7 @@ class VibrationalIntegrals(ABC):
 
         # we can cache already evaluated integrals to improve cases in which a basis is very
         # expensive to compute
-        coeff_cache: Dict[Tuple[int, int, int, int, bool], Optional[float]] = {}
+        coeff_cache: dict[tuple[int, int, int, int, bool], Optional[float]] = {}
 
         for coeff0, indices in self._integrals:
             if len(set(indices)) != self._num_body_terms:
@@ -209,7 +209,7 @@ class VibrationalIntegrals(ABC):
                 indices_np = np.absolute(indices_np)
 
             # the number of times which an index occurs corresponds to the power of the operator
-            powers: Dict[int, int] = Counter(indices_np)
+            powers: dict[int, int] = Counter(indices_np)
 
             index_list = []
 
@@ -290,7 +290,7 @@ class VibrationalIntegrals(ABC):
         return VibrationalOp(labels, num_modes, num_modals_per_mode)
 
     @staticmethod
-    def _create_label_for_coeff(indices: List[Tuple[int, ...]]) -> str:
+    def _create_label_for_coeff(indices: list[tuple[int, ...]]) -> str:
         """Generates the operator label for the given indices.
 
         Args:

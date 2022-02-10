@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 
 import h5py
 
@@ -97,6 +97,6 @@ class ElectronicBasisTransform(Property):
         )
 
     @staticmethod
-    def _render_coefficients(coeffs) -> List[str]:
+    def _render_coefficients(coeffs) -> list[str]:
         nonzero = coeffs.nonzero()
         return [f"\t{indices} = {value}" for value, *indices in zip(coeffs[nonzero], *nonzero)]

@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Generator, List, Optional
+from typing import Generator, Optional
 
 import h5py
 
@@ -43,8 +43,8 @@ class IntegralProperty(ElectronicProperty):
     def __init__(
         self,
         name: str,
-        electronic_integrals: List[ElectronicIntegrals],
-        shift: Optional[Dict[str, complex]] = None,
+        electronic_integrals: list[ElectronicIntegrals],
+        shift: Optional[dict[str, complex]] = None,
     ) -> None:
         # pylint: disable=line-too-long
         """
@@ -55,7 +55,7 @@ class IntegralProperty(ElectronicProperty):
             shift: an optional dictionary of value shifts.
         """
         super().__init__(name)
-        self._electronic_integrals: Dict[ElectronicBasis, Dict[int, ElectronicIntegrals]] = {}
+        self._electronic_integrals: dict[ElectronicBasis, dict[int, ElectronicIntegrals]] = {}
         for integral in electronic_integrals:
             self.add_electronic_integral(integral)
         self._shift = shift or {}

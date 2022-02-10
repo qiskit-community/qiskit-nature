@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import h5py
 
@@ -105,7 +105,7 @@ class OccupiedModals(VibrationalProperty):
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
 
-        labels: List[Tuple[str, complex]] = []
+        labels: list[tuple[str, complex]] = []
 
         for modal in range(num_modals_per_mode[mode]):
             labels.append((f"+_{mode}*{modal} -_{mode}*{modal}", 1.0))

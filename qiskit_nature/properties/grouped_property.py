@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
+from typing import Generator, Generic, Optional, Type, TypeVar, Union
 
 import h5py
 
@@ -48,7 +48,7 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             name: the name of the property group.
         """
         super().__init__(name)
-        self._properties: Dict[str, T] = {}
+        self._properties: dict[str, T] = {}
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]

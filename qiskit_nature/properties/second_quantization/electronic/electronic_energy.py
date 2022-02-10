@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, cast
+from typing import Optional, cast
 
 import h5py
 import numpy as np
@@ -47,8 +47,8 @@ class ElectronicEnergy(IntegralProperty):
 
     def __init__(
         self,
-        electronic_integrals: List[ElectronicIntegrals],
-        energy_shift: Optional[Dict[str, complex]] = None,
+        electronic_integrals: list[ElectronicIntegrals],
+        energy_shift: Optional[dict[str, complex]] = None,
         nuclear_repulsion_energy: Optional[float] = None,
         reference_energy: Optional[float] = None,
     ) -> None:
@@ -203,7 +203,7 @@ class ElectronicEnergy(IntegralProperty):
 
         energy_shift = qmol.energy_shift.copy()
 
-        integrals: List[ElectronicIntegrals] = []
+        integrals: list[ElectronicIntegrals] = []
         if qmol.hcore is not None:
             integrals.append(
                 OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b))

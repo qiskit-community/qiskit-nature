@@ -18,7 +18,7 @@ import importlib
 import itertools
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Generator, List, Optional, Tuple, Union
+from typing import Generator, Optional, Union
 
 import h5py
 import numpy as np
@@ -49,7 +49,7 @@ class ElectronicIntegrals(ABC):
 
     INTEGRAL_TRUNCATION_LEVEL = 1e-12
 
-    _MATRIX_REPRESENTATIONS: List[str] = []
+    _MATRIX_REPRESENTATIONS: list[str] = []
 
     _truncate = 5
 
@@ -57,7 +57,7 @@ class ElectronicIntegrals(ABC):
         self,
         num_body_terms: int,
         basis: ElectronicBasis,
-        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]],
         threshold: float = INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
         # pylint: disable=line-too-long
@@ -87,7 +87,7 @@ class ElectronicIntegrals(ABC):
         self._basis = basis
         self._num_body_terms = num_body_terms
         self._threshold = threshold
-        self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
+        self._matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]]
         if basis == ElectronicBasis.SO:
             self._matrices = np.where(np.abs(matrices) > self._threshold, matrices, 0.0)
         else:
@@ -194,7 +194,7 @@ class ElectronicIntegrals(ABC):
         return "\n".join(string)
 
     @staticmethod
-    def _render_matrix_as_sparse_list(matrix) -> List[str]:
+    def _render_matrix_as_sparse_list(matrix) -> list[str]:
         string = []
         nonzero = matrix.nonzero()
         nonzero_count = len(nonzero[0])
@@ -240,7 +240,7 @@ class ElectronicIntegrals(ABC):
 
     @staticmethod
     def _validate_matrices(
-        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]],
         basis: ElectronicBasis,
         num_body_terms: int,
     ) -> None:
@@ -333,7 +333,7 @@ class ElectronicIntegrals(ABC):
             if spin_matrix[indices]
         )
 
-    def _create_base_op(self, indices: Tuple[int, ...], coeff: complex, length: int) -> FermionicOp:
+    def _create_base_op(self, indices: tuple[int, ...], coeff: complex, length: int) -> FermionicOp:
         """Creates a single base operator for the given coefficient.
 
         Args:
@@ -350,7 +350,7 @@ class ElectronicIntegrals(ABC):
         return base_op
 
     @abstractmethod
-    def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
+    def _calc_coeffs_with_ops(self, indices: tuple[int, ...]) -> list[tuple[int, str]]:
         """Maps indices to creation/annihilation operator symbols.
 
         Args:

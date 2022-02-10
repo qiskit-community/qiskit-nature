@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import cast, Dict, Generator, List, Optional, Tuple
+from typing import cast, Generator, Optional
 
 import h5py
 
@@ -38,7 +38,7 @@ class VibrationalEnergy(VibrationalProperty):
 
     def __init__(
         self,
-        vibrational_integrals: List[VibrationalIntegrals],
+        vibrational_integrals: list[VibrationalIntegrals],
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
     ) -> None:
@@ -55,7 +55,7 @@ class VibrationalEnergy(VibrationalProperty):
                 be set before the second-quantized operator can be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
-        self._vibrational_integrals: Dict[int, VibrationalIntegrals] = {}
+        self._vibrational_integrals: dict[int, VibrationalIntegrals] = {}
         for integral in vibrational_integrals:
             self.add_vibrational_integral(integral)
         self._truncation_order = truncation_order
@@ -131,7 +131,7 @@ class VibrationalEnergy(VibrationalProperty):
 
         w_h = cast(WatsonHamiltonian, result)
 
-        sorted_integrals: Dict[int, List[Tuple[float, Tuple[int, ...]]]] = {1: [], 2: [], 3: []}
+        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]
             num_body = len(set(ints))

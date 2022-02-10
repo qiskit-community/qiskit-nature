@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import logging
-from typing import cast, List, Optional, Tuple
+from typing import cast, Optional
 
 import itertools
 
@@ -236,19 +236,19 @@ class AngularMomentum(ElectronicProperty):
                 result.total_angular_momentum.append(None)
 
 
-def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_s_x_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
     return _calc_squared_ints(num_modes, _modify_s_x_squared_ints_neq, _modify_s_x_squared_ints_eq)
 
 
-def _calc_s_y_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_s_y_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
     return _calc_squared_ints(num_modes, _modify_s_y_squared_ints_neq, _modify_s_y_squared_ints_eq)
 
 
-def _calc_s_z_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_s_z_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
     return _calc_squared_ints(num_modes, _modify_s_z_squared_ints_neq, _modify_s_z_squared_ints_eq)
 
 
-def _calc_squared_ints(num_modes: int, func_neq, func_eq) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_squared_ints(num_modes: int, func_neq, func_eq) -> tuple[np.ndarray, np.ndarray]:
     # calculates 1- and 2-body integrals for a given angular momentum axis (x or y or z,
     # specified by func_neq and func_eq)
     num_modes_2 = num_modes // 2
@@ -356,7 +356,7 @@ def _modify_s_z_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
 
 
 def _add_values_to_s_squared_ints(
-    h_2: np.ndarray, indices: List[Tuple[int, int, int, int]], values: List[int]
+    h_2: np.ndarray, indices: list[tuple[int, int, int, int]], values: list[int]
 ) -> np.ndarray:
     for index, value in zip(indices, values):
         h_2[index] += value

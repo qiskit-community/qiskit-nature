@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 
@@ -32,7 +32,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
     def __init__(
         self,
         basis: ElectronicBasis,
-        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]],
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
         # pylint: disable=line-too-long
@@ -108,7 +108,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         return np.where(np.abs(so_matrix) > self._threshold, so_matrix, 0.0)
 
-    def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
+    def _calc_coeffs_with_ops(self, indices: tuple[int, ...]) -> list[tuple[int, str]]:
         return [(indices[0], "+"), (indices[1], "-")]
 
     def compose(self, other: ElectronicIntegrals, einsum_subscript: str = "ij,ji") -> complex:

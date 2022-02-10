@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple, cast
+from typing import Optional, Tuple, cast
 
 import h5py
 
@@ -45,8 +45,8 @@ class DipoleMoment(IntegralProperty):
     def __init__(
         self,
         axis: str,
-        electronic_integrals: List[ElectronicIntegrals],
-        shift: Optional[Dict[str, complex]] = None,
+        electronic_integrals: list[ElectronicIntegrals],
+        shift: Optional[dict[str, complex]] = None,
     ) -> None:
         """
         Args:
@@ -143,8 +143,8 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
     def __init__(
         self,
-        dipole_axes: Optional[List[DipoleMoment]] = None,
-        dipole_shift: Optional[Dict[str, DipoleTuple]] = None,
+        dipole_axes: Optional[list[DipoleMoment]] = None,
+        dipole_shift: Optional[dict[str, DipoleTuple]] = None,
         nuclear_dipole_moment: Optional[DipoleTuple] = None,
         reverse_dipole_sign: bool = False,
     ) -> None:
@@ -347,7 +347,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             axes_order = {"x": 0, "y": 1, "z": 2}
             dipole_moment = [None] * 3
             for prop in iter(self):
-                moment: Optional[Tuple[complex, complex]]
+                moment: Optional[tuple[complex, complex]]
                 try:
                     moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]
                 except KeyError:
@@ -356,7 +356,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
                     dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
 
             result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
-            dipole_shifts: Dict[str, Dict[str, complex]] = {}
+            dipole_shifts: dict[str, dict[str, complex]] = {}
             for prop in self._properties.values():
                 for name, shift in prop._shift.items():
                     if name not in dipole_shifts:
