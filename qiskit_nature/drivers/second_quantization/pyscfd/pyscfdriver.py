@@ -23,7 +23,6 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 import numpy as np
 from qiskit.utils.validation import validate_min
 
-from qiskit_nature.settings import settings
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicStructureDriverResult,
@@ -518,9 +517,11 @@ class PySCFDriver(ElectronicStructureDriver):
         self._populate_driver_result_electronic_energy(driver_result)
         self._populate_driver_result_electronic_dipole_moment(driver_result)
 
-        if not settings.dict_aux_operators:
-            driver_result.add_property(AngularMomentum(self._mol.nao * 2))
-            driver_result.add_property(Magnetization(self._mol.nao * 2))
+        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
+        # these properties by default.
+        # if not settings.dict_aux_operators:
+        driver_result.add_property(AngularMomentum(self._mol.nao * 2))
+        driver_result.add_property(Magnetization(self._mol.nao * 2))
 
         return driver_result
 
