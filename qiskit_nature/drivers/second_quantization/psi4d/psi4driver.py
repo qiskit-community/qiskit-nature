@@ -160,7 +160,7 @@ class PSI4Driver(ElectronicStructureDriver):
         file_fd, hdf5_file = tempfile.mkstemp(suffix=".hdf5")
         os.close(file_fd)
 
-        input_text += [f'save_to_hdf5(driver_result, "{Path(hdf5_file).as_posix()}", force=True)']
+        input_text += [f'save_to_hdf5(driver_result, "{Path(hdf5_file).as_posix()}", replace=True)']
 
         file_fd, input_file = tempfile.mkstemp(suffix=".inp")
         os.close(file_fd)
