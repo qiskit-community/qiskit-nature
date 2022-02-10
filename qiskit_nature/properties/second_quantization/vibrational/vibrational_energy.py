@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import cast, Dict, List, Optional, Tuple
+from typing import cast, Dict, Generator, List, Optional, Tuple
 
 import h5py
 
@@ -140,6 +140,18 @@ class VibrationalEnergy(VibrationalProperty):
         return cls(
             [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
         )
+
+    def __iter__(self) -> Generator[VibrationalIntegrals, None, None]:
+        """Returns the generator-iterator method."""
+        return self._generator()
+
+    def _generator(self) -> Generator[VibrationalIntegrals, None, None]:
+        """A generator-iterator method [1] iterating over all internal ``VibrationalIntegrals``.
+
+        [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
+        """
+        for ints in self._vibrational_integrals.values():
+            yield ints
 
     def add_vibrational_integral(self, integral: VibrationalIntegrals) -> None:
         # pylint: disable=line-too-long

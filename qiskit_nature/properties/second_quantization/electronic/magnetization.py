@@ -38,6 +38,16 @@ class Magnetization(ElectronicProperty):
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
 
+    @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the number of spin orbitals."""
+        return self._num_spin_orbitals
+
+    @num_spin_orbitals.setter
+    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
+        """Sets the number of spin orbitals."""
+        self._num_spin_orbitals = num_spin_orbitals
+
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]

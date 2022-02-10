@@ -45,9 +45,13 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: AngularMomentum, second: AngularMomentum, msg: str = None
     ) -> None:
         """Compares two AngularMomentum instances."""
-        if first._num_spin_orbitals != second._num_spin_orbitals:
+        if first.num_spin_orbitals != second.num_spin_orbitals:
             raise self.failureException(msg)
-        if first._spin != second._spin:
+        if first.spin != second.spin:
+            raise self.failureException(msg)
+        if not np.isclose(first.absolute_tolerance, second.absolute_tolerance):
+            raise self.failureException(msg)
+        if not np.isclose(first.relative_tolerance, second.relative_tolerance):
             raise self.failureException(msg)
 
     def compare_electronic_dipole_moment(
@@ -68,24 +72,18 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: DipoleMoment, second: DipoleMoment, msg: str = None
     ) -> None:
         """Compares two DipoleMoment instances."""
-        if first._axis != second._axis:
+        if first.axis != second.axis:
             raise self.failureException(msg)
 
-        for f_basis, s_basis in zip(
-            first._electronic_integrals.values(), second._electronic_integrals.values()
-        ):
-            for f_ints, s_ints in zip(f_basis.values(), s_basis.values()):
-                self.compare_electronic_integral(f_ints, s_ints)
+        for f_ints, s_ints in zip(first, second):
+            self.compare_electronic_integral(f_ints, s_ints)
 
     def compare_electronic_energy(
         self, first: ElectronicEnergy, second: ElectronicEnergy, msg: str = None
     ) -> None:
         """Compares two ElectronicEnergy instances."""
-        for f_basis, s_basis in zip(
-            first._electronic_integrals.values(), second._electronic_integrals.values()
-        ):
-            for f_ints, s_ints in zip(f_basis.values(), s_basis.values()):
-                self.compare_electronic_integral(f_ints, s_ints)
+        for f_ints, s_ints in zip(first, second):
+            self.compare_electronic_integral(f_ints, s_ints)
 
         if not np.isclose(first.nuclear_repulsion_energy, second.nuclear_repulsion_energy):
             raise self.failureException(msg)
@@ -101,22 +99,26 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: Magnetization, second: Magnetization, msg: str = None
     ) -> None:
         """Compares two Magnetization instances."""
-        if first._num_spin_orbitals != second._num_spin_orbitals:
+        if first.num_spin_orbitals != second.num_spin_orbitals:
             raise self.failureException(msg)
 
     def compare_particle_number(
         self, first: ParticleNumber, second: ParticleNumber, msg: str = None
     ) -> None:
         """Compares two ParticleNumber instances."""
-        if first._num_spin_orbitals != second._num_spin_orbitals:
+        if first.num_spin_orbitals != second.num_spin_orbitals:
             raise self.failureException(msg)
-        if first._num_alpha != second._num_alpha:
+        if first.num_alpha != second.num_alpha:
             raise self.failureException(msg)
-        if first._num_beta != second._num_beta:
+        if first.num_beta != second.num_beta:
             raise self.failureException(msg)
-        if not np.allclose(first._occupation_alpha, second._occupation_alpha):
+        if not np.allclose(first.occupation_alpha, second.occupation_alpha):
             raise self.failureException(msg)
-        if not np.allclose(first._occupation_beta, second._occupation_beta):
+        if not np.allclose(first.occupation_beta, second.occupation_beta):
+            raise self.failureException(msg)
+        if not np.isclose(first.absolute_tolerance, second.absolute_tolerance):
+            raise self.failureException(msg)
+        if not np.isclose(first.relative_tolerance, second.relative_tolerance):
             raise self.failureException(msg)
 
     def compare_driver_metadata(
@@ -149,13 +151,13 @@ class PropertyTest(QiskitNatureTestCase):
         """Compares two ElectronicIntegrals instances."""
         if first.name != second.name:
             raise self.failureException(msg)
-        if first._basis != second._basis:
+        if first.basis != second.basis:
             raise self.failureException(msg)
-        if first._num_body_terms != second._num_body_terms:
+        if first.num_body_terms != second.num_body_terms:
             raise self.failureException(msg)
-        if first._MATRIX_REPRESENTATIONS != second._MATRIX_REPRESENTATIONS:
+        if not np.isclose(first.threshold, second.threshold):
             raise self.failureException(msg)
-        for f_mat, s_mat in zip(first._matrices, second._matrices):
+        for f_mat, s_mat in zip(first, second):
             if not np.allclose(f_mat, s_mat):
                 raise self.failureException(msg)
 
@@ -166,10 +168,10 @@ class PropertyTest(QiskitNatureTestCase):
         if first.name != second.name:
             raise self.failureException(msg)
 
-        if first._num_body_terms != second._num_body_terms:
+        if first.num_body_terms != second.num_body_terms:
             raise self.failureException(msg)
 
-        for f_int, s_int in zip(first._integrals, second._integrals):
+        for f_int, s_int in zip(first.integrals, second.integrals):
             if not np.isclose(f_int[0], s_int[0]):
                 raise self.failureException(msg)
 
@@ -181,9 +183,7 @@ class PropertyTest(QiskitNatureTestCase):
     ) -> None:
         # pylint: disable=unused-argument
         """Compares two VibrationalEnergy instances."""
-        for f_ints, s_ints in zip(
-            first._vibrational_integrals.values(), second._vibrational_integrals.values()
-        ):
+        for f_ints, s_ints in zip(first, second):
             self.compare_vibrational_integral(f_ints, s_ints)
 
     def compare_occupied_modals(

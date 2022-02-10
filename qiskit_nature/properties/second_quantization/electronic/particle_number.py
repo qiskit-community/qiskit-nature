@@ -75,6 +75,8 @@ class ParticleNumber(ElectronicProperty):
         else:
             self._num_alpha, self._num_beta = num_particles
 
+        self._occupation_alpha: Union[np.ndarray, list[float]]
+        self._occupation_beta: Union[np.ndarray, list[float]]
         if occupation is None:
             self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
             self._occupation_alpha += [0.0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
@@ -84,8 +86,8 @@ class ParticleNumber(ElectronicProperty):
             self._occupation_alpha = [np.ceil(o / 2) for o in occupation]
             self._occupation_beta = [np.floor(o / 2) for o in occupation]
         else:
-            self._occupation_alpha = occupation  # type: ignore
-            self._occupation_beta = occupation_beta  # type: ignore
+            self._occupation_alpha = occupation
+            self._occupation_beta = occupation_beta
 
         self._absolute_tolerance = absolute_tolerance
         self._relative_tolerance = relative_tolerance
@@ -95,15 +97,30 @@ class ParticleNumber(ElectronicProperty):
         """Returns the num_spin_orbitals."""
         return self._num_spin_orbitals
 
+    @num_spin_orbitals.setter
+    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
+        """Sets the number of spin orbitals."""
+        self._num_spin_orbitals = num_spin_orbitals
+
     @property
     def num_alpha(self) -> int:
         """Returns the number of alpha electrons."""
         return self._num_alpha
 
+    @num_alpha.setter
+    def num_alpha(self, num_alpha: int) -> None:
+        """Sets the number of alpha electrons."""
+        self._num_alpha = num_alpha
+
     @property
     def num_beta(self) -> int:
         """Returns the number of beta electrons."""
         return self._num_beta
+
+    @num_beta.setter
+    def num_beta(self, num_beta: int) -> None:
+        """Sets the number of beta electrons."""
+        self._num_beta = num_beta
 
     @property
     def num_particles(self) -> Tuple[int, int]:
@@ -119,6 +136,11 @@ class ParticleNumber(ElectronicProperty):
         """
         return np.asarray(self._occupation_alpha)
 
+    @occupation_alpha.setter
+    def occupation_alpha(self, occ_alpha: Union[np.ndarray, List[float]]) -> None:
+        """Sets the occupation numbers of the alpha-spin orbitals."""
+        self._occupation_alpha = occ_alpha
+
     @property
     def occupation_beta(self) -> np.ndarray:
         """Returns the occupation numbers of the beta-spin orbitals.
@@ -127,6 +149,31 @@ class ParticleNumber(ElectronicProperty):
         superpositions of determinants.
         """
         return np.asarray(self._occupation_beta)
+
+    @occupation_beta.setter
+    def occupation_beta(self, occ_beta: Union[np.ndarray, List[float]]) -> None:
+        """Sets the occupation numbers of the beta-spin orbitals."""
+        self._occupation_beta = occ_beta
+
+    @property
+    def absolute_tolerance(self) -> float:
+        """Returns the absolute tolerance."""
+        return self._absolute_tolerance
+
+    @absolute_tolerance.setter
+    def absolute_tolerance(self, absolute_tolerance: float) -> None:
+        """Sets the absolute tolerance."""
+        self._absolute_tolerance = absolute_tolerance
+
+    @property
+    def relative_tolerance(self) -> float:
+        """Returns the relative tolerance."""
+        return self._relative_tolerance
+
+    @relative_tolerance.setter
+    def relative_tolerance(self, relative_tolerance: float) -> None:
+        """Sets the relative tolerance."""
+        self._relative_tolerance = relative_tolerance
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]

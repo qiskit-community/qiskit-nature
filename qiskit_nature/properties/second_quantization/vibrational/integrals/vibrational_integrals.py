@@ -74,6 +74,16 @@ class VibrationalIntegrals(ABC):
         self._basis = basis
 
     @property
+    def num_body_terms(self) -> int:
+        """Returns the num_body_terms."""
+        return self._num_body_terms
+
+    @num_body_terms.setter
+    def num_body_terms(self, num_body_terms: int) -> None:
+        """Sets the num_body_terms."""
+        self._num_body_terms = num_body_terms
+
+    @property
     def integrals(self) -> List[Tuple[float, Tuple[int, ...]]]:
         """Returns the integrals."""
         return self._integrals

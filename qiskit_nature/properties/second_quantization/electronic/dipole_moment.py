@@ -58,6 +58,16 @@ class DipoleMoment(IntegralProperty):
         name = self.__class__.__name__ + axis.upper()
         super().__init__(name, electronic_integrals, shift=shift)
 
+    @property
+    def axis(self) -> str:
+        """Returns the axis."""
+        return self._axis
+
+    @axis.setter
+    def axis(self, axis: str) -> None:
+        """Sets the axis."""
+        self._axis = axis
+
     def to_hdf5(self, parent: h5py.Group) -> None:
         """Stores this instance in an HDF5 group inside of the provided parent group.
 

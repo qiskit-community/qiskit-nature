@@ -68,6 +68,16 @@ class AngularMomentum(ElectronicProperty):
         self._relative_tolerance = relative_tolerance
 
     @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the number of spin orbitals."""
+        return self._num_spin_orbitals
+
+    @num_spin_orbitals.setter
+    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
+        """Sets the number of spin orbitals."""
+        self._num_spin_orbitals = num_spin_orbitals
+
+    @property
     def spin(self) -> Optional[float]:
         """Returns the expected spin."""
         return self._spin
@@ -76,6 +86,26 @@ class AngularMomentum(ElectronicProperty):
     def spin(self, spin: Optional[float]) -> None:
         """Sets the expected spin."""
         self._spin = spin
+
+    @property
+    def absolute_tolerance(self) -> float:
+        """Returns the absolute tolerance."""
+        return self._absolute_tolerance
+
+    @absolute_tolerance.setter
+    def absolute_tolerance(self, absolute_tolerance: float) -> None:
+        """Sets the absolute tolerance."""
+        self._absolute_tolerance = absolute_tolerance
+
+    @property
+    def relative_tolerance(self) -> float:
+        """Returns the relative tolerance."""
+        return self._relative_tolerance
+
+    @relative_tolerance.setter
+    def relative_tolerance(self, relative_tolerance: float) -> None:
+        """Sets the relative tolerance."""
+        self._relative_tolerance = relative_tolerance
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]

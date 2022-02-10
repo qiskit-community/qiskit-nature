@@ -18,7 +18,7 @@ import importlib
 import itertools
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List, Optional, Tuple, Union
+from typing import Generator, List, Optional, Tuple, Union
 
 import h5py
 import numpy as np
@@ -98,6 +98,36 @@ class ElectronicIntegrals(ABC):
 
         if basis != ElectronicBasis.SO:
             self._fill_matrices()
+
+    @property
+    def basis(self) -> ElectronicBasis:
+        """Returns the basis."""
+        return self._basis
+
+    @basis.setter
+    def basis(self, basis: ElectronicBasis) -> None:
+        """Sets the basis."""
+        self._basis = basis
+
+    @property
+    def num_body_terms(self) -> int:
+        """Returns the num_body_terms."""
+        return self._num_body_terms
+
+    @num_body_terms.setter
+    def num_body_terms(self, num_body_terms: int) -> None:
+        """Sets the num_body_terms."""
+        self._num_body_terms = num_body_terms
+
+    @property
+    def threshold(self) -> float:
+        """Returns the threshold."""
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, threshold: float) -> None:
+        """Sets the threshold."""
+        self._threshold = threshold
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """Stores this instance in an HDF5 group inside of the provided parent group.
@@ -179,6 +209,14 @@ class ElectronicIntegrals(ABC):
             string += [f"\t{indices} = {value}"]
             count += 1
         return string
+
+    def __iter__(self) -> Generator[np.ndarray, None, None]:
+        """An iterator over the internal matrices."""
+        if isinstance(self._matrices, np.ndarray):
+            yield self._matrices
+        else:
+            for mat in self._matrices:
+                yield mat
 
     @staticmethod
     def set_truncation(max_num_entries: int) -> None:
