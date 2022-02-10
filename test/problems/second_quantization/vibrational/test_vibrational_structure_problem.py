@@ -15,20 +15,37 @@
 import warnings
 from test import QiskitNatureTestCase
 
+import numpy as np
+
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
+
+from .resources.expected_ops import _truncation_order_1_op, _truncation_order_2_op
 
 
 class TestVibrationalStructureProblem(QiskitNatureTestCase):
     """Tests Vibrational Problem."""
 
+    def compare_vibrational_op(
+        self, first: VibrationalOp, second: VibrationalOp, msg: str = None
+    ) -> None:
+        """Compares two ElectronicIntegrals instances."""
+        for f_lbl, s_lbl in zip(first._labels, second._labels):
+            if f_lbl != s_lbl:
+                raise self.failureException(msg)
+        for f_coeff, s_coeff in zip(first._coeffs, second._coeffs):
+            if not np.isclose(f_coeff, s_coeff):
+                raise self.failureException(msg)
+
     def setUp(self) -> None:
         """Setup."""
         super().setUp()
+        self.addTypeEqualityFunc(VibrationalOp, self.compare_vibrational_op)
+
         logfile = self.get_resource_path(
-            "CO2_freq_B3LYP_ccpVDZ.log",
-            "problems/second_quantization/vibrational/resources",
+            "test_driver_gaussian_log_C01.txt",
+            "drivers/second_quantization/gaussiand",
         )
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -39,7 +56,7 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
         expected_num_of_sec_quant_ops = 5
-        expected_len_of_vibrational_op = 130
+        expected_len_of_vibrational_op = 47
         num_modals = 2
         truncation_order = 3
         num_modes = self.props.num_modes
@@ -54,14 +71,14 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
             assert len(vibrational_op) == expected_len_of_vibrational_op
         with self.subTest("Check types in the list of second quantized operators."):
             assert isinstance(vibrational_op, VibrationalOp)
-        # TODO: add more checks once the algorithms are fully in place
+            self.assertEqual(vibrational_op, _truncation_order_2_op)
 
     def test_truncation_order(self):
         """Tests that the truncation_order is being respected."""
         expected_num_of_sec_quant_ops = 5
-        expected_len_of_vibrational_op = 58
+        expected_len_of_vibrational_op = 10
         num_modals = 2
-        truncation_order = 2
+        truncation_order = 1
         num_modes = self.props.num_modes
         num_modals = [num_modals] * num_modes
         vibrational_problem = VibrationalStructureProblem(self.driver, num_modals, truncation_order)
@@ -74,3 +91,4 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
             assert len(vibrational_op) == expected_len_of_vibrational_op
         with self.subTest("Check types in the list of second quantized operators."):
             assert isinstance(vibrational_op, VibrationalOp)
+            self.assertEqual(vibrational_op, _truncation_order_1_op)
