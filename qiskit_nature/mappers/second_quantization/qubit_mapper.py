@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -141,6 +141,7 @@ class QubitMapper(ABC):
                     raise QiskitNatureError(
                         f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
                     )
+                ret_op = ret_op.simplify()
             ret_op_list.append(ret_op)
 
         return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())
