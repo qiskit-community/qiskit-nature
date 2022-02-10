@@ -17,12 +17,8 @@ import unittest
 import warnings
 from typing import cast
 
-<<<<<<< HEAD
-from test import QiskitNatureTestCase, requires_extra_library
-=======
 from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
->>>>>>> 9da2cf8 (Alter forces test based on driver revision (#524))
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import (
@@ -94,9 +90,6 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         [2.2973803125, 3, 3, 3, 3],
     ]
 
-<<<<<<< HEAD
-    @requires_extra_library
-=======
     def _get_expected_values(self):
         """Get expected values based on revision of Gaussian 16 being used."""
         jcf = "\n\n"  # Empty job control file will error out
@@ -120,7 +113,6 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         return exp_vals
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
->>>>>>> 9da2cf8 (Alter forces test based on driver revision (#524))
     def test_driver_jcf(self):
         """Test the driver works with job control file"""
         driver = GaussianForcesDriver(
@@ -140,7 +132,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         result = driver.run()
         self._check_driver_result(self._get_expected_values(), result)
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_molecule(self):
         """Test the driver works with Molecule"""
         molecule = Molecule(
