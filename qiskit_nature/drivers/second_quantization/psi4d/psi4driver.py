@@ -28,7 +28,6 @@ from qiskit_nature.properties.second_quantization.electronic import (
     Magnetization,
 )
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.settings import settings
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
@@ -207,10 +206,12 @@ class PSI4Driver(ElectronicStructureDriver):
         except Exception:  # pylint: disable=broad-except
             pass
 
+        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
+        # these properties by default.
+        # if not settings.dict_aux_operators:
         num_spin_orbitals = driver_result.get_property("ParticleNumber").num_spin_orbitals
-        if not settings.dict_aux_operators:
-            driver_result.add_property(AngularMomentum(num_spin_orbitals))
-            driver_result.add_property(Magnetization(num_spin_orbitals))
+        driver_result.add_property(AngularMomentum(num_spin_orbitals))
+        driver_result.add_property(Magnetization(num_spin_orbitals))
 
         return driver_result
 
