@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,17 +18,11 @@ the issue then ensure changes are made to readme too.
 
 import unittest
 
-<<<<<<< HEAD
-from test import QiskitNatureTestCase, requires_extra_library
-=======
 import contextlib
 import io
 from pathlib import Path
 import re
-from test import QiskitNatureTestCase
-from qiskit.utils import optionals
-import qiskit_nature.optionals as _optionals
->>>>>>> a5706e8 (Use code from README.md in test_readme_sample (#543))
+from test import QiskitNatureTestCase, requires_extra_library
 
 
 class TestReadmeSample(QiskitNatureTestCase):
