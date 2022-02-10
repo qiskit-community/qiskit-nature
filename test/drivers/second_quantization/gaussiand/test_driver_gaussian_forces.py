@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,7 +17,7 @@ import unittest
 import warnings
 from typing import cast
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, requires_extra_library
 from ddt import data, ddt, unpack
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
@@ -112,7 +112,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
 
         return exp_vals
 
-    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
+    @requires_extra_library
     def test_driver_jcf(self):
         """Test the driver works with job control file"""
         driver = GaussianForcesDriver(
@@ -132,7 +132,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         result = driver.run()
         self._check_driver_result(self._get_expected_values(), result)
 
-    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
+    @requires_extra_library
     def test_driver_molecule(self):
         """Test the driver works with Molecule"""
         molecule = Molecule(
