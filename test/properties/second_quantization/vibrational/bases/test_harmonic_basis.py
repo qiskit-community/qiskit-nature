@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,9 +13,11 @@
 """Test HarmonicBasis."""
 
 import json
+import tempfile
 from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
 
+import h5py
 import numpy as np
 
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
@@ -114,3 +116,32 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), operator):
                 self.assertEqual(real_label, exp_label)
                 self.assertTrue(np.isclose(real_coeff, exp_coeff))
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        num_modes = 4
+        num_modals = 2
+        num_modals_per_mode = [num_modals] * num_modes
+        basis = HarmonicBasis(num_modals_per_mode)
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                basis.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        num_modes = 4
+        num_modals = 2
+        num_modals_per_mode = [num_modals] * num_modes
+        basis = HarmonicBasis(num_modals_per_mode)
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                basis.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = HarmonicBasis.from_hdf5(file["HarmonicBasis"])
+
+                self.assertTrue(
+                    np.allclose(basis.num_modals_per_mode, read_prop.num_modals_per_mode)
+                )

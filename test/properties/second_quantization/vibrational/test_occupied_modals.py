@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,15 +12,18 @@
 
 """Test OccupiedModals Property"""
 
+import tempfile
 import warnings
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
+
+import h5py
 
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.properties.second_quantization.vibrational import OccupiedModals
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 
 
-class TestOccupiedModals(QiskitNatureTestCase):
+class TestOccupiedModals(PropertyTest):
     """Test OccupiedModals Property"""
 
     def setUp(self):
@@ -48,3 +51,20 @@ class TestOccupiedModals(QiskitNatureTestCase):
         ]
         for op, expected_op_list in zip(ops, expected):
             self.assertEqual(op.to_list(), expected_op_list)
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = OccupiedModals.from_hdf5(file["OccupiedModals"])
+
+                self.assertEqual(self.prop, read_prop)

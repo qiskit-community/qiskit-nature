@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,11 +12,16 @@
 
 """A group of multiple properties."""
 
-from collections.abc import Iterable
-from typing import Dict, Generator, Generic, Optional, Type, TypeVar, Union
+from __future__ import annotations
 
+from collections.abc import Iterable
+from typing import Generator, Generic, Optional, Type, TypeVar, Union
+
+import h5py
+
+from qiskit_nature.hdf5 import _import_and_build_from_hdf5
 from qiskit_nature.results import EigenstateResult
-from .property import Property, PseudoProperty
+from .property import Interpretable, Property
 
 # pylint: disable=invalid-name
 T = TypeVar("T", bound=Property, covariant=True)
@@ -43,7 +48,7 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             name: the name of the property group.
         """
         super().__init__(name)
-        self._properties: Dict[str, T] = {}
+        self._properties: dict[str, T] = {}
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
@@ -59,7 +64,11 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             prop: the property to be added.
         """
         if prop is not None:
-            self._properties[prop.name] = prop
+            try:
+                name = prop.name
+            except AttributeError:
+                name = prop.__class__.__name__
+            self._properties[name] = prop
 
     def get_property(self, prop: Union[str, Type[Property]]) -> Optional[T]:
         """Gets a property from the group.
@@ -84,14 +93,9 @@ class GroupedProperty(Property, Iterable, Generic[T]):
     def _generator(self) -> Generator[T, T, None]:
         """A generator-iterator method [1] iterating over all internal properties.
 
-        :class:`~qiskit_nature.properties.property.PseudoProperty` objects are automatically
-        excluded.
-
         [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
         """
         for prop in self._properties.values():
-            if isinstance(prop, PseudoProperty):
-                continue
             new_property = yield prop
             if new_property is not None:
                 self.add_property(new_property)
@@ -103,4 +107,45 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             result: the result to add meaning to.
         """
         for prop in self._properties.values():
-            prop.interpret(result)
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        This method also iterates all properties contained in this ``GroupProperty`` instance.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        for prop in self._properties.values():
+            prop.to_hdf5(group)
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> GroupedProperty:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        More specifically this method will iterate all groups found within `h5py_group` and
+        constructs the corresponding objects from these groups.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        class_name = h5py_group.attrs.get("__class__", "")
+
+        ret: GroupedProperty = GroupedProperty(class_name)
+
+        for prop in _import_and_build_from_hdf5(h5py_group):
+            ret.add_property(prop)
+
+        return ret
