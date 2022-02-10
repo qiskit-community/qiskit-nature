@@ -18,7 +18,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Union, List, Optional, Any, Dict
+from typing import Any, Optional, Union, cast
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5
@@ -48,7 +48,7 @@ class PSI4Driver(ElectronicStructureDriver):
     def __init__(
         self,
         config: Union[
-            str, List[str]
+            str, list[str]
         ] = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n}\n\n"
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
     ) -> None:
@@ -74,7 +74,7 @@ class PSI4Driver(ElectronicStructureDriver):
         molecule: Molecule,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
-        driver_kwargs: Optional[Dict[str, Any]] = None,
+        driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "PSI4Driver":
         """
         Args:
@@ -197,7 +197,7 @@ class PSI4Driver(ElectronicStructureDriver):
         driver_result: ElectronicStructureDriverResult = None
         for prop in load_from_hdf5(hdf5_file):
             if driver_result is None:
-                driver_result = prop
+                driver_result = cast(ElectronicStructureDriverResult, prop)
             else:
                 raise QiskitNatureError("Found an unexpected number of properties!")
 
