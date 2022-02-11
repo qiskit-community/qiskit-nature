@@ -12,6 +12,8 @@
 
 """ PSI4 Driver """
 
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
