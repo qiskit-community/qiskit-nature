@@ -47,8 +47,10 @@ class TestHDF5(QiskitNatureTestCase):
             tmp_file.close()
             os.unlink(tmp_file.name)
             save_to_hdf5(driver_result, tmp_file.name)
-            self.assertTrue(os.path.exists(tmp_file.name))
-            os.unlink(tmp_file.name)
+            try:
+                self.assertTrue(os.path.exists(tmp_file.name))
+            finally:
+                os.unlink(tmp_file.name)
 
         with self.subTest("FileExistsError"):
             with tempfile.NamedTemporaryFile() as tmp_file:
@@ -56,5 +58,13 @@ class TestHDF5(QiskitNatureTestCase):
                     save_to_hdf5(driver_result, tmp_file.name)
 
         with self.subTest("replace=True"):
-            with tempfile.NamedTemporaryFile() as tmp_file:
+            # pylint: disable=consider-using-with
+            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
+            # we need to use delete=False here because on Windows it is not possible to open an
+            # existing file a second time:
+            # https://docs.python.org/3.9/library/tempfile.html#tempfile.NamedTemporaryFile
+            tmp_file.close()
+            try:
                 save_to_hdf5(driver_result, tmp_file.name, replace=True)
+            finally:
+                os.unlink(tmp_file.name)
