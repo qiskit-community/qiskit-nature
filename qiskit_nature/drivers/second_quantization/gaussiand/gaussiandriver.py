@@ -12,12 +12,14 @@
 
 """ Gaussian Driver """
 
+from __future__ import annotations
+
 import io
 import logging
 import os
 import sys
 import tempfile
-from typing import Union, List, Optional, Any, Dict, Tuple
+from typing import Any, Optional, Union
 
 import numpy as np
 
@@ -68,7 +70,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
     def __init__(
         self,
-        config: Union[str, List[str]] = "# rhf/sto-3g scf(conventional)\n\n"
+        config: Union[str, list[str]] = "# rhf/sto-3g scf(conventional)\n\n"
         "h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735\n\n",
     ) -> None:
         """
@@ -93,7 +95,7 @@ class GaussianDriver(ElectronicStructureDriver):
         molecule: Molecule,
         basis: str = "sto-3g",
         method: MethodType = MethodType.RHF,
-        driver_kwargs: Optional[Dict[str, Any]] = None,
+        driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "GaussianDriver":
         """
         Args:
@@ -293,7 +295,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
         # molecule
         coords = np.reshape(mel.c, (len(mel.ian), 3))
-        geometry: List[Tuple[str, List[float]]] = []
+        geometry: list[tuple[str, list[float]]] = []
         for atom, xyz in zip(mel.ian, coords):
             geometry.append((PERIODIC_TABLE[atom], BOHR * xyz))
 

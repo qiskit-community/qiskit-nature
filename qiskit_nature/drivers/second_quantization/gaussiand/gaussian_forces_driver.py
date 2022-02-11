@@ -12,7 +12,9 @@
 
 """ Gaussian Forces Driver """
 
-from typing import Union, List, Optional, Dict, Any
+from __future__ import annotations
+
+from typing import Any, Optional, Union
 from qiskit_nature import QiskitNatureError
 
 from qiskit_nature.properties.second_quantization.vibrational import (
@@ -44,7 +46,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
 
     def __init__(
         self,
-        jcf: Union[str, List[str]] = B3YLP_JCF_DEFAULT,
+        jcf: Union[str, list[str]] = B3YLP_JCF_DEFAULT,
         logfile: Optional[str] = None,
         normalize: bool = True,
     ) -> None:
@@ -82,7 +84,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto-3g",
-        driver_kwargs: Optional[Dict[str, Any]] = None,
+        driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "GaussianForcesDriver":
         """
         Args:

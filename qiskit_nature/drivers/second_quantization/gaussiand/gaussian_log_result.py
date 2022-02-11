@@ -11,8 +11,11 @@
 # that they have been altered from the originals.
 
 """ Gaussian Log File Result """
+
+from __future__ import annotations
+
 import math
-from typing import Dict, Union, List, Tuple, cast
+from typing import Union, cast
 import copy
 import logging
 import re
@@ -31,7 +34,7 @@ class GaussianLogResult:
     Since this parses the text output it is subject to the format of the log file.
     """
 
-    def __init__(self, log: Union[str, List[str]]) -> None:
+    def __init__(self, log: Union[str, list[str]]) -> None:
         """
         Args:
             log: The log contents conforming to Gaussian™ 16 format either as a single string
@@ -60,7 +63,7 @@ class GaussianLogResult:
             raise ValueError(f"Invalid input for Gaussian Log Parser '{log}'")
 
     @property
-    def log(self) -> List[str]:
+    def log(self) -> list[str]:
         """The complete Gaussian log in the form of a list of strings."""
         return copy.copy(self._log)
 
@@ -73,7 +76,7 @@ class GaussianLogResult:
     _SECTION_QUARTIC = r":\s+QUARTIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES"
 
     @property
-    def quadratic_force_constants(self) -> List[Tuple[str, str, float, float, float]]:
+    def quadratic_force_constants(self) -> list[tuple[str, str, float, float, float]]:
         """Quadratic force constants. (2 indices, 3 values)
 
         Returns:
@@ -81,10 +84,10 @@ class GaussianLogResult:
             An empty list is returned if no such data is present in the log.
         """
         qfc = self._force_constants(self._SECTION_QUADRATIC, 2)
-        return cast(List[Tuple[str, str, float, float, float]], qfc)
+        return cast(list[tuple[str, str, float, float, float]], qfc)
 
     @property
-    def cubic_force_constants(self) -> List[Tuple[str, str, str, float, float, float]]:
+    def cubic_force_constants(self) -> list[tuple[str, str, str, float, float, float]]:
         """Cubic force constants. (3 indices, 3 values)
 
         Returns:
@@ -92,12 +95,12 @@ class GaussianLogResult:
             An empty list is returned if no such data is present in the log.
         """
         cfc = self._force_constants(self._SECTION_CUBIC, 3)
-        return cast(List[Tuple[str, str, str, float, float, float]], cfc)
+        return cast(list[tuple[str, str, str, float, float, float]], cfc)
 
     @property
     def quartic_force_constants(
         self,
-    ) -> List[Tuple[str, str, str, str, float, float, float]]:
+    ) -> list[tuple[str, str, str, str, float, float, float]]:
         """Quartic force constants. (4 indices, 3 values)
 
         Returns:
@@ -105,9 +108,9 @@ class GaussianLogResult:
             An empty list is returned if no such data is present in the log.
         """
         qfc = self._force_constants(self._SECTION_QUARTIC, 4)
-        return cast(List[Tuple[str, str, str, str, float, float, float]], qfc)
+        return cast(list[tuple[str, str, str, str, float, float, float]], qfc)
 
-    def _force_constants(self, section_name: str, indices: int) -> List[Tuple]:
+    def _force_constants(self, section_name: str, indices: int) -> list[tuple]:
         constants = []
         pattern_constants = ""
         for i in range(indices):
@@ -141,7 +144,7 @@ class GaussianLogResult:
                     # such point as it does not match anymore then we break out
                     const = re.match(pattern_constants, line)
                     if const is not None:
-                        clist = []  # type: List[Union[str, float]]
+                        clist: list[Union[str, float]] = []
                         for i in range(indices):
                             clist.append(const.group(f"index{i + 1}"))
                         for i in range(3):
@@ -153,14 +156,14 @@ class GaussianLogResult:
         return constants
 
     @property
-    def a_to_h_numbering(self) -> Dict[str, int]:
+    def a_to_h_numbering(self) -> dict[str, int]:
         """A to H numbering mapping.
 
         Returns:
             Dictionary mapping string A numbering such as '1', '3a' etc from forces modes
             to H integer numbering
         """
-        a2h = {}  # type: Dict[str, int]
+        a2h: dict[str, int] = {}
 
         found_section = False
         found_h = False
@@ -193,7 +196,7 @@ class GaussianLogResult:
     # but for now they are here
 
     @staticmethod
-    def _multinomial(indices: List[int]) -> float:
+    def _multinomial(indices: list[int]) -> float:
         # For a given list of integers, computes the associated multinomial
         tmp = set(indices)  # Set of unique indices
         multinomial = 1
@@ -202,7 +205,7 @@ class GaussianLogResult:
             multinomial = multinomial * math.factorial(count)
         return multinomial
 
-    def _process_entry_indices(self, entry: List[Union[str, float]]) -> List[int]:
+    def _process_entry_indices(self, entry: list[Union[str, float]]) -> list[int]:
         # a2h gives us say '3a' -> 1, '3b' -> 2 etc. The H values can be 1 through 4
         # but we want them numbered in reverse order so the 'a2h_vals + 1 - a2h[x]'
         # takes care of this
@@ -224,7 +227,7 @@ class GaussianLogResult:
         Returns:
             A VibrationalEnergy property.
         """
-        sorted_integrals: Dict[int, List[Tuple[float, Tuple[int, ...]]]] = {1: [], 2: [], 3: []}
+        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
 
         for entry in self.quadratic_force_constants:
             indices = self._process_entry_indices(list(entry))
