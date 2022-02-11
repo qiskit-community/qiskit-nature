@@ -18,6 +18,7 @@ from typing import Any, Optional, Union
 from qiskit_nature import QiskitNatureError
 
 from qiskit_nature.properties.second_quantization.vibrational import (
+    OccupiedModals,
     VibrationalStructureDriverResult,
 )
 import qiskit_nature.optionals as _optionals
@@ -140,4 +141,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
 
         driver_result = VibrationalStructureDriverResult()
         driver_result.add_property(glr.get_vibrational_energy(self._normalize))
+        driver_result.num_modes = len(glr.a_to_h_numbering)
+        driver_result.add_property(OccupiedModals())
+
         return driver_result
