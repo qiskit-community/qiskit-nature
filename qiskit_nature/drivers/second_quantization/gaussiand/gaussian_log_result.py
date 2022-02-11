@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import math
-from typing import Union, cast
+from typing import List, Tuple, Union, cast
 import copy
 import logging
 import re
@@ -84,7 +84,7 @@ class GaussianLogResult:
             An empty list is returned if no such data is present in the log.
         """
         qfc = self._force_constants(self._SECTION_QUADRATIC, 2)
-        return cast(list[tuple[str, str, float, float, float]], qfc)
+        return cast(List[Tuple[str, str, float, float, float]], qfc)
 
     @property
     def cubic_force_constants(self) -> list[tuple[str, str, str, float, float, float]]:
@@ -95,7 +95,7 @@ class GaussianLogResult:
             An empty list is returned if no such data is present in the log.
         """
         cfc = self._force_constants(self._SECTION_CUBIC, 3)
-        return cast(list[tuple[str, str, str, float, float, float]], cfc)
+        return cast(List[Tuple[str, str, str, float, float, float]], cfc)
 
     @property
     def quartic_force_constants(
@@ -108,7 +108,7 @@ class GaussianLogResult:
             An empty list is returned if no such data is present in the log.
         """
         qfc = self._force_constants(self._SECTION_QUARTIC, 4)
-        return cast(list[tuple[str, str, str, str, float, float, float]], qfc)
+        return cast(List[Tuple[str, str, str, str, float, float, float]], qfc)
 
     def _force_constants(self, section_name: str, indices: int) -> list[tuple]:
         constants = []
