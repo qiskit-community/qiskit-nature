@@ -185,6 +185,8 @@ class ElectronicIntegrals(ABC):
             group.create_dataset("Spin", data=self._matrices)
         else:
             for name, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
+                if mat is None:
+                    continue
                 group.create_dataset(name, data=mat)
 
     @staticmethod
@@ -207,11 +209,16 @@ class ElectronicIntegrals(ABC):
 
         basis = getattr(ElectronicBasis, h5py_group.attrs["basis"])
         threshold = h5py_group.attrs["threshold"]
-        matrices = tuple(h5py_group[rep][...] for rep in loaded_class._MATRIX_REPRESENTATIONS)
+        matrices: list[Optional[np.ndarray]] = []
+        for rep in loaded_class._MATRIX_REPRESENTATIONS:
+            if rep in h5py_group.keys():
+                matrices.append(h5py_group[rep][...])
+            else:
+                matrices.append(None)
 
         return loaded_class(
             basis=basis,
-            matrices=matrices,
+            matrices=tuple(matrices),
             threshold=threshold,
         )
 

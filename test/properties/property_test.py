@@ -158,6 +158,9 @@ class PropertyTest(QiskitNatureTestCase):
         if not np.isclose(first.threshold, second.threshold):
             raise self.failureException(msg)
         for f_mat, s_mat in zip(first, second):
+            if f_mat is None:
+                self.assertIsNone(s_mat)
+                continue
             if not np.allclose(f_mat, s_mat):
                 raise self.failureException(msg)
 

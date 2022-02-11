@@ -90,7 +90,8 @@ class ElectronicBasisTransform(Property):
         group.attrs["final_basis"] = self.final_basis.name
 
         group.create_dataset("Alpha coefficients", data=self.coeff_alpha)
-        group.create_dataset("Beta coefficients", data=self.coeff_beta)
+        if not self.is_alpha_equal_beta():
+            group.create_dataset("Beta coefficients", data=self.coeff_beta)
 
     @staticmethod
     def from_hdf5(h5py_group: h5py.Group) -> ElectronicBasisTransform:
@@ -104,11 +105,15 @@ class ElectronicBasisTransform(Property):
         Returns:
             A new instance of this class.
         """
+        coeff_alpha = h5py_group["Alpha coefficients"][...]
+        coeff_beta: Optional[np.ndarray] = None
+        if "Beta coefficients" in h5py_group.keys():
+            coeff_beta = h5py_group["Beta coefficients"][...]
         return ElectronicBasisTransform(
             getattr(ElectronicBasis, h5py_group.attrs["initial_basis"]),
             getattr(ElectronicBasis, h5py_group.attrs["final_basis"]),
-            h5py_group["Alpha coefficients"][...],
-            h5py_group["Beta coefficients"][...],
+            coeff_alpha,
+            coeff_beta,
         )
 
     @staticmethod
