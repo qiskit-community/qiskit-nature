@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,13 +12,18 @@
 
 """The VibrationalStructureDriverResult class."""
 
+from __future__ import annotations
+
 from typing import cast
+
+import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 from ..second_quantized_property import LegacyDriverResult
+from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
@@ -48,10 +53,55 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         """Sets the number of modes."""
         self._num_modes = num_modes
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_modes"] = self.num_modes
+
+        if self.basis is not None:
+            self.basis.to_hdf5(group)
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalStructureDriverResult:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        grouped_property = GroupedVibrationalProperty.from_hdf5(h5py_group)
+
+        basis: VibrationalBasis = None
+        ret = VibrationalStructureDriverResult()
+        for prop in grouped_property:
+            if isinstance(prop, VibrationalBasis):
+                basis = prop
+                continue
+            ret.add_property(prop)
+
+        ret.num_modes = h5py_group.attrs["num_modes"]
+
+        if basis is not None:
+            ret.basis = basis
+
+        return ret
+
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
-    ) -> "VibrationalStructureDriverResult":
+    ) -> VibrationalStructureDriverResult:
         """Converts a :class:`~qiskit_nature.drivers.WatsonHamiltonian` into an
         ``VibrationalStructureDriverResult``.
 

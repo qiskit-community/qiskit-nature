@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,11 @@
 
 """The Magnetization property."""
 
+from __future__ import annotations
+
 from typing import cast
+
+import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import QMolecule
@@ -34,13 +38,50 @@ class Magnetization(ElectronicProperty):
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
 
+    @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the number of spin orbitals."""
+        return self._num_spin_orbitals
+
+    @num_spin_orbitals.setter
+    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
+        """Sets the number of spin orbitals."""
+        self._num_spin_orbitals = num_spin_orbitals
+
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> Magnetization:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        return Magnetization(h5py_group.attrs["num_spin_orbitals"])
+
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Magnetization":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> Magnetization:
         """Construct a Magnetization instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:

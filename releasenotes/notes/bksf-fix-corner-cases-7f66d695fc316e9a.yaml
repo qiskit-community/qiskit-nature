@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix incorrect corner cases in BravyiKitaevSuperFastMapper: Input terms with
+    coefficient zero and output operator equal to zero. Also detect and raise
+    an exception if HartreeFock attempts to use the BKSF mapper.

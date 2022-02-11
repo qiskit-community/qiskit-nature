@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,9 +14,10 @@
 
 import unittest
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 
 from qiskit_nature.drivers.second_quantization import GaussianLogDriver, GaussianLogResult
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverGaussianLog(QiskitNatureTestCase):
@@ -25,17 +26,17 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self.logfile = self.get_resource_path(
-            "test_driver_gaussian_log.txt", "drivers/second_quantization/gaussiand"
+            "test_driver_gaussian_log_A03.txt", "drivers/second_quantization/gaussiand"
         )
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_log_driver(self):
         """Test the driver itself creates log and we can get a result"""
         driver = GaussianLogDriver(
             [
                 "#p B3LYP/6-31g Freq=(Anharm) Int=Ultrafine SCF=VeryTight",
                 "",
-                "CO2 geometry optimization B3LYP/cc-pVTZ",
+                "CO2 geometry optimization B3LYP/6-31g",
                 "",
                 "0 1",
                 "C  -0.848629  2.067624  0.160992",

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,6 +16,13 @@ Vibrational Structure Properties (:mod:`qiskit_nature.properties.second_quantiza
 .. currentmodule:: qiskit_nature.properties.second_quantization.vibrational
 
 This module provides commonly evaluated properties for *vibrational* problems.
+It also includes the default return object for the vibrational structure drivers:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   VibrationalStructureDriverResult
 
 The main :class:`~qiskit_nature.properties.Property` of this module is the
 

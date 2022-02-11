@@ -12,15 +12,19 @@
 
 """The ElectronicBasisTransform provides a container of bases transformation data."""
 
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import Optional
+
+import h5py
 
 import numpy as np
 
-from ....property import PseudoProperty
 from .electronic_basis import ElectronicBasis
+from ....property import Property
 
 
-class ElectronicBasisTransform(PseudoProperty):
+class ElectronicBasisTransform(Property):
     """This class contains the coefficients required to map from one basis into another."""
 
     def __init__(
@@ -71,7 +75,43 @@ class ElectronicBasisTransform(PseudoProperty):
             string += self._render_coefficients(self.coeff_beta)
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["initial_basis"] = self.initial_basis.name
+        group.attrs["final_basis"] = self.final_basis.name
+
+        group.create_dataset("Alpha coefficients", data=self.coeff_alpha)
+        group.create_dataset("Beta coefficients", data=self.coeff_beta)
+
     @staticmethod
-    def _render_coefficients(coeffs) -> List[str]:
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicBasisTransform:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        return ElectronicBasisTransform(
+            getattr(ElectronicBasis, h5py_group.attrs["initial_basis"]),
+            getattr(ElectronicBasis, h5py_group.attrs["final_basis"]),
+            h5py_group["Alpha coefficients"][...],
+            h5py_group["Beta coefficients"][...],
+        )
+
+    @staticmethod
+    def _render_coefficients(coeffs) -> list[str]:
         nonzero = coeffs.nonzero()
         return [f"\t{indices} = {value}" for value, *indices in zip(coeffs[nonzero], *nonzero)]

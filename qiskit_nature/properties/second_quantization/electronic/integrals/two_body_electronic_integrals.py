@@ -12,7 +12,9 @@
 
 """The 2-body electronic integrals."""
 
-from typing import List, Optional, Tuple, Union, cast
+from __future__ import annotations
+
+from typing import Optional, Union, cast
 
 import numpy as np
 
@@ -29,12 +31,14 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     EINSUM_AO_TO_MO = "pqrs,pi,qj,rk,sl->ijkl"
     EINSUM_CHEM_TO_PHYS = "ijkl->ljik"
 
+    _MATRIX_REPRESENTATIONS = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
+
     # TODO: provide symmetry testing functionality?
 
     def __init__(
         self,
         basis: ElectronicBasis,
-        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]],
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
         # pylint: disable=line-too-long
@@ -58,7 +62,6 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         """
         num_body_terms = 2
         super().__init__(num_body_terms, basis, matrices, threshold)
-        self._matrix_representations = ["Alpha-Alpha", "Beta-Alpha", "Beta-Beta", "Alpha-Beta"]
 
     def get_matrix(self, index: int = 0) -> np.ndarray:
         # pylint: disable=line-too-long
@@ -99,7 +102,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         return mat
 
-    def transform_basis(self, transform: ElectronicBasisTransform) -> "TwoBodyElectronicIntegrals":
+    def transform_basis(self, transform: ElectronicBasisTransform) -> TwoBodyElectronicIntegrals:
         # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 
@@ -136,7 +139,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
             (coeff_beta, coeff_beta, coeff_beta, coeff_beta),
             (coeff_alpha, coeff_alpha, coeff_beta, coeff_beta),
         ]
-        matrices: List[Optional[np.ndarray]] = []
+        matrices: list[Optional[np.ndarray]] = []
         for idx, (mat, coeffs) in enumerate(zip(self._matrices, coeff_list)):
             if mat is None:
                 if alpha_equal_beta:
@@ -175,7 +178,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         return np.where(np.abs(so_matrix) > self._threshold, so_matrix, 0.0)
 
-    def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
+    def _calc_coeffs_with_ops(self, indices: tuple[int, ...]) -> list[tuple[int, str]]:
         return [(indices[0], "+"), (indices[2], "+"), (indices[3], "-"), (indices[1], "-")]
 
     def compose(
