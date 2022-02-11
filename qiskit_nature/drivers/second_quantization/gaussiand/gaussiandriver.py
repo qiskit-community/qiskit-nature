@@ -187,6 +187,10 @@ class GaussianDriver(ElectronicStructureDriver):
         except Exception:  # pylint: disable=broad-except
             logger.warning("Failed to remove MatrixElement file %s", fname)
 
+        # inject runtime config
+        driver_metadata = driver_result.get_property("DriverMetadata")
+        driver_metadata.config = cfg
+
         return driver_result
 
     @staticmethod
@@ -257,9 +261,8 @@ class GaussianDriver(ElectronicStructureDriver):
 
         return cfgaug
 
-    def _parse_matrix_file(
-        self, fname: str, useao2e: bool = False
-    ) -> ElectronicStructureDriverResult:
+    @staticmethod
+    def _parse_matrix_file(fname: str, useao2e: bool = False) -> ElectronicStructureDriverResult:
         """
         get_driver_class is used here because the discovery routine will load all the gaussian
         binary dependencies, if not loaded already. It won't work without it.
@@ -302,7 +305,7 @@ class GaussianDriver(ElectronicStructureDriver):
         )
 
         # driver metadata
-        driver_result.add_property(DriverMetadata("GAUSSIAN", mel.gversion, self._config))
+        driver_result.add_property(DriverMetadata("GAUSSIAN", mel.gversion, ""))
 
         # basis transform
         moc = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
