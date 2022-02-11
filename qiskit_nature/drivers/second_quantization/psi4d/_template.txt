@@ -45,7 +45,7 @@ driver_result.add_property(
     DriverMetadata(
         "PSI4",
         psi4.__version__,
-        "",  # TODO(mrossinek): inject config from here?
+        "",
     )
 )
 

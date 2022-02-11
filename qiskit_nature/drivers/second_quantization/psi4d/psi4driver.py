@@ -213,6 +213,10 @@ class PSI4Driver(ElectronicStructureDriver):
         driver_result.add_property(AngularMomentum(num_spin_orbitals))
         driver_result.add_property(Magnetization(num_spin_orbitals))
 
+        # inject Psi4 config (because it is not available at runtime inside the template)
+        driver_metadata = driver_result.get_property("DriverMetadata")
+        driver_metadata.config = cfg
+
         return driver_result
 
     @staticmethod
