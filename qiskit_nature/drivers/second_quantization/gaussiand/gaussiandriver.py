@@ -24,7 +24,6 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.settings import settings
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicStructureDriverResult,
@@ -432,9 +431,11 @@ class GaussianDriver(ElectronicStructureDriver):
         )
 
         # extra properties
-        if not settings.dict_aux_operators:
-            driver_result.add_property(AngularMomentum(nmo * 2))
-            driver_result.add_property(Magnetization(nmo * 2))
+        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
+        # these properties by default.
+        # if not settings.dict_aux_operators:
+        driver_result.add_property(AngularMomentum(nmo * 2))
+        driver_result.add_property(Magnetization(nmo * 2))
 
         return driver_result
 
