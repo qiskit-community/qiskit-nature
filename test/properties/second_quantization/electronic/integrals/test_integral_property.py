@@ -13,8 +13,10 @@
 """Test IntegralProperty"""
 
 import json
-from test import QiskitNatureTestCase
+import tempfile
+from test.properties.property_test import PropertyTest
 
+import h5py
 import numpy as np
 
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -28,7 +30,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestIntegralProperty(QiskitNatureTestCase):
+class TestIntegralProperty(PropertyTest):
     """Test IntegralProperty Property"""
 
     def setUp(self):
@@ -96,3 +98,23 @@ class TestIntegralProperty(QiskitNatureTestCase):
         for op, expected_op in zip(second_q_ops[0].to_list(), expected):
             self.assertEqual(op[0], expected_op[0])
             self.assertTrue(np.isclose(op[1], expected_op[1]))
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = IntegralProperty.from_hdf5(file["test"])
+
+                self.assertDictEqual(self.prop._shift, read_prop._shift)
+
+                for f_int, s_int in zip(iter(self.prop), iter(read_prop)):
+                    self.assertEqual(f_int, s_int)

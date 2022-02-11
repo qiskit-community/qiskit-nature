@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,8 +16,8 @@ This module implements the abstract base class for vibrational structure driver 
 
 from abc import abstractmethod
 
-from qiskit_nature.properties.second_quantization.vibrational.types import (
-    GroupedVibrationalProperty,
+from qiskit_nature.properties.second_quantization.vibrational import (
+    VibrationalStructureDriverResult,
 )
 from .base_driver import BaseDriver
 
@@ -28,6 +28,6 @@ class VibrationalStructureDriver(BaseDriver):
     """
 
     @abstractmethod
-    def run(self) -> GroupedVibrationalProperty:
-        """Returns a GroupedVibrationalProperty output as produced by the driver."""
+    def run(self) -> VibrationalStructureDriverResult:
+        """Returns a VibrationalStructureDriverResult output as produced by the driver."""
         pass

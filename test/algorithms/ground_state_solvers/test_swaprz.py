@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -32,7 +32,6 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
-@slow_test
 class TestExcitationPreserving(QiskitNatureTestCase):
     """The ExcitationPresering wavefunction was design to preserve the excitation of the system.
 
@@ -47,6 +46,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         algorithm_globals.random_seed = self.seed
         self.reference_energy = -1.137305593252385
 
+    @slow_test
     def test_excitation_preserving(self):
         """Test the excitation preserving wavefunction on a chemistry example."""
 

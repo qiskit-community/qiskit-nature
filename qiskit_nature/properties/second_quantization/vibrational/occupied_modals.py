@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,11 @@
 
 """The OccupiedModals property."""
 
-from typing import List, Optional, Tuple
+from __future__ import annotations
+
+from typing import Optional
+
+import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
@@ -40,8 +44,23 @@ class OccupiedModals(VibrationalProperty):
         """
         super().__init__(self.__class__.__name__, basis)
 
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> OccupiedModals:
+        # pylint: disable=unused-argument
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        return OccupiedModals()
+
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "OccupiedModals":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> OccupiedModals:
         """Construct an OccupiedModals instance from a
         :class:`~qiskit_nature.drivers.WatsonHamiltonian`.
 
@@ -86,14 +105,13 @@ class OccupiedModals(VibrationalProperty):
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
 
-        labels: List[Tuple[str, complex]] = []
+        labels: list[tuple[str, complex]] = []
 
         for modal in range(num_modals_per_mode[mode]):
             labels.append((f"+_{mode}*{modal} -_{mode}*{modal}", 1.0))
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
 
-    # TODO: refactor after closing https://github.com/Qiskit/qiskit-terra/issues/6772
     def interpret(self, result: EigenstateResult) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,10 +14,10 @@
 
 import unittest
 
-from test import requires_extra_library
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers.second_quantization import GaussianDriver
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverMethodsGaussian(TestDriverMethods):
@@ -45,7 +45,7 @@ H   0.0  0.0    0.9697
 
 """
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def setUp(self):
         super().setUp()
         GaussianDriver(config=self.g16_lih_config.format("rhf"))

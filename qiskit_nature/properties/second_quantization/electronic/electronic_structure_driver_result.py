@@ -12,7 +12,11 @@
 
 """The ElectronicStructureDriverResult class."""
 
-from typing import List, Tuple, cast
+from __future__ import annotations
+
+from typing import cast
+
+import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.constants import BOHR
@@ -20,7 +24,7 @@ from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.operators.second_quantization import FermionicOp
 
-from ..second_quantized_property import LegacyDriverResult
+from ..second_quantized_property import LegacyDriverResult, SecondQuantizedProperty
 from ..driver_metadata import DriverMetadata
 from .angular_momentum import AngularMomentum
 from .bases import ElectronicBasis, ElectronicBasisTransform
@@ -43,17 +47,52 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
-        self.molecule: "Molecule" = None
+        self.molecule: Molecule = None
 
     def __str__(self) -> str:
         string = [super().__str__()]
         string += [str(self.molecule)]
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+        self.molecule.to_hdf5(group)
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicStructureDriverResult:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        grouped_property = GroupedElectronicProperty.from_hdf5(h5py_group)
+
+        ret = ElectronicStructureDriverResult()
+        for prop in grouped_property:
+            if isinstance(prop, Molecule):
+                ret.molecule = prop
+            else:
+                ret.add_property(prop)
+
+        return ret
+
     @classmethod
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
-    ) -> "ElectronicStructureDriverResult":
+    ) -> ElectronicStructureDriverResult:
         """Converts a :class:`~qiskit_nature.drivers.QMolecule` into an
         ``ElectronicStructureDriverResult``.
 
@@ -84,7 +123,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
             )
         )
 
-        geometry: List[Tuple[str, List[float]]] = []
+        geometry: list[tuple[str, list[float]]] = []
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
             # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
             geometry.append((atom, xyz * BOHR))
@@ -121,12 +160,14 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
                 ElectronicDipoleMoment,
             ]:
                 prop = self.get_property(cls)  # type: ignore
-                if prop is None:
+                if prop is None or not isinstance(prop, SecondQuantizedProperty):
                     continue
                 ops.extend(prop.second_q_ops())
             return ops
 
         ops = {}
         for prop in iter(self):
+            if not isinstance(prop, SecondQuantizedProperty):
+                continue
             ops.update(prop.second_q_ops())
         return ops

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,10 +18,10 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.vibrational import (
     VibrationalStructureDriverResult,
 )
+import qiskit_nature.optionals as _optionals
 from ...units_type import UnitsType
 from ..vibrational_structure_driver import VibrationalStructureDriver
 from ...molecule import Molecule
-from .gaussian_utils import check_valid
 from .gaussian_log_driver import GaussianLogDriver
 from .gaussian_log_result import GaussianLogResult
 
@@ -75,9 +75,10 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         # If running from a jcf we need Gaussian™ 16 so check if we have a
         # valid install.
         if self._logfile is None:
-            check_valid()
+            _optionals.HAS_GAUSSIAN.require_now("GaussianForcesDriver __init__")
 
     @staticmethod
+    @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto-3g",
@@ -98,7 +99,6 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
-        GaussianForcesDriver.check_installed()
         basis = GaussianForcesDriver.to_driver_basis(basis)
 
         if molecule.units == UnitsType.ANGSTROM:
@@ -129,16 +129,6 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         if basis == "sto3g":
             return "sto-3g"
         return basis
-
-    @staticmethod
-    def check_installed() -> None:
-        """
-        Checks if Gaussian is installed and available
-
-        Raises:
-            MissingOptionalLibraryError: if not installed.
-        """
-        check_valid()
 
     def run(self) -> VibrationalStructureDriverResult:
         if self._logfile is not None:

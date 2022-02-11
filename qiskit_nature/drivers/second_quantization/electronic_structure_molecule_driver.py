@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,7 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..molecule import Molecule
 from ...exceptions import UnsupportMethodError
@@ -81,7 +81,8 @@ class ElectronicStructureDriverType(Enum):
                 raise MissingOptionalLibraryError(
                     libname=driver_type, name="ElectronicStructureDriverType"
                 )
-            driver_class.check_installed()
+            # instantiating the object will check if the driver is installed
+            _ = driver_class()
             driver_class.check_method_supported(method)
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
@@ -168,7 +169,7 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
         """set driver kwargs"""
         self._driver_kwargs = value
 
-    def run(self) -> GroupedElectronicProperty:
+    def run(self) -> ElectronicStructureDriverResult:
         driver_class = ElectronicStructureDriverType.driver_class_from_type(
             self.driver_type, self.method
         )
