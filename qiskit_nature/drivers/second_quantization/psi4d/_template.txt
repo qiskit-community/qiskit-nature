@@ -23,25 +23,27 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     TwoBodyElectronicIntegrals,
 )
 
-# Fix geometry location & orientation and force c1 symmetry on molecule
+# Fix _q_geometry location & orientation and force c1 symmetry on molecule
 core.get_active_molecule().fix_com(True)
 core.get_active_molecule().fix_orientation(True)
 core.get_active_molecule().reset_point_group("c1")
 
-hf_energy, hf_wavefn = energy('scf', return_wfn=True)
-mints = MintsHelper(hf_wavefn.basisset())
-mol = hf_wavefn.molecule()
-_has_B = not hf_wavefn.same_a_b_orbs()
+_q_hf_energy, _q_hf_wavefn = energy("scf", return_wfn=True)
+_q_mints = MintsHelper(_q_hf_wavefn.basisset())
+_q_mol = _q_hf_wavefn.molecule()
+_q_has_B = not _q_hf_wavefn.same_a_b_orbs()
 
-driver_result = ElectronicStructureDriverResult()
+_q_driver_result = ElectronicStructureDriverResult()
 
-geometry = []
-for _n in range(mol.natom()):
-    geometry.append((mol.symbol(_n), [mol.x(_n) * BOHR, mol.y(_n) * BOHR, mol.z(_n) * BOHR]))
+_q_geometry = []
+for _n in range(_q_mol.natom()):
+    _q_geometry.append(
+        (_q_mol.symbol(_n), [_q_mol.x(_n) * BOHR, _q_mol.y(_n) * BOHR, _q_mol.z(_n) * BOHR])
+    )
 
-driver_result.molecule = Molecule(geometry, mol.multiplicity(), mol.molecular_charge())
+_q_driver_result.molecule = Molecule(_q_geometry, _q_mol.multiplicity(), _q_mol.molecular_charge())
 
-driver_result.add_property(
+_q_driver_result.add_property(
     DriverMetadata(
         "PSI4",
         psi4.__version__,
@@ -49,110 +51,129 @@ driver_result.add_property(
     )
 )
 
-driver_result.add_property(
+_q_driver_result.add_property(
     ElectronicBasisTransform(
         ElectronicBasis.AO,
         ElectronicBasis.MO,
-        numpy.asarray(hf_wavefn.Ca()),
-        numpy.asarray(hf_wavefn.Cb()) if _has_B else None,
+        numpy.asarray(_q_hf_wavefn.Ca()),
+        numpy.asarray(_q_hf_wavefn.Cb()) if _q_has_B else None,
     )
 )
 
-driver_result.add_property(
+_q_driver_result.add_property(
     ParticleNumber(
-        num_spin_orbitals=hf_wavefn.nmo() * 2,
-        num_particles=(hf_wavefn.nalpha(), hf_wavefn.nbeta()),
+        num_spin_orbitals=_q_hf_wavefn.nmo() * 2,
+        num_particles=(_q_hf_wavefn.nalpha(), _q_hf_wavefn.nbeta()),
     )
 )
 
-kinetic = mints.ao_kinetic()
-overlap = mints.ao_overlap()
-h1 = mints.ao_potential()
-h1.add(kinetic)
-h1b = h1.clone() if _has_B else None
+_q_kinetic = _q_mints.ao_kinetic()
+_q_overlap = _q_mints.ao_overlap()
+_q_h1 = _q_mints.ao_potential()
+_q_h1.add(_q_kinetic)
+_q_h1b = _q_h1.clone() if _q_has_B else None
 
-one_body_ao = OneBodyElectronicIntegrals(
+_q_one_body_ao = OneBodyElectronicIntegrals(
     ElectronicBasis.AO,
-    (numpy.asarray(h1.clone()), None),
+    (numpy.asarray(_q_h1.clone()), None),
 )
 
-two_body_ao = TwoBodyElectronicIntegrals(
+_q_two_body_ao = TwoBodyElectronicIntegrals(
     ElectronicBasis.AO,
-    (numpy.asarray(mints.ao_eri()), None, None, None),
+    (numpy.asarray(_q_mints.ao_eri()), None, None, None),
 )
 
-h1.transform(hf_wavefn.Ca())
-if _has_B:
-    h1b.transform(hf_wavefn.Cb())
+_q_h1.transform(_q_hf_wavefn.Ca())
+if _q_has_B:
+    _q_h1b.transform(_q_hf_wavefn.Cb())
 
-one_body_mo = OneBodyElectronicIntegrals(
+_q_one_body_mo = OneBodyElectronicIntegrals(
     ElectronicBasis.MO,
-    (numpy.asarray(h1.clone()), numpy.asarray(h1b.clone()) if _has_B else None),
+    (numpy.asarray(_q_h1.clone()), numpy.asarray(_q_h1b.clone()) if _q_has_B else None),
 )
 
-two_body_mo = TwoBodyElectronicIntegrals(
+_q_two_body_mo = TwoBodyElectronicIntegrals(
     ElectronicBasis.MO,
     (
-        numpy.asarray(mints.mo_eri(hf_wavefn.Ca(), hf_wavefn.Ca(), hf_wavefn.Ca(), hf_wavefn.Ca())),
-        numpy.asarray(mints.mo_eri(hf_wavefn.Cb(), hf_wavefn.Cb(), hf_wavefn.Ca(), hf_wavefn.Ca())) if _has_B else None,
-        numpy.asarray(mints.mo_eri(hf_wavefn.Cb(), hf_wavefn.Cb(), hf_wavefn.Cb(), hf_wavefn.Cb())) if _has_B else None,
+        numpy.asarray(
+            _q_mints.mo_eri(
+                _q_hf_wavefn.Ca(), _q_hf_wavefn.Ca(), _q_hf_wavefn.Ca(), _q_hf_wavefn.Ca()
+            )
+        ),
+        numpy.asarray(
+            _q_mints.mo_eri(
+                _q_hf_wavefn.Cb(), _q_hf_wavefn.Cb(), _q_hf_wavefn.Ca(), _q_hf_wavefn.Ca()
+            )
+        )
+        if _q_has_B
+        else None,
+        numpy.asarray(
+            _q_mints.mo_eri(
+                _q_hf_wavefn.Cb(), _q_hf_wavefn.Cb(), _q_hf_wavefn.Cb(), _q_hf_wavefn.Cb()
+            )
+        )
+        if _q_has_B
+        else None,
         None,
     ),
 )
 
-electronic_energy = ElectronicEnergy(
-    [one_body_ao, two_body_ao, one_body_mo, two_body_mo],
-    nuclear_repulsion_energy=mol.nuclear_repulsion_energy(),
-    reference_energy=hf_energy,
+_q_electronic_energy = ElectronicEnergy(
+    [_q_one_body_ao, _q_two_body_ao, _q_one_body_mo, _q_two_body_mo],
+    nuclear_repulsion_energy=_q_mol.nuclear_repulsion_energy(),
+    reference_energy=_q_hf_energy,
 )
 
-if _has_B:
-    orbital_energies = [numpy.asarray(hf_wavefn.epsilon_a()), numpy.asarray(hf_wavefn.epsilon_b())]
+if _q_has_B:
+    _q_orbital_energies = [
+        numpy.asarray(_q_hf_wavefn.epsilon_a()),
+        numpy.asarray(_q_hf_wavefn.epsilon_b()),
+    ]
 else:
-    orbital_energies = numpy.asarray(hf_wavefn.epsilon_a())
+    _q_orbital_energies = numpy.asarray(_q_hf_wavefn.epsilon_a())
 
-electronic_energy.orbital_energies = orbital_energies
+_q_electronic_energy.orbital_energies = _q_orbital_energies
 
-electronic_energy.kinetic = OneBodyElectronicIntegrals(ElectronicBasis.AO, (kinetic, None))
-electronic_energy.overlap = OneBodyElectronicIntegrals(ElectronicBasis.AO, (overlap, None))
+_q_electronic_energy.kinetic = OneBodyElectronicIntegrals(ElectronicBasis.AO, (_q_kinetic, None))
+_q_electronic_energy.overlap = OneBodyElectronicIntegrals(ElectronicBasis.AO, (_q_overlap, None))
 
-driver_result.add_property(electronic_energy)
+_q_driver_result.add_property(_q_electronic_energy)
 
-nuclear_dipole = mol.nuclear_dipole()
-dipole = ElectronicDipoleMoment(
-    nuclear_dipole_moment=[nuclear_dipole[0], nuclear_dipole[1], nuclear_dipole[2]],
+_q_nuclear_dipole = _q_mol.nuclear_dipole()
+_q_dipole = ElectronicDipoleMoment(
+    nuclear_dipole_moment=[_q_nuclear_dipole[0], _q_nuclear_dipole[1], _q_nuclear_dipole[2]],
     reverse_dipole_sign=False,
 )
 
 for idx, axis in enumerate(["x", "y", "z"]):
-    dip_ao = mints.ao_dipole()[idx]
-    dip_mo = dip_ao.clone()
-    dip_mo.transform(hf_wavefn.Ca())
-    dip_mo_b = None
-    if _has_B:
-        dip_mo_b = dip_ao.clone()
-        dip_mo_b.transform(hf_wavefn.Cb())
+    _q_dip_ao = _q_mints.ao_dipole()[idx]
+    _q_dip_mo = _q_dip_ao.clone()
+    _q_dip_mo.transform(_q_hf_wavefn.Ca())
+    _q_dip_mo_b = None
+    if _q_has_B:
+        _q_dip_mo_b = _q_dip_ao.clone()
+        _q_dip_mo_b.transform(_q_hf_wavefn.Cb())
 
-    dipole.add_property(
+    _q_dipole.add_property(
         DipoleMoment(
             axis,
             [
                 OneBodyElectronicIntegrals(
                     ElectronicBasis.AO,
                     (
-                        numpy.asarray(dip_ao),
+                        numpy.asarray(_q_dip_ao),
                         None,
-                    )
+                    ),
                 ),
                 OneBodyElectronicIntegrals(
                     ElectronicBasis.MO,
                     (
-                        numpy.asarray(dip_mo),
-                        numpy.asarray(dip_mo_b) if _has_B else None,
-                    )
+                        numpy.asarray(_q_dip_mo),
+                        numpy.asarray(_q_dip_mo_b) if _q_has_B else None,
+                    ),
                 ),
             ],
         )
     )
 
-driver_result.add_property(dipole)
+_q_driver_result.add_property(_q_dipole)
