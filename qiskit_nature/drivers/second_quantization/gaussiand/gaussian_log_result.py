@@ -15,11 +15,14 @@
 from __future__ import annotations
 
 import math
+import warnings
 from typing import List, Tuple, Union, cast
 import copy
 import logging
 import re
 
+from qiskit_nature.deprecation import deprecate_method, DeprecatedType
+from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
 from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
 
@@ -260,3 +263,55 @@ class GaussianLogResult:
         return VibrationalEnergy(
             [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
         )
+
+    @deprecate_method(
+        "0.4.0",
+        DeprecatedType.METHOD,
+        "get_vibrational_energy",
+        "Construct a VibrationalEnergy instead of the deprecated WatsonHamiltonian directly.",
+    )
+    def get_watson_hamiltonian(self, normalize: bool = True) -> WatsonHamiltonian:
+        """
+        Get the force constants as a WatsonHamiltonian
+        Args:
+            normalize: Whether to normalize the factors or not
+        Returns:
+            A WatsonHamiltonian
+        """
+        # Returns [value, idx0, idx1...] from 2 indices (quadratic) to 4 (quartic)
+        qua = self.quadratic_force_constants
+        cub = self.cubic_force_constants
+        qrt = self.quartic_force_constants
+        modes = []
+        for entry in qua:
+            indices = self._process_entry_indices(list(entry))
+            if indices:
+                factor = 2.0
+                factor *= self._multinomial(indices) if normalize else 1.0
+                line = [entry[2] / factor]
+                line.extend(indices)
+                modes.append(line)
+                modes.append([-x for x in line])
+        for entry_c in cub:
+            indices = self._process_entry_indices(list(entry_c))
+            if indices:
+                factor = 2.0 * math.sqrt(2.0)
+                factor *= self._multinomial(indices) if normalize else 1.0
+                line = [entry_c[3] / factor]
+                line.extend(indices)
+                modes.append(line)
+        for entry_q in qrt:
+            indices = self._process_entry_indices(list(entry_q))
+            if indices:
+                factor = 4.0
+                factor *= self._multinomial(indices) if normalize else 1.0
+                line = [entry_q[4] / factor]
+                line.extend(indices)
+                modes.append(line)
+
+        num_modes = len(self.a_to_h_numbering.keys())
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            watson = WatsonHamiltonian(modes, num_modes)
+
+        return watson
