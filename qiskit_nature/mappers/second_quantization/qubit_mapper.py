@@ -141,7 +141,9 @@ class QubitMapper(ABC):
                     raise QiskitNatureError(
                         f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
                     )
-                ret_op = ret_op.simplify()
+                if ret_op.size >= 100:
+                    # `simplify` pays off only if there are many Pauli strings
+                    ret_op = ret_op.simplify()
             ret_op_list.append(ret_op)
 
         return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())
