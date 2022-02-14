@@ -128,6 +128,11 @@ class QuadraticHamiltonian(TolerancesMixin):
         """The constant."""
         return self._constant
 
+    @property
+    def num_modes(self) -> float:
+        """The number of modes this operator acts on."""
+        return self._num_modes
+
     def to_fermionic_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
         terms = [([], self.constant)]
