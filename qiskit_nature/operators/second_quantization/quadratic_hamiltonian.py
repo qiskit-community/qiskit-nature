@@ -60,14 +60,20 @@ class QuadraticHamiltonian(TolerancesMixin):
             antisymmetric_part: The matrix :math:`\Delta` containing the coefficients of
                 the terms that do not conserve particle number.
             constant: An additive constant term.
-            num_modes: Number of fermionic modes. This must be consistent with hermitian_part
+            num_modes: Number of fermionic modes. This should be consistent with hermitian_part
                 and antisymmetric_part if they are specified.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
 
         Raises:
-            ValueError: Either a Hermitian part or antisymmetric part must be specified.
+            ValueError: Either Hermitian part, antisymmetric part, or number of modes must
+                be specified.
+            ValueError: Hermitian part and antisymmetric part must have same shape.
+            ValueError: Hermitian part must have shape num_modes x num_modes.
+            ValueError: Hermitian part must be Hermitian.
+            ValueError: Antisymmetric part must have shape num_modes x num_modes.
+            ValueError: Antisymmetric part must be antisymmetric.
         """
         if num_modes is not None:
             self._num_modes = num_modes
