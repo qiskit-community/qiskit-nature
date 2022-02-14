@@ -50,6 +50,10 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         quad_ham = QuadraticHamiltonian(hermitian_part)
         np.testing.assert_allclose(quad_ham.antisymmetric_part, zero)
 
+        quad_ham = QuadraticHamiltonian(num_modes=2)
+        np.testing.assert_allclose(quad_ham.hermitian_part, zero)
+        np.testing.assert_allclose(quad_ham.antisymmetric_part, zero)
+
         with self.assertRaisesRegex(ValueError, "specified"):
             _ = QuadraticHamiltonian()
 
@@ -192,3 +196,12 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
             _ = QuadraticHamiltonian(hermitian_part=mat, antisymmetric_part=None)
         with self.assertRaisesRegex(ValueError, "Antisymmetric"):
             _ = QuadraticHamiltonian(hermitian_part=None, antisymmetric_part=mat)
+
+        hermitian_part = np.array([[1, 2j], [-2j, 3]])
+        antisymmetric_part = np.array([[0, 4, 0], [-4, 0, 4], [0, -4, 0]])
+        with self.assertRaisesRegex(ValueError, "same shape"):
+            _ = QuadraticHamiltonian(hermitian_part, antisymmetric_part)
+        with self.assertRaisesRegex(ValueError, "num_modes"):
+            _ = QuadraticHamiltonian(hermitian_part, num_modes=5)
+        with self.assertRaisesRegex(ValueError, "num_modes"):
+            _ = QuadraticHamiltonian(antisymmetric_part=antisymmetric_part, num_modes=5)
