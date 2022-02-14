@@ -109,20 +109,14 @@ class QuadraticHamiltonian(TolerancesMixin):
 
     def to_fermionic_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms = []
-        # TODO I shouldn't have to use string labels
-        # diagonal terms
+        terms = [([], self.constant)]
         for i in range(self._n_orbitals):
-            terms.append((f"+_{i} -_{i}", self.hermitian_part[i, i]))
-        # off-diagonal terms
-        for i in range(self._n_orbitals):
+            terms.append(([("+", i), ("-", i)], self.hermitian_part[i, i]))
             for j in range(i + 1, self._n_orbitals):
-                terms.append((f"+_{i} -_{j}", self.hermitian_part[i, j]))
-                terms.append((f"+_{j} -_{i}", self.hermitian_part[j, i]))
-                terms.append((f"+_{i} +_{j}", self.antisymmetric_part[i, j]))
-                terms.append((f"-_{j} -_{i}", self.antisymmetric_part[i, j].conj()))
-        # constant
-        terms.append(("", self.constant))
+                terms.append(([("+", i), ("-", j)], self.hermitian_part[i, j]))
+                terms.append(([("+", j), ("-", i)], self.hermitian_part[j, i]))
+                terms.append(([("+", i), ("+", j)], self.antisymmetric_part[i, j]))
+                terms.append(([("-", j), ("-", i)], self.antisymmetric_part[i, j].conjugate()))
         return FermionicOp(terms, register_length=self._n_orbitals)
 
     def conserves_particle_number(self) -> bool:
