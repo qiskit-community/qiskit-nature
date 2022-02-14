@@ -215,8 +215,8 @@ class QuadraticHamiltonian(TolerancesMixin):
         (which satisfies additional constraints).
 
         Returns:
-            - The matrix :math:`W`, which is either an :math:`N \times N` or
-              an :math:`N \times 2N` matrix
+            - The matrix :math:`W`, which is either an :math:`N \times N` (when :math:`\Delta = 0`)
+              or an :math:`N \times 2N` matrix (when :math:`\Delta \neq 0`)
             - A numpy array containing the orbital energies :math:`\varepsilon_j`
               sorted in ascending order
             - The constant
