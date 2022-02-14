@@ -242,7 +242,7 @@ class QuadraticHamiltonian(TolerancesMixin):
 
         Returns:
             - The matrix :math:`W`, which is either an :math:`N \times N` (when :math:`\Delta = 0`)
-              or an :math:`N \times 2N` matrix (when :math:`\Delta \neq 0`)
+              or an :math:`N \times 2N` (when :math:`\Delta \neq 0`) matrix
             - A numpy array containing the orbital energies :math:`\varepsilon_j`
               sorted in ascending order
             - The constant
