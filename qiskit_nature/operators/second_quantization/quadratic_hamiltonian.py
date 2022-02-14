@@ -107,7 +107,7 @@ class QuadraticHamiltonian(TolerancesMixin):
         """The constant."""
         return self._constant
 
-    def _fermionic_op(self) -> FermionicOp:
+    def to_fermionic_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
         terms = []
         # TODO I shouldn't have to use string labels
