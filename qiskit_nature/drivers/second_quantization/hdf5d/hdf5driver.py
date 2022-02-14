@@ -19,19 +19,23 @@ import warnings
 import h5py
 
 from qiskit_nature.hdf5 import load_from_hdf5
+from qiskit_nature.properties.second_quantization.second_quantized_property import (
+    GroupedSecondQuantizedProperty,
+)
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 from ...qmolecule import QMolecule
-from ..electronic_structure_driver import ElectronicStructureDriver
+from ..base_driver import BaseDriver
 
 LOGGER = logging.getLogger(__name__)
 
 
-class HDF5Driver(ElectronicStructureDriver):
+class HDF5Driver(BaseDriver):
     """
     Qiskit Nature driver for reading an HDF5 file.
 
-    The HDF5 file is one as saved from a :class:`~qiskit_nature.drivers.QMolecule` instance.
+    The HDF5 file is one constructed with :func:`~qiskit_nature.hdf5.save_to_hdf5` or a file
+    containing a legacy :class:`~qiskit_nature.drivers.QMolecule` instance.
     """
 
     def __init__(self, hdf5_input: str = "molecule.hdf5") -> None:
@@ -53,10 +57,10 @@ class HDF5Driver(ElectronicStructureDriver):
         """Sets work path."""
         self._work_path = new_work_path
 
-    def run(self) -> ElectronicStructureDriverResult:
+    def run(self) -> GroupedSecondQuantizedProperty:
         """
         Returns:
-            ElectronicStructureDriverResult re-constructed from the HDF5 file.
+            GroupedSecondQuantizedProperty re-constructed from the HDF5 file.
 
         Raises:
             LookupError: file not found.
@@ -85,21 +89,5 @@ class HDF5Driver(ElectronicStructureDriver):
             molecule.load()
             return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)
 
-        driver_result: ElectronicStructureDriverResult = None
-        for prop in load_from_hdf5(hdf5_file):
-            if not isinstance(prop, ElectronicStructureDriverResult):
-                LOGGER.warning(
-                    "Ignoring the %s object encountered in your HDF5 file. The HDF5Driver must "
-                    "return an ElectronicStructureDriverResult!",
-                    type(prop),
-                )
-                continue
-            if driver_result is None:
-                driver_result = prop
-            else:
-                LOGGER.error(
-                    "The HDF5Driver can only handle a single ElectronicStructureDriverResult within"
-                    " an HDF5 file!"
-                )
-                break
+        driver_result = load_from_hdf5(hdf5_file)
         return driver_result
