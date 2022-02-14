@@ -20,6 +20,14 @@ from qiskit.quantum_info.operators.mixins import TolerancesMixin
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 
 
+def _is_hermitian(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    return np.allclose(mat, mat.T.conj(), rtol=rtol, atol=atol)
+
+
+def _is_antisymmetric(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    return np.allclose(mat, -mat.T, rtol=rtol, atol=atol)
+
+
 class QuadraticHamiltonian(TolerancesMixin):
     r"""A Hamiltonian that is quadratic in the fermionic ladder operators.
 
@@ -39,15 +47,21 @@ class QuadraticHamiltonian(TolerancesMixin):
         hermitian_part: Optional[np.ndarray] = None,
         antisymmetric_part: Optional[np.ndarray] = None,
         constant: float = 0.0,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
     ) -> None:
         r"""Initialize a QuadraticHamiltonian.
 
         Args:
-            hermitian_part: The matrix :math:`M` containing the
-                coefficients of the terms that conserve particle number.
-            antisymmetric_part: The matrix :math:`\Delta` containing the
-                coefficients of the terms that do not conserve particle number.
+            hermitian_part: The matrix :math:`M` containing the coefficients of the terms
+                that conserve particle number.
+            antisymmetric_part: The matrix :math:`\Delta` containing the coefficients of
+                the terms that do not conserve particle number.
             constant: An additive constant term.
+            validate: Whether to validate the inputs.
+            rtol: Relative numerical tolerance for input validation.
+            atol: Absolute numerical tolerance for input validation.
 
         Raises:
             ValueError: Either a Hermitian part or antisymmetric part must be specified.
@@ -59,7 +73,16 @@ class QuadraticHamiltonian(TolerancesMixin):
         else:
             raise ValueError("Either a Hermitian part or antisymmetric part must be specified.")
 
-        # TODO maybe validate matrix properties
+        if validate:
+            if hermitian_part is not None and not _is_hermitian(
+                hermitian_part, rtol=rtol, atol=atol
+            ):
+                raise ValueError("Hermitian part must be Hermitian.")
+            if antisymmetric_part is not None and not _is_antisymmetric(
+                antisymmetric_part, rtol=rtol, atol=atol
+            ):
+                raise ValueError("Antisymmetric part must be antisymmetric.")
+
         self._hermitian_part = hermitian_part
         self._antisymmetric_part = antisymmetric_part
         self._constant = constant

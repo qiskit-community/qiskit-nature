@@ -50,7 +50,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         quad_ham = QuadraticHamiltonian(hermitian_part)
         np.testing.assert_allclose(quad_ham.antisymmetric_part, zero)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, "specified"):
             _ = QuadraticHamiltonian()
 
     def test_conserves_particle_number(self):
@@ -183,3 +183,12 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         matrix = fermionic_op.to_matrix(sparse=False)
         expected_matrix = expected_op.to_matrix(sparse=False)
         np.testing.assert_allclose(matrix, expected_matrix)
+
+    def test_validate(self):
+        """Test input validation."""
+        mat = np.array([[1, 2], [3, 4]])
+        _ = QuadraticHamiltonian(hermitian_part=mat, antisymmetric_part=None, validate=False)
+        with self.assertRaisesRegex(ValueError, "Hermitian"):
+            _ = QuadraticHamiltonian(hermitian_part=mat, antisymmetric_part=None)
+        with self.assertRaisesRegex(ValueError, "Antisymmetric"):
+            _ = QuadraticHamiltonian(hermitian_part=None, antisymmetric_part=mat)
