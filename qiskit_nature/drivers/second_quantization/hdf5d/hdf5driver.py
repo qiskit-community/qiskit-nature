@@ -18,7 +18,7 @@ import warnings
 
 import h5py
 
-from qiskit_nature.hdf5 import load_from_hdf5
+from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
@@ -57,13 +57,11 @@ class HDF5Driver(BaseDriver):
         """Sets work path."""
         self._work_path = new_work_path
 
-    def run(self) -> GroupedSecondQuantizedProperty:
-        """
-        Returns:
-            GroupedSecondQuantizedProperty re-constructed from the HDF5 file.
+    def _get_path(self) -> str:
+        """Returns the absolute path to the HDF5 file.
 
         Raises:
-            LookupError: file not found.
+            LoopupError: file not found.
         """
         hdf5_file = self._hdf5_input
         if self.work_path is not None and not os.path.isabs(hdf5_file):
@@ -72,6 +70,40 @@ class HDF5Driver(BaseDriver):
         if not os.path.isfile(hdf5_file):
             raise LookupError(f"HDF5 file not found: {hdf5_file}")
 
+        return hdf5_file
+
+    def convert(self, replace: bool = True) -> None:
+        """Converts a legacy QMolecule HDF5 file into the new Property-framework.
+
+        Args:
+            replace: if True, will replace the original HDF5 file. Otherwise `.new` will be used as
+                a suffix.
+
+        Raises:
+            LookupError: file not found.
+        """
+        hdf5_file = self._get_path()
+
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        q_mol = QMolecule(hdf5_file)
+        warnings.filterwarnings("default", category=DeprecationWarning)
+        q_mol.load()
+
+        new_hdf5_file = hdf5_file if replace else hdf5_file + ".new"
+
+        driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
+        save_to_hdf5(driver_result, new_hdf5_file, replace=replace)
+
+    def run(self) -> GroupedSecondQuantizedProperty:
+        """
+        Returns:
+            GroupedSecondQuantizedProperty re-constructed from the HDF5 file.
+
+        Raises:
+            LookupError: file not found.
+        """
+        hdf5_file = self._get_path()
+
         legacy_hdf5_file = False
 
         with h5py.File(hdf5_file, "r") as file:
@@ -79,7 +111,7 @@ class HDF5Driver(BaseDriver):
                 legacy_hdf5_file = True
                 LOGGER.warning(
                     "Your HDF5 file contains the legacy QMolecule object! You should consider "
-                    "converting it to the new property framework."
+                    "converting it to the new property framework. See also HDF5Driver.convert"
                 )
 
         if legacy_hdf5_file:

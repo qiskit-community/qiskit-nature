@@ -12,6 +12,9 @@
 
 """ Test Driver HDF5 """
 
+import os
+import shutil
+import tempfile
 import unittest
 
 from test import QiskitNatureTestCase
@@ -30,6 +33,56 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
             )
         )
         self.driver_result = driver.run()
+
+    def test_convert(self):
+        """Test the legacy-conversion method."""
+        legacy_file_path = self.get_resource_path(
+            "test_driver_hdf5_legacy.hdf5", "drivers/second_quantization/hdf5d"
+        )
+
+        with self.subTest("replace=True"):
+            # pylint: disable=consider-using-with
+            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
+            tmp_file.close()
+            os.unlink(tmp_file.name)
+            shutil.copy(legacy_file_path, tmp_file.name)
+            try:
+                driver = HDF5Driver(tmp_file.name)
+                driver.convert()
+                with self.assertRaises(AssertionError):
+                    # NOTE: we can use assertNoLogs once Python 3.10 is the default
+                    with self.assertLogs(
+                        logger="qiskit_nature.drivers.second_quantization.hdf5d.hdf5driver",
+                        level="WARNING",
+                    ):
+                        driver.run()
+            finally:
+                os.unlink(tmp_file.name)
+
+        with self.subTest("replace=False"):
+            # pylint: disable=consider-using-with
+            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
+            tmp_file.close()
+            os.unlink(tmp_file.name)
+            shutil.copy(legacy_file_path, tmp_file.name)
+            try:
+                driver = HDF5Driver(tmp_file.name)
+                driver.convert(replace=False)
+                with self.assertLogs(
+                    logger="qiskit_nature.drivers.second_quantization.hdf5d.hdf5driver",
+                    level="WARNING",
+                ):
+                    driver.run()
+                with self.assertRaises(AssertionError):
+                    # NOTE: we can use assertNoLogs once Python 3.10 is the default
+                    with self.assertLogs(
+                        logger="qiskit_nature.drivers.second_quantization.hdf5d.hdf5driver",
+                        level="WARNING",
+                    ):
+                        HDF5Driver(tmp_file.name + ".new").run()
+            finally:
+                os.unlink(tmp_file.name)
+                os.unlink(tmp_file.name + ".new")
 
 
 class TestDriverHDF5Legacy(QiskitNatureTestCase, TestDriver):
