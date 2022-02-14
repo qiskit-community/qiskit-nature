@@ -18,6 +18,7 @@ import warnings
 
 import h5py
 
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
@@ -60,8 +61,11 @@ class HDF5Driver(BaseDriver):
     def _get_path(self) -> str:
         """Returns the absolute path to the HDF5 file.
 
+        Returns:
+            The absolute path to the HDF5 file.
+
         Raises:
-            LoopupError: file not found.
+            LookupError: file not found.
         """
         hdf5_file = self._hdf5_input
         if self.work_path is not None and not os.path.isabs(hdf5_file):
@@ -101,6 +105,7 @@ class HDF5Driver(BaseDriver):
 
         Raises:
             LookupError: file not found.
+            QiskitNatureError: if the HDF5 file did not contain a GroupedSecondQuantizedProperty.
         """
         hdf5_file = self._get_path()
 
@@ -122,4 +127,11 @@ class HDF5Driver(BaseDriver):
             return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)
 
         driver_result = load_from_hdf5(hdf5_file)
+
+        if not isinstance(driver_result, GroupedSecondQuantizedProperty):
+            raise QiskitNatureError(
+                f"Expected a GroupedSecondQuantizedProperty but found a {type(driver_result)} "
+                "object instead."
+            )
+
         return driver_result
