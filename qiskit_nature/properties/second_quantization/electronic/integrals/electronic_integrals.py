@@ -230,8 +230,7 @@ class ElectronicIntegrals(ABC):
             for title, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
                 string += [f"\t{title}"]
                 if mat is None:
-                    string[-1] += " is None"
-                    string += ["\tThe corresponding primary-spin data will be used in-place."]
+                    string += ["\tSame values as the corresponding primary-spin data."]
                     continue
                 rendered_matrix = self._render_matrix_as_sparse_list(mat)
                 if not rendered_matrix:
