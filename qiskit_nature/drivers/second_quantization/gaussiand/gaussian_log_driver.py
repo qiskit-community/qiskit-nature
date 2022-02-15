@@ -12,7 +12,9 @@
 
 """ Gaussian Log Driver """
 
-from typing import Union, List
+from __future__ import annotations
+
+from typing import Union
 import logging
 
 from qiskit_nature import QiskitNatureError
@@ -40,7 +42,7 @@ class GaussianLogDriver(BaseDriver):
     This result class also contains ready access to certain data within the log.
     """
 
-    def __init__(self, jcf: Union[str, List[str]]) -> None:
+    def __init__(self, jcf: Union[str, list[str]]) -> None:
         r"""
         Args:
             jcf: A job control file conforming to Gaussian™ 16 format. This can

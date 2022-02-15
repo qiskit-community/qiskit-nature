@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,14 +11,20 @@
 # that they have been altered from the originals.
 
 """ Gaussian Log File Result """
+
+from __future__ import annotations
+
 import math
-from typing import Dict, Union, List, Tuple, cast
+import warnings
+from typing import List, Tuple, Union, cast
 import copy
 import logging
 import re
-import warnings
 
-from ...watson_hamiltonian import WatsonHamiltonian
+from qiskit_nature.deprecation import deprecate_method, DeprecatedType
+from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
+from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +37,7 @@ class GaussianLogResult:
     Since this parses the text output it is subject to the format of the log file.
     """
 
-    def __init__(self, log: Union[str, List[str]]) -> None:
+    def __init__(self, log: Union[str, list[str]]) -> None:
         """
         Args:
             log: The log contents conforming to Gaussian™ 16 format either as a single string
@@ -60,7 +66,7 @@ class GaussianLogResult:
             raise ValueError(f"Invalid input for Gaussian Log Parser '{log}'")
 
     @property
-    def log(self) -> List[str]:
+    def log(self) -> list[str]:
         """The complete Gaussian log in the form of a list of strings."""
         return copy.copy(self._log)
 
@@ -73,7 +79,7 @@ class GaussianLogResult:
     _SECTION_QUARTIC = r":\s+QUARTIC\sFORCE\sCONSTANTS\sIN\sNORMAL\sMODES"
 
     @property
-    def quadratic_force_constants(self) -> List[Tuple[str, str, float, float, float]]:
+    def quadratic_force_constants(self) -> list[tuple[str, str, float, float, float]]:
         """Quadratic force constants. (2 indices, 3 values)
 
         Returns:
@@ -84,7 +90,7 @@ class GaussianLogResult:
         return cast(List[Tuple[str, str, float, float, float]], qfc)
 
     @property
-    def cubic_force_constants(self) -> List[Tuple[str, str, str, float, float, float]]:
+    def cubic_force_constants(self) -> list[tuple[str, str, str, float, float, float]]:
         """Cubic force constants. (3 indices, 3 values)
 
         Returns:
@@ -97,7 +103,7 @@ class GaussianLogResult:
     @property
     def quartic_force_constants(
         self,
-    ) -> List[Tuple[str, str, str, str, float, float, float]]:
+    ) -> list[tuple[str, str, str, str, float, float, float]]:
         """Quartic force constants. (4 indices, 3 values)
 
         Returns:
@@ -107,7 +113,7 @@ class GaussianLogResult:
         qfc = self._force_constants(self._SECTION_QUARTIC, 4)
         return cast(List[Tuple[str, str, str, str, float, float, float]], qfc)
 
-    def _force_constants(self, section_name: str, indices: int) -> List[Tuple]:
+    def _force_constants(self, section_name: str, indices: int) -> list[tuple]:
         constants = []
         pattern_constants = ""
         for i in range(indices):
@@ -141,7 +147,7 @@ class GaussianLogResult:
                     # such point as it does not match anymore then we break out
                     const = re.match(pattern_constants, line)
                     if const is not None:
-                        clist = []  # type: List[Union[str, float]]
+                        clist: list[Union[str, float]] = []
                         for i in range(indices):
                             clist.append(const.group(f"index{i + 1}"))
                         for i in range(3):
@@ -153,14 +159,14 @@ class GaussianLogResult:
         return constants
 
     @property
-    def a_to_h_numbering(self) -> Dict[str, int]:
+    def a_to_h_numbering(self) -> dict[str, int]:
         """A to H numbering mapping.
 
         Returns:
             Dictionary mapping string A numbering such as '1', '3a' etc from forces modes
             to H integer numbering
         """
-        a2h = {}  # type: Dict[str, int]
+        a2h: dict[str, int] = {}
 
         found_section = False
         found_h = False
@@ -193,7 +199,7 @@ class GaussianLogResult:
     # but for now they are here
 
     @staticmethod
-    def _multinomial(indices: List[int]) -> float:
+    def _multinomial(indices: list[int]) -> float:
         # For a given list of integers, computes the associated multinomial
         tmp = set(indices)  # Set of unique indices
         multinomial = 1
@@ -202,7 +208,7 @@ class GaussianLogResult:
             multinomial = multinomial * math.factorial(count)
         return multinomial
 
-    def _process_entry_indices(self, entry: List[Union[str, float]]) -> List[int]:
+    def _process_entry_indices(self, entry: list[Union[str, float]]) -> list[int]:
         # a2h gives us say '3a' -> 1, '3b' -> 2 etc. The H values can be 1 through 4
         # but we want them numbered in reverse order so the 'a2h_vals + 1 - a2h[x]'
         # takes care of this
@@ -214,13 +220,61 @@ class GaussianLogResult:
         num_indices = len(entry) - 3
         return [a2h_vals + 1 - a2h[cast(str, x)] for x in entry[0:num_indices]]
 
-    def get_watson_hamiltonian(self, normalize: bool = True) -> WatsonHamiltonian:
+    def get_vibrational_energy(self, normalize: bool = True) -> VibrationalEnergy:
         """
-        Get the force constants as a WatsonHamiltonian
+        Get the force constants as a VibrationalEnergy property.
 
         Args:
             normalize: Whether to normalize the factors or not
 
+        Returns:
+            A VibrationalEnergy property.
+        """
+        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
+
+        for entry in self.quadratic_force_constants:
+            indices = self._process_entry_indices(list(entry))
+            if indices:
+                factor = 2.0
+                factor *= self._multinomial(indices) if normalize else 1.0
+                coeff = entry[2] / factor
+                num_body = len(set(indices))
+                sorted_integrals[num_body].append((coeff, tuple(indices)))
+                sorted_integrals[num_body].append((-coeff, tuple(-i for i in indices)))
+
+        for entry_c in self.cubic_force_constants:
+            indices = self._process_entry_indices(list(entry_c))
+            if indices:
+                factor = 2.0 * math.sqrt(2.0)
+                factor *= self._multinomial(indices) if normalize else 1.0
+                coeff = entry_c[3] / factor
+                num_body = len(set(indices))
+                sorted_integrals[num_body].append((coeff, tuple(indices)))
+
+        for entry_q in self.quartic_force_constants:
+            indices = self._process_entry_indices(list(entry_q))
+            if indices:
+                factor = 4.0
+                factor *= self._multinomial(indices) if normalize else 1.0
+                coeff = entry_q[4] / factor
+                num_body = len(set(indices))
+                sorted_integrals[num_body].append((coeff, tuple(indices)))
+
+        return VibrationalEnergy(
+            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        )
+
+    @deprecate_method(
+        "0.4.0",
+        DeprecatedType.METHOD,
+        "get_vibrational_energy",
+        "Construct a VibrationalEnergy instead of the deprecated WatsonHamiltonian directly.",
+    )
+    def get_watson_hamiltonian(self, normalize: bool = True) -> WatsonHamiltonian:
+        """
+        Get the force constants as a WatsonHamiltonian
+        Args:
+            normalize: Whether to normalize the factors or not
         Returns:
             A WatsonHamiltonian
         """

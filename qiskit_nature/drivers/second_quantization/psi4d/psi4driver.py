@@ -12,20 +12,25 @@
 
 """ PSI4 Driver """
 
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
 import sys
 import tempfile
-import warnings
 from pathlib import Path
-from typing import Union, List, Optional, Any, Dict
+from typing import Any, Optional, Union, cast
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.hdf5 import load_from_hdf5
+from qiskit_nature.properties.second_quantization.electronic import (
+    AngularMomentum,
+    ElectronicStructureDriverResult,
+    Magnetization,
+)
 import qiskit_nature.optionals as _optionals
 
-from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -45,7 +50,7 @@ class PSI4Driver(ElectronicStructureDriver):
     def __init__(
         self,
         config: Union[
-            str, List[str]
+            str, list[str]
         ] = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n}\n\n"
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
     ) -> None:
@@ -71,7 +76,7 @@ class PSI4Driver(ElectronicStructureDriver):
         molecule: Molecule,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
-        driver_kwargs: Optional[Dict[str, Any]] = None,
+        driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "PSI4Driver":
         """
         Args:
@@ -139,10 +144,6 @@ class PSI4Driver(ElectronicStructureDriver):
         template_file = psi4d_directory.joinpath("_template.txt")
         qiskit_nature_directory = psi4d_directory.parent.parent
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        molecule = QMolecule()
-        warnings.filterwarnings("default", category=DeprecationWarning)
-
         input_text = [cfg]
         input_text += ["import sys"]
         syspath = (
@@ -154,14 +155,16 @@ class PSI4Driver(ElectronicStructureDriver):
         )
 
         input_text += ["sys.path = " + syspath + " + sys.path"]
-        input_text += ["import warnings"]
-        input_text += ["from qiskit_nature.drivers.qmolecule import QMolecule"]
-        input_text += ["warnings.filterwarnings('ignore', category=DeprecationWarning)"]
-        input_text += [f'_q_molecule = QMolecule("{Path(molecule.filename).as_posix()}")']
-        input_text += ["warnings.filterwarnings('default', category=DeprecationWarning)"]
 
         with open(template_file, "r", encoding="utf8") as file:
             input_text += [line.strip("\n") for line in file.readlines()]
+
+        file_fd, hdf5_file = tempfile.mkstemp(suffix=".hdf5")
+        os.close(file_fd)
+
+        input_text += [
+            f'save_to_hdf5(_q_driver_result, "{Path(hdf5_file).as_posix()}", replace=True)'
+        ]
 
         file_fd, input_file = tempfile.mkstemp(suffix=".inp")
         os.close(file_fd)
@@ -195,15 +198,25 @@ class PSI4Driver(ElectronicStructureDriver):
             except Exception:  # pylint: disable=broad-except
                 pass
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        _q_molecule = QMolecule(molecule.filename)
-        warnings.filterwarnings("default", category=DeprecationWarning)
-        _q_molecule.load()
-        # remove internal file
-        _q_molecule.remove_file()
-        _q_molecule.origin_driver_name = "PSI4"
-        _q_molecule.origin_driver_config = cfg
-        return ElectronicStructureDriverResult.from_legacy_driver_result(_q_molecule)
+        driver_result = cast(ElectronicStructureDriverResult, load_from_hdf5(hdf5_file))
+
+        try:
+            os.remove(hdf5_file)
+        except Exception:  # pylint: disable=broad-except
+            pass
+
+        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
+        # these properties by default.
+        # if not settings.dict_aux_operators:
+        num_spin_orbitals = driver_result.get_property("ParticleNumber").num_spin_orbitals
+        driver_result.add_property(AngularMomentum(num_spin_orbitals))
+        driver_result.add_property(Magnetization(num_spin_orbitals))
+
+        # inject Psi4 config (because it is not available at runtime inside the template)
+        driver_metadata = driver_result.get_property("DriverMetadata")
+        driver_metadata.config = cfg
+
+        return driver_result
 
     @staticmethod
     def _run_psi4(input_file, output_file):
