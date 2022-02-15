@@ -16,7 +16,12 @@ import unittest
 
 from test import QiskitNatureTestCase
 
+import numpy as np
+
+from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.drivers.second_quantization import GaussianLogDriver, GaussianLogResult
+from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
+from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
 import qiskit_nature.optionals as _optionals
 
 
@@ -131,6 +136,48 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
             ("3b", "3b", "3b", "3b", 220.54851, 0.82484, 0.01484),
         ]
         self.assertListEqual(qfc, expected)
+
+    def test_vibrational_energy(self):
+        """Test the VibrationalEnergy."""
+        result = GaussianLogResult(self.logfile)
+        vib_energy = result.get_vibrational_energy()
+        expected = load_from_hdf5(
+            self.get_resource_path(
+                "test_driver_gaussian_log_vibrational_energy.hdf5",
+                "drivers/second_quantization/gaussiand",
+            )
+        )
+
+        self.addTypeEqualityFunc(VibrationalIntegrals, self.compare_vibrational_integral)
+        self.addTypeEqualityFunc(VibrationalEnergy, self.compare_vibrational_energy)
+        self.assertEqual(vib_energy, expected)
+
+    def compare_vibrational_integral(
+        self, first: VibrationalIntegrals, second: VibrationalIntegrals, msg: str = None
+    ) -> None:
+        """Compares two VibrationalIntegral instances."""
+        if first.name != second.name:
+            raise self.failureException(msg)
+
+        if first._num_body_terms != second._num_body_terms:
+            raise self.failureException(msg)
+
+        for f_int, s_int in zip(first._integrals, second._integrals):
+            if not np.isclose(f_int[0], s_int[0]):
+                raise self.failureException(msg)
+
+            if not all(f == s for f, s in zip(f_int[1:], s_int[1:])):
+                raise self.failureException(msg)
+
+    def compare_vibrational_energy(
+        self, first: VibrationalEnergy, second: VibrationalEnergy, msg: str = None
+    ) -> None:
+        # pylint: disable=unused-argument
+        """Compares two VibrationalEnergy instances."""
+        for f_ints, s_ints in zip(
+            first._vibrational_integrals.values(), second._vibrational_integrals.values()
+        ):
+            self.compare_vibrational_integral(f_ints, s_ints)
 
     def test_watson_hamiltonian(self):
         """Test the watson hamiltonian"""
