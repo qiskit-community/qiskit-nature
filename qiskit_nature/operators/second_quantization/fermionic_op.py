@@ -207,6 +207,12 @@ class FermionicOp(SecondQuantizedOp):
             some processing
             fermion += FermionicOp(somedata)
 
+    **Iteration**
+
+    FermionicOps are iterable. Iterating a FermionicOp yields (term, coefficient) pairs
+    describing the terms contained in the operator. Each term is a list of tuples of the
+    form (action, index), where the action is either "+" or "-" and the index is the integer
+    index of the factor in the term.
     """
     # Warn only once
     _display_format_warn = True
