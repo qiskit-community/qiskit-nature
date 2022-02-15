@@ -160,7 +160,7 @@ class IntegralProperty(ElectronicProperty):
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
 
-        op = sum(int.to_second_q_op() for int in ints.values()).reduce()  # type: ignore[union-attr]
+        op = sum(int.to_second_q_op() for int in ints.values())
 
         if not settings.dict_aux_operators:
             return [op]
