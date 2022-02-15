@@ -1,0 +1,17 @@
+---
+features:
+  - |
+    Add the option to initialize a :class:`~qiskit_nature.problems.second_quantization.lattice.Lattice`
+    from a ``networkx.Graph`` object, which will be internally converted to a ``retworkx.PyGraph``
+    for performance. 
+
+    For example, you can now construct a lattice as
+
+    .. code-block:: python
+
+        import networkx as nx
+        from qiskit_nature.problems.second_quantization.lattice import Lattice
+
+        # 3-regular random graph on 6 nodes
+        graph = nx.generators.random_graphs.random_regular_graph(3, n=6)
+        lattice = Lattice(graph)
