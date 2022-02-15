@@ -141,14 +141,12 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
         """Test the VibrationalEnergy."""
         result = GaussianLogResult(self.logfile)
         vib_energy = result.get_vibrational_energy()
-        expected = list(
-            load_from_hdf5(
-                self.get_resource_path(
-                    "test_driver_gaussian_log_vibrational_energy.hdf5",
-                    "drivers/second_quantization/gaussiand",
-                )
+        expected = load_from_hdf5(
+            self.get_resource_path(
+                "test_driver_gaussian_log_vibrational_energy.hdf5",
+                "drivers/second_quantization/gaussiand",
             )
-        )[0]
+        )
 
         self.addTypeEqualityFunc(VibrationalIntegrals, self.compare_vibrational_integral)
         self.addTypeEqualityFunc(VibrationalEnergy, self.compare_vibrational_energy)
