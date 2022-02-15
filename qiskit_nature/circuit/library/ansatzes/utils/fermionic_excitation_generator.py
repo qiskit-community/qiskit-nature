@@ -11,17 +11,7 @@
 # that they have been altered from the originals.
 """
 These utility methods are used by the :class:`~.UCC` Ansatz in order to construct its excitation
-operators. The `generate_fermionic_excitations` method must be called for each type of excitation
-(singles, doubles, etc.) that is to be considered in the Ansatz.
-Some keyword arguments are allowed through which the excitations can be filtered to fit the user's
-needs. `alpha_spin` and `beta_spin` are boolean flags which can be set to `False` in order to
-disable the inclusion of alpha-spin or beta-spin excitation, respectively.
-`max_spin_excitation` takes an integer value which defines the maximum number of excitations that
-can occur within the same spin. Thus, setting `max_spin_excitation=1` and `num_excitations=2` yields
-only those double excitations which do not excite the same spin species twice.
-`generalized` is another boolean flag which enables generalized excitations which are effectively
-ignoring the spin orbital occupancies. Therefore, the excitations are only determined based on the
-number of spin orbitals and are independent from the number of particles.
+operators.
 """
 
 from typing import Iterator, List, Tuple, Optional
@@ -105,6 +95,19 @@ def generate_fermionic_excitations(
 ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
+
+    The method must be called for each type of excitation (singles, doubles, etc.) that is to be
+    considered in the Ansatz. Some keyword arguments are allowed through which the excitations can
+    be filtered to fit the user's needs. `alpha_spin` and `beta_spin` are boolean flags which can
+    be set to `False` in order to disable the inclusion of alpha-spin or beta-spin excitation,
+    respectively. `max_spin_excitation` takes an integer value which defines the maximum number of
+    excitations that can occur within the same spin. Thus, setting `max_spin_excitation=1` and
+    `num_excitations=2` yields only those double excitations which do not excite the same spin species
+    twice. `generalized` is another boolean flag which enables generalized excitations which are
+    effectively ignoring the spin orbital occupancies. Excitations will be produced based on an
+    initial `Hartree-Fock` occupation by default unless `generalised` is set to `True`. Therefore,
+    the excitations are only determined based on the number of spin orbitals and are independent from
+    the number of particles.
 
     This method assumes block-ordered spin-orbitals.
 
