@@ -113,7 +113,7 @@ class TestFermionicOp(QiskitNatureTestCase):
     def test_init_multiple_digits(self):
         """Test __init__ for sparse label with multiple digits"""
         actual = FermionicOp(
-            [("-_2 +_10", 1 + 2j), ("-_12", 56)], register_length=13, display_format="dense"
+            [("-_2 +_10", 1 + 2j), ("-_12", 56 + 0j)], register_length=13, display_format="dense"
         )
         desired = [
             ("II-IIIIIII+II", 1 + 2j),
@@ -127,6 +127,19 @@ class TestFermionicOp(QiskitNatureTestCase):
         actual = FermionicOp(pre_processing(""), register_length=3, display_format="dense")
         desired = FermionicOp("III", display_format="dense")
         self.assertFermionEqual(actual, desired)
+
+    def test_init_from_tuple_label(self):
+        """Test __init__ for tuple"""
+        actual = FermionicOp(
+            [([("-", 2), ("+", 10)], 1 + 2j), ([("-", 12)], 56)],
+            register_length=13,
+            display_format="dense",
+        )
+        desired = [
+            ("II-IIIIIII+II", 1 + 2j),
+            ("IIIIIIIIIIII-", 56),
+        ]
+        self.assertListEqual(actual.to_list(), desired)
 
     def test_register_length(self):
         """Test inference of register_length"""

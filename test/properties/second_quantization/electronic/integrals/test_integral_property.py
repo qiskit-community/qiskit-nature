@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,10 @@
 
 """Test IntegralProperty"""
 
-from test import QiskitNatureTestCase
+import tempfile
+from test.properties.property_test import PropertyTest
 
+import h5py
 import numpy as np
 
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -27,7 +29,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestIntegralProperty(QiskitNatureTestCase):
+class TestIntegralProperty(PropertyTest):
     """Test IntegralProperty Property"""
 
     def setUp(self):
@@ -106,3 +108,23 @@ class TestIntegralProperty(QiskitNatureTestCase):
             ("+_0 -_0 +_2 -_2", (1 + 0j)),
         ]
         self.assertEqual(second_q_ops[0].to_list(), expected)
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = IntegralProperty.from_hdf5(file["test"])
+
+                self.assertDictEqual(self.prop._shift, read_prop._shift)
+
+                for f_int, s_int in zip(iter(self.prop), iter(read_prop)):
+                    self.assertEqual(f_int, s_int)
