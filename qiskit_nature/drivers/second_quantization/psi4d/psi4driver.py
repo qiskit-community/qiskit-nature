@@ -198,12 +198,7 @@ class PSI4Driver(ElectronicStructureDriver):
             except Exception:  # pylint: disable=broad-except
                 pass
 
-        driver_result: ElectronicStructureDriverResult = None
-        for prop in load_from_hdf5(hdf5_file):
-            if driver_result is None:
-                driver_result = cast(ElectronicStructureDriverResult, prop)
-            else:
-                raise QiskitNatureError("Found an unexpected number of properties!")
+        driver_result = cast(ElectronicStructureDriverResult, load_from_hdf5(hdf5_file))
 
         try:
             os.remove(hdf5_file)
