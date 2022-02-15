@@ -166,10 +166,10 @@ class UCC(EvolvedOperatorAnsatz):
                 particles.
             preserve_spin: boolean flag whether or not to preserve the particle spins.
             reps: The number of times to repeat the evolved operators.
-            initial_state: A `QuantumCircuit` object to prepend to the circuit. Note that setting
-                this argument does not automatically affect how the excitations are generated. If
-                this argument is set to a state other than `HartreeFock` the `excitations` argument
-                will need to be matched accordingly.
+            initial_state: A `QuantumCircuit` object to prepend to the circuit. Note, that this
+                setting does _not_ influence the `excitations`. When relying on the default
+                generation method (i.e. not providing a `Callable` to `excitations`), these will
+                always be constructed with respect to an `HartreeFock` reference state.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
