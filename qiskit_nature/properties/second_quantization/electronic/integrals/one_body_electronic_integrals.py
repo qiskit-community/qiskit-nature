@@ -81,9 +81,9 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         matrix_a = np.dot(np.dot(transform.coeff_alpha.T, self._matrices[0]), transform.coeff_alpha)
         matrix_b = None
-        if self._matrices[1] is not None:
+        if self._matrices[1] is not None or not transform.is_alpha_equal_beta():
             matrix_b = np.dot(
-                np.dot(transform.coeff_beta.T, self._matrices[1]), transform.coeff_beta
+                np.dot(transform.coeff_beta.T, self.get_matrix(1)), transform.coeff_beta
             )
         return OneBodyElectronicIntegrals(transform.final_basis, (matrix_a, matrix_b))
 
@@ -101,8 +101,8 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         if self._basis == ElectronicBasis.SO:
             return self._matrices  # type: ignore
 
-        matrix_a = self._matrices[0]
-        matrix_b = matrix_a if self._matrices[1] is None else self._matrices[1]
+        matrix_a = self.get_matrix(0)
+        matrix_b = self.get_matrix(1)
         zeros = np.zeros(matrix_a.shape)
         so_matrix = np.block([[matrix_a, zeros], [zeros, matrix_b]])
 
@@ -138,7 +138,11 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             )
 
         product = 0.0
-        for front, back in zip(self._matrices, other._matrices):
+        for idx, (front, back) in enumerate(zip(self._matrices, other._matrices)):
+            if front is None:
+                front = self.get_matrix(idx)
+            if back is None:
+                back = other.get_matrix(idx)
             product += np.einsum(einsum_subscript, front, back)
 
         return complex(product)

@@ -76,12 +76,16 @@ class TestIntegralProperty(PropertyTest):
         self.prop.transform_basis(trafo)
 
         for basis, factor in zip((ElectronicBasis.AO, ElectronicBasis.MO), (1, 4)):
-            for matrix in self.prop.get_electronic_integral(basis, 1)._matrices:
-                self.assertTrue(np.allclose(matrix, factor * np.eye(2)))
+            matrices = self.prop.get_electronic_integral(basis, 1)._matrices
+            self.assertTrue(np.allclose(matrices[0], factor * np.eye(2)))
+            for mat in matrices[1:]:
+                self.assertIsNone(mat)
 
         for basis, factor in zip((ElectronicBasis.AO, ElectronicBasis.MO), (1, 16)):
-            for matrix in self.prop.get_electronic_integral(basis, 2)._matrices:
-                self.assertTrue(np.allclose(matrix, factor * np.ones((2, 2, 2, 2))))
+            matrices = self.prop.get_electronic_integral(basis, 2)._matrices
+            self.assertTrue(np.allclose(matrices[0], factor * np.ones((2, 2, 2, 2))))
+            for mat in matrices[1:]:
+                self.assertIsNone(mat)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
