@@ -96,8 +96,44 @@ class ElectronicIntegrals(ABC):
                 for mat in matrices
             )
 
-        if basis != ElectronicBasis.SO:
-            self._fill_matrices()
+    def get_matrix(self, index: int = 0) -> np.ndarray:
+        """Returns the integral matrix at the requested index.
+
+        When the integrals are in the :class:`ElectronicBasis.SO` basis the index has no effect
+        because only a single matrix exists.
+        In any other case, the index may not exceed the length of the internal matrices being
+        stored. This length depends on the number of body terms for the specific implementation of
+        this base class.
+
+        Finally, when the internal matrix encountered at the requested index is `None`, it will be
+        replaced by the matrix at index 0, which for most common purposes is the default fallback
+        (pure alpha-spin) integral matrix used in place of other mixed spin matrices.
+        If a subclass must follow another convention it should overwrite the implementation of this
+        method.
+
+        Args:
+            index: the index of the integral matrix to get.
+
+        Returns:
+            The requested integral matrix.
+
+        Raises:
+            IndexError: when the requested index exceeds the number of internal matrices.
+        """
+        if isinstance(self._matrices, np.ndarray):
+            return self._matrices
+
+        if index >= len(self._matrices):
+            raise IndexError(
+                f"The requested index {index} exceeds the number of internal matrices "
+                f"{len(self._matrices)}."
+            )
+
+        mat = self._matrices[index]
+        if mat is None:
+            mat = self._matrices[0]
+
+        return mat
 
     @property
     def basis(self) -> ElectronicBasis:
@@ -149,6 +185,8 @@ class ElectronicIntegrals(ABC):
             group.create_dataset("Spin", data=self._matrices)
         else:
             for name, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
+                if mat is None:
+                    continue
                 group.create_dataset(name, data=mat)
 
     @staticmethod
@@ -171,11 +209,16 @@ class ElectronicIntegrals(ABC):
 
         basis = getattr(ElectronicBasis, h5py_group.attrs["basis"])
         threshold = h5py_group.attrs["threshold"]
-        matrices = tuple(h5py_group[rep][...] for rep in loaded_class._MATRIX_REPRESENTATIONS)
+        matrices: list[Optional[np.ndarray]] = []
+        for rep in loaded_class._MATRIX_REPRESENTATIONS:
+            if rep in h5py_group.keys():
+                matrices.append(h5py_group[rep][...])
+            else:
+                matrices.append(None)
 
         return loaded_class(
             basis=basis,
-            matrices=matrices,
+            matrices=tuple(matrices),
             threshold=threshold,
         )
 
@@ -185,8 +228,11 @@ class ElectronicIntegrals(ABC):
             string += self._render_matrix_as_sparse_list(self._matrices)
         else:
             for title, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
-                rendered_matrix = self._render_matrix_as_sparse_list(mat)
                 string += [f"\t{title}"]
+                if mat is None:
+                    string += ["\tSame values as the corresponding primary-spin data."]
+                    continue
+                rendered_matrix = self._render_matrix_as_sparse_list(mat)
                 if not rendered_matrix:
                     string[-1] += " is all zero"
                     continue
@@ -264,21 +310,6 @@ class ElectronicIntegrals(ABC):
                     f"2 to the power of the number of body terms, {2 ** num_body_terms}, does not "
                     f"match the number of provided matrices, {len(matrices)}."
                 )
-
-    def _fill_matrices(self) -> None:
-        """Fills the internal matrices where ``None`` placeholders were inserted.
-
-        This method iterates the internal list of matrices and replaces any occurrences of ``None``
-        with the first matrix of the list. In case, more symmetry arguments need to be considered a
-        subclass should overwrite this method.
-        """
-        filled_matrices = []
-        for mat in self._matrices:
-            if mat is not None:
-                filled_matrices.append(mat)
-            else:
-                filled_matrices.append(self._matrices[0])
-        self._matrices = tuple(filled_matrices)
 
     @abstractmethod
     def transform_basis(self, transform: ElectronicBasisTransform) -> ElectronicIntegrals:
@@ -370,10 +401,20 @@ class ElectronicIntegrals(ABC):
             The added ElectronicIntegrals.
         """
         ret = deepcopy(self)
-        if isinstance(self._matrices, np.ndarray):
+        if self._basis == ElectronicBasis.SO:
             ret._matrices = self._matrices + other._matrices
         else:
-            ret._matrices = [a + b for a, b in zip(self._matrices, other._matrices)]  # type: ignore
+            ret_matrices: list[Optional[np.ndarray]] = []
+            for idx, (mat_a, mat_b) in enumerate(zip(self._matrices, other._matrices)):
+                if mat_a is None and mat_b is None:
+                    ret_matrices.append(None)
+                    continue
+                if mat_a is None:
+                    mat_a = self.get_matrix(idx)
+                if mat_b is None:
+                    mat_b = other.get_matrix(idx)
+                ret_matrices.append(mat_a + mat_b)
+            ret._matrices = tuple(ret_matrices)
         return ret
 
     def compose(
@@ -395,7 +436,7 @@ class ElectronicIntegrals(ABC):
         if isinstance(self._matrices, np.ndarray):
             ret._matrices = other * self._matrices
         else:
-            ret._matrices = [other * mat for mat in self._matrices]  # type: ignore
+            ret._matrices = tuple(None if mat is None else other * mat for mat in self._matrices)
         return ret
 
     def __add__(self, other: ElectronicIntegrals) -> ElectronicIntegrals:

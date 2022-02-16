@@ -317,9 +317,9 @@ class ElectronicEnergy(IntegralProperty):
         op = one_e_ints
 
         coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
-        # by reversing the order of the matrices we can construct the (beta, alpha)-ordered Coulomb
-        # integrals
-        coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])
+        coulomb_inv = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (coulomb.get_matrix(1), coulomb.get_matrix(0))
+        )
         exchange = two_e_ints.compose(density, "ijkl,jk->il")
         op += coulomb + coulomb_inv - exchange
 

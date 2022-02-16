@@ -81,7 +81,7 @@ class HDF5Storable(Protocol):
 
 
 def save_to_hdf5(obj: HDF5Storable, filename: str, *, replace: bool = False) -> None:
-    """A utility to method to store an object to an HDF5 file.
+    """A utility method to store an object in an HDF5 file.
 
     Below is an example of how you can store the result produced by any driver in an HDF5 file:
 
@@ -122,22 +122,25 @@ def save_to_hdf5(obj: HDF5Storable, filename: str, *, replace: bool = False) -> 
         obj.to_hdf5(file)
 
 
-def load_from_hdf5(
-    filename: str, *, skip_unreadable_data: bool = False
-) -> Generator[HDF5Storable, None, None]:
-    """Loads Qiskit Nature objects from an HDF5 file.
+def load_from_hdf5(filename: str, *, skip_unreadable_data: bool = False) -> HDF5Storable:
+    """Loads a single Qiskit Nature object from an HDF5 file.
 
     .. code-block:: python
 
         my_driver_result = load_from_hdf5("my_driver_result.hdf5")
+
+    Note: an `h5py.File` object could in theory store more than one `HDF5Storable`. However, in
+    Qiskit Nature the `save_to_hdf5` method works as to always store a single object in a file.
+    Aligned with that implementation, this method will always return the first `HDF5Storable`
+    instance which is encounters in the file.
 
     Args:
         filename: the path to the HDF5 file.
         skip_unreadable_data: if set to True, unreadable data (which can be any of the errors
                 documented below) will be skipped instead of raising those errors.
 
-    Yields:
-        The objects constructed from the HDF5 groups encountered in the h5py_group.
+    Returns:
+        The first `HDF5Storable` instance constructed from the data encountered in the file.
 
     Raises:
         QiskitNatureError: if an object without a `__class__` attribute is encountered.
@@ -147,9 +150,23 @@ def load_from_hdf5(
             `__module__`
         QiskitNatureError: if `__class__` does not implement the
             :class:`~qiskit_nature.hdf5.HDF5Storable` protocol
+        QiskitNatureError: if more than one :class:`~qiskit_nature.hdf5.HDF5Storable` object were
+            encountered in the file.
     """
+    ret: HDF5Storable = None
     with h5py.File(filename, "r") as file:
-        yield from _import_and_build_from_hdf5(file, skip_unreadable_data=skip_unreadable_data)
+        for obj in _import_and_build_from_hdf5(file, skip_unreadable_data=skip_unreadable_data):
+            if ret is not None:
+                msg = (
+                    "Encountered more than one HDF5Storable object in the file! "
+                    "This is not supported and only the first one will be returned."
+                )
+                if skip_unreadable_data:
+                    LOGGER.warning(msg)
+                    continue
+                raise QiskitNatureError(msg)
+            ret = obj
+    return ret
 
 
 def _import_and_build_from_hdf5(
@@ -159,7 +176,7 @@ def _import_and_build_from_hdf5(
 
     Qiskit Nature uses the convention of storing the `__module__` and `__class__` information as
     attributes of an HDF5 group. From these, this method will import the required class at runtime
-    and use its `form_hdf5` method to construct an instance of the encountered class.
+    and use its `from_hdf5` method to construct an instance of the encountered class.
 
     Args:
         h5py_group: the HDF5 group from which to import and build Qiskit Nature objects.
