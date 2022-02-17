@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2022.
+# (C) Copyright IBM 2019, 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -87,10 +87,6 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
     @slow_test
     def test_uccsd_hf_qpUCCD(self):
         """paired uccd test"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
@@ -119,10 +115,6 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
     @slow_test
     def test_uccsd_hf_qUCCD0(self):
         """singlet uccd test"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
