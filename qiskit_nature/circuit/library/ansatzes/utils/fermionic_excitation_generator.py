@@ -159,7 +159,7 @@ def generate_fermionic_excitations(
                 num_excitations, num_spin_orbitals, num_particles, max_spin_excitation=max_spin
             )
 
-        Generate generalised excitations.
+        Generate generalized excitations.
 
         .. jupyter-execute::
 
