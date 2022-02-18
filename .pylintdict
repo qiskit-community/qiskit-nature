@@ -406,6 +406,7 @@ spsa
 squ
 statevector
 statevectors
+stderr
 stdlib
 stdout
 stereochemistry

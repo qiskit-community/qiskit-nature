@@ -26,14 +26,48 @@ class DefaultStreamHandler(logging.StreamHandler):
         Initialize the handler.
         """
         super().__init__(stream=sys.stdout)
-        self.setFormatter(logging.Formatter(fmt="%(asctime)s:%(name)s:%(levelname)s: %(message)s"))
+        self.setFormatter(logging.Formatter(fmt=QiskitNatureLogging.LOG_FORMAT))
 
 
 class QiskitNatureLogging:
-    """Qiskit Nature Logging."""
+    """Qiskit Nature Logging.
 
-    def __init__(self) -> None:
-        self._logging = logging
+    A collection of utility methods encapsulating logging functions.
+    The most basic use is:
+
+    .. code-block:: python
+
+        import logging
+        from qiskit_nature import settings as nature_settings
+        nature_settings.logging.set_levels_for_names(
+            {"qiskit_nature": logging.DEBUG, "qiskit": logging.DEBUG})
+
+    It will print to 'stdout' DEBUG formatted logs, for the domains included.
+    One can access current logging levels for domains:
+
+    .. code-block:: python
+
+        from qiskit_nature import settings as nature_settings
+        dict = nature_settings.logging.get_levels_for_names(["qiskit_nature", "qiskit"])
+
+    The result dictionary key is the domain string and the value the logging level
+
+    Methods exist also to add, remove logging handler with formatter and one to write to a file:
+
+    .. code-block:: python
+
+        import logging
+        from qiskit_nature import settings as nature_settings
+        nature_settings.logging.log_to_file(
+                {"qiskit_nature": logging.DEBUG, "qiskit": logging.DEBUG},
+                 path="file.log", mode="w"
+            )
+
+    If mode is not given, 'append' mode is used.
+
+    """
+
+    LOG_FORMAT = "%(asctime)s:%(name)s:%(levelname)s: %(message)s"
 
     def get_levels_for_names(self, names: List[str]) -> Dict[str, int]:
         """Return logging levels for module names.
@@ -45,7 +79,7 @@ class QiskitNatureLogging:
         """
         name_levels: Dict[str, int] = {}
         for name in names:
-            name_levels[name] = self._logging.getLogger(name).getEffectiveLevel()
+            name_levels[name] = logging.getLogger(name).getEffectiveLevel()
 
         return name_levels
 
@@ -64,12 +98,12 @@ class QiskitNatureLogging:
         names: List[str] = []
         for name, level in name_levels.items():
             names.append(name)
-            logger = self._logging.getLogger(name)
+            logger = logging.getLogger(name)
             logger.setLevel(level)
             logger.propagate = False
             handlers = logger.handlers
             if add_default_handler and not any(
-                True for h in handlers if isinstance(h, DefaultStreamHandler)
+                isinstance(h, DefaultStreamHandler) for h in handlers
             ):
                 self.add_handler(name, DefaultStreamHandler())
 
@@ -85,7 +119,7 @@ class QiskitNatureLogging:
             handler: Logging Handler
             formatter: Logging Formatter
         """
-        logger = self._logging.getLogger(name)
+        logger = logging.getLogger(name)
         if formatter is not None:
             handler.setFormatter(formatter)
         logger.addHandler(handler)
@@ -97,7 +131,7 @@ class QiskitNatureLogging:
             name: module name
             handler: Logging Handler
         """
-        logger = self._logging.getLogger(name)
+        logger = logging.getLogger(name)
         handler.close()
         logger.removeHandler(handler)
 
@@ -108,7 +142,7 @@ class QiskitNatureLogging:
             names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
         """
         for name in names:
-            logger = self._logging.getLogger(name)
+            logger = logging.getLogger(name)
             handlers = logger.handlers.copy()
             for handler in handlers:
                 self.remove_handler(name, handler=handler)
@@ -120,21 +154,25 @@ class QiskitNatureLogging:
             names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
         """
         for name in names:
-            logger = self._logging.getLogger(name)
+            logger = logging.getLogger(name)
             handlers = logger.handlers.copy()
             for handler in handlers:
                 if isinstance(handler, DefaultStreamHandler):
                     self.remove_handler(name, handler=handler)
 
-    def log_to_file(self, names: List[str], path: str) -> None:
+    def log_to_file(self, names: List[str], path: str, mode: str = "a") -> logging.FileHandler:
         """Logs modules to file.
 
         Args:
             names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
             path: file path
+            mode: file open mode. If it is not specified, 'a' is used to append
+        Returns:
+            The logging File handler used
         """
         filepath = os.path.expanduser(path)
-        handler = logging.FileHandler(filepath, mode="w")
-        formatter = logging.Formatter(fmt="%(asctime)s:%(name)s:%(levelname)s: %(message)s")
+        handler = logging.FileHandler(filepath, mode=mode)
+        formatter = logging.Formatter(fmt=QiskitNatureLogging.LOG_FORMAT)
         for name in names:
             self.add_handler(name, handler, formatter)
+        return handler

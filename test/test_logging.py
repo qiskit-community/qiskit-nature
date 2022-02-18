@@ -18,20 +18,14 @@ import sys
 import unittest
 import logging
 import tempfile
-import warnings
+import contextlib
+import io
+import os
 from test import QiskitNatureTestCase
-from qiskit import BasicAer
-from qiskit.algorithms import VQE
-from qiskit.algorithms.optimizers import L_BFGS_B
-from qiskit.circuit.library import TwoLocal
+from test.algorithms.excited_state_solvers.test_bosonic_esc_calculation import (
+    TestBosonicESCCalculation,
+)
 from qiskit_nature import settings as nature_settings
-from qiskit_nature.circuit.library import HartreeFock
-from qiskit_nature.drivers import UnitsType
-from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
-from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.converters.second_quantization import QubitConverter
-import qiskit_nature.optionals as _optionals
 
 
 class TestHandler(logging.StreamHandler):
@@ -61,9 +55,13 @@ class TestLogging(QiskitNatureTestCase):
             self._logging_dict.keys()
         )
 
-        nature_settings.logging.set_levels_for_names(self._logging_dict, add_default_handler=False)
-        for name in self._logging_dict:
-            nature_settings.logging.add_handler(name, handler=self._test_handler)
+    def _set_logging(self, use_default_handler: bool):
+        nature_settings.logging.set_levels_for_names(
+            self._logging_dict, add_default_handler=use_default_handler
+        )
+        if not use_default_handler:
+            for name in self._logging_dict:
+                nature_settings.logging.add_handler(name, handler=self._test_handler)
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -72,23 +70,16 @@ class TestLogging(QiskitNatureTestCase):
         nature_settings.logging.set_levels_for_names(
             self._old_logging_dict, add_default_handler=False
         )
+        nature_settings.logging.remove_default_handler(self._logging_dict.keys())
 
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_logging_to_handler(self):
-        """logging test"""
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", ResourceWarning)
-            TestLogging._vqe_run()
-
-        # check that logging was handled
+    def _validate_records(self, records):
         name_levels: Dict[str, Set[int]] = {}
-        for record in self._test_handler.records:
+        for record in records:
             names = record.name.split(".")
             if names[0] in name_levels:
                 name_levels[names[0]].add(record.levelno)
             else:
                 name_levels[names[0]] = set()
-
         self.assertCountEqual(
             name_levels.keys(),
             self._logging_dict.keys(),
@@ -102,75 +93,57 @@ class TestLogging(QiskitNatureTestCase):
                     msg=f"{name}: logging level {level} < reference level {ref_level} ",
                 )
 
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_logging_to_handler(self):
+        """logging test"""
+        self._set_logging(False)
+        # ignore Qiskit TextProgressBar that prints to stderr
+        with contextlib.redirect_stderr(io.StringIO()):
+            unittest.TextTestRunner().run(
+                unittest.TestSuite([TestBosonicESCCalculation("test_numpy_mes")])
+            )
+        # check that logging was handled
+        self._validate_records(self._test_handler.records)
+
+    def test_logging_to_default_handler(self):
+        """logging test to file"""
+        self._set_logging(True)
+        # ignore Qiskit TextProgressBar that prints to stderr
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertLogs("qiskit", level="DEBUG") as qiskit_cm:
+                with self.assertLogs("qiskit_nature", level="DEBUG") as nature_cm:
+                    unittest.TextTestRunner().run(
+                        unittest.TestSuite([TestBosonicESCCalculation("test_numpy_mes")])
+                    )
+        # check that logging was handled
+        records = qiskit_cm.records.copy()
+        records.extend(nature_cm.records)
+        self._validate_records(records)
+
     def test_logging_to_file(self):
         """logging test to file"""
-        with tempfile.NamedTemporaryFile() as tmp_file:
-            nature_settings.logging.log_to_file(self._logging_dict.keys(), path=tmp_file.name)
-
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", ResourceWarning)
-                TestLogging._vqe_run()
+        self._set_logging(False)
+        # pylint: disable=consider-using-with
+        tmp_file = tempfile.NamedTemporaryFile(delete=False)
+        tmp_file.close()
+        os.unlink(tmp_file.name)
+        file_handler = nature_settings.logging.log_to_file(
+            self._logging_dict.keys(), path=tmp_file.name, mode="w"
+        )
+        try:
+            # ignore Qiskit TextProgressBar that prints to stderr
+            with contextlib.redirect_stderr(io.StringIO()):
+                unittest.TextTestRunner().run(
+                    unittest.TestSuite([TestBosonicESCCalculation("test_numpy_mes")])
+                )
 
             with open(tmp_file.name, encoding="utf8") as file:
                 lines = file.read()
+        finally:
+            file_handler.close()
+            os.unlink(tmp_file.name)
 
         for name in self._logging_dict:
             self.assertTrue(f"{name}." in lines, msg=f"name {name} not found in log file.")
-
-    @staticmethod
-    def _vqe_run():
-
-        # Use PySCF, a classical computational chemistry software
-        # package, to compute the one-body and two-body integrals in
-        # electronic-orbital basis, necessary to form the Fermionic operator
-        driver = PySCFDriver(
-            atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
-        )
-        problem = ElectronicStructureProblem(driver)
-
-        # generate the second-quantized operators
-        second_q_ops = problem.second_q_ops()
-        main_op = second_q_ops["ElectronicEnergy"]
-
-        particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
-
-        num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        num_spin_orbitals = particle_number.num_spin_orbitals
-
-        # setup the classical optimizer for VQE
-
-        optimizer = L_BFGS_B()
-
-        # setup the mapper and qubit converter
-
-        mapper = ParityMapper()
-        converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
-
-        # map to qubit operators
-        qubit_op = converter.convert(main_op, num_particles=num_particles)
-
-        # setup the initial state for the ansatz
-
-        init_state = HartreeFock(num_spin_orbitals, num_particles, converter)
-
-        # setup the ansatz for VQE
-
-        ansatz = TwoLocal(num_spin_orbitals, ["ry", "rz"], "cz")
-
-        # add the initial state
-        ansatz.compose(init_state, front=True, inplace=True)
-
-        # set the backend for the quantum computation
-
-        backend = BasicAer.get_backend("statevector_simulator")
-
-        # setup and run VQE
-
-        algorithm = VQE(ansatz, optimizer=optimizer, quantum_instance=backend)
-
-        result = algorithm.compute_minimum_eigenvalue(qubit_op)
-        _ = problem.interpret(result)
 
 
 if __name__ == "__main__":

@@ -55,7 +55,6 @@ Submodules
    properties
    results
    runtime
-   settings
    transformers
 
 """
