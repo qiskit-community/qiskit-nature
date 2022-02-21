@@ -80,8 +80,8 @@ class HDF5Driver(BaseDriver):
         """Converts a legacy QMolecule HDF5 file into the new Property-framework.
 
         Args:
-            replace: if True, will replace the original HDF5 file. Otherwise `.new` will be used as
-                a suffix.
+            replace: if True, will replace the original HDF5 file. Otherwise `_new.hdf5` will be
+                used as a suffix.
 
         Raises:
             LookupError: file not found.
