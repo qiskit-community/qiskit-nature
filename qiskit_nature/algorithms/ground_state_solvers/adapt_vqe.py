@@ -79,6 +79,12 @@ class AdaptVQE(GroundStateEigensolver):
         validate_min("threshold", threshold, 1e-15)
         validate_min("delta", delta, 1e-5)
 
+        if delta != 1.0:
+            if gradient is None:
+                gradient = Gradient(grad_method="fin_diff",epsilon=delta) 
+            else:
+                logger.warning("You cannot set `delta` and `gradient`. The latter overrules the former.")
+        
         if gradient is None:
             gradient = Gradient(grad_method="param_shift")
 
@@ -135,6 +141,7 @@ class AdaptVQE(GroundStateEigensolver):
             # zip will only iterate the length of the shorter list
             theta1 = dict(zip(vqe.ansatz.parameters, theta))
             op = vqe.construct_expectation(theta1, self._main_operator)
+            print("GRADIENT::", self.gradient)
             # compute gradient
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
@@ -286,7 +293,7 @@ class AdaptVQE(GroundStateEigensolver):
             if np.abs(max_grad[0]) < self._threshold:
                 if iteration == 1:
                     raise QiskitNatureError(
-                        "Gradient choice is not suited as it leads to all non-zero gradients. "
+                        "Gradient choice is not suited as it leads to all zero gradients gradients. "
                         "Try a different gradient method."
                     )
                 logger.info(
