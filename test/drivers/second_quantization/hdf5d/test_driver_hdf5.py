@@ -48,7 +48,7 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
             shutil.copy(legacy_file_path, tmp_file.name)
             try:
                 driver = HDF5Driver(tmp_file.name)
-                driver.convert()
+                driver.convert(replace=True)
                 with self.assertRaises(AssertionError):
                     # NOTE: we can use assertNoLogs once Python 3.10 is the default
                     with self.assertLogs(

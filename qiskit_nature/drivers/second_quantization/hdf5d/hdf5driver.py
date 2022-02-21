@@ -76,7 +76,7 @@ class HDF5Driver(BaseDriver):
 
         return hdf5_file
 
-    def convert(self, replace: bool = True) -> None:
+    def convert(self, replace: bool = False) -> None:
         """Converts a legacy QMolecule HDF5 file into the new Property-framework.
 
         Args:
