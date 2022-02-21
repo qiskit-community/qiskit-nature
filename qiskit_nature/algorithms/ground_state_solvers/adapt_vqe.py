@@ -139,7 +139,6 @@ class AdaptVQE(GroundStateEigensolver):
             # zip will only iterate the length of the shorter list
             theta1 = dict(zip(vqe.ansatz.parameters, theta))
             op = vqe.construct_expectation(theta1, self._main_operator)
-            print("GRADIENT::", self.gradient)
             # compute gradient
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
