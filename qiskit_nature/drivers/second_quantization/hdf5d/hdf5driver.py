@@ -118,7 +118,7 @@ class HDF5Driver(BaseDriver):
                 legacy_hdf5_file = True
                 LOGGER.warning(
                     "Your HDF5 file contains the legacy QMolecule object! You should consider "
-                    "converting it to the new property framework. See also HDF5Driver.convert"
+                    "converting it to the new property framework, see HDF5Driver.convert"
                 )
 
         if legacy_hdf5_file:
