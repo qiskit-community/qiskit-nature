@@ -22,10 +22,7 @@ import contextlib
 import io
 import os
 from test import QiskitNatureTestCase
-from test.algorithms.excited_state_solvers.test_bosonic_esc_calculation import (
-    TestBosonicESCCalculation,
-)
-from qiskit_nature import settings as nature_settings
+from qiskit_nature import logging as nature_logging
 
 
 class TestHandler(logging.StreamHandler):
@@ -49,28 +46,24 @@ class TestLogging(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self._test_handler = TestHandler()
-        nature_settings.dict_aux_operators = True
+        nature_logging.dict_aux_operators = True
         self._logging_dict = {"qiskit_nature": logging.DEBUG, "qiskit": logging.DEBUG}
-        self._old_logging_dict = nature_settings.logging.get_levels_for_names(
-            self._logging_dict.keys()
-        )
+        self._old_logging_dict = nature_logging.get_levels_for_names(self._logging_dict.keys())
 
     def _set_logging(self, use_default_handler: bool):
-        nature_settings.logging.set_levels_for_names(
+        nature_logging.set_levels_for_names(
             self._logging_dict, add_default_handler=use_default_handler
         )
         if not use_default_handler:
             for name in self._logging_dict:
-                nature_settings.logging.add_handler(name, handler=self._test_handler)
+                nature_logging.add_handler(name, handler=self._test_handler)
 
     def tearDown(self) -> None:
         super().tearDown()
         for name in self._logging_dict:
-            nature_settings.logging.remove_handler(name, handler=self._test_handler)
-        nature_settings.logging.set_levels_for_names(
-            self._old_logging_dict, add_default_handler=False
-        )
-        nature_settings.logging.remove_default_handler(self._logging_dict.keys())
+            nature_logging.remove_handler(name, handler=self._test_handler)
+        nature_logging.set_levels_for_names(self._old_logging_dict, add_default_handler=False)
+        nature_logging.remove_default_handler(self._logging_dict.keys())
 
     def _validate_records(self, records):
         name_levels: Dict[str, Set[int]] = {}
@@ -98,9 +91,7 @@ class TestLogging(QiskitNatureTestCase):
         self._set_logging(False)
         # ignore Qiskit TextProgressBar that prints to stderr
         with contextlib.redirect_stderr(io.StringIO()):
-            unittest.TextTestRunner().run(
-                unittest.TestSuite([TestBosonicESCCalculation("test_numpy_mes")])
-            )
+            TestLogging._run_test()
         # check that logging was handled
         self._validate_records(self._test_handler.records)
 
@@ -111,9 +102,7 @@ class TestLogging(QiskitNatureTestCase):
         with contextlib.redirect_stderr(io.StringIO()):
             with self.assertLogs("qiskit", level="DEBUG") as qiskit_cm:
                 with self.assertLogs("qiskit_nature", level="DEBUG") as nature_cm:
-                    unittest.TextTestRunner().run(
-                        unittest.TestSuite([TestBosonicESCCalculation("test_numpy_mes")])
-                    )
+                    TestLogging._run_test()
         # check that logging was handled
         records = qiskit_cm.records.copy()
         records.extend(nature_cm.records)
@@ -126,24 +115,31 @@ class TestLogging(QiskitNatureTestCase):
         tmp_file = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.close()
         os.unlink(tmp_file.name)
-        file_handler = nature_settings.logging.log_to_file(
+        file_handler = nature_logging.log_to_file(
             self._logging_dict.keys(), path=tmp_file.name, mode="w"
         )
         try:
             # ignore Qiskit TextProgressBar that prints to stderr
             with contextlib.redirect_stderr(io.StringIO()):
-                unittest.TextTestRunner().run(
-                    unittest.TestSuite([TestBosonicESCCalculation("test_numpy_mes")])
-                )
-
+                TestLogging._run_test()
+        finally:
             with open(tmp_file.name, encoding="utf8") as file:
                 lines = file.read()
-        finally:
             file_handler.close()
             os.unlink(tmp_file.name)
 
         for name in self._logging_dict:
             self.assertTrue(f"{name}." in lines, msg=f"name {name} not found in log file.")
+
+    @staticmethod
+    def _run_test():
+        """Run external test and ignore any failures. Intention is just check logging."""
+        # pylint: disable=import-outside-toplevel
+        from test.algorithms.excited_state_solvers.test_bosonic_esc_calculation import (
+            TestBosonicESCCalculation,
+        )
+
+        unittest.TextTestRunner().run(TestBosonicESCCalculation("test_numpy_mes"))
 
 
 if __name__ == "__main__":

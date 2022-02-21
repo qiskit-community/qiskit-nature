@@ -1,4 +1,4 @@
 ---
 features:
   - |
-    Added logging utility functions accessible through `qiskit_nature.settings.logging`.
+    Added logging utility functions accessible through `qiskit_nature.logging`.

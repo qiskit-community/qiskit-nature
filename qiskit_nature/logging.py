@@ -15,10 +15,10 @@
 from typing import Optional, Dict, List
 import os
 import sys
-import logging
+import logging as python_logging
 
 
-class DefaultStreamHandler(logging.StreamHandler):
+class _DefaultStreamHandler(python_logging.StreamHandler):
     """Default stream Handler"""
 
     def __init__(self):
@@ -26,7 +26,7 @@ class DefaultStreamHandler(logging.StreamHandler):
         Initialize the handler.
         """
         super().__init__(stream=sys.stdout)
-        self.setFormatter(logging.Formatter(fmt=QiskitNatureLogging.LOG_FORMAT))
+        self.setFormatter(python_logging.Formatter(fmt=QiskitNatureLogging.LOG_FORMAT))
 
 
 class QiskitNatureLogging:
@@ -38,8 +38,8 @@ class QiskitNatureLogging:
     .. code-block:: python
 
         import logging
-        from qiskit_nature import settings as nature_settings
-        nature_settings.logging.set_levels_for_names(
+        from qiskit_nature import logging as nature_logging
+        nature_logging.set_levels_for_names(
             {"qiskit_nature": logging.DEBUG, "qiskit": logging.DEBUG})
 
     It will print to 'stdout' DEBUG formatted logs, for the domains included.
@@ -47,8 +47,8 @@ class QiskitNatureLogging:
 
     .. code-block:: python
 
-        from qiskit_nature import settings as nature_settings
-        dict = nature_settings.logging.get_levels_for_names(["qiskit_nature", "qiskit"])
+        from qiskit_nature import logging as nature_logging
+        dict = nature_logging.get_levels_for_names(["qiskit_nature", "qiskit"])
 
     The result dictionary key is the domain string and the value the logging level
 
@@ -57,8 +57,8 @@ class QiskitNatureLogging:
     .. code-block:: python
 
         import logging
-        from qiskit_nature import settings as nature_settings
-        nature_settings.logging.log_to_file(
+        from qiskit_nature import logging as nature_logging
+        nature_logging.log_to_file(
                 {"qiskit_nature": logging.DEBUG, "qiskit": logging.DEBUG},
                  path="file.log", mode="w"
             )
@@ -79,38 +79,37 @@ class QiskitNatureLogging:
         """
         name_levels: Dict[str, int] = {}
         for name in names:
-            name_levels[name] = logging.getLogger(name).getEffectiveLevel()
+            name_levels[name] = python_logging.getLogger(name).getEffectiveLevel()
 
         return name_levels
 
     def set_levels_for_names(
         self, name_levels: Dict[str, int], add_default_handler: bool = True
-    ) -> Dict[str, int]:
+    ) -> None:
         """Set logging levels for module names.
 
         Args:
             name_levels: Dictionary of module names (qiskit_nature.drivers, qiskit.algorithms etc)
                          to desired level
             add_default_handler: add or not the default stream handler
-        Returns:
-            Dictionary mapping names to effective level
         """
         names: List[str] = []
         for name, level in name_levels.items():
             names.append(name)
-            logger = logging.getLogger(name)
+            logger = python_logging.getLogger(name)
             logger.setLevel(level)
             logger.propagate = False
             handlers = logger.handlers
             if add_default_handler and not any(
-                isinstance(h, DefaultStreamHandler) for h in handlers
+                isinstance(h, _DefaultStreamHandler) for h in handlers
             ):
-                self.add_handler(name, DefaultStreamHandler())
-
-        return self.get_levels_for_names(names)
+                self.add_handler(name, _DefaultStreamHandler())
 
     def add_handler(
-        self, name: str, handler: logging.Handler, formatter: Optional[logging.Formatter] = None
+        self,
+        name: str,
+        handler: python_logging.Handler,
+        formatter: Optional[python_logging.Formatter] = None,
     ) -> None:
         """Add handler and optional formatter to a module name.
 
@@ -119,19 +118,19 @@ class QiskitNatureLogging:
             handler: Logging Handler
             formatter: Logging Formatter
         """
-        logger = logging.getLogger(name)
+        logger = python_logging.getLogger(name)
         if formatter is not None:
             handler.setFormatter(formatter)
         logger.addHandler(handler)
 
-    def remove_handler(self, name: str, handler: logging.Handler) -> None:
+    def remove_handler(self, name: str, handler: python_logging.Handler) -> None:
         """Remove handler from module.
 
         Args:
             name: module name
             handler: Logging Handler
         """
-        logger = logging.getLogger(name)
+        logger = python_logging.getLogger(name)
         handler.close()
         logger.removeHandler(handler)
 
@@ -142,7 +141,7 @@ class QiskitNatureLogging:
             names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
         """
         for name in names:
-            logger = logging.getLogger(name)
+            logger = python_logging.getLogger(name)
             handlers = logger.handlers.copy()
             for handler in handlers:
                 self.remove_handler(name, handler=handler)
@@ -154,13 +153,15 @@ class QiskitNatureLogging:
             names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
         """
         for name in names:
-            logger = logging.getLogger(name)
+            logger = python_logging.getLogger(name)
             handlers = logger.handlers.copy()
             for handler in handlers:
-                if isinstance(handler, DefaultStreamHandler):
+                if isinstance(handler, _DefaultStreamHandler):
                     self.remove_handler(name, handler=handler)
 
-    def log_to_file(self, names: List[str], path: str, mode: str = "a") -> logging.FileHandler:
+    def log_to_file(
+        self, names: List[str], path: str, mode: str = "a"
+    ) -> python_logging.FileHandler:
         """Logs modules to file.
 
         Args:
@@ -171,8 +172,11 @@ class QiskitNatureLogging:
             The logging File handler used
         """
         filepath = os.path.expanduser(path)
-        handler = logging.FileHandler(filepath, mode=mode)
-        formatter = logging.Formatter(fmt=QiskitNatureLogging.LOG_FORMAT)
+        handler = python_logging.FileHandler(filepath, mode=mode)
+        formatter = python_logging.Formatter(fmt=QiskitNatureLogging.LOG_FORMAT)
         for name in names:
             self.add_handler(name, handler, formatter)
         return handler
+
+
+logging = QiskitNatureLogging()
