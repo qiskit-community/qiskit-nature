@@ -95,7 +95,7 @@ class HDF5Driver(BaseDriver):
 
         new_hdf5_file = hdf5_file
         if not replace:
-            new_hdf5_file = hdf5_file.with_stem(str(hdf5_file.stem) + "_new")
+            new_hdf5_file = hdf5_file.with_name(str(hdf5_file.stem) + "_new.hdf5")
 
         driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
         save_to_hdf5(driver_result, str(new_hdf5_file), replace=replace)

@@ -64,8 +64,8 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
             # pylint: disable=consider-using-with
             tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
             tmp_file.close()
-            new_file_name = pathlib.Path(tmp_file.name).with_stem(
-                str(pathlib.Path(tmp_file.name).stem) + "_new"
+            new_file_name = pathlib.Path(tmp_file.name).with_name(
+                str(pathlib.Path(tmp_file.name).stem) + "_new.hdf5"
             )
             os.unlink(tmp_file.name)
             shutil.copy(legacy_file_path, tmp_file.name)
