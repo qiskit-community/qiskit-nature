@@ -13,6 +13,7 @@
 """ Test Driver HDF5 """
 
 import os
+import pathlib
 import shutil
 import tempfile
 import unittest
@@ -63,6 +64,9 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
             # pylint: disable=consider-using-with
             tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
             tmp_file.close()
+            new_file_name = pathlib.Path(tmp_file.name).with_stem(
+                str(pathlib.Path(tmp_file.name).stem) + "_new"
+            )
             os.unlink(tmp_file.name)
             shutil.copy(legacy_file_path, tmp_file.name)
             try:
@@ -79,10 +83,10 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
                         logger="qiskit_nature.drivers.second_quantization.hdf5d.hdf5driver",
                         level="WARNING",
                     ):
-                        HDF5Driver(tmp_file.name + ".new").run()
+                        HDF5Driver(new_file_name).run()
             finally:
                 os.unlink(tmp_file.name)
-                os.unlink(tmp_file.name + ".new")
+                os.unlink(new_file_name)
 
 
 class TestDriverHDF5Legacy(QiskitNatureTestCase, TestDriver):

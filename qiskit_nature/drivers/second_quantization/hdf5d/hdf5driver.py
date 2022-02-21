@@ -13,7 +13,7 @@
 """ HDF5 Driver """
 
 import logging
-import os
+import pathlib
 import warnings
 
 import h5py
@@ -58,7 +58,7 @@ class HDF5Driver(BaseDriver):
         """Sets work path."""
         self._work_path = new_work_path
 
-    def _get_path(self) -> str:
+    def _get_path(self) -> pathlib.Path:
         """Returns the absolute path to the HDF5 file.
 
         Returns:
@@ -67,11 +67,11 @@ class HDF5Driver(BaseDriver):
         Raises:
             LookupError: file not found.
         """
-        hdf5_file = self._hdf5_input
-        if self.work_path is not None and not os.path.isabs(hdf5_file):
-            hdf5_file = os.path.abspath(os.path.join(self.work_path, hdf5_file))
+        hdf5_file = pathlib.Path(self._hdf5_input)
+        if self.work_path is not None and not hdf5_file.is_absolute():
+            hdf5_file = pathlib.Path(self.work_path) / hdf5_file
 
-        if not os.path.isfile(hdf5_file):
+        if not hdf5_file.is_file():
             raise LookupError(f"HDF5 file not found: {hdf5_file}")
 
         return hdf5_file
@@ -93,10 +93,12 @@ class HDF5Driver(BaseDriver):
         warnings.filterwarnings("default", category=DeprecationWarning)
         q_mol.load()
 
-        new_hdf5_file = hdf5_file if replace else hdf5_file + ".new"
+        new_hdf5_file = hdf5_file
+        if not replace:
+            new_hdf5_file = hdf5_file.with_stem(str(hdf5_file.stem) + "_new")
 
         driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
-        save_to_hdf5(driver_result, new_hdf5_file, replace=replace)
+        save_to_hdf5(driver_result, str(new_hdf5_file), replace=replace)
 
     def run(self) -> GroupedSecondQuantizedProperty:
         """
@@ -126,7 +128,7 @@ class HDF5Driver(BaseDriver):
             molecule.load()
             return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)
 
-        driver_result = load_from_hdf5(hdf5_file)
+        driver_result = load_from_hdf5(str(hdf5_file))
 
         if not isinstance(driver_result, GroupedSecondQuantizedProperty):
             raise QiskitNatureError(
