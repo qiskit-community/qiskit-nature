@@ -12,7 +12,7 @@
 
 """The QuadraticHamiltonian class."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import scipy.linalg
@@ -135,7 +135,7 @@ class QuadraticHamiltonian(TolerancesMixin):
 
     def to_fermionic_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms = [([], self.constant)]
+        terms = [([], self.constant)]  # type: list[tuple[list[tuple[str, int]], complex]]
         for i in range(self._num_modes):
             terms.append(([("+", i), ("-", i)], self.hermitian_part[i, i]))
             for j in range(i + 1, self._num_modes):
@@ -149,7 +149,7 @@ class QuadraticHamiltonian(TolerancesMixin):
         """Whether the Hamiltonian conserves particle number."""
         return np.allclose(self.antisymmetric_part, 0.0)
 
-    def majorana_form(self) -> Tuple[np.ndarray, float]:
+    def majorana_form(self) -> tuple[np.ndarray, float]:
         r"""Return the Majorana representation of the Hamiltonian.
 
         The Majorana representation of a quadratic Hamiltonian is
@@ -182,7 +182,7 @@ class QuadraticHamiltonian(TolerancesMixin):
         # imaginary parts should be zero
         return np.real(matrix), np.real(constant)
 
-    def diagonalizing_bogoliubov_transform(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def diagonalizing_bogoliubov_transform(self) -> tuple[np.ndarray, np.ndarray, float]:
         r"""Return the transformation matrix that diagonalizes a quadratic Hamiltonian.
 
         Recall that a quadratic Hamiltonian has the form
@@ -251,13 +251,13 @@ class QuadraticHamiltonian(TolerancesMixin):
             return self._particle_num_conserving_bogoliubov_transform()
         return self._non_particle_num_conserving_bogoliubov_transform()
 
-    def _particle_num_conserving_bogoliubov_transform(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _particle_num_conserving_bogoliubov_transform(self) -> tuple[np.ndarray, np.ndarray, float]:
         orbital_energies, basis_change = np.linalg.eigh(self.hermitian_part)
         return basis_change.T, orbital_energies, self.constant
 
     def _non_particle_num_conserving_bogoliubov_transform(
         self,
-    ) -> Tuple[np.ndarray, np.ndarray, float]:
+    ) -> tuple[np.ndarray, np.ndarray, float]:
         matrix, constant = self.majorana_form()
 
         canonical_form, basis_change = _antisymmetric_canonical_form(matrix)
@@ -273,7 +273,7 @@ class QuadraticHamiltonian(TolerancesMixin):
         return diagonalizing_unitary[: self._num_modes], orbital_energies, constant
 
 
-def _antisymmetric_canonical_form(matrix: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def _antisymmetric_canonical_form(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Put an antisymmetric matrix into canonical form.
 
     The input is an antisymmetric matrix A with even dimension.
