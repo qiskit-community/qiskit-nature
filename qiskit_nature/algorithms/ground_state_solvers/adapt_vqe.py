@@ -56,12 +56,13 @@ class AdaptVQE(GroundStateEigensolver):
             "`gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`."
         ),
     )
+    # pylint: disable=unused-argument
     def __init__(
         self,
         qubit_converter: QubitConverter,
         solver: MinimumEigensolverFactory,
         threshold: float = 1e-5,
-        delta: float = 1,
+        delta: float = 1,  # delta is copied into gradient by the deprecate_arguments wrapper
         max_iterations: Optional[int] = None,
         gradient: Optional[GradientBase] = None,
     ) -> None:
@@ -77,21 +78,18 @@ class AdaptVQE(GroundStateEigensolver):
                 on the method mentioned.
         """
         validate_min("threshold", threshold, 1e-15)
-        validate_min("delta", delta, 1e-5)
 
-        if delta != 1.0:
-            if gradient is None:
-                gradient = Gradient(grad_method="fin_diff",epsilon=delta) 
-            else:
-                logger.warning("You cannot set `delta` and `gradient`. The latter overrules the former.")
-        
+        if isinstance(gradient, float):
+            # this scenario can only occur while using the deprecate_arguments wrapper which will
+            # move any argument supplied to delta into gradient.
+            gradient = Gradient(grad_method="fin_diff", epsilon=gradient)
+
         if gradient is None:
             gradient = Gradient(grad_method="param_shift")
 
         super().__init__(qubit_converter, solver)
 
         self._threshold = threshold
-        self._delta = delta
         self._max_iterations = max_iterations
         self._gradient = gradient
 

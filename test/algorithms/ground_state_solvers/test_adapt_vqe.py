@@ -126,15 +126,14 @@ class TestAdaptVQE(QiskitNatureTestCase):
         calc = AdaptVQE(self.qubit_converter, solver, delta=delta1)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
-    
+
     def test_delta_and_gradient(self):
         """test for when delta and gradient both are set"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         delta1 = 0.01
         grad = Gradient(grad_method="fin_diff", epsilon=1.0)
-        calc = AdaptVQE(self.qubit_converter, solver, delta=delta1, gradient=grad)
-        res = calc.solve(self.problem)
-        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+        with self.assertRaises(TypeError):
+            _ = AdaptVQE(self.qubit_converter, solver, delta=delta1, gradient=grad)
 
     @slow_test
     def test_LiH(self):
