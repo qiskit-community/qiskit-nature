@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,11 +12,15 @@
 
 """A base class for raw electronic integrals."""
 
+from __future__ import annotations
+
+import importlib
 import itertools
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List, Optional, Tuple, Union
+from typing import Generator, Optional, Union
 
+import h5py
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -41,7 +45,11 @@ class ElectronicIntegrals(ABC):
     ``ElectronicIntegrals.set_truncation`` to change this value.
     """
 
+    VERSION = 1
+
     INTEGRAL_TRUNCATION_LEVEL = 1e-12
+
+    _MATRIX_REPRESENTATIONS: list[str] = []
 
     _truncate = 5
 
@@ -49,7 +57,7 @@ class ElectronicIntegrals(ABC):
         self,
         num_body_terms: int,
         basis: ElectronicBasis,
-        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]],
         threshold: float = INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
         # pylint: disable=line-too-long
@@ -75,11 +83,11 @@ class ElectronicIntegrals(ABC):
         """
         self._validate_num_body_terms(num_body_terms)
         self._validate_matrices(matrices, basis, num_body_terms)
+        self.name = self.__class__.__name__
         self._basis = basis
         self._num_body_terms = num_body_terms
         self._threshold = threshold
-        self._matrix_representations: List[str] = [""] * len(matrices)
-        self._matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]]
+        self._matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]]
         if basis == ElectronicBasis.SO:
             self._matrices = np.where(np.abs(matrices) > self._threshold, matrices, 0.0)
         else:
@@ -88,17 +96,143 @@ class ElectronicIntegrals(ABC):
                 for mat in matrices
             )
 
-        if basis != ElectronicBasis.SO:
-            self._fill_matrices()
+    def get_matrix(self, index: int = 0) -> np.ndarray:
+        """Returns the integral matrix at the requested index.
+
+        When the integrals are in the :class:`ElectronicBasis.SO` basis the index has no effect
+        because only a single matrix exists.
+        In any other case, the index may not exceed the length of the internal matrices being
+        stored. This length depends on the number of body terms for the specific implementation of
+        this base class.
+
+        Finally, when the internal matrix encountered at the requested index is `None`, it will be
+        replaced by the matrix at index 0, which for most common purposes is the default fallback
+        (pure alpha-spin) integral matrix used in place of other mixed spin matrices.
+        If a subclass must follow another convention it should overwrite the implementation of this
+        method.
+
+        Args:
+            index: the index of the integral matrix to get.
+
+        Returns:
+            The requested integral matrix.
+
+        Raises:
+            IndexError: when the requested index exceeds the number of internal matrices.
+        """
+        if isinstance(self._matrices, np.ndarray):
+            return self._matrices
+
+        if index >= len(self._matrices):
+            raise IndexError(
+                f"The requested index {index} exceeds the number of internal matrices "
+                f"{len(self._matrices)}."
+            )
+
+        mat = self._matrices[index]
+        if mat is None:
+            mat = self._matrices[0]
+
+        return mat
+
+    @property
+    def basis(self) -> ElectronicBasis:
+        """Returns the basis."""
+        return self._basis
+
+    @basis.setter
+    def basis(self, basis: ElectronicBasis) -> None:
+        """Sets the basis."""
+        self._basis = basis
+
+    @property
+    def num_body_terms(self) -> int:
+        """Returns the num_body_terms."""
+        return self._num_body_terms
+
+    @num_body_terms.setter
+    def num_body_terms(self, num_body_terms: int) -> None:
+        """Sets the num_body_terms."""
+        self._num_body_terms = num_body_terms
+
+    @property
+    def threshold(self) -> float:
+        """Returns the threshold."""
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, threshold: float) -> None:
+        """Sets the threshold."""
+        self._threshold = threshold
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        group = parent.require_group(self.name)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
+
+        group.attrs["basis"] = self._basis.name
+        group.attrs["threshold"] = self._threshold
+
+        if self._basis == ElectronicBasis.SO:
+            group.create_dataset("Spin", data=self._matrices)
+        else:
+            for name, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
+                if mat is None:
+                    continue
+                group.create_dataset(name, data=mat)
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicIntegrals:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        class_name = h5py_group.attrs["__class__"]
+        module_path = h5py_group.attrs["__module__"]
+
+        loaded_module = importlib.import_module(module_path)
+        loaded_class = getattr(loaded_module, class_name, None)
+
+        basis = getattr(ElectronicBasis, h5py_group.attrs["basis"])
+        threshold = h5py_group.attrs["threshold"]
+        matrices: list[Optional[np.ndarray]] = []
+        for rep in loaded_class._MATRIX_REPRESENTATIONS:
+            if rep in h5py_group.keys():
+                matrices.append(h5py_group[rep][...])
+            else:
+                matrices.append(None)
+
+        return loaded_class(
+            basis=basis,
+            matrices=tuple(matrices),
+            threshold=threshold,
+        )
 
     def __str__(self) -> str:
         string = [f"({self._basis.name}) {self._num_body_terms}-Body Terms:"]
         if self._basis == ElectronicBasis.SO:
             string += self._render_matrix_as_sparse_list(self._matrices)
         else:
-            for title, mat in zip(self._matrix_representations, self._matrices):
-                rendered_matrix = self._render_matrix_as_sparse_list(mat)
+            for title, mat in zip(self._MATRIX_REPRESENTATIONS, self._matrices):
                 string += [f"\t{title}"]
+                if mat is None:
+                    string += ["\tSame values as the corresponding primary-spin data."]
+                    continue
+                rendered_matrix = self._render_matrix_as_sparse_list(mat)
                 if not rendered_matrix:
                     string[-1] += " is all zero"
                     continue
@@ -106,7 +240,7 @@ class ElectronicIntegrals(ABC):
         return "\n".join(string)
 
     @staticmethod
-    def _render_matrix_as_sparse_list(matrix) -> List[str]:
+    def _render_matrix_as_sparse_list(matrix) -> list[str]:
         string = []
         nonzero = matrix.nonzero()
         nonzero_count = len(nonzero[0])
@@ -121,6 +255,14 @@ class ElectronicIntegrals(ABC):
             string += [f"\t{indices} = {value}"]
             count += 1
         return string
+
+    def __iter__(self) -> Generator[np.ndarray, None, None]:
+        """An iterator over the internal matrices."""
+        if isinstance(self._matrices, np.ndarray):
+            yield self._matrices
+        else:
+            for mat in self._matrices:
+                yield mat
 
     @staticmethod
     def set_truncation(max_num_entries: int) -> None:
@@ -144,7 +286,7 @@ class ElectronicIntegrals(ABC):
 
     @staticmethod
     def _validate_matrices(
-        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]],
         basis: ElectronicBasis,
         num_body_terms: int,
     ) -> None:
@@ -169,23 +311,8 @@ class ElectronicIntegrals(ABC):
                     f"match the number of provided matrices, {len(matrices)}."
                 )
 
-    def _fill_matrices(self) -> None:
-        """Fills the internal matrices where ``None`` placeholders were inserted.
-
-        This method iterates the internal list of matrices and replaces any occurrences of ``None``
-        with the first matrix of the list. In case, more symmetry arguments need to be considered a
-        subclass should overwrite this method.
-        """
-        filled_matrices = []
-        for mat in self._matrices:
-            if mat is not None:
-                filled_matrices.append(mat)
-            else:
-                filled_matrices.append(self._matrices[0])
-        self._matrices = tuple(filled_matrices)
-
     @abstractmethod
-    def transform_basis(self, transform: ElectronicBasisTransform) -> "ElectronicIntegrals":
+    def transform_basis(self, transform: ElectronicBasisTransform) -> ElectronicIntegrals:
         # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 
@@ -237,7 +364,7 @@ class ElectronicIntegrals(ABC):
             if spin_matrix[indices]
         )
 
-    def _create_base_op(self, indices: Tuple[int, ...], coeff: complex, length: int) -> FermionicOp:
+    def _create_base_op(self, indices: tuple[int, ...], coeff: complex, length: int) -> FermionicOp:
         """Creates a single base operator for the given coefficient.
 
         Args:
@@ -254,7 +381,7 @@ class ElectronicIntegrals(ABC):
         return base_op
 
     @abstractmethod
-    def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
+    def _calc_coeffs_with_ops(self, indices: tuple[int, ...]) -> list[tuple[int, str]]:
         """Maps indices to creation/annihilation operator symbols.
 
         Args:
@@ -264,7 +391,7 @@ class ElectronicIntegrals(ABC):
             A list of tuples associating each index with a creation/annihilation operator symbol.
         """
 
-    def add(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+    def add(self, other: ElectronicIntegrals) -> ElectronicIntegrals:
         """Adds two ElectronicIntegrals instances.
 
         Args:
@@ -274,15 +401,25 @@ class ElectronicIntegrals(ABC):
             The added ElectronicIntegrals.
         """
         ret = deepcopy(self)
-        if isinstance(self._matrices, np.ndarray):
+        if self._basis == ElectronicBasis.SO:
             ret._matrices = self._matrices + other._matrices
         else:
-            ret._matrices = [a + b for a, b in zip(self._matrices, other._matrices)]  # type: ignore
+            ret_matrices: list[Optional[np.ndarray]] = []
+            for idx, (mat_a, mat_b) in enumerate(zip(self._matrices, other._matrices)):
+                if mat_a is None and mat_b is None:
+                    ret_matrices.append(None)
+                    continue
+                if mat_a is None:
+                    mat_a = self.get_matrix(idx)
+                if mat_b is None:
+                    mat_b = other.get_matrix(idx)
+                ret_matrices.append(mat_a + mat_b)
+            ret._matrices = tuple(ret_matrices)
         return ret
 
     def compose(
-        self, other: "ElectronicIntegrals", einsum_subscript: Optional[str] = None
-    ) -> Union[complex, "ElectronicIntegrals"]:
+        self, other: ElectronicIntegrals, einsum_subscript: Optional[str] = None
+    ) -> Union[complex, ElectronicIntegrals]:
         """Composes two ``ElectronicIntegrals`` instances.
 
         Args:
@@ -294,15 +431,15 @@ class ElectronicIntegrals(ABC):
         """
         raise NotImplementedError()
 
-    def __rmul__(self, other: complex) -> "ElectronicIntegrals":
+    def __rmul__(self, other: complex) -> ElectronicIntegrals:
         ret = deepcopy(self)
         if isinstance(self._matrices, np.ndarray):
             ret._matrices = other * self._matrices
         else:
-            ret._matrices = [other * mat for mat in self._matrices]  # type: ignore
+            ret._matrices = tuple(None if mat is None else other * mat for mat in self._matrices)
         return ret
 
-    def __add__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+    def __add__(self, other: ElectronicIntegrals) -> ElectronicIntegrals:
         if self._basis != other._basis:
             raise ValueError(
                 f"The basis of self, {self._basis.value}, does not match the basis of other, "
@@ -310,5 +447,5 @@ class ElectronicIntegrals(ABC):
             )
         return self.add(other)
 
-    def __sub__(self, other: "ElectronicIntegrals") -> "ElectronicIntegrals":
+    def __sub__(self, other: ElectronicIntegrals) -> ElectronicIntegrals:
         return self + (-1.0) * other

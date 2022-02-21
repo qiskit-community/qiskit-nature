@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,11 +12,14 @@
 
 """The AngularMomentum property."""
 
+from __future__ import annotations
+
 import logging
-from typing import cast, List, Optional, Tuple
+from typing import cast, Optional
 
 import itertools
 
+import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
@@ -65,6 +68,16 @@ class AngularMomentum(ElectronicProperty):
         self._relative_tolerance = relative_tolerance
 
     @property
+    def num_spin_orbitals(self) -> int:
+        """Returns the number of spin orbitals."""
+        return self._num_spin_orbitals
+
+    @num_spin_orbitals.setter
+    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
+        """Sets the number of spin orbitals."""
+        self._num_spin_orbitals = num_spin_orbitals
+
+    @property
     def spin(self) -> Optional[float]:
         """Returns the expected spin."""
         return self._spin
@@ -74,6 +87,26 @@ class AngularMomentum(ElectronicProperty):
         """Sets the expected spin."""
         self._spin = spin
 
+    @property
+    def absolute_tolerance(self) -> float:
+        """Returns the absolute tolerance."""
+        return self._absolute_tolerance
+
+    @absolute_tolerance.setter
+    def absolute_tolerance(self, absolute_tolerance: float) -> None:
+        """Sets the absolute tolerance."""
+        self._absolute_tolerance = absolute_tolerance
+
+    @property
+    def relative_tolerance(self) -> float:
+        """Returns the relative tolerance."""
+        return self._relative_tolerance
+
+    @relative_tolerance.setter
+    def relative_tolerance(self, relative_tolerance: float) -> None:
+        """Sets the relative tolerance."""
+        self._relative_tolerance = relative_tolerance
+
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
         string += [f"\t{self._num_spin_orbitals} SOs"]
@@ -81,8 +114,44 @@ class AngularMomentum(ElectronicProperty):
             string += [f"\tExpected spin: {self.spin}"]
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
+        if self._spin:
+            group.attrs["spin"] = self._spin
+        group.attrs["absolute_tolerance"] = self._absolute_tolerance
+        group.attrs["relative_tolerance"] = self._relative_tolerance
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> AngularMomentum:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        return AngularMomentum(
+            h5py_group.attrs["num_spin_orbitals"],
+            h5py_group.attrs.get("spin", None),
+            h5py_group.attrs["absolute_tolerance"],
+            h5py_group.attrs["relative_tolerance"],
+        )
+
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "AngularMomentum":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> AngularMomentum:
         """Construct an AngularMomentum instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
@@ -167,19 +236,19 @@ class AngularMomentum(ElectronicProperty):
                 result.total_angular_momentum.append(None)
 
 
-def _calc_s_x_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_s_x_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
     return _calc_squared_ints(num_modes, _modify_s_x_squared_ints_neq, _modify_s_x_squared_ints_eq)
 
 
-def _calc_s_y_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_s_y_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
     return _calc_squared_ints(num_modes, _modify_s_y_squared_ints_neq, _modify_s_y_squared_ints_eq)
 
 
-def _calc_s_z_squared_ints(num_modes: int) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_s_z_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
     return _calc_squared_ints(num_modes, _modify_s_z_squared_ints_neq, _modify_s_z_squared_ints_eq)
 
 
-def _calc_squared_ints(num_modes: int, func_neq, func_eq) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_squared_ints(num_modes: int, func_neq, func_eq) -> tuple[np.ndarray, np.ndarray]:
     # calculates 1- and 2-body integrals for a given angular momentum axis (x or y or z,
     # specified by func_neq and func_eq)
     num_modes_2 = num_modes // 2
@@ -287,7 +356,7 @@ def _modify_s_z_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
 
 
 def _add_values_to_s_squared_ints(
-    h_2: np.ndarray, indices: List[Tuple[int, int, int, int]], values: List[int]
+    h_2: np.ndarray, indices: list[tuple[int, int, int, int]], values: list[int]
 ) -> np.ndarray:
     for index, value in zip(indices, values):
         h_2[index] += value

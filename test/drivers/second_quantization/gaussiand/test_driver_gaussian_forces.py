@@ -12,26 +12,31 @@
 
 """ Test Gaussian Forces Driver """
 
+import re
 import unittest
 import warnings
 from typing import cast
 
 from test import QiskitNatureTestCase
+from ddt import data, ddt, unpack
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import (
     GaussianForcesDriver,
+    GaussianLogDriver,
     VibrationalStructureMoleculeDriver,
     VibrationalStructureDriverType,
 )
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
 import qiskit_nature.optionals as _optionals
 
 
+@ddt
 class TestDriverGaussianForces(QiskitNatureTestCase):
     """Gaussian Forces Driver tests."""
 
-    _JFC_MOLECULE_EXPECTED = [
+    _C01_REV_EXPECTED = [
         [352.3005875, 2, 2],
         [-352.3005875, -2, -2],
         [631.6153975, 1, 1],
@@ -42,23 +47,23 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         [-115.653915, -3, -3],
         [-15.341901966295344, 2, 2, 2],
         [-88.2017421687633, 1, 1, 2],
-        [38.72849649956234, 4, 4, 2],
-        [38.72849649956234, 3, 3, 2],
-        [0.4207357291666667, 2, 2, 2, 2],
+        [42.675273102831454, 4, 4, 2],
+        [42.675273102831454, 3, 3, 2],
+        [0.420735625, 2, 2, 2, 2],
         [4.9425425, 1, 1, 2, 2],
         [1.6122932291666665, 1, 1, 1, 1],
         [-4.194299375, 4, 4, 2, 2],
         [-4.194299375, 3, 3, 2, 2],
-        [-10.205891875, 4, 4, 1, 1],
-        [-10.205891875, 3, 3, 1, 1],
-        [1.8255064583333331, 4, 4, 4, 4],
-        [3.507156666666667, 4, 4, 4, 3],
-        [10.160466875, 4, 4, 3, 3],
-        [-3.507156666666667, 4, 3, 3, 3],
-        [1.8255065625, 3, 3, 3, 3],
+        [-10.20589125, 4, 4, 1, 1],
+        [-10.20589125, 3, 3, 1, 1],
+        [2.335859166666667, 4, 4, 4, 4],
+        [2.6559641666666667, 4, 4, 4, 3],
+        [7.09835, 4, 4, 3, 3],
+        [-2.6559641666666667, 4, 3, 3, 3],
+        [2.335859166666667, 3, 3, 3, 3],
     ]
 
-    _LOG_FILE_EXPECTED = [
+    _A03_REV_EXPECTED = [
         [352.3005875, 2, 2],
         [-352.3005875, -2, -2],
         [631.6153975, 1, 1],
@@ -86,6 +91,28 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         [2.2973803125, 3, 3, 3, 3],
     ]
 
+    def _get_expected_values(self):
+        """Get expected values based on revision of Gaussian 16 being used."""
+        jcf = "\n\n"  # Empty job control file will error out
+        log_driver = GaussianLogDriver(jcf=jcf)
+        version = "Not found by regex"
+        try:
+            _ = log_driver.run()
+        except QiskitNatureError as qne:
+            matched = re.search("G16Rev\\w+\\.\\w+", qne.message)
+            if matched is not None:
+                version = matched[0]
+        if version == "G16RevA.03":
+            exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
+        elif version == "G16RevB.01":
+            exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
+        elif version == "G16RevC.01":
+            exp_vals = TestDriverGaussianForces._C01_REV_EXPECTED
+        else:
+            self.fail(f"Unknown gaussian version '{version}'")
+
+        return exp_vals
+
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_jcf(self):
         """Test the driver works with job control file"""
@@ -104,7 +131,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             ]
         )
         result = driver.run()
-        self._check_driver_result(TestDriverGaussianForces._JFC_MOLECULE_EXPECTED, result)
+        self._check_driver_result(self._get_expected_values(), result)
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_molecule(self):
@@ -122,19 +149,25 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             molecule, basis="6-31g", driver_type=VibrationalStructureDriverType.GAUSSIAN_FORCES
         )
         result = driver.run()
-        self._check_driver_result(TestDriverGaussianForces._JFC_MOLECULE_EXPECTED, result)
+        self._check_driver_result(self._get_expected_values(), result)
 
-    def test_driver_logfile(self):
+    @data(
+        ("A03", _A03_REV_EXPECTED),
+        ("C01", _C01_REV_EXPECTED),
+    )
+    @unpack
+    def test_driver_logfile(self, suffix, expected):
         """Test the driver works with logfile (Gaussian does not need to be installed)"""
 
         driver = GaussianForcesDriver(
             logfile=self.get_resource_path(
-                "test_driver_gaussian_log.txt", "drivers/second_quantization/gaussiand"
+                f"test_driver_gaussian_log_{suffix}.txt", "drivers/second_quantization/gaussiand"
             )
         )
 
         result = driver.run()
-        self._check_driver_result(TestDriverGaussianForces._LOG_FILE_EXPECTED, result)
+        # Log file being tested was created with revision A.03
+        self._check_driver_result(expected, result)
 
     def _check_driver_result(self, expected_watson_data, prop):
         with warnings.catch_warnings():

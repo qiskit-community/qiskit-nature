@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,7 +24,6 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
 
    Property
    GroupedProperty
-   PseudoProperty
 
 .. autosummary::
    :toctree:
@@ -33,10 +32,9 @@ Qiskit Nature ships with a library of commonly evaluates ``Property`` objects (o
 """
 
 from .grouped_property import GroupedProperty
-from .property import Property, PseudoProperty
+from .property import Property
 
 __all__ = [
     "Property",
     "GroupedProperty",
-    "PseudoProperty",
 ]
