@@ -46,7 +46,6 @@ class TestLogging(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self._test_handler = TestHandler()
-        nature_logging.dict_aux_operators = True
         self._logging_dict = {"qiskit_nature": logging.DEBUG, "qiskit": logging.DEBUG}
         self._old_logging_dict = nature_logging.get_levels_for_names(self._logging_dict.keys())
 
