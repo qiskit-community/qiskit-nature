@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -102,10 +102,14 @@ class QubitMapper(ABC):
             times_annihilation_op.append(annihilation_op)
 
             # The occupation number operator N is given by `+-`.
-            times_occupation_number_op.append(creation_op.compose(annihilation_op, front=True))
+            times_occupation_number_op.append(
+                creation_op.compose(annihilation_op, front=True).simplify()
+            )
 
             # The `emptiness number` operator E is given by `-+` = (I - N).
-            times_emptiness_number_op.append(annihilation_op.compose(creation_op, front=True))
+            times_emptiness_number_op.append(
+                annihilation_op.compose(creation_op, front=True).simplify()
+            )
 
         # make sure ret_op_list is not empty by including a zero op
         ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
