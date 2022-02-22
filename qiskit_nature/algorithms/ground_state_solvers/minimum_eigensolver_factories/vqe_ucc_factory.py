@@ -91,6 +91,17 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.initial_state = initial_state
         self.callback = callback
         self._kwargs = kwargs
+        self._vqe = VQE(
+            ansatz=ansatz,
+            quantum_instance=self.quantum_instance,
+            optimizer=self.optimizer,
+            initial_point=self.initial_point,
+            gradient=self.gradient,
+            expectation=self.expectation,
+            include_custom=self.include_custom,
+            callback=self.callback,
+            **self._kwargs,
+        )
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -208,29 +219,16 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
 
-        ansatz = self.ansatz
-        if ansatz is None:
-            ansatz = UCCSD()
-        ansatz.qubit_converter = qubit_converter
-        ansatz.num_particles = num_particles
-        ansatz.num_spin_orbitals = num_spin_orbitals
-        ansatz.initial_state = initial_state
+        #ansatz = self._vqe.ansatz
+        if self._vqe.ansatz is None:
+            self._vqe.ansatz = UCCSD()
+        self._vqe.ansatz.qubit_converter = qubit_converter
+        self._vqe.ansatz.num_particles = num_particles
+        self._vqe.ansatz.num_spin_orbitals = num_spin_orbitals
+        self._vqe.ansatz.initial_state = initial_state
 
-        # TODO: leverage re-usability of VQE after fixing
-        # https://github.com/Qiskit/qiskit-terra/issues/7093
-        vqe = VQE(
-            ansatz=ansatz,
-            quantum_instance=self.quantum_instance,
-            optimizer=self.optimizer,
-            initial_point=self.initial_point,
-            gradient=self.gradient,
-            expectation=self.expectation,
-            include_custom=self.include_custom,
-            callback=self.callback,
-            **self._kwargs,
-        )
-
-        return vqe
+        #self._vqe.ansatz = ansatz
+        return self._vqe
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()

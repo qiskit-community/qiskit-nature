@@ -13,7 +13,7 @@
 """The numpy minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, List, Callable
-
+import warnings
 import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
 
@@ -45,12 +45,20 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """
         self._filter_criterion = filter_criterion
         self._use_default_filter_criterion = use_default_filter_criterion
+        self._minimum_eigensolver = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
 
     @property
     def filter_criterion(
         self,
     ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
-        """returns filter criterion"""
+        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead. Returns filter criterion."""
+        warnings.warn(
+            "The `filter_criterion` getter method is deprecated as of Qiskit Nature 0.4, "
+            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
+            "solver properties instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._filter_criterion
 
     @filter_criterion.setter
@@ -58,17 +66,38 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self,
         value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
     ) -> None:
-        """sets filter criterion"""
+        """DEPRECATED. Use the constructor instead. Sets filter criterion."""
+        warnings.warn(
+            "The `filter_criterion` setter method is deprecated as of Qiskit Nature 0.4, "
+            "and will be removed in a future release. Use the constructor instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self._minimum_eigensolver.filter_criterion = value
         self._filter_criterion = value
 
     @property
     def use_default_filter_criterion(self) -> bool:
-        """returns whether to use the default filter criterion"""
+        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
+        Returns whether to use the default filter criterion."""
+        warnings.warn(
+            "The `use_default_filter_criterion` getter method is deprecated as of Qiskit Nature 0.4, "
+            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
+            "solver properties instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._use_default_filter_criterion
 
     @use_default_filter_criterion.setter
     def use_default_filter_criterion(self, value: bool) -> None:
-        """sets whether to use the default filter criterion"""
+        """DEPRECATED. Sets whether to use the default filter criterion."""
+        warnings.warn(
+            "The `use_default_filter_criterion` setter method is deprecated as of Qiskit Nature 0.4, "
+            "and will be removed in a future release. Use the constructor instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._use_default_filter_criterion = value
 
     def get_solver(
@@ -87,9 +116,8 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         filter_criterion = self._filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:
             filter_criterion = problem.get_default_filter_criterion()
-
-        npme = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
-        return npme
+            self._minimum_eigensolver.filter_criterion = filter_criterion
+        return self._minimum_eigensolver
 
     def supports_aux_operators(self):
         return NumPyMinimumEigensolver.supports_aux_operators()
