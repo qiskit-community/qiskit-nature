@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,6 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import ListOrDictType
-from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -29,7 +28,6 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 )
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
-from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
@@ -44,7 +42,7 @@ class VibrationalStructureProblem(BaseProblem):
         bosonic_driver: VibrationalStructureDriver,
         num_modals: Union[int, List[int]],
         truncation_order: int,
-        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
+        transformers: Optional[List[BaseTransformer]] = None,
     ):
         """
         Args:
@@ -71,26 +69,8 @@ class VibrationalStructureProblem(BaseProblem):
         """
         driver_result = self.driver.run()
 
-        if self._legacy_driver:
-            self._molecule_data = cast(WatsonHamiltonian, driver_result)
-            self._grouped_property = VibrationalStructureDriverResult.from_legacy_driver_result(
-                self._molecule_data
-            )
-
-            if self._legacy_transform:
-                self._molecule_data_transformed = self._transform(self._molecule_data)
-                self._grouped_property_transformed = (
-                    VibrationalStructureDriverResult.from_legacy_driver_result(
-                        self._molecule_data_transformed
-                    )
-                )
-
-            else:
-                self._grouped_property_transformed = self._transform(self._grouped_property)
-
-        else:
-            self._grouped_property = driver_result
-            self._grouped_property_transformed = self._transform(self._grouped_property)
+        self._grouped_property = driver_result
+        self._grouped_property_transformed = self._transform(self._grouped_property)
 
         self._grouped_property_transformed = cast(
             VibrationalStructureDriverResult, self._grouped_property_transformed
