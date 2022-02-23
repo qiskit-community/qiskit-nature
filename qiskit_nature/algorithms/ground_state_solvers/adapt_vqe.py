@@ -62,7 +62,7 @@ class AdaptVQE(GroundStateEigensolver):
         qubit_converter: QubitConverter,
         solver: MinimumEigensolverFactory,
         threshold: float = 1e-5,
-        delta: float = 1,  # delta is copied into gradient by the deprecate_arguments wrapper
+        delta: float = 1.0,  # delta is copied into gradient by the deprecate_arguments wrapper
         max_iterations: Optional[int] = None,
         gradient: Optional[GradientBase] = None,
     ) -> None:
@@ -85,6 +85,7 @@ class AdaptVQE(GroundStateEigensolver):
             gradient = Gradient(grad_method="fin_diff", epsilon=gradient)
 
         if gradient is None:
+            """To reproduce the original default case supply delta=1 explicitly."""
             gradient = Gradient(grad_method="param_shift")
 
         super().__init__(qubit_converter, solver)
