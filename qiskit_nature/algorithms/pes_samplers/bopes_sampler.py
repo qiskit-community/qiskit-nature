@@ -90,7 +90,7 @@ class BOPESSampler:
                     "num_bootstrap must be None or an integer greater than or equal to 2"
                 )
 
-        if self._gss.is_variational():
+        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
             self._initial_point = self._gss.solver.initial_point  # type: ignore
@@ -145,7 +145,7 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if self._gss.is_variational():  # type: ignore
+        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             self._points_optparams = {}
             self._gss.solver.initial_point = self._initial_point  # type: ignore
 
@@ -212,7 +212,7 @@ class BOPESSampler:
         result = self._gss.solve(self._problem)
 
         # Save optimal point to bootstrap
-        if self._gss.is_variational():
+        if isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
             # at every point evaluation, the optimal params are updated
             optimal_params = result.raw_result.optimal_point
             self._points_optparams[point] = optimal_params
