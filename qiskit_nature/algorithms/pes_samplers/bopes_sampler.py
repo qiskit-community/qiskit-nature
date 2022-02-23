@@ -181,7 +181,7 @@ class BOPESSampler:
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters
-        if self._gss.is_variational() and self._bootstrap:
+        if isinstance(self._gss.solver, VariationalAlgorithm) and self._bootstrap:  # type: ignore
             prev_points = list(self._points_optparams.keys())
             prev_params = list(self._points_optparams.values())
             n_pp = len(prev_points)
