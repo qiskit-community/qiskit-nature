@@ -22,6 +22,7 @@ import numpy as np
 import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
 from qiskit.utils import algorithm_globals, QuantumInstance, optionals
+import qiskit_nature.optionals as _optionals
 
 from qiskit_nature.algorithms import GroundStateEigensolver, BOPESSampler
 from qiskit_nature.algorithms.pes_samplers import MorsePotential
@@ -36,7 +37,6 @@ from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories
 from qiskit_nature.mappers.second_quantization import ParityMapper, JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-import qiskit_nature.optionals as _optionals
 
 
 class TestBOPES(QiskitNatureTestCase):
@@ -158,11 +158,12 @@ class TestBOPES(QiskitNatureTestCase):
         np.testing.assert_almost_equal(result.points, ref_points)
         np.testing.assert_almost_equal(result.energies, ref_energies)
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_h2_bopes_sampler_with_factory(self):
         """Test BOPES Sampler with Factory"""
         quantum_instance = QuantumInstance(
-            backend=Aer.get_backend("aer_simulator_statevector"),
+            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
