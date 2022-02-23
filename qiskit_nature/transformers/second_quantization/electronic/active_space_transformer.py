@@ -25,6 +25,7 @@ from qiskit_nature.properties.second_quantization import (
     SecondQuantizedProperty,
     GroupedSecondQuantizedProperty,
 )
+from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
@@ -424,6 +425,11 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         elif isinstance(prop, ElectronicBasisTransform):
             # transformation done manually during `transform`
+            transformed_property = prop
+
+        elif isinstance(prop, DriverMetadata):
+            # for the time being we manually catch this to avoid unnecessary warnings
+            # TODO: support storing transformer information in the DriverMetadata container
             transformed_property = prop
 
         else:
