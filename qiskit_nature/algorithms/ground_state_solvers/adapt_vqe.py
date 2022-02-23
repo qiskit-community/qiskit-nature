@@ -85,7 +85,7 @@ class AdaptVQE(GroundStateEigensolver):
             gradient = Gradient(grad_method="fin_diff", epsilon=gradient)
 
         if gradient is None:
-            """To reproduce the original default case supply delta=1 explicitly."""
+            #To reproduce the original default case supply delta=1 explicitly.
             gradient = Gradient(grad_method="param_shift")
 
         super().__init__(qubit_converter, solver)
