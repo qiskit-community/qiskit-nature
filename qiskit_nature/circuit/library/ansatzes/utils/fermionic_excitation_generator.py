@@ -98,7 +98,7 @@ def generate_fermionic_excitations(
 
     The method must be called for each type of excitation (singles, doubles, etc.) that is to be
     considered in the Ansatz. Excitations will be produced based on an initial `Hartree-Fock`
-    occupation by default unless `generalised` is set to `True`. Therefore, the excitations are
+    occupation by default unless `generalized` is set to `True`, in which case the excitations are
     only determined based on the number of spin orbitals and are independent from
     the number of particles.
 
@@ -136,7 +136,7 @@ def generate_fermionic_excitations(
 
             num_excitations = 1
             num_spin_orbitals = 4
-            num_particles = [1,1]
+            num_particles = (1,1)
 
             excitations = generate_fermionic_excitations(
                 num_excitations, num_spin_orbitals, num_particles
@@ -146,34 +146,16 @@ def generate_fermionic_excitations(
 
         .. jupyter-execute::
 
-            from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (
-                generate_fermionic_excitations
-            )
-
-            num_excitations = 1
-            num_spin_orbitals = 4
-            num_particles = [1,1]
-            max_spin = 1
-
-            excitations = generate_fermionic_excitations(
-                num_excitations, num_spin_orbitals, num_particles, max_spin_excitation=max_spin
-            )
+            excitations = generate_fermionic_excitations(1, 4, (1, 1), max_spin_excitation=1)
+            print(excitations)
 
         Generate generalized excitations.
 
         .. jupyter-execute::
 
-            from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (
-                generate_fermionic_excitations
-            )
+            excitations = generate_fermionic_excitations(1, 4, (1, 1), generalized=True)
+            print(excitations)
 
-            num_excitations = 1
-            num_spin_orbitals = 4
-            num_particles = [1,1]
-
-            excitations = generate_fermionic_excitations(
-                num_excitations, num_spin_orbitals, num_particles, generalized=True
-            )
     """
     alpha_excitations: List[Tuple[int, int]] = []
     beta_excitations: List[Tuple[int, int]] = []
