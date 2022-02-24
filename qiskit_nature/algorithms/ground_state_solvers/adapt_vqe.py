@@ -46,6 +46,11 @@ class AdaptVQE(GroundStateEigensolver):
 
     The performance of AdaptVQE can significantly depend on the choice of gradient method, QFI
     solver (if applicable) and the epsilon value.
+
+    To reproduce the default behavior of AdaptVQE prior to Qiskit Nature 0.4 you should supply
+    `delta=1` explicitly. This will use a finite difference scheme for the gradient evaluation
+    whereas after version 0.4 a parameter shift gradient will be used.
+    [https://qiskit.org/documentation/tutorials/operators/02_gradients_framework.html]
     """
 
     @deprecate_arguments(
@@ -85,7 +90,6 @@ class AdaptVQE(GroundStateEigensolver):
             gradient = Gradient(grad_method="fin_diff", epsilon=gradient)
 
         if gradient is None:
-            #To reproduce the original default case supply delta=1 explicitly.
             gradient = Gradient(grad_method="param_shift")
 
         super().__init__(qubit_converter, solver)
