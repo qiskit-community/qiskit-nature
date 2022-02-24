@@ -27,6 +27,7 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
+from ....deprecation import deprecate_method
 
 
 class VibrationalEnergy(VibrationalProperty):
@@ -113,6 +114,7 @@ class VibrationalEnergy(VibrationalProperty):
         return VibrationalEnergy(ints, h5py_group.attrs.get("truncation_order", None))
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> VibrationalEnergy:
         """Construct a VibrationalEnergy instance from a
         :class:`~qiskit_nature.drivers.WatsonHamiltonian`.

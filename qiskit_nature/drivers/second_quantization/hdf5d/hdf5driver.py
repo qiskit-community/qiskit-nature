@@ -25,6 +25,7 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 )
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
+from ....deprecation import deprecate_method, warn_deprecated, DeprecatedType
 from ...qmolecule import QMolecule
 from ..base_driver import BaseDriver
 
@@ -76,6 +77,7 @@ class HDF5Driver(BaseDriver):
 
         return hdf5_file
 
+    @deprecate_method("0.4.0")
     def convert(self, replace: bool = False) -> None:
         """Converts a legacy QMolecule HDF5 file into the new Property-framework.
 
@@ -97,7 +99,9 @@ class HDF5Driver(BaseDriver):
         if not replace:
             new_hdf5_file = hdf5_file.with_name(str(hdf5_file.stem) + "_new.hdf5")
 
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
+        warnings.filterwarnings("default", category=DeprecationWarning)
         save_to_hdf5(driver_result, str(new_hdf5_file), replace=replace)
 
     def run(self) -> GroupedSecondQuantizedProperty:
@@ -116,17 +120,24 @@ class HDF5Driver(BaseDriver):
         with h5py.File(hdf5_file, "r") as file:
             if "origin_driver" in file.keys():
                 legacy_hdf5_file = True
-                LOGGER.warning(
-                    "Your HDF5 file contains the legacy QMolecule object! You should consider "
-                    "converting it to the new property framework, see HDF5Driver.convert"
+                warn_deprecated(
+                    "0.4.0",
+                    DeprecatedType.METHOD,
+                    "HDF5Driver.run with legacy HDF5 file",
+                    additional_msg=(
+                        ". Your HDF5 file contains the legacy QMolecule object! You should consider "
+                        "converting it to the new property framework. See also HDF5Driver.convert"
+                    ),
                 )
 
         if legacy_hdf5_file:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            molecule = QMolecule(hdf5_file)
-            warnings.filterwarnings("default", category=DeprecationWarning)
-            molecule.load()
-            return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)
+            try:
+                molecule = QMolecule(hdf5_file)
+                molecule.load()
+                return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)
+            finally:
+                warnings.filterwarnings("default", category=DeprecationWarning)
 
         driver_result = load_from_hdf5(str(hdf5_file))
 
