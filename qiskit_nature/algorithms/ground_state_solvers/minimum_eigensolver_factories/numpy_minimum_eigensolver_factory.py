@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -51,7 +51,8 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
     def filter_criterion(
         self,
     ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead. Returns filter criterion."""
+        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
+        Returns filter criterion."""
         warnings.warn(
             "The `filter_criterion` getter method is deprecated as of Qiskit Nature 0.4, "
             "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
