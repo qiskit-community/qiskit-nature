@@ -133,19 +133,19 @@ def generate_fermionic_excitations(
         >>> excitations = generate_fermionic_excitations(num_excitations = 1, num_spin_orbitals = 4,\
         num_particles = (1,1))
         >>> print(excitations)
-        ... [((0,), (1,)), ((2,), (3,))]
+        [((0,), (1,)), ((2,), (3,))]
 
         Generate excitations limiting the maximum number of excitations per spin species.
 
         >>> excitations = generate_fermionic_excitations(1, 4, (1, 1), max_spin_excitation=1)
         >>> print(excitations)
-        ... [((0,), (1,)), ((2,), (3,))]
+        [((0,), (1,)), ((2,), (3,))]
 
         Generate generalized excitations.
         
         >>> excitations = generate_fermionic_excitations(1, 4, (1, 1), generalized=True)
         >>> print(excitations)
-        ... [((0,), (1,)), ((2,), (3,))]
+        [((0,), (1,)), ((2,), (3,))]
 
     """
     alpha_excitations: List[Tuple[int, int]] = []
