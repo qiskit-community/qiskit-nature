@@ -128,33 +128,23 @@ def generate_fermionic_excitations(
     Examples:
         Generate excitations with basic inputs.
 
-        .. jupyter-execute::
-
-            from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (
-                generate_fermionic_excitations
-            )
-
-            num_excitations = 1
-            num_spin_orbitals = 4
-            num_particles = (1,1)
-
-            excitations = generate_fermionic_excitations(
-                num_excitations, num_spin_orbitals, num_particles
-            )
+        >>> from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (\
+        generate_fermionic_excitations)
+        >>> excitations = generate_fermionic_excitations(num_excitations = 1, num_spin_orbitals = 4,\
+        num_particles = (1,1))
+        ... [((0,), (1,)), ((2,), (3,))]
 
         Generate excitations limiting the maximum number of excitations per spin species.
 
-        .. jupyter-execute::
-
-            excitations = generate_fermionic_excitations(1, 4, (1, 1), max_spin_excitation=1)
-            print(excitations)
+        >>> excitations = generate_fermionic_excitations(1, 4, (1, 1), max_spin_excitation=1)
+        >>> print(excitations)
+        ... [((0,), (1,)), ((2,), (3,))]
 
         Generate generalized excitations.
-
-        .. jupyter-execute::
-
-            excitations = generate_fermionic_excitations(1, 4, (1, 1), generalized=True)
-            print(excitations)
+        
+        >>> excitations = generate_fermionic_excitations(1, 4, (1, 1), generalized=True)
+        >>> print(excitations)
+        ... [((0,), (1,)), ((2,), (3,))]
 
     """
     alpha_excitations: List[Tuple[int, int]] = []
