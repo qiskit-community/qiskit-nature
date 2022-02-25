@@ -27,6 +27,7 @@ from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
+from ....deprecation import deprecate_method
 
 
 class VibrationalStructureDriverResult(GroupedVibrationalProperty):
@@ -99,6 +100,7 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         return ret
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> VibrationalStructureDriverResult:

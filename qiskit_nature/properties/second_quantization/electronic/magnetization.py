@@ -25,6 +25,7 @@ from qiskit_nature.results import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
+from ....deprecation import deprecate_method
 
 
 class Magnetization(ElectronicProperty):
@@ -81,6 +82,7 @@ class Magnetization(ElectronicProperty):
         return Magnetization(h5py_group.attrs["num_spin_orbitals"])
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> Magnetization:
         """Construct a Magnetization instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
