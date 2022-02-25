@@ -43,10 +43,6 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
         legacy_file_path = self.get_resource_path(
             "test_driver_hdf5_legacy.hdf5", "drivers/second_quantization/hdf5d"
         )
-        msg_convert_ref = (
-            "The convert method is deprecated as of version 0.4.0 and "
-            + "will be removed no sooner than 3 months after the release."
-        )
         with self.subTest("replace=True"):
             # pylint: disable=consider-using-with
             tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
@@ -55,21 +51,17 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
             shutil.copy(legacy_file_path, tmp_file.name)
             try:
                 driver = HDF5Driver(tmp_file.name)
-                with warnings.catch_warnings(record=True) as c_m:
-                    warnings.simplefilter("always")
-                    # replacing file won't trigger deprecation on run
-                    driver.convert(replace=True)
-                    self.assertEqual(str(c_m[0].message), msg_convert_ref)
-
+                # replacing file won't trigger deprecation on run
+                driver.convert(replace=True)
                 driver.run()
             finally:
                 os.unlink(tmp_file.name)
 
         msg_mol_ref = (
             "The HDF5Driver.run with legacy HDF5 file method is deprecated as of version 0.4.0 "
-            + "and will be removed no sooner than 3 months after the release "
-            + ". Your HDF5 file contains the legacy QMolecule object! You should "
-            + "consider converting it to the new property framework. See also HDF5Driver.convert."
+            "and will be removed no sooner than 3 months after the release "
+            ". Your HDF5 file contains the legacy QMolecule object! You should "
+            "consider converting it to the new property framework. See also HDF5Driver.convert."
         )
         with self.subTest("replace=False"):
             # pylint: disable=consider-using-with

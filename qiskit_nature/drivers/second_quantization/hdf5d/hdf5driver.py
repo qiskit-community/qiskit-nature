@@ -25,7 +25,7 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 )
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
-from ....deprecation import deprecate_method, warn_deprecated, DeprecatedType
+from ....deprecation import warn_deprecated, DeprecatedType
 from ...qmolecule import QMolecule
 from ..base_driver import BaseDriver
 
@@ -77,7 +77,6 @@ class HDF5Driver(BaseDriver):
 
         return hdf5_file
 
-    @deprecate_method("0.4.0")
     def convert(self, replace: bool = False) -> None:
         """Converts a legacy QMolecule HDF5 file into the new Property-framework.
 
