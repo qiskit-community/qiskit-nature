@@ -132,6 +132,7 @@ def generate_fermionic_excitations(
         generate_fermionic_excitations)
         >>> excitations = generate_fermionic_excitations(num_excitations = 1, num_spin_orbitals = 4,\
         num_particles = (1,1))
+        >>> print(excitations)
         ... [((0,), (1,)), ((2,), (3,))]
 
         Generate excitations limiting the maximum number of excitations per spin species.
