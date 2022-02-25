@@ -74,7 +74,6 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
             DeprecationWarning,
             stacklevel=2,
         )
-        self._minimum_eigensolver.filter_criterion = value
         self._filter_criterion = value
 
     @property
@@ -122,3 +121,8 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
 
     def supports_aux_operators(self):
         return NumPyMinimumEigensolver.supports_aux_operators()
+
+    @property
+    def minimum_eigensolver(self):
+        """Returns the solver instance."""
+        return self._minimum_eigensolver
