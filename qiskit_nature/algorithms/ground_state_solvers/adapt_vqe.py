@@ -50,7 +50,8 @@ class AdaptVQE(GroundStateEigensolver):
     To reproduce the default behavior of AdaptVQE prior to Qiskit Nature 0.4 you should supply
     `delta=1` explicitly. This will use a finite difference scheme for the gradient evaluation
     whereas after version 0.4 a parameter shift gradient will be used.
-    [https://qiskit.org/documentation/tutorials/operators/02_gradients_framework.html]
+    For more information refer to the gradient framework of Qiskit Terra:
+    https://qiskit.org/documentation/tutorials/operators/02_gradients_framework.html
     """
 
     @deprecate_arguments(
