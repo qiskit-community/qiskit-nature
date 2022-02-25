@@ -12,6 +12,7 @@ ancilla
 ancillas
 ang
 anharmonic
+annihilation
 ansatz
 ansatzes
 antisymmetrized
@@ -96,6 +97,8 @@ dataset
 dcx
 debye
 deepcopy
+deuterium
+deuteron
 dft
 diag
 diagonalizes
@@ -128,6 +131,7 @@ eom
 eq
 eri
 et
+eta
 eugene
 excitations
 extrapolator
@@ -141,6 +145,7 @@ fermion
 fermionic
 fermionicop
 fermions
+feynman
 filename
 fmt
 fock
@@ -222,6 +227,7 @@ ket
 kitaev
 knowles
 kohn
+kronecker
 kwarg
 kwargs
 kwds
@@ -280,10 +286,12 @@ natom
 nd
 ndarray
 nelec
+neutron
 networkx
 neuropeptide
 nicholas
 nielsen
+nisq
 nmodes
 noancilla
 noint
@@ -294,6 +302,7 @@ nosignatures
 np
 npj
 ns
+nucleus
 num
 numpy
 numpyeigensolver
@@ -336,6 +345,7 @@ prepend
 preprint
 preprocesses
 proline
+proton
 ps
 pxd
 py
@@ -435,6 +445,7 @@ tdg
 tensored
 terra
 th
+theta
 threonine
 timestamp
 toctree
