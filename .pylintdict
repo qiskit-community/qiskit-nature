@@ -46,6 +46,7 @@ boostrapping
 bopes
 boson
 bosonic
+braket
 bravyi
 cargs
 cartesian
@@ -106,6 +107,7 @@ diagonalizing
 dicts
 dimens
 dimensionality
+dirac
 discoverable
 distinguishability
 dll
@@ -113,6 +115,7 @@ dof
 doi
 dt
 dtype
+dumitrescu
 ecr
 eigen
 eigenfunctions
@@ -169,6 +172,7 @@ gto
 hamiltonian
 hamiltonians
 hardcoded
+hardwares
 hartree
 hartrees
 hcore
@@ -191,6 +195,7 @@ ifortvars
 ij
 ijkl
 ik
+informations
 init
 initializer
 initio
@@ -220,6 +225,7 @@ jernigan
 ji
 jl
 jordan
+josé
 jupyter
 jw
 kanav
@@ -233,6 +239,7 @@ kwargs
 kwds
 labelled
 lda
+leighton
 len
 leucine
 levinthal
@@ -261,6 +268,7 @@ mcrz
 mct
 mcu
 mcx
+mentorship
 metadata
 meth
 methionine
@@ -345,6 +353,7 @@ prepend
 preprint
 preprocesses
 proline
+protium
 proton
 ps
 pxd
@@ -409,7 +418,9 @@ serine
 setia
 setted
 shende
+siddhartha
 sklearn
+soham
 spinop
 springer
 spsa
@@ -445,6 +456,7 @@ tdg
 tensored
 terra
 th
+thermostabilization
 theta
 threonine
 timestamp
@@ -491,6 +503,7 @@ versa
 vibrational
 vibrationalop
 vibro
+vienna
 vmax
 vmin
 vqe
