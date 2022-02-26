@@ -142,7 +142,7 @@ def generate_fermionic_excitations(
         [((0,), (1,)), ((2,), (3,))]
 
         Generate generalized excitations.
-        
+
         >>> excitations = generate_fermionic_excitations(1, 4, (1, 1), generalized=True)
         >>> print(excitations)
         [((0,), (1,)), ((2,), (3,))]
