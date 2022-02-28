@@ -130,22 +130,19 @@ def generate_fermionic_excitations(
 
         >>> from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (\
         generate_fermionic_excitations)
-        >>> excitations = generate_fermionic_excitations(num_excitations = 1, num_spin_orbitals = 4,\
-        num_particles = (1,1))
-        >>> print(excitations)
+        >>> generate_fermionic_excitations(num_excitations=1, num_spin_orbitals=4,\
+        num_particles=(1,1))
         [((0,), (1,)), ((2,), (3,))]
 
         Generate excitations limiting the maximum number of excitations per spin species.
 
-        >>> excitations = generate_fermionic_excitations(1, 4, (1, 1), max_spin_excitation=1)
-        >>> print(excitations)
-        [((0,), (1,)), ((2,), (3,))]
+        >>> generate_fermionic_excitations(1, 6, (1, 1), max_spin_excitation=1)
+        [((0,), (1,)), ((0,), (2,)), ((3,), (4,)), ((3,), (5,))]
 
         Generate generalized excitations.
 
-        >>> excitations = generate_fermionic_excitations(1, 4, (1, 1), generalized=True)
-        >>> print(excitations)
-        [((0,), (1,)), ((2,), (3,))]
+        >>> generate_fermionic_excitations(1, 6, (1, 1), generalized=True)
+        [((0,), (1,)), ((0,), (2,)), ((1,), (2,)), ((3,), (4,)), ((3,), (5,)), ((4,), (5,))]
 
     """
     alpha_excitations: List[Tuple[int, int]] = []
