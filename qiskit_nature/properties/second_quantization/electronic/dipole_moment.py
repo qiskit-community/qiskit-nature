@@ -28,6 +28,7 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .types import ElectronicProperty
+from ....deprecation import deprecate_method
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -233,6 +234,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         self._reverse_dipole_sign = reverse_dipole_sign
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> Optional[ElectronicDipoleMoment]:

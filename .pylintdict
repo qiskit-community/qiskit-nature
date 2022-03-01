@@ -160,6 +160,7 @@ getitem
 getter
 gfortran
 github
+globals
 glutamic
 glutamine
 glycine
@@ -287,6 +288,8 @@ natom
 nd
 ndarray
 nelec
+neq
+networkx
 neuropeptide
 nicholas
 nielsen
@@ -417,6 +420,7 @@ spsa
 squ
 statevector
 statevectors
+stderr
 stdlib
 stdout
 stereochemistry

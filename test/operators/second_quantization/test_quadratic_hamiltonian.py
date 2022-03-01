@@ -43,14 +43,22 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         np.testing.assert_allclose(quad_ham.hermitian_part, hermitian_part)
         np.testing.assert_allclose(quad_ham.antisymmetric_part, antisymmetric_part)
         np.testing.assert_allclose(quad_ham.constant, constant)
+        self.assertEqual(quad_ham.num_modes, 2)
 
         quad_ham = QuadraticHamiltonian(None, antisymmetric_part)
         np.testing.assert_allclose(quad_ham.hermitian_part, zero)
+        self.assertEqual(quad_ham.num_modes, 2)
 
         quad_ham = QuadraticHamiltonian(hermitian_part)
         np.testing.assert_allclose(quad_ham.antisymmetric_part, zero)
+        self.assertEqual(quad_ham.num_modes, 2)
 
-        with self.assertRaises(ValueError):
+        quad_ham = QuadraticHamiltonian(num_modes=2)
+        np.testing.assert_allclose(quad_ham.hermitian_part, zero)
+        np.testing.assert_allclose(quad_ham.antisymmetric_part, zero)
+        self.assertEqual(quad_ham.num_modes, 2)
+
+        with self.assertRaisesRegex(ValueError, "specified"):
             _ = QuadraticHamiltonian()
 
     def test_conserves_particle_number(self):
@@ -102,7 +110,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         # confirm eigenvalues match with Jordan-Wigner transformed Hamiltonian
         hamiltonian_jw = (
             QubitConverter(mapper=JordanWignerMapper())
-            .convert(quad_ham._fermionic_op())
+            .convert(quad_ham.to_fermionic_op())
             .primitive.to_matrix()
         )
         eigs, _ = np.linalg.eigh(hamiltonian_jw)
@@ -169,7 +177,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         antisymmetric_part = np.array([[0, 4j], [-4j, 0]])
         constant = 5.0
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant)
-        fermionic_op = quad_ham._fermionic_op()
+        fermionic_op = quad_ham.to_fermionic_op()
         expected_terms = [
             ("NI", 1.0),
             ("IN", 3.0),
@@ -183,3 +191,21 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         matrix = fermionic_op.to_matrix(sparse=False)
         expected_matrix = expected_op.to_matrix(sparse=False)
         np.testing.assert_allclose(matrix, expected_matrix)
+
+    def test_validate(self):
+        """Test input validation."""
+        mat = np.array([[1, 2], [3, 4]])
+        _ = QuadraticHamiltonian(hermitian_part=mat, antisymmetric_part=None, validate=False)
+        with self.assertRaisesRegex(ValueError, "Hermitian"):
+            _ = QuadraticHamiltonian(hermitian_part=mat, antisymmetric_part=None)
+        with self.assertRaisesRegex(ValueError, "Antisymmetric"):
+            _ = QuadraticHamiltonian(hermitian_part=None, antisymmetric_part=mat)
+
+        hermitian_part = np.array([[1, 2j], [-2j, 3]])
+        antisymmetric_part = np.array([[0, 4, 0], [-4, 0, 4], [0, -4, 0]])
+        with self.assertRaisesRegex(ValueError, "same shape"):
+            _ = QuadraticHamiltonian(hermitian_part, antisymmetric_part)
+        with self.assertRaisesRegex(ValueError, "num_modes"):
+            _ = QuadraticHamiltonian(hermitian_part, num_modes=5)
+        with self.assertRaisesRegex(ValueError, "num_modes"):
+            _ = QuadraticHamiltonian(antisymmetric_part=antisymmetric_part, num_modes=5)

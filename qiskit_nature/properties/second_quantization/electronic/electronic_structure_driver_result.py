@@ -33,6 +33,7 @@ from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
+from ....deprecation import deprecate_method
 
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
@@ -90,6 +91,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         return ret
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> ElectronicStructureDriverResult:

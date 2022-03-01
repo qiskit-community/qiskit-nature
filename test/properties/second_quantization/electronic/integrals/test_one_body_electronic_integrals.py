@@ -67,7 +67,7 @@ class TestOneBodyElectronicIntegrals(PropertyTest):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
-            self.assertTrue(np.allclose(ints_mo._matrices[1], 4 * mat_a))
+            self.assertIsNone(ints_mo._matrices[1])
 
         with self.subTest("Alpha and Beta"):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, mat_b))

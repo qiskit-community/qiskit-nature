@@ -12,12 +12,22 @@
 
 """The QuadraticHamiltonian class."""
 
-from typing import Optional, Tuple
+from __future__ import annotations
+
+from typing import Optional
 
 import numpy as np
 import scipy.linalg
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
+
+
+def _is_hermitian(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    return np.allclose(mat, mat.T.conj(), rtol=rtol, atol=atol)
+
+
+def _is_antisymmetric(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    return np.allclose(mat, -mat.T, rtol=rtol, atol=atol)
 
 
 class QuadraticHamiltonian(TolerancesMixin):
@@ -39,35 +49,71 @@ class QuadraticHamiltonian(TolerancesMixin):
         hermitian_part: Optional[np.ndarray] = None,
         antisymmetric_part: Optional[np.ndarray] = None,
         constant: float = 0.0,
+        num_modes: Optional[int] = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
     ) -> None:
         r"""Initialize a QuadraticHamiltonian.
 
         Args:
-            hermitian_part: The matrix :math:`M` containing the
-                coefficients of the terms that conserve particle number.
-            antisymmetric_part: The matrix :math:`\Delta` containing the
-                coefficients of the terms that do not conserve particle number.
+            hermitian_part: The matrix :math:`M` containing the coefficients of the terms
+                that conserve particle number.
+            antisymmetric_part: The matrix :math:`\Delta` containing the coefficients of
+                the terms that do not conserve particle number.
             constant: An additive constant term.
+            num_modes: Number of fermionic modes. This should be consistent with hermitian_part
+                and antisymmetric_part if they are specified.
+            validate: Whether to validate the inputs.
+            rtol: Relative numerical tolerance for input validation.
+            atol: Absolute numerical tolerance for input validation.
 
         Raises:
-            ValueError: Either a Hermitian part or antisymmetric part must be specified.
+            ValueError: Either Hermitian part, antisymmetric part, or number of modes must
+                be specified.
+            ValueError: Hermitian part and antisymmetric part must have same shape.
+            ValueError: Hermitian part must have shape num_modes x num_modes.
+            ValueError: Hermitian part must be Hermitian.
+            ValueError: Antisymmetric part must have shape num_modes x num_modes.
+            ValueError: Antisymmetric part must be antisymmetric.
         """
-        if hermitian_part is not None:
-            self._n_orbitals, _ = hermitian_part.shape
+        if num_modes is not None:
+            self._num_modes = num_modes
+        elif hermitian_part is not None:
+            self._num_modes, _ = hermitian_part.shape
         elif antisymmetric_part is not None:
-            self._n_orbitals, _ = antisymmetric_part.shape
+            self._num_modes, _ = antisymmetric_part.shape
         else:
-            raise ValueError("Either a Hermitian part or antisymmetric part must be specified.")
+            raise ValueError(
+                "Either Hermitian part, antisymmetric part, or number of modes must be specified."
+            )
 
-        # TODO maybe validate matrix properties
+        if validate:
+            if (
+                hermitian_part is not None
+                and antisymmetric_part is not None
+                and hermitian_part.shape != antisymmetric_part.shape
+            ):
+                raise ValueError("Hermitian part and antisymmetric part must have same shape.")
+            if hermitian_part is not None:
+                if hermitian_part.shape[0] != self._num_modes:
+                    raise ValueError("Hermitian part must have shape num_modes x num_modes.")
+                if not _is_hermitian(hermitian_part, rtol=rtol, atol=atol):
+                    raise ValueError("Hermitian part must be Hermitian.")
+            if antisymmetric_part is not None:
+                if antisymmetric_part.shape[0] != self._num_modes:
+                    raise ValueError("Antisymmetric part must have shape num_modes x num_modes.")
+                if not _is_antisymmetric(antisymmetric_part, rtol=rtol, atol=atol):
+                    raise ValueError("Antisymmetric part must be antisymmetric.")
+
         self._hermitian_part = hermitian_part
         self._antisymmetric_part = antisymmetric_part
         self._constant = constant
 
         if self._hermitian_part is None:
-            self._hermitian_part = np.zeros((self._n_orbitals, self._n_orbitals))
+            self._hermitian_part = np.zeros((self._num_modes, self._num_modes))
         if self._antisymmetric_part is None:
-            self._antisymmetric_part = np.zeros((self._n_orbitals, self._n_orbitals))
+            self._antisymmetric_part = np.zeros((self._num_modes, self._num_modes))
 
     @property
     def hermitian_part(self) -> np.ndarray:
@@ -84,29 +130,28 @@ class QuadraticHamiltonian(TolerancesMixin):
         """The constant."""
         return self._constant
 
-    def _fermionic_op(self) -> FermionicOp:
+    @property
+    def num_modes(self) -> float:
+        """The number of modes this operator acts on."""
+        return self._num_modes
+
+    def to_fermionic_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms = []
-        # TODO I shouldn't have to use string labels
-        # diagonal terms
-        for i in range(self._n_orbitals):
-            terms.append((f"+_{i} -_{i}", self.hermitian_part[i, i]))
-        # off-diagonal terms
-        for i in range(self._n_orbitals):
-            for j in range(i + 1, self._n_orbitals):
-                terms.append((f"+_{i} -_{j}", self.hermitian_part[i, j]))
-                terms.append((f"+_{j} -_{i}", self.hermitian_part[j, i]))
-                terms.append((f"+_{i} +_{j}", self.antisymmetric_part[i, j]))
-                terms.append((f"-_{j} -_{i}", self.antisymmetric_part[i, j].conj()))
-        # constant
-        terms.append(("", self.constant))
-        return FermionicOp(terms, register_length=self._n_orbitals)
+        terms = [([], self.constant)]  # type: list[tuple[list[tuple[str, int]], complex]]
+        for i in range(self._num_modes):
+            terms.append(([("+", i), ("-", i)], self.hermitian_part[i, i]))
+            for j in range(i + 1, self._num_modes):
+                terms.append(([("+", i), ("-", j)], self.hermitian_part[i, j]))
+                terms.append(([("+", j), ("-", i)], self.hermitian_part[j, i]))
+                terms.append(([("+", i), ("+", j)], self.antisymmetric_part[i, j]))
+                terms.append(([("-", j), ("-", i)], self.antisymmetric_part[i, j].conjugate()))
+        return FermionicOp(terms, register_length=self._num_modes)
 
     def conserves_particle_number(self) -> bool:
         """Whether the Hamiltonian conserves particle number."""
         return np.allclose(self.antisymmetric_part, 0.0)
 
-    def majorana_form(self) -> Tuple[np.ndarray, float]:
+    def majorana_form(self) -> tuple[np.ndarray, float]:
         r"""Return the Majorana representation of the Hamiltonian.
 
         The Majorana representation of a quadratic Hamiltonian is
@@ -132,14 +177,14 @@ class QuadraticHamiltonian(TolerancesMixin):
                 [-self.hermitian_part.conj(), -self.antisymmetric_part.conj()],
             ]
         )
-        eye = np.eye(self._n_orbitals, dtype=complex)
+        eye = np.eye(self._num_modes, dtype=complex)
         majorana_basis = np.block([[eye, eye], [1j * eye, -1j * eye]]) / np.sqrt(2)
         matrix = -1j * majorana_basis.conj() @ original @ majorana_basis.T.conj()
         constant = 0.5 * np.trace(self.hermitian_part) + self.constant
         # imaginary parts should be zero
         return np.real(matrix), np.real(constant)
 
-    def diagonalizing_bogoliubov_transform(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def diagonalizing_bogoliubov_transform(self) -> tuple[np.ndarray, np.ndarray, float]:
         r"""Return the transformation matrix that diagonalizes a quadratic Hamiltonian.
 
         Recall that a quadratic Hamiltonian has the form
@@ -198,8 +243,8 @@ class QuadraticHamiltonian(TolerancesMixin):
         (which satisfies additional constraints).
 
         Returns:
-            - The matrix :math:`W`, which is either an :math:`N \times N` or
-              an :math:`N \times 2N` matrix
+            - The matrix :math:`W`, which is either an :math:`N \times N` (when :math:`\Delta = 0`)
+              or an :math:`N \times 2N` (when :math:`\Delta \neq 0`) matrix
             - A numpy array containing the orbital energies :math:`\varepsilon_j`
               sorted in ascending order
             - The constant
@@ -208,29 +253,29 @@ class QuadraticHamiltonian(TolerancesMixin):
             return self._particle_num_conserving_bogoliubov_transform()
         return self._non_particle_num_conserving_bogoliubov_transform()
 
-    def _particle_num_conserving_bogoliubov_transform(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _particle_num_conserving_bogoliubov_transform(self) -> tuple[np.ndarray, np.ndarray, float]:
         orbital_energies, basis_change = np.linalg.eigh(self.hermitian_part)
         return basis_change.T, orbital_energies, self.constant
 
     def _non_particle_num_conserving_bogoliubov_transform(
         self,
-    ) -> Tuple[np.ndarray, np.ndarray, float]:
+    ) -> tuple[np.ndarray, np.ndarray, float]:
         matrix, constant = self.majorana_form()
 
         canonical_form, basis_change = _antisymmetric_canonical_form(matrix)
         orbital_energies = canonical_form[
-            range(self._n_orbitals), range(self._n_orbitals, 2 * self._n_orbitals)
+            range(self._num_modes), range(self._num_modes, 2 * self._num_modes)
         ]
         constant -= 0.5 * np.sum(orbital_energies)
 
-        eye = np.eye(self._n_orbitals, dtype=complex)
+        eye = np.eye(self._num_modes, dtype=complex)
         majorana_basis = np.block([[eye, eye], [1j * eye, -1j * eye]]) / np.sqrt(2)
         diagonalizing_unitary = majorana_basis.T.conj() @ basis_change @ majorana_basis
 
-        return diagonalizing_unitary[: self._n_orbitals], orbital_energies, constant
+        return diagonalizing_unitary[: self._num_modes], orbital_energies, constant
 
 
-def _antisymmetric_canonical_form(matrix: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def _antisymmetric_canonical_form(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Put an antisymmetric matrix into canonical form.
 
     The input is an antisymmetric matrix A with even dimension.

@@ -73,9 +73,9 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
             ints_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[1], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[2], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[3], 16 * mat_aa))
+            self.assertIsNone(ints_mo._matrices[1])
+            self.assertIsNone(ints_mo._matrices[2])
+            self.assertIsNone(ints_mo._matrices[3])
 
         with self.subTest("Alpha and Beta"):
             ints_ao = TwoBodyElectronicIntegrals(
