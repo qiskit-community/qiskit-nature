@@ -4,4 +4,4 @@ issues:
     Solver instance is now created in :class:`~qiskit_nature.algorithms.NumPyMinimumEigensolverFactory`,
     :class:`~qiskit_nature.algorithms.VQEUCCFactory` and :class:`~qiskit_nature.algorithms.VQEUVCCFactory`
     constructors instead of get_solver method.
-    Getters and setters for properties are deprecated.
+    Setters for properties are deprecated and the solver instance has to be used instead.
