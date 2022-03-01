@@ -117,9 +117,9 @@ class GaussianLogResult:
         constants = []
         pattern_constants = ""
         for i in range(indices):
-            pattern_constants += fr"\s+(?P<index{i + 1}>\w+)"
+            pattern_constants += rf"\s+(?P<index{i + 1}>\w+)"
         for i in range(3):
-            pattern_constants += fr"\s+(?P<const{i + 1}>[+-]?\d+\.\d+)"
+            pattern_constants += rf"\s+(?P<const{i + 1}>[+-]?\d+\.\d+)"
 
         # Find the section of interest
         i = 0
