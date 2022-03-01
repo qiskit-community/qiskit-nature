@@ -245,7 +245,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     @include_custom.setter
     def include_custom(self, include_custom: bool) -> None:
-        """DEPRECATED. Use the constructor instead. SSetter of the ``include_custom``
+        """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         setting for the ``expectation`` setting."""
         warnings.warn(
             "The `include_custom` setter method is deprecated as of Qiskit Nature 0.4 "
@@ -270,7 +270,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     @ansatz.setter
     def ansatz(self, ansatz: Optional[UCC]) -> None:
-        """DEPRECATED. Use the constructor instead. SSetter of the ``include_custom``
+        """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
         :class:`~.UCCSD` Ansatz."""
         warnings.warn(
