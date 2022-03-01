@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,11 @@
 
 """Test IntegralProperty"""
 
-from test import QiskitNatureTestCase
+import json
+import tempfile
+from test.properties.property_test import PropertyTest
 
+import h5py
 import numpy as np
 
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -27,7 +30,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestIntegralProperty(QiskitNatureTestCase):
+class TestIntegralProperty(PropertyTest):
     """Test IntegralProperty Property"""
 
     def setUp(self):
@@ -73,36 +76,49 @@ class TestIntegralProperty(QiskitNatureTestCase):
         self.prop.transform_basis(trafo)
 
         for basis, factor in zip((ElectronicBasis.AO, ElectronicBasis.MO), (1, 4)):
-            for matrix in self.prop.get_electronic_integral(basis, 1)._matrices:
-                self.assertTrue(np.allclose(matrix, factor * np.eye(2)))
+            matrices = self.prop.get_electronic_integral(basis, 1)._matrices
+            self.assertTrue(np.allclose(matrices[0], factor * np.eye(2)))
+            for mat in matrices[1:]:
+                self.assertIsNone(mat)
 
         for basis, factor in zip((ElectronicBasis.AO, ElectronicBasis.MO), (1, 16)):
-            for matrix in self.prop.get_electronic_integral(basis, 2)._matrices:
-                self.assertTrue(np.allclose(matrix, factor * np.ones((2, 2, 2, 2))))
+            matrices = self.prop.get_electronic_integral(basis, 2)._matrices
+            self.assertTrue(np.allclose(matrices[0], factor * np.ones((2, 2, 2, 2))))
+            for mat in matrices[1:]:
+                self.assertIsNone(mat)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
         second_q_ops = self.prop.second_q_ops()
-        expected = [
-            ("+_0 -_1 +_2 -_3", (1 + 0j)),
-            ("+_0 -_1 -_2 +_3", (-1 + 0j)),
-            ("+_0 -_1 +_3 -_3", (1 + 0j)),
-            ("+_0 -_1 +_2 -_2", (1 + 0j)),
-            ("-_0 +_1 +_2 -_3", (-1 + 0j)),
-            ("-_0 +_1 -_2 +_3", (1 + 0j)),
-            ("-_0 +_1 +_3 -_3", (-1 + 0j)),
-            ("-_0 +_1 +_2 -_2", (-1 + 0j)),
-            ("+_3 -_3", (1 + 0j)),
-            ("+_2 -_2", (1 + 0j)),
-            ("+_1 -_1 +_2 -_3", (1 + 0j)),
-            ("+_1 -_1 -_2 +_3", (-1 + 0j)),
-            ("+_1 -_1", (1 + 0j)),
-            ("+_1 -_1 +_3 -_3", (1 + 0j)),
-            ("+_1 -_1 +_2 -_2", (1 + 0j)),
-            ("+_0 -_0 +_2 -_3", (1 + 0j)),
-            ("+_0 -_0 -_2 +_3", (-1 + 0j)),
-            ("+_0 -_0", (1 + 0j)),
-            ("+_0 -_0 +_3 -_3", (1 + 0j)),
-            ("+_0 -_0 +_2 -_2", (1 + 0j)),
-        ]
-        self.assertEqual(second_q_ops[0].to_list(), expected)
+        with open(
+            self.get_resource_path(
+                "integral_property_op.json",
+                "properties/second_quantization/electronic/integrals/resources",
+            ),
+            "r",
+            encoding="utf8",
+        ) as file:
+            expected = json.load(file)
+        for op, expected_op in zip(second_q_ops[0].to_list(), expected):
+            self.assertEqual(op[0], expected_op[0])
+            self.assertTrue(np.isclose(op[1], expected_op[1]))
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = IntegralProperty.from_hdf5(file["test"])
+
+                self.assertDictEqual(self.prop._shift, read_prop._shift)
+
+                for f_int, s_int in zip(iter(self.prop), iter(read_prop)):
+                    self.assertEqual(f_int, s_int)

@@ -17,6 +17,7 @@ from __future__ import annotations
 from typing import Callable, Tuple, List, Optional, cast
 import copy
 
+import h5py
 import numpy as np
 import scipy.linalg
 
@@ -35,6 +36,8 @@ class Molecule:
     cause the original geometry to be returned, and there is a getter to get this value
     directly if its needed.
     """
+
+    VERSION = 1
 
     def __init__(
         self,
@@ -75,6 +78,71 @@ class Molecule:
         self._masses = masses
 
         self._perturbations = None  # type: Optional[List[float]]
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        group = parent.require_group(self.__class__.__name__)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
+
+        geometry_group = group.create_group("geometry", track_order=True)
+        for idx, geom in enumerate(self._geometry):
+            symbol, coords = geom
+            geometry_group.create_dataset(str(idx), data=coords)
+            geometry_group[str(idx)].attrs["symbol"] = symbol
+
+        group.attrs["units"] = self.units.value
+        group.attrs["multiplicity"] = self.multiplicity
+        group.attrs["charge"] = self.charge
+
+        if self._masses:
+            group.create_dataset("masses", data=self._masses)
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> Molecule:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        geometry = []
+        for atom in h5py_group["geometry"].values():
+            geometry.append((atom.attrs["symbol"], list(atom[...])))
+
+        units: UnitsType
+        for unit in UnitsType:
+            if unit.value == h5py_group.attrs["units"]:
+                units = unit
+                break
+        else:
+            units = UnitsType.ANGSTROM
+
+        multiplicity = h5py_group.attrs["multiplicity"]
+        charge = h5py_group.attrs["charge"]
+
+        masses = None
+        if "masses" in h5py_group.keys():
+            masses = list(h5py_group["masses"])
+
+        return Molecule(
+            geometry,
+            multiplicity=multiplicity,
+            charge=charge,
+            units=units,
+            masses=masses,
+        )
 
     def __str__(self) -> str:
         string = ["Molecule:"]

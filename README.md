@@ -59,8 +59,12 @@ using the VQE (Variational Quantum Eigensolver) algorithm to compute
 the ground-state (minimum) energy of a molecule.
 
 ```python
-from qiskit_nature.drivers import PySCFDriver, UnitsType
+from qiskit_nature.settings import settings
+from qiskit_nature.drivers import UnitsType
+from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+
+settings.dict_aux_operators = True
 
 # Use PySCF, a classical computational chemistry software
 # package, to compute the one-body and two-body integrals in
@@ -72,7 +76,7 @@ problem = ElectronicStructureProblem(driver)
 
 # generate the second-quantized operators
 second_q_ops = problem.second_q_ops()
-main_op = second_q_ops[0]
+main_op = second_q_ops['ElectronicEnergy']
 
 particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
 

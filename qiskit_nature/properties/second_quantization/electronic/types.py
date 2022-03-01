@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,10 +12,8 @@
 
 """Electronic property types."""
 
-from typing import Optional, TypeVar
+from typing import TypeVar
 
-from qiskit_nature import QiskitNatureError
-from ...property import PseudoProperty
 from ..second_quantized_property import SecondQuantizedProperty, GroupedSecondQuantizedProperty
 
 
@@ -29,20 +27,3 @@ T = TypeVar("T", bound=ElectronicProperty, covariant=True)
 
 class GroupedElectronicProperty(GroupedSecondQuantizedProperty[T], ElectronicProperty):
     """A GroupedProperty subtype containing purely electronic properties."""
-
-    def add_property(self, prop: Optional[T]) -> None:
-        """Adds a property to the group.
-
-        Args:
-            prop: the property to be added.
-
-        Raises:
-            QiskitNatureError: if the added property is not an electronic one.
-        """
-        if prop is not None:
-            if not isinstance(prop, (ElectronicProperty, PseudoProperty)):
-                raise QiskitNatureError(
-                    f"{prop.__class__.__name__} is not an instance of `ElectronicProperty`, which "
-                    "it must be in order to be added to an `GroupedElectronicProperty`!"
-                )
-            self._properties[prop.name] = prop

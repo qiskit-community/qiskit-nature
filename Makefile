@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -47,10 +47,10 @@ mypy:
 	python -m mypy qiskit_nature test tools
 
 style:
-	python -m black --check --exclude="gauopen" qiskit_nature test tools docs
+	python -m black --check --extend-exclude="gauopen" qiskit_nature test tools docs
 
 black:
-	python -m black --exclude="gauopen" qiskit_nature test tools docs
+	python -m black --extend-exclude="gauopen" qiskit_nature test tools docs
 
 test:
 	python -m unittest discover -v test

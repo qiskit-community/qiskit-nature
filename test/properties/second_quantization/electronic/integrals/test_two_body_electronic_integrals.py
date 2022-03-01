@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,8 +13,10 @@
 """Test TwoBodyElectronicIntegrals."""
 
 import json
-from test import QiskitNatureTestCase
+import tempfile
+from test.properties.property_test import PropertyTest
 
+import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -28,7 +30,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
+class TestTwoBodyElectronicIntegrals(PropertyTest):
     """Test TwoBodyElectronicIntegrals."""
 
     def test_init(self):
@@ -71,9 +73,9 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (mat_aa, None, None, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[1], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[2], 16 * mat_aa))
-            self.assertTrue(np.allclose(ints_mo._matrices[3], 16 * mat_aa))
+            self.assertIsNone(ints_mo._matrices[1])
+            self.assertIsNone(ints_mo._matrices[2])
+            self.assertIsNone(ints_mo._matrices[3])
 
         with self.subTest("Alpha and Beta"):
             ints_ao = TwoBodyElectronicIntegrals(
@@ -229,3 +231,28 @@ class TestTwoBodyElectronicIntegrals(QiskitNatureTestCase):
         self.assertTrue(isinstance(composition, OneBodyElectronicIntegrals))
         self.assertTrue(composition._basis, ElectronicBasis.AO)
         self.assertTrue(np.allclose(composition._matrices[0], expected))
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        random = np.random.rand(2, 2, 2, 2)
+
+        ints = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (random, random, random, random))
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                ints.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        random = np.random.rand(2, 2, 2, 2)
+
+        ints = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (random, random, random, random))
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                ints.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                new_ints = TwoBodyElectronicIntegrals.from_hdf5(file["TwoBodyElectronicIntegrals"])
+
+                self.assertEqual(ints, new_ints)

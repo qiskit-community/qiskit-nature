@@ -155,6 +155,7 @@ getitem
 getter
 gfortran
 github
+globals
 glutamic
 glutamine
 glycine
@@ -166,6 +167,7 @@ hardcoded
 hartree
 hartrees
 hcore
+hdf
 heidelberg
 heisenberg
 hermite
@@ -192,6 +194,7 @@ intel
 intelvem
 interatomic
 internuclear
+interpretable
 ints
 ising
 iso
@@ -221,6 +224,7 @@ knowles
 kohn
 kwarg
 kwargs
+kwds
 labelled
 lda
 len
@@ -276,6 +280,7 @@ natom
 nd
 ndarray
 nelec
+networkx
 neuropeptide
 nicholas
 nielsen
@@ -401,6 +406,7 @@ spsa
 squ
 statevector
 statevectors
+stderr
 stdlib
 stdout
 stereochemistry
