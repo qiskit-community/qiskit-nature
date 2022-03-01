@@ -158,6 +158,7 @@ getitem
 getter
 gfortran
 github
+globals
 glutamic
 glutamine
 glycine
@@ -412,6 +413,7 @@ spsa
 squ
 statevector
 statevectors
+stderr
 stdlib
 stdout
 stereochemistry

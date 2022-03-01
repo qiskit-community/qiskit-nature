@@ -2,7 +2,7 @@
 
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -26,4 +26,4 @@ pwd
 # Push to qiskit.org website
 openssl aes-256-cbc -K $encrypted_rclone_key -iv $encrypted_rclone_iv -in tools/rclone.conf.enc -out $RCLONE_CONFIG_PATH -d
 echo "Pushing built docs to website"
-rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/nature
+rclone sync --progress --exclude locale/** ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/nature
