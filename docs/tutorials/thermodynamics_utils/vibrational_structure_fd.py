@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -78,8 +78,8 @@ class VibrationalStructure1DFD(VibrationalStructureBase):
         """Solves for the eigenvalues of the 1D Schroedinger equation"""
         n = self.num_intervals
         delta_x = (self.right - self.left) / n
-        d = 2.0 / delta_x ** 2 * np.ones(n + 1)
-        e = -1.0 / delta_x ** 2 * np.ones(n)
+        d = 2.0 / delta_x**2 * np.ones(n + 1)
+        e = -1.0 / delta_x**2 * np.ones(n)
 
         _mA = self.molecule.masses[0]
         _mB = self.molecule.masses[1]
