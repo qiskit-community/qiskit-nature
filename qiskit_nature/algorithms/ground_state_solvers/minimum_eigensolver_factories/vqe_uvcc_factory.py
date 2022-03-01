@@ -353,14 +353,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             **self._kwargs,
         )
 
-        # self._vqe.ansatz = self.ansatz
-        # if self._vqe.ansatz is None:
-        #    self._vqe.ansatz = UVCCSD()
-        # self._vqe.ansatz.qubit_converter = qubit_converter
-        # self._vqe.ansatz.num_modals = num_modals
-        # self._vqe.ansatz.initial_state = initial_state
-
-        # return self._vqe
         ansatz = self.ansatz
         if ansatz is None:
             ansatz = UVCCSD()
