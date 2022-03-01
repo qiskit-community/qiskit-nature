@@ -30,6 +30,7 @@ from qiskit_nature.problems.second_quantization.electronic import (
 from qiskit_nature.properties.second_quantization.electronic import (
     ParticleNumber,
 )
+from qiskit_nature.mp2info import MP2Info
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -40,7 +41,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self,
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
-        initial_point: Optional[np.ndarray] = None,
+        initial_point: Optional[Union[np.ndarray, MP2Info]] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -55,7 +56,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             optimizer: A classical optimizer.
             initial_point: An optional initial point (i.e. initial parameter values)
                 for the optimizer. If ``None`` then VQE will look to the ansatz for a preferred
-                point and if not will simply compute a random one.
+                point and if not will simply compute a random one. If provided with an MP2Info
+                instance the initial point will be calculated using MP2.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -113,12 +115,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._optimizer = optimizer
 
     @property
-    def initial_point(self) -> Optional[np.ndarray]:
+    def initial_point(self) -> Optional[Union[np.ndarray, MP2Info]]:
         """Getter of the initial point."""
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
+    def initial_point(self, initial_point: Optional[Union[np.ndarray, MP2Info]]) -> None:
         """Setter of the initial point."""
         self._initial_point = initial_point
 

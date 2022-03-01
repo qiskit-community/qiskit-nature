@@ -17,15 +17,20 @@ import logging
 from functools import partial
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
+import numpy as np
+
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import OperatorBase, PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature import mp2info
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
+
+from qiskit_nature.mp2info import MP2Info
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +132,7 @@ class UCC(EvolvedOperatorAnsatz):
         preserve_spin: bool = True,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
+        initial_point_modifier: Optional[MP2Info] = None,
     ):
         """
 
@@ -165,6 +171,7 @@ class UCC(EvolvedOperatorAnsatz):
             preserve_spin: boolean flag whether or not to preserve the particle spins.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
+            initial_point: An `MP2Info` object to modify the initial point for VQE.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
@@ -175,6 +182,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._max_spin_excitation = max_spin_excitation
         self._generalized = generalized
         self._preserve_spin = preserve_spin
+        self._initial_point_modifier = initial_point_modifier
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
@@ -296,6 +304,10 @@ class UCC(EvolvedOperatorAnsatz):
 
         self._check_excitation_list(excitations)
 
+        print(excitations)
+
+        self._set_initial_point(excitations)
+
         logger.debug("Converting excitations into SecondQuantizedOps...")
         excitation_ops = self._build_fermionic_excitation_ops(excitations)
 
@@ -395,6 +407,15 @@ class UCC(EvolvedOperatorAnsatz):
                 raise QiskitNatureError(
                     error_message.format(error="Duplicated indices", excitation=excitation)
                 )
+
+    def _set_initial_point(self, excitations: Sequence):
+        if self._initial_point_modifier is None:
+            # TODO get proper shape of initial_point
+            self._initial_point = np.zeros()
+        else:
+            modifier = self._initial_point_modifier
+            modifier.compute_mp2(self._num_spin_orbitals, excitations)
+            # modifier.mp2_get_term_info()
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the

@@ -17,6 +17,7 @@ from typing import Optional, Tuple
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.mp2info import MP2Info
 from .ucc import UCC
 
 
@@ -33,6 +34,7 @@ class UCCSD(UCC):
         num_spin_orbitals: Optional[int] = None,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
+        initial_point_modifier: Optional[MP2Info] = None,
         generalized: bool = False,
         preserve_spin: bool = True,
     ):
@@ -63,4 +65,5 @@ class UCCSD(UCC):
             preserve_spin=preserve_spin,
             reps=reps,
             initial_state=initial_state,
+            initial_point_modifier=initial_point_modifier,
         )
