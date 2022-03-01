@@ -15,7 +15,9 @@
 from typing import Optional, Union, Callable, cast
 
 import warnings
+import logging
 import numpy as np
+
 from qiskit.algorithms import MinimumEigensolver, VQE
 from qiskit.algorithms.optimizers import Optimizer
 from qiskit.circuit import QuantumCircuit
@@ -32,6 +34,8 @@ from qiskit_nature.properties.second_quantization.electronic import (
     ParticleNumber,
 )
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
+
+logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
@@ -105,7 +109,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             callback=callback,
             **kwargs,
         )
-
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -353,12 +356,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
 
-        if self._vqe.ansatz is None:
+        if self.ansatz is None:
             self._vqe.ansatz = UCCSD()
         self._vqe.ansatz.qubit_converter = qubit_converter
         self._vqe.ansatz.num_particles = num_particles
         self._vqe.ansatz.num_spin_orbitals = num_spin_orbitals
         self._vqe.ansatz.initial_state = initial_state
+        # maintain initialization done in vqe constructor
+        logger.info(self._vqe.print_settings())
 
         return self._vqe
 
