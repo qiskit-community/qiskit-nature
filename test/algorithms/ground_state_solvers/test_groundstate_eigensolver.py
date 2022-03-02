@@ -190,9 +190,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
         second_q_ops = self.electronic_structure_problem.second_q_ops()
-        aux_ops_dict = {}
-        for key, value in second_q_ops.items():
-            aux_ops_dict[key] = self.qubit_converter.convert_match(value)
+        # Remove main op to leave just aux ops
+        second_q_ops.pop(self.electronic_structure_problem.main_property_name)
+        aux_ops_dict = self.qubit_converter.convert_match(second_q_ops)
         return calc, res, aux_ops_dict
 
     def test_eval_op_single(self):
