@@ -268,7 +268,7 @@ class GaussianLogResult:
         "0.4.0",
         DeprecatedType.METHOD,
         "get_vibrational_energy",
-        "Construct a VibrationalEnergy instead of the deprecated WatsonHamiltonian directly.",
+        "Construct a VibrationalEnergy instead of the deprecated WatsonHamiltonian directly",
     )
     def get_watson_hamiltonian(self, normalize: bool = True) -> WatsonHamiltonian:
         """
