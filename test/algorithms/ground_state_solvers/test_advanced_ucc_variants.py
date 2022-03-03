@@ -31,7 +31,6 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
-
 # pylint: disable=invalid-name
 
 
@@ -55,7 +54,10 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         # because we create the initial state and ansatzes early, we need to ensure the qubit
         # converter already ran such that convert_match works as expected
         _ = self.qubit_converter.convert(
-            self.electronic_structure_problem.second_q_ops()[0], self.num_particles
+            self.electronic_structure_problem.second_q_ops()[
+                self.electronic_structure_problem.main_property_name
+            ],
+            self.num_particles,
         )
 
         self.reference_energy_pUCCD = -1.1434447924298028
@@ -87,10 +89,6 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
     @slow_test
     def test_uccsd_hf_qpUCCD(self):
         """paired uccd test"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
@@ -119,10 +117,6 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
     @slow_test
     def test_uccsd_hf_qUCCD0(self):
         """singlet uccd test"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(

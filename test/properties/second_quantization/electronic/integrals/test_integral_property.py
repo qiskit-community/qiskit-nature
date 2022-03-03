@@ -12,6 +12,7 @@
 
 """Test IntegralProperty"""
 
+import json
 import tempfile
 from test.properties.property_test import PropertyTest
 
@@ -75,39 +76,32 @@ class TestIntegralProperty(PropertyTest):
         self.prop.transform_basis(trafo)
 
         for basis, factor in zip((ElectronicBasis.AO, ElectronicBasis.MO), (1, 4)):
-            for matrix in self.prop.get_electronic_integral(basis, 1)._matrices:
-                self.assertTrue(np.allclose(matrix, factor * np.eye(2)))
+            matrices = self.prop.get_electronic_integral(basis, 1)._matrices
+            self.assertTrue(np.allclose(matrices[0], factor * np.eye(2)))
+            for mat in matrices[1:]:
+                self.assertIsNone(mat)
 
         for basis, factor in zip((ElectronicBasis.AO, ElectronicBasis.MO), (1, 16)):
-            for matrix in self.prop.get_electronic_integral(basis, 2)._matrices:
-                self.assertTrue(np.allclose(matrix, factor * np.ones((2, 2, 2, 2))))
+            matrices = self.prop.get_electronic_integral(basis, 2)._matrices
+            self.assertTrue(np.allclose(matrices[0], factor * np.ones((2, 2, 2, 2))))
+            for mat in matrices[1:]:
+                self.assertIsNone(mat)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        second_q_ops = self.prop.second_q_ops()
-        expected = [
-            ("+_0 -_1 +_2 -_3", (1 + 0j)),
-            ("+_0 -_1 -_2 +_3", (-1 + 0j)),
-            ("+_0 -_1 +_3 -_3", (1 + 0j)),
-            ("+_0 -_1 +_2 -_2", (1 + 0j)),
-            ("-_0 +_1 +_2 -_3", (-1 + 0j)),
-            ("-_0 +_1 -_2 +_3", (1 + 0j)),
-            ("-_0 +_1 +_3 -_3", (-1 + 0j)),
-            ("-_0 +_1 +_2 -_2", (-1 + 0j)),
-            ("+_3 -_3", (1 + 0j)),
-            ("+_2 -_2", (1 + 0j)),
-            ("+_1 -_1 +_2 -_3", (1 + 0j)),
-            ("+_1 -_1 -_2 +_3", (-1 + 0j)),
-            ("+_1 -_1", (1 + 0j)),
-            ("+_1 -_1 +_3 -_3", (1 + 0j)),
-            ("+_1 -_1 +_2 -_2", (1 + 0j)),
-            ("+_0 -_0 +_2 -_3", (1 + 0j)),
-            ("+_0 -_0 -_2 +_3", (-1 + 0j)),
-            ("+_0 -_0", (1 + 0j)),
-            ("+_0 -_0 +_3 -_3", (1 + 0j)),
-            ("+_0 -_0 +_2 -_2", (1 + 0j)),
-        ]
-        self.assertEqual(second_q_ops[0].to_list(), expected)
+        second_q_ops = [self.prop.second_q_ops()["test"]]
+        with open(
+            self.get_resource_path(
+                "integral_property_op.json",
+                "properties/second_quantization/electronic/integrals/resources",
+            ),
+            "r",
+            encoding="utf8",
+        ) as file:
+            expected = json.load(file)
+        for op, expected_op in zip(second_q_ops[0].to_list(), expected):
+            self.assertEqual(op[0], expected_op[0])
+            self.assertTrue(np.isclose(op[1], expected_op[1]))
 
     def test_to_hdf5(self):
         """Test to_hdf5."""

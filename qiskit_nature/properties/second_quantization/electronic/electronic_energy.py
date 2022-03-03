@@ -30,6 +30,7 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+from ....deprecation import deprecate_method
 
 
 class ElectronicEnergy(IntegralProperty):
@@ -184,6 +185,7 @@ class ElectronicEnergy(IntegralProperty):
         self._overlap = overlap
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ElectronicEnergy:
         """Construct an ``ElectronicEnergy`` instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
@@ -317,9 +319,9 @@ class ElectronicEnergy(IntegralProperty):
         op = one_e_ints
 
         coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
-        # by reversing the order of the matrices we can construct the (beta, alpha)-ordered Coulomb
-        # integrals
-        coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])
+        coulomb_inv = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (coulomb.get_matrix(1), coulomb.get_matrix(0))
+        )
         exchange = two_e_ints.compose(density, "ijkl,jk->il")
         op += coulomb + coulomb_inv - exchange
 

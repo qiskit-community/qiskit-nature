@@ -36,7 +36,7 @@ class TestMagnetization(PropertyTest):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = self.prop.second_q_ops()
+        ops = [self.prop.second_q_ops()["Magnetization"]]
         self.assertEqual(len(ops), 1)
         expected = [
             ("+_0 -_0", 0.5),
