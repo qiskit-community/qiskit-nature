@@ -30,7 +30,7 @@ from qiskit_nature.problems.second_quantization.electronic import (
 from qiskit_nature.properties.second_quantization.electronic import (
     ParticleNumber,
 )
-from qiskit_nature.mp2info import MP2Info
+from qiskit_nature.initializers import Initializer
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -41,7 +41,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self,
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
-        initial_point: Optional[Union[np.ndarray, MP2Info]] = None,
+        initial_point: Optional[np.ndarray] = None,
+        initializer: Optional[Initializer] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -56,8 +57,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             optimizer: A classical optimizer.
             initial_point: An optional initial point (i.e. initial parameter values)
                 for the optimizer. If ``None`` then VQE will look to the ansatz for a preferred
-                point and if not will simply compute a random one. If provided with an MP2Info
-                instance the initial point will be calculated using MP2.
+                point and if not will simply compute a random one. If provided with an Initializer
+                instance the initial point will be calculated using it.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -93,6 +94,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.initial_state = initial_state
         self.callback = callback
         self._kwargs = kwargs
+        self._initalizer = initializer
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -115,14 +117,24 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._optimizer = optimizer
 
     @property
-    def initial_point(self) -> Optional[Union[np.ndarray, MP2Info]]:
+    def initial_point(self) -> np.ndarray:
         """Getter of the initial point."""
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: Optional[Union[np.ndarray, MP2Info]]) -> None:
+    def initial_point(self, initial_point: np.ndarray) -> None:
         """Setter of the initial point."""
         self._initial_point = initial_point
+
+    @property
+    def initializer(self) -> Initializer:
+        """Getter of the initializer."""
+        return self._initializer
+
+    @initializer.setter
+    def initializer(self, initializer: Initializer) -> None:
+        """Setter of the initializer."""
+        self._initalizer = initializer
 
     @property
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
@@ -217,6 +229,10 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_particles = num_particles
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
+
+        if isinstance(ansatz, UCC):
+            # TODO: if MP2 works, initialize MP2Initializer within the stack
+            ansatz.initializer = self.initializer
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093

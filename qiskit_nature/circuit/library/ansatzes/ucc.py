@@ -24,13 +24,12 @@ from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import OperatorBase, PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature import mp2info
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
-from qiskit_nature.mp2info import MP2Info
+from qiskit_nature.initializers import Initializer
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +131,7 @@ class UCC(EvolvedOperatorAnsatz):
         preserve_spin: bool = True,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
-        initial_point_modifier: Optional[MP2Info] = None,
+        initializer: Optional[Initializer] = None,
     ):
         """
 
@@ -171,7 +170,7 @@ class UCC(EvolvedOperatorAnsatz):
             preserve_spin: boolean flag whether or not to preserve the particle spins.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
-            initial_point: An `MP2Info` object to modify the initial point for VQE.
+            initializer: An `Initializer` object to modify the initial point for the `MinimumEigensolver`.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
@@ -182,7 +181,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._max_spin_excitation = max_spin_excitation
         self._generalized = generalized
         self._preserve_spin = preserve_spin
-        self._initial_point_modifier = initial_point_modifier
+        self._initializer = initializer
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
@@ -234,6 +233,21 @@ class UCC(EvolvedOperatorAnsatz):
         """Sets the excitations."""
         self._invalidate()
         self._excitations = exc
+
+    @property
+    def preferred_init_points(self) -> np.ndarray:
+        """The preferred initial point for UCC."""
+        return self._initial_point
+
+    @property
+    def initializer(self) -> Initializer:
+        """The initializer."""
+        return self._initializer
+
+    @initializer.setter
+    def initializer(self, init: Initializer) -> None:
+        """Sets the initializer."""
+        self._initializer = init
 
     def _invalidate(self):
         self._excitation_ops = None
@@ -303,8 +317,6 @@ class UCC(EvolvedOperatorAnsatz):
         excitations = self._get_excitation_list()
 
         self._check_excitation_list(excitations)
-
-        print(excitations)
 
         self._set_initial_point(excitations)
 
@@ -409,13 +421,12 @@ class UCC(EvolvedOperatorAnsatz):
                 )
 
     def _set_initial_point(self, excitations: Sequence):
-        if self._initial_point_modifier is None:
-            # TODO get proper shape of initial_point
-            self._initial_point = np.zeros()
+        if self._initializer is None:
+            self._initial_point = np.zeros(len(excitations))
         else:
-            modifier = self._initial_point_modifier
-            modifier.compute_mp2(self._num_spin_orbitals, excitations)
-            # modifier.mp2_get_term_info()
+            self._initial_point = self._initializer.compute_coefficients(
+                excitations, self.num_spin_orbitals
+            )
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
