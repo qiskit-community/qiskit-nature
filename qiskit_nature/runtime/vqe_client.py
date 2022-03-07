@@ -20,13 +20,18 @@ from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Provider
 from qiskit.providers.backend import Backend
-from qiskit.algorithms import MinimumEigensolver, MinimumEigensolverResult, VQEResult
+from qiskit.algorithms import (
+    MinimumEigensolver,
+    MinimumEigensolverResult,
+    VQEResult,
+    VariationalAlgorithm,
+)
 from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
 
-class VQEClient(MinimumEigensolver):
+class VQEClient(VariationalAlgorithm, MinimumEigensolver):
     """The Qiskit Nature VQE Runtime Client.
 
     This class is a client to call the VQE program in Qiskit Runtime."""
