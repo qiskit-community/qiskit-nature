@@ -538,24 +538,25 @@ class FermionicOp(SecondQuantizedOp):
             display_format=self.display_format,
         )
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> FermionicOp:
+    def reduce(
+        self, atol: Optional[float] = None, rtol: Optional[float] = None, normal_order=True
+    ) -> FermionicOp:
         if atol is None:
             atol = self.atol
         if rtol is None:
             rtol = self.rtol
 
-        labels, coeffs = zip(*self.to_normal_order()._to_dense_label_data())
+        op = self.to_normal_order() if normal_order else self
+        labels, coeffs = zip(*op._to_dense_label_data())
         label_list, indices = np.unique(labels, return_inverse=True, axis=0)
-        coeff_list = np.zeros(len(coeffs), dtype=np.complex128)
-        for i, val in zip(indices, coeffs):
-            coeff_list[i] += val
-        non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
-        ]
-        if not non_zero:
+        coeff_list = np.zeros(label_list.shape[0], dtype=np.complex128)
+        np.add.at(coeff_list, indices, coeffs)
+        is_zero = np.isclose(coeff_list, 0, atol=atol, rtol=rtol)
+        if np.all(is_zero):
             return FermionicOp(("", 0), self.register_length, display_format=self.display_format)
+        non_zero = np.logical_not(is_zero)
         return FermionicOp(
-            list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
+            list(zip(label_list[non_zero], coeff_list[non_zero])),
             display_format=self.display_format,
         )
 
