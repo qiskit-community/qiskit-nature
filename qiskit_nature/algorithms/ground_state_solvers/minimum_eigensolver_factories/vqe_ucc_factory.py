@@ -13,6 +13,7 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, Callable, cast
+import warnings
 
 import numpy as np
 from qiskit.algorithms import MinimumEigensolver, VQE
@@ -24,13 +25,17 @@ from qiskit.utils import QuantumInstance
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.initializers import MP2Initializer
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
 from qiskit_nature.properties.second_quantization.electronic import (
     ParticleNumber,
+    ElectronicEnergy
 )
 from qiskit_nature.initializers import Initializer
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.properties.second_quantization.second_quantized_property import GroupedSecondQuantizedProperty
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -42,7 +47,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
         initial_point: Optional[np.ndarray] = None,
-        initializer: Optional[Initializer] = None,
+        initializer: Optional[Union[Initializer, str]] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -94,7 +99,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.initial_state = initial_state
         self.callback = callback
         self._kwargs = kwargs
-        self._initalizer = initializer
+        self._initializer = initializer
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -132,9 +137,9 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         return self._initializer
 
     @initializer.setter
-    def initializer(self, initializer: Initializer) -> None:
+    def initializer(self, init: Initializer) -> None:
         """Setter of the initializer."""
-        self._initalizer = initializer
+        self._initalizer = init
 
     @property
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
@@ -231,8 +236,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.initial_state = initial_state
 
         if isinstance(ansatz, UCC):
-            # TODO: if MP2 works, initialize MP2Initializer within the stack
-            ansatz.initializer = self.initializer
+            if isinstance(self.initializer, Initializer):
+                ansatz.initializer = self.initializer
+            elif type(self.initializer) == str:
+                ansatz.initializer = _generate_initializer(self.initializer, driver_result)
+            else:
+                warnings.warn("Initializer type not recognized. Setting to None.")
+                ansatz.initializer = None
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
@@ -252,3 +262,27 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()
+
+
+def _generate_initializer(initializer_str: str, driver_result: GroupedSecondQuantizedProperty) -> Initializer:
+    if initializer_str.lower() == "mp2":
+        _generate_mp2_initializer(driver_result)
+    else:
+        warnings.warn("Initializer name not recognized. Setting to None.")
+        return None
+
+def _generate_mp2_initializer(driver_result: GroupedSecondQuantizedProperty) -> Initializer:
+    particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
+    electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+    if electronic_energy is None:
+        warnings.warn("Problem does not have Electronic energy. Setting initializer to None.")
+        return None
+    else:
+        num_spin_orbitals = particle_number.num_spin_orbitals
+        integral_matrix = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix()
+        orbital_energies = electronic_energy.orbital_energies
+        reference_energy = electronic_energy.reference_energy
+
+        return MP2Initializer(
+            num_spin_orbitals, orbital_energies, integral_matrix, reference_energy=reference_energy
+        )
