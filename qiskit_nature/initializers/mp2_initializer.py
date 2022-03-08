@@ -136,7 +136,7 @@ class MP2Initializer(Initializer):
 
         coeffs = np.asarray([value[0] for value in terms.values()])
 
-        self._energy_delta = energy_delta
+        self._energy_correction = energy_delta
         self._terms = terms
         self._coefficients = coeffs
         return coeffs
@@ -313,5 +313,5 @@ class MP2Initializer(Initializer):
     #     return ret_terms
 
 
-def _string_to_tuple(excitation_str: str) -> Tuple:
+def _string_to_tuple(excitation_str: str) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
     return tuple(ast.literal_eval(excitation_str))
