@@ -14,13 +14,11 @@
 
 import ast
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
+
+from qiskit_nature.exceptions import QiskitNatureError
 
 from .initializer import Initializer
-
-from qiskit_nature.properties.second_quantization.electronic.electronic_energy import (
-    ElectronicEnergy,
-)
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
 
@@ -42,23 +40,28 @@ class MP2Initializer(Initializer):
     """
 
     def __init__(
-        self, num_spin_orbitals: int, electronic_energy: ElectronicEnergy, threshold: float = 1e-12
+        self,
+        num_spin_orbitals: int,
+        orbital_energies: np.ndarray,
+        integral_matrix: np.ndarray,
+        reference_energy: Optional[float] = None,
+        threshold: float = 1e-12,
     ):
         """
         Args:
             num_spin_orbitals: Number of spin orbitals.
+            orbital energies: Electric orbital energies.
+            integral_matrix: Electronic double excitation integral matrix.
             electronic_energy: ElectronicEnergy to extract the electronic integral matrix,
                                orbital energies and reference energy.
             threshold: Computed coefficients and energy deltas will be set to
-                       zero if their value is below this threshold
+                       zero if their value is below this threshold.
         """
         # Since spins are the same drop to MO indexing
         self._num_orbitals = num_spin_orbitals // 2
-        self._integral_matrix = electronic_energy.get_electronic_integral(
-            ElectronicBasis.MO, 2
-        ).get_matrix()
-        self._orbital_energies = electronic_energy.orbital_energies
-        self._reference_energy = electronic_energy.reference_energy
+        self._integral_matrix = integral_matrix
+        self._orbital_energies = orbital_energies
+        self._reference_energy = reference_energy
         self._threshold = threshold
 
         # Computed with specific excitation list.
@@ -93,14 +96,31 @@ class MP2Initializer(Initializer):
         """Returns:
         The MP2 delta energy corrections for each excitation.
         """
-        return self._energy_correction
+        return self._energy_corrections
 
     @property
     def absolute_energy(self) -> float:
         """Returns:
         The absolute MP2 energy for the molecule.
         """
+        if self._reference_energy is None:
+            raise QiskitNatureError("Reference energy not set.")
         return self._reference_energy + self._energy_correction
+
+    @property
+    def reference_energy(self) -> float:
+        """Returns:
+            The reference Hartree Fock energy for the molecule.
+        """
+        return self._reference_energy
+
+    @reference_energy.setter
+    def qubit_converter(self, energy: float) -> None:
+        """Sets the reference Hartree Fock energy for the molecule.
+        Args:
+            energy: Reference energy value.
+        """
+        self._reference_energy = energy
 
     @property
     def terms(self) -> Dict[str, Tuple[float, float]]:
