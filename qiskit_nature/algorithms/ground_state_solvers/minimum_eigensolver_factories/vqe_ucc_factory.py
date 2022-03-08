@@ -29,13 +29,12 @@ from qiskit_nature.initializers import MP2Initializer
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
-from qiskit_nature.properties.second_quantization.electronic import (
-    ParticleNumber,
-    ElectronicEnergy
-)
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber, ElectronicEnergy
 from qiskit_nature.initializers import Initializer
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
-from qiskit_nature.properties.second_quantization.second_quantized_property import GroupedSecondQuantizedProperty
+from qiskit_nature.properties.second_quantization.second_quantized_property import (
+    GroupedSecondQuantizedProperty,
+)
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -264,12 +263,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         return VQE.supports_aux_operators()
 
 
-def _generate_initializer(initializer_str: str, driver_result: GroupedSecondQuantizedProperty) -> Initializer:
+def _generate_initializer(
+    initializer_str: str, driver_result: GroupedSecondQuantizedProperty
+) -> Initializer:
     if initializer_str.lower() == "mp2":
         _generate_mp2_initializer(driver_result)
     else:
-        warnings.warn("Initializer name not recognized. Setting to None.")
+        warnings.warn("Initializer name not recognized. Setting initializer to None.")
         return None
+
 
 def _generate_mp2_initializer(driver_result: GroupedSecondQuantizedProperty) -> Initializer:
     particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
@@ -279,7 +281,9 @@ def _generate_mp2_initializer(driver_result: GroupedSecondQuantizedProperty) -> 
         return None
     else:
         num_spin_orbitals = particle_number.num_spin_orbitals
-        integral_matrix = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix()
+        integral_matrix = electronic_energy.get_electronic_integral(
+            ElectronicBasis.MO, 2
+        ).get_matrix()
         orbital_energies = electronic_energy.orbital_energies
         reference_energy = electronic_energy.reference_energy
 
