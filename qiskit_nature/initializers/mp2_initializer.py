@@ -68,6 +68,16 @@ class MP2Initializer(Initializer):
         return self._energy_correction
 
     @property
+    def energy_corrections(self) -> np.ndarray:
+        """
+        Get the MP2 delta energy corrections for the molecule.
+
+        Returns:
+            The MP2 delta energies for each excitation.
+        """
+        return self._energy_correction
+
+    @property
     def absolute_energy(self) -> float:
         """
         Get the MP2 energy for the molecule.
@@ -105,7 +115,7 @@ class MP2Initializer(Initializer):
         self,
         excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
         num_spin_orbitals: int,
-    ) -> None:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """_summary_
 
         Excitations is a list of:
@@ -123,7 +133,6 @@ class MP2Initializer(Initializer):
         # Since spins are the same drop to MO indexing
         self._num_orbitals = num_spin_orbitals // 2
 
-        energy_delta = 0
         terms = {}
         for excitation in excitations:
             if len(excitation[0]) == 2:
@@ -132,14 +141,15 @@ class MP2Initializer(Initializer):
                 coeff, e_delta = 0, 0
 
             terms[str(excitation)] = (coeff, e_delta)
-            energy_delta += e_delta
 
         coeffs = np.asarray([value[0] for value in terms.values()])
+        e_deltas = np.asarray([value[1] for value in terms.values()])
 
-        self._energy_correction = energy_delta
         self._terms = terms
         self._coefficients = coeffs
-        return coeffs
+        self._energy_corrections = e_deltas
+        self._energy_correction = sum(e_deltas)
+        return coeffs, e_deltas
 
     def _compute_coefficient(self, excitation) -> Tuple[float, float]:
         i = excitation[0][0] % self._num_orbitals
