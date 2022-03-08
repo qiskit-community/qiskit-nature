@@ -235,8 +235,13 @@ class UCC(EvolvedOperatorAnsatz):
         self._excitations = exc
 
     @property
+    def initial_point(self) -> np.ndarray:
+        """The initial point for UCC."""
+        return self._initial_point
+
+    @property
     def preferred_init_points(self) -> np.ndarray:
-        """The preferred initial point for UCC."""
+        """The preferred initial point for VQE"""
         return self._initial_point
 
     @property
