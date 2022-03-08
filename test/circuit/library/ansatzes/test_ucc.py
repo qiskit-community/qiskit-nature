@@ -82,7 +82,7 @@ class TestUCC(QiskitNatureTestCase):
         ),
         # TODO: add more edge cases?
     )
-    def test_ucc_ansatz(self, excitations, num_spin_orbitals, num_particles, expect):
+    def test_ucc_ansatz(self, excitations, num_spin_orbitals, num_particles, expected):
         """Tests the UCC Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
@@ -93,7 +93,7 @@ class TestUCC(QiskitNatureTestCase):
             excitations=excitations,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expected)
 
     @unpack
     @data(
