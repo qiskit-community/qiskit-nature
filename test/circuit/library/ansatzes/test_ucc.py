@@ -12,6 +12,11 @@
 
 """Test the UCC Ansatz."""
 
+import numpy as np
+
+from qiskit_nature.settings import settings
+from qiskit_nature.circuit.library.ansatzes.uccsd import UCCSD
+from qiskit_nature.initializers import MP2Initializer
 from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
@@ -133,3 +138,27 @@ class TestUCC(QiskitNatureTestCase):
 
         with self.assertRaises(QiskitNatureError):
             ansatz.excitation_ops()
+
+    @unpack
+    @data(
+        # No initializer
+        (8, (2, 2), None, np.zeros(26)),
+    )
+    def test_with_no_initializer(self, num_spin_orbitals, num_particles, initializer, expected):
+        """Test with no initializer."""
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = UCCSD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            initializer=initializer,
+        )
+        ansatz._build()
+
+        with self.subTest("test initial_point"):
+            np.testing.assert_array_equal(ansatz.initial_point, expected)
+
+        with self.subTest("test preferred_init_points"):
+            np.testing.assert_array_equal(ansatz.preferred_init_points, expected)
