@@ -162,3 +162,46 @@ class TestUCC(QiskitNatureTestCase):
 
         with self.subTest("test preferred_init_points"):
             np.testing.assert_array_equal(ansatz.preferred_init_points, expected)
+
+    @unpack
+    @data(
+        # MP2Initializer h2 molecule
+        (
+            4,
+            (1, 1),
+            [-0.595463473004833, 0.714165284454473],
+            [
+                [
+                    [[0.6823895331520421, 0.0], [0.0, 0.6707327783087585]],
+                    [[0.0, 0.17900057606140662], [0.17900057606140676, 0.0]],
+                ],
+                [
+                    [[0.0, 0.17900057606140674], [0.17900057606140682, 0.0]],
+                    [[0.6707327783087589, 0.0], [0.0, 0.7051056321727855]],
+                ],
+            ],
+            [0.0, 0.0, -0.06834019757197064],
+        )
+    )
+    def test_with_no_initializer(
+        self, num_spin_orbitals, num_particles, orbital_energies, integral_matrix, expected
+    ):
+        """Test with no initializer."""
+
+        initializer = MP2Initializer(num_spin_orbitals, orbital_energies, integral_matrix)
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = UCCSD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            initializer=initializer,
+        )
+        ansatz._build()
+
+        with self.subTest("test initial_point"):
+            np.testing.assert_array_equal(ansatz.initial_point, expected)
+
+        with self.subTest("test preferred_init_points"):
+            np.testing.assert_array_equal(ansatz.preferred_init_points, expected)
