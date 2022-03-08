@@ -41,82 +41,93 @@ class MP2Initializer(Initializer):
     numbering as normally used by the nature module.
     """
 
-    def __init__(self, electronic_energy: ElectronicEnergy, threshold: float = 1e-12):
+    def __init__(
+        self, num_spin_orbitals: int, electronic_energy: ElectronicEnergy, threshold: float = 1e-12
+    ):
         """
         Args:
+            num_spin_orbitals: Number of spin orbitals.
             electronic_energy: ElectronicEnergy to extract the electronic integral matrix,
                                orbital energies and reference energy.
             threshold: Computed coefficients and energy deltas will be set to
                        zero if their value is below this threshold
         """
+        # Since spins are the same drop to MO indexing
+        self._num_orbitals = num_spin_orbitals // 2
         self._integral_matrix = electronic_energy.get_electronic_integral(
             ElectronicBasis.MO, 2
         ).get_matrix()
         self._orbital_energies = electronic_energy.orbital_energies
         self._reference_energy = electronic_energy.reference_energy
         self._threshold = threshold
-        self._terms = {}
+
+        # Computed with specific excitation list.
+        self._terms = None
+        self._coefficients = None
+        self._energy_correction = None
+        self._energy_corrections = None
+
+    @property
+    def num_orbitals(self) -> int:
+        """Returns:
+        The number of molecular orbitals.
+        """
+        return self._num_orbitals
+
+    @property
+    def num_spin_orbitals(self) -> int:
+        """Returns:
+        The number of spin orbitals.
+        """
+        return self._num_orbitals * 2
 
     @property
     def energy_correction(self) -> float:
-        """
-        Get the MP2 delta energy correction for the molecule.
-
-        Returns:
-            The MP2 delta energy.
+        """Returns:
+        The MP2 delta energy correction for the molecule.
         """
         return self._energy_correction
 
     @property
     def energy_corrections(self) -> np.ndarray:
-        """
-        Get the MP2 delta energy corrections for the molecule.
-
-        Returns:
-            The MP2 delta energies for each excitation.
+        """Returns:
+        The MP2 delta energy corrections for each excitation.
         """
         return self._energy_correction
 
     @property
     def absolute_energy(self) -> float:
-        """
-        Get the MP2 energy for the molecule.
-
-        Returns:
-            The absolute MP2 energy.
+        """Returns:
+        The absolute MP2 energy for the molecule.
         """
         return self._reference_energy + self._energy_correction
 
     @property
     def terms(self) -> Dict[str, Tuple[float, float]]:
-        """
-        Get the MP2 terms for the molecule.
-
-        Returns:
-            The MP2 terms.
+        """Returns:
+        The MP2 terms for the molecule.
         """
         return self._terms
 
     @property
     def coefficients(self) -> List[float]:
-        """Get the MP2 coefficients for the molecule.
-
-        Returns:
-            The MP" coefficients.
+        """Returns:
+        "The MP2 coefficients for the molecule.
         """
         return self._coefficients
 
     @property
     def excitations(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
-        """The excitations."""
+        """Returns:
+        The excitations.
+        """
         return [_string_to_tuple(key) for key in self._terms.keys()]
 
-    def compute_coefficients(
+    def compute_corrections(
         self,
         excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
-        num_spin_orbitals: int,
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """_summary_
+        """Compute the MP2 coefficient and energy corrections for each double excitation.
 
         Excitations is a list of:
         [(initial_orbital_1, initial_orbital_2) (final_orbital_1, final_orbital_2), ...]
@@ -125,18 +136,16 @@ class MP2Initializer(Initializer):
           - alpha runs from 0 to num_orbitals - 1
           - beta runs from num_orbitals to num_orbitals * 2 - 1
 
-        Parameters
-        ----------
-        excitations : Sequnce of exitations
+        Args:
+            excitations : Sequence of excitations.
 
+        Returns:
+            Correction coefficients and energy corrections.
         """
-        # Since spins are the same drop to MO indexing
-        self._num_orbitals = num_spin_orbitals // 2
-
         terms = {}
         for excitation in excitations:
             if len(excitation[0]) == 2:
-                coeff, e_delta = self._compute_coefficient(excitation)
+                coeff, e_delta = self._compute_correction(excitation)
             else:
                 coeff, e_delta = 0, 0
 
@@ -151,7 +160,22 @@ class MP2Initializer(Initializer):
         self._energy_correction = sum(e_deltas)
         return coeffs, e_deltas
 
-    def _compute_coefficient(self, excitation) -> Tuple[float, float]:
+    def _compute_correction(self, excitation) -> Tuple[float, float]:
+        """Compute the MP2 coefficient and energy corrections given a double excitation.
+
+        Excitations is a list of:
+        [(initial_orbital_1, initial_orbital_2) (final_orbital_1, final_orbital_2), ...]
+
+        Spin orbital indexing is in block spin format:
+          - alpha runs from 0 to num_orbitals - 1
+          - beta runs from num_orbitals to num_orbitals * 2 - 1
+
+        Args:
+            excitations : Sequence of excitations.
+
+        Returns:
+            Correction coefficients and energy corrections.
+        """
         i = excitation[0][0] % self._num_orbitals
         j = excitation[0][1] % self._num_orbitals
         a = excitation[1][0] % self._num_orbitals

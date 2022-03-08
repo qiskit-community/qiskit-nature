@@ -274,6 +274,14 @@ class UCC(EvolvedOperatorAnsatz):
                 raise ValueError("The qubit_converter cannot be `None`.")
             return False
 
+        if self._initializer is not None and self._initializer.num_spin_orbitals is not None:
+            if self._initializer.num_spin_orbitals != self.num_spin_orbitals:
+                if raise_on_failure:
+                    raise ValueError(
+                        "The number of spin orbitals in the initializer and ansatz do not match."
+                    )
+                return False
+
         return True
 
     def _build(self) -> None:
@@ -424,9 +432,7 @@ class UCC(EvolvedOperatorAnsatz):
         if self._initializer is None:
             self._initial_point = np.zeros(len(excitations))
         else:
-            self._initial_point = self._initializer.compute_coefficients(
-                excitations, self.num_spin_orbitals
-            )
+            self._initial_point, _ = self._initializer.compute_corrections(excitations)
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
