@@ -89,7 +89,7 @@ class TestIntegralProperty(PropertyTest):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        second_q_ops = self.prop.second_q_ops()
+        second_q_ops = [self.prop.second_q_ops()["test"]]
         with open(
             self.get_resource_path(
                 "integral_property_op.json",
