@@ -134,7 +134,6 @@ class UCC(EvolvedOperatorAnsatz):
         preserve_spin: bool = True,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
-        initializer: Optional[Initializer] = None,
     ):
         """
 
@@ -188,7 +187,6 @@ class UCC(EvolvedOperatorAnsatz):
         self._max_spin_excitation = max_spin_excitation
         self._generalized = generalized
         self._preserve_spin = preserve_spin
-        self._initializer = initializer
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
@@ -196,7 +194,8 @@ class UCC(EvolvedOperatorAnsatz):
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
         self._excitation_ops: List[SecondQuantizedOp] = None
-        self._preferred_init_points = None
+        self._excitation_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None
+
 
     @property
     def qubit_converter(self) -> QubitConverter:
@@ -242,23 +241,13 @@ class UCC(EvolvedOperatorAnsatz):
         self._invalidate()
         self._excitations = exc
 
-    @property
-    def preferred_init_points(self) -> np.ndarray:
-        """The preferred initial point for VQE"""
-        return self._preferred_init_points
-
-    @property
-    def initializer(self) -> Initializer:
-        """The initializer."""
-        return self._initializer
-
-    @initializer.setter
-    def initializer(self, init: Initializer) -> None:
-        """Sets the initializer."""
-        self._initializer = init
+    def excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+        """The excitation list."""
+        return self._excitation_list
 
     def _invalidate(self):
         self._excitation_ops = None
+        self._excitation_list = None
         super()._invalidate()
 
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
@@ -281,14 +270,6 @@ class UCC(EvolvedOperatorAnsatz):
             if raise_on_failure:
                 raise ValueError("The qubit_converter cannot be `None`.")
             return False
-
-        if self._initializer is not None and self._initializer.num_spin_orbitals is not None:
-            if self._initializer.num_spin_orbitals != self.num_spin_orbitals:
-                if raise_on_failure:
-                    raise ValueError(
-                        "The number of spin orbitals in the initializer and ansatz do not match."
-                    )
-                return False
 
         return True
 
@@ -330,15 +311,14 @@ class UCC(EvolvedOperatorAnsatz):
         if self._excitation_ops is not None:
             return self._excitation_ops
 
-        excitations = self._get_excitation_list()
+        excitation_list = self._get_excitation_list()
 
-        self._check_excitation_list(excitations)
-
-        self._preferred_init_points = self._get_init_point(excitations)
+        self._check_excitation_list(excitation_list)
 
         logger.debug("Converting excitations into SecondQuantizedOps...")
-        excitation_ops = self._build_fermionic_excitation_ops(excitations)
+        excitation_ops = self._build_fermionic_excitation_ops(excitation_list)
 
+        self._excitation_list = excitation_list
         self._excitation_ops = excitation_ops
         return excitation_ops
 
@@ -436,17 +416,6 @@ class UCC(EvolvedOperatorAnsatz):
                     error_message.format(error="Duplicated indices", excitation=excitation)
                 )
 
-    def _get_init_point(self, excitations: Sequence):
-        """Get the preferred initial point for VQE.
-
-        Args:
-            excitations: List of excitations.
-        """
-        if self._initializer is None:
-            # Return an all zero initial point.
-            return np.zeros(len(excitations))
-        else:
-            return self._initializer.compute_initial_point(excitations)
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
