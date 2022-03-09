@@ -17,9 +17,6 @@ import copy
 import io
 import unittest
 import warnings
-from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_driver import (
-    ElectronicStructureMoleculeDriver,
-)
 
 from test import QiskitNatureTestCase
 

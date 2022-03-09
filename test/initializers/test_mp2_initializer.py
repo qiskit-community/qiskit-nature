@@ -45,7 +45,7 @@ class TestMP2Initializer(QiskitNatureTestCase):
 
         settings.dict_aux_operators = True
 
-    @file_data("../resources/test_data_mp2_initializer.json")
+    @file_data("./resources/test_data_mp2_initializer.json")
     def test_mp2_initializer(
         self,
         num_spin_orbitals,
