@@ -13,14 +13,13 @@
 """ MP2Initializer class """
 
 import ast
-import numpy as np
 from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 
 from .initializer import Initializer
-from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
-
 
 class MP2Initializer(Initializer):
     """
@@ -57,6 +56,8 @@ class MP2Initializer(Initializer):
             threshold: Computed coefficients and energy deltas will be set to
                        zero if their value is below this threshold.
         """
+        super().__init__()
+
         # Since spins are the same drop to MO indexing
         self._num_orbitals = num_spin_orbitals // 2
         self._integral_matrix = integral_matrix
@@ -72,36 +73,44 @@ class MP2Initializer(Initializer):
 
     @property
     def num_orbitals(self) -> int:
-        """Returns:
-        The number of molecular orbitals.
+        """
+        Returns:
+            The number of molecular orbitals.
         """
         return self._num_orbitals
 
     @property
     def num_spin_orbitals(self) -> int:
-        """Returns:
-        The number of spin orbitals.
+        """
+        Returns:
+            The number of spin orbitals.
         """
         return self._num_orbitals * 2
 
     @property
     def energy_correction(self) -> float:
-        """Returns:
-        The MP2 delta energy correction for the molecule.
+        """
+        Returns:
+            The MP2 delta energy correction for the molecule.
         """
         return self._energy_correction
 
     @property
     def energy_corrections(self) -> np.ndarray:
-        """Returns:
-        The MP2 delta energy corrections for each excitation.
+        """
+        Returns:
+            The MP2 delta energy corrections for each excitation.
         """
         return self._energy_corrections
 
     @property
     def absolute_energy(self) -> float:
-        """Returns:
-        The absolute MP2 energy for the molecule.
+        """
+        Raises:
+            QiskitNatureError: raised
+
+        Returns:
+            The absolute MP2 energy for the molecule.
         """
         if self._reference_energy is None:
             raise QiskitNatureError("Reference energy not set.")
@@ -124,24 +133,27 @@ class MP2Initializer(Initializer):
 
     @property
     def terms(self) -> Dict[str, Tuple[float, float]]:
-        """Returns:
-        The MP2 terms for the molecule.
+        """
+        Returns:
+            The MP2 terms for the molecule.
         """
         return self._terms
 
     @property
     def coefficients(self) -> List[float]:
-        """Returns:
-        "The MP2 coefficients for the molecule.
+        """
+        Returns:
+            The MP2 coefficients for the molecule.
         """
         return self._coefficients
 
     @property
     def excitations(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
-        """Returns:
-        The excitations.
         """
-        return [_string_to_tuple(key) for key in self._terms.keys()]
+        Returns:
+            The excitations.
+        """
+        return [_string_to_tuple(key) for key in self._terms]
 
     def compute_corrections(
         self,

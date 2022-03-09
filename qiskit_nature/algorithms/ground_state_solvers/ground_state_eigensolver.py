@@ -23,7 +23,7 @@ from qiskit.algorithms import MinimumEigensolver
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories.vqe_ucc_factory import VQEUCCFactory
+from qiskit_nature.algorithms.ground_state_solvers import VQEUCCFactory
 from qiskit_nature.initializers import Initializer
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -77,6 +77,9 @@ class GroundStateEigensolver(GroundStateSolver):
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            initializer: An `Initializer` object to modify the initial point for the
+                         `MinimumEigensolver`. If a string is passed the appropriate Initializer
+                         will be generated.
 
         Raises:
             ValueError: if the grouped property object returned by the driver does not contain a

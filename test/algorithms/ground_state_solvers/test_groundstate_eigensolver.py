@@ -545,7 +545,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem, initializer="mp2")
-        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6),
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
 
 if __name__ == "__main__":

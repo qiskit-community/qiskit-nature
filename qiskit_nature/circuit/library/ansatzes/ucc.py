@@ -27,9 +27,10 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 
+from qiskit_nature.initializers import Initializer
+
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
-from qiskit_nature.initializers import Initializer
 
 logger = logging.getLogger(__name__)
 
@@ -170,7 +171,7 @@ class UCC(EvolvedOperatorAnsatz):
             preserve_spin: boolean flag whether or not to preserve the particle spins.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
-            initializer: An `Initializer` object to modify the initial point for the `MinimumEigensolver`.
+            initializer: An `Initializer` object to modify the initial point in `MinimumEigensolver`.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
@@ -189,6 +190,7 @@ class UCC(EvolvedOperatorAnsatz):
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
         self._excitation_ops: List[SecondQuantizedOp] = None
+        self._initial_point = None
 
     @property
     def qubit_converter(self) -> QubitConverter:

@@ -257,9 +257,9 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
 def _generate_initializer_from_str(
     initializer_str: str, driver_result: GroupedSecondQuantizedProperty
-) -> Initializer:
+) -> Union[Initializer, None]:
     if initializer_str.lower() == "mp2":
-        _generate_mp2_initializer(driver_result)
+        return _generate_mp2_initializer(driver_result)
     else:
         warnings.warn("Initializer name not recognized. Setting initializer to None.")
         return None

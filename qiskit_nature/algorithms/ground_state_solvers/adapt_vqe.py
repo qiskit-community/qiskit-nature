@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,8 +25,10 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.utils.validation import validate_min
 from qiskit_nature import ListOrDictType
+from qiskit_nature.algorithms.ground_state_solvers import VQEUCCFactory
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
+from qiskit_nature.initializers.initializer import Initializer
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
@@ -139,12 +141,16 @@ class AdaptVQE(GroundStateEigensolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        initializer: Optional[Union[Initializer, str]] = None,
     ) -> "AdaptVQEResult":
         """Computes the ground state.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            initializer: An `Initializer` object to modify the initial point for the
+                         `MinimumEigensolver`. If a string is passed the appropriate Initializer
+                         will be generated.
 
         Raises:
             QiskitNatureError: if a solver other than VQE or a ansatz other than UCCSD is provided
@@ -155,6 +161,7 @@ class AdaptVQE(GroundStateEigensolver):
                 with an internally constructed auxiliary operator. Note: the names used for the
                 internal auxiliary operators correspond to the `Property.name` attributes which
                 generated the respective operators.
+
 
         Returns:
             An AdaptVQEResult which is an ElectronicStructureResult but also includes runtime
@@ -204,6 +211,8 @@ class AdaptVQE(GroundStateEigensolver):
                         )
                     aux_ops[name] = converted_aux_op
 
+        if isinstance(self._solver, VQEUCCFactory):
+            vqe = self._solver.get_solver(problem, self._qubit_converter, initializer=initializer)
         if isinstance(self._solver, MinimumEigensolverFactory):
             vqe = self._solver.get_solver(problem, self._qubit_converter)
         else:

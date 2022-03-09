@@ -12,12 +12,9 @@
 
 """Test the UCC Ansatz."""
 
-import numpy as np
-
-from qiskit_nature.settings import settings
-from qiskit_nature.circuit.library.ansatzes.uccsd import UCCSD
-from qiskit_nature.initializers import MP2Initializer
 from test import QiskitNatureTestCase
+
+import numpy as np
 
 from ddt import data, ddt, unpack
 
@@ -26,6 +23,7 @@ from qiskit_nature.circuit.library import UCC
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.initializers import MP2Initializer
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
@@ -149,7 +147,7 @@ class TestUCC(QiskitNatureTestCase):
 
         converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = UCCSD(
+        ansatz = UCC(
             qubit_converter=converter,
             num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
@@ -194,7 +192,7 @@ class TestUCC(QiskitNatureTestCase):
 
         converter = QubitConverter(JordanWignerMapper())
 
-        ansatz = UCCSD(
+        ansatz = UCC(
             qubit_converter=converter,
             num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
