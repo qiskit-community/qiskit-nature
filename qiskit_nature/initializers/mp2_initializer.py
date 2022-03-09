@@ -21,6 +21,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 
 from .initializer import Initializer
 
+
 class MP2Initializer(Initializer):
     """
     An Initializer class for using the Moller-Plesset 2nd order (MP2) correction
@@ -119,7 +120,7 @@ class MP2Initializer(Initializer):
     @property
     def reference_energy(self) -> float:
         """Returns:
-            The reference Hartree Fock energy for the molecule.
+        The reference Hartree Fock energy for the molecule.
         """
         return self._reference_energy
 

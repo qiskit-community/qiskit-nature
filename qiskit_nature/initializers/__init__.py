@@ -14,7 +14,4 @@
 from .initializer import Initializer
 from .mp2_initializer import MP2Initializer
 
-__all__ = [
-    "Initializer",
-    "MP2Initializer"
-]
+__all__ = ["Initializer", "MP2Initializer"]

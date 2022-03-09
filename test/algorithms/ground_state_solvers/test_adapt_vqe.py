@@ -134,7 +134,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
         class CustomFactory(VQEUCCFactory):
             """A custom MESFactory"""
 
-            def get_solver(self, problem, qubit_converter, initializer = None):
+            def get_solver(self, problem, qubit_converter, initializer=None):
                 particle_number = cast(
                     ParticleNumber,
                     problem.grouped_property_transformed.get_property(ParticleNumber),
@@ -169,7 +169,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
         class CustomFactory(VQEUCCFactory):
             """A custom MES factory."""
 
-            def get_solver(self, problem, qubit_converter, initializer = None):
+            def get_solver(self, problem, qubit_converter, initializer=None):
                 solver = super().get_solver(problem, qubit_converter)
                 # Here, we can create essentially any custom excitation pool.
                 # For testing purposes only, we simply select some hopping operator already
