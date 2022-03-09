@@ -199,6 +199,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                              according to a mapper it is initialized with.
             initializer: An `Initializer` object to modify the initial point.
 
+        Raises:
+            NotImplementedError: if initializer is not None.
+
         Returns:
             A VQE suitable to compute the ground state of the molecule.
         """
@@ -220,6 +223,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.qubit_converter = qubit_converter
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
+
+        if initializer is not None:
+            raise NotImplementedError("No initializers created for UVCC.")
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
