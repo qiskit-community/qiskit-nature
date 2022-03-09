@@ -46,7 +46,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
         initial_point: Optional[np.ndarray] = None,
-        initializer: Optional[Union[Initializer, str]] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -98,7 +97,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.initial_state = initial_state
         self.callback = callback
         self._kwargs = kwargs
-        self._initializer = initializer
 
     @property
     def quantum_instance(self) -> QuantumInstance:
@@ -129,16 +127,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def initial_point(self, initial_point: np.ndarray) -> None:
         """Setter of the initial point."""
         self._initial_point = initial_point
-
-    @property
-    def initializer(self) -> Initializer:
-        """Getter of the initializer."""
-        return self._initializer
-
-    @initializer.setter
-    def initializer(self, init: Initializer) -> None:
-        """Setter of the initializer."""
-        self._initalizer = init
 
     @property
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
@@ -206,6 +194,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self,
         problem: ElectronicStructureProblem,
         qubit_converter: QubitConverter,
+        initializer: Optional[Union[Initializer, str]] = None,
     ) -> MinimumEigensolver:
         """Returns a VQE with a UCCSD wavefunction ansatz, based on ``qubit_converter``.
 
@@ -234,11 +223,11 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
 
-        if isinstance(ansatz, UCC):
-            if isinstance(self.initializer, Initializer):
-                ansatz.initializer = self.initializer
-            elif type(self.initializer) == str:
-                ansatz.initializer = _generate_initializer(self.initializer, driver_result)
+        if isinstance(ansatz, UCC) and initializer is not None:
+            if isinstance(initializer, Initializer):
+                ansatz.initializer = initializer
+            elif type(initializer) == str:
+                ansatz.initializer = _generate_initializer(initializer, driver_result)
             else:
                 warnings.warn("Initializer type not recognized. Setting to None.")
                 ansatz.initializer = None
