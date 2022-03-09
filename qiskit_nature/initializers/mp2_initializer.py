@@ -23,11 +23,13 @@ from .initializer import Initializer
 
 
 class MP2Initializer(Initializer):
-    """
-    An Initializer class for using the Moller-Plesset 2nd order (MP2) correction
-    coefficients as an initial point for VQE when using UCC.
+    """Moller-Plesset Initializer.
+
+    An Initializer class for using the Moller-Plesset 2nd order (MP2) corrections
+    as an initial point for VQE when using UCC(SD).
 
     An MP2Initializer object can be passed to UCC(SD) as an optional argument.
+    This ensures that the same excitations are used to compute the corrections.
     """
 
     def __init__(
@@ -41,10 +43,10 @@ class MP2Initializer(Initializer):
         """
         Args:
             num_spin_orbitals: Number of spin orbitals.
-            orbital energies: Electric orbital energies.
-            integral_matrix: Electronic double excitation integral matrix.
+            orbital energies: Electron orbital energies.
+            integral_matrix: Electronic double-excitation integral matrix.
             reference_energy: The uncorrected Hartree-Fock energy.
-            threshold: Computed coefficients and energy deltas will be set to
+            threshold: Computed initial point and energy deltas will be set to
                        zero if their value is below this threshold.
         """
         super().__init__()
@@ -56,11 +58,11 @@ class MP2Initializer(Initializer):
         self._reference_energy = reference_energy
         self._threshold = threshold
 
-        # Computed with specific excitation list.
+        # Computed with a specific excitation list.
+        self._initial_point = None
         self._terms = None
-        self._coefficients = None
-        self._energy_correction = None
-        self._energy_corrections = None
+        self._energy_deltas = None
+        self._energy_delta = None
 
     @property
     def num_orbitals(self) -> int:
@@ -79,44 +81,53 @@ class MP2Initializer(Initializer):
         return self._num_orbitals * 2
 
     @property
-    def energy_correction(self) -> float:
+    def energy_delta(self) -> float:
         """
         Returns:
             The MP2 delta energy correction for the molecule.
         """
-        return self._energy_correction
+        return self._energy_delta
 
     @property
-    def energy_corrections(self) -> np.ndarray:
+    def threshold(self) -> float:
         """
         Returns:
-            The MP2 delta energy corrections for each excitation.
+            The energy threshold.
         """
-        return self._energy_corrections
+        return self._threshold
+
+    @property
+    def energy_deltas(self) -> np.ndarray:
+        """
+        Returns:
+            The MP2 energy correction deltas for each excitation.
+        """
+        return self._energy_deltas
 
     @property
     def absolute_energy(self) -> float:
         """
         Raises:
-            QiskitNatureError: Raised if reference energy is not set.
+            QiskitNatureError: If reference energy is not set.
 
         Returns:
             The absolute MP2 energy for the molecule.
         """
         if self._reference_energy is None:
             raise QiskitNatureError("Reference energy not set.")
-        return self._reference_energy + self._energy_correction
+        return self._reference_energy + self._energy_delta
 
     @property
     def reference_energy(self) -> float:
-        """Returns:
-        The reference Hartree Fock energy for the molecule.
+        """
+        Returns:
+            The reference Hartree-Fock energy for the molecule.
         """
         return self._reference_energy
 
     @reference_energy.setter
     def qubit_converter(self, energy: float) -> None:
-        """Sets the reference Hartree Fock energy for the molecule.
+        """Sets the reference Hartree-Fock energy for the molecule.
         Args:
             energy: Reference energy value.
         """
@@ -131,32 +142,32 @@ class MP2Initializer(Initializer):
         return self._terms
 
     @property
-    def coefficients(self) -> List[float]:
-        """
-        Returns:
-            The MP2 coefficients for the molecule.
-        """
-        return self._coefficients
-
-    @property
     def excitations(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """
         Returns:
-            The excitations.
+            Sequence of excitations.
         """
         return [_string_to_tuple(key) for key in self._terms]
 
-    def compute_corrections(
+    @property
+    def initial_point(self) -> List[float]:
+        """
+        Returns:
+            The MP2 coefficients as an initial_point.
+        """
+        return self._initial_point
+
+    def compute_initial_point(
         self,
         excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Compute the MP2 coefficient and energy corrections for each double excitation.
+        """Compute the MP2 coefficients and energy corrections for each double excitation.
 
         Args:
-            excitations : Sequence of excitations.
+            excitations: Sequence of excitations.
 
         Returns:
-            Correction coefficients and energy corrections.
+            Initial point with MP2 coefficiants for doubles and zero otherwise.
         """
         terms = {}
         for excitation in excitations:
@@ -164,7 +175,8 @@ class MP2Initializer(Initializer):
                 # MP2 needs double excitations.
                 coeff, e_delta = self._compute_correction(excitation)
             else:
-                coeff, e_delta = 0, 0
+                # Leave single excitations unchanged.
+                coeff, e_delta = 0.0, 0.0
 
             terms[str(excitation)] = (coeff, e_delta)
 
@@ -172,10 +184,10 @@ class MP2Initializer(Initializer):
         e_deltas = np.asarray([value[1] for value in terms.values()])
 
         self._terms = terms
-        self._coefficients = coeffs
-        self._energy_corrections = e_deltas
-        self._energy_correction = sum(e_deltas)
-        return coeffs, e_deltas
+        self._initial_point = coeffs
+        self._energy_deltas = e_deltas
+        self._energy_delta = sum(e_deltas)
+        return coeffs
 
     def _compute_correction(
         self, excitation: Tuple[Tuple[int, ...], Tuple[int, ...]]
@@ -183,10 +195,10 @@ class MP2Initializer(Initializer):
         """Compute the MP2 coefficient and energy corrections given a double excitation.
 
         Each double excitation given by [i,a,j,b] has a coefficient computed using
-            coeff = -(2 * Tiajb - Tibja)/(oe[b] + oe[a] - oe[i] - oe[j])
-        where oe[] is the orbital energy.
+            coeff = -(2 * T[i,a,j,b] - T[i,b,j,a)/(E[b] + E[a] - E[i] - E[j])
+        where E is the orbital energy.
         and an energy delta given by
-            e_delta = coeff * Tiajb
+            e_delta = coeff * T[i,a,j,b]
 
         All the computations are done using the molecule orbitals but the indices used
         in the excitation information passed in and out are in the block spin orbital
@@ -198,7 +210,7 @@ class MP2Initializer(Initializer):
             excitations: Sequence of excitations.
 
         Returns:
-            Correction coefficients and energy corrections.
+            Correction coefficients and energy deltas.
         """
         i = excitation[0][0] % self._num_orbitals
         j = excitation[0][1] % self._num_orbitals

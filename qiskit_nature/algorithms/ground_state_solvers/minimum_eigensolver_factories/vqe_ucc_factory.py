@@ -25,12 +25,11 @@ from qiskit.utils import QuantumInstance
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.initializers import MP2Initializer
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber, ElectronicEnergy
-from qiskit_nature.initializers import Initializer
+from qiskit_nature.initializers import Initializer, MP2Initializer
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
@@ -194,7 +193,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self,
         problem: ElectronicStructureProblem,
         qubit_converter: QubitConverter,
-        initializer: Optional[Union[Initializer, str]] = None,
     ) -> MinimumEigensolver:
         """Returns a VQE with a UCCSD wavefunction ansatz, based on ``qubit_converter``.
 

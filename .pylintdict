@@ -188,6 +188,7 @@ ijkl
 ik
 init
 initializer
+initializers
 initio
 inplace
 intel
@@ -266,6 +267,7 @@ moc
 mohij
 mohijkl
 mol
+moller
 morse
 mpl
 mul
@@ -326,6 +328,7 @@ perturbative
 pes
 phenylalanine
 phonons
+plesset
 polypeptides
 popovas
 pos

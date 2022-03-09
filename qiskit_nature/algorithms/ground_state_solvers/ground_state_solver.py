@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -27,7 +27,6 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
-from qiskit_nature.initializers import Initializer
 
 
 class GroundStateSolver(ABC):
@@ -46,16 +45,12 @@ class GroundStateSolver(ABC):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-        initializer: Optional[Union[Initializer, str]] = None,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
-            initializer: An `Initializer` object to modify the initial point for the
-                         `MinimumEigensolver`. If a string is passed the appropriate Initializer
-                         will be generated.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also

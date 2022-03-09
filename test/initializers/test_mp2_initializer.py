@@ -33,11 +33,10 @@ class TestMP2Initializer(QiskitNatureTestCase):
         qubit_converter=converter,
         num_particles=num_particles,
         num_spin_orbitals=num_spin_orbitals,
-        initializer=mp2_init,
     )
     ansatz._build()
 
-    In practice MP2_Initializer should be passed as an argument to UCC, not used in isolation.
+    In practice MP2_Initializer should be passed as an argument to UCC.
     """
 
     def setUp(self):
@@ -66,13 +65,13 @@ class TestMP2Initializer(QiskitNatureTestCase):
             reference_energy=reference_energy,
         )
 
-        coeffs, e_deltas = mp2_init.compute_corrections(excitations)
+        initial_point = mp2_init.compute_initial_point(excitations)
 
-        with self.subTest("test mp2 coefficients"):
-            np.testing.assert_array_almost_equal(coeffs, mp2_coefficients, decimal=6)
+        with self.subTest("Test MP2 coefficients"):
+            np.testing.assert_array_almost_equal(initial_point, mp2_coefficients, decimal=6)
 
-        with self.subTest("test mp2 energy corrections"):
-            np.testing.assert_array_almost_equal(e_deltas, energy_corrections, decimal=6)
+        with self.subTest("Test MP2 energy corrections"):
+            np.testing.assert_array_almost_equal(mp2_init.energy_deltas, energy_corrections, decimal=6)
 
         with self.subTest("test mp2 reference energy"):
             np.testing.assert_array_almost_equal(
@@ -81,7 +80,7 @@ class TestMP2Initializer(QiskitNatureTestCase):
 
         with self.subTest("test overall energy correction"):
             np.testing.assert_array_almost_equal(
-                mp2_init.energy_correction, energy_correction, decimal=6
+                mp2_init.energy_delta, energy_correction, decimal=6
             )
 
         with self.subTest("test absolute energy"):

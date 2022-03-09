@@ -171,7 +171,9 @@ class UCC(EvolvedOperatorAnsatz):
             preserve_spin: boolean flag whether or not to preserve the particle spins.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
-            initializer: An `Initializer` object to modify the initial point in `MinimumEigensolver`.
+            initializer: An `Initializer` object to generate a preferred initial point.
+                         By default this is None and an all-zero preferred initial point is set.
+
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
@@ -190,7 +192,7 @@ class UCC(EvolvedOperatorAnsatz):
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
         self._excitation_ops: List[SecondQuantizedOp] = None
-        self._initial_point = None
+        self._preferred_init_points = None
 
     @property
     def qubit_converter(self) -> QubitConverter:
@@ -237,14 +239,9 @@ class UCC(EvolvedOperatorAnsatz):
         self._excitations = exc
 
     @property
-    def initial_point(self) -> np.ndarray:
-        """The initial point for UCC."""
-        return self._initial_point
-
-    @property
     def preferred_init_points(self) -> np.ndarray:
         """The preferred initial point for VQE"""
-        return self._initial_point
+        return self._preferred_init_points
 
     @property
     def initializer(self) -> Initializer:
@@ -333,7 +330,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         self._check_excitation_list(excitations)
 
-        self._set_initial_point(excitations)
+        self._preferred_init_points = self._get_init_point(excitations)
 
         logger.debug("Converting excitations into SecondQuantizedOps...")
         excitation_ops = self._build_fermionic_excitation_ops(excitations)
@@ -435,11 +432,17 @@ class UCC(EvolvedOperatorAnsatz):
                     error_message.format(error="Duplicated indices", excitation=excitation)
                 )
 
-    def _set_initial_point(self, excitations: Sequence):
+    def _get_init_point(self, excitations: Sequence):
+        """Get the preferred initial point for VQE.
+
+        Args:
+            excitations: List of excitations.
+        """
         if self._initializer is None:
-            self._initial_point = np.zeros(len(excitations))
+            # Return an all zero initial point.
+            return np.zeros(len(excitations))
         else:
-            self._initial_point, _ = self._initializer.compute_corrections(excitations)
+            return self._initializer.compute_initial_point(excitations)
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the

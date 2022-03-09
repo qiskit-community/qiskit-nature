@@ -18,7 +18,6 @@ import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
 
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.initializers.initializer import Initializer
 from qiskit_nature.problems.second_quantization import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
@@ -76,7 +75,6 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self,
         problem: BaseProblem,
         qubit_converter: QubitConverter,
-        initializer: Optional[Union[Initializer, str]] = None,
     ) -> MinimumEigensolver:
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``problem``.
@@ -85,7 +83,6 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
             problem: a class encoding a problem to be solved.
             qubit_converter: a class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
-            initializer: Modifies the initial point of the minimum eigensolver.
         Returns:
             A NumPyMinimumEigensolver suitable to compute the ground state of the molecule.
         """

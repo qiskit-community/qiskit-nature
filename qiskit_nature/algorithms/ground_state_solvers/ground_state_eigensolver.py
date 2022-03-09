@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,15 +23,13 @@ from qiskit.algorithms import MinimumEigensolver
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
-from qiskit_nature.initializers import Initializer
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
-
 from .ground_state_solver import GroundStateSolver
-from .minimum_eigensolver_factories import MinimumEigensolverFactory, VQEUCCFactory
+from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
 
 class GroundStateEigensolver(GroundStateSolver):
@@ -70,16 +68,12 @@ class GroundStateEigensolver(GroundStateSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-        initializer: Optional[Union[Initializer, str]] = None,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
-            initializer: An `Initializer` object to modify the initial point for the
-                         `MinimumEigensolver`. If a string is passed the appropriate Initializer
-                         will be generated.
 
         Raises:
             ValueError: if the grouped property object returned by the driver does not contain a
@@ -139,10 +133,7 @@ class GroundStateEigensolver(GroundStateSolver):
                         )
                     aux_ops[name] = converted_aux_op
 
-        if isinstance(self._solver, VQEUCCFactory):
-            # TODO: initializers may need to be passed to other factories?
-            self._solver = self._solver.get_solver(problem, self._qubit_converter, initializer)
-        elif isinstance(self._solver, MinimumEigensolverFactory):
+        if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem, self._qubit_converter)
 

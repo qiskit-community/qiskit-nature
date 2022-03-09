@@ -10,37 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Base Initializer class """
+"""Abstract base initializer class.
+
+These objects are intended to be used with a given ansatz to compute an initial
+point for ground state solvers.
+"""
 
 from abc import ABC, abstractmethod
-from typing import Sequence, Tuple
-
-import numpy as np
 
 
 class Initializer(ABC):
-    """Abstract base Initializer class."""
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    @property
-    @abstractmethod
-    def coefficients(self) -> np.ndarray:
-        """
-        Returns:
-            The coefficients based on the Initializer.
-        """
-        raise NotImplementedError()
+    """Abstract base initializer class."""
 
     @abstractmethod
-    def compute_corrections(
-        self,
-        excitations: Sequence,
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """Compute the coefficients for the molecule.
-
-        Returns:
-            The initializer coefficients and energy corrections.
-        """
-        raise NotImplementedError()
+    def compute_initial_point(self, excitations) -> None:
+        """Compute initial point."""
+        pass

@@ -201,7 +201,7 @@ class TestUCCSD(QiskitNatureTestCase):
         (8, (2, 2), None, np.zeros(26)),
     )
     def test_with_no_initializer(self, num_spin_orbitals, num_particles, initializer, expected):
-        """Test with no initializer."""
+        """Test preferred_init_points is all zero with no initializer."""
 
         converter = QubitConverter(JordanWignerMapper())
 
@@ -212,12 +212,7 @@ class TestUCCSD(QiskitNatureTestCase):
             initializer=initializer,
         )
         ansatz._build()
-
-        with self.subTest("test initial_point"):
-            np.testing.assert_array_equal(ansatz.initial_point, expected)
-
-        with self.subTest("test preferred_init_points"):
-            np.testing.assert_array_equal(ansatz.preferred_init_points, expected)
+        np.testing.assert_array_equal(ansatz.preferred_init_points, expected)
 
     @unpack
     @data(
@@ -244,7 +239,7 @@ class TestUCCSD(QiskitNatureTestCase):
     def test_with_mp2_initializer(
         self, num_spin_orbitals, num_particles, orbital_energies, integral_matrix, expected
     ):
-        """Test with MP2 initializer."""
+        """Test preferred_init_points with MP2 initializer."""
 
         initializer = MP2Initializer(num_spin_orbitals, orbital_energies, integral_matrix)
 
@@ -258,8 +253,4 @@ class TestUCCSD(QiskitNatureTestCase):
         )
         ansatz._build()
 
-        with self.subTest("test initial_point"):
-            np.testing.assert_array_almost_equal(ansatz.initial_point, expected)
-
-        with self.subTest("test preferred_init_points"):
-            np.testing.assert_array_almost_equal(ansatz.preferred_init_points, expected)
+        np.testing.assert_array_almost_equal(ansatz.preferred_init_points, expected)

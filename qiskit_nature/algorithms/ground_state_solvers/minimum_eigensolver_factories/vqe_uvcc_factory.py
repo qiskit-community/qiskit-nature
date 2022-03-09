@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,7 +23,6 @@ from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
 from qiskit_nature.circuit.library import UVCC, UVCCSD, VSCF
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.initializers import Initializer
 from qiskit_nature.problems.second_quantization.vibrational import (
     VibrationalStructureProblem,
 )
@@ -189,7 +188,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self,
         problem: VibrationalStructureProblem,
         qubit_converter: QubitConverter,
-        initializer: Optional[Union[Initializer, str]] = None,
     ) -> MinimumEigensolver:
         """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``qubit_converter``.
 
@@ -197,10 +195,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             problem: a class encoding a problem to be solved.
             qubit_converter: a class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
-            initializer: An `Initializer` object to modify the initial point.
-
-        Raises:
-            NotImplementedError: if initializer is not None.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.
@@ -223,9 +217,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.qubit_converter = qubit_converter
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
-
-        if initializer is not None:
-            raise NotImplementedError("No initializers created for UVCC.")
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
