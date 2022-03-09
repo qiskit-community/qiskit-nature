@@ -201,7 +201,10 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Args:
             problem: a class encoding a problem to be solved.
             qubit_converter: a class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+                             according to a mapper it is initialized with
+            initializer: An `Initializer` object to modify the initial point for the
+                         `MinimumEigensolver`. If a string is passed the appropriate Initializer
+                         will be generated.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.
@@ -227,7 +230,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             if isinstance(initializer, Initializer):
                 ansatz.initializer = initializer
             elif type(initializer) == str:
-                ansatz.initializer = _generate_initializer(initializer, driver_result)
+                ansatz.initializer = _generate_initializer_from_str(initializer, driver_result)
             else:
                 warnings.warn("Initializer type not recognized. Setting to None.")
                 ansatz.initializer = None
@@ -252,7 +255,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         return VQE.supports_aux_operators()
 
 
-def _generate_initializer(
+def _generate_initializer_from_str(
     initializer_str: str, driver_result: GroupedSecondQuantizedProperty
 ) -> Initializer:
     if initializer_str.lower() == "mp2":
