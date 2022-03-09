@@ -229,7 +229,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         if isinstance(ansatz, UCC) and initializer is not None:
             if isinstance(initializer, Initializer):
                 ansatz.initializer = initializer
-            elif type(initializer) == str:
+            elif isinstance(initializer, str):
                 ansatz.initializer = _generate_initializer_from_str(initializer, driver_result)
             else:
                 warnings.warn("Initializer type not recognized. Setting to None.")
