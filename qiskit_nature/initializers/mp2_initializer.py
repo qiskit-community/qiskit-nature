@@ -25,18 +25,7 @@ from .initializer import Initializer
 class MP2Initializer(Initializer):
     """
     An Initializer class for using the Moller-Plesset 2nd order (MP2) correction
-    coefficients as an initial point for finding the Minimum Eigensolver.
-
-    | Each double excitation given by [i,a,j,b] has a coefficient computed using
-    |     coeff = -(2 * Tiajb - Tibja)/(oe[b] + oe[a] - oe[i] - oe[j])
-    | where oe[] is the orbital energy
-
-    | and an energy delta given by
-    |     e_delta = coeff * Tiajb
-
-    All the computations are done using the molecule orbitals but the indexes used
-    in the excitation information passed in and out are in the block spin orbital
-    numbering as normally used by the nature module.
+    coefficients as an initial point for VQE when using UCC.
     """
 
     def __init__(
@@ -108,7 +97,7 @@ class MP2Initializer(Initializer):
     def absolute_energy(self) -> float:
         """
         Raises:
-            QiskitNatureError: raised
+            QiskitNatureError: Raised if reference energy is not set.
 
         Returns:
             The absolute MP2 energy for the molecule.
@@ -162,13 +151,6 @@ class MP2Initializer(Initializer):
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Compute the MP2 coefficient and energy corrections for each double excitation.
 
-        Excitations is a list of:
-        [(initial_orbital_1, initial_orbital_2) (final_orbital_1, final_orbital_2), ...]
-
-        Spin orbital indexing is in block spin format:
-          - alpha runs from 0 to num_orbitals - 1
-          - beta runs from num_orbitals to num_orbitals * 2 - 1
-
         Args:
             excitations : Sequence of excitations.
 
@@ -178,6 +160,7 @@ class MP2Initializer(Initializer):
         terms = {}
         for excitation in excitations:
             if len(excitation[0]) == 2:
+                # MP2 needs double excitations.
                 coeff, e_delta = self._compute_correction(excitation)
             else:
                 coeff, e_delta = 0, 0
@@ -193,18 +176,25 @@ class MP2Initializer(Initializer):
         self._energy_correction = sum(e_deltas)
         return coeffs, e_deltas
 
-    def _compute_correction(self, excitation) -> Tuple[float, float]:
+    def _compute_correction(
+        self, excitation: Tuple[Tuple[int, ...], Tuple[int, ...]]
+    ) -> Tuple[float, float]:
         """Compute the MP2 coefficient and energy corrections given a double excitation.
 
-        Excitations is a list of:
-        [(initial_orbital_1, initial_orbital_2) (final_orbital_1, final_orbital_2), ...]
+        Each double excitation given by [i,a,j,b] has a coefficient computed using
+            coeff = -(2 * Tiajb - Tibja)/(oe[b] + oe[a] - oe[i] - oe[j])
+        where oe[] is the orbital energy.
+        and an energy delta given by
+            e_delta = coeff * Tiajb
 
-        Spin orbital indexing is in block spin format:
+        All the computations are done using the molecule orbitals but the indices used
+        in the excitation information passed in and out are in the block spin orbital
+        numbering as normally used by the nature module:
           - alpha runs from 0 to num_orbitals - 1
           - beta runs from num_orbitals to num_orbitals * 2 - 1
 
         Args:
-            excitations : Sequence of excitations.
+            excitations: Sequence of excitations.
 
         Returns:
             Correction coefficients and energy corrections.
@@ -233,4 +223,11 @@ class MP2Initializer(Initializer):
 
 
 def _string_to_tuple(excitation_str: str) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+    """
+    Args:
+        excitation_str: Excitations as a string.
+
+    Returns:
+        Excitations as a list of tuples.
+    """
     return tuple(ast.literal_eval(excitation_str))
