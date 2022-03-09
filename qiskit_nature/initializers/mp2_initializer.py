@@ -26,6 +26,8 @@ class MP2Initializer(Initializer):
     """
     An Initializer class for using the Moller-Plesset 2nd order (MP2) correction
     coefficients as an initial point for VQE when using UCC.
+
+    An MP2Initializer object can be passed to UCC(SD) as an optional argument.
     """
 
     def __init__(
@@ -41,8 +43,7 @@ class MP2Initializer(Initializer):
             num_spin_orbitals: Number of spin orbitals.
             orbital energies: Electric orbital energies.
             integral_matrix: Electronic double excitation integral matrix.
-            electronic_energy: ElectronicEnergy to extract the electronic integral matrix,
-                               orbital energies and reference energy.
+            reference_energy: The uncorrected Hartree-Fock energy.
             threshold: Computed coefficients and energy deltas will be set to
                        zero if their value is below this threshold.
         """
