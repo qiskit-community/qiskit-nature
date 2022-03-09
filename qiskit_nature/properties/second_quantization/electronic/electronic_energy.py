@@ -30,6 +30,7 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+from ....deprecation import deprecate_method
 
 
 class ElectronicEnergy(IntegralProperty):
@@ -184,6 +185,7 @@ class ElectronicEnergy(IntegralProperty):
         self._overlap = overlap
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ElectronicEnergy:
         """Construct an ``ElectronicEnergy`` instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 

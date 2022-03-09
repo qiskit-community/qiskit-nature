@@ -30,7 +30,6 @@ from qiskit.opflow import AerPauliExpectation, PauliExpectation
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals, optionals
 
-from qiskit_nature import settings
 from qiskit_nature.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
@@ -48,6 +47,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     TwoBodyElectronicIntegrals,
 )
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+from qiskit_nature import settings
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -129,12 +129,16 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = ElectronicEnergy(
-            [
-                OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
-                TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
-            ],
-        ).second_q_ops()
+        aux_ops = list(
+            ElectronicEnergy(
+                [
+                    OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
+                    TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
+                ],
+            )
+            .second_q_ops()
+            .values()
+        )
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.electronic_structure_problem)
@@ -142,55 +146,40 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
 
-    def test_dict_based_aux_ops(self):
-        """Test the `test_dict_based_aux_ops` variant"""
-        try:
-            settings.dict_aux_operators = True
-            solver = NumPyMinimumEigensolverFactory()
-            calc = GroundStateEigensolver(self.qubit_converter, solver)
-            res = calc.solve(self.electronic_structure_problem)
-            self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
-            self.assertTrue(
-                np.all(isinstance(aux_op, dict) for aux_op in res.aux_operator_eigenvalues)
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["ParticleNumber"][0], 2.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["ParticleNumber"][1], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["AngularMomentum"][0], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["AngularMomentum"][1], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["Magnetization"][0], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["Magnetization"][1], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["DipoleMomentX"][0], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["DipoleMomentX"][1], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["DipoleMomentY"][0], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["DipoleMomentY"][1], 0.0, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["DipoleMomentZ"][0], -1.3889487, places=6
-            )
-            self.assertAlmostEqual(
-                res.aux_operator_eigenvalues[0]["DipoleMomentZ"][1], 0.0, places=6
-            )
-        finally:
+    def test_list_based_aux_ops(self):
+        """Test the list based aux ops variant"""
+        msg_ref = (
+            "List-based `aux_operators` are deprecated as of version 0.3.0 and support "
+            "for them will be removed no sooner than 3 months after the release. Instead, "
+            "use dict-based `aux_operators`. You can switch to the dict-based interface "
+            "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
+        )
+        with warnings.catch_warnings(record=True) as c_m:
+            warnings.simplefilter("always")
             settings.dict_aux_operators = False
+            try:
+                solver = NumPyMinimumEigensolverFactory()
+                calc = GroundStateEigensolver(self.qubit_converter, solver)
+                res = calc.solve(self.electronic_structure_problem)
+                self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+                self.assertTrue(
+                    np.all(isinstance(aux_op, dict) for aux_op in res.aux_operator_eigenvalues)
+                )
+                aux_op_eigenvalue = res.aux_operator_eigenvalues[0]
+                self.assertAlmostEqual(aux_op_eigenvalue[0][0], 2.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[1][1], 0.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[2][0], 0.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[2][1], 0.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[3][0], 0.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[3][1], 0.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[4][0], 0.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[4][1], 0.0, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[5][0], -1.3889487, places=6)
+                self.assertAlmostEqual(aux_op_eigenvalue[5][1], 0.0, places=6)
+            finally:
+                settings.dict_aux_operators = True
+            msg = str(c_m[0].message)
+            self.assertEqual(msg, msg_ref)
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
@@ -200,16 +189,17 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        _, *aux_ops = self.qubit_converter.convert_match(
-            self.electronic_structure_problem.second_q_ops()
-        )
-        return calc, res, aux_ops
+        second_q_ops = self.electronic_structure_problem.second_q_ops()
+        # Remove main op to leave just aux ops
+        second_q_ops.pop(self.electronic_structure_problem.main_property_name)
+        aux_ops_dict = self.qubit_converter.convert_match(second_q_ops)
+        return calc, res, aux_ops_dict
 
     def test_eval_op_single(self):
         """Test evaluating a single additional operator"""
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because in this test we test a single operator evaluation
-        add_aux_op = aux_ops[0][0]
+        add_aux_op = aux_ops["ParticleNumber"][0]
 
         # now we have the ground state calculation evaluate it
         add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
@@ -231,7 +221,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
         expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3]
+        add_aux_op = [
+            aux_ops["ParticleNumber"],
+            aux_ops["AngularMomentum"],
+            aux_ops["Magnetization"],
+        ]
 
         # now we have the ground state calculation evaluate them
         add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
@@ -245,7 +239,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
         expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3] + [None]
+        add_aux_op = [
+            aux_ops["ParticleNumber"],
+            aux_ops["AngularMomentum"],
+            aux_ops["Magnetization"],
+        ] + [None]
 
         # now we have the ground state calculation evaluate them
         add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
@@ -260,7 +258,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
         expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3]
+        add_aux_op = [
+            aux_ops["ParticleNumber"],
+            aux_ops["AngularMomentum"],
+            aux_ops["Magnetization"],
+        ]
         # now we convert it into a dictionary
         add_aux_op = dict(zip(expected_results.keys(), add_aux_op))
 
@@ -275,7 +277,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc, res, aux_ops = self._setup_evaluation_operators()
         # we filter the list because of simplicity
         expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = aux_ops[0:3]
+        add_aux_op = [
+            aux_ops["ParticleNumber"],
+            aux_ops["AngularMomentum"],
+            aux_ops["Magnetization"],
+        ]
         # now we convert it into a dictionary
         add_aux_op = dict(zip(expected_results.keys(), add_aux_op))
         add_aux_op["None"] = None
@@ -302,7 +308,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops()[
+            self.electronic_structure_problem.main_property_name
+        ]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
@@ -330,7 +338,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[0]
+        hamiltonian = self.electronic_structure_problem.second_q_ops()[
+            self.electronic_structure_problem.main_property_name
+        ]
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
