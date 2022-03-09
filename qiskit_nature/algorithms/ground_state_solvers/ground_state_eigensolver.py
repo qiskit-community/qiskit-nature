@@ -23,6 +23,8 @@ from qiskit.algorithms import MinimumEigensolver
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories.vqe_ucc_factory import VQEUCCFactory
+from qiskit_nature.initializers import Initializer
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
@@ -68,6 +70,7 @@ class GroundStateEigensolver(GroundStateSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        initializer: Optional[Union[Initializer, str]] = None,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
@@ -133,7 +136,10 @@ class GroundStateEigensolver(GroundStateSolver):
                         )
                     aux_ops[name] = converted_aux_op
 
-        if isinstance(self._solver, MinimumEigensolverFactory):
+        if isinstance(self._solver, VQEUCCFactory):
+            # TODO: initializers may need to be passed to other factories?
+            self._solver = self._solver.get_solver(problem, self._qubit_converter, initializer)
+        elif isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem, self._qubit_converter)
 
