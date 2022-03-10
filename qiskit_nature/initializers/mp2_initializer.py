@@ -46,7 +46,7 @@ class MP2Initializer:
             excitation_list: Sequence of excitations.
             reference_energy: The uncorrected Hartree-Fock energy.
             threshold: Computed initial point and energy deltas will be set to
-                       zero if their value is below this threshold.
+                zero if their value is below this threshold.
         """
         super().__init__()
 
