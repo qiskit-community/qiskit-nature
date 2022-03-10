@@ -20,6 +20,7 @@ import logging
 import os
 import unittest
 import time
+from qiskit_nature import settings
 
 # disable deprecation warnings that can cause log output overflow
 # pylint: disable=unused-argument
@@ -40,6 +41,7 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
     log = None
 
     def setUp(self) -> None:
+        settings.dict_aux_operators = True
         warnings.filterwarnings("default", category=DeprecationWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
         warnings.filterwarnings(action="ignore", category=DeprecationWarning, module=".*drivers*")
