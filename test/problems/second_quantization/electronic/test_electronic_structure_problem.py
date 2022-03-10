@@ -59,7 +59,8 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[0]
+        electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
+        second_quantized_ops = list(second_quantized_ops.values())
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -100,7 +101,8 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
 
         electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[0]
+        electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
+        second_quantized_ops = list(second_quantized_ops.values())
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -139,7 +141,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
         qubit_conv.convert(
-            es_problem.second_q_ops()[0],
+            es_problem.second_q_ops()[es_problem.main_property_name],
             num_particles=es_problem.num_particles,
             sector_locator=es_problem.symmetry_sector_locator,
         )
@@ -160,7 +162,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
         qubit_conv.convert(
-            es_problem.second_q_ops()[0],
+            es_problem.second_q_ops()[es_problem.main_property_name],
             num_particles=es_problem.num_particles,
             sector_locator=es_problem.symmetry_sector_locator,
         )

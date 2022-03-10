@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -92,7 +92,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         self.driver_result = driver.run()
         particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
         self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        self.h2_op = self.driver_result.second_q_ops()[0]
+        self.h2_op = self.driver_result.second_q_ops()["ElectronicEnergy"]
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""
@@ -277,7 +277,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction="auto")
         qubit_op = qubit_conv.convert(
-            problem.second_q_ops()[0],
+            problem.second_q_ops()[problem.main_property_name],
             self.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )

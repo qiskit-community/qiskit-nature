@@ -117,9 +117,9 @@ class GaussianLogResult:
         constants = []
         pattern_constants = ""
         for i in range(indices):
-            pattern_constants += fr"\s+(?P<index{i + 1}>\w+)"
+            pattern_constants += rf"\s+(?P<index{i + 1}>\w+)"
         for i in range(3):
-            pattern_constants += fr"\s+(?P<const{i + 1}>[+-]?\d+\.\d+)"
+            pattern_constants += rf"\s+(?P<const{i + 1}>[+-]?\d+\.\d+)"
 
         # Find the section of interest
         i = 0
@@ -268,7 +268,7 @@ class GaussianLogResult:
         "0.4.0",
         DeprecatedType.METHOD,
         "get_vibrational_energy",
-        "Construct a VibrationalEnergy instead of the deprecated WatsonHamiltonian directly.",
+        "Construct a VibrationalEnergy instead of the deprecated WatsonHamiltonian directly",
     )
     def get_watson_hamiltonian(self, normalize: bool = True) -> WatsonHamiltonian:
         """
