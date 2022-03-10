@@ -17,8 +17,6 @@ import logging
 from functools import partial
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-import numpy as np
-
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import OperatorBase, PauliTrotterEvolution
@@ -26,8 +24,6 @@ from qiskit.opflow import OperatorBase, PauliTrotterEvolution
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
-
-from qiskit_nature.initializers import Initializer
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
@@ -190,11 +186,13 @@ class UCC(EvolvedOperatorAnsatz):
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
+        # To give read access to the excitation list that UCC is using.
+        self._excitation_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None
+
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
         self._excitation_ops: List[SecondQuantizedOp] = None
-        self._excitation_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None
 
 
     @property
@@ -241,13 +239,13 @@ class UCC(EvolvedOperatorAnsatz):
         self._invalidate()
         self._excitations = exc
 
+    @property
     def excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """The excitation list."""
         return self._excitation_list
 
     def _invalidate(self):
         self._excitation_ops = None
-        self._excitation_list = None
         super()._invalidate()
 
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:

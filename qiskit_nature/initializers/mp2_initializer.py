@@ -13,20 +13,20 @@
 """ MP2Initializer class """
 
 import ast
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
-from .initializer import Initializer
 
-
-class MP2Initializer(Initializer):
+class MP2Initializer:
     """Moller-Plesset Initializer.
 
-    An Initializer class for using the Moller-Plesset 2nd order (MP2) corrections
-    as an initial point for VQE when using UCC(SD).
+    An initial point generator class for using the Moller-Plesset 2nd order (MP2)
+    corrections as an initial point for VQE when using UCC(SD).
 
     An MP2Initializer object can be passed to UCC(SD) as an optional argument.
     This ensures that the same excitations are used to compute the corrections.
@@ -35,16 +35,15 @@ class MP2Initializer(Initializer):
     def __init__(
         self,
         num_spin_orbitals: int,
-        orbital_energies: np.ndarray,
-        integral_matrix: np.ndarray,
-        reference_energy: Optional[float] = None,
+        electronic_energy: ElectronicEnergy,
+        excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
         threshold: float = 1e-12,
     ):
         """
         Args:
             num_spin_orbitals: Number of spin orbitals.
-            orbital energies: Electron orbital energies.
-            integral_matrix: Electronic double-excitation integral matrix.
+            electronic_energy: Electronic energy grouped property.
+            excitation_list: Sequence of excitations.
             reference_energy: The uncorrected Hartree-Fock energy.
             threshold: Computed initial point and energy deltas will be set to
                        zero if their value is below this threshold.
@@ -53,16 +52,22 @@ class MP2Initializer(Initializer):
 
         # Since spins are the same drop to MO indexing
         self._num_orbitals = num_spin_orbitals // 2
-        self._integral_matrix = integral_matrix
-        self._orbital_energies = orbital_energies
-        self._reference_energy = reference_energy
+        self._integral_matrix = electronic_energy.get_electronic_integral(
+            ElectronicBasis.MO, 2
+        ).get_matrix()
+        self._orbital_energies = electronic_energy.orbital_energies
+        self._reference_energy = electronic_energy.reference_energy
+        self._excitations = excitations
         self._threshold = threshold
 
-        # Computed with a specific excitation list.
-        self._initial_point = None
-        self._terms = None
-        self._energy_deltas = None
-        self._energy_delta = None
+        # Computed terms with a specific excitation list.
+        terms = self._compute_corrections()
+
+        self._terms = terms
+        self._excitations = terms.keys()
+        self._initial_point = np.asarray([value[0] for value in terms.values()])
+        self._e_deltas = np.asarray([value[1] for value in terms.values()])
+        self._e_delta = sum(self._e_deltas)
 
     @property
     def num_orbitals(self) -> int:
@@ -125,14 +130,6 @@ class MP2Initializer(Initializer):
         """
         return self._reference_energy
 
-    @reference_energy.setter
-    def qubit_converter(self, energy: float) -> None:
-        """Sets the reference Hartree-Fock energy for the molecule.
-        Args:
-            energy: Reference energy value.
-        """
-        self._reference_energy = energy
-
     @property
     def terms(self) -> Dict[str, Tuple[float, float]]:
         """
@@ -157,10 +154,9 @@ class MP2Initializer(Initializer):
         """
         return self._initial_point
 
-    def compute_initial_point(
+    def _compute_corrections(
         self,
-        excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Dict[str, Tuple[float, float]]:
         """Compute the MP2 coefficients and energy corrections for each double excitation.
 
         Args:
@@ -170,7 +166,7 @@ class MP2Initializer(Initializer):
             Initial point with MP2 coefficiants for doubles and zero otherwise.
         """
         terms = {}
-        for excitation in excitations:
+        for excitation in self._excitations:
             if len(excitation[0]) == 2:
                 # MP2 needs double excitations.
                 coeff, e_delta = self._compute_correction(excitation)
@@ -180,14 +176,7 @@ class MP2Initializer(Initializer):
 
             terms[str(excitation)] = (coeff, e_delta)
 
-        coeffs = np.asarray([value[0] for value in terms.values()])
-        e_deltas = np.asarray([value[1] for value in terms.values()])
-
-        self._terms = terms
-        self._initial_point = coeffs
-        self._energy_deltas = e_deltas
-        self._energy_delta = sum(e_deltas)
-        return coeffs
+        return terms
 
     def _compute_correction(
         self, excitation: Tuple[Tuple[int, ...], Tuple[int, ...]]

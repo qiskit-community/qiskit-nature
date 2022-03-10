@@ -17,7 +17,6 @@ from typing import Optional, Tuple
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.initializers import Initializer
 from .ucc import UCC
 
 

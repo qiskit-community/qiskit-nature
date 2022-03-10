@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """Qiskit Nature Initializers."""
 
-from .initializer import Initializer
 from .mp2_initializer import MP2Initializer
 
-__all__ = ["Initializer", "MP2Initializer"]
+__all__ = ["MP2Initializer"]
