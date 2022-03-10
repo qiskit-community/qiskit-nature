@@ -65,7 +65,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 initial point, which then defaults to the Hartree-Fock (HF) state when
                 the HF circuit is prepended to the beginning of the Ansatz circuit.
                 If `"MP2"` then Moller-Plesset coefficients will be used for the double
-                excitation coefficient of the initial point.
+                excitation coefficients of the initial point.
                 See :class:`~qiskit_nature.initializers.MP2Initializer` for more info.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
