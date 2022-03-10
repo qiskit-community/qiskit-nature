@@ -45,7 +45,7 @@ class TestMP2Initializer(QiskitNatureTestCase):
         num_spin_orbitals=num_spin_orbitals,
     )
     ansatz._build()
-
+    excitations = ansatz.excitation_list
     """
 
     def setUp(self):
