@@ -12,7 +12,7 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Optional, Union, Callable, cast, List, Tuple
+from typing import Optional, Union, Callable, List, Tuple, cast
 import logging
 
 import numpy as np
