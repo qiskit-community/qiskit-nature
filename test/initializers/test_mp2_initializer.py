@@ -10,13 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test MP2 Info """
+"""Test the MP2 Initializer for generating an initial point for VQE."""
 
 import unittest
 import numpy as np
 
 from ddt import ddt, file_data
-from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.drivers.molecule import Molecule
 from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_driver import (
     ElectronicStructureDriverType,
