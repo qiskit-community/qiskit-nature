@@ -238,15 +238,18 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.initial_state = initial_state
 
         initial_point = self._initial_point
-        if isinstance(initial_point, np.ndarray):
+        if not isinstance(initial_point, np.ndarray):
             # If a custom initial point is provided, keep it.
-            pass
-        elif isinstance(initial_point, str) and initial_point.lower() == "mp2":
+            # UCC ansatz must be built earlier to compute excitation list.
             ansatz._build()
             excitations = ansatz.excitation_list
-            initial_point = _get_mp2_initial_point(driver_result, excitations)
-        else:
-            initial_point = None
+            if initial_point is not None and initial_point.lower() == "mp2":
+                initial_point = _get_mp2_initial_point(driver_result, excitations)
+            else:
+                initial_point = np.zeros(len(excitations))
+
+        # Override initial point from args with computed value
+        self._initial_point = initial_point
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
@@ -254,7 +257,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             ansatz=ansatz,
             quantum_instance=self.quantum_instance,
             optimizer=self.optimizer,
-            initial_point=initial_point,
+            initial_point=self.initial_point,
             gradient=self.gradient,
             expectation=self.expectation,
             include_custom=self.include_custom,
@@ -272,6 +275,16 @@ def _get_mp2_initial_point(
     driver_result: GroupedSecondQuantizedProperty,
     excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
 ) -> np.ndarray:
+    """Get the intial point using MP2 double excitation coefficients.
+    Returns all an all-zero array of the appropriate length if it cannot be computed.
+
+    Args:
+        driver_result: the second quantization properties from the driver.
+        excitations: the list of excitations
+
+    Returns:
+        The initial point using MP2 double excitation coefficients.
+    """
     electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
     if electronic_energy is None:
         logger.warning("No ElectronicEnergy in driver result. Setting initial_point to all zeroes.")

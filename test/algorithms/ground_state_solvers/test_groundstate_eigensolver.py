@@ -539,14 +539,37 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         for truth, expected in zip(out.getvalue().split("\n"), expected.split("\n")):
             assert truth.strip().startswith(expected.strip())
 
-    # def test_vqe_ucc_with_initializer_str(self):
-    #     """Test when creating an initializer."""
+    def test_default_initial_point(self):
+        """Test when using the default initial point."""
 
-    #     solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
-    #     solver.initializer = "MP2"
-    #     calc = GroundStateEigensolver(self.qubit_converter, solver)
-    #     res = calc.solve(self.electronic_structure_problem)
-    #     self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, 0.0])
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_mp2(self):
+        """Test when using MP2Initializer to generate the initial point."""
+
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        solver.initial_point = "MP2"
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, -0.07197145])
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_bad_initial_point_string(self):
+        """Test when using a string with no mapped initializer to generate the initial point."""
+
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        solver.initial_point = "foo"
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, 0.0])
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
 
 if __name__ == "__main__":
