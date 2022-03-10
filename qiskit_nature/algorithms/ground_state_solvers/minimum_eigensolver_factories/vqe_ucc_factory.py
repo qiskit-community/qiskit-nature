@@ -92,16 +92,16 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-        self._quantum_instance = quantum_instance
-        self._optimizer = optimizer
-        self._initial_point = initial_point
-        self._gradient = gradient
-        self._expectation = expectation
-        self._include_custom = include_custom
-        self._ansatz = ansatz
-        self._initial_state = initial_state
-        self._callback = callback
-        self._kwargs = kwargs
+        self.quantum_instance = quantum_instance
+        self.optimizer = optimizer
+        self.initial_point = initial_point
+        self.gradient = gradient
+        self.expectation = expectation
+        self.include_custom = include_custom
+        self.ansatz = ansatz
+        self.initial_state = initial_state
+        self.callback = callback
+        self.kwargs = kwargs
 
     @property
     def quantum_instance(self) -> QuantumInstance:
