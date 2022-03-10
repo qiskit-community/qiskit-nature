@@ -23,10 +23,10 @@ from qiskit_nature.properties.second_quantization.electronic.bases import Electr
 
 
 class MP2Initializer:
-    """Moller-Plesset Initializer.
+    """Moller-Plesset 2nd order initial point generator.
 
-    An initial point generator class for using the Moller-Plesset 2nd order (MP2)
-    corrections as an initial point for VQE when using UCC(SD).
+    A class for computing the Moller-Plesset 2nd order (MP2)
+    corrections to use as an initial point for VQE when using UCC(SD).
 
     An MP2Initializer object can be passed to UCC(SD) as an optional argument.
     This ensures that the same excitations are used to compute the corrections.
@@ -66,8 +66,8 @@ class MP2Initializer:
         self._terms = terms
         self._excitations = terms.keys()
         self._initial_point = np.asarray([value[0] for value in terms.values()])
-        self._e_deltas = np.asarray([value[1] for value in terms.values()])
-        self._e_delta = sum(self._e_deltas)
+        self._energy_deltas = np.asarray([value[1] for value in terms.values()])
+        self._energy_delta = sum(self._energy_deltas)
 
     @property
     def num_orbitals(self) -> int:

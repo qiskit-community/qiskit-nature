@@ -194,7 +194,6 @@ class UCC(EvolvedOperatorAnsatz):
         # same reason!
         self._excitation_ops: List[SecondQuantizedOp] = None
 
-
     @property
     def qubit_converter(self) -> QubitConverter:
         """The qubit operator converter."""
@@ -413,7 +412,6 @@ class UCC(EvolvedOperatorAnsatz):
                 raise QiskitNatureError(
                     error_message.format(error="Duplicated indices", excitation=excitation)
                 )
-
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the

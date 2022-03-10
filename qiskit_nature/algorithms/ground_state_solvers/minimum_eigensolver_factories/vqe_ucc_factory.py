@@ -37,6 +37,7 @@ from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 logger = logging.getLogger(__name__)
 
+
 class VQEUCCFactory(MinimumEigensolverFactory):
     """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction."""
 
@@ -276,8 +277,8 @@ def _get_mp2_initial_point(
     if electronic_energy is None:
         logger.warn("No ElectronicEnergy in driver result. Setting initial_point to all zeroes.")
         return np.zeros(len(excitations))
-    else:
-        particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
-        num_spin_orbitals = particle_number.num_spin_orbitals
-        mp2_initializer = MP2Initializer(num_spin_orbitals, electronic_energy, excitations)
-        return mp2_initializer.initial_point
+
+    particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
+    num_spin_orbitals = particle_number.num_spin_orbitals
+    mp2_initializer = MP2Initializer(num_spin_orbitals, electronic_energy, excitations)
+    return mp2_initializer.initial_point
