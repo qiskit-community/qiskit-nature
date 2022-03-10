@@ -100,19 +100,13 @@ class TestMP2Initializer(QiskitNatureTestCase):
             )
 
         with self.subTest("Test MP2 coefficients"):
-            np.testing.assert_array_almost_equal(
-                mp2_init.initial_point, initial_point, decimal=6
-            )
+            np.testing.assert_array_almost_equal(mp2_init.initial_point, initial_point, decimal=6)
 
         with self.subTest("Test MP2 energy corrections"):
-            np.testing.assert_array_almost_equal(
-                mp2_init.energy_deltas, energy_deltas, decimal=6
-            )
+            np.testing.assert_array_almost_equal(mp2_init.energy_deltas, energy_deltas, decimal=6)
 
         with self.subTest("test overall energy correction"):
-            np.testing.assert_array_almost_equal(
-                mp2_init.energy_delta, energy_delta, decimal=6
-            )
+            np.testing.assert_array_almost_equal(mp2_init.energy_delta, energy_delta, decimal=6)
 
         with self.subTest("test absolute energy"):
             np.testing.assert_array_almost_equal(
