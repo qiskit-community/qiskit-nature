@@ -38,7 +38,7 @@ class MP2Initializer:
         electronic_energy: ElectronicEnergy,
         excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
         threshold: float = 1e-12,
-    ):
+    ) -> None:
         """
         Args:
             num_spin_orbitals: Number of spin orbitals.
@@ -163,7 +163,7 @@ class MP2Initializer:
             excitations: Sequence of excitations.
 
         Returns:
-            Initial point with MP2 coefficiants for doubles and zero otherwise.
+            Initial point with MP2 coefficients for doubles and zero otherwise.
         """
         terms = {}
         for excitation in self._excitations:
