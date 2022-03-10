@@ -13,3 +13,4 @@
 """Models"""
 from .fermi_hubbard_model import FermiHubbardModel
 from .ising_model import IsingModel
+from .heisenberg_model import HeisenbergModel

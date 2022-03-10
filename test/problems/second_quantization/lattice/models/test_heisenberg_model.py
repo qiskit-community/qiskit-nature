@@ -14,12 +14,10 @@
 
 from typing import cast
 from test import QiskitNatureTestCase
-
-import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
-
-from qiskit_nature.problems.second_quantization.lattice import HeisenbergModel, IsingModel, Lattice
+from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
+from qiskit_nature.problems.second_quantization.lattice.models import HeisenbergModel, IsingModel
 
 
 class TestHeisenbergModel(QiskitNatureTestCase):
@@ -38,7 +36,9 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         lattice = Lattice(graph)
         ism_lattice = Lattice(ism_graph)
         hm = HeisenbergModel(lattice)
-        hm_to_ism = HeisenbergModel(ism_lattice)
+        model_constants = {"J_x": 0, "J_y": 0, "J_z": 1, "h": 1}
+        ext_magnetic_field = {"B_x": True, "B_y": False, "B_z": False}
+        hm_to_ism = HeisenbergModel(ism_lattice, model_constants, ext_magnetic_field)
         ism = IsingModel(ism_lattice)
 
         with self.subTest("Check the graph."):
@@ -56,10 +56,8 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         with self.subTest(
             "Check if, in a special case, the second q op produced by HeisenbergModel matches with those produced by IsingModel"
         ):
-            model_constants = {"J_x": 0, "J_y": 0, "J_z": 1, "h": 1}
-            ext_magnetic_field = {"B_x": True, "B_y": False, "B_z": False}
 
             self.assertSetEqual(
                 set(ism.second_q_ops().to_list()),
-                set(hm_to_ism.second_q_ops(model_constants, ext_magnetic_field).to_list()),
+                set(hm_to_ism.second_q_ops().to_list()),
             )
