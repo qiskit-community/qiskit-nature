@@ -101,7 +101,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.ansatz = ansatz
         self.initial_state = initial_state
         self.callback = callback
-        self.kwargs = kwargs
+        self._kwargs = kwargs
 
     @property
     def quantum_instance(self) -> QuantumInstance:
