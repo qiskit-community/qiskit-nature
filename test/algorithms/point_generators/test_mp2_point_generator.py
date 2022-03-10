@@ -13,6 +13,8 @@
 """Test the MP2 Initializer for generating an initial point for VQE."""
 
 import unittest
+from test import QiskitNatureTestCase
+
 import numpy as np
 
 from ddt import ddt, file_data
@@ -26,13 +28,12 @@ from qiskit_nature.problems.second_quantization.electronic.electronic_structure_
     ElectronicStructureProblem,
 )
 
-from test import QiskitNatureTestCase
 from qiskit_nature.settings import settings
-from qiskit_nature.initializers import MP2Initializer
+from qiskit_nature.algorithms import MP2PointGenerator
 
 
 @ddt
-class TestMP2Initializer(QiskitNatureTestCase):
+class TestMP2PointGenerator(QiskitNatureTestCase):
     """Test MP2 initializer class.
 
     Full excitation sequences generated using:
@@ -49,11 +50,10 @@ class TestMP2Initializer(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-
         settings.dict_aux_operators = True
 
-    @file_data("./resources/test_data_mp2_initializer.json")
-    def test_mp2_initializer(
+    @file_data("./resources/test_data_mp2_point_generator.json")
+    def test_mp2_point_generator(
         self,
         atom1,
         atom2,
@@ -64,6 +64,8 @@ class TestMP2Initializer(QiskitNatureTestCase):
         absolute_energy,
         excitations,
     ):
+        """Test MP2 Initializer."""
+
         molecule = Molecule(geometry=[[atom1, [0.0, 0.0, 0.0]], [atom2, [0.0, 0.0, distance]]])
 
         try:
@@ -87,7 +89,7 @@ class TestMP2Initializer(QiskitNatureTestCase):
 
         # In practice need to build ansatz to generate excitations
         # for unit tests, load these from file
-        mp2_init = MP2Initializer(
+        mp2_init = MP2PointGenerator(
             num_spin_orbitals,
             electronic_energy,
             excitations,

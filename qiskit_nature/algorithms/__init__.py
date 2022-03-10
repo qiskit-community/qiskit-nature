@@ -120,6 +120,7 @@ from .ground_state_solvers import (
     VQEUVCCFactory,
 )
 from .pes_samplers import BOPESSampler
+from .point_generators import MP2PointGenerator
 
 __all__ = [
     "ExcitedStatesEigensolver",
@@ -135,4 +136,5 @@ __all__ = [
     "VQEUCCFactory",
     "VQEUVCCFactory",
     "BOPESSampler",
+    "MP2PointGenerator",
 ]

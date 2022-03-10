@@ -30,11 +30,11 @@ from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber, ElectronicEnergy
-from qiskit_nature.initializers import MP2Initializer
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
 
+from ...point_generators import MP2PointGenerator
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 the HF circuit is prepended to the beginning of the Ansatz circuit.
                 If `"MP2"` then Moller-Plesset coefficients will be used for the double
                 excitation coefficients of the initial point.
-                See :class:`~qiskit_nature.initializers.MP2Initializer` for more info.
+                See :class:`~qiskit_nature.algorithms.MP2PointGenerator` for more info.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -282,5 +282,5 @@ def _get_mp2_initial_point(
 
     particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
     num_spin_orbitals = particle_number.num_spin_orbitals
-    mp2_initializer = MP2Initializer(num_spin_orbitals, electronic_energy, excitations)
-    return mp2_initializer.initial_point
+    mp2_point_generator = MP2PointGenerator(num_spin_orbitals, electronic_energy, excitations)
+    return mp2_point_generator.initial_point
