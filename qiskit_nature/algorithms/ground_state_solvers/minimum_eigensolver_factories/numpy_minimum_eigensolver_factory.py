@@ -72,9 +72,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self._use_default_filter_criterion = value
 
     def get_solver(
-        self,
-        problem: BaseProblem,
-        qubit_converter: QubitConverter,
+        self, problem: BaseProblem, qubit_converter: QubitConverter
     ) -> MinimumEigensolver:
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``problem``.
