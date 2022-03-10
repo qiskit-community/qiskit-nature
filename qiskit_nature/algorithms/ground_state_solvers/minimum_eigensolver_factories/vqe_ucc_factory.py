@@ -16,6 +16,7 @@ from typing import Optional, Union, Callable, cast, List, Tuple
 import logging
 
 import numpy as np
+
 from qiskit.algorithms import MinimumEigensolver, VQE
 from qiskit.algorithms.optimizers import Optimizer
 from qiskit.circuit import QuantumCircuit
@@ -29,10 +30,11 @@ from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber, ElectronicEnergy
-from qiskit_nature.initializers import MP2Initializer, mp2_initializer
+from qiskit_nature.initializers import MP2Initializer
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
+
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 logger = logging.getLogger(__name__)
@@ -214,9 +216,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             problem: a class encoding a problem to be solved.
             qubit_converter: a class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with
-            initializer: An `Initializer` object to modify the initial point for the
-                         `MinimumEigensolver`. If a string is passed the appropriate Initializer
-                         will be generated.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.
@@ -275,7 +274,7 @@ def _get_mp2_initial_point(
 ) -> np.ndarray:
     electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
     if electronic_energy is None:
-        logger.warn("No ElectronicEnergy in driver result. Setting initial_point to all zeroes.")
+        logger.warning("No ElectronicEnergy in driver result. Setting initial_point to all zeroes.")
         return np.zeros(len(excitations))
 
     particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))

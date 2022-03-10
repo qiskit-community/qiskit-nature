@@ -17,7 +17,6 @@ import copy
 import io
 import unittest
 import warnings
-from qiskit_nature.initializers.mp2_initializer import MP2Initializer
 
 from test import QiskitNatureTestCase
 
