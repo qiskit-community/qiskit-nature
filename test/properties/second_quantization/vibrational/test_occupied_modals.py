@@ -38,7 +38,7 @@ class TestOccupiedModals(PropertyTest):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = self.prop.second_q_ops()
+        ops = [self.prop.second_q_ops()["0"]]
         expected = [
             [("NIIIIIIII", (1 + 0j)), ("INIIIIIII", (1 + 0j))],
             [("IINIIIIII", (1 + 0j)), ("IIINIIIII", (1 + 0j)), ("IIIINIIII", (1 + 0j))],

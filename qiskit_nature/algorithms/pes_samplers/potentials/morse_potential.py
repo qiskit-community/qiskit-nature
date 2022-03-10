@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -198,7 +198,7 @@ class MorsePotential(PotentialBase):
         m_r = (self._m_a * self._m_b) / (self._m_a + self._m_b)
 
         # omega_0 in units rad/s converted to 1/s by dividing by 2Pi
-        omega_0 = np.sqrt((2 * d_e * alp ** 2) / m_r) / (2 * np.pi)
+        omega_0 = np.sqrt((2 * d_e * alp**2) / m_r) / (2 * np.pi)
 
         # fundamental frequency in s**-1
         return omega_0

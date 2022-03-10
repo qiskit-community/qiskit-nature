@@ -34,6 +34,7 @@ from .integrals import (
     TwoBodyElectronicIntegrals,
 )
 from .types import ElectronicProperty
+from ....deprecation import deprecate_method
 
 LOGGER = logging.getLogger(__name__)
 
@@ -151,6 +152,7 @@ class AngularMomentum(ElectronicProperty):
         )
 
     @classmethod
+    @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> AngularMomentum:
         """Construct an AngularMomentum instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
