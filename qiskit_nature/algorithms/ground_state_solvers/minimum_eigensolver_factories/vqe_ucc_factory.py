@@ -134,12 +134,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._initializer = initializer
 
     @property
-    def initial_point(self) -> np.ndarray:
+    def initial_point(self) -> Optional[Union[np.ndarray, str]]:
         """Getter of the initial point."""
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: np.ndarray) -> None:
+    def initial_point(self, initial_point: Optional[Union[np.ndarray, str]]) -> None:
         """Setter of the initial point."""
         self._initial_point = initial_point
 
