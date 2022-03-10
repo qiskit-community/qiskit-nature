@@ -215,7 +215,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Args:
             problem: a class encoding a problem to be solved.
             qubit_converter: a class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with
+                             according to a mapper it is initialized with.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.
