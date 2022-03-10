@@ -171,8 +171,6 @@ class UCC(EvolvedOperatorAnsatz):
                 setting does _not_ influence the `excitations`. When relying on the default
                 generation method (i.e. not providing a `Callable` to `excitations`), these will
                 always be constructed with respect to a `HartreeFock` reference state.
-            initializer: An `Initializer` object to generate a preferred initial point.
-                         By default this is None and an all-zero preferred initial point is set.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles

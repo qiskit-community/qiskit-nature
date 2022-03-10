@@ -12,7 +12,6 @@
 
 """The MP2 Initializer class for generating an initial point for VQE."""
 
-import ast
 from typing import Dict, List, Tuple
 
 import numpy as np
@@ -49,8 +48,7 @@ class MP2Initializer:
         Args:
             num_spin_orbitals: Number of spin orbitals.
             electronic_energy: Electronic energy grouped property.
-            excitation_list: Sequence of excitations.
-            reference_energy: The uncorrected Hartree-Fock energy.
+            excitations: Sequence of excitations.
             threshold: Computed initial point and energy deltas will be set to
                 zero if their value is below this threshold.
         """
@@ -70,7 +68,6 @@ class MP2Initializer:
         terms = self._compute_corrections()
 
         self._terms = terms
-        self._excitations = terms.keys()
         self._initial_point = np.asarray([value[0] for value in terms.values()])
         self._energy_deltas = np.asarray([value[1] for value in terms.values()])
         self._energy_delta = sum(self._energy_deltas)
@@ -150,10 +147,10 @@ class MP2Initializer:
         Returns:
             Sequence of excitations.
         """
-        return [_string_to_tuple(key) for key in self._terms]
+        return self._excitations
 
     @property
-    def initial_point(self) -> List[float]:
+    def initial_point(self) -> np.ndarray:
         """
         Returns:
             The MP2 coefficients as an initial_point.
@@ -228,14 +225,3 @@ class MP2Initializer:
         e_delta = e_delta if abs(e_delta) > self._threshold else 0
 
         return (coeff, e_delta)
-
-
-def _string_to_tuple(excitation_str: str) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
-    """
-    Args:
-        excitation_str: Excitations as a string.
-
-    Returns:
-        Excitations as a list of tuples.
-    """
-    return tuple(ast.literal_eval(excitation_str))

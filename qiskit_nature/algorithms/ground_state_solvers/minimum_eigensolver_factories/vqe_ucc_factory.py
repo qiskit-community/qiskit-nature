@@ -275,7 +275,7 @@ def _get_mp2_initial_point(
     driver_result: GroupedSecondQuantizedProperty,
     excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
 ) -> np.ndarray:
-    """Get the intial point using MP2 double excitation coefficients.
+    """Get the initial point using MP2 double excitation coefficients.
     Returns all an all-zero array of the appropriate length if it cannot be computed.
 
     Args:
