@@ -1,0 +1,27 @@
+features:
+  - |
+    Adds a class to compute the Moller-Plesset 2nd Order corrections. The
+    corresponding double-excitation coefficients are intended to be used as
+    an initial point for VQE when using a UCC ansatz. This should introduce
+    an initial point that is closer to the ground state point, leading to fewer
+    overall evaluations for VQE.
+
+    To instantiate `~qiskit_nature.initializer.MP2Initializer`, it requires the
+    number of spin orbitals, the electronic energy, and the excitation lists
+    from the second-quantized properties returned by the driver.
+
+    If using a :class:`~qiskit_nature.algorithms.VQEUCCfactory`, one can set
+    `initial_point="MP2"` and the `~qiskit_nature.initializer.MP2Initializer`
+    object will be built within the factory using the same excitations as
+    `~qiskit_nature.circuit.library.UCC` automatically. This initial point will
+    then be passed to VQE.
+
+    Outside of the factory, one can pass the initial point for VQE by manually
+    getting the excitation list from UCC and instantiating
+    `~qiskit_nature.initializer.MP2Initializer` with it and the relevent
+    results from the driver.
+
+    If, for any reason, the computation can't be completed (e.g., missing
+    electronic energy) the all-zero point will be returned, which in practice
+    corresponds to the HF state when the HF circuit is prepended to the ansatz,
+    as is the default for UCC ansatzes.
