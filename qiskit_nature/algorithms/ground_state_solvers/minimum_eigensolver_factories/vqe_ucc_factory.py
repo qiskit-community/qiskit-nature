@@ -208,7 +208,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                              according to a mapper it is initialized with.
 
         Raises:
-            ValueError: for unrecognised initial point strings.
+            ValueError: for unrecognized initial point strings.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.
