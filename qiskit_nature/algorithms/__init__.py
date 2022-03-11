@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -100,6 +100,16 @@ of various potentials. More detail may be found in the sub-module linked below
    :toctree:
 
    pes_samplers
+
+Point generators.
++++++++++++++++++++++++++++++++++
+Algorithms that can compute initial points to use with particular ansatz.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   ~MP2PointGenerator
 
 """
 
