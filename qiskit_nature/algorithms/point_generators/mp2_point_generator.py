@@ -20,8 +20,10 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
+from .point_generator import PointGenerator
 
-class MP2PointGenerator:
+
+class MP2PointGenerator(PointGenerator):
     """Moller-Plesset 2nd order (MP2) initial point generator.
 
     A class for computing the Moller-Plesset 2nd order (MP2) corrections to use

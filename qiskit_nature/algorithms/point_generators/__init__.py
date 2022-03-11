@@ -16,10 +16,19 @@ Point Generators
 (:mod:`qiskit_nature.algorithms.point_generators`)
 ====================================================================================
 
-Factories that create a minimum eigensolver based on a qubit transformation.
+Algorithms that can compute initial points to use with particular ansatzes.
 
 .. currentmodule:: qiskit_nature.algorithms.point_generators
 
+The initial point generator interface.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   PointGenerator
+
+The MP2 initial point generator.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -29,6 +38,7 @@ Factories that create a minimum eigensolver based on a qubit transformation.
 
 """
 
+from .point_generator import PointGenerator
 from .mp2_point_generator import MP2PointGenerator
 
-__all__ = ["MP2PointGenerator"]
+__all__ = ["PointGenerator", "MP2PointGenerator"]

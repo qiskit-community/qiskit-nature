@@ -103,7 +103,7 @@ of various potentials. More detail may be found in the sub-module linked below
 
 Point generators.
 +++++++++++++++++++++++++++++++++
-Algorithms that can compute initial points to use with particular ansatz.
+Algorithms that can compute initial points to use with particular ansatzes.
 
 .. autosummary::
    :toctree: ../stubs/
