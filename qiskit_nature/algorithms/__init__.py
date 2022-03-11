@@ -105,11 +105,23 @@ Point generators.
 +++++++++++++++++++++++++++++++++
 Algorithms that can compute initial points to use with particular ansatzes.
 
+.. currentmodule:: qiskit_nature.algorithms.point_generators
+
+The initial point generator interface.
+
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
-   ~MP2PointGenerator
+   PointGenerator
+
+The MP2 initial point generator.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MP2PointGenerator
 
 """
 
@@ -130,7 +142,7 @@ from .ground_state_solvers import (
     VQEUVCCFactory,
 )
 from .pes_samplers import BOPESSampler
-from .point_generators import MP2PointGenerator
+from .point_generators import PointGenerator, MP2PointGenerator
 
 __all__ = [
     "ExcitedStatesEigensolver",
@@ -146,5 +158,6 @@ __all__ = [
     "VQEUCCFactory",
     "VQEUVCCFactory",
     "BOPESSampler",
+    "PointGenerator",
     "MP2PointGenerator",
 ]
