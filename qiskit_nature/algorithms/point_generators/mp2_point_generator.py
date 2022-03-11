@@ -67,17 +67,12 @@ class MP2PointGenerator(PointGenerator):
         self._excitations = excitations
         self._threshold = threshold
 
-        try:
-            self._terms = self._compute_corrections()
-            self._initial_point = np.asarray([value[0] for value in self._terms.values()])
-            self._energy_deltas = np.asarray([value[1] for value in self._terms.values()])
-            self._energy_delta = sum(self._energy_deltas)
-        except TypeError:
-            # If MP2 calculation fails due to missing driver information.
-            self._terms = None
-            self._initial_point = None
-            self._energy_deltas = None
-            self._energy_deltas = None
+        self._validate_input()
+
+        self._terms = self._compute_corrections()
+        self._initial_point = np.asarray([value[0] for value in self._terms.values()])
+        self._energy_deltas = np.asarray([value[1] for value in self._terms.values()])
+        self._energy_delta = sum(self._energy_deltas)
 
     @property
     def num_orbitals(self) -> int:
@@ -227,3 +222,15 @@ class MP2PointGenerator(PointGenerator):
         e_delta = e_delta if abs(e_delta) > self._threshold else 0
 
         return (coeff, e_delta)
+
+    def _validate_input(self) -> None:
+        """Check electronic energy has the necessary properties."""
+
+        if self._orbital_energies is None:
+            raise ValueError("Orbital energies cannot be None.")
+
+        if self._reference_energy is None:
+            raise ValueError("Reference energy cannot be None.")
+
+        if self._integral_matrix is None:
+            raise ValueError("Integral matrix cannot be None.")
