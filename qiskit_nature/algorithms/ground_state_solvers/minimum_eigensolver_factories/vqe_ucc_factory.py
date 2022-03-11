@@ -236,10 +236,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             if initial_point.lower() == "mp2":
                 initial_point = _get_mp2_initial_point(driver_result, excitations)
             else:
-                logger.warning(
-                    "Initial point string not recognised. Setting initial_point to None."
-                )
-                initial_point = None
+                raise ValueError(f"Initial point `{initial_point}` not recognised.")
 
         # Override initial point from args with computed value
         self.initial_point = initial_point
@@ -279,11 +276,6 @@ def _get_mp2_initial_point(
         The initial point using MP2 double excitation coefficients.
     """
     electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
-    if electronic_energy is None:
-        # TODO test me
-        logger.warning("No ElectronicEnergy in driver result. Setting initial_point to all zeroes.")
-        return np.zeros(len(excitations))
-
     particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
     num_spin_orbitals = particle_number.num_spin_orbitals
     mp2_point_generator = MP2PointGenerator(num_spin_orbitals, electronic_energy, excitations)

@@ -16,7 +16,6 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
@@ -38,6 +37,8 @@ class MP2PointGenerator(PointGenerator):
     Only initial point values that correspond to double-excitations will be
     non-zero.
     """
+
+    # TODO Add benchmark to see if using MP2 initial point results in fewer evaluations.
 
     def __init__(
         self,
@@ -66,13 +67,17 @@ class MP2PointGenerator(PointGenerator):
         self._excitations = excitations
         self._threshold = threshold
 
-        # Computed terms with a specific excitation list.
-        terms = self._compute_corrections()
-
-        self._terms = terms
-        self._initial_point = np.asarray([value[0] for value in terms.values()])
-        self._energy_deltas = np.asarray([value[1] for value in terms.values()])
-        self._energy_delta = sum(self._energy_deltas)
+        try:
+            self._terms = self._compute_corrections()
+            self._initial_point = np.asarray([value[0] for value in self._terms.values()])
+            self._energy_deltas = np.asarray([value[1] for value in self._terms.values()])
+            self._energy_delta = sum(self._energy_deltas)
+        except TypeError:
+            # If MP2 calculation fails due to missing driver information.
+            self._terms = None
+            self._initial_point = None
+            self._energy_deltas = None
+            self._energy_deltas = None
 
     @property
     def num_orbitals(self) -> int:
@@ -117,14 +122,9 @@ class MP2PointGenerator(PointGenerator):
     @property
     def absolute_energy(self) -> float:
         """
-        Raises:
-            QiskitNatureError: If reference energy is not set.
-
         Returns:
             The absolute MP2 energy for the molecule.
         """
-        if self._reference_energy is None:
-            raise QiskitNatureError("Reference energy not set.")
         return self._reference_energy + self._energy_delta
 
     @property

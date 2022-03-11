@@ -89,30 +89,33 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
 
         # In practice need to build ansatz to generate excitations
         # for unit tests, load these from file
-        mp2_init = MP2PointGenerator(
+        mp2 = MP2PointGenerator(
             num_spin_orbitals,
             electronic_energy,
             excitations,
         )
 
-        with self.subTest("test num spin orbitals"):
+        with self.subTest("Test number of molecular orbitals"):
             np.testing.assert_array_almost_equal(
-                mp2_init.num_spin_orbitals, num_spin_orbitals, decimal=6
+                mp2.num_orbitals, num_spin_orbitals // 2, decimal=6
             )
 
-        with self.subTest("Test MP2 coefficients"):
-            np.testing.assert_array_almost_equal(mp2_init.initial_point, initial_point, decimal=6)
-
-        with self.subTest("Test MP2 energy corrections"):
-            np.testing.assert_array_almost_equal(mp2_init.energy_deltas, energy_deltas, decimal=6)
-
-        with self.subTest("test overall energy correction"):
-            np.testing.assert_array_almost_equal(mp2_init.energy_delta, energy_delta, decimal=6)
-
-        with self.subTest("test absolute energy"):
+        with self.subTest("Test number of spin orbitals"):
             np.testing.assert_array_almost_equal(
-                mp2_init.absolute_energy, absolute_energy, decimal=6
+                mp2.num_spin_orbitals, num_spin_orbitals, decimal=6
             )
+
+        with self.subTest("Test MP2 initial points"):
+            np.testing.assert_array_almost_equal(mp2.initial_point, initial_point, decimal=6)
+
+        with self.subTest("Test MP2 energy deltas"):
+            np.testing.assert_array_almost_equal(mp2.energy_deltas, energy_deltas, decimal=6)
+
+        with self.subTest("Test overall energy delta"):
+            np.testing.assert_array_almost_equal(mp2.energy_delta, energy_delta, decimal=6)
+
+        with self.subTest("Test absolute energy"):
+            np.testing.assert_array_almost_equal(mp2.absolute_energy, absolute_energy, decimal=6)
 
 
 if __name__ == "__main__":

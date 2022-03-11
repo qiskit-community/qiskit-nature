@@ -559,20 +559,16 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, -0.07197145])
-        # TODO Add benchmark to see if using MP2 initial point results in fewer evaluations.
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_factory_with_bad_initial_point_string(self):
         """Test when using a string with no mapped initializer to generate the initial point."""
-
-        solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")), initial_point="foo"
-        )
-        calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res = calc.solve(self.electronic_structure_problem)
-
-        self.assertIsNone(solver.initial_point)
-        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+        with self.assertRaises(ValueError):
+            solver = VQEUCCFactory(
+                QuantumInstance(BasicAer.get_backend("statevector_simulator")), initial_point="foo"
+            )
+            calc = GroundStateEigensolver(self.qubit_converter, solver)
+            calc.solve(self.electronic_structure_problem)
 
 
 if __name__ == "__main__":
