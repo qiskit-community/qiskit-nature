@@ -227,19 +227,22 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
 
-        initial_point = self._initial_point
-        if not isinstance(initial_point, np.ndarray):
-            # If a custom initial point is provided, keep it.
+        initial_point = self.initial_point
+        if initial_point is not None and not isinstance(initial_point, np.ndarray):
+            # If a custom initial point is provided or it's None, pass.
             # UCC ansatz must be built earlier to compute excitation list.
             ansatz._build()
             excitations = ansatz.excitation_list
-            if initial_point is not None and initial_point.lower() == "mp2":
+            if initial_point.lower() == "mp2":
                 initial_point = _get_mp2_initial_point(driver_result, excitations)
             else:
-                initial_point = np.zeros(len(excitations))
+                logger.warning(
+                    "Initial point string not recognised. Setting initial_point to None."
+                )
+                initial_point = None
 
         # Override initial point from args with computed value
-        self._initial_point = initial_point
+        self.initial_point = initial_point
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
@@ -277,6 +280,7 @@ def _get_mp2_initial_point(
     """
     electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
     if electronic_energy is None:
+        # TODO test me
         logger.warning("No ElectronicEnergy in driver result. Setting initial_point to all zeroes.")
         return np.zeros(len(excitations))
 
