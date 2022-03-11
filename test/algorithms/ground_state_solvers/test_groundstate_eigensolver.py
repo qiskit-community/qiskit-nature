@@ -559,7 +559,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, -0.07197145])
-        # TODO Add benchmark to see if using MP2 initial point results in fewer evals.
+        # TODO Add benchmark to see if using MP2 initial point results in fewer evaluations.
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_factory_with_bad_initial_point_string(self):
