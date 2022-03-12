@@ -76,13 +76,20 @@ class ElectronicStructureDriverType(Enum):
                 raise error
         else:
             driver_module = importlib.import_module("qiskit_nature.drivers.second_quantization")
-            driver_class = getattr(driver_module, driver_type.value, None)
-            if driver_class is None:
+            class_obj = getattr(driver_module, driver_type.value, None)
+            if class_obj is None:
                 raise MissingOptionalLibraryError(
                     libname=driver_type, name="ElectronicStructureDriverType"
                 )
+<<<<<<< HEAD
             driver_class.check_installed()  # type: ignore
             driver_class.check_method_supported(method)  # type: ignore
+=======
+            # instantiating the object will check if the driver is installed
+            _ = class_obj()
+            class_obj.check_method_supported(method)
+            driver_class = class_obj
+>>>>>>> 84d267b (Fix new mypy errors (#596))
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
