@@ -61,17 +61,13 @@ class HeisenbergModel(LatticeModel):
             if self.model_constants is None:
                 self.model_constants = {"J_x": 1, "J_y": 1, "J_z": 1, "h": 0}
         else:
-            raise ValueError(
-                f"model_constants must be None or a dict, but was given a {type(self.model_constants)}"
-            )
+            raise ValueError("model_constants must be None or a dict.")
 
         if self.ext_magnetic_field is None or isinstance(self.ext_magnetic_field, dict):
             if self.ext_magnetic_field is None:
                 self.ext_magnetic_field = {"B_x": False, "B_y": False, "B_z": False}
         else:
-            raise ValueError(
-                f"ext_magnetic_field must be None or a dict, but was given a {type(self.ext_magnetic_field)}"
-            )
+            raise ValueError("ext_magnetic_field must be None or a dict.")
 
         hamiltonian = []
         weighted_edge_list = self.lattice.weighted_edge_list
