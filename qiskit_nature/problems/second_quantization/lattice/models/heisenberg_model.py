@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -32,10 +32,8 @@ class HeisenbergModel(LatticeModel):
     ) -> None:
         """
         Args:
-            model_constants: The constants that define the model
-                    (Default configuration: {"J_x" = 1, "J_y" = 1, "J_z" = 1, "h" = 0}).
-            ext_magnetic_field: The direction we have the presence of the
-                    external magnetic field (Default configuration: {"B_x" = False, "B_y" = False, "B_z" = False}).
+            model_constants: The constants that define the model.
+            ext_magnetic_field: Tell us which direction we have the external magnetic field.
         """
         super().__init__(lattice)
         self.model_constants = model_constants

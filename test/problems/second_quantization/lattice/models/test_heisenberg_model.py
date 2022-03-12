@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,9 +12,7 @@
 
 """Test HeisenbergModel."""
 
-from typing import cast
 from test import QiskitNatureTestCase
-from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 from qiskit_nature.problems.second_quantization.lattice.models import HeisenbergModel, IsingModel
@@ -31,11 +29,11 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         graph.add_edges_from(weighted_edge_list)
         ism_graph = PyGraph(multigraph=False)
         ism_graph.add_nodes_from(range(2))
-        ism_weighted_edge_list = [(0, 1, 1.0), (0, 0, 1.0), (1, 1, 1.0)]
+        ism_weighted_edge_list = [(0, 1, -1.0), (0, 0, -1.0), (1, 1, -1.0)]
         ism_graph.add_edges_from(ism_weighted_edge_list)
         lattice = Lattice(graph)
         ism_lattice = Lattice(ism_graph)
-        hm = HeisenbergModel(lattice)
+        heisenberg_model = HeisenbergModel(lattice)
         model_constants = {"J_x": 0, "J_y": 0, "J_z": 1, "h": 1}
         ext_magnetic_field = {"B_x": True, "B_y": False, "B_z": False}
         hm_to_ism = HeisenbergModel(ism_lattice, model_constants, ext_magnetic_field)
@@ -43,7 +41,9 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
         with self.subTest("Check the graph."):
             self.assertTrue(
-                is_isomorphic(hm.lattice.graph, lattice.graph, edge_matcher=lambda x, y: x == y)
+                is_isomorphic(
+                    heisenberg_model.lattice.graph, lattice.graph, edge_matcher=lambda x, y: x == y
+                )
             )
 
         with self.subTest("Check the second q op representation."):
@@ -51,11 +51,9 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
             hamiltonian = coupling
 
-            self.assertSetEqual(set(hamiltonian), set(hm.second_q_ops().to_list()))
+            self.assertSetEqual(set(hamiltonian), set(heisenberg_model.second_q_ops().to_list()))
 
-        with self.subTest(
-            "Check if, in a special case, the second q op produced by HeisenbergModel matches with those produced by IsingModel"
-        ):
+        with self.subTest("Check if the HeisenbergModel reproduce IsingModel in a special case."):
 
             self.assertSetEqual(
                 set(ism.second_q_ops().to_list()),
