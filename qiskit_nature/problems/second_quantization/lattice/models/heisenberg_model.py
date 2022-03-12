@@ -62,9 +62,7 @@ class HeisenbergModel(LatticeModel):
                 self.model_constants = {"J_x": 1, "J_y": 1, "J_z": 1, "h": 0}
         else:
             raise ValueError(
-                "model_constants must be None or a dict, but was given a {}".format(
-                    type(self.model_constants)
-                )
+                f"model_constants must be None or a dict, but was given a {type(self.model_constants)}"
             )
 
         if self.ext_magnetic_field is None or isinstance(self.ext_magnetic_field, dict):
@@ -72,9 +70,7 @@ class HeisenbergModel(LatticeModel):
                 self.ext_magnetic_field = {"B_x": False, "B_y": False, "B_z": False}
         else:
             raise ValueError(
-                "ext_magnetic_field must be None or a dict, but was given a {}".format(
-                    type(self.ext_magnetic_field)
-                )
+                f"ext_magnetic_field must be None or a dict, but was given a {type(self.ext_magnetic_field)}"
             )
 
         hamiltonian = []
