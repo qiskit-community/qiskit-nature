@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -81,15 +81,9 @@ class ElectronicStructureDriverType(Enum):
                 raise MissingOptionalLibraryError(
                     libname=driver_type, name="ElectronicStructureDriverType"
                 )
-<<<<<<< HEAD
-            driver_class.check_installed()  # type: ignore
-            driver_class.check_method_supported(method)  # type: ignore
-=======
-            # instantiating the object will check if the driver is installed
-            _ = class_obj()
+            class_obj.check_installed()
             class_obj.check_method_supported(method)
             driver_class = class_obj
->>>>>>> 84d267b (Fix new mypy errors (#596))
 
         logger.debug("%s found from type %s.", driver_class.__name__, driver_type.value)
         return driver_class
