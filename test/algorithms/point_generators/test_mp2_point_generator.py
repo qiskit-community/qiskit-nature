@@ -13,17 +13,18 @@
 """Test the MP2 Initializer for generating an initial point for VQE."""
 
 import unittest
+
 from test import QiskitNatureTestCase
 
 import numpy as np
-
 from ddt import ddt, file_data
+
+from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature.drivers.molecule import Molecule
 from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_driver import (
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
 )
-from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
@@ -61,10 +62,10 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         initial_point,
         energy_delta,
         energy_deltas,
-        absolute_energy,
+        energy,
         excitations,
     ):
-        """Test MP2 Initializer."""
+        """Test MP2 PointGenerator with several real molecules."""
 
         molecule = Molecule(geometry=[[atom1, [0.0, 0.0, 0.0]], [atom2, [0.0, 0.0, distance]]])
 
@@ -72,13 +73,10 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
             driver = ElectronicStructureMoleculeDriver(
                 molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
             )
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed")
-
-        problem = ElectronicStructureProblem(driver)
-
-        # generate the second-quantized operators
-        problem.second_q_ops()
+            problem = ElectronicStructureProblem(driver)
+            problem.second_q_ops()
+        except MissingOptionalLibraryError:
+            self.skipTest("PySCF driver does not appear to be installed.")
 
         driver_result = problem.grouped_property_transformed
 
@@ -86,6 +84,7 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         electronic_energy = driver_result.get_property("ElectronicEnergy")
 
         num_spin_orbitals = particle_number.num_spin_orbitals
+        num_orbitals = num_spin_orbitals // 2
 
         # In practice need to build ansatz to generate excitations
         # for unit tests, load these from file
@@ -95,10 +94,22 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
             excitations,
         )
 
+        if atom1 == "H" and atom2 == "H":
+            # For molecule-independent tests, just test once for h2.
+
+            with self.subTest("Test missing orbital energies raises error") and self.assertRaises(
+                ValueError
+            ):
+                electronic_energy_missing = driver_result.get_property("ElectronicEnergy")
+                electronic_energy_missing.orbital_energies = None
+                mp2 = MP2PointGenerator(
+                    num_spin_orbitals,
+                    electronic_energy_missing,
+                    excitations,
+                )
+
         with self.subTest("Test number of molecular orbitals"):
-            np.testing.assert_array_almost_equal(
-                mp2.num_orbitals, num_spin_orbitals // 2, decimal=6
-            )
+            np.testing.assert_array_almost_equal(mp2.num_orbitals, num_orbitals, decimal=6)
 
         with self.subTest("Test number of spin orbitals"):
             np.testing.assert_array_almost_equal(
@@ -115,7 +126,10 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
             np.testing.assert_array_almost_equal(mp2.energy_delta, energy_delta, decimal=6)
 
         with self.subTest("Test absolute energy"):
-            np.testing.assert_array_almost_equal(mp2.absolute_energy, absolute_energy, decimal=6)
+            np.testing.assert_array_almost_equal(mp2.energy, energy, decimal=6)
+
+        with self.subTest("Test absolute energy"):
+            np.testing.assert_array_almost_equal(mp2.energy, energy, decimal=6)
 
 
 if __name__ == "__main__":

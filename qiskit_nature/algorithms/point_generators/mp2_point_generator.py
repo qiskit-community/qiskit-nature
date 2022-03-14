@@ -58,6 +58,7 @@ class MP2PointGenerator(PointGenerator):
         super().__init__()
 
         # Since spins are the same drop to MO indexing
+        self._num_spin_orbitals = num_spin_orbitals
         self._num_orbitals = num_spin_orbitals // 2
         self._integral_matrix = electronic_energy.get_electronic_integral(
             ElectronicBasis.MO, 2
@@ -73,6 +74,15 @@ class MP2PointGenerator(PointGenerator):
         self._initial_point = np.asarray([value[0] for value in self._terms.values()])
         self._energy_deltas = np.asarray([value[1] for value in self._terms.values()])
         self._energy_delta = sum(self._energy_deltas)
+        self._energy = self._reference_energy + self._energy_delta
+
+    @property
+    def num_spin_orbitals(self) -> int:
+        """
+        Returns:
+            The number of spin orbitals.
+        """
+        return self._num_spin_orbitals
 
     @property
     def num_orbitals(self) -> int:
@@ -83,28 +93,20 @@ class MP2PointGenerator(PointGenerator):
         return self._num_orbitals
 
     @property
-    def num_spin_orbitals(self) -> int:
-        """
-        Returns:
-            The number of spin orbitals.
-        """
-        return self._num_orbitals * 2
-
-    @property
-    def energy_delta(self) -> float:
-        """
-        Returns:
-            The MP2 delta energy correction for the molecule.
-        """
-        return self._energy_delta
-
-    @property
     def threshold(self) -> float:
         """
         Returns:
             The energy threshold.
         """
         return self._threshold
+
+    @property
+    def reference_energy(self) -> float:
+        """
+        Returns:
+            The reference Hartree-Fock energy for the molecule.
+        """
+        return self._reference_energy
 
     @property
     def energy_deltas(self) -> np.ndarray:
@@ -115,20 +117,20 @@ class MP2PointGenerator(PointGenerator):
         return self._energy_deltas
 
     @property
-    def absolute_energy(self) -> float:
+    def energy_delta(self) -> float:
+        """
+        Returns:
+            The MP2 delta energy correction for the molecule.
+        """
+        return self._energy_delta
+
+    @property
+    def energy(self) -> float:
         """
         Returns:
             The absolute MP2 energy for the molecule.
         """
-        return self._reference_energy + self._energy_delta
-
-    @property
-    def reference_energy(self) -> float:
-        """
-        Returns:
-            The reference Hartree-Fock energy for the molecule.
-        """
-        return self._reference_energy
+        return self._energy
 
     @property
     def terms(self) -> Dict[str, Tuple[float, float]]:
@@ -228,9 +230,3 @@ class MP2PointGenerator(PointGenerator):
 
         if self._orbital_energies is None:
             raise ValueError("Orbital energies cannot be None.")
-
-        if self._reference_energy is None:
-            raise ValueError("Reference energy cannot be None.")
-
-        if self._integral_matrix is None:
-            raise ValueError("Integral matrix cannot be None.")
