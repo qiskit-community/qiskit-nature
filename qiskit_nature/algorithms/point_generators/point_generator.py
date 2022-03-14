@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The initial point generator interface interface."""
+"""The initial point generator interface."""
 
 from abc import ABC, abstractmethod
 

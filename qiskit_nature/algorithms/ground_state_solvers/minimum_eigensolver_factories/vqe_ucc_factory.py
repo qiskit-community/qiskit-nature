@@ -232,16 +232,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
         initial_point = self.initial_point
         if initial_point is not None and not isinstance(initial_point, np.ndarray):
-            # If a custom initial point is provided or it's None, pass.
-            # UCC ansatz must be built earlier to compute excitation list.
+            # UCC ansatz must be built early to compute excitation list.
             ansatz._build()
-            excitations = ansatz.excitation_list
+            excitation_list = ansatz.excitation_list
             if initial_point.lower() == "mp2":
-                initial_point = _get_mp2_initial_point(driver_result, excitations)
+                initial_point = _get_mp2_initial_point(driver_result, excitation_list)
             else:
                 raise ValueError(f"Initial point `{initial_point}` not recognised.")
 
-        # Override initial point from args with computed value
+        # Override initial point from the arguments with the computed value.
         self.initial_point = initial_point
 
         # TODO: leverage re-usability of VQE after fixing
@@ -269,7 +268,6 @@ def _get_mp2_initial_point(
     excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
 ) -> np.ndarray:
     """Get the initial point using MP2 double excitation coefficients.
-    Returns all an all-zero array of the appropriate length if it cannot be computed.
 
     Args:
         driver_result: the second quantization properties from the driver.

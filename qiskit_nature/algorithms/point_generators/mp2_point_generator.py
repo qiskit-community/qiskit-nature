@@ -38,7 +38,8 @@ class MP2PointGenerator(PointGenerator):
     non-zero.
     """
 
-    # TODO Add benchmark to see if using MP2 initial point results in fewer evaluations.
+    # TODO: Add benchmark demonstrating that using MP2 initial point results in
+    # fewer evaluations to reach the ground state.
 
     def __init__(
         self,
@@ -226,7 +227,11 @@ class MP2PointGenerator(PointGenerator):
         return (coeff, e_delta)
 
     def _validate_input(self) -> None:
-        """Check electronic energy has the necessary properties."""
+        """Check electronic energy has the necessary properties.
+
+        Raises:
+            ValueError: if orbital energies is None.
+        """
 
         if self._orbital_energies is None:
             raise ValueError("Orbital energies cannot be None.")
