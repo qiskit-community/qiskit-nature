@@ -32,6 +32,7 @@ class HeisenbergModel(LatticeModel):
     ) -> None:
         """
         Args:
+            lattice: Lattice on which the model is defined.
             model_constants: The constants that define the model.
             ext_magnetic_field: Tell us which direction we have the external magnetic field.
         """
