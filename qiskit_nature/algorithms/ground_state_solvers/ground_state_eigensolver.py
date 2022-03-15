@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -117,7 +117,7 @@ class GroundStateEigensolver(GroundStateSolver):
             wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
                 aux_operators
             )
-            for name, aux_op in iter(wrapped_aux_operators):
+            for name_aux, aux_op in iter(wrapped_aux_operators):
                 if isinstance(aux_op, SecondQuantizedOp):
                     converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
@@ -125,13 +125,13 @@ class GroundStateEigensolver(GroundStateSolver):
                 if isinstance(aux_ops, list):
                     aux_ops.append(converted_aux_op)
                 elif isinstance(aux_ops, dict):
-                    if name in aux_ops.keys():
+                    if name_aux in aux_ops.keys():
                         raise QiskitNatureError(
-                            f"The key '{name}' is already taken by an internally constructed "
-                            "auxliliary operator! Please use a different name for your custom "
+                            f"The key '{name_aux}' is already taken by an internally constructed "
+                            "auxiliary operator! Please use a different name for your custom "
                             "operator."
                         )
-                    aux_ops[name] = converted_aux_op
+                    aux_ops[name_aux] = converted_aux_op
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
