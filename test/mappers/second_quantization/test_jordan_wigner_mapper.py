@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -51,7 +51,7 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
             )
         )
         driver_result = driver.run()
-        fermionic_op = driver_result.second_q_ops()[0]
+        fermionic_op = driver_result.second_q_ops()["ElectronicEnergy"]
         mapper = JordanWignerMapper()
         qubit_op = mapper.map(fermionic_op)
 
