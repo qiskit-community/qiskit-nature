@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,17 +11,7 @@
 # that they have been altered from the originals.
 """
 These utility methods are used by the :class:`~.UCC` Ansatz in order to construct its excitation
-operators. The `generate_fermionic_excitations` method must be called for each type of excitation
-(singles, doubles, etc.) that is to be considered in the Ansatz.
-Some keyword arguments are allowed through which the excitations can be filtered to fit the user's
-needs. `alpha_spin` and `beta_spin` are boolean flags which can be set to `False` in order to
-disable the inclusion of alpha-spin or beta-spin excitation, respectively.
-`max_spin_excitation` takes an integer value which defines the maximum number of excitations that
-can occur within the same spin. Thus, setting `max_spin_excitation=1` and `num_excitations=2` yields
-only those double excitations which do not excite the same spin species twice.
-`generalized` is another boolean flag which enables generalized excitations which are effectively
-ignoring the spin orbital occupancies. Therefore, the excitations are only determined based on the
-number of spin orbitals and are independent from the number of particles.
+operators.
 """
 
 from typing import Iterator, List, Tuple, Optional
@@ -103,8 +93,15 @@ def generate_fermionic_excitations(
     generalized: bool = False,
     preserve_spin: bool = True,
 ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+    # pylint: disable=line-too-long
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
+
+    The method must be called for each type of excitation (singles, doubles, etc.) that is to be
+    considered in the Ansatz. Excitations will be produced based on an initial `Hartree-Fock`
+    occupation by default unless `generalized` is set to `True`, in which case the excitations are
+    only determined based on the number of spin orbitals and are independent from
+    the number of particles.
 
     This method assumes block-ordered spin-orbitals.
 
@@ -128,6 +125,19 @@ def generate_fermionic_excitations(
         The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair. The
         first tuple contains the occupied spin orbital indices whereas the second one contains the
         indices of the unoccupied spin orbitals.
+
+    Examples:
+        Generate excitations with basic inputs.
+
+        >>> from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import generate_fermionic_excitations
+        >>> generate_fermionic_excitations(num_excitations=1, num_spin_orbitals=6, num_particles=(1,1))
+        [((0,), (1,)), ((0,), (2,)), ((3,), (4,)), ((3,), (5,))]
+
+        Generate generalized excitations.
+
+        >>> generate_fermionic_excitations(1, 6, (1, 1), generalized=True)
+        [((0,), (1,)), ((0,), (2,)), ((1,), (2,)), ((3,), (4,)), ((3,), (5,)), ((4,), (5,))]
+
     """
     alpha_excitations: List[Tuple[int, int]] = []
     beta_excitations: List[Tuple[int, int]] = []
