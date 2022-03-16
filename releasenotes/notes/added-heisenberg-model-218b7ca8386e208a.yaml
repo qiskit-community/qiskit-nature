@@ -1,3 +1,4 @@
+---
 features:
   - |
     Add: :class:`qiskit_nature.problems.second_quantization.lattice.models.HeisenbergModel
@@ -5,7 +6,7 @@ features:
     This model is used in the study of critical points and phase transitions of magnetic system. 
     Through the choice of the model constants and the external magnetic field, 
     we can produce many models like: XYZ, XXX, Ising model and others.
-    Examples::
+    Examples:
 
       from qiskit_nature.problems.second_quantization.lattice.models import HeisenbergModel
       from qiskit_nature.problems.second_quantization.lattice.lattices import LineLattice, BoundaryCondition
