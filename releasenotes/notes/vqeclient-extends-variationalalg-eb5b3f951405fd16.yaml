@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    :class:`~qiskit_nature.runtime.vqe_client` now extends 
+    VariationalAlgorithm, meaning users can now implement 
+    :class:`~qiskit_nature.algorithms.pes_samplers.bopes_sampler` 
+    using :class:`~qiskit_nature.runtime.vqe_client` instead of
+    local VQE
