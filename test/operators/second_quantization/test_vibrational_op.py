@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -90,7 +90,7 @@ class TestVibrationalOp(QiskitNatureTestCase):
 
     def test_add(self):
         """Test __add__"""
-        actual = (self.vibr_spin_op + self.vibr_spin_op).reduce()
+        actual = (self.vibr_spin_op + self.vibr_spin_op).simplify()
         desired = VibrationalOp(self.labels_double, 4, 2)
         self.assertSpinEqual(actual, desired)
 

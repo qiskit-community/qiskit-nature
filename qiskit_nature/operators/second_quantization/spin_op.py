@@ -25,6 +25,7 @@ from itertools import product
 from typing import List, Optional, Tuple, Union, cast, Sequence
 
 import numpy as np
+from qiskit.utils.deprecation import deprecate_function
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
@@ -375,7 +376,14 @@ class SpinOp(SecondQuantizedOp):
         # to simply complex conjugating the coefficient.
         return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
 
+    @deprecate_function(
+        "The `reduce` method is deprecated as of version 0.4.0 and will be removed no "
+        "earlier than 3 months after the release date. Instead, use `simplify`."
+    )
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
+        return self.simplify(atol=atol, rtol=rtol)
+
+    def simplify(self, *, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
         if atol is None:
             atol = self.atol
         if rtol is None:

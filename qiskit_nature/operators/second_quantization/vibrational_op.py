@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,6 +20,7 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
+from qiskit.utils.deprecation import deprecate_function
 from qiskit_nature import QiskitNatureError
 
 from .second_quantized_op import SecondQuantizedOp
@@ -263,7 +264,16 @@ class VibrationalOp(SecondQuantizedOp):
             self._num_modals,
         )
 
+    @deprecate_function(
+        "The `reduce` method is deprecated as of version 0.4.0 and will be removed no "
+        "earlier than 3 months after the release date. Instead, use `simplify`."
+    )
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationalOp":
+        return self.simplify(atol=atol, rtol=rtol)
+
+    def simplify(
+        self, *, atol: Optional[float] = None, rtol: Optional[float] = None
+    ) -> "VibrationalOp":
         if atol is None:
             atol = self.atol
         if rtol is None:
