@@ -1,0 +1,12 @@
+---
+fixes:
+  - |
+    Alter :class:`~qiskit_nature.circuit.library.UCC` to build the ``operators`` on demand
+    when requested via the property, rather than, as before, when the circuit is built.
+    Now if the circuit is built, then the operators, if not built, will be created as before,
+    but since they are cached when built, if done earlier, then these are used. This avoids
+    problems when used in conjunction with VQE that presently fail - most cases today
+    use a fully configured UCC being passed into VQE but whose constructor presently has an
+    unintended side-effect of building the circuit via a logging statement. For other
+    scenarios VQE would fail when it checked on number of qubits and the operators were None,
+    even though UCC was fully configured, when the circuit had not yet been built.
