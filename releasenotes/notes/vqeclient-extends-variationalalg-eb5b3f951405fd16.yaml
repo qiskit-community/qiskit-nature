@@ -4,6 +4,6 @@ features:
     :class:`~qiskit_nature.runtime.VQEClient` now extends 
     VariationalAlgorithm, meaning users can now implement 
     :class:`~qiskit_nature.algorithms.pes_samplers.BOPESSampler` 
-    using bootstapping, which works similarly now with VQEClient
+    using bootstrapping, which works similarly now with VQEClient
     :class:`~qiskit_nature.runtime.VQEClient` as it did previously
     with local VQE.
