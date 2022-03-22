@@ -269,23 +269,17 @@ class VibrationalOp(SecondQuantizedOp):
         "earlier than 3 months after the release date. Instead, use `simplify`."
     )
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationalOp":
-        return self.simplify(atol=atol, rtol=rtol)
+        return self.simplify(atol=atol)
 
-    def simplify(
-        self, *, atol: Optional[float] = None, rtol: Optional[float] = None
-    ) -> "VibrationalOp":
+    def simplify(self, atol: Optional[float] = None) -> "VibrationalOp":
         if atol is None:
             atol = self.atol
-        if rtol is None:
-            rtol = self.rtol
 
         label_list, indices = np.unique(self._labels, return_inverse=True, axis=0)
         coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
         for i, val in zip(indices, self._coeffs):
             coeff_list[i] += val
-        non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
-        ]
+        non_zero = [i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol)]
         if not non_zero:
             return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
         return VibrationalOp(

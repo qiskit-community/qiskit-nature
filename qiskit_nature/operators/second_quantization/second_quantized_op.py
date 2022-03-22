@@ -57,7 +57,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def simplify(self, *, atol: Optional[float] = None, rtol: Optional[float] = None):
+    def simplify(self, atol: Optional[float] = None):
         """
         Simplify the operator.
 
@@ -66,7 +66,6 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
         Args:
             atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
 
         Returns:
             The simplified operator.

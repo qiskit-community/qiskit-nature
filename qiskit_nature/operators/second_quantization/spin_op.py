@@ -381,13 +381,11 @@ class SpinOp(SecondQuantizedOp):
         "earlier than 3 months after the release date. Instead, use `simplify`."
     )
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
-        return self.simplify(atol=atol, rtol=rtol)
+        return self.simplify(atol=atol)
 
-    def simplify(self, *, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
+    def simplify(self, atol: Optional[float] = None) -> "SpinOp":
         if atol is None:
             atol = self.atol
-        if rtol is None:
-            rtol = self.rtol
 
         flatten_array, indices = np.unique(
             np.column_stack(cast(Sequence, self._spin_array)),
@@ -397,9 +395,7 @@ class SpinOp(SecondQuantizedOp):
         coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
         for i, val in zip(indices, self._coeffs):
             coeff_list[i] += val
-        non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
-        ]
+        non_zero = [i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol)]
         if not non_zero:
             return SpinOp(
                 (

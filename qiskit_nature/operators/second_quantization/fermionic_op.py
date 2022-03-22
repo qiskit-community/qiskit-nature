@@ -573,21 +573,15 @@ class FermionicOp(SecondQuantizedOp):
             display_format=self.display_format,
         )
 
-    def simplify(
-        self, *, atol: Optional[float] = None, rtol: Optional[float] = None
-    ) -> FermionicOp:
+    def simplify(self, atol: Optional[float] = None) -> FermionicOp:
         if atol is None:
             atol = self.atol
-        if rtol is None:
-            rtol = self.rtol
 
         data = defaultdict(float)  # type: dict[tuple[tuple[str, int], ...], complex]
         for label, coeff in self._data:
             data[label] += coeff
         terms = [
-            (label, coeff)
-            for label, coeff in data.items()
-            if not np.isclose(coeff, 0.0, rtol=rtol, atol=atol)
+            (label, coeff) for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
         ]
         return FermionicOp(terms, display_format=self.display_format)
 
