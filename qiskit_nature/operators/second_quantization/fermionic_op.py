@@ -262,7 +262,7 @@ class FermionicOp(SecondQuantizedOp):
             and not isinstance(data[0][0], str)
         ):
             self._data = [
-                (tuple(cast(Iterable[tuple[str, int]], term)), coeff) for term, coeff in data
+                (tuple(cast("Iterable[tuple[str, int]]", term)), coeff) for term, coeff in data
             ]
         else:
             if not isinstance(data, (tuple, list, str)):
