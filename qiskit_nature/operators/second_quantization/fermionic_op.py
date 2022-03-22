@@ -17,8 +17,9 @@ from __future__ import annotations
 import re
 import warnings
 from collections import defaultdict
+from collections.abc import Iterable, Iterator, Sequence
 from itertools import product
-from typing import Iterator, Optional, Union, cast
+from typing import Optional, Union, cast
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -222,7 +223,7 @@ class FermionicOp(SecondQuantizedOp):
             tuple[str, complex],
             list[tuple[str, complex]],
             list[tuple[str, float]],
-            list[tuple[tuple[tuple[str, int], ...], complex]],
+            Sequence[tuple[Iterable[tuple[str, int]], complex]],
         ],
         register_length: Optional[int] = None,
         display_format: Optional[str] = None,
@@ -254,9 +255,15 @@ class FermionicOp(SecondQuantizedOp):
 
         self._data: list[tuple[tuple[tuple[str, int], ...], complex]]
 
-        if isinstance(data, list) and isinstance(data[0], tuple) and isinstance(data[0][0], tuple):
-            data = cast("list[tuple[tuple[tuple[str, int], ...], complex]]", data)
-            self._data = data
+        if (
+            isinstance(data, list)
+            and isinstance(data[0], tuple)
+            and isinstance(data[0][0], Iterable)
+            and not isinstance(data[0][0], str)
+        ):
+            self._data = [
+                (tuple(cast(Iterable[tuple[str, int]], term)), coeff) for term, coeff in data
+            ]
         else:
             if not isinstance(data, (tuple, list, str)):
                 raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")

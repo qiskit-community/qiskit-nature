@@ -130,16 +130,21 @@ class TestFermionicOp(QiskitNatureTestCase):
 
     def test_init_from_tuple_label(self):
         """Test __init__ for tuple"""
+        desired = [((("-", 2), ("+", 10)), (1 + 2j)), ((("-", 12),), 56)]
+        # tuple
         actual = FermionicOp(
             [((("-", 2), ("+", 10)), 1 + 2j), ((("-", 12),), 56)],
             register_length=13,
             display_format="dense",
         )
-        desired = [
-            ("II-IIIIIII+II", 1 + 2j),
-            ("IIIIIIIIIIII-", 56),
-        ]
-        self.assertListEqual(actual.to_list(), desired)
+        self.assertEqual(actual._data, desired)
+        # list
+        actual = FermionicOp(
+            [([("-", 2), ("+", 10)], 1 + 2j), ([("-", 12)], 56)],
+            register_length=13,
+            display_format="dense",
+        )
+        self.assertListEqual(actual._data, desired)
 
     def test_register_length(self):
         """Test inference of register_length"""
