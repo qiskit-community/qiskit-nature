@@ -45,7 +45,7 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         num_particles=num_particles,
         num_spin_orbitals=num_spin_orbitals,
     )
-    ansatz._build()
+    ansatz.data
     excitations = ansatz.excitation_list
     """
 

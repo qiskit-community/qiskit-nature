@@ -356,6 +356,7 @@ class UCC(EvolvedOperatorAnsatz):
         if self._excitation_ops is not None:
             return self._excitation_ops
 
+        # TODO Enable the separate generation of this list.
         excitation_list = self._get_excitation_list()
 
         self._check_excitation_list(excitation_list)

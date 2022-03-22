@@ -233,7 +233,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         initial_point = self.initial_point
         if initial_point is not None and not isinstance(initial_point, np.ndarray):
             # UCC ansatz must be built early to compute excitation list.
-            ansatz._build()
+            ansatz.data
             excitation_list = ansatz.excitation_list
             if initial_point.lower() == "mp2":
                 initial_point = _get_mp2_initial_point(driver_result, excitation_list)
