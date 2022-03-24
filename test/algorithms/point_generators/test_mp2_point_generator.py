@@ -84,7 +84,6 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         electronic_energy = driver_result.get_property("ElectronicEnergy")
 
         num_spin_orbitals = particle_number.num_spin_orbitals
-        num_orbitals = num_spin_orbitals // 2
 
         mp2 = MP2PointGenerator(
             num_spin_orbitals,
@@ -93,28 +92,16 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         )
 
         if atom1 == "H" and atom2 == "H":
-            # For molecule-independent tests, just test once for h2.
+            # For molecule-independent tests, just test h2.
 
-            for inp in self.
-
-                with self.subTest("Test missing input raises error") and self.assertRaises(
-                    ValueError
-                ):
-                    electronic_energy_missing = driver_result.get_property("ElectronicEnergy")
-                    electronic_energy_missing.orbital_energies = None
-                    mp2 = MP2PointGenerator(
-                        num_spin_orbitals,
-                        electronic_energy_missing,
-                        excitations,
-                    )
-
-        with self.subTest("Test number of molecular orbitals"):
-            np.testing.assert_array_almost_equal(mp2.num_orbitals, num_orbitals, decimal=6)
-
-        with self.subTest("Test number of spin orbitals"):
-            np.testing.assert_array_almost_equal(
-                mp2.num_spin_orbitals, num_spin_orbitals, decimal=6
-            )
+            with self.subTest("Test missing input raises error") and self.assertRaises(ValueError):
+                electronic_energy_missing = driver_result.get_property("ElectronicEnergy")
+                electronic_energy_missing.orbital_energies = None
+                mp2 = MP2PointGenerator(
+                    num_spin_orbitals,
+                    electronic_energy_missing,
+                    excitations,
+                )
 
         with self.subTest("Test MP2 initial points"):
             np.testing.assert_array_almost_equal(mp2.initial_point, initial_point, decimal=6)
@@ -124,9 +111,6 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
 
         with self.subTest("Test overall energy delta"):
             np.testing.assert_array_almost_equal(mp2.energy_delta, energy_delta, decimal=6)
-
-        with self.subTest("Test absolute energy"):
-            np.testing.assert_array_almost_equal(mp2.energy, energy, decimal=6)
 
         with self.subTest("Test absolute energy"):
             np.testing.assert_array_almost_equal(mp2.energy, energy, decimal=6)
