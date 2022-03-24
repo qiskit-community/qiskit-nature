@@ -119,7 +119,7 @@ class MP2PointGenerator(PointGenerator):
         return self._threshold
 
     @threshold.setter
-    def threshold(self, thr) -> None:
+    def threshold(self, thr: float) -> None:
         """The energy threshold for MP2 computation."""
         if thr <= 0:
             raise ValueError("The energy threshold must be positive definite.")
