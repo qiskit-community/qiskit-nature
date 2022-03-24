@@ -71,15 +71,15 @@ class MP2PointGenerator(PointGenerator):
         return self._num_spin_orbitals
 
     @num_spin_orbitals.setter
-    def num_spin_orbitals(self, nso) -> None:
+    def num_spin_orbitals(self, num_spin_orbs: int) -> None:
         """The number of spin orbitals.
 
         Raises:
-            ValueError: For not positive definite input.
+            ValueError: For non-positive-definite input.
         """
-        if nso <= 0:
+        if num_spin_orbs <= 0:
             raise ValueError("Number of spin orbitals must be positive definite.")
-        self._num_spin_orbitals = nso
+        self._num_spin_orbitals = num_spin_orbs
 
     @property
     def electronic_energy(self) -> ElectronicEnergy:
@@ -87,7 +87,7 @@ class MP2PointGenerator(PointGenerator):
         return self._electronic_energy
 
     @electronic_energy.setter
-    def electronic_energy(self, elec) -> None:
+    def electronic_energy(self, elec: ElectronicEnergy) -> None:
         """The ElectronicEnergy property.
 
         Raises:
