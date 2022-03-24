@@ -103,35 +103,15 @@ class MP2PointGenerator(PointGenerator):
         self._reference_energy = elec.reference_energy
 
     @property
-    def initial_point(self) -> np.ndarray:
-        """The MP2 coefficients as an initial_point."""
-        return np.asarray([val[0] for val in self._terms.values()])
-
-    @property
-    def energy_deltas(self) -> np.ndarray:
-        """The MP2 energy correction deltas for each excitation."""
-        return np.asarray([value[1] for value in self._terms.values()])
-
-    @property
-    def energy_delta(self) -> float:
-        """The MP2 delta energy correction for the molecule."""
-        return sum(self.energy_deltas)
-
-    @property
-    def energy(self) -> float:
-        """The absolute MP2 energy for the molecule."""
-        return self._reference_energy + self.energy_delta
-
-    @property
     def excitations(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """The sequence of excitations."""
         return self._excitations
 
     @excitations.setter
-    def excitations(self, ex: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]):
+    def excitations(self, exs: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]):
         """The sequence of excitations."""
         # TODO: Validate excitation list as is done in UCC?
-        self._excitations = ex
+        self._excitations = exs
 
     @property
     def threshold(self) -> float:
@@ -144,6 +124,26 @@ class MP2PointGenerator(PointGenerator):
         if thr <= 0:
             raise ValueError("The energy threshold must be positive definite.")
         self._threshold = thr
+
+    @property
+    def initial_point(self) -> np.ndarray:
+        """The MP2 coefficients as an initial_point."""
+        return np.asarray([val[0] for val in self._terms.values()])
+
+    @property
+    def energy_deltas(self) -> np.ndarray:
+        """The MP2 energy correction deltas for each excitation."""
+        return np.asarray([val[1] for val in self._terms.values()])
+
+    @property
+    def energy_delta(self) -> float:
+        """The MP2 delta energy correction for the molecule."""
+        return sum(self.energy_deltas)
+
+    @property
+    def energy(self) -> float:
+        """The absolute MP2 energy for the molecule."""
+        return self._reference_energy + self.energy_delta
 
     def _compute_corrections(
         self,
