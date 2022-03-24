@@ -136,7 +136,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
-            return np.isclose(aux_values[0][0], 2.0)
+            return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)

@@ -17,10 +17,6 @@ import warnings
 
 from test import QiskitNatureTestCase
 
-import numpy as np
-
-from qiskit.opflow import PauliSumOp
-
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
@@ -31,20 +27,9 @@ from .resources.reference_direct_mapper import _num_modals_2_q_op, _num_modals_3
 class TestDirectMapper(QiskitNatureTestCase):
     """Test Direct Mapper"""
 
-    def compare_pauli_sum_op(self, first: PauliSumOp, second: PauliSumOp, msg: str = None) -> None:
-        """Compares two PauliSumOp instances."""
-        for (f_lbl, f_coeff), (s_lbl, s_coeff) in zip(
-            first.primitive.to_list(), second.primitive.to_list()
-        ):
-            if f_lbl != s_lbl:
-                raise self.failureException(msg)
-            if not np.isclose(f_coeff, s_coeff):
-                raise self.failureException(msg)
-
     def setUp(self) -> None:
         """Setup."""
         super().setUp()
-        self.addTypeEqualityFunc(PauliSumOp, self.compare_pauli_sum_op)
 
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -64,7 +49,7 @@ class TestDirectMapper(QiskitNatureTestCase):
         vibration_energy = self.driver_result.get_property("VibrationalEnergy")
         vibration_energy.basis = HarmonicBasis(num_modals)
 
-        vibration_op = vibration_energy.second_q_ops()[0]
+        vibration_op = vibration_energy.second_q_ops()["VibrationalEnergy"]
 
         mapper = DirectMapper()
         qubit_op = mapper.map(vibration_op)
@@ -79,7 +64,7 @@ class TestDirectMapper(QiskitNatureTestCase):
         vibration_energy = self.driver_result.get_property("VibrationalEnergy")
         vibration_energy.basis = HarmonicBasis(num_modals)
 
-        vibration_op = vibration_energy.second_q_ops()[0]
+        vibration_op = vibration_energy.second_q_ops()["VibrationalEnergy"]
 
         mapper = DirectMapper()
         qubit_op = mapper.map(vibration_op)
