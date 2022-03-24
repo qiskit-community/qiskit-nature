@@ -58,115 +58,102 @@ class MP2PointGenerator(PointGenerator):
         """
         super().__init__()
 
-        # Since spins are the same drop to MO indexing
-        self._num_spin_orbitals = num_spin_orbitals
-        self._num_orbitals = num_spin_orbitals // 2
-        self._integral_matrix = electronic_energy.get_electronic_integral(
-            ElectronicBasis.MO, 2
-        ).get_matrix()
-        self._orbital_energies = electronic_energy.orbital_energies
-        self._reference_energy = electronic_energy.reference_energy
-        self._excitations = excitations
-        self._threshold = threshold
-
-        self._validate_input()
+        self.num_spin_orbitals = num_spin_orbitals
+        self.electronic_energy = electronic_energy
+        self.excitations = excitations
+        self.threshold = threshold
 
         self._terms = self._compute_corrections()
-        self._initial_point = np.asarray([value[0] for value in self._terms.values()])
-        self._energy_deltas = np.asarray([value[1] for value in self._terms.values()])
-        self._energy_delta = sum(self._energy_deltas)
-        self._energy = self._reference_energy + self._energy_delta
 
     @property
     def num_spin_orbitals(self) -> int:
-        """
-        Returns:
-            The number of spin orbitals.
-        """
+        """The number of spin orbitals."""
         return self._num_spin_orbitals
 
-    @property
-    def num_orbitals(self) -> int:
+    @num_spin_orbitals.setter
+    def num_spin_orbitals(self, nso) -> None:
+        """The number of spin orbitals.
+
+        Raises:
+            ValueError: For not positive definite input.
         """
-        Returns:
-            The number of molecular orbitals.
-        """
-        return self._num_orbitals
+        if nso <= 0:
+            raise ValueError("Number of spin orbitals must be positive definite.")
+        self._num_spin_orbitals = nso
 
     @property
-    def threshold(self) -> float:
-        """
-        Returns:
-            The energy threshold.
-        """
-        return self._threshold
+    def electronic_energy(self) -> ElectronicEnergy:
+        """The ElectronicEnergy property."""
+        return self._electronic_energy
 
-    @property
-    def reference_energy(self) -> float:
-        """
-        Returns:
-            The reference Hartree-Fock energy for the molecule.
-        """
-        return self._reference_energy
+    @electronic_energy.setter
+    def electronic_energy(self, elec) -> None:
+        """The ElectronicEnergy property.
 
-    @property
-    def energy_deltas(self) -> np.ndarray:
+        Raises:
+            ValueError: If ElectronicEnergy is missing orbital energies.
         """
-        Returns:
-            The MP2 energy correction deltas for each excitation.
-        """
-        return self._energy_deltas
+        orbital_energies = elec.orbital_energies
+        if orbital_energies is None:
+            raise ValueError("Orbital energies missing from ElectronicEnergy.")
 
-    @property
-    def energy_delta(self) -> float:
-        """
-        Returns:
-            The MP2 delta energy correction for the molecule.
-        """
-        return self._energy_delta
-
-    @property
-    def energy(self) -> float:
-        """
-        Returns:
-            The absolute MP2 energy for the molecule.
-        """
-        return self._energy
-
-    @property
-    def terms(self) -> Dict[str, Tuple[float, float]]:
-        """
-        Returns:
-            The MP2 terms for the molecule.
-        """
-        return self._terms
-
-    @property
-    def excitations(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
-        """
-        Returns:
-            Sequence of excitations.
-        """
-        return self._excitations
+        self._electronic_energy = elec
+        self._orbital_energies = orbital_energies
+        self._integral_matrix = elec.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix()
+        self._reference_energy = elec.reference_energy
 
     @property
     def initial_point(self) -> np.ndarray:
-        """
-        Returns:
-            The MP2 coefficients as an initial_point.
-        """
-        return self._initial_point
+        """The MP2 coefficients as an initial_point."""
+        return np.asarray([val[0] for val in self._terms.values()])
+
+    @property
+    def energy_deltas(self) -> np.ndarray:
+        """The MP2 energy correction deltas for each excitation."""
+        return np.asarray([value[1] for value in self._terms.values()])
+
+    @property
+    def energy_delta(self) -> float:
+        """The MP2 delta energy correction for the molecule."""
+        return sum(self.energy_deltas)
+
+    @property
+    def energy(self) -> float:
+        """The absolute MP2 energy for the molecule."""
+        return self._reference_energy + self.energy_delta
+
+    @property
+    def excitations(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+        """The sequence of excitations."""
+        return self._excitations
+
+    @excitations.setter
+    def excitations(self, ex: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]):
+        """The sequence of excitations."""
+        # TODO: Validate excitation list as is done in UCC?
+        self._excitations = ex
+
+    @property
+    def threshold(self) -> float:
+        """The energy threshold for MP2 computation."""
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, thr) -> None:
+        """The energy threshold for MP2 computation."""
+        if thr <= 0:
+            raise ValueError("The energy threshold must be positive definite.")
+        self._threshold = thr
 
     def _compute_corrections(
         self,
     ) -> Dict[str, Tuple[float, float]]:
         """Compute the MP2 coefficients and energy corrections for each double excitation.
 
-        Args:
-            excitations: Sequence of excitations.
+        Non-double excitations will have zero coefficient and energy delta.
 
         Returns:
-            Initial point with MP2 coefficients for doubles and zero otherwise.
+            Dictionary with MP2 coefficients and energy_deltas for each excitation
         """
         terms = {}
         for excitation in self._excitations:
@@ -204,10 +191,12 @@ class MP2PointGenerator(PointGenerator):
         Returns:
             Correction coefficients and energy deltas.
         """
-        i = excitation[0][0] % self._num_orbitals
-        j = excitation[0][1] % self._num_orbitals
-        a = excitation[1][0] % self._num_orbitals
-        b = excitation[1][1] % self._num_orbitals
+        # Since spins are the same drop to MO indexing
+        num_orbitals = self._num_spin_orbitals // 2
+        i = excitation[0][0] % num_orbitals
+        j = excitation[0][1] % num_orbitals
+        a = excitation[1][0] % num_orbitals
+        b = excitation[1][1] % num_orbitals
 
         tiajb = self._integral_matrix[i, a, j, b]
         tibja = self._integral_matrix[i, b, j, a]
@@ -225,13 +214,3 @@ class MP2PointGenerator(PointGenerator):
         e_delta = e_delta if abs(e_delta) > self._threshold else 0
 
         return (coeff, e_delta)
-
-    def _validate_input(self) -> None:
-        """Check electronic energy has the necessary properties.
-
-        Raises:
-            ValueError: if orbital energies is None.
-        """
-
-        if self._orbital_energies is None:
-            raise ValueError("Orbital energies cannot be None.")

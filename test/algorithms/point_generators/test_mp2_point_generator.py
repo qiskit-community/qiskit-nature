@@ -45,7 +45,7 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         num_particles=num_particles,
         num_spin_orbitals=num_spin_orbitals,
     )
-    ansatz.data
+    _ = ansatz.operators
     excitations = ansatz.excitation_list
     """
 
@@ -86,8 +86,6 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         num_spin_orbitals = particle_number.num_spin_orbitals
         num_orbitals = num_spin_orbitals // 2
 
-        # In practice need to build ansatz to generate excitations
-        # for unit tests, load these from file
         mp2 = MP2PointGenerator(
             num_spin_orbitals,
             electronic_energy,
@@ -97,16 +95,18 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         if atom1 == "H" and atom2 == "H":
             # For molecule-independent tests, just test once for h2.
 
-            with self.subTest("Test missing orbital energies raises error") and self.assertRaises(
-                ValueError
-            ):
-                electronic_energy_missing = driver_result.get_property("ElectronicEnergy")
-                electronic_energy_missing.orbital_energies = None
-                mp2 = MP2PointGenerator(
-                    num_spin_orbitals,
-                    electronic_energy_missing,
-                    excitations,
-                )
+            for inp in self.
+
+                with self.subTest("Test missing input raises error") and self.assertRaises(
+                    ValueError
+                ):
+                    electronic_energy_missing = driver_result.get_property("ElectronicEnergy")
+                    electronic_energy_missing.orbital_energies = None
+                    mp2 = MP2PointGenerator(
+                        num_spin_orbitals,
+                        electronic_energy_missing,
+                        excitations,
+                    )
 
         with self.subTest("Test number of molecular orbitals"):
             np.testing.assert_array_almost_equal(mp2.num_orbitals, num_orbitals, decimal=6)
