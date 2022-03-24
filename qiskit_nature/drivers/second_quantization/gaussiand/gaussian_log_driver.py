@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,18 +12,22 @@
 
 """ Gaussian Log Driver """
 
-from typing import Union, List
+from __future__ import annotations
+
+from typing import Union
 import logging
 
 from qiskit_nature import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 from ..base_driver import BaseDriver
-from .gaussian_utils import check_valid, run_g16
+from .gaussian_utils import run_g16
 from .gaussian_log_result import GaussianLogResult
 
 logger = logging.getLogger(__name__)
 
 
+@_optionals.HAS_GAUSSIAN.require_in_instance
 class GaussianLogDriver(BaseDriver):
     """Gaussian™ 16 log driver.
 
@@ -38,7 +42,7 @@ class GaussianLogDriver(BaseDriver):
     This result class also contains ready access to certain data within the log.
     """
 
-    def __init__(self, jcf: Union[str, List[str]]) -> None:
+    def __init__(self, jcf: Union[str, list[str]]) -> None:
         r"""
         Args:
             jcf: A job control file conforming to Gaussian™ 16 format. This can
@@ -47,8 +51,6 @@ class GaussianLogDriver(BaseDriver):
         Raises:
             QiskitNatureError: Invalid Input
         """
-        GaussianLogDriver.check_installed()
-
         if not isinstance(jcf, list) and not isinstance(jcf, str):
             raise QiskitNatureError(f"Invalid input for Gaussian Log Driver '{jcf}'")
 
@@ -57,16 +59,6 @@ class GaussianLogDriver(BaseDriver):
 
         self._jcf = jcf
         super().__init__()
-
-    @staticmethod
-    def check_installed() -> None:
-        """
-        Checks if Gaussian is installed and available
-
-        Raises:
-            MissingOptionalLibraryError: if not installed.
-        """
-        check_valid()
 
     def run(self) -> GaussianLogResult:  # type: ignore
         """Runs the driver to produce a result given the supplied job control file.

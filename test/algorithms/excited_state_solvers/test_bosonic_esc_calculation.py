@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,8 +19,8 @@ import warnings
 
 from test import QiskitNatureTestCase
 
-from qiskit import Aer
-from qiskit.utils import algorithm_globals, QuantumInstance
+import qiskit
+from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 from qiskit.algorithms.optimizers import COBYLA
 
 from qiskit_nature.drivers import WatsonHamiltonian
@@ -109,11 +109,12 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=4)
 
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_vqe_uvccsd_factory(self):
         """Test with VQE plus UVCCSD"""
         optimizer = COBYLA(maxiter=5000)
         solver = VQEUVCCFactory(
-            QuantumInstance(Aer.get_backend("aer_simulator_statevector")),
+            QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector")),
             optimizer=optimizer,
         )
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -122,6 +123,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
 
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_vqe_uvccsd_with_callback(self):
         """Test VQE UVCCSD with callback."""
 
@@ -130,7 +132,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=5000)
         solver = VQEUVCCFactory(
-            QuantumInstance(Aer.get_backend("aer_simulator_statevector")),
+            QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector")),
             optimizer=optimizer,
             callback=cb_callback,
         )

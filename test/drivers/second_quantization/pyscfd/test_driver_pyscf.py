@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,7 +15,7 @@
 from typing import cast
 
 import unittest
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import (
@@ -25,12 +25,13 @@ from qiskit_nature.drivers.second_quantization import (
 )
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
     """PYSCF Driver tests."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         driver = PySCFDriver(
@@ -83,7 +84,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
 class TestDriverPySCFMolecule(QiskitNatureTestCase, TestDriver):
     """PYSCF Driver Molecule tests."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         driver = ElectronicStructureMoleculeDriver(

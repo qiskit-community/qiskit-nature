@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added Support for Bohr unit in Molecule Class:
+
+    .. code-block:: python
+
+        mol = Molecule(geometry=[("H", [10.0, 2.0, 0.0]), ("H", [0.0, 20.0, 1.0])], unit=UnitsType.BOHR)

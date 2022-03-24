@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """ Test NumPyMinimumEigensovler Factory """
 import unittest
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit.algorithms import NumPyEigensolver
@@ -19,6 +19,7 @@ from qiskit_nature.algorithms import NumPyEigensolverFactory
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+import qiskit_nature.optionals as _optionals
 
 
 class TestNumPyEigensolverFactory(QiskitNatureTestCase):
@@ -27,7 +28,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
     # NOTE: The actual usage of this class is mostly tested in combination with the ground-state
     # eigensolvers (one module above).
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
 
