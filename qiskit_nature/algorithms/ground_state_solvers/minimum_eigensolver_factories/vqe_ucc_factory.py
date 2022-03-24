@@ -13,7 +13,6 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, Callable, List, Tuple, cast
-import logging
 
 import numpy as np
 
@@ -36,8 +35,6 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 
 from ...point_generators import MP2PointGenerator
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
-
-logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
