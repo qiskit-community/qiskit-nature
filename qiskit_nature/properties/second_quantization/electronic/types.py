@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,13 +24,13 @@ class ElectronicProperty(SecondQuantizedProperty):
 
 
 # pylint: disable=invalid-name
-T = TypeVar("T", bound=ElectronicProperty, covariant=True)
+T_co = TypeVar("T_co", bound=ElectronicProperty, covariant=True)
 
 
-class GroupedElectronicProperty(GroupedSecondQuantizedProperty[T], ElectronicProperty):
+class GroupedElectronicProperty(GroupedSecondQuantizedProperty[T_co], ElectronicProperty):
     """A GroupedProperty subtype containing purely electronic properties."""
 
-    def add_property(self, prop: Optional[T]) -> None:
+    def add_property(self, prop: Optional[T_co]) -> None:
         """Adds a property to the group.
 
         Args:

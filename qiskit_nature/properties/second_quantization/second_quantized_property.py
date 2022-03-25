@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -72,10 +72,10 @@ class SecondQuantizedProperty(Property):
 
 
 # pylint: disable=invalid-name
-T = TypeVar("T", bound=SecondQuantizedProperty, covariant=True)
+T_co = TypeVar("T_co", bound=SecondQuantizedProperty, covariant=True)
 
 
-class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty):
+class GroupedSecondQuantizedProperty(GroupedProperty[T_co], SecondQuantizedProperty):
     """A :class:`~qiskit_nature.properties.GroupedProperty` subtype containing purely
     second-quantized properties."""
 
