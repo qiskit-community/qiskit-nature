@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -113,7 +113,9 @@ def _calculate_integrals(molecule, basis="sto3g", hf_method="rhf", tol=1e-8, max
     mohijkl_ba = None
     if orbs_b is not None:
         mohijkl_bb = hijkl.transform(orbs_b)
-        mohijkl_ba = np.einsum("aI,bJ,cK,dL,abcd->IJKL", orbs_b, orbs_b, orbs, orbs, hijkl[...])
+        mohijkl_ba = np.einsum(
+            "aI,bJ,cK,dL,abcd->IJKL", orbs_b, orbs_b, orbs, orbs, hijkl[Ellipsis]
+        )
 
     # Create driver level molecule object and populate
     _q_ = QMolecule()
