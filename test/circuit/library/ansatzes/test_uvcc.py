@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -131,6 +131,65 @@ class TestUVCCVSCF(QiskitNatureTestCase):
         energy = vqe_result.optimal_value
 
         self.assertAlmostEqual(energy, self.reference_energy, places=4)
+
+    def test_build_uvcc(self):
+        """Test building UVCC"""
+        uvcc = UVCC()
+
+        with self.subTest("Check defaulted construction"):
+            self.assertIsNone(uvcc.num_modals)
+            self.assertIsNone(uvcc.excitations)
+            self.assertIsNone(uvcc.qubit_converter)
+            self.assertIsNone(uvcc.operators)
+            self.assertEqual(uvcc.num_qubits, 0)
+            with self.assertRaises(ValueError):
+                _ = uvcc.data
+
+        with self.subTest("Set num modals"):
+            uvcc.num_modals = [2, 2]
+            self.assertListEqual(uvcc.num_modals, [2, 2])
+            self.assertIsNone(uvcc.operators)
+            with self.assertRaises(ValueError):
+                _ = uvcc.data
+
+        with self.subTest("Set excitations"):
+            uvcc.excitations = "sd"
+            self.assertEqual(uvcc.excitations, "sd")
+            self.assertIsNone(uvcc.operators)
+            with self.assertRaises(ValueError):
+                _ = uvcc.data
+
+        with self.subTest("Set qubit converter to complete build"):
+            converter = QubitConverter(DirectMapper())
+            uvcc.qubit_converter = converter
+            self.assertEqual(uvcc.qubit_converter, converter)
+            self.assertIsNotNone(uvcc.operators)
+            self.assertEqual(len(uvcc.operators), 3)
+            self.assertEqual(uvcc.num_qubits, 4)
+            self.assertIsNotNone(uvcc.data)
+
+        with self.subTest("Set custom operators"):
+            self.assertEqual(len(uvcc.operators), 3)
+            uvcc.operators = uvcc.operators[:2]
+            self.assertEqual(len(uvcc.operators), 2)
+            self.assertEqual(uvcc.num_qubits, 4)
+
+        with self.subTest("Reset operators back to as per UVCC"):
+            uvcc.operators = None
+            self.assertEqual(uvcc.num_qubits, 4)
+            self.assertIsNotNone(uvcc.operators)
+            self.assertEqual(len(uvcc.operators), 3)
+
+        with self.subTest("Set num modals differently"):
+            uvcc.num_modals = [3, 3]
+            self.assertEqual(uvcc.num_modals, [3, 3])
+            self.assertIsNotNone(uvcc.operators)
+            self.assertEqual(len(uvcc.operators), 8)
+
+        with self.subTest("Change excitations"):
+            uvcc.excitations = "s"
+            self.assertIsNotNone(uvcc.operators)
+            self.assertEqual(len(uvcc.operators), 4)
 
 
 if __name__ == "__main__":
