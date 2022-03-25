@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Gate, Qubit
-from qiskit.circuit.library import RZGate, XGate, XYGate
+from qiskit.circuit.library import RZGate, XGate, XXPlusYYGate
 
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
@@ -224,7 +224,7 @@ def _prepare_slater_determinant_jordan_wigner(  # pylint: disable=invalid-name
                 # add operations
                 decomposition.append((RZGate(phi), (register[j - 1],)))
                 decomposition.append(
-                    (XYGate(2 * theta, -np.pi / 2), (register[j], register[j - 1]))
+                    (XXPlusYYGate(2 * theta, -np.pi / 2), (register[j], register[j - 1]))
                 )
                 # update matrix
                 current_matrix = _apply_matrix_to_slices(
@@ -273,7 +273,7 @@ def _prepare_fermionic_gaussian_state_jordan_wigner(  # pylint: disable=invalid-
                     # add operations
                     decomposition.append((RZGate(phi), (register[j + 1],)))
                     decomposition.append(
-                        (XYGate(2 * theta, -np.pi / 2), (register[j], register[j + 1]))
+                        (XXPlusYYGate(2 * theta, -np.pi / 2), (register[j], register[j + 1]))
                     )
                     # update matrix
                     current_matrix = _apply_matrix_to_slices(
