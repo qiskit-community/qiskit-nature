@@ -21,14 +21,16 @@ import numpy as np
 from scipy import linalg
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-from qiskit.utils import algorithm_globals
+from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import AlgorithmResult
+from qiskit.opflow.expectations.expectation_base import ExpectationBase
 from qiskit.opflow import (
     Z2Symmetries,
     commutator,
     double_commutator,
     PauliSumOp,
 )
+from qiskit.algorithms import eval_observables
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -81,6 +83,8 @@ class QEOM(ExcitedStatesSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
+        expectation: ExpectationBase = None,
+        quantum_instance: QuantumInstance = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -90,7 +94,11 @@ class QEOM(ExcitedStatesSolver):
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
-
+            expectation: Might be different from the one used in VQE. If None, the expectation
+            from the groundstate eigensolver is imported. Please note that the include_custom
+            parameter can be used locally in the groundstate eigensolver to create an
+            AerPauliExpectation() but it cannot be retrieved in qeom.solve().
+            quantum_instance: quantum instance that can be used when the solver don't have one.
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.
@@ -102,25 +110,49 @@ class QEOM(ExcitedStatesSolver):
                 "evaluated on the ground state."
             )
 
+        if quantum_instance is None:
+            quantum_instance = getattr(self._gsc.solver, "quantum_instance", None)
+        if expectation is None:
+            expectation = getattr(self._gsc.solver, "expectation", None)
+
         # 1. Run ground state calculation
         groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
         second_q_ops = problem.second_q_ops()
+        aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
+            aux_second_q_ops = second_q_ops[1:]
         elif isinstance(second_q_ops, dict):
-            main_second_q_op = second_q_ops.pop(problem.main_property_name)
+            name = problem.main_property_name
+            main_second_q_op = second_q_ops.pop(name, None)
+            if main_second_q_op is None:
+                raise ValueError(
+                    f"The main `SecondQuantizedOp` associated with the {name} property cannot be "
+                    "`None`."
+                )
+            aux_second_q_ops = second_q_ops
 
         self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
-            main_second_q_op, problem.num_particles
+            main_second_q_op,
+            num_particles=problem.num_particles,
         )
+
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
-        measurement_results = self._gsc.evaluate_operators(
-            groundstate_result.eigenstates[0], matrix_operators_dict
+        if hasattr(self._gsc.solver, "ansatz") and self._gsc.solver is not None:
+            circuit_state = self._gsc.solver.ansatz.assign_parameters(
+                groundstate_result.raw_result.optimal_point
+            )
+        else:
+            circuit_state = groundstate_result.eigenstates[0]
+
+        measurement_results = eval_observables(
+            quantum_instance, circuit_state, matrix_operators_dict, expectation
         )
+
         measurement_results = cast(Dict[str, List[float]], measurement_results)
 
         # 4. Post-process ground_state_result to construct eom matrices

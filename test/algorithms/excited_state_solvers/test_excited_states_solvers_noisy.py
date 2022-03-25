@@ -18,7 +18,7 @@ import numpy as np
 from qiskit import Aer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
-from qiskit.opflow import MatrixExpectation
+from qiskit.opflow import AerPauliExpectation
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import (
@@ -61,11 +61,12 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         ]
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.expectation = AerPauliExpectation()
 
         solver = NumPyEigensolver()
         self.ref = solver
         self.quantum_instance = QuantumInstance(
-            Aer.get_backend("statevector_simulator"),
+            Aer.get_backend("qasm_simulator"),
             seed_transpiler=90,
             seed_simulator=12,
         )
@@ -75,7 +76,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
-        results = esc.solve(self.electronic_structure_problem, expectation=MatrixExpectation())
+        results = esc.solve(self.electronic_structure_problem, expectation=self.expectation)
 
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
@@ -123,10 +124,10 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._solve_with_vqe_mes(converter)
 
     def _solve_with_vqe_mes(self, converter: QubitConverter):
-        solver = VQEUCCFactory(self.quantum_instance)
+        solver = VQEUCCFactory(self.quantum_instance, include_custom=True)
         gsc = GroundStateEigensolver(converter, solver)
         esc = QEOM(gsc, "sd")
-        results = esc.solve(self.electronic_structure_problem, expectation=MatrixExpectation())
+        results = esc.solve(self.electronic_structure_problem, expectation=self.expectation)
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
 

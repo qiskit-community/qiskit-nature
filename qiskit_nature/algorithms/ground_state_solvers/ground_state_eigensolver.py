@@ -20,7 +20,9 @@ from qiskit.circuit import Instruction
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.algorithms import MinimumEigensolver
-from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
+from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitStateFn, CircuitSampler
+from qiskit.circuit.library import EvolvedOperatorAnsatz
+from qiskit.opflow.expectations.expectation_base import ExpectationBase
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -158,8 +160,10 @@ class GroundStateEigensolver(GroundStateSolver):
             QuantumCircuit,
             Instruction,
             OperatorBase,
+            EvolvedOperatorAnsatz,
         ],
         operators: Union[PauliSumOp, OperatorBase, list, dict],
+        expectation: ExpectationBase = None,
     ) -> Union[Optional[float], List[Optional[float]], Dict[str, List[Optional[float]]]]:
         """Evaluates additional operators at the given state.
 
@@ -168,6 +172,7 @@ class GroundStateEigensolver(GroundStateSolver):
                    more details.
             operators: either a single, list or dictionary of ``PauliSumOp``s or any kind
                        of operator implementing the ``OperatorBase``.
+            expectation: may be different from the groundstate_eigensolver
 
         Returns:
             The expectation value of the given operator(s). The return type will be identical to the
@@ -176,10 +181,14 @@ class GroundStateEigensolver(GroundStateSolver):
         # try to get a QuantumInstance from the solver
         quantum_instance = getattr(self._solver, "quantum_instance", None)
         # and try to get an Expectation from the solver
-        expectation = getattr(self._solver, "expectation", None)
+        if expectation is None:
+            expectation = getattr(self._solver, "expectation", None)
 
-        if not isinstance(state, StateFn):
-            state = StateFn(state)
+        if isinstance(state, EvolvedOperatorAnsatz):
+            state = CircuitStateFn(state)
+        else:
+            if not isinstance(state, StateFn):
+                state = StateFn(state)
 
         # handle all possible formats of operators
         # i.e. if a user gives us a dict of operators, we return the results equivalently, etc.
@@ -193,10 +202,18 @@ class GroundStateEigensolver(GroundStateSolver):
         elif isinstance(operators, dict):
             results = {}  # type: ignore
             for name, op in operators.items():
+                # print(name, op.is_hermitian())
                 if op is None:
                     results[name] = None
                 else:
-                    results[name] = self._eval_op(state, op, quantum_instance, expectation)
+                    if op.is_hermitian():
+                        results[name] = self._eval_op(state, op, quantum_instance, expectation)
+                    else:
+                        op1 = 1 / 2 * (op + op.adjoint()).reduce()
+                        op2 = 1 / 2j * (op - op.adjoint()).reduce()
+                        results_re = self._eval_op(state, op1, quantum_instance, expectation)
+                        result_im = self._eval_op(state, op2, quantum_instance, expectation)
+                        results[name] = [results_re[0] + 1j * result_im[0]]
         else:
             if operators is None:
                 results = None
@@ -213,6 +230,7 @@ class GroundStateEigensolver(GroundStateSolver):
             return [0.0j]
 
         exp = ~StateFn(op) @ state  # <state|op|state>
+        # exp = StateFn(op, is_measurement=True) @ state
 
         if quantum_instance is not None:
             try:
