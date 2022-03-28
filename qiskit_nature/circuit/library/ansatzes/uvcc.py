@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" The Unitary Vibrational Coupled-Cluster Single and Double excitations Ansatz. """
+""" The Unitary Vibrational Coupled-Cluster Ansatz. """
 
 import logging
 from functools import partial
@@ -18,7 +18,7 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import OperatorBase, PauliTrotterEvolution
+from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 
 class UVCC(EvolvedOperatorAnsatz):
     """
-    This trial wavefunction is a Unitary Vibrational Coupled-Cluster Single and Double excitations
-    ansatz.
+    This trial wavefunction is a Unitary Vibrational Coupled-Cluster ansatz.
+
     For more information, see Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
@@ -97,7 +97,7 @@ class UVCC(EvolvedOperatorAnsatz):
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
-        self._excitation_ops: List[SecondQuantizedOp] = None
+        self._excitation_ops: Optional[List[SecondQuantizedOp]] = None
 
     @property
     def qubit_converter(self) -> Optional[QubitConverter]:
@@ -107,6 +107,7 @@ class UVCC(EvolvedOperatorAnsatz):
     @qubit_converter.setter
     def qubit_converter(self, conv: QubitConverter) -> None:
         """Sets the qubit operator converter."""
+        self._operators = None
         self._invalidate()
         self._qubit_converter = conv
 
@@ -118,6 +119,7 @@ class UVCC(EvolvedOperatorAnsatz):
     @num_modals.setter
     def num_modals(self, num_modals: List[int]) -> None:
         """Sets the number of modals."""
+        self._operators = None
         self._invalidate()
         self._num_modals = num_modals
 
@@ -129,15 +131,67 @@ class UVCC(EvolvedOperatorAnsatz):
     @excitations.setter
     def excitations(self, exc: Union[str, int, List[int], Callable]) -> None:
         """Sets the excitations."""
+        self._operators = None
         self._invalidate()
         self._excitations = exc
+
+    @EvolvedOperatorAnsatz.operators.getter
+    def operators(self):  # pylint: disable=invalid-overridden-method
+        """The operators that are evolved in this circuit.
+
+        Returns:
+            list: The operators to be evolved contained in this ansatz or
+                  None if the configuration is not complete
+        """
+        # Overriding the getter to build the operators on demand when they are
+        # requested, if they are still set to None.
+        operators = super(UVCC, self.__class__).operators.__get__(self)
+
+        if operators is None or operators == [None]:
+            # If the operators are None build them out if the uvcc config checks out ok, otherwise
+            # they will be left as None to be built at some later time.
+            if self._check_uvcc_configuration(raise_on_failure=False):
+                # The qubit operators are cached by `EvolvedOperatorAnsatz` class. We only generate
+                # them from the `SecondQuantizedOp`s produced by the generators, if they're not already
+                # present.
+                excitation_ops = self.excitation_ops()
+
+                logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
+                # Convert operators according to saved state in converter from the conversion of the
+                # main operator since these need to be compatible. If Z2 Symmetry tapering was done
+                # it may be that one or more excitation operators do not commute with the
+                # symmetry. Normally the converted operators are maintained at the same index by
+                # the converter inserting None as the result if an operator did not commute. Here
+                # we are not interested in that just getting the valid set of operators so that
+                # behavior is suppressed.
+                self.operators = self.qubit_converter.convert_match(
+                    excitation_ops, suppress_none=True
+                )
+
+        return super(UVCC, self.__class__).operators.__get__(self)
 
     def _invalidate(self):
         self._excitation_ops = None
         super()._invalidate()
 
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
-        if self.num_modals is None or any(b < 0 for b in self.num_modals):
+        # Check our local config is valid first. The super class will check the
+        # operators by getting them, and if we detect they are still None they
+        # will be built so that its valid check will end up passing in that regard.
+        if not self._check_uvcc_configuration(raise_on_failure):
+            return False
+
+        return super()._check_configuration(raise_on_failure)
+
+    def _check_uvcc_configuration(self, raise_on_failure: bool = True) -> bool:
+        # Check the local config, separated out that it can be checked via build
+        # or ahead of building operators to make sure everything needed is present.
+        if self.num_modals is None:
+            if raise_on_failure:
+                raise ValueError("The number of modals cannot be 'None`.")
+            return False
+
+        if any(b < 0 for b in self.num_modals):
             if raise_on_failure:
                 raise ValueError(
                     "The number of modals cannot contain negative values but is ",
@@ -157,6 +211,7 @@ class UVCC(EvolvedOperatorAnsatz):
 
         return True
 
+<<<<<<< HEAD
     def _build(self) -> None:
         if self._data is not None:
             return
@@ -172,6 +227,8 @@ class UVCC(EvolvedOperatorAnsatz):
         logger.debug("Building QuantumCircuit...")
         super()._build()
 
+=======
+>>>>>>> fd016e2 (UVCC operator creation on demand (#615))
     def excitation_ops(self) -> List[SecondQuantizedOp]:
         """Parses the excitations and generates the list of operators.
 
