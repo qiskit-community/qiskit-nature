@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -163,7 +163,7 @@ class ElectronicIntegrals(ABC):
                 )
             if matrices[0] is None:
                 raise TypeError("The first matrix in your list of matrices cannot be `None`!")
-            if len(matrices) != 2 ** num_body_terms:
+            if len(matrices) != 2**num_body_terms:
                 raise ValueError(
                     f"2 to the power of the number of body terms, {2 ** num_body_terms}, does not "
                     f"match the number of provided matrices, {len(matrices)}."

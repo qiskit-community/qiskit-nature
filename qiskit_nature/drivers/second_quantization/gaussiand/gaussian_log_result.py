@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -111,9 +111,9 @@ class GaussianLogResult:
         constants = []
         pattern_constants = ""
         for i in range(indices):
-            pattern_constants += fr"\s+(?P<index{i + 1}>\w+)"
+            pattern_constants += rf"\s+(?P<index{i + 1}>\w+)"
         for i in range(3):
-            pattern_constants += fr"\s+(?P<const{i + 1}>[+-]?\d+\.\d+)"
+            pattern_constants += rf"\s+(?P<const{i + 1}>[+-]?\d+\.\d+)"
 
         # Find the section of interest
         i = 0

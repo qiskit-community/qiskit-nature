@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -93,7 +93,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
     # can distinguish between unrestricted and restricted FCIDump files.
     _uhf = bool(
         re.search(
-            fr".*(\s+{norb * 2}\s+{norb * 2}\s+0\s+0)",
+            rf".*(\s+{norb * 2}\s+{norb * 2}\s+0\s+0)",
             fcidump_str[namelist_end.start(0) :],
         )
     )

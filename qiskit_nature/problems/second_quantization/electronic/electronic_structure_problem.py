@@ -220,13 +220,10 @@ class ElectronicStructureProblem(BaseProblem):
             particle_number = cast(
                 ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )
-            return (
-                np.isclose(
-                    particle_number.num_alpha + particle_number.num_beta,
-                    num_particles_aux,
-                )
-                and np.isclose(0.0, total_angular_momentum_aux)
-            )
+            return np.isclose(
+                particle_number.num_alpha + particle_number.num_beta,
+                num_particles_aux,
+            ) and np.isclose(0.0, total_angular_momentum_aux)
 
         return partial(filter_criterion, self)
 

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -72,13 +72,13 @@ def thermodynamic_energy(partition, temperature, scale_factor=const.N_A, *, d_t=
     formula = (
         (np.log(partition(temperature + d_t)) - np.log(partition(temperature - d_t)))
         / (2 * d_t)
-        * temperature ** 2
+        * temperature**2
         * const.KB_J_PER_K
     )
     # TODO: Find a better way! isinstance does not always work.
     if "DifferentiableFunction" in str(type(partition)):
         formula = (
-            partition.D(temperature) / partition(temperature) * temperature ** 2 * const.KB_J_PER_K
+            partition.D(temperature) / partition(temperature) * temperature**2 * const.KB_J_PER_K
         )
     return scale_factor * formula
 
