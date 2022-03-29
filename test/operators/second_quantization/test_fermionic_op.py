@@ -315,8 +315,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                 + 1j * FermionicOp("-", display_format="dense")
                 + 1j * FermionicOp("+", display_format="dense")
             )
-            with self.assertWarns(DeprecationWarning):
-                reduced_op = fer_op.reduce()
+            reduced_op = fer_op.reduce()
             targ = FermionicOp([("+", 1 + 1j), ("-", 1j)], display_format="dense")
             self.assertFermionEqual(reduced_op, targ)
 
@@ -457,8 +456,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = FermionicOp("-")
-            with self.assertWarns(DeprecationWarning):
-                fer_op = orig.to_normal_order()
+            fer_op = orig.to_normal_order()
             targ = FermionicOp("-_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
             self.assertEqual(orig.display_format, "dense")
@@ -467,8 +465,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = FermionicOp("N")
-            with self.assertWarns(DeprecationWarning):
-                fer_op = orig.to_normal_order()
+            fer_op = orig.to_normal_order()
             targ = FermionicOp("+_0 -_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
             self.assertEqual(orig.display_format, "dense")
@@ -477,8 +474,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = FermionicOp("E")
-            with self.assertWarns(DeprecationWarning):
-                fer_op = orig.to_normal_order()
+            fer_op = orig.to_normal_order()
             targ = FermionicOp([("", 1), ("+_0 -_0", -1)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
             self.assertEqual(orig.display_format, "dense")
@@ -487,8 +483,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = FermionicOp("-+")
-            with self.assertWarns(DeprecationWarning):
-                fer_op = orig.to_normal_order()
+            fer_op = orig.to_normal_order()
             targ = FermionicOp([("+_1 -_0", -1)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
             self.assertEqual(orig.display_format, "dense")
@@ -497,8 +492,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = 3 * FermionicOp("E+-")
-            with self.assertWarns(DeprecationWarning):
-                fer_op = orig.to_normal_order()
+            fer_op = orig.to_normal_order()
             targ = FermionicOp([("+_1 -_2", 3), ("+_0 +_1 -_0 -_2", 3)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
             self.assertEqual(orig.display_format, "dense")

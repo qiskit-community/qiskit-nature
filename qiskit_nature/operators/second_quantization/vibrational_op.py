@@ -19,9 +19,8 @@ from functools import reduce
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-
-from qiskit.utils.deprecation import deprecate_function
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.deprecation import deprecate_function
 
 from .second_quantized_op import SecondQuantizedOp
 
@@ -264,10 +263,7 @@ class VibrationalOp(SecondQuantizedOp):
             self._num_modals,
         )
 
-    @deprecate_function(
-        "The `reduce` method is deprecated as of version 0.4.0 and will be removed no "
-        "earlier than 3 months after the release date. Instead, use `simplify`."
-    )
+    @deprecate_function("0.4.0", new_name="simplify")
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationalOp":
         return self.simplify(atol=atol)
 

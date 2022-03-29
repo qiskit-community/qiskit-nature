@@ -23,7 +23,7 @@ from typing import Optional, Union, cast
 
 import numpy as np
 from scipy.sparse import csc_matrix
-from qiskit.utils.deprecation import deprecate_function
+from qiskit_nature.deprecation import deprecate_function
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
 
 
@@ -548,9 +548,8 @@ class FermionicOp(SecondQuantizedOp):
         )
 
     @deprecate_function(
-        "The `reduce` method is deprecated as of version 0.4.0 and will be removed no "
-        "earlier than 3 months after the release date. Instead, use `simplify` "
-        "and optionally `normal_ordered`."
+        "0.4.0",
+        additional_msg="Instead, use `simplify` and optionally `normal_ordered`.",
     )
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> FermionicOp:
         if atol is None:
@@ -627,8 +626,8 @@ class FermionicOp(SecondQuantizedOp):
         return dense_label_data
 
     @deprecate_function(
-        "The `to_normal_order` method is deprecated as of version 0.4.0 and will be removed no "
-        "earlier than 3 months after the release date. Instead, use `normal_ordered`."
+        "0.4.0",
+        additional_msg="Instead, use `normal_ordered`.",
     )
     def to_normal_order(self) -> FermionicOp:
         """Convert to the equivalent operator with normal order.
