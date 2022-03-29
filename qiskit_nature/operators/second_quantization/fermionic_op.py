@@ -552,6 +552,10 @@ class FermionicOp(SecondQuantizedOp):
         additional_msg="Instead, use `simplify` and optionally `normal_ordered`.",
     )
     def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> FermionicOp:
+        """Reduce the operator.
+
+        This method is deprecated. It is equivalent to `normal_ordered` followed by `simplify`.
+        """
         if atol is None:
             atol = self.atol
         if rtol is None:
@@ -573,6 +577,17 @@ class FermionicOp(SecondQuantizedOp):
         )
 
     def simplify(self, atol: Optional[float] = None) -> FermionicOp:
+        """Simplify the operator.
+
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+
+        Returns:
+            The simplified operator.
+        """
         if atol is None:
             atol = self.atol
 

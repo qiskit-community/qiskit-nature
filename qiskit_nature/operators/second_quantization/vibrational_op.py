@@ -264,10 +264,29 @@ class VibrationalOp(SecondQuantizedOp):
         )
 
     @deprecate_function("0.4.0", new_name="simplify")
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationalOp":
+    def reduce(
+        self,
+        atol: Optional[float] = None,
+        rtol: Optional[float] = None,  # pylint: disable=unused-argument
+    ) -> "VibrationalOp":
+        """Reduce the operator.
+
+        This method is deprecated. Use `simplify` instead.
+        """
         return self.simplify(atol=atol)
 
     def simplify(self, atol: Optional[float] = None) -> "VibrationalOp":
+        """Simplify the operator.
+
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+
+        Returns:
+            The simplified operator.
+        """
         if atol is None:
             atol = self.atol
 

@@ -43,8 +43,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
     @abstractmethod
     def simplify(self, atol: Optional[float] = None):
-        """
-        Simplify the operator.
+        """Simplify the operator.
 
         Merges terms with same labels and eliminates terms with coefficients close to 0.
         Returns a new operator (the original operator is not modified).
