@@ -41,21 +41,6 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
         return super().__pow__(power)
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
-        """
-        Reduce the operator.
-
-        `Reduce` merges terms with same labels and chops terms with coefficients close to 0.
-
-        Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
-
-        Returns:
-            The reduced operator`
-        """
-        raise NotImplementedError
-
     @abstractmethod
     def simplify(self, atol: Optional[float] = None):
         """
