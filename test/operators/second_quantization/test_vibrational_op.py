@@ -113,3 +113,26 @@ class TestVibrationalOp(QiskitNatureTestCase):
                 - 1j * VibrationalOp("-+", 2, 1)
             )
             self.assertFalse(test_op.is_hermitian())
+
+    def test_simplify(self):
+        """Test simplify"""
+        test_op = (
+            1j * VibrationalOp("+-", 2, 1)
+            + 1j * VibrationalOp("+-", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+        )
+        expected = [("+-", 2j), ("-+", -2j)]
+        self.assertEqual(test_op.simplify().to_list(), expected)
+
+    def test_reduce(self):
+        """Test reduce"""
+        test_op = (
+            1j * VibrationalOp("+-", 2, 1)
+            + 1j * VibrationalOp("+-", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+        )
+        expected = [("+-", 2j), ("-+", -2j)]
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(test_op.reduce().to_list(), expected)

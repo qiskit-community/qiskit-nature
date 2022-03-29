@@ -266,7 +266,8 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_reduce(self):
         """Test reduce"""
         with self.assertWarns(DeprecationWarning):
-            _ = (self.heisenberg - self.heisenberg).reduce()
+            actual = (self.heisenberg - self.heisenberg).reduce()
+            self.assertListEqual(actual.to_list(), [("I_1", 0)])
 
     def test_simplify(self):
         """Test simplify"""
