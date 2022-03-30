@@ -54,7 +54,6 @@ class HDF5Storable(Protocol):
         Args:
             parent: the parent HDF5 group.
         """
-        ...
 
     @staticmethod
     def from_hdf5(h5py_group: h5py.Group) -> HDF5Storable:
@@ -77,7 +76,6 @@ class HDF5Storable(Protocol):
         Returns:
             A new instance of this class.
         """
-        ...
 
 
 def save_to_hdf5(obj: HDF5Storable, filename: str, *, replace: bool = False) -> None:
