@@ -51,7 +51,7 @@ class MP2InitialPoint(InitialPoint):
     def __init__(self) -> None:
         super().__init__()
         self.threshold = 1e-12
-        self._corrections: dict[str, tuple[float, float]]
+        self._corrections: dict[str, tuple[float, float]] = None
 
     @property
     def driver_result(self) -> GroupedSecondQuantizedProperty:
