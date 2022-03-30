@@ -200,9 +200,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             qubit_converter: a class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
 
-        Raises:
-            ValueError: for unrecognized initial point strings.
-
         Returns:
             A VQE suitable to compute the ground state of the molecule.
         """
