@@ -557,7 +557,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         initial_point = MP2InitialPoint()
 
         solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")), initial_point=initial_point
+            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            initial_point=initial_point,
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
