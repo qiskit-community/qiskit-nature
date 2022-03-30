@@ -36,6 +36,7 @@ class InitialPoint(ABC):
         """Returns the initial point."""
         raise NotImplementedError
 
+    @abstractmethod
     def get_initial_point(
         self, driver_result: GroupedSecondQuantizedProperty, ansatz: UCC
     ) -> np.ndarray:
