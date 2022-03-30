@@ -352,7 +352,7 @@ class FermionicOp(SecondQuantizedOp):
             ")"
         )
 
-    def __iter__(self) -> Iterable[tuple[list[tuple[str, int]], complex]]:
+    def terms(self) -> Iterable[tuple[list[tuple[str, int]], complex]]:
         """Iterate through operator terms."""
         return iter(self._data)
 

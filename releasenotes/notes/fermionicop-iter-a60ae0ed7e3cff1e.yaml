@@ -1,7 +1,8 @@
 ---
 features:
   - |
-    FermionicOp is now iterable. Iterating a FermionicOp yields
+    Adds :meth:`qiskit_nature.operators.second_quantization.FermionicOp.terms`.
+    This returns an iterable of
     (term, coefficient) pairs describing the terms contained in the operator.
     Each term is a list of tuples of the form (action, index), where the action
     is either "+" or "-" and the index is the integer index of the factor in
