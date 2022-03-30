@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,13 +20,18 @@ from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Provider
 from qiskit.providers.backend import Backend
-from qiskit.algorithms import MinimumEigensolver, MinimumEigensolverResult, VQEResult
+from qiskit.algorithms import (
+    MinimumEigensolver,
+    MinimumEigensolverResult,
+    VQEResult,
+    VariationalAlgorithm,
+)
 from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
 
-class VQEClient(MinimumEigensolver):
+class VQEClient(VariationalAlgorithm, MinimumEigensolver):
     """The Qiskit Nature VQE Runtime Client.
 
     This class is a client to call the VQE program in Qiskit Runtime."""
