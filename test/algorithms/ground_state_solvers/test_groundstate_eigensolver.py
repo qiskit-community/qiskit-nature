@@ -17,6 +17,7 @@ import copy
 import io
 import unittest
 import warnings
+from qiskit_nature.algorithms.initial_points import initial_point
 
 from test import QiskitNatureTestCase
 
@@ -48,6 +49,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 from qiskit_nature import settings
+from qiskit_nature.algorithms import MP2InitialPoint
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -552,23 +554,16 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_vqe_ucc_factory_with_mp2(self):
         """Test when using MP2PointGenerator to generate the initial point."""
 
+        initial_point = MP2InitialPoint()
+
         solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")), initial_point="MP2"
+            QuantumInstance(BasicAer.get_backend("statevector_simulator")), initial_point=initial_point
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, -0.07197145])
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
-
-    def test_vqe_ucc_factory_with_bad_initial_point_string(self):
-        """Test when using a string with no mapped initializer to generate the initial point."""
-        with self.assertRaises(ValueError):
-            solver = VQEUCCFactory(
-                QuantumInstance(BasicAer.get_backend("statevector_simulator")), initial_point="foo"
-            )
-            calc = GroundStateEigensolver(self.qubit_converter, solver)
-            calc.solve(self.electronic_structure_problem)
 
 
 if __name__ == "__main__":

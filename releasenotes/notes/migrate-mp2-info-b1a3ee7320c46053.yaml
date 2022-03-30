@@ -2,9 +2,9 @@ features:
   - |
     Adds a class to compute the Moller-Plesset 2nd Order corrections. The
     corresponding double-excitation coefficients are intended to be used as
-    an initial point for VQE when using a UCC ansatz. This should introduce
-    an initial point that is closer to the ground state point, leading to fewer
-    overall evaluations for VQE.
+    an initial point for the VQE parameters (cluster operator coefficients).
+    This should introduce an initial point that is closer to the ground state
+    point, leading to fewer overall evaluations for VQE.
 
     To instantiate `~qiskit_nature.algorithms.MP2PointGenerator`, it requires the
     number of spin orbitals, the electronic energy, and the excitation lists

@@ -101,27 +101,27 @@ of various potentials. More detail may be found in the sub-module linked below
 
    pes_samplers
 
-Point generators.
+Initial Points
 +++++++++++++++++++++++++++++++++
 Algorithms that can compute initial points to use with particular ansatzes.
 
-.. currentmodule:: qiskit_nature.algorithms.point_generators
+.. currentmodule:: qiskit_nature.algorithms.initial_points
 
-The initial point generator interface.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   PointGenerator
-
-The MP2 initial point generator.
+The initial point interface.
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
-   MP2PointGenerator
+   InitialPoint
+
+The MP2 initial point algorithm.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MP2InitialPoint
 
 """
 
@@ -142,7 +142,7 @@ from .ground_state_solvers import (
     VQEUVCCFactory,
 )
 from .pes_samplers import BOPESSampler
-from .point_generators import PointGenerator, MP2PointGenerator
+from .initial_points import InitialPoint, MP2InitialPoint
 
 __all__ = [
     "ExcitedStatesEigensolver",
@@ -158,6 +158,6 @@ __all__ = [
     "VQEUCCFactory",
     "VQEUVCCFactory",
     "BOPESSampler",
-    "PointGenerator",
-    "MP2PointGenerator",
+    "InitialPoint",
+    "MP2InitialPoint",
 ]

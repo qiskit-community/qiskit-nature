@@ -13,6 +13,8 @@
 """Test the MP2 Initializer for generating an initial point for VQE."""
 
 import unittest
+from unittest.mock import Mock
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 
 from test import QiskitNatureTestCase
 
@@ -30,12 +32,12 @@ from qiskit_nature.problems.second_quantization.electronic.electronic_structure_
 )
 
 from qiskit_nature.settings import settings
-from qiskit_nature.algorithms import MP2PointGenerator
+from qiskit_nature.algorithms import MP2InitialPoint
 
 
 @ddt
-class TestMP2PointGenerator(QiskitNatureTestCase):
-    """Test MP2 initializer class.
+class TestMP2InitialPoint(QiskitNatureTestCase):
+    """Test MP2 initial point.
 
     Full excitation sequences generated using:
 
@@ -52,6 +54,24 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         settings.dict_aux_operators = True
+        self.mock_ansatz = Mock()
+        self.mock_ansatz.operators = None
+
+    def test_mp2_missing_orbital_energies(
+        self,
+    ):
+        """Test MP2 InitialPoint raises errors for bad input."""
+
+        mp2 = MP2InitialPoint()
+
+        # Mock up driver result with missing orbital energies.
+        mock_result = Mock()
+        mock_electronic_energy = Mock()
+        mock_electronic_energy.orbital_energies = None
+        mock_result.get_property = Mock(return_value=mock_electronic_energy)
+
+        with self.assertRaises(ValueError):
+            _ = mp2.get_initial_point(mock_result, self.mock_ansatz)
 
     @file_data("./resources/test_data_mp2_point_generator.json")
     def test_mp2_point_generator(
@@ -65,7 +85,7 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
         energy,
         excitations,
     ):
-        """Test MP2 PointGenerator with several real molecules."""
+        """Test MP2 InitialPoint with several real molecules."""
 
         molecule = Molecule(geometry=[[atom1, [0.0, 0.0, 0.0]], [atom2, [0.0, 0.0, distance]]])
 
@@ -80,31 +100,17 @@ class TestMP2PointGenerator(QiskitNatureTestCase):
 
         driver_result = problem.grouped_property_transformed
 
-        particle_number = driver_result.get_property("ParticleNumber")
-        electronic_energy = driver_result.get_property("ElectronicEnergy")
+        # we just need the excitation list from the ansatz; so mock it up
+        self.mock_ansatz.excitation_list = excitations
 
-        num_spin_orbitals = particle_number.num_spin_orbitals
+        mp2 = MP2InitialPoint()
 
-        mp2 = MP2PointGenerator(
-            num_spin_orbitals,
-            electronic_energy,
-            excitations,
-        )
-
-        if atom1 == "H" and atom2 == "H":
-            # For molecule-independent tests, just test h2.
-
-            with self.subTest("Test missing input raises error") and self.assertRaises(ValueError):
-                electronic_energy_missing = driver_result.get_property("ElectronicEnergy")
-                electronic_energy_missing.orbital_energies = None
-                mp2 = MP2PointGenerator(
-                    num_spin_orbitals,
-                    electronic_energy_missing,
-                    excitations,
-                )
-
-        with self.subTest("Test MP2 initial points"):
-            np.testing.assert_array_almost_equal(mp2.initial_point, initial_point, decimal=6)
+        with self.subTest("Test MP2 initial point"):
+            np.testing.assert_array_almost_equal(
+                mp2.get_initial_point(driver_result, self.mock_ansatz),
+                initial_point,
+                decimal=6,
+            )
 
         with self.subTest("Test MP2 energy deltas"):
             np.testing.assert_array_almost_equal(mp2.energy_deltas, energy_deltas, decimal=6)

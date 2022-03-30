@@ -16,15 +16,15 @@ import unittest
 from unittest.mock import patch
 from test import QiskitNatureTestCase
 
-from qiskit_nature.algorithms import PointGenerator
+from qiskit_nature.algorithms import InitialPoint
 
 
 class TestPointGenerator(QiskitNatureTestCase):
-    @patch.multiple(PointGenerator, __abstractmethods__=set())
+    @patch.multiple(InitialPoint, __abstractmethods__=set())
     def test_initial_point_raises_not_implemented_error(self):
-        point_generator = PointGenerator()
+        initial_point = InitialPoint()
         with self.assertRaises(NotImplementedError):
-            _ = point_generator.initial_point
+            _ = initial_point.get_initial_point(None, None)
 
 
 if __name__ == "__main__":

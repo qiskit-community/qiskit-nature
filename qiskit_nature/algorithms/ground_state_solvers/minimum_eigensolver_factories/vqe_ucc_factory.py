@@ -12,7 +12,7 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Optional, Union, Callable, List, Tuple, cast
+from typing import Optional, Union, Callable, cast
 
 import numpy as np
 
@@ -22,18 +22,16 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
+from qiskit_nature.algorithms.initial_points.initial_point import InitialPoint
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
-from qiskit_nature.properties.second_quantization.electronic import ParticleNumber, ElectronicEnergy
-from qiskit_nature.properties.second_quantization.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
-from ...point_generators import MP2PointGenerator
+from ...initial_points import InitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -44,7 +42,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self,
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
-        initial_point: Optional[Union[np.ndarray, str]] = None,
+        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -57,13 +55,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
             optimizer: A classical optimizer.
-            initial_point: An optional initial point (i.e., initial parameter values)
-                for the optimizer. If ``None`` then VQE will use an all-zero
-                initial point, which then defaults to the Hartree-Fock (HF) state when
-                the HF circuit is prepended to the beginning of the Ansatz circuit.
-                If `"MP2"` then Moller-Plesset coefficients will be used for the double
-                excitation coefficients of the initial point.
-                See :class:`~qiskit_nature.algorithms.MP2PointGenerator` for more info.
+            initial_point: An optional initial point (i.e., initial parameter values) for the
+                optimizer. If ``None`` then VQE will use an all-zero initial point, which then
+                defaults to the Hartree-Fock (HF) state when the HF circuit is prepended to the
+                the ansatz circuit. Overrides ``informed_start`` if not ``None``.
+            informed_start: An optional :class:`~qiskit_nature.algorithms.InitialPoint` instance
+                with which to compute an initial point for VQE. This is overridden if
+                ``initial_point`` is not ``None``.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -121,12 +119,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._optimizer = optimizer
 
     @property
-    def initial_point(self) -> Optional[Union[np.ndarray, str]]:
+    def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:
         """Getter of the initial point."""
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: Optional[Union[np.ndarray, str]]) -> None:
+    def initial_point(self, initial_point: Optional[Union[np.ndarray, InitialPoint]]) -> None:
         """Setter of the initial point."""
         self._initial_point = initial_point
 
@@ -227,18 +225,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
 
-        initial_point = self.initial_point
-        if initial_point is not None and not isinstance(initial_point, np.ndarray):
-            # Operators must be built early to compute excitation list.
-            _ = ansatz.operators
-            excitation_list = ansatz.excitation_list
-            if initial_point.lower() == "mp2":
-                initial_point = _get_mp2_initial_point(driver_result, excitation_list)
-            else:
-                raise ValueError(f"Initial point `{initial_point}` not recognised.")
-
-        # Override initial point from the arguments with the computed value.
-        self.initial_point = initial_point
+        if isinstance(self._initial_point, InitialPoint):
+            self.initial_point = self._initial_point.get_initial_point(driver_result, ansatz)
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
@@ -258,23 +246,3 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()
-
-
-def _get_mp2_initial_point(
-    driver_result: GroupedSecondQuantizedProperty,
-    excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
-) -> np.ndarray:
-    """Get the initial point using MP2 double excitation coefficients.
-
-    Args:
-        driver_result: the second quantization properties from the driver.
-        excitations: the list of excitations
-
-    Returns:
-        The initial point using MP2 double excitation coefficients.
-    """
-    electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
-    particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
-    num_spin_orbitals = particle_number.num_spin_orbitals
-    mp2_point_generator = MP2PointGenerator(num_spin_orbitals, electronic_energy, excitations)
-    return mp2_point_generator.initial_point

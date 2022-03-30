@@ -12,13 +12,13 @@
 
 """
 ====================================================================================
-Point Generators
-(:mod:`qiskit_nature.algorithms.point_generators`)
+Initial Points
+(:mod:`qiskit_nature.algorithms.initial_points`)
 ====================================================================================
 
 Algorithms that can compute initial points to use with particular ansatzes.
 
-.. currentmodule:: qiskit_nature.algorithms.point_generators
+.. currentmodule:: qiskit_nature.algorithms.initial_points
 
 The initial point generator interface.
 
@@ -26,7 +26,7 @@ The initial point generator interface.
    :toctree: ../stubs/
    :nosignatures:
 
-   PointGenerator
+   InitialPoint
 
 The MP2 initial point generator.
 
@@ -34,11 +34,11 @@ The MP2 initial point generator.
    :toctree: ../stubs/
    :nosignatures:
 
-   MP2PointGenerator
+   MP2InitialPoint
 
 """
 
-from .point_generator import PointGenerator
-from .mp2_point_generator import MP2PointGenerator
+from .initial_point import InitialPoint
+from .mp2_initial_point import MP2InitialPoint
 
-__all__ = ["PointGenerator", "MP2PointGenerator"]
+__all__ = ["InitialPoint", "MP2InitialPoint"]
