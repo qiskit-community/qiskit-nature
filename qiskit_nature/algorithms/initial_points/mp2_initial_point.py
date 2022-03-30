@@ -178,6 +178,9 @@ class MP2InitialPoint(InitialPoint):
         Args:
             driver_result: the second quantization properties from the driver.
             ansatz: the UCC ansatz.
+
+        Return:
+            The computed initial point.
         """
         self.driver_result = driver_result
         self.ansatz = ansatz
