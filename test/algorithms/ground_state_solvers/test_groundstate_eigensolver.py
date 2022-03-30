@@ -17,7 +17,6 @@ import copy
 import io
 import unittest
 import warnings
-from qiskit_nature.algorithms.initial_points import initial_point
 
 from test import QiskitNatureTestCase
 
@@ -554,11 +553,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_vqe_ucc_factory_with_mp2(self):
         """Test when using MP2PointGenerator to generate the initial point."""
 
-        initial_point = MP2InitialPoint()
+        informed_start = MP2InitialPoint()
 
         solver = VQEUCCFactory(
             QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-            initial_point=initial_point,
+            initial_point=informed_start,
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
