@@ -80,7 +80,7 @@ class MP2PointGenerator(PointGenerator):
             ValueError: For non-positive-definite input.
         """
         if num_spin_orbs <= 0:
-            raise ValueError("Number of spin orbitals must be positive definite.")
+            raise ValueError("The number of spin orbitals must be greater than 0.")
         self._num_spin_orbitals = num_spin_orbs
 
     @property
@@ -123,8 +123,8 @@ class MP2PointGenerator(PointGenerator):
     @threshold.setter
     def threshold(self, thr: float) -> None:
         """The energy threshold for MP2 computation."""
-        if thr <= 0:
-            raise ValueError("The energy threshold must be positive definite.")
+        if thr < 0.0:
+            raise ValueError("The energy threshold can't be negative.")
         self._threshold = thr
 
     @property
