@@ -12,7 +12,7 @@
 
 """The MP2PointGenerator class to compute an initial point for VQE."""
 
-from typing import Dict, List, Tuple
+from __future__ import annotations
 
 import numpy as np
 
@@ -47,7 +47,7 @@ class MP2PointGenerator(PointGenerator):
         self,
         num_spin_orbitals: int,
         electronic_energy: ElectronicEnergy,
-        excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
+        excitations: list[tuple[tuple[int, ...], tuple[int, ...]]],
         threshold: float = 1e-12,
     ) -> None:
         """
@@ -105,12 +105,12 @@ class MP2PointGenerator(PointGenerator):
         self._reference_energy = elec.reference_energy
 
     @property
-    def excitations(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+    def excitations(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
         """The sequence of excitations."""
         return self._excitations
 
     @excitations.setter
-    def excitations(self, exs: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]):
+    def excitations(self, exs: list[tuple[tuple[int, ...], tuple[int, ...]]]):
         """The sequence of excitations."""
         # TODO: Validate excitation list as is done in UCC?
         self._excitations = exs
@@ -149,7 +149,7 @@ class MP2PointGenerator(PointGenerator):
 
     def _compute_corrections(
         self,
-    ) -> Dict[str, Tuple[float, float]]:
+    ) -> dict[str, tuple[float, float]]:
         """Compute the MP2 coefficients and energy corrections for each double excitation.
 
         Non-double excitations will have zero coefficient and energy delta.
@@ -171,8 +171,8 @@ class MP2PointGenerator(PointGenerator):
         return terms
 
     def _compute_correction(
-        self, excitation: Tuple[Tuple[int, ...], Tuple[int, ...]]
-    ) -> Tuple[float, float]:
+        self, excitation: tuple[tuple[int, ...], tuple[int, ...]]
+    ) -> tuple[float, float]:
         """Compute the MP2 coefficient and energy corrections given a double excitation.
 
         Each double excitation given by [i,a,j,b] has a coefficient computed using
