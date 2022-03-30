@@ -144,7 +144,9 @@ class VibrationalIntegrals(ABC):
             A new instance of this class.
         """
         integrals = []
-        for coeff, ints in zip(h5py_group["coefficients"][...], h5py_group["integrals"][...]):
+        for coeff, ints in zip(
+            h5py_group["coefficients"][Ellipsis], h5py_group["integrals"][Ellipsis]
+        ):
             integrals.append((coeff, tuple(ints)))
 
         ret = VibrationalIntegrals(h5py_group.attrs["num_body_terms"], integrals)
