@@ -4,19 +4,42 @@ features:
     corresponding double-excitation coefficients are intended to be used as
     an initial point for the VQE parameters (cluster operator coefficients)
     when using a UCC ansatz. This should introduce an initial point that is
-    closer to the ground state point, leading to fewer overall evaluations for VQE.
+    closer to the ground state point, leading to fewer overall evaluations
+    for VQE.
 
-    To instantiate `~qiskit_nature.algorithms.MP2InitialPoint`, it requires the
-    number of spin orbitals, the electronic energy, and the excitation lists
-    from the second-quantized properties returned by the driver.
+    :class:`~qiskit_nature.algorithms.MP2InitialPoint` inherits from the
+    abstract base class (interface) `~qiskit_nature.algorithms.InitialPoint`,
+    which takes a driver result and a UCC Ansatz via the ``get_initial_point``
+    method.
 
-    If using a :class:`~qiskit_nature.algorithms.VQEUCCfactory`, one can set
-    `initial_point="MP2"` and :class:`~qiskit_nature.algorithms.MP2InitialPoint`
-    will be built within the factory using the same excitations as
-    `~qiskit_nature.circuit.library.UCC` automatically. This initial point will
-    then be passed to VQE.
+    The MP2 computation requires the number of spin orbitals and the electronic
+    energy from the second quantized properties of the driver result. The
+    electronic energy must contain the ``orbital_energies`` for a valid
+    calculation. If this is missing an error will be raised.
 
-    Outside of the factory, one can pass the initial point for VQE by manually
-    getting the excitation list from UCC and instantiating
-    :class:`~qiskit_nature.algorithms.MP2InitialPoint` with it and the relevant
-    results from the driver.
+    When using a VQE UCC factory, the (empty) instantiated `MP2InitialPoint`
+    can be passed via the `initial_point` keyword argument:
+
+    .. code-block:: python
+      mp2 = MP2InitialPoint()
+      vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=mp2)
+
+    In this case the driver result and ansatz will be used to compute the
+    initial point automatically. This will then be passed to the VQE.
+
+    Outside of the factory, one can do this manually:
+
+    .. code-block:: python
+      mp2 = MP2InitialPoint()
+      initial_point = mp2.get_initial_point(driver_result, ansatz)
+
+      algorithm = VQE(
+        ansatz,
+        optimizer=optimizer,
+        quantum_instance=quantum_instance,
+        initial_point=initial_point
+      )
+
+    The eventual intention is to retire `preferred_init_points` from `VQE` in
+    Terra, so the implementation avoids this property.
+
