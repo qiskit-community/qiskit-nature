@@ -8,9 +8,9 @@ features:
     for VQE.
 
     :class:`~qiskit_nature.algorithms.MP2InitialPoint` inherits from the
-    abstract base class (interface) `~qiskit_nature.algorithms.InitialPoint`,
-    which takes a driver result and a UCC Ansatz via the ``get_initial_point``
-    method.
+    abstract base class (interface)
+    :class:`~qiskit_nature.algorithms.InitialPoint`, which takes a driver
+    result and a UCC Ansatz via the ``get_initial_point`` method.
 
     The MP2 computation requires the number of spin orbitals and the electronic
     energy from the second quantized properties of the driver result. The
@@ -40,6 +40,5 @@ features:
         initial_point=initial_point
       )
 
-    The eventual intention is to retire `preferred_init_points` from `VQE` in
-    Terra, so the implementation avoids this property.
-
+    The eventual intention is to retire ``preferred_init_points`` from ``VQE``
+    in Terra, so the implementation avoids this property.
