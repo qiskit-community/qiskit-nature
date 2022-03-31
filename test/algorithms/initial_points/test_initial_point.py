@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase
 from qiskit_nature.algorithms import InitialPoint
 
 
-class TestPointGenerator(QiskitNatureTestCase):
+class TestInitialPoint(QiskitNatureTestCase):
     @patch.multiple(InitialPoint, __abstractmethods__=set())
     def test_initial_point_raises_not_implemented_error(self):
         initial_point = InitialPoint()
