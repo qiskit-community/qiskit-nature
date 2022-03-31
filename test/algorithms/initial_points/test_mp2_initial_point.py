@@ -60,7 +60,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_mp2_missing_orbital_energies(
         self,
     ):
-        """Test MP2 InitialPoint raises errors for bad input."""
+        """Test MP2InitialPoint raises errors for bad input."""
 
         mp2 = MP2InitialPoint()
 
