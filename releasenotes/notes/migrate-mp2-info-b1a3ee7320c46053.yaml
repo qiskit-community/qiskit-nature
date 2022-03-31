@@ -1,7 +1,7 @@
 features:
   - |
-    Adds a class to compute the Moller-Plesset 2nd Order corrections. The
-    corresponding double-excitation coefficients are intended to be used as
+    Adds a class to compute the Moller-Plesset 2nd Order (MP2) corrections.
+    The corresponding double-excitation coefficients are intended to be used as
     an initial point for the VQE parameters (cluster operator coefficients)
     when using a UCC ansatz. This should introduce an initial point that is
     closer to the ground state point, leading to fewer overall evaluations
@@ -17,8 +17,9 @@ features:
     electronic energy must contain the ``orbital_energies`` for a valid
     calculation. If this is missing an error will be raised.
 
-    When using a VQE UCC factory, the (empty) instantiated `MP2InitialPoint`
-    can be passed via the `initial_point` keyword argument:
+    When using :class:`~qiskit_nature.algorithms.VQEUCCFactory`, an
+    :class:`~qiskit_nature.algorithms.MP2InitialPoint` object can be passed via
+    the ``initial_point`` keyword argument:
 
     .. code-block:: python
       mp2 = MP2InitialPoint()
