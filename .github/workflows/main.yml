@@ -88,7 +88,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          make copyright
+          python tools/check_copyright.py -check
         if: ${{ !cancelled() }}
         shell: bash
       - name: Spell Check
