@@ -85,7 +85,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         energy,
         excitations,
     ):
-        """Test MP2 InitialPoint with several real molecules."""
+        """Test MP2InitialPoint with several real molecules."""
 
         molecule = Molecule(geometry=[[atom1, [0.0, 0.0, 0.0]], [atom2, [0.0, 0.0, distance]]])
 
