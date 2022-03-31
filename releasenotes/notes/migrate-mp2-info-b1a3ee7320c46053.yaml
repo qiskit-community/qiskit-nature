@@ -6,7 +6,7 @@ features:
     when using a UCC ansatz. This should introduce an initial point that is
     closer to the ground state point, leading to fewer overall evaluations for VQE.
 
-    To instantiate `~qiskit_nature.algorithms.MP2PointGenerator`, it requires the
+    To instantiate `~qiskit_nature.algorithms.MP2InitialPoint`, it requires the
     number of spin orbitals, the electronic energy, and the excitation lists
     from the second-quantized properties returned by the driver.
 
