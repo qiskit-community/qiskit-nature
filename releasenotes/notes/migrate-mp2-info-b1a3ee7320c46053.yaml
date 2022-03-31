@@ -18,5 +18,5 @@ features:
 
     Outside of the factory, one can pass the initial point for VQE by manually
     getting the excitation list from UCC and instantiating
-    :class:`~qiskit_nature.algorithms.MP2PointGenerator` with it and the relevant
+    :class:`~qiskit_nature.algorithms.MP2InitialPoint` with it and the relevant
     results from the driver.
