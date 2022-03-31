@@ -16,8 +16,9 @@ from __future__ import annotations
 
 import re
 import warnings
+from collections.abc import Iterator
 from itertools import product
-from typing import Iterable, Optional, Union, cast
+from typing import Optional, Union, cast
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -352,7 +353,7 @@ class FermionicOp(SecondQuantizedOp):
             ")"
         )
 
-    def terms(self) -> Iterable[tuple[list[tuple[str, int]], complex]]:
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
         """Iterate through operator terms."""
         return iter(self._data)
 
