@@ -22,7 +22,6 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
-from qiskit_nature.algorithms.initial_points.initial_point import InitialPoint
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
