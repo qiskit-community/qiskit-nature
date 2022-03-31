@@ -137,7 +137,7 @@ class QuadraticHamiltonian(TolerancesMixin):
 
     def to_fermionic_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms = [([], self.constant)]  # type: list[tuple[list[tuple[str, int]], complex]]
+        terms: list[tuple[list[tuple[str, int]], complex]] = [([], self.constant)]
         for i in range(self._num_modes):
             terms.append(([("+", i), ("-", i)], self.hermitian_part[i, i]))
             for j in range(i + 1, self._num_modes):
