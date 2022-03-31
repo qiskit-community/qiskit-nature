@@ -24,6 +24,7 @@ Second-Quantization Problems (:mod:`qiskit_nature.problems.second_quantization`)
    BaseProblem
    ElectronicStructureProblem
    VibrationalStructureProblem
+   LatticeModelProblem
 
 Submodules
 ==========
@@ -37,9 +38,12 @@ Submodules
 from .base_problem import BaseProblem
 from .electronic import ElectronicStructureProblem
 from .vibrational.vibrational_structure_problem import VibrationalStructureProblem
+from .lattice.lattice_model_problem import LatticeModelProblem
+
 
 __all__ = [
     "BaseProblem",
     "ElectronicStructureProblem",
     "VibrationalStructureProblem",
+    "LatticeModelProblem"
 ]

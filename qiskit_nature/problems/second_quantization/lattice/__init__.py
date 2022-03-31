@@ -42,6 +42,10 @@ Models
    FermiHubbardModel
    IsingModel
 
+Lattice Model Problems (:mod:`qiskit_nature.problems.second_quantization.lattice`)
+==================================================================================
+
+
 """
 from .lattices import (
     BoundaryCondition,
@@ -53,3 +57,4 @@ from .lattices import (
     TriangularLattice,
 )
 from .models import FermiHubbardModel, IsingModel
+from .lattice_model_problem import LatticeModelProblem

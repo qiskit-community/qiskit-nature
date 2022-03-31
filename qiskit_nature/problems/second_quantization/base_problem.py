@@ -36,7 +36,7 @@ class BaseProblem(ABC):
 
     def __init__(
         self,
-        driver: BaseDriver,
+        driver: Optional[BaseDriver] = None,
         transformers: Optional[List[BaseTransformer]] = None,
     ):
         """
@@ -150,7 +150,6 @@ class BaseProblem(ABC):
         """
         raise NotImplementedError()
 
-    @abstractmethod
     def get_default_filter_criterion(
         self,
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
@@ -161,10 +160,8 @@ class BaseProblem(ABC):
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
         """
+        return None
 
-        raise NotImplementedError()
-
-    @abstractmethod
     def hopping_qeom_ops(
         self,
         qubit_converter: QubitConverter,
@@ -174,11 +171,11 @@ class BaseProblem(ABC):
             List[int],
             Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
         ] = "sd",
-    ) -> Tuple[
+    ) -> Optional[Tuple[
         Dict[str, PauliSumOp],
         Dict[str, List[bool]],
         Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
-    ]:
+    ]]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 
@@ -200,4 +197,4 @@ class BaseProblem(ABC):
             A tuple containing the hopping operators, the types of commutativities and the
             excitation indices.
         """
-        raise NotImplementedError()
+        return None
