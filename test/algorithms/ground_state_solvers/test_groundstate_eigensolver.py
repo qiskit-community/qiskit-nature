@@ -551,7 +551,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_factory_with_mp2(self):
-        """Test when using MP2PointGenerator to generate the initial point."""
+        """Test when using MP2InitialPoint to generate the initial point."""
 
         informed_start = MP2InitialPoint()
 
