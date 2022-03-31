@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test the point generator base class."""
+"""Test the initial point generator base class."""
 
 import unittest
 from unittest.mock import patch
