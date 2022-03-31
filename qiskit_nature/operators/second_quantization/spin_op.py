@@ -450,7 +450,7 @@ class SpinOp(SecondQuantizedOp):
             return f"I_{self.register_length - 1}"
         return " ".join(labels_list)
 
-    @lru_cache()
+    @lru_cache(maxsize=128)
     def to_matrix(self) -> np.ndarray:
         """Convert to dense matrix.
 
