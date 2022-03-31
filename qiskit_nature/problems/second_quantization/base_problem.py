@@ -162,6 +162,7 @@ class BaseProblem(ABC):
         """
         return None
 
+    @abstractmethod
     def hopping_qeom_ops(
         self,
         qubit_converter: QubitConverter,
@@ -197,4 +198,4 @@ class BaseProblem(ABC):
             A tuple containing the hopping operators, the types of commutativities and the
             excitation indices.
         """
-        return None
+        raise NotImplementedError()

@@ -52,17 +52,6 @@ class LatticeModelResult(EigenstateResult):
         """Sets computed electronic part of ground state energy"""
         self._computed_lattice_energies = value
 
-    # @property
-    # def num_occupied_modals_per_mode(self) -> Optional[List[List[float]]]:
-    #     """Returns the number of occupied modal per mode"""
-    #     return self._num_occupied_modals_per_mode
-
-    # @num_occupied_modals_per_mode.setter
-    # def num_occupied_modals_per_mode(self, value: List[List[float]]) -> None:
-    #     """Sets measured number of modes"""
-    #     self._num_occupied_modals_per_mode = value
-
-
     def __str__(self) -> str:
         """Printable formatted result"""
         return 'energies'+str(self.computed_lattice_energies)

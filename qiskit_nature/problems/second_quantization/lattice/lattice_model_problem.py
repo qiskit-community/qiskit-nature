@@ -11,12 +11,13 @@
 # that they have been altered from the originals.
 """The Lattice Model Problem class."""
 
-from typing import Union
+from typing import Union, Callable, List, Tuple
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature import ListOrDictType
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult, LatticeModelResult
 from .models.lattice_model import LatticeModel
@@ -73,24 +74,14 @@ class LatticeModelProblem(BaseProblem):
         result.computed_lattice_energies = eigenstate_result.eigenenergies
         return result
 
-
-    # def get_default_filter_criterion(
-    #     self,
-    # ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
-    #     """Returns a default filter criterion method to filter the eigenvalues computed by the
-    #     eigen solver. For more information see also
-    #     aqua.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
-    #     In the fermionic case the default filter ensures that the number of particles is being
-    #     preserved.
-    #     """
-
-    #     # pylint: disable=unused-argument
-    #     def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-    #         # the first num_modes aux_value is the evaluated number of particles for the given mode
-    #         for mode in range(self.grouped_property_transformed.num_modes):
-    #             _key = str(mode) if isinstance(aux_values, dict) else mode
-    #             if aux_values is None or not np.isclose(aux_values[_key][0], 1):
-    #                 return False
-    #         return True
-
-    #     return partial(filter_criterion, self)
+    def hopping_qeom_ops(
+        self,
+        qubit_converter: QubitConverter,
+        excitations: Union[
+            str,
+            int,
+            List[int],
+            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+        ] = "sd",
+    ) -> None:
+        return None
