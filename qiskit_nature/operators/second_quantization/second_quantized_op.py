@@ -42,18 +42,17 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         return super().__pow__(power)
 
     @abstractmethod
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
-        """
-        Reduce the operator.
+    def simplify(self, atol: Optional[float] = None):
+        """Simplify the operator.
 
-        `Reduce` merges terms with same labels and chops terms with coefficients close to 0.
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
 
         Args:
             atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
 
         Returns:
-            The reduced operator`
+            The simplified operator.
         """
         raise NotImplementedError
 
@@ -64,7 +63,9 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
     def is_hermitian(self) -> bool:
         """Checks whether the operator is hermitian"""
-        return frozenset(self.reduce().to_list()) == frozenset(self.adjoint().reduce().to_list())
+        return frozenset(self.simplify().to_list()) == frozenset(
+            self.adjoint().simplify().to_list()
+        )
 
     @property  # type: ignore
     # pylint: disable=bad-docstring-quotes
