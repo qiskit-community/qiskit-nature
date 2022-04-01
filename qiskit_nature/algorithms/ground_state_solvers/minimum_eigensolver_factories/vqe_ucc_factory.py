@@ -362,9 +362,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._vqe.ansatz.num_particles = num_particles
         self._vqe.ansatz.num_spin_orbitals = num_spin_orbitals
         self._vqe.ansatz.initial_state = initial_state
-        # maintain initialization done in vqe constructor
-        logger.info(self._vqe.print_settings())
-
         return self._vqe
 
     def supports_aux_operators(self):

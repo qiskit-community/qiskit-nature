@@ -361,8 +361,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.initial_state = initial_state
 
         self._vqe.ansatz = ansatz
-        # maintain initialization done in vqe constructor
-        logger.info(self._vqe.print_settings())
         return self._vqe
 
     def supports_aux_operators(self):

@@ -13,10 +13,9 @@
 """The numpy minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, List, Callable
-import warnings
 import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
-
+from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -47,57 +46,48 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
 
+    @deprecate_property(
+        "0.4",
+        new_type=DeprecatedType.FUNCTION,
+        new_name="__init__",
+    )
     @property
     def filter_criterion(
         self,
     ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
-        Returns filter criterion."""
-        warnings.warn(
-            "The `filter_criterion` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        """returns filter criterion"""
         return self._filter_criterion
 
+    @deprecate_property(
+        "0.4",
+        new_type=DeprecatedType.FUNCTION,
+        new_name="__init__",
+    )
     @filter_criterion.setter
     def filter_criterion(
         self,
         value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
     ) -> None:
-        """DEPRECATED. Use the constructor instead. Sets filter criterion."""
-        warnings.warn(
-            "The `filter_criterion` setter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        """sets filter criterion"""
         self._filter_criterion = value
 
-    @property
+    @deprecate_property(
+        "0.4",
+        new_type=DeprecatedType.FUNCTION,
+        new_name="__init__",
+    )
     def use_default_filter_criterion(self) -> bool:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
-        Returns whether to use the default filter criterion."""
-        warnings.warn(
-            "The `use_default_filter_criterion` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        """returns whether to use the default filter criterion"""
         return self._use_default_filter_criterion
 
+    @deprecate_property(
+        "0.4",
+        new_type=DeprecatedType.FUNCTION,
+        new_name="__init__",
+    )
     @use_default_filter_criterion.setter
     def use_default_filter_criterion(self, value: bool) -> None:
-        """DEPRECATED. Sets whether to use the default filter criterion."""
-        warnings.warn(
-            "The `use_default_filter_criterion` setter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        """sets whether to use the default filter criterion"""
         self._use_default_filter_criterion = value
 
     def get_solver(

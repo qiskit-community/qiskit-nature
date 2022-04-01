@@ -525,7 +525,7 @@ class SpinOp(SecondQuantizedOp):
                 # = i^{0-0} XX + i^{1-0} YX + i^{0-1} XY + i^{1-1} YY
                 # = XX + i YX - i XY + YY
                 phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
-                new_data.append(("".join(label_list), coeff * 1j**phase))
+                new_data.append(("".join(label_list), coeff * 1j ** phase))
 
         return new_data
 
