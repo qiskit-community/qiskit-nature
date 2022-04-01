@@ -407,11 +407,10 @@ class SpinOp(SecondQuantizedOp):
             return_inverse=True,
             axis=0,
         )
-        coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
-        for i, val in zip(indices, self._coeffs):
-            coeff_list[i] += val
-        non_zero = [i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol)]
-        if not non_zero:
+        coeff_list = np.zeros(flatten_array.shape[0], dtype=np.complex128)
+        np.add.at(coeff_list, indices, self._coeffs)
+        is_zero = np.isclose(coeff_list, 0, atol=atol)
+        if np.all(is_zero):
             return SpinOp(
                 (
                     np.zeros((3, 1, self.register_length), dtype=np.int8),
@@ -419,9 +418,10 @@ class SpinOp(SecondQuantizedOp):
                 ),
                 spin=self.spin,
             )
+        non_zero = np.logical_not(is_zero)
         new_array = (
             flatten_array[non_zero]
-            .reshape((len(non_zero), 3, self.register_length))
+            .reshape((np.count_nonzero(non_zero), 3, self.register_length))
             .transpose(1, 0, 2)
         )
         new_coeff = coeff_list[non_zero]
