@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -90,7 +90,7 @@ class TestVibrationalOp(QiskitNatureTestCase):
 
     def test_add(self):
         """Test __add__"""
-        actual = (self.vibr_spin_op + self.vibr_spin_op).reduce()
+        actual = (self.vibr_spin_op + self.vibr_spin_op).simplify()
         desired = VibrationalOp(self.labels_double, 4, 2)
         self.assertSpinEqual(actual, desired)
 
@@ -113,3 +113,26 @@ class TestVibrationalOp(QiskitNatureTestCase):
                 - 1j * VibrationalOp("-+", 2, 1)
             )
             self.assertFalse(test_op.is_hermitian())
+
+    def test_simplify(self):
+        """Test simplify"""
+        test_op = (
+            1j * VibrationalOp("+-", 2, 1)
+            + 1j * VibrationalOp("+-", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+        )
+        expected = [("+-", 2j), ("-+", -2j)]
+        self.assertEqual(test_op.simplify().to_list(), expected)
+
+    def test_reduce(self):
+        """Test reduce"""
+        test_op = (
+            1j * VibrationalOp("+-", 2, 1)
+            + 1j * VibrationalOp("+-", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+            - 1j * VibrationalOp("-+", 2, 1)
+        )
+        expected = [("+-", 2j), ("-+", -2j)]
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(test_op.reduce().to_list(), expected)
