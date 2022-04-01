@@ -19,6 +19,7 @@ from typing import Optional, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.settings import settings
 
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
@@ -146,7 +147,9 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                     matrices.append(None)
                     continue
                 mat = self.get_matrix(idx)
-            matrices.append(np.einsum(self.EINSUM_AO_TO_MO, mat, *coeffs))
+            matrices.append(
+                np.einsum(self.EINSUM_AO_TO_MO, mat, *coeffs, optimize=settings.optimize_einsum)
+            )
 
         return TwoBodyElectronicIntegrals(transform.final_basis, tuple(matrices))
 
