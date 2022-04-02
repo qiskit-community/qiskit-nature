@@ -22,7 +22,7 @@ import numpy as np
 
 from qiskit.algorithms import VQE
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import OperatorBase, PauliSumOp
+from qiskit.opflow import OperatorBase, PauliSumOp, CircuitSampler
 from qiskit.opflow.gradients import GradientBase, Gradient
 from qiskit.utils.validation import validate_min
 from qiskit_nature import ListOrDictType
@@ -136,11 +136,12 @@ class AdaptVQE(GroundStateEigensolver):
         """
         res = []
         # compute gradients for all excitation in operator pool
+        sampler = CircuitSampler(vqe.quantum_instance)
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
             # the ansatz needs to be decomposed for the gradient to work
-            vqe.ansatz = self._ansatz.decompose()
+            vqe.ansatz = self._ansatz
             param_sets = sorted(vqe.ansatz.parameters, key=lambda p: p.name)
             # zip will only iterate the length of the shorter list
             theta1 = dict(zip(vqe.ansatz.parameters, theta))
@@ -149,7 +150,7 @@ class AdaptVQE(GroundStateEigensolver):
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
             value_dict = {param_sets[-1]: 0.0}
-            state_grad_result = state_grad.assign_parameters(value_dict).eval()
+            state_grad_result = sampler.convert(state_grad, params=value_dict).eval()
             logger.info("Gradient computed : %s", str(state_grad_result))
             res.append((np.abs(state_grad_result[-1]), exc))
         return res
