@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -211,24 +211,6 @@ class UVCC(EvolvedOperatorAnsatz):
 
         return True
 
-<<<<<<< HEAD
-    def _build(self) -> None:
-        if self._data is not None:
-            return
-
-        self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]
-
-        if self.operators is None or self.operators == [None]:
-            excitation_ops = self.excitation_ops()
-
-            logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
-            self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
-
-        logger.debug("Building QuantumCircuit...")
-        super()._build()
-
-=======
->>>>>>> fd016e2 (UVCC operator creation on demand (#615))
     def excitation_ops(self) -> List[SecondQuantizedOp]:
         """Parses the excitations and generates the list of operators.
 
