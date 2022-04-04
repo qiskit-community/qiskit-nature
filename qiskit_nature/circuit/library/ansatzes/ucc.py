@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -330,35 +330,6 @@ class UCC(EvolvedOperatorAnsatz):
 
         return True
 
-<<<<<<< HEAD
-    def _build(self) -> None:
-        if self._data is not None:
-            return
-
-        self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]
-
-        if self.operators is None or self.operators == [None]:
-            # The qubit operators are cached by the `EvolvedOperatorAnsatz` class. We only generate
-            # them from the `SecondQuantizedOp`s produced by the generators, if they are not already
-            # present. This behavior also enables the adaptive usage of the `UCC` class by
-            # algorithms such as `AdaptVQE`.
-            excitation_ops = self.excitation_ops()
-
-            logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
-            # Convert operators according to saved state in converter from the conversion of the
-            # main operator since these need to be compatible. If Z2 Symmetry tapering was done
-            # it may be that one or more excitation operators do not commute with the
-            # symmetry. Normally the converted operators are maintained at the same index by
-            # the converter inserting None as the result if an operator did not commute. Here
-            # we are not interested in that just getting the valid set of operators so that
-            # behavior is suppressed.
-            self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
-
-        logger.debug("Building QuantumCircuit...")
-        super()._build()
-
-=======
->>>>>>> b2667fb (UCC operator creation on demand (#601))
     def excitation_ops(self) -> List[SecondQuantizedOp]:
         """Parses the excitations and generates the list of operators.
 
