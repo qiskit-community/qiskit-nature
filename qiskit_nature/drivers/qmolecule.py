@@ -19,6 +19,7 @@ import warnings
 from typing import List
 
 import numpy
+from ..constants import BOHR, PERIODIC_TABLE
 from ..deprecation import DeprecatedType, warn_deprecated
 
 TWOE_TO_SPIN_SUBSCRIPT = "ijkl->ljik"
@@ -169,7 +170,7 @@ class QMolecule:
         """Z"""
         if natom < 0 or natom >= self.num_atoms:
             raise ValueError("Atom index out of range")
-        return QMolecule.symbols.index(self.atom_symbol[natom].lower().capitalize())
+        return PERIODIC_TABLE.index(self.atom_symbol[natom].lower().capitalize())
 
     @property
     def core_orbitals(self) -> List[int]:
@@ -617,131 +618,6 @@ class QMolecule:
 
         return moh2_qubit
 
-    symbols = [
-        "_",
-        "H",
-        "He",
-        "Li",
-        "Be",
-        "B",
-        "C",
-        "N",
-        "O",
-        "F",
-        "Ne",
-        "Na",
-        "Mg",
-        "Al",
-        "Si",
-        "P",
-        "S",
-        "Cl",
-        "Ar",
-        "K",
-        "Ca",
-        "Sc",
-        "Ti",
-        "V",
-        "Cr",
-        "Mn",
-        "Fe",
-        "Co",
-        "Ni",
-        "Cu",
-        "Zn",
-        "Ga",
-        "Ge",
-        "As",
-        "Se",
-        "Br",
-        "Kr",
-        "Rb",
-        "Sr",
-        "Y",
-        "Zr",
-        "Nb",
-        "Mo",
-        "Tc",
-        "Ru",
-        "Rh",
-        "Pd",
-        "Ag",
-        "Cd",
-        "In",
-        "Sn",
-        "Sb",
-        "Te",
-        "I",
-        "Xe",
-        "Cs",
-        "Ba",
-        "La",
-        "Ce",
-        "Pr",
-        "Nd",
-        "Pm",
-        "Sm",
-        "Eu",
-        "Gd",
-        "Tb",
-        "Dy",
-        "Ho",
-        "Er",
-        "Tm",
-        "Yb",
-        "Lu",
-        "Hf",
-        "Ta",
-        "W",
-        "Re",
-        "Os",
-        "Ir",
-        "Pt",
-        "Au",
-        "Hg",
-        "Tl",
-        "Pb",
-        "Bi",
-        "Po",
-        "At",
-        "Rn",
-        "Fr",
-        "Ra",
-        "Ac",
-        "Th",
-        "Pa",
-        "U",
-        "Np",
-        "Pu",
-        "Am",
-        "Cm",
-        "Bk",
-        "Cf",
-        "Es",
-        "Fm",
-        "Md",
-        "No",
-        "Lr",
-        "Rf",
-        "Db",
-        "Sg",
-        "Bh",
-        "Hs",
-        "Mt",
-        "Ds",
-        "Rg",
-        "Cn",
-        "Nh",
-        "Fl",
-        "Mc",
-        "Lv",
-        "Ts",
-        "Og",
-    ]
-
-    BOHR = 0.52917721092  # No of Angstroms in Bohr (from 2010 CODATA)
-    DEBYE = 0.393430307  # No ea0 in Debye. Use to convert our dipole moment numbers to Debye
-
     def log(self):
         """log properties"""
         if not logger.isEnabledFor(logging.INFO):
@@ -773,9 +649,9 @@ class QMolecule:
                     logger.info(
                         "  %2s  %s, %s, %s",
                         self.atom_symbol[n],
-                        self.atom_xyz[n][0] * QMolecule.BOHR,
-                        self.atom_xyz[n][1] * QMolecule.BOHR,
-                        self.atom_xyz[n][2] * QMolecule.BOHR,
+                        self.atom_xyz[n][0] * BOHR,
+                        self.atom_xyz[n][1] * BOHR,
+                        self.atom_xyz[n][2] * BOHR,
                     )
             if self.mo_coeff is not None:
                 logger.info("MO coefficients A: %s", self.mo_coeff.shape)

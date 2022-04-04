@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,21 +12,25 @@
 
 """ PSI4 Driver """
 
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
 import sys
 import tempfile
-import warnings
 from pathlib import Path
-from shutil import which
-from typing import Union, List, Optional, Any, Dict
+from typing import Any, Optional, Union, cast
 
-from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.hdf5 import load_from_hdf5
+from qiskit_nature.properties.second_quantization.electronic import (
+    AngularMomentum,
+    ElectronicStructureDriverResult,
+    Magnetization,
+)
+import qiskit_nature.optionals as _optionals
 
-from ...qmolecule import QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
@@ -34,11 +38,8 @@ from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 
-PSI4 = "psi4"
 
-PSI4_APP = which(PSI4)
-
-
+@_optionals.HAS_PSI4.require_in_instance
 class PSI4Driver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the PSI4 program.
@@ -49,7 +50,7 @@ class PSI4Driver(ElectronicStructureDriver):
     def __init__(
         self,
         config: Union[
-            str, List[str]
+            str, list[str]
         ] = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n}\n\n"
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
     ) -> None:
@@ -61,7 +62,6 @@ class PSI4Driver(ElectronicStructureDriver):
             QiskitNatureError: Invalid Input
         """
         super().__init__()
-        PSI4Driver.check_installed()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError(f"Invalid config for PSI4 Driver '{config}'")
 
@@ -71,11 +71,12 @@ class PSI4Driver(ElectronicStructureDriver):
         self._config = config
 
     @staticmethod
+    @_optionals.HAS_PSI4.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
-        driver_kwargs: Optional[Dict[str, Any]] = None,
+        driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "PSI4Driver":
         """
         Args:
@@ -91,7 +92,6 @@ class PSI4Driver(ElectronicStructureDriver):
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
-        PSI4Driver.check_installed()
         PSI4Driver.check_method_supported(method)
         basis = PSI4Driver.to_driver_basis(basis)
 
@@ -125,17 +125,6 @@ class PSI4Driver(ElectronicStructureDriver):
         return basis
 
     @staticmethod
-    def check_installed() -> None:
-        """
-        Checks if PSI4 is installed and available
-
-        Raises:
-            MissingOptionalLibraryError: if not installed.
-        """
-        if PSI4_APP is None:
-            raise MissingOptionalLibraryError(libname="PSI4", name="PSI4Driver")
-
-    @staticmethod
     def check_method_supported(method: MethodType) -> None:
         """
         Checks that PSI4 supports this method.
@@ -155,10 +144,6 @@ class PSI4Driver(ElectronicStructureDriver):
         template_file = psi4d_directory.joinpath("_template.txt")
         qiskit_nature_directory = psi4d_directory.parent.parent
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        molecule = QMolecule()
-        warnings.filterwarnings("default", category=DeprecationWarning)
-
         input_text = [cfg]
         input_text += ["import sys"]
         syspath = (
@@ -170,14 +155,16 @@ class PSI4Driver(ElectronicStructureDriver):
         )
 
         input_text += ["sys.path = " + syspath + " + sys.path"]
-        input_text += ["import warnings"]
-        input_text += ["from qiskit_nature.drivers.qmolecule import QMolecule"]
-        input_text += ["warnings.filterwarnings('ignore', category=DeprecationWarning)"]
-        input_text += [f'_q_molecule = QMolecule("{Path(molecule.filename).as_posix()}")']
-        input_text += ["warnings.filterwarnings('default', category=DeprecationWarning)"]
 
         with open(template_file, "r", encoding="utf8") as file:
             input_text += [line.strip("\n") for line in file.readlines()]
+
+        file_fd, hdf5_file = tempfile.mkstemp(suffix=".hdf5")
+        os.close(file_fd)
+
+        input_text += [
+            f'save_to_hdf5(_q_driver_result, "{Path(hdf5_file).as_posix()}", replace=True)'
+        ]
 
         file_fd, input_file = tempfile.mkstemp(suffix=".inp")
         os.close(file_fd)
@@ -211,15 +198,25 @@ class PSI4Driver(ElectronicStructureDriver):
             except Exception:  # pylint: disable=broad-except
                 pass
 
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        _q_molecule = QMolecule(molecule.filename)
-        warnings.filterwarnings("default", category=DeprecationWarning)
-        _q_molecule.load()
-        # remove internal file
-        _q_molecule.remove_file()
-        _q_molecule.origin_driver_name = "PSI4"
-        _q_molecule.origin_driver_config = cfg
-        return ElectronicStructureDriverResult.from_legacy_driver_result(_q_molecule)
+        driver_result = cast(ElectronicStructureDriverResult, load_from_hdf5(hdf5_file))
+
+        try:
+            os.remove(hdf5_file)
+        except Exception:  # pylint: disable=broad-except
+            pass
+
+        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
+        # these properties by default.
+        # if not settings.dict_aux_operators:
+        num_spin_orbitals = driver_result.get_property("ParticleNumber").num_spin_orbitals
+        driver_result.add_property(AngularMomentum(num_spin_orbitals))
+        driver_result.add_property(Magnetization(num_spin_orbitals))
+
+        # inject Psi4 config (because it is not available at runtime inside the template)
+        driver_metadata = driver_result.get_property("DriverMetadata")
+        driver_metadata.config = cfg
+
+        return driver_result
 
     @staticmethod
     def _run_psi4(input_file, output_file):
@@ -228,7 +225,7 @@ class PSI4Driver(ElectronicStructureDriver):
         process = None
         try:
             with subprocess.Popen(
-                [PSI4, input_file, output_file],
+                [_optionals.PSI4, input_file, output_file],
                 stdout=subprocess.PIPE,
                 universal_newlines=True,
             ) as process:
@@ -238,7 +235,7 @@ class PSI4Driver(ElectronicStructureDriver):
             if process is not None:
                 process.kill()
 
-            raise QiskitNatureError(f"{PSI4} run has failed") from ex
+            raise QiskitNatureError(f"{_optionals.PSI4} run has failed") from ex
 
         if process.returncode != 0:
             errmsg = ""
@@ -247,4 +244,6 @@ class PSI4Driver(ElectronicStructureDriver):
                 for i, _ in enumerate(lines):
                     logger.error(lines[i])
                     errmsg += lines[i] + "\n"
-            raise QiskitNatureError(f"{PSI4} process return code {process.returncode}\n{errmsg}")
+            raise QiskitNatureError(
+                f"{_optionals.PSI4} process return code {process.returncode}\n{errmsg}"
+            )

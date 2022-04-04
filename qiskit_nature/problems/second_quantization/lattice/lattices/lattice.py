@@ -19,13 +19,16 @@ import numbers
 
 import numpy as np
 
-from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
+from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix, networkx_converter
 from retworkx.visualization import mpl_draw
 
-from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit.tools.visualization import HAS_MATPLOTLIB
+from qiskit.utils import optionals as _optionals
 
-if HAS_MATPLOTLIB:
+if _optionals.HAS_NETWORKX:
+    # pylint: disable=unused-import
+    import networkx as nx
+
+if _optionals.HAS_MATPLOTLIB:
     # pylint: disable=unused-import
     from matplotlib.axes import Axes
     from matplotlib.colors import Colormap
@@ -110,15 +113,21 @@ class LatticeDrawStyle:
 class Lattice:
     """General Lattice."""
 
-    def __init__(self, graph: PyGraph) -> None:
+    def __init__(self, graph: Union[PyGraph, "nx.Graph"]) -> None:
         """
         Args:
-            graph: Input graph for Lattice. `graph.multigraph` must be False.
+            graph: Input graph for Lattice. Can be provided as ``retworkx.PyGraph``, which is
+                used internally, or, for convenience, as ``networkx.Graph``. The graph
+                cannot be a multigraph.
 
         Raises:
             ValueError: If the input graph is a multigraph.
             ValueError: If the graph edges are non-numeric.
         """
+        if not isinstance(graph, PyGraph):
+            _optionals.HAS_NETWORKX.require_now("Lattice construction from networkx.Graph")
+            graph = networkx_converter(graph)
+
         if graph.multigraph:
             raise ValueError(
                 f"Invalid `graph.multigraph` {graph.multigraph} is given. "
@@ -203,6 +212,7 @@ class Lattice:
         return ad_mat
 
     @staticmethod
+    @_optionals.HAS_MATPLOTLIB.require_in_call
     def _mpl(graph: PyGraph, self_loop: bool, **kwargs):
         """
         Auxiliary function for drawing the lattice using matplotlib.
@@ -215,10 +225,7 @@ class Lattice:
         Raises:
             MissingOptionalLibraryError: Requires matplotlib.
         """
-        if not HAS_MATPLOTLIB:
-            raise MissingOptionalLibraryError(
-                libname="Matplotlib", name="_mpl", pip_install="pip install matplotlib"
-            )
+        # pylint: disable=unused-import
         from matplotlib import pyplot as plt
 
         if not self_loop:

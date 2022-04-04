@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,15 +18,6 @@ from test import QiskitNatureTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import GaussianDriver
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
-
-
-# We need to have an instance so we can test function but constructor calls
-# an internal method to check G16 installed. We need to replace that with
-# the following dummy for things to work and we do it for each test so the
-# class ends up as it was
-def _check_installed():
-    pass
 
 
 class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
@@ -34,24 +25,14 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
 
     def setUp(self):
         super().setUp()
-        self.good_check = GaussianDriver.check_installed
-        GaussianDriver.check_installed = _check_installed
-        # We can now create a driver without the installed (check valid) test failing
-        # and create a qmolecule from the saved output matrix file. This will test the
-        # parsing of it into the qmolecule is correct.
-        g16 = GaussianDriver()
         matfile = self.get_resource_path(
             "test_driver_gaussian_from_mat.mat", "drivers/second_quantization/gaussiand"
         )
         try:
-            q_mol = g16._parse_matrix_file(matfile)
-            self.driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
+            self.driver_result = GaussianDriver._parse_matrix_file(matfile)
         except QiskitNatureError:
             self.tearDown()
             self.skipTest("GAUSSIAN qcmatrixio not found")
-
-    def tearDown(self):
-        GaussianDriver.check_installed = self.good_check
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 
 """Ground state computation using a minimum eigensolver."""
 
-from typing import Union, List, Optional, Dict
+from typing import Union, List, Optional, Dict, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -87,11 +87,21 @@ class GroundStateEigensolver(GroundStateSolver):
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.
         """
+        main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
+        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)  # type: ignore
+
+        result = problem.interpret(raw_mes_result)
+        return result
+
+    def get_qubit_operators(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         # get the operator and auxiliary operators, and transform the provided auxiliary operators
         # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
-
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
@@ -105,19 +115,17 @@ class GroundStateEigensolver(GroundStateSolver):
                     "`None`."
                 )
             aux_second_q_ops = second_q_ops
-
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
             num_particles=problem.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
-
         if aux_operators is not None:
             wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
                 aux_operators
             )
-            for name, aux_op in iter(wrapped_aux_operators):
+            for name_aux, aux_op in iter(wrapped_aux_operators):
                 if isinstance(aux_op, SecondQuantizedOp):
                     converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
@@ -125,26 +133,21 @@ class GroundStateEigensolver(GroundStateSolver):
                 if isinstance(aux_ops, list):
                     aux_ops.append(converted_aux_op)
                 elif isinstance(aux_ops, dict):
-                    if name in aux_ops.keys():
+                    if name_aux in aux_ops.keys():
                         raise QiskitNatureError(
-                            f"The key '{name}' is already taken by an internally constructed "
-                            "auxliliary operator! Please use a different name for your custom "
+                            f"The key '{name_aux}' is already taken by an internally constructed "
+                            "auxiliary operator! Please use a different name for your custom "
                             "operator."
                         )
-                    aux_ops[name] = converted_aux_op
+                    aux_ops[name_aux] = converted_aux_op
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem, self._qubit_converter)
-
         # if the eigensolver does not support auxiliary operators, reset them
         if not self._solver.supports_aux_operators():
             aux_ops = None
-
-        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)
-
-        result = problem.interpret(raw_mes_result)
-        return result
+        return main_operator, aux_ops
 
     def evaluate_operators(
         self,

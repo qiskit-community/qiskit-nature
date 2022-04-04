@@ -12,16 +12,18 @@
 
 """Test ParticleNumber Property"""
 
+import tempfile
 import warnings
-from test import QiskitNatureTestCase
+from test.properties.property_test import PropertyTest
 
+import h5py
 import numpy as np
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
-class TestParticleNumber(QiskitNatureTestCase):
+class TestParticleNumber(PropertyTest):
     """Test ParticleNumber Property"""
 
     def setUp(self):
@@ -37,7 +39,7 @@ class TestParticleNumber(QiskitNatureTestCase):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = self.prop.second_q_ops()
+        ops = [self.prop.second_q_ops()["ParticleNumber"]]
         self.assertEqual(len(ops), 1)
         expected = [
             "+_0 -_0",
@@ -56,3 +58,20 @@ class TestParticleNumber(QiskitNatureTestCase):
         prop = ParticleNumber(4, (2, 1), [2.0, 1.0])
         self.assertTrue(np.allclose(prop.occupation_alpha, [1.0, 1.0]))
         self.assertTrue(np.allclose(prop.occupation_beta, [1.0, 0.0]))
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                self.prop.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                read_prop = ParticleNumber.from_hdf5(file["ParticleNumber"])
+
+                self.assertEqual(self.prop, read_prop)

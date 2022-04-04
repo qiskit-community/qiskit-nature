@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,6 +25,7 @@ from qiskit_nature.properties.second_quantization import (
     SecondQuantizedProperty,
     GroupedSecondQuantizedProperty,
 )
+from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
@@ -384,12 +385,11 @@ class ActiveSpaceTransformer(BaseTransformer):
 
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
-                except NotImplementedError:
+                except TypeError:
                     logger.warning(
-                        "The Property %s of type %s could not be transformed! Thus, it will not be "
-                        "included in the simulation from here onwards.",
-                        prop.name,
-                        type(prop),
+                        "The Property %s of type %s could not be transformed!",
+                        internal_property.name,
+                        type(internal_property),
                     )
                     continue
 
@@ -422,6 +422,15 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         elif isinstance(prop, SecondQuantizedProperty):
             transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
+
+        elif isinstance(prop, ElectronicBasisTransform):
+            # transformation done manually during `transform`
+            transformed_property = prop
+
+        elif isinstance(prop, DriverMetadata):
+            # for the time being we manually catch this to avoid unnecessary warnings
+            # TODO: support storing transformer information in the DriverMetadata container
+            transformed_property = prop
 
         else:
             raise TypeError(f"{type(prop)} is an unsupported Property-type for this Transformer!")

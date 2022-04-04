@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,6 +22,7 @@ from qiskit.utils.validation import validate_min
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMapper
 
 
 class HartreeFock(QuantumCircuit):
@@ -39,7 +40,17 @@ class HartreeFock(QuantumCircuit):
             num_particles: The number of particles as a tuple storing the number of alpha- and
                            beta-spin electrons in the first and second number, respectively.
             qubit_converter: a QubitConverter instance.
+
+        Raises:
+            TypeError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
+                https://github.com/Qiskit/qiskit-nature/issues/537 for more information.
         """
+        if isinstance(qubit_converter.mapper, BravyiKitaevSuperFastMapper):
+            raise TypeError(
+                "Unsupported mapper in qubit_converter: ",
+                type(qubit_converter.mapper),
+                ". See https://github.com/Qiskit/qiskit-nature/issues/537",
+            )
         # Get the mapped/tapered hartree fock bitstring as we need it to match to whatever
         # conversion was done by the given qubit converter
         bitstr = hartree_fock_bitstring_mapped(

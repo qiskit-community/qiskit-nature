@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,10 @@
 
 """Test OneBodyElectronicIntegrals."""
 
-from test import QiskitNatureTestCase
+import tempfile
+from test.properties.property_test import PropertyTest
 
+import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -26,7 +28,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 
 
-class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
+class TestOneBodyElectronicIntegrals(PropertyTest):
     """Test OneBodyElectronicIntegrals."""
 
     def test_init(self):
@@ -65,7 +67,7 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, None))
             ints_mo = ints_ao.transform_basis(transform)
             self.assertTrue(np.allclose(ints_mo._matrices[0], 4 * mat_a))
-            self.assertTrue(np.allclose(ints_mo._matrices[1], 4 * mat_a))
+            self.assertIsNone(ints_mo._matrices[1])
 
         with self.subTest("Alpha and Beta"):
             ints_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (mat_a, mat_b))
@@ -207,3 +209,28 @@ class TestOneBodyElectronicIntegrals(QiskitNatureTestCase):
 
         self.assertTrue(isinstance(composition, complex))
         self.assertAlmostEqual(composition, expected)
+
+    def test_to_hdf5(self):
+        """Test to_hdf5."""
+        random = np.random.rand(2, 2)
+
+        ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (random, random))
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                ints.to_hdf5(file)
+
+    def test_from_hdf5(self):
+        """Test from_hdf5."""
+        random = np.random.rand(2, 2)
+
+        ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (random, random))
+
+        with tempfile.TemporaryFile() as tmp_file:
+            with h5py.File(tmp_file, "w") as file:
+                ints.to_hdf5(file)
+
+            with h5py.File(tmp_file, "r") as file:
+                new_ints = OneBodyElectronicIntegrals.from_hdf5(file["OneBodyElectronicIntegrals"])
+
+                self.assertEqual(ints, new_ints)

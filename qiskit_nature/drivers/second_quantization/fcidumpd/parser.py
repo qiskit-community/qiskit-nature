@@ -92,7 +92,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
     # can distinguish between unrestricted and restricted FCIDump files.
     _uhf = bool(
         re.search(
-            fr".*(\s+{norb * 2}\s+{norb * 2}\s+0\s+0)",
+            rf".*(\s+{norb * 2}\s+{norb * 2}\s+0\s+0)",
             fcidump_str[namelist_end.start(0) :],
         )
     )

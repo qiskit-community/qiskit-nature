@@ -13,7 +13,7 @@
 """ Test Numerical qEOM excited states calculation """
 
 import unittest
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
@@ -35,12 +35,13 @@ from qiskit_nature.algorithms import (
     ExcitedStatesEigensolver,
     QEOM,
 )
+import qiskit_nature.optionals as _optionals
 
 
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """Test Numerical qEOM excited states calculation"""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8
@@ -86,10 +87,6 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     def test_vqe_mes_jw_auto(self):
         """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping + auto symmetry"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
         self._solve_with_vqe_mes(converter)
 
@@ -100,28 +97,16 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     def test_vqe_mes_parity_2q(self):
         """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
         self._solve_with_vqe_mes(converter)
 
     def test_vqe_mes_parity_auto(self):
         """Test VQEUCCSDFactory with QEOM + Parity mapping + auto symmetry"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         converter = QubitConverter(ParityMapper(), z2symmetry_reduction="auto")
         self._solve_with_vqe_mes(converter)
 
     def test_vqe_mes_parity_2q_auto(self):
         """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction + auto symmetry"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         converter = QubitConverter(
             ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
@@ -134,10 +119,6 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     def test_vqe_mes_bk_auto(self):
         """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping + auto symmetry"""
-        self.skipTest(
-            "Temporarily skip test until the changes done by "
-            "https://github.com/Qiskit/qiskit-terra/pull/7551 are handled properly."
-        )
         converter = QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")
         self._solve_with_vqe_mes(converter)
 
@@ -155,7 +136,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
-            return np.isclose(aux_values[0][0], 2.0)
+            return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)

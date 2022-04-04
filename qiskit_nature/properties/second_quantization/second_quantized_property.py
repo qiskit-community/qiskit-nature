@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,6 +11,8 @@
 # that they have been altered from the originals.
 
 """The SecondQuantizedProperty base class."""
+
+from __future__ import annotations
 
 from abc import abstractmethod
 from typing import Any, Type, TypeVar, Union
@@ -45,7 +47,7 @@ class SecondQuantizedProperty(Property):
 
     @classmethod
     @abstractmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "Property":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> Property:
         """Construct a :class:`~qiskit_nature.properties.Property` instance from a legacy driver
         result.
 
@@ -72,10 +74,10 @@ class SecondQuantizedProperty(Property):
 
 
 # pylint: disable=invalid-name
-T = TypeVar("T", bound=SecondQuantizedProperty, covariant=True)
+T_co = TypeVar("T_co", bound=SecondQuantizedProperty, covariant=True)
 
 
-class GroupedSecondQuantizedProperty(GroupedProperty[T], SecondQuantizedProperty):
+class GroupedSecondQuantizedProperty(GroupedProperty[T_co], SecondQuantizedProperty):
     """A :class:`~qiskit_nature.properties.GroupedProperty` subtype containing purely
     second-quantized properties."""
 

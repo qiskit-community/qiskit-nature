@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,31 +14,10 @@
 
 import logging
 from subprocess import Popen, PIPE
-from shutil import which
-from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_nature import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 logger = logging.getLogger(__name__)
-
-_GAUSSIAN_16 = "g16"
-_GAUSSIAN_16_DESC = "Gaussian 16"
-
-_G16PROG = which(_GAUSSIAN_16)
-
-
-def check_valid() -> None:
-    """
-    Checks if Gaussian is installed and available
-
-    Raises:
-        MissingOptionalLibraryError: if not installed.
-    """
-    if _G16PROG is None:
-        raise MissingOptionalLibraryError(
-            libname=_GAUSSIAN_16,
-            name=_GAUSSIAN_16_DESC,
-            msg="Please check that it is installed correctly",
-        )
 
 
 def run_g16(cfg: str) -> str:
@@ -58,14 +37,16 @@ def run_g16(cfg: str) -> str:
     """
     process = None
     try:
-        with Popen(_GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True) as process:
+        with Popen(
+            _optionals.GAUSSIAN_16, stdin=PIPE, stdout=PIPE, universal_newlines=True
+        ) as process:
             stdout, _ = process.communicate(cfg)
             process.wait()
     except Exception as ex:
         if process is not None:
             process.kill()
 
-        raise QiskitNatureError(f"{_GAUSSIAN_16_DESC} run has failed") from ex
+        raise QiskitNatureError(f"{_optionals.GAUSSIAN_16_DESC} run has failed") from ex
 
     if process.returncode != 0:
         errmsg = ""
@@ -78,7 +59,7 @@ def run_g16(cfg: str) -> str:
                 logger.error(lines[i])
                 errmsg += lines[i] + "\n"
         raise QiskitNatureError(
-            f"{_GAUSSIAN_16_DESC} process return code {process.returncode}\n{errmsg}"
+            f"{_optionals.GAUSSIAN_16_DESC} process return code {process.returncode}\n{errmsg}"
         )
 
     all_text = ""

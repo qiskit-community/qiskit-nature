@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,7 +13,7 @@
 """The ground state calculation interface."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -57,6 +57,24 @@ class GroundStateSolver(ABC):
             :meth:`~.BaseProblem.interpret`.
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def get_qubit_operators(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        """Construct qubit operators by getting the second quantized operators from the problem
+        (potentially running a driver in doing so [can be computationally expensive])
+        and using a QubitConverter to map + reduce the operators to qubit ops
+        Args:
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
+
+        Returns:
+            Qubit operator.
+            Additional auxiliary operators.
+        """
 
     @abstractmethod
     def returns_groundstate(self) -> bool:

@@ -11,7 +11,8 @@
 # that they have been altered from the originals.
 
 """Tests Electronic Structure Problem."""
-from test import QiskitNatureTestCase, requires_extra_library
+import unittest
+from test import QiskitNatureTestCase
 from test.problems.second_quantization.electronic.resources.resource_reader import (
     read_expected_file,
 )
@@ -34,6 +35,7 @@ from qiskit_nature.transformers.second_quantization.electronic import (
     ActiveSpaceTransformer,
     FreezeCoreTransformer,
 )
+import qiskit_nature.optionals as _optionals
 
 
 class TestElectronicStructureProblem(QiskitNatureTestCase):
@@ -57,7 +59,8 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[0]
+        electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
+        second_quantized_ops = list(second_quantized_ops.values())
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -98,7 +101,8 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
 
         electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
         second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[0]
+        electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
+        second_quantized_ops = list(second_quantized_ops.values())
 
         with self.subTest("Check that the correct properties are/aren't None"):
             with warnings.catch_warnings():
@@ -125,7 +129,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
 class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
     """Tests Electronic Structure Problem."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_sector_locator_h2o(self):
         """Test sector locator."""
         driver = PySCFDriver(
@@ -137,13 +141,13 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
         qubit_conv.convert(
-            es_problem.second_q_ops()[0],
+            es_problem.second_q_ops()[es_problem.main_property_name],
             num_particles=es_problem.num_particles,
             sector_locator=es_problem.symmetry_sector_locator,
         )
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [1, -1])
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_sector_locator_homonuclear(self):
         """Test sector locator."""
         molecule = Molecule(
@@ -158,7 +162,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
         qubit_conv.convert(
-            es_problem.second_q_ops()[0],
+            es_problem.second_q_ops()[es_problem.main_property_name],
             num_particles=es_problem.num_particles,
             sector_locator=es_problem.symmetry_sector_locator,
         )

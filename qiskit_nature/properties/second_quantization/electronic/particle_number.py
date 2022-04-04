@@ -12,9 +12,12 @@
 
 """The ParticleNumber property."""
 
-import logging
-from typing import List, Optional, Tuple, Union, cast
+from __future__ import annotations
 
+import logging
+from typing import Optional, Union, cast
+
+import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
@@ -24,6 +27,7 @@ from qiskit_nature.results import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
+from ....deprecation import deprecate_method
 
 LOGGER = logging.getLogger(__name__)
 
@@ -44,9 +48,9 @@ class ParticleNumber(ElectronicProperty):
     def __init__(
         self,
         num_spin_orbitals: int,
-        num_particles: Union[int, Tuple[int, int]],
-        occupation: Optional[Union[np.ndarray, List[float]]] = None,
-        occupation_beta: Optional[Union[np.ndarray, List[float]]] = None,
+        num_particles: Union[int, tuple[int, int]],
+        occupation: Optional[Union[np.ndarray, list[float]]] = None,
+        occupation_beta: Optional[Union[np.ndarray, list[float]]] = None,
         absolute_tolerance: float = ABSOLUTE_TOLERANCE,
         relative_tolerance: float = RELATIVE_TOLERANCE,
     ) -> None:
@@ -72,6 +76,8 @@ class ParticleNumber(ElectronicProperty):
         else:
             self._num_alpha, self._num_beta = num_particles
 
+        self._occupation_alpha: Union[np.ndarray, list[float]]
+        self._occupation_beta: Union[np.ndarray, list[float]]
         if occupation is None:
             self._occupation_alpha = [1.0 for _ in range(self._num_alpha)]
             self._occupation_alpha += [0.0] * (num_spin_orbitals // 2 - len(self._occupation_alpha))
@@ -81,8 +87,8 @@ class ParticleNumber(ElectronicProperty):
             self._occupation_alpha = [np.ceil(o / 2) for o in occupation]
             self._occupation_beta = [np.floor(o / 2) for o in occupation]
         else:
-            self._occupation_alpha = occupation  # type: ignore
-            self._occupation_beta = occupation_beta  # type: ignore
+            self._occupation_alpha = occupation
+            self._occupation_beta = occupation_beta
 
         self._absolute_tolerance = absolute_tolerance
         self._relative_tolerance = relative_tolerance
@@ -92,18 +98,33 @@ class ParticleNumber(ElectronicProperty):
         """Returns the num_spin_orbitals."""
         return self._num_spin_orbitals
 
+    @num_spin_orbitals.setter
+    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
+        """Sets the number of spin orbitals."""
+        self._num_spin_orbitals = num_spin_orbitals
+
     @property
     def num_alpha(self) -> int:
         """Returns the number of alpha electrons."""
         return self._num_alpha
+
+    @num_alpha.setter
+    def num_alpha(self, num_alpha: int) -> None:
+        """Sets the number of alpha electrons."""
+        self._num_alpha = num_alpha
 
     @property
     def num_beta(self) -> int:
         """Returns the number of beta electrons."""
         return self._num_beta
 
+    @num_beta.setter
+    def num_beta(self, num_beta: int) -> None:
+        """Sets the number of beta electrons."""
+        self._num_beta = num_beta
+
     @property
-    def num_particles(self) -> Tuple[int, int]:
+    def num_particles(self) -> tuple[int, int]:
         """Returns the number of electrons."""
         return (self.num_alpha, self.num_beta)
 
@@ -116,6 +137,11 @@ class ParticleNumber(ElectronicProperty):
         """
         return np.asarray(self._occupation_alpha)
 
+    @occupation_alpha.setter
+    def occupation_alpha(self, occ_alpha: Union[np.ndarray, list[float]]) -> None:
+        """Sets the occupation numbers of the alpha-spin orbitals."""
+        self._occupation_alpha = occ_alpha
+
     @property
     def occupation_beta(self) -> np.ndarray:
         """Returns the occupation numbers of the beta-spin orbitals.
@@ -124,6 +150,31 @@ class ParticleNumber(ElectronicProperty):
         superpositions of determinants.
         """
         return np.asarray(self._occupation_beta)
+
+    @occupation_beta.setter
+    def occupation_beta(self, occ_beta: Union[np.ndarray, list[float]]) -> None:
+        """Sets the occupation numbers of the beta-spin orbitals."""
+        self._occupation_beta = occ_beta
+
+    @property
+    def absolute_tolerance(self) -> float:
+        """Returns the absolute tolerance."""
+        return self._absolute_tolerance
+
+    @absolute_tolerance.setter
+    def absolute_tolerance(self, absolute_tolerance: float) -> None:
+        """Sets the absolute tolerance."""
+        self._absolute_tolerance = absolute_tolerance
+
+    @property
+    def relative_tolerance(self) -> float:
+        """Returns the relative tolerance."""
+        return self._relative_tolerance
+
+    @relative_tolerance.setter
+    def relative_tolerance(self, relative_tolerance: float) -> None:
+        """Sets the relative tolerance."""
+        self._relative_tolerance = relative_tolerance
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]
@@ -134,8 +185,50 @@ class ParticleNumber(ElectronicProperty):
         string += [f"\t\torbital occupation: {self.occupation_beta}"]
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
+        group.attrs["num_alpha"] = self._num_alpha
+        group.attrs["num_beta"] = self._num_beta
+        group.attrs["absolute_tolerance"] = self._absolute_tolerance
+        group.attrs["relative_tolerance"] = self._relative_tolerance
+
+        group.create_dataset("occupation_alpha", data=self.occupation_alpha)
+        group.create_dataset("occupation_beta", data=self.occupation_beta)
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ParticleNumber:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        return ParticleNumber(
+            h5py_group.attrs["num_spin_orbitals"],
+            (h5py_group.attrs["num_alpha"], h5py_group.attrs["num_beta"]),
+            h5py_group["occupation_alpha"][Ellipsis],
+            h5py_group["occupation_beta"][Ellipsis],
+            h5py_group.attrs["absolute_tolerance"],
+            h5py_group.attrs["relative_tolerance"],
+        )
+
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ParticleNumber":
+    @deprecate_method("0.4.0")
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ParticleNumber:
         """Construct a ParticleNumber instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:

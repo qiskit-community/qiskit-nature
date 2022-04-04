@@ -237,7 +237,7 @@ class AdaptVQE(GroundStateEigensolver):
             wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
                 aux_operators
             )
-            for name, aux_op in iter(wrapped_aux_operators):
+            for name_aux, aux_op in iter(wrapped_aux_operators):
                 if isinstance(aux_op, SecondQuantizedOp):
                     converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
@@ -245,13 +245,13 @@ class AdaptVQE(GroundStateEigensolver):
                 if isinstance(aux_ops, list):
                     aux_ops.append(converted_aux_op)
                 elif isinstance(aux_ops, dict):
-                    if name in aux_ops.keys():
+                    if name_aux in aux_ops.keys():
                         raise QiskitNatureError(
-                            f"The key '{name}' is already taken by an internally constructed "
-                            "auxliliary operator! Please use a different name for your custom "
+                            f"The key '{name_aux}' is already taken by an internally constructed "
+                            "auxiliary operator! Please use a different name for your custom "
                             "operator."
                         )
-                    aux_ops[name] = converted_aux_op
+                    aux_ops[name_aux] = converted_aux_op
 
         if isinstance(self._solver, MinimumEigensolverFactory):
             vqe = self._solver.get_solver(problem, self._qubit_converter)

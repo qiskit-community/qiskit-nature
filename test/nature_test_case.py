@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,7 @@ import logging
 import os
 import unittest
 import time
-from qiskit.exceptions import MissingOptionalLibraryError
+from qiskit_nature import settings
 
 # disable deprecation warnings that can cause log output overflow
 # pylint: disable=unused-argument
@@ -34,24 +34,6 @@ def _noop(*args, **kargs):
 # warnings.warn = _noop
 
 
-def requires_extra_library(test_item):
-    """Decorator that skips test if an extra library is not available
-    Args:
-        test_item (callable): function to be decorated.
-    Returns:
-        callable: the decorated function.
-    """
-
-    def wrapper(self, *args):
-        try:
-            test_item(self, *args)
-        except MissingOptionalLibraryError as ex:
-            self.skipTest(str(ex))
-        return wrapper
-
-    return wrapper
-
-
 class QiskitNatureTestCase(unittest.TestCase, ABC):
     """Nature Test Case"""
 
@@ -59,6 +41,7 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
     log = None
 
     def setUp(self) -> None:
+        settings.dict_aux_operators = True
         warnings.filterwarnings("default", category=DeprecationWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
         warnings.filterwarnings(action="ignore", category=DeprecationWarning, module=".*drivers*")

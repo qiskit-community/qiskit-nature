@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,7 +17,7 @@ This module implements the abstract base class for electronic structure driver m
 from abc import abstractmethod
 from enum import Enum
 
-from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from .base_driver import BaseDriver
 
 
@@ -43,6 +43,6 @@ class ElectronicStructureDriver(BaseDriver):
     """
 
     @abstractmethod
-    def run(self) -> GroupedElectronicProperty:
-        """Returns a GroupedElectronicProperty output as produced by the driver."""
+    def run(self) -> ElectronicStructureDriverResult:
+        """Returns a ElectronicStructureDriverResult output as produced by the driver."""
         pass
