@@ -140,8 +140,10 @@ class AdaptVQE(GroundStateEigensolver):
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
-            # the ansatz needs to be decomposed for the gradient to work
-            vqe.ansatz = self._ansatz
+            # Due to an outstanding issue in Terra, the ansatz needs to be decomposed for all
+            # gradient to work correctly. Once this issue is resolved, this workaround can be
+            # removed.
+            vqe.ansatz = self._ansatz.decompose()
             param_sets = sorted(vqe.ansatz.parameters, key=lambda p: p.name)
             # zip will only iterate the length of the shorter list
             theta1 = dict(zip(vqe.ansatz.parameters, theta))
