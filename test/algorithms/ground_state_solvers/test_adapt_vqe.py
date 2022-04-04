@@ -67,18 +67,6 @@ class TestAdaptVQE(QiskitNatureTestCase):
 
         self.qubit_converter = QubitConverter(ParityMapper())
 
-        self.inter_dist = 1.6
-
-        self.driver1 = PySCFDriver(
-            atom="Li .0 .0 .0; H .0 .0 " + str(self.inter_dist),
-            unit=UnitsType.ANGSTROM,
-            basis="sto3g",
-        )
-
-        self.transformer = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=3)
-
-        self.problem1 = ElectronicStructureProblem(self.driver1, [self.transformer])
-
     def test_default(self):
         """Default execution"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
@@ -139,10 +127,18 @@ class TestAdaptVQE(QiskitNatureTestCase):
     @slow_test
     def test_LiH(self):
         """Lih test"""
+        driver = PySCFDriver(
+            atom="Li .0 .0 .0; H .0 .0 1.6",
+            unit=UnitsType.ANGSTROM,
+            basis="sto3g",
+        )
+        transformer = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=3)
+        problem = ElectronicStructureProblem(driver, [transformer])
+
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
         calc = AdaptVQE(self.qubit_converter, solver)
-        res = calc.solve(self.problem1)
-        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
+        res = calc.solve(problem)
+        self.assertAlmostEqual(res.electronic_energies[0], -8.855126478, places=6)
 
     def test_print_result(self):
         """Regression test against issues with printing results."""
