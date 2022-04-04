@@ -191,7 +191,7 @@ class AngularMomentum(ElectronicProperty):
         h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
 
-        op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).reduce()
+        op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).simplify()
 
         if not settings.dict_aux_operators:
             return [op]

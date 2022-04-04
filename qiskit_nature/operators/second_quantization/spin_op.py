@@ -22,12 +22,12 @@ import re
 from fractions import Fraction
 from functools import lru_cache, partial, reduce
 from itertools import product
-from typing import List, Optional, Tuple, Union, cast, Sequence
+from typing import List, Optional, Sequence, Tuple, Union, cast
 
 import numpy as np
 from qiskit.utils.validation import validate_min
-
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.deprecation import deprecate_function
 
 from .second_quantized_op import SecondQuantizedOp
 
@@ -375,11 +375,32 @@ class SpinOp(SecondQuantizedOp):
         # to simply complex conjugating the coefficient.
         return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "SpinOp":
+    @deprecate_function("0.4.0", new_name="simplify")
+    def reduce(
+        self,
+        atol: Optional[float] = None,
+        rtol: Optional[float] = None,  # pylint: disable=unused-argument
+    ) -> "SpinOp":
+        """Reduce the operator.
+
+        This method is deprecated. Use `simplify` instead.
+        """
+        return self.simplify(atol=atol)
+
+    def simplify(self, atol: Optional[float] = None) -> "SpinOp":
+        """Simplify the operator.
+
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+
+        Returns:
+            The simplified operator.
+        """
         if atol is None:
             atol = self.atol
-        if rtol is None:
-            rtol = self.rtol
 
         flatten_array, indices = np.unique(
             np.column_stack(cast(Sequence, self._spin_array)),
@@ -389,9 +410,7 @@ class SpinOp(SecondQuantizedOp):
         coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
         for i, val in zip(indices, self._coeffs):
             coeff_list[i] += val
-        non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
-        ]
+        non_zero = [i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol)]
         if not non_zero:
             return SpinOp(
                 (
@@ -431,7 +450,7 @@ class SpinOp(SecondQuantizedOp):
             return f"I_{self.register_length - 1}"
         return " ".join(labels_list)
 
-    @lru_cache()
+    @lru_cache(maxsize=128)
     def to_matrix(self) -> np.ndarray:
         """Convert to dense matrix.
 
