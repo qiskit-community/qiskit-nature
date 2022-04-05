@@ -54,8 +54,7 @@ class QuadraticHamiltonian(TolerancesMixin):
         rtol: float = 1e-5,
         atol: float = 1e-8,
     ) -> None:
-        r"""Initialize a QuadraticHamiltonian.
-
+        r"""
         Args:
             hermitian_part: The matrix :math:`M` containing the coefficients of the terms
                 that conserve particle number.
@@ -94,7 +93,10 @@ class QuadraticHamiltonian(TolerancesMixin):
                 and antisymmetric_part is not None
                 and hermitian_part.shape != antisymmetric_part.shape
             ):
-                raise ValueError("Hermitian part and antisymmetric part must have same shape.")
+                raise ValueError(
+                    "Hermitian part and antisymmetric part must have same shape. "
+                    "Got shapes {hermitian_part.shape} and {antisymmetric_part.shape}."
+                )
             if hermitian_part is not None:
                 if hermitian_part.shape[0] != self._num_modes:
                     raise ValueError("Hermitian part must have shape num_modes x num_modes.")
