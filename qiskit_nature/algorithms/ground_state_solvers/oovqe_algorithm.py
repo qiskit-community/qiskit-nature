@@ -276,9 +276,6 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         self.bounds_oo: np.array = None # in the future: set by user
         self.bounds: np.array = None # ansatz + oo
 
-        # these should become more configurable in
-        # the future (and using properties):
-
         self.orbital_rotation = OrbitalRotation(num_qubits=self.solver.ansatz.num_qubits,
                                                 qubit_converter=qubit_converter)
         self.num_parameters_oovqe = \
