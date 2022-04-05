@@ -95,16 +95,22 @@ class QuadraticHamiltonian(TolerancesMixin):
             ):
                 raise ValueError(
                     "Hermitian part and antisymmetric part must have same shape. "
-                    "Got shapes {hermitian_part.shape} and {antisymmetric_part.shape}."
+                    f"Got shapes {hermitian_part.shape} and {antisymmetric_part.shape}."
                 )
             if hermitian_part is not None:
                 if hermitian_part.shape[0] != self._num_modes:
-                    raise ValueError("Hermitian part must have shape num_modes x num_modes.")
+                    raise ValueError(
+                        "Hermitian part must have shape num_modes x num_modes. "
+                        f"Got shape {hermitian_part.shape}, while num_modes={self._num_modes}."
+                    )
                 if not _is_hermitian(hermitian_part, rtol=rtol, atol=atol):
                     raise ValueError("Hermitian part must be Hermitian.")
             if antisymmetric_part is not None:
                 if antisymmetric_part.shape[0] != self._num_modes:
-                    raise ValueError("Antisymmetric part must have shape num_modes x num_modes.")
+                    raise ValueError(
+                        "Antisymmetric part must have shape num_modes x num_modes. "
+                        f"Got shape {antisymmetric_part.shape}, while num_modes={self._num_modes}."
+                    )
                 if not _is_antisymmetric(antisymmetric_part, rtol=rtol, atol=atol):
                     raise ValueError("Antisymmetric part must be antisymmetric.")
 
