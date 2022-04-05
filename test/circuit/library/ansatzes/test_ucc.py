@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,7 @@ from ddt import data, ddt, unpack
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
@@ -133,3 +133,87 @@ class TestUCC(QiskitNatureTestCase):
 
         with self.assertRaises(QiskitNatureError):
             ansatz.excitation_ops()
+
+    def test_build_ucc(self):
+        """Test building UCC"""
+        ucc = UCC()
+
+        with self.subTest("Check defaulted construction"):
+            self.assertIsNone(ucc.num_particles)
+            self.assertIsNone(ucc.num_spin_orbitals)
+            self.assertIsNone(ucc.excitations)
+            self.assertIsNone(ucc.qubit_converter)
+            self.assertIsNone(ucc.operators)
+            self.assertEqual(ucc.num_qubits, 0)
+            with self.assertRaises(ValueError):
+                _ = ucc.data
+
+        with self.subTest("Set num particles"):
+            ucc.num_particles = (1, 1)
+            self.assertEqual(ucc.num_particles, (1, 1))
+            self.assertIsNone(ucc.operators)
+            with self.assertRaises(ValueError):
+                _ = ucc.data
+
+        with self.subTest("Set num spin orbitals"):
+            ucc.num_spin_orbitals = 4
+            self.assertEqual(ucc.num_spin_orbitals, 4)
+            self.assertIsNone(ucc.operators)
+            with self.assertRaises(ValueError):
+                _ = ucc.data
+
+        with self.subTest("Set excitations"):
+            ucc.excitations = "sd"
+            self.assertEqual(ucc.excitations, "sd")
+            self.assertIsNone(ucc.operators)
+            with self.assertRaises(ValueError):
+                _ = ucc.data
+
+        with self.subTest("Set qubit converter to complete build"):
+            converter = QubitConverter(JordanWignerMapper())
+            ucc.qubit_converter = converter
+            self.assertEqual(ucc.qubit_converter, converter)
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(len(ucc.operators), 3)
+            self.assertEqual(ucc.num_qubits, 4)
+            self.assertIsNotNone(ucc.data)
+
+        with self.subTest("Set custom operators"):
+            self.assertEqual(len(ucc.operators), 3)
+            ucc.operators = ucc.operators[:2]
+            self.assertEqual(len(ucc.operators), 2)
+            self.assertEqual(ucc.num_qubits, 4)
+
+        with self.subTest("Reset operators back to as per UCC"):
+            ucc.operators = None
+            self.assertEqual(ucc.num_qubits, 4)
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(len(ucc.operators), 3)
+
+        with self.subTest("Set num particles to include 0"):
+            ucc.num_particles = (1, 0)
+            self.assertEqual(ucc.num_particles, (1, 0))
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(len(ucc.operators), 1)
+
+        with self.subTest("Change num particles"):
+            ucc.num_particles = (1, 1)
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(len(ucc.operators), 3)
+
+        with self.subTest("Change num spin orbitals"):
+            ucc.num_spin_orbitals = 6
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(len(ucc.operators), 8)
+
+        with self.subTest("Change excitations"):
+            ucc.excitations = "s"
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(len(ucc.operators), 4)
+
+        with self.subTest("Change qubit converter"):
+            ucc.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
+            # Has not been used to convert so we need to force it to do two qubit reduction
+            ucc.qubit_converter.force_match(ucc.num_particles)
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(ucc.num_qubits, 4)
