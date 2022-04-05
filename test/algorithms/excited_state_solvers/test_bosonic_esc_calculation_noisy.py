@@ -22,7 +22,7 @@ import numpy as np
 import qiskit
 from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit.opflow import AerPauliExpectation, MatrixExpectation
+from qiskit.opflow import AerPauliExpectation
 from qiskit_nature.drivers import WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
@@ -84,8 +84,11 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         self.qubit_converter = QubitConverter(DirectMapper())
         self.basis_size = 2
         self.truncation_order = 2
-        self.quantum_instance = QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector"))
-
+        self.quantum_instance = QuantumInstance(
+            qiskit.Aer.get_backend("aer_simulator_statevector"),
+            seed_transpiler=90,
+            seed_simulator=12,
+        )
         self.vibrational_problem = VibrationalStructureProblem(
             self.driver, self.basis_size, self.truncation_order
         )
@@ -97,7 +100,8 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(
             self.vibrational_problem,
-            expectation=MatrixExpectation(),
+            expectation=AerPauliExpectation(),
+            quantum_instance=self.quantum_instance,
         )
 
         for idx, energy in enumerate(self.reference_energies):
