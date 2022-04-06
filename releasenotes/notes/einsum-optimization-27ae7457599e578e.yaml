@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The new setting `qiskit_nature.settings.optimize_einsum` was added which allows enabling the
+    `optimize` argument in `numpy.einsum` calls with more than 2 operands. This is known to yield
+    significant computational efficiency increases at the expense of higher memory consumption.
+    The setting defaults to `True`.
