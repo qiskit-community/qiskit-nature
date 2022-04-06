@@ -10,7 +10,7 @@ features:
     :class:`~qiskit_nature.algorithms.MP2InitialPoint` inherits from the
     abstract base class (interface)
     :class:`~qiskit_nature.algorithms.InitialPoint`, which takes a driver
-    result and a UCC Ansatz via the ``get_initial_point`` method.
+    result and a UCC ansatz via the ``get_initial_point`` method.
 
     The MP2 computation requires the number of spin orbitals and the electronic
     energy from the second quantized properties of the driver result. The
@@ -22,6 +22,7 @@ features:
     the ``initial_point`` keyword argument:
 
     .. code-block:: python
+
       mp2 = MP2InitialPoint()
       vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=mp2)
 
@@ -31,6 +32,7 @@ features:
     Outside of the factory, one can do this manually:
 
     .. code-block:: python
+
       mp2 = MP2InitialPoint()
       initial_point = mp2.get_initial_point(driver_result, ansatz)
 
