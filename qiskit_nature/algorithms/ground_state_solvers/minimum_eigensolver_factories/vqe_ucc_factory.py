@@ -14,7 +14,6 @@
 
 from typing import Optional, Union, Callable, cast
 
-import warnings
 import logging
 import numpy as np
 
@@ -24,6 +23,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
+from qiskit_nature.deprecation import deprecate_property, deprecate_method
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -86,17 +86,17 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-        self.ansatz = ansatz
-        self.initial_state = initial_state
+        self._ansatz = ansatz
+        self._initial_state = initial_state
 
         # Not needed
-        self.quantum_instance = quantum_instance
-        self.optimizer = optimizer
-        self.initial_point = initial_point
-        self.gradient = gradient
-        self.expectation = expectation
-        self.include_custom = include_custom
-        self.callback = callback
+        self._quantum_instance = quantum_instance
+        self._optimizer = optimizer
+        self._initial_point = initial_point
+        self._gradient = gradient
+        self._expectation = expectation
+        self._include_custom = include_custom
+        self._callback = callback
         self._kwargs = kwargs
 
         self._vqe = VQE(
@@ -110,226 +110,143 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             **kwargs,
         )
 
-    @property
+    @property  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def quantum_instance(self) -> QuantumInstance:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns quantum instance."""
-        warnings.warn(
-            "The `quantum_instance` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._quantum_instance
 
-    @quantum_instance.setter
+    @quantum_instance.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def quantum_instance(self, q_instance: QuantumInstance) -> None:
         """DEPRECATED. Use the constructor instead. Sets the quantum instance."""
-        warnings.warn(
-            "The `quantum_instance` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._quantum_instance = q_instance
 
-    @property
+    @property  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def optimizer(self) -> Optional[Optimizer]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns optimizer."""
-        warnings.warn(
-            "The `optimizer` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._optimizer
 
-    @optimizer.setter
+    @optimizer.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the optimizer."""
-        warnings.warn(
-            "The `optimizer` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._optimizer = optimizer
 
-    @property
+    @property  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def initial_point(self) -> Optional[np.ndarray]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns initial_point."""
-        warnings.warn(
-            "The `initial_point` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._initial_point
 
-    @initial_point.setter
+    @initial_point.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        warnings.warn(
-            "The `initial_point` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._initial_point = initial_point
 
-    @property
+    @property  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns gradient."""
-        warnings.warn(
-            "The `gradient` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._gradient
 
-    @gradient.setter
+    @gradient.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        warnings.warn(
-            "The `gradient` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._gradient = gradient
 
-    @property
+    @property  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def expectation(self) -> Optional[ExpectationBase]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
+        """DEPRECATED. Use ``minimum_eigensolver`` and solver properties instead.
         Returns gradient."""
-        warnings.warn(
-            "The `expectation` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._expectation
 
-    @expectation.setter
+    @expectation.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        warnings.warn(
-            "The `expectation` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._expectation = expectation
 
-    @property
+    @property  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def include_custom(self) -> bool:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the ``include_custom`` setting for the ``expectation`` setting."""
-        warnings.warn(
-            "The `include_custom` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._include_custom
 
-    @include_custom.setter
+    @include_custom.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def include_custom(self, include_custom: bool) -> None:
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         setting for the ``expectation`` setting."""
-        warnings.warn(
-            "The `include_custom` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._include_custom = include_custom
 
-    @property
+    @property  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def ansatz(self) -> Optional[UCC]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the ansatz"""
-        warnings.warn(
-            "The `ansatz` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._ansatz
 
-    @ansatz.setter
+    @ansatz.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def ansatz(self, ansatz: Optional[UCC]) -> None:
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
         :class:`~.UCCSD` Ansatz."""
-        warnings.warn(
-            "The `include_custom` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._ansatz = ansatz
 
-    @property
+    @property  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def initial_state(self) -> Optional[QuantumCircuit]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the initial state."""
-        warnings.warn(
-            "The `initial_state` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._initial_state
 
-    @initial_state.setter
+    @initial_state.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
         """DEPRECATED. Use the constructor instead.
         Setter of the initial state. If ``None`` is passed, this factory will default to using
         the :class:`~.HartreeFock`."""
-        warnings.warn(
-            "The `include_custom` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._initial_state = initial_state
 
-    @property
+    @property  # type: ignore
+    @deprecate_method(
+        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
+    )
     def callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
+        """DEPRECATED. Use ``minimum_eigensolver`` and solver properties instead.
         Returns the callback."""
-        warnings.warn(
-            "The `initial_state` getter method is deprecated as of Qiskit Nature 0.4, "
-            "and will be removed in a future release. Use ``minimum_eigensolver`` method and "
-            "solver properties instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._callback
 
-    @callback.setter
+    @callback.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def callback(self, callback: Optional[Callable[[int, np.ndarray, float, float], None]]) -> None:
         """DEPRECATED. Use the constructor instead.
         Sets the callback."""
-        warnings.warn(
-            "The `include_custom` setter method is deprecated as of Qiskit Nature 0.4 "
-            "and will be removed in a future release. Use the constructor instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._callback = callback
 
     def get_solver(  # type: ignore[override]

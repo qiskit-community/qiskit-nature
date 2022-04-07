@@ -46,7 +46,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
 
-    @property
+    @property  # type: ignore
     @deprecate_property(
         "0.4",
         new_type=DeprecatedType.FUNCTION,
@@ -58,7 +58,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """returns filter criterion"""
         return self._filter_criterion
 
-    @filter_criterion.setter
+    @filter_criterion.setter  # type: ignore
     @deprecate_property(
         "0.4",
         new_type=DeprecatedType.FUNCTION,
@@ -71,6 +71,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """sets filter criterion"""
         self._filter_criterion = value
 
+    @property  # type: ignore
     @deprecate_property(
         "0.4",
         new_type=DeprecatedType.FUNCTION,
@@ -80,7 +81,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """returns whether to use the default filter criterion"""
         return self._use_default_filter_criterion
 
-    @use_default_filter_criterion.setter
+    @use_default_filter_criterion.setter  # type: ignore
     @deprecate_property(
         "0.4",
         new_type=DeprecatedType.FUNCTION,
