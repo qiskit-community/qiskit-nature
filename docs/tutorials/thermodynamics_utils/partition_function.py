@@ -301,9 +301,9 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         """
         m = sum(self.molecule.masses)
 
-        debrog = (const.H_J_S ** 2 / (2 * np.pi * m * const.KB_J_PER_K * t)) ** (1 / 2)
+        debrog = (const.H_J_S**2 / (2 * np.pi * m * const.KB_J_PER_K * t)) ** (1 / 2)
         v = (const.KB_J_PER_K * t) / p
-        q_trans = v / debrog ** 3
+        q_trans = v / debrog**3
 
         return q_trans
 
@@ -432,9 +432,9 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         m_r = (m_a * m_b) / (m_a + m_b)  # reduced mass
 
         # TODO: Can/Should we take this directly from molecule?
-        intertia = m_r * (r0 ** 2)  # moment of inertia
+        intertia = m_r * (r0**2)  # moment of inertia
         # rotational temp (K)
-        theta_r = const.HBAR_J_S ** 2 / (2 * intertia * const.KB_J_PER_K)
+        theta_r = const.HBAR_J_S**2 / (2 * intertia * const.KB_J_PER_K)
 
         q_rot_ht_limit = (t / (sigma * theta_r)) * (
             1 + theta_r / (3 * t) + (1 / 15) * (theta_r / t) ** 2 + (4 / 315) * (theta_r / t) ** 3
@@ -443,7 +443,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         d_dt_q_rot_ht_limit = (
             1 / (sigma * theta_r)
             - (1 / 15) * (theta_r / sigma) * (1 / t) ** 2
-            - (8 / 315) * (theta_r ** 2 / sigma) * (1 / t) ** 3
+            - (8 / 315) * (theta_r**2 / sigma) * (1 / t) ** 3
         )
 
         return q_rot_ht_limit if not evaluate_gradient else d_dt_q_rot_ht_limit
@@ -513,9 +513,9 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
         m_b = self.molecule.masses[1]
         m_r = (m_a * m_b) / (m_a + m_b)  # reduced mass
 
-        intertia = m_r * (r ** 2)  # moment of inertia
+        intertia = m_r * (r**2)  # moment of inertia
         # rotational temp (K)
-        theta_r = const.HBAR_J_S ** 2 / (2 * intertia * const.KB_J_PER_K)
+        theta_r = const.HBAR_J_S**2 / (2 * intertia * const.KB_J_PER_K)
         b_bar = theta_r * const.KB_J_PER_K  # rot constant (j/molecule)
 
         # d_e = self.potential.dissociation_energy(const.HARTREE_TO_J)
@@ -537,7 +537,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
                     (2 * j + 1)
                     * np.exp((-theta_r * j * (j + 1)) / t)
                     * (theta_r * j * (j + 1))
-                    / t ** 2
+                    / t**2
                 )
             else:
                 # value
@@ -547,7 +547,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
                     (2 * j + 1)
                     * np.exp((-theta_r * j * (j + 1)) / t)
                     * (theta_r * j * (j + 1))
-                    / t ** 2
+                    / t**2
                 )
             j += 1
             e_rot = b_bar * j * (j + 1)
@@ -569,7 +569,7 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
             q_rot_eq = q_rot_para + q_rot_ortho
             d_q_rot_eq = d_q_rot_para + d_q_rot_ortho
             frac_para = q_rot_para / (q_rot_para + q_rot_ortho)
-            q_rot_mix = (para ** frac_para) * (ortho ** (1 - frac_para))
+            q_rot_mix = (para**frac_para) * (ortho ** (1 - frac_para))
             d_q_rot_mix = (
                 self._d_dx_expr(para, spin * (2 * spin + 1), ortho, (spin + 1) * (2 * spin + 1))
                 * d_para
@@ -664,5 +664,5 @@ class DiatomicPartitionFunction(PartitionFunctionBase):
             d * y / (c * x + d * y)
         ) * (
             c / (c * x + d * y)
-            + (-(c ** 2) * x / (c * x + d * y) ** 2 + c / (c * x + d * y)) * np.log(x)
+            + (-(c**2) * x / (c * x + d * y) ** 2 + c / (c * x + d * y)) * np.log(x)
         )
