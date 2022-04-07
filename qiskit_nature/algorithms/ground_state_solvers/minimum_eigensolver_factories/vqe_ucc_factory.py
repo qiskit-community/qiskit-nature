@@ -30,7 +30,7 @@ from qiskit_nature.problems.second_quantization.electronic import (
 )
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
-from ...initial_points import InitialPoint
+from ...initial_points import InitialPoint, HFInitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -41,7 +41,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self,
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
-        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
+        initial_point: Optional[Union[np.ndarray, InitialPoint]] = HFInitialPoint(),
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -211,11 +211,11 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):
-            self.initial_point.grouped_property = driver_result
             self.initial_point.ansatz = ansatz
-
-            # Override the initial_point with the computed array.
-            self.initial_point = self.initial_point.to_numpy_array()
+            self.initial_point.grouped_property = driver_result
+            initial_point = self.initial_point.to_numpy_array()
+        else:
+            initial_point = self.initial_point
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
@@ -223,7 +223,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             ansatz=ansatz,
             quantum_instance=self.quantum_instance,
             optimizer=self.optimizer,
-            initial_point=self.initial_point,
+            initial_point=initial_point,
             gradient=self.gradient,
             expectation=self.expectation,
             include_custom=self.include_custom,

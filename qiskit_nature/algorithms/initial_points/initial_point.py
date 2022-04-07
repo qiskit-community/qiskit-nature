@@ -18,49 +18,95 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
-from qiskit_nature.circuit.library import UCC
 
 
 class InitialPoint(ABC):
-    """The initial point interface.
+    r"""The initial point interface.
 
-    Interface for algorithms that can compute an initial point for the VQE parameters when using a
-    UCC ansatz.
+    The interface for utility classes that can compute an initial point for the
+    :class:`~qiskit.algorithms.VQE` parameters for a particular
+    :class:`~qiskit.circuit.library.EvolvedOperatorAnsatz.`
     """
 
+    @abstractmethod
     def __init__(self):
+        self._ansatz: EvolvedOperatorAnsatz | None = None
         self._grouped_property: GroupedSecondQuantizedProperty | None = None
-        self._ansatz: UCC | None = None
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Returns the length of the computed initial point array.
+
+        Raises:
+            NotImplementedError
+        """
+        raise NotImplementedError
 
     @property
     @abstractmethod
-    def grouped_property(self) -> GroupedSecondQuantizedProperty:
-        """The grouped property."""
+    def ansatz(self) -> EvolvedOperatorAnsatz | None:
+        """The evolved operator ansatz.
+
+        Raises:
+            NotImplementedError
+        """
+        raise NotImplementedError
+
+    @ansatz.setter
+    def ansatz(self, ansatz: EvolvedOperatorAnsatz) -> None:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+        """The grouped property.
+
+        Raises:
+            NotImplementedError
+        """
         raise NotImplementedError
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def ansatz(self) -> UCC:
-        """The UCC ansatz."""
-        raise NotImplementedError
-
-    @ansatz.setter
-    def ansatz(self, ansatz: UCC) -> None:
-        raise NotImplementedError
-
     @abstractmethod
     def to_numpy_array(self) -> np.ndarray:
-        """Returns a numpy array of the computed initial point."""
+        """Returns a numpy array of the computed initial point.
+
+        Raises:
+            NotImplementedError
+        """
         raise NotImplementedError
 
     @abstractmethod
     def compute(
-        self, grouped_property: GroupedSecondQuantizedProperty | None, ansatz: UCC | None
+        self,
+        ansatz: EvolvedOperatorAnsatz | None,
+        grouped_property: GroupedSecondQuantizedProperty | None,
     ) -> np.ndarray:
-        """Computes the initial point."""
+        """Computes the initial point.
+
+        Raises:
+            NotImplementedError
+        """
         raise NotImplementedError
+
+    @abstractmethod
+    def get_energy_corrections(self) -> np.ndarray:
+        """The energy correction corresponding to each parameter value.
+
+        Raises:
+            NotImplementedError
+        """
+        raise NotImplementedError
+
+    def get_energy_correction(self) -> float:
+        """Returns the overall energy correction (zero)."""
+        return 0.0
+
+    def get_energy(self) -> float:
+        """Returns the absolute energy (zero)."""
+        return 0.0

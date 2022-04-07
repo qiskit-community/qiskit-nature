@@ -124,6 +124,22 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
 
+    def test_vqe_uvcc_factory_with_user_initial_point(self):
+        """Test VQEUVCCFactory when using it with a user defined initial point."""
+
+        optimizer = COBYLA(maxiter=5000)
+        quantum_instance = QuantumInstance(
+            backend=qiskit.BasicAer.get_backend("statevector_simulator"),
+            seed_simulator=algorithm_globals.random_seed,
+            seed_transpiler=algorithm_globals.random_seed,
+        )
+        solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer, initial_point=[1, 2, 3])
+        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        esc = QEOM(gsc, "sd")
+        results = esc.solve(self.vibrational_problem)
+        for idx, energy in enumerate(self.reference_energies):
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
+
     def test_vqe_uvccsd_with_callback(self):
         """Test VQE UVCCSD with callback."""
 

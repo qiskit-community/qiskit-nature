@@ -547,7 +547,20 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
-        self.assertIsNone(solver.initial_point)
+        np.testing.assert_array_equal(solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0])
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_user_initial_point(self):
+        """Test VQEUCCFactory when using it with a user defined initial point."""
+
+        initial_point = [1, 2, 3]
+        solver = VQEUCCFactory(
+            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            initial_point=initial_point,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        np.testing.assert_array_equal(calc.solver.initial_point, initial_point)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_factory_with_mp2(self):
@@ -562,7 +575,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
-        np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, -0.07197145])
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), [0.0, 0.0, -0.07197145]
+        )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
 

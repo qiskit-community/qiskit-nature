@@ -115,13 +115,29 @@ The initial point interface.
 
    InitialPoint
 
-The MP2 initial point algorithm.
+The HF initial point.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   HFInitialPoint
+
+The MP2 initial point.
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
    MP2InitialPoint
+
+The VSCF initial point.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   VSCFInitialPoint
 
 """
 
@@ -142,7 +158,7 @@ from .ground_state_solvers import (
     VQEUVCCFactory,
 )
 from .pes_samplers import BOPESSampler
-from .initial_points import InitialPoint, MP2InitialPoint
+from .initial_points import InitialPoint, HFInitialPoint, MP2InitialPoint, VSCFInitialPoint
 
 __all__ = [
     "ExcitedStatesEigensolver",
@@ -159,5 +175,7 @@ __all__ = [
     "VQEUVCCFactory",
     "BOPESSampler",
     "InitialPoint",
+    "HFInitialPoint",
     "MP2InitialPoint",
+    "VSCFInitialPoint",
 ]
