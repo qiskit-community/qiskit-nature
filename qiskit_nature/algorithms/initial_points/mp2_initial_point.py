@@ -45,9 +45,6 @@ class MP2InitialPoint(InitialPoint):
     non-zero.
     """
 
-    # TODO: Add a tutorial demonstrating that using MP2 initial point results in
-    # fewer evaluations to reach the ground state.
-
     def __init__(self) -> None:
         super().__init__()
         self.threshold = 1e-12
