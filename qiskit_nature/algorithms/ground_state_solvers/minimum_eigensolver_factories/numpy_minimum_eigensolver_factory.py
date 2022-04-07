@@ -46,24 +46,24 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
 
+    @property
     @deprecate_property(
         "0.4",
         new_type=DeprecatedType.FUNCTION,
         new_name="__init__",
     )
-    @property
     def filter_criterion(
         self,
     ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
         """returns filter criterion"""
         return self._filter_criterion
 
+    @filter_criterion.setter
     @deprecate_property(
         "0.4",
         new_type=DeprecatedType.FUNCTION,
         new_name="__init__",
     )
-    @filter_criterion.setter
     def filter_criterion(
         self,
         value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
@@ -80,12 +80,12 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """returns whether to use the default filter criterion"""
         return self._use_default_filter_criterion
 
+    @use_default_filter_criterion.setter
     @deprecate_property(
         "0.4",
         new_type=DeprecatedType.FUNCTION,
         new_name="__init__",
     )
-    @use_default_filter_criterion.setter
     def use_default_filter_criterion(self, value: bool) -> None:
         """sets whether to use the default filter criterion"""
         self._use_default_filter_criterion = value
