@@ -24,6 +24,7 @@ from qiskit.circuit.library import RZGate, XGate, XXPlusYYGate
 def prepare_slater_determinant_jordan_wigner(  # pylint: disable=invalid-name
     register: QuantumRegister, transformation_matrix: np.ndarray
 ) -> Iterable[Tuple[Gate, Tuple[Qubit, ...]]]:
+    """Prepare a Slater determinant under the Jordan-Wigner Transform."""
     m, n = transformation_matrix.shape
 
     # set the first n_particles qubits to 1
@@ -71,6 +72,7 @@ def prepare_slater_determinant_jordan_wigner(  # pylint: disable=invalid-name
 def prepare_fermionic_gaussian_state_jordan_wigner(  # pylint: disable=invalid-name
     register: QuantumRegister, transformation_matrix: np.ndarray, occupied_orbitals: Sequence[int]
 ) -> Iterable[Tuple[Gate, Tuple[Qubit, ...]]]:
+    """Prepare a fermionic Gaussian state under the Jordan-Wigner Transform."""
     n, _ = transformation_matrix.shape
 
     # transform matrix to align with exposition in arXiv:1711.05395

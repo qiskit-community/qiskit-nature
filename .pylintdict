@@ -124,6 +124,7 @@ eigensolvers
 eigenstate
 eigenstateresult
 eigenstates
+eigenvector
 einact
 einsum
 endian
