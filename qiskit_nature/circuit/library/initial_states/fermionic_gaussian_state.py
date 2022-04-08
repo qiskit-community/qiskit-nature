@@ -108,8 +108,7 @@ class FermionicGaussianState(QuantumCircuit):
         if qubit_converter is None:
             qubit_converter = QubitConverter(JordanWignerMapper())
 
-        register = QuantumRegister(n, "q")
-        # TODO maybe use a shorter name
+        register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
         if isinstance(qubit_converter.mapper, JordanWignerMapper):

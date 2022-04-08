@@ -71,14 +71,13 @@ class SlaterDeterminant(QuantumCircuit):
 
         m, n = transformation_matrix.shape
         if m > n:
-            raise ValueError("transformation_matrix must have orthonormal rows.")
+            raise ValueError("transformation_matrix must be square.")
         # TODO maybe actually check if the rows are orthonormal
 
         if qubit_converter is None:
             qubit_converter = QubitConverter(JordanWignerMapper())
 
-        register = QuantumRegister(n, "q")
-        # TODO maybe use a shorter name
+        register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
         if isinstance(qubit_converter.mapper, JordanWignerMapper):
