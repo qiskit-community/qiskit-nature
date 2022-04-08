@@ -22,6 +22,8 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
+from ddt import ddt, data
+
 from qiskit.providers.basicaer import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import VQE
@@ -47,13 +49,12 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-import qiskit_nature.optionals as _optionals
 
 
+@ddt
 class TestAdaptVQE(QiskitNatureTestCase):
     """Test Adaptive VQE Ground State Calculation"""
 
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
 
@@ -74,26 +75,11 @@ class TestAdaptVQE(QiskitNatureTestCase):
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
-    def test_param_shift(self):
-        """test for param_shift method"""
+    @data("param_shift", "fin_diff", "lin_comb")
+    def test_gradient(self, grad_method):
+        """test for different gradient methods"""
         solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
-        grad = Gradient(grad_method="param_shift")
-        calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
-        res = calc.solve(self.problem)
-        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
-
-    def test_fin_diff(self):
-        """test for fin_diff method"""
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
-        grad = Gradient(grad_method="fin_diff", epsilon=1.0)
-        calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
-        res = calc.solve(self.problem)
-        self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
-
-    def test_lin_comb(self):
-        """test for fin_diff method"""
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
-        grad = Gradient(grad_method="lin_comb", epsilon=1.0)
+        grad = Gradient(grad_method, epsilon=1.0)
         calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
