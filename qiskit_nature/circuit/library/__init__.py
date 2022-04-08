@@ -14,7 +14,7 @@
 Circuit Library (:mod:`qiskit_nature.circuit.library`)
 ======================================================
 
-A collection of gates and circuits used as building blocks or inputs for algorithms.
+A collection of circuits used as building blocks or inputs for algorithms.
 
 .. currentmodule:: qiskit_nature.circuit.library
 
