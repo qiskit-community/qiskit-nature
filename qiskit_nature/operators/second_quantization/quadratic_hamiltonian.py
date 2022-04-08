@@ -54,8 +54,7 @@ class QuadraticHamiltonian(TolerancesMixin):
         rtol: float = 1e-5,
         atol: float = 1e-8,
     ) -> None:
-        r"""Initialize a QuadraticHamiltonian.
-
+        r"""
         Args:
             hermitian_part: The matrix :math:`M` containing the coefficients of the terms
                 that conserve particle number.
@@ -94,15 +93,24 @@ class QuadraticHamiltonian(TolerancesMixin):
                 and antisymmetric_part is not None
                 and hermitian_part.shape != antisymmetric_part.shape
             ):
-                raise ValueError("Hermitian part and antisymmetric part must have same shape.")
+                raise ValueError(
+                    "Hermitian part and antisymmetric part must have same shape. "
+                    f"Got shapes {hermitian_part.shape} and {antisymmetric_part.shape}."
+                )
             if hermitian_part is not None:
                 if hermitian_part.shape[0] != self._num_modes:
-                    raise ValueError("Hermitian part must have shape num_modes x num_modes.")
+                    raise ValueError(
+                        "Hermitian part must have shape num_modes x num_modes. "
+                        f"Got shape {hermitian_part.shape}, while num_modes={self._num_modes}."
+                    )
                 if not _is_hermitian(hermitian_part, rtol=rtol, atol=atol):
                     raise ValueError("Hermitian part must be Hermitian.")
             if antisymmetric_part is not None:
                 if antisymmetric_part.shape[0] != self._num_modes:
-                    raise ValueError("Antisymmetric part must have shape num_modes x num_modes.")
+                    raise ValueError(
+                        "Antisymmetric part must have shape num_modes x num_modes. "
+                        f"Got shape {antisymmetric_part.shape}, while num_modes={self._num_modes}."
+                    )
                 if not _is_antisymmetric(antisymmetric_part, rtol=rtol, atol=atol):
                     raise ValueError("Antisymmetric part must be antisymmetric.")
 
@@ -137,7 +145,7 @@ class QuadraticHamiltonian(TolerancesMixin):
 
     def to_fermionic_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms = [([], self.constant)]  # type: list[tuple[list[tuple[str, int]], complex]]
+        terms: list[tuple[list[tuple[str, int]], complex]] = [([], self.constant)]
         for i in range(self._num_modes):
             terms.append(([("+", i), ("-", i)], self.hermitian_part[i, i]))
             for j in range(i + 1, self._num_modes):
