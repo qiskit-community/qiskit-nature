@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Private helper functions for inital states."""
+"""Private helper functions for initial states."""
 
 from typing import Iterable, List, Sequence, Tuple, Union
 
