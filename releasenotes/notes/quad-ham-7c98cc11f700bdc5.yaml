@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds :class:`qiskit_nature.operators.second_quantization.QuadraticHamiltonian`.
+    This class is used to represent quadratic fermionic Hamiltonians
+    and includes methods to efficiently diagonalize them.
