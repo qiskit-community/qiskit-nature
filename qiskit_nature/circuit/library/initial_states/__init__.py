@@ -11,8 +11,9 @@
 # that they have been altered from the originals.
 """Qiskit Nature Circuit Library Initial States."""
 
-from .fermionic_gaussian_states import FermionicGaussianState, SlaterDeterminant
+from .fermionic_gaussian_state import FermionicGaussianState
 from .hartree_fock import HartreeFock
+from .slater_determinants import SlaterDeterminant
 from .vscf import VSCF
 
 __all__ = ["FermionicGaussianState", "HartreeFock", "SlaterDeterminant", "VSCF"]
