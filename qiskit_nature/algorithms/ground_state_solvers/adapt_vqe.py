@@ -144,7 +144,7 @@ class AdaptVQE(GroundStateEigensolver):
             # gradient to work correctly. Once this issue is resolved, this workaround can be
             # removed.
             vqe.ansatz = self._ansatz.decompose()
-            # We need to explicitly convert this to a list in order to make the object hashable
+            # We need to explicitly convert this to a list in order to make the object hash-able
             param_sets = list(vqe.ansatz.parameters)
             # zip will only iterate the length of the shorter list
             theta1 = dict(zip(vqe.ansatz.parameters, theta))
