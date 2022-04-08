@@ -174,7 +174,7 @@ def _givens_matrix(a: Union[complex, float], b: Union[complex, float]) -> np.nda
 
 
 _SliceAtom = Union[int, slice, "ellipsis"]
-_Slice = Union[_SliceAtom, Sequence[_SliceAtom]]
+_Slice = Union[_SliceAtom, Tuple[_SliceAtom, ...]]
 
 
 def _apply_matrix_to_slices(
