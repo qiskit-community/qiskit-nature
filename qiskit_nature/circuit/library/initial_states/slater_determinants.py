@@ -21,7 +21,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 
-from ._helper import prepare_slater_determinant_jordan_wigner
+from ._helper import _prepare_slater_determinant_jordan_wigner
 
 
 class SlaterDeterminant(QuantumCircuit):
@@ -81,7 +81,7 @@ class SlaterDeterminant(QuantumCircuit):
         super().__init__(register, **circuit_kwargs)
 
         if isinstance(qubit_converter.mapper, JordanWignerMapper):
-            operations = prepare_slater_determinant_jordan_wigner(register, transformation_matrix)
+            operations = _prepare_slater_determinant_jordan_wigner(register, transformation_matrix)
             for gate, qubits in operations:
                 self.append(gate, qubits)
         else:

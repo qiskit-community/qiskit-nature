@@ -21,7 +21,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 
-from ._helper import prepare_fermionic_gaussian_state_jordan_wigner
+from ._helper import _prepare_fermionic_gaussian_state_jordan_wigner
 
 
 class FermionicGaussianState(QuantumCircuit):
@@ -112,7 +112,7 @@ class FermionicGaussianState(QuantumCircuit):
         super().__init__(register, **circuit_kwargs)
 
         if isinstance(qubit_converter.mapper, JordanWignerMapper):
-            operations = prepare_fermionic_gaussian_state_jordan_wigner(
+            operations = _prepare_fermionic_gaussian_state_jordan_wigner(
                 register, transformation_matrix, occupied_orbitals
             )
             for gate, qubits in operations:

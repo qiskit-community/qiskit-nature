@@ -21,7 +21,7 @@ from qiskit.circuit import Gate, Qubit
 from qiskit.circuit.library import RZGate, XGate, XXPlusYYGate
 
 
-def prepare_slater_determinant_jordan_wigner(  # pylint: disable=invalid-name
+def _prepare_slater_determinant_jordan_wigner(  # pylint: disable=invalid-name
     register: QuantumRegister, transformation_matrix: np.ndarray
 ) -> Iterable[Tuple[Gate, Tuple[Qubit, ...]]]:
     """Prepare a Slater determinant under the Jordan-Wigner Transform."""
@@ -69,7 +69,7 @@ def prepare_slater_determinant_jordan_wigner(  # pylint: disable=invalid-name
     yield from reversed(decomposition)
 
 
-def prepare_fermionic_gaussian_state_jordan_wigner(  # pylint: disable=invalid-name
+def _prepare_fermionic_gaussian_state_jordan_wigner(  # pylint: disable=invalid-name
     register: QuantumRegister, transformation_matrix: np.ndarray, occupied_orbitals: Sequence[int]
 ) -> Iterable[Tuple[Gate, Tuple[Qubit, ...]]]:
     """Prepare a fermionic Gaussian state under the Jordan-Wigner Transform."""
@@ -126,7 +126,7 @@ def prepare_fermionic_gaussian_state_jordan_wigner(  # pylint: disable=invalid-n
     for i in range(n):
         left_unitary[i] *= current_matrix[i, n + i].conj()
 
-    yield from prepare_slater_determinant_jordan_wigner(
+    yield from _prepare_slater_determinant_jordan_wigner(
         register, left_unitary.T[list(occupied_orbitals)]
     )
     yield from reversed(decomposition)
@@ -152,7 +152,7 @@ def _givens_matrix(a: Union[complex, float], b: Union[complex, float]) -> np.nda
     if np.isclose(a, 0.0):
         cosine = 1.0
         sine = 0.0
-        phase = 1.0
+        phase: Union[complex, float] = 1.0
     # Handle case that b is zero and a is nonzero
     elif np.isclose(b, 0.0):
         cosine = 0.0
