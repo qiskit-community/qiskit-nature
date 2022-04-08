@@ -44,8 +44,9 @@ logger = logging.getLogger(__name__)
 class AdaptVQE(GroundStateEigensolver):
     """A ground state calculation employing the AdaptVQE algorithm.
 
-    The performance of AdaptVQE can significantly depend on the choice of gradient method, QFI
-    solver (if applicable) and the epsilon value.
+    The performance of AdaptVQE significantly depends on the choice of `gradient` (see also
+    `qiskit.opflow.gradients`) and its parameters such as `grad_method`, `qfi_method` (if
+    applicable) and `epilson`.
 
     To reproduce the default behavior of AdaptVQE prior to Qiskit Nature 0.4 you should supply
     `delta=1` explicitly. This will use a finite difference scheme for the gradient evaluation
@@ -90,20 +91,18 @@ class AdaptVQE(GroundStateEigensolver):
             # move any argument supplied to delta into gradient.
             gradient = Gradient(grad_method="fin_diff", epsilon=gradient)
 
-        if gradient is None:
-            gradient = Gradient(grad_method="param_shift")
-
         super().__init__(qubit_converter, solver)
 
         self._threshold = threshold
         self._max_iterations = max_iterations
-        self._gradient = gradient
+        self.gradient = gradient  # use the property setter to handle `None` case consistently
 
         self._excitation_pool: List[OperatorBase] = []
         self._excitation_list: List[OperatorBase] = []
 
         self._main_operator: PauliSumOp = None
         self._ansatz: QuantumCircuit = None
+        self._sampler: CircuitSampler = None
 
     @property
     def gradient(self) -> Optional[GradientBase]:
@@ -113,6 +112,8 @@ class AdaptVQE(GroundStateEigensolver):
     @gradient.setter
     def gradient(self, grad: Optional[GradientBase] = None) -> None:
         """Sets the gradient."""
+        if grad is None:
+            grad = Gradient(grad_method="param_shift")
         self._gradient = grad
 
     def returns_groundstate(self) -> bool:
@@ -136,7 +137,6 @@ class AdaptVQE(GroundStateEigensolver):
         """
         res = []
         # compute gradients for all excitation in operator pool
-        sampler = CircuitSampler(vqe.quantum_instance)
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
@@ -144,7 +144,8 @@ class AdaptVQE(GroundStateEigensolver):
             # gradient to work correctly. Once this issue is resolved, this workaround can be
             # removed.
             vqe.ansatz = self._ansatz.decompose()
-            param_sets = sorted(vqe.ansatz.parameters, key=lambda p: p.name)
+            # We need to explicitly convert this to a list in order to make the object hashable
+            param_sets = list(vqe.ansatz.parameters)
             # zip will only iterate the length of the shorter list
             theta1 = dict(zip(vqe.ansatz.parameters, theta))
             op = vqe.construct_expectation(theta1, self._main_operator)
@@ -152,7 +153,7 @@ class AdaptVQE(GroundStateEigensolver):
             state_grad = self.gradient.convert(operator=op, params=param_sets)
             # Assign the parameters and evaluate the gradient
             value_dict = {param_sets[-1]: 0.0}
-            state_grad_result = sampler.convert(state_grad, params=value_dict).eval()
+            state_grad_result = self._sampler.convert(state_grad, params=value_dict).eval()
             logger.info("Gradient computed : %s", str(state_grad_result))
             res.append((np.abs(state_grad_result[-1]), exc))
         return res
@@ -262,6 +263,9 @@ class AdaptVQE(GroundStateEigensolver):
             raise QiskitNatureError("The AdaptVQE algorithm requires the use of the VQE solver")
         if not isinstance(vqe.ansatz, UCC):
             raise QiskitNatureError("The AdaptVQE algorithm requires the use of the UCC ansatz")
+
+        # setup circuit sampler
+        self._sampler = CircuitSampler(vqe.quantum_instance)
 
         # We construct the ansatz once to be able to extract the full set of excitation operators.
         self._ansatz = copy.deepcopy(vqe.ansatz)
