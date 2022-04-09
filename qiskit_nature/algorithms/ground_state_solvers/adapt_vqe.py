@@ -105,7 +105,7 @@ class AdaptVQE(GroundStateEigensolver):
         self._sampler: CircuitSampler = None
 
     @property
-    def gradient(self) -> Optional[GradientBase]:
+    def gradient(self) -> GradientBase:
         """Returns the gradient."""
         return self._gradient
 
