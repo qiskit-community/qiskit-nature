@@ -243,7 +243,12 @@ class UCC(EvolvedOperatorAnsatz):
 
     @property
     def excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
-        """The excitation list that UCC is using, in the required format."""
+        """The excitation list that UCC is using, in the required format.
+
+        Raises:
+            QiskitNatureError: If private excitation list is None.
+
+        """
         if self._excitation_list is None:
             raise QiskitNatureError(
                 "The excitation list is None. Build the operators to construct it."
