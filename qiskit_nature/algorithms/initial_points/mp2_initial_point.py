@@ -192,7 +192,7 @@ class MP2InitialPoint(InitialPoint):
         Non-double excitations will have zero coefficient and energy delta.
 
         Returns:
-            Dictionary with MP2 coefficients and energy_deltas for each excitation
+            Dictionary with MP2 coefficients and energy_deltas for each excitation.
         """
         corrections = {}
         for excitation in self._excitations:
