@@ -213,7 +213,7 @@ class MP2InitialPoint(InitialPoint):
         """Compute the MP2 coefficient and energy corrections given a double excitation.
 
         Each double excitation given by [i,a,j,b] has a coefficient computed using
-            coeff = -(2 * T[i,a,j,b] - T[i,b,j,a)/(E[b] + E[a] - E[i] - E[j])
+            coeff = -(2 * T[i,a,j,b] - T[i,b,j,a])/(E[b] + E[a] - E[i] - E[j])
         where E is the orbital energy.
         and an energy delta given by
             e_delta = coeff * T[i,a,j,b]
