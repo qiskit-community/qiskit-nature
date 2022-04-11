@@ -116,16 +116,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._optimizer = optimizer
 
     @property
-    def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:
-        """Getter of the initial point."""
-        return self._initial_point
-
-    @initial_point.setter
-    def initial_point(self, initial_point: Optional[Union[np.ndarray, InitialPoint]]) -> None:
-        """Setter of the initial point."""
-        self._initial_point = initial_point
-
-    @property
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """Getter of the gradient function"""
         return self._gradient
@@ -219,8 +209,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
 
-        if isinstance(self._initial_point, InitialPoint):
-            self.initial_point = self._initial_point.get_initial_point(driver_result, ansatz)
+        if isinstance(self.initial_point, InitialPoint):
+            self.initial_point = self.initial_point.get_initial_point(driver_result, ansatz)
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
