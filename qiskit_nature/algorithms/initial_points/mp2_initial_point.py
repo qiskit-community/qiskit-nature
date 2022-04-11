@@ -173,8 +173,8 @@ class MP2InitialPoint(InitialPoint):
     ) -> np.ndarray:
         """
         Args:
-            driver_result: the second quantization properties from the driver.
-            ansatz: the UCC ansatz.
+            driver_result: The second quantization properties from the driver.
+            ansatz: The UCC ansatz.
 
         Return:
             The computed initial point.
