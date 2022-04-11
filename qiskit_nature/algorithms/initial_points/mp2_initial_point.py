@@ -252,4 +252,4 @@ class MP2InitialPoint(InitialPoint):
         e_delta = coeff * tiajb
         e_delta = e_delta if abs(e_delta) > self._threshold else 0
 
-        return (coeff, e_delta)
+        return coeff, e_delta
