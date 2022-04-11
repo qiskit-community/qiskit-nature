@@ -216,7 +216,7 @@ class MP2InitialPoint(InitialPoint):
             coeff = -(2 * T[i,a,j,b] - T[i,b,j,a])/(E[b] + E[a] - E[i] - E[j])
         where E is the orbital energy.
         and an energy delta given by
-            e_delta = coeff * T[i,a,j,b]
+            e_delta = coeff * T[i,a,j,b].
 
         All the computations are done using the molecule orbitals but the indices used
         in the excitation information passed in and out are in the block spin orbital
