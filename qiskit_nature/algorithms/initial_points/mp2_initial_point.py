@@ -221,8 +221,8 @@ class MP2InitialPoint(InitialPoint):
         All the computations are done using the molecule orbitals but the indices used
         in the excitation information passed in and out are in the block spin orbital
         numbering as normally used by the nature module:
-          - alpha runs from 0 to num_orbitals - 1
-          - beta runs from num_orbitals to num_orbitals * 2 - 1
+          - alpha runs from 0 to num_orbitals - 1,
+          - beta runs from num_orbitals to num_orbitals * 2 - 1.
 
         Args:
             excitations: Sequence of excitations.
