@@ -49,7 +49,7 @@ class UCCSD(UCC):
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
-            preserve_spin: boolean flag whether or not to preserve the particle spins.
+            preserve_spin: Boolean flag whether or not to preserve the particle spins.
         """
         super().__init__(
             qubit_converter=qubit_converter,
