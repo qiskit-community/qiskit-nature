@@ -263,7 +263,7 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         # try to convert the operators to a PauliSumOp, if it isn't already one
         operator = _convert_to_paulisumop(operator)
         if aux_operators is not None:
-            aux_operators = [_convert_to_paulisumop(aux_op) for aux_op in aux_operators]
+            aux_operators = [_convert_to_paulisumop(aux_op) for aux_op in aux_operators.values()]
 
         # combine the settings with the given operator to runtime inputs
         inputs = {
