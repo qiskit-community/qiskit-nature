@@ -138,15 +138,15 @@ class MP2InitialPoint(InitialPoint):
         return self._threshold
 
     @threshold.setter
-    def threshold(self, thr: float) -> None:
+    def threshold(self, threshold: float) -> None:
         """The energy threshold for MP2 computation.
 
         Computed initial point and energy deltas will be set to
         zero if their value is below this threshold.
         """
-        if thr < 0.0:
+        if threshold < 0.0:
             raise ValueError("The energy threshold cannot be negative.")
-        self._threshold = thr
+        self._threshold = threshold
 
     @property
     def initial_point(self) -> np.ndarray:
