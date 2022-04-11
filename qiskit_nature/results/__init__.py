@@ -36,6 +36,7 @@ Results
 from .bopes_sampler_result import BOPESSamplerResult
 from .eigenstate_result import EigenstateResult
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
+from .protein_folding_result import ProteinFoldingResult
 from .vibrational_structure_result import VibrationalStructureResult
 
 __all__ = [

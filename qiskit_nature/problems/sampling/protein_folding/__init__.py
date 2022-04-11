@@ -40,7 +40,11 @@ which can be further broken down into the following groups:
 (main-side beads interactions) tensored with (side-main beads interactions) tensored with
 (side conformation qubits) tensored with (main conformation qubits).
 We build interaction operators according to the following indexing:
+    
+    
 lower_bead_position * chain_len + upper_bead_position,
+
+
 i.e. the position of a block encodes the index of a lower bead and the position in a block
 encodes the index of an upper bead.
 All qubits are indexed from right to left.

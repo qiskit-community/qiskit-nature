@@ -22,6 +22,13 @@ from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
 
 
+#Here is the circular bit
+from qiskit_nature.results import ProteinFoldingResult
+
+
+
+from qiskit.algorithms import MinimumEigensolverResult
+
 class ProteinFoldingProblem(SamplingProblem):
     """Defines a protein folding problem that can be passed to algorithms. Example initialization:
 
@@ -89,11 +96,21 @@ class ProteinFoldingProblem(SamplingProblem):
         return qubit_operator
 
     # TODO will be implemented in another issue, including the type hint
-    def interpret(self):
-        pass
+    def interpret(self,raw_result : MinimumEigensolverResult) -> ProteinFoldingResult:
+        result = ProteinFoldingResult(raw_result,self.unused_qubits,
+                                      list(self.peptide.get_main_chain.main_chain_residue_sequence),
+                                      self.peptide.get_side_chain_hot_vector())
+        return result
 
     @property
     def unused_qubits(self) -> List[int]:
         """Returns the list of indices for qubits in the original problem formulation that were
         removed during compression."""
         return self._unused_qubits
+    
+        
+    @property
+    def peptide(self) ->Peptide:
+        """Returns the list of indices for qubits in the original problem formulation that were
+        removed during compression."""
+        return self._peptide
