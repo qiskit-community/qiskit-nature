@@ -13,7 +13,7 @@
 """The Qiskit Nature VQE Quantum Program."""
 
 
-from typing import List, Callable, Optional, Any, Dict, Union
+from typing import List, Callable, Optional, Any, Dict, Union, TypeVar
 import warnings
 import numpy as np
 
@@ -27,6 +27,10 @@ from qiskit.opflow import OperatorBase
 from ..deprecation import warn_deprecated, DeprecatedType
 
 from .vqe_client import VQEClient, VQERuntimeResult
+
+# Introduced new type to maintain readability.
+_T = TypeVar("_T")  # Pylint does not allow single character class names.
+ListOrDict = Union[List[Optional[_T]], Dict[str, _T]]
 
 
 class VQEProgram(VQEClient):
@@ -67,7 +71,7 @@ class VQEProgram(VQEClient):
         )
 
     def compute_minimum_eigenvalue(
-        self, operator: OperatorBase, aux_operators: Optional[List[Optional[OperatorBase]]] = None
+        self, operator: OperatorBase, aux_operators: Optional[ListOrDict[OperatorBase]] = None
     ) -> MinimumEigensolverResult:
         result = super().compute_minimum_eigenvalue(operator, aux_operators)
 
