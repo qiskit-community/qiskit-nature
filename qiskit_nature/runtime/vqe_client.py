@@ -311,12 +311,9 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         vqe_result.eigenstate = result.get("eigenstate", None)
         vqe_result.eigenvalue = result.get("eigenvalue", None)
         if isinstance(aux_operators, dict):
-            vqe_result.aux_operator_eigenvalues = {
-                aux_op_name: aux_op_eigenvalue
-                for aux_op_name, aux_op_eigenvalue in zip(
-                    aux_operators, result.get("aux_operator_eigenvalues", None)
-                )
-            }
+            vqe_result.aux_operator_eigenvalues = dict(
+                zip(aux_operators, result.get("aux_operator_eigenvalues", None))
+            )
         else:
             vqe_result.aux_operator_eigenvalues = result.get("aux_operator_eigenvalues", None)
         vqe_result.optimal_parameters = result.get("optimal_parameters", None)
