@@ -23,7 +23,7 @@ features:
       grad = Gradient(grad_method="lin_comb", epsilon=1.0)
       calc = AdaptVQE(self.qubit_converter, solver, gradient=grad)
       res = calc.solve(self.problem)
-deprecates:
+deprecations:
   - |
     The ``delta`` argument of ``AdaptVQE`` is deprecated in favor of supplying a ``gradient`` from
     Qiskit Terra's ``qiskit.opflow.gradients`` framework. In doing so, the default behavior of
