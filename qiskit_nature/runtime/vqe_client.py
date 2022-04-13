@@ -13,7 +13,7 @@
 """The Qiskit Nature VQE Runtime Client."""
 
 
-from typing import List, Callable, Optional, Any, Dict, Union, TypeVar
+from typing import Callable, Optional, Any, Dict, Union
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -29,10 +29,9 @@ from qiskit.algorithms import (
 from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
+from qiskit_nature import ListOrDictType
 
-# Introduced new type to maintain readability.
-_T = TypeVar("_T")  # Pylint does not allow single character class names.
-ListOrDict = Union[List[Optional[_T]], Dict[str, _T]]
+from ..converters.second_quantization.utils import ListOrDict
 
 
 class VQEClient(VariationalAlgorithm, MinimumEigensolver):
@@ -238,7 +237,7 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
             return None
 
     def compute_minimum_eigenvalue(
-        self, operator: OperatorBase, aux_operators: Optional[ListOrDict[OperatorBase]] = None
+        self, operator: OperatorBase, aux_operators: Optional[ListOrDictType[OperatorBase]] = None
     ) -> MinimumEigensolverResult:
         """Calls the VQE Runtime to approximate the ground state of the given operator.
 
@@ -267,14 +266,10 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
 
         # try to convert the operators to a PauliSumOp, if it isn't already one
         operator = _convert_to_paulisumop(operator)
-        if aux_operators is not None:
-            try:
-                aux_operators = {
-                    aux_op_name: _convert_to_paulisumop(aux_op)
-                    for aux_op_name, aux_op in aux_operators.items()  # type: ignore
-                }
-            except AttributeError:
-                aux_operators = [_convert_to_paulisumop(aux_op) for aux_op in aux_operators]
+        aux_operators = {
+            str(aux_op_name_or_idx): _convert_to_paulisumop(aux_op)
+            for aux_op_name_or_idx, aux_op in ListOrDict(aux_operators).items()
+        }
 
         # combine the settings with the given operator to runtime inputs
         inputs = {
@@ -310,12 +305,9 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         vqe_result.cost_function_evals = result.get("cost_function_evals", None)
         vqe_result.eigenstate = result.get("eigenstate", None)
         vqe_result.eigenvalue = result.get("eigenvalue", None)
-        if isinstance(aux_operators, dict):
-            vqe_result.aux_operator_eigenvalues = dict(
-                zip(aux_operators, result.get("aux_operator_eigenvalues", None))
-            )
-        else:
-            vqe_result.aux_operator_eigenvalues = result.get("aux_operator_eigenvalues", None)
+        vqe_result.aux_operator_eigenvalues = dict(
+            zip(aux_operators, result.get("aux_operator_eigenvalues", None))
+        )
         vqe_result.optimal_parameters = result.get("optimal_parameters", None)
         vqe_result.optimal_point = result.get("optimal_point", None)
         vqe_result.optimal_value = result.get("optimal_value", None)
