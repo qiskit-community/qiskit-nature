@@ -24,6 +24,11 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from ._helper import _prepare_slater_determinant_jordan_wigner
 
 
+def _rows_are_orthonormal(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    m, _ = mat.shape
+    return np.allclose(mat @ mat.T.conj(), np.eye(m), rtol=rtol, atol=atol)
+
+
 class SlaterDeterminant(QuantumCircuit):
     """A circuit that prepares a Slater determinant."""
 
@@ -31,6 +36,9 @@ class SlaterDeterminant(QuantumCircuit):
         self,
         transformation_matrix: np.ndarray,
         qubit_converter: Optional[QubitConverter] = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
         **circuit_kwargs,
     ) -> None:
         r"""Initialize a circuit that prepares a Slater determinant.
@@ -59,6 +67,9 @@ class SlaterDeterminant(QuantumCircuit):
                 new creation operators in terms of the original creation operators.
                 The rows of the matrix must be orthonormal.
             qubit_converter: A QubitConverter instance.
+            validate: Whether to validate the inputs.
+            rtol: Relative numerical tolerance for input validation.
+            atol: Absolute numerical tolerance for input validation.
             circuit_kwargs: Keyword arguments to pass to the QuantumCircuit initializer.
 
         Raises:
@@ -69,17 +80,16 @@ class SlaterDeterminant(QuantumCircuit):
                 :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
                 to construct the qubit mapper.
         """
-        if not len(transformation_matrix.shape) == 2:
-            raise ValueError("transformation_matrix must be a 2-dimensional array.")
-
-        m, n = transformation_matrix.shape
-        if m > n:
-            raise ValueError("transformation_matrix must be square.")
-        # TODO maybe actually check if the rows are orthonormal
+        if validate:
+            if not len(transformation_matrix.shape) == 2:
+                raise ValueError("transformation_matrix must be a 2-dimensional array.")
+            if not _rows_are_orthonormal(transformation_matrix, rtol=rtol, atol=atol):
+                raise ValueError("transformation_matrix must have orthonormal rows.")
 
         if qubit_converter is None:
             qubit_converter = QubitConverter(JordanWignerMapper())
 
+        _, n = transformation_matrix.shape
         register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 

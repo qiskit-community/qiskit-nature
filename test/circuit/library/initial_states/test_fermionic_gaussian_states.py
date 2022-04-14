@@ -77,6 +77,15 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
         )
         np.testing.assert_allclose(transformation_matrix, original, atol=1e-7)
 
+    def test_validation(self):
+        """Test input validation."""
+        with self.assertRaisesRegex(ValueError, "2-dimensional"):
+            _ = FermionicGaussianState(np.ones((2, 2, 2)))
+        with self.assertRaisesRegex(ValueError, "shape"):
+            _ = FermionicGaussianState(np.ones((3, 2)))
+        with self.assertRaisesRegex(ValueError, "valid"):
+            _ = FermionicGaussianState(np.ones((2, 4)))
+
     def test_circuit_kwargs(self):
         """Test that circuit keyword arguments are actually passed through."""
         circuit = FermionicGaussianState(

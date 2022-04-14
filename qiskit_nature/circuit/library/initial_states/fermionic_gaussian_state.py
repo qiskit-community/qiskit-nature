@@ -24,6 +24,31 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from ._helper import _prepare_fermionic_gaussian_state_jordan_wigner
 
 
+def _validate_transformation_matrix(
+    mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8
+) -> bool:
+    if not len(mat.shape) == 2:
+        raise ValueError("transformation_matrix must be a 2-dimensional array.")
+
+    n, p = mat.shape  # pylint: disable=invalid-name
+    if p != n * 2:
+        raise ValueError("transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).")
+
+    W1 = mat[:, :n]
+    W2 = mat[:, n:]
+    comm1 = W1 @ W1.T.conj() + W2 @ W2.T.conj()
+    comm2 = W1 @ W2.T + W2 @ W1.T
+    one = np.eye(n)
+    zero = np.zeros((n, n))
+    if not np.allclose(comm1, one, rtol=rtol, atol=atol) or not np.allclose(comm2, zero):
+        raise ValueError(
+            "transformation_matrix does not describe a valid transformation "
+            "of fermionic ladder operators. A valid matrix should have the block form "
+            "[W1 W2] where W1 @ W1.T.conj() + W2 @ W2.T.conj() = I and "
+            "W1 @ W2.T + W2 @ W1.T = 0."
+        )
+
+
 class FermionicGaussianState(QuantumCircuit):
     """A circuit that prepares a fermionic Gaussian state."""
 
@@ -32,6 +57,9 @@ class FermionicGaussianState(QuantumCircuit):
         transformation_matrix: np.ndarray,
         occupied_orbitals: Optional[Sequence[int]] = None,
         qubit_converter: QubitConverter = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
         **circuit_kwargs,
     ) -> None:
         r"""Initialize a circuit that prepares a fermionic Gaussian state.
@@ -93,6 +121,9 @@ class FermionicGaussianState(QuantumCircuit):
                 of this function. The default behavior is to use the empty set of orbitals,
                 which corresponds to a state with zero pseudo-particles.
             qubit_converter: a QubitConverter instance.
+            validate: Whether to validate the inputs.
+            rtol: Relative numerical tolerance for input validation.
+            atol: Absolute numerical tolerance for input validation.
             circuit_kwargs: Keyword arguments to pass to the QuantumCircuit initializer.
 
         Raises:
@@ -103,19 +134,15 @@ class FermionicGaussianState(QuantumCircuit):
                 :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
                 to construct the qubit mapper.
         """
-        if not len(transformation_matrix.shape) == 2:
-            raise ValueError("transformation_matrix must be a 2-dimensional array.")
-
-        n, p = transformation_matrix.shape  # pylint: disable=invalid-name
-        if p != n * 2:
-            raise ValueError("transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).")
-        # TODO maybe check known matrix constraints
+        if validate:
+            _validate_transformation_matrix(transformation_matrix, rtol=rtol, atol=atol)
 
         if occupied_orbitals is None:
             occupied_orbitals = []
         if qubit_converter is None:
             qubit_converter = QubitConverter(JordanWignerMapper())
 
+        n, _ = transformation_matrix.shape
         register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
