@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 import importlib
-import itertools
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Generator, Optional, Union

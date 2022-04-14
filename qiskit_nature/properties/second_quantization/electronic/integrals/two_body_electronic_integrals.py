@@ -14,15 +14,12 @@
 
 from __future__ import annotations
 
-import itertools
 from typing import Optional, Union, cast
 
 import numpy as np
 
-from qiskit.tools import parallel_map
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.settings import settings
-from qiskit_nature.operators.second_quantization import FermionicOp
 
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
