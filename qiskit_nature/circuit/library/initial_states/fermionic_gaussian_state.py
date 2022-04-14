@@ -26,7 +26,7 @@ from ._helper import _prepare_fermionic_gaussian_state_jordan_wigner
 
 def _validate_transformation_matrix(
     mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8
-) -> bool:
+) -> None:
     if not len(mat.shape) == 2:
         raise ValueError("transformation_matrix must be a 2-dimensional array.")
 
