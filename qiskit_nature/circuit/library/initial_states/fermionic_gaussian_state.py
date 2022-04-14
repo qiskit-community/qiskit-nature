@@ -86,7 +86,12 @@ class FermionicGaussianState(QuantumCircuit):
         Args:
             transformation_matrix: The matrix :math:`W` that specifies the coefficients of the
                 new creation operators in terms of the original creation and annihilation operators.
-                This matrix must satisfy special constraints; see the docstring of this function.
+                This matrix must satisfy special constraints; see the main body of the docstring
+                of this function.
+            occupied_orbitals: The pseudo-particle orbitals to fill. These refer to the indices
+                of the operators :math:`\{b^\dagger_j\}` from the main body of the docstring
+                of this function. The default behavior is to use the empty set of orbitals,
+                which corresponds to a state with zero pseudo-particles.
             qubit_converter: a QubitConverter instance.
             circuit_kwargs: Keyword arguments to pass to the QuantumCircuit initializer.
 
@@ -94,6 +99,9 @@ class FermionicGaussianState(QuantumCircuit):
             ValueError: transformation_matrix must be a 2-dimensional array.
             ValueError: transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
+                Please use
+                :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
+                to construct the qubit mapper.
         """
         if not len(transformation_matrix.shape) == 2:
             raise ValueError("transformation_matrix must be a 2-dimensional array.")
@@ -118,4 +126,9 @@ class FermionicGaussianState(QuantumCircuit):
             for gate, qubits in operations:
                 self.append(gate, qubits)
         else:
-            raise NotImplementedError("Currently, only the Jordan-Wigner Transform is supported.")
+            raise NotImplementedError(
+                "Currently, only the Jordan-Wigner Transform is supported. "
+                "Please use "
+                "qiskit_nature.mappers.second_quantization.JordanWignerMapper "
+                "to construct the qubit mapper."
+            )
