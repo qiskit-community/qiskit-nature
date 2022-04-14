@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,14 +20,15 @@ from qiskit import transpile
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
     """Assertion utility."""
+    
+    # excitation_ops = ansatz.excitation_ops()[::2] if include_imaginary else ansatz.excitation_ops()
     excitation_ops = ansatz.excitation_ops()
-
     test_case.assertEqual(len(excitation_ops), len(expected_ops))
     for op, exp in zip(excitation_ops, expected_ops):
         test_case.assertListEqual(op.to_list(), exp.to_list())
@@ -59,7 +60,72 @@ class TestUCC(QiskitNatureDeprecatedTestCase):
                 FermionicOp([("I+-I++--", 1j), ("I-+I--++", 1j)], display_format="dense"),
                 FermionicOp([("I+I-++--", 1j), ("I-I+--++", 1j)], display_format="dense"),
             ],
+            False,
         ),
+        (
+            "sd",
+            8,
+            (2, 2),
+            [FermionicOp([('+I-IIIII', 1j), ('-I+IIIII', 1j)], display_format='dense'),
+             FermionicOp([('+I-IIIII', (-1+0j)), ('-I+IIIII', (1-0j))], display_format='dense'),
+             FermionicOp([('+II-IIII', 1j), ('-II+IIII', 1j)], display_format='dense'),
+             FermionicOp([('+II-IIII', (-1+0j)), ('-II+IIII', (1-0j))], display_format='dense'),
+             FermionicOp([('I+-IIIII', 1j), ('I-+IIIII', 1j)], display_format='dense'),
+             FermionicOp([('I+-IIIII', (-1+0j)), ('I-+IIIII', (1-0j))], display_format='dense'),
+             FermionicOp([('I+I-IIII', 1j), ('I-I+IIII', 1j)], display_format='dense'),
+             FermionicOp([('I+I-IIII', (-1+0j)), ('I-I+IIII', (1-0j))], display_format='dense'),
+             FermionicOp([('IIII+I-I', 1j), ('IIII-I+I', 1j)], display_format='dense'),
+             FermionicOp([('IIII+I-I', (-1+0j)), ('IIII-I+I', (1-0j))], display_format='dense'),
+             FermionicOp([('IIII+II-', 1j), ('IIII-II+', 1j)], display_format='dense'),
+             FermionicOp([('IIII+II-', (-1+0j)), ('IIII-II+', (1-0j))], display_format='dense'),
+             FermionicOp([('IIIII+-I', 1j), ('IIIII-+I', 1j)], display_format='dense'),
+             FermionicOp([('IIIII+-I', (-1+0j)), ('IIIII-+I', (1-0j))], display_format='dense'),
+             FermionicOp([('IIIII+I-', 1j), ('IIIII-I+', 1j)], display_format='dense'),
+             FermionicOp([('IIIII+I-', (-1+0j)), ('IIIII-I+', (1-0j))], display_format='dense'),
+             FermionicOp([('++--IIII', 1j), ('--++IIII', (-0-1j))], display_format='dense'),
+             FermionicOp([('++--IIII', (-1+0j)), ('--++IIII', (-1+0j))], display_format='dense'),
+             FermionicOp([('+I-I+I-I', 1j), ('-I+I-I+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('+I-I+I-I', (-1+0j)), ('-I+I-I+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('+I-I+II-', 1j), ('-I+I-II+', (-0-1j))], display_format='dense'),
+             FermionicOp([('+I-I+II-', (-1+0j)), ('-I+I-II+', (-1+0j))], display_format='dense'),
+             FermionicOp([('+I-II+-I', 1j), ('-I+II-+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('+I-II+-I', (-1+0j)), ('-I+II-+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('+I-II+I-', 1j), ('-I+II-I+', (-0-1j))], display_format='dense'),
+             FermionicOp([('+I-II+I-', (-1+0j)), ('-I+II-I+', (-1+0j))], display_format='dense'),
+             FermionicOp([('+II-+I-I', 1j), ('-II+-I+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('+II-+I-I', (-1+0j)), ('-II+-I+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('+II-+II-', 1j), ('-II+-II+', (-0-1j))], display_format='dense'),
+             FermionicOp([('+II-+II-', (-1+0j)), ('-II+-II+', (-1+0j))], display_format='dense'),
+             FermionicOp([('+II-I+-I', 1j), ('-II+I-+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('+II-I+-I', (-1+0j)), ('-II+I-+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('+II-I+I-', 1j), ('-II+I-I+', (-0-1j))], display_format='dense'),
+             FermionicOp([('+II-I+I-', (-1+0j)), ('-II+I-I+', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+-I+I-I', 1j), ('I-+I-I+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+-I+I-I', (-1+0j)), ('I-+I-I+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+-I+II-', 1j), ('I-+I-II+', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+-I+II-', (-1+0j)), ('I-+I-II+', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+-II+-I', 1j), ('I-+II-+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+-II+-I', (-1+0j)), ('I-+II-+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+-II+I-', 1j), ('I-+II-I+', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+-II+I-', (-1+0j)), ('I-+II-I+', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+I-+I-I', 1j), ('I-I+-I+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+I-+I-I', (-1+0j)), ('I-I+-I+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+I-+II-', 1j), ('I-I+-II+', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+I-+II-', (-1+0j)), ('I-I+-II+', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+I-I+-I', 1j), ('I-I+I-+I', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+I-I+-I', (-1+0j)), ('I-I+I-+I', (-1+0j))], display_format='dense'),
+             FermionicOp([('I+I-I+I-', 1j), ('I-I+I-I+', (-0-1j))], display_format='dense'),
+             FermionicOp([('I+I-I+I-', (-1+0j)), ('I-I+I-I+', (-1+0j))], display_format='dense'),
+             FermionicOp([('IIII++--', 1j), ('IIII--++', (-0-1j))], display_format='dense'),
+             FermionicOp([('IIII++--', (-1+0j)), ('IIII--++', (-1+0j))], display_format='dense')]
+            ,
+            True,
+        ),
+        
+        
+        
+        
+        
         (
             "t",
             8,
@@ -69,17 +135,22 @@ class TestUCC(QiskitNatureDeprecatedTestCase):
                 FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)], display_format="dense"),
                 FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)], display_format="dense"),
             ],
+            False,
         ),
         (
             "q",
             8,
             (2, 2),
             [FermionicOp([("++--++--", 1j), ("--++--++", -1j)], display_format="dense")],
+            False,
         ),
+        
         # TODO: add more edge cases?
     )
-    def test_ucc_ansatz(self, excitations, num_spin_orbitals, num_particles, expect):
+    
+    def test_ucc_ansatz(self, excitations, num_spin_orbitals, num_particles, expect, include_imaginary):
         """Tests the UCC Ansatz."""
+        
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = UCC(
@@ -87,9 +158,11 @@ class TestUCC(QiskitNatureDeprecatedTestCase):
             num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
             excitations=excitations,
+            include_imaginary=include_imaginary
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
 
     @unpack
     @data(
