@@ -309,7 +309,7 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
             aux_op_eigenvalues = result.get("aux_operator_eigenvalues", None)
         else:
             aux_op_eigenvalues = dict(
-                zip(aux_operators, result.get("aux_operator_eigenvalues", []))
+                zip(wrapped_aux_operators, result.get("aux_operator_eigenvalues", []))
             )
             if not aux_op_eigenvalues:  # For consistency set to None for empty dict
                 aux_op_eigenvalues = None
