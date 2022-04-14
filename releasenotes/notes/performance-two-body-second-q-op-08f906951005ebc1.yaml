@@ -2,7 +2,7 @@
 features:
   - |
     Improves the performance of the
-    :meth:`qiskit_nature.properties.second_quantization.electronic.integrals.TwoBodyElectronicIntegrals.to_second_q_op`
+    :meth:`qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals.to_second_q_op`
     method significantly. Previously, generating the second quantized operators
     for a system size greater than 20 spin orbitals took on the order of minutes
     to hours (depending on the actual size). Now, even system sizes of 50 spin
