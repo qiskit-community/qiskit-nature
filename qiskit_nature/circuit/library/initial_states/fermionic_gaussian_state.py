@@ -34,10 +34,10 @@ def _validate_transformation_matrix(
     if p != n * 2:
         raise ValueError("transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).")
 
-    W1 = mat[:, :n]
-    W2 = mat[:, n:]
-    comm1 = W1 @ W1.T.conj() + W2 @ W2.T.conj()
-    comm2 = W1 @ W2.T + W2 @ W1.T
+    left = mat[:, :n]
+    right = mat[:, n:]
+    comm1 = left @ left.T.conj() + right @ right.T.conj()
+    comm2 = left @ right.T + right @ left.T
     one = np.eye(n)
     zero = np.zeros((n, n))
     if not np.allclose(comm1, one, rtol=rtol, atol=atol) or not np.allclose(comm2, zero):
