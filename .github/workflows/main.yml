@@ -29,6 +29,9 @@ concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
   cancel-in-progress: true
 
+env:
+  CACHE_VERSION: v1
+
 jobs:
   Checks:
     runs-on: ${{ matrix.os }}
@@ -55,9 +58,40 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda create -n psi4env python=${{ matrix.python-version }}
         shell: bash
-      - uses: ./.github/actions/install-main-dependencies
+      - name: Get Terra main last commit id
+        run: |
+          echo "TERRA_HASH=$(git ls-remote --heads https://github.com/Qiskit/qiskit-terra.git refs/heads/main  | awk '{print $1}')" >> $GITHUB_ENV
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        shell: bash
+      - name: Terra Cache
+        id: terra-cache
+        uses: actions/cache@v3
+        with:
+          path: terra-cache
+          key: terra-cache-${{ matrix.os }}-${{ matrix.python-version }}-${{ env.TERRA_HASH }}-${{ env.CACHE_VERSION }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - uses: ./.github/actions/install-main-terra
+        with:
+          cache-path: terra-cache
+          cache-hit: ${{ steps.terra-cache.outputs.cache-hit }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - name: Get Aer main last commit id
+        run: |
+          echo "AER_HASH=$(git ls-remote --heads https://github.com/Qiskit/qiskit-aer.git refs/heads/main  | awk '{print $1}')" >> $GITHUB_ENV
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        shell: bash
+      - name: Aer Cache
+        id: aer-cache
+        uses: actions/cache@v3
+        with:
+          path: aer-cache
+          key: aer-cache-${{ matrix.os }}-${{ matrix.python-version }}-${{ env.AER_HASH }}-${{ env.CACHE_VERSION }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - uses: ./.github/actions/install-main-aer
         with:
           os: ${{ matrix.os }}
+          cache-path: aer-cache
+          cache-hit: ${{ steps.aer-cache.outputs.cache-hit }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -159,14 +193,46 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda create -n psi4env python=${{ matrix.python-version }}
         shell: bash
-      - uses: ./.github/actions/install-psi4
+      - name: Install PSI4
+        uses: ./.github/actions/install-psi4
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
         if: ${{ matrix.python-version != '3.10' }}
-      - uses: ./.github/actions/install-main-dependencies
+      - name: Get Terra main last commit id
+        run: |
+          echo "TERRA_HASH=$(git ls-remote --heads https://github.com/Qiskit/qiskit-terra.git refs/heads/main  | awk '{print $1}')" >> $GITHUB_ENV
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        shell: bash
+      - name: Terra Cache
+        id: terra-cache
+        uses: actions/cache@v3
+        with:
+          path: terra-cache
+          key: terra-cache-${{ matrix.os }}-${{ matrix.python-version }}-${{ env.TERRA_HASH }}-${{ env.CACHE_VERSION }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - uses: ./.github/actions/install-main-terra
+        with:
+          cache-path: terra-cache
+          cache-hit: ${{ steps.terra-cache.outputs.cache-hit }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - name: Get Aer main last commit id
+        run: |
+          echo "AER_HASH=$(git ls-remote --heads https://github.com/Qiskit/qiskit-aer.git refs/heads/main  | awk '{print $1}')" >> $GITHUB_ENV
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        shell: bash
+      - name: Aer Cache
+        id: aer-cache
+        uses: actions/cache@v3
+        with:
+          path: aer-cache
+          key: aer-cache-${{ matrix.os }}-${{ matrix.python-version }}-${{ env.AER_HASH }}-${{ env.CACHE_VERSION }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - uses: ./.github/actions/install-main-aer
         with:
           os: ${{ matrix.os }}
+          cache-path: aer-cache
+          cache-hit: ${{ steps.aer-cache.outputs.cache-hit }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -245,9 +311,40 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda create -n psi4env python=${{ matrix.python-version }}
         shell: bash
-      - uses: ./.github/actions/install-main-dependencies
+      - name: Get Terra main last commit id
+        run: |
+          echo "TERRA_HASH=$(git ls-remote --heads https://github.com/Qiskit/qiskit-terra.git refs/heads/main  | awk '{print $1}')" >> $GITHUB_ENV
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        shell: bash
+      - name: Terra Cache
+        id: terra-cache
+        uses: actions/cache@v3
+        with:
+          path: terra-cache
+          key: terra-cache-${{ matrix.os }}-${{ matrix.python-version }}-${{ env.TERRA_HASH }}-${{ env.CACHE_VERSION }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - uses: ./.github/actions/install-main-terra
+        with:
+          cache-path: terra-cache
+          cache-hit: ${{ steps.terra-cache.outputs.cache-hit }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - name: Get Aer main last commit id
+        run: |
+          echo "AER_HASH=$(git ls-remote --heads https://github.com/Qiskit/qiskit-aer.git refs/heads/main  | awk '{print $1}')" >> $GITHUB_ENV
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        shell: bash
+      - name: Aer Cache
+        id: aer-cache
+        uses: actions/cache@v3
+        with:
+          path: aer-cache
+          key: aer-cache-${{ matrix.os }}-${{ matrix.python-version }}-${{ env.AER_HASH }}-${{ env.CACHE_VERSION }}
+        if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+      - uses: ./.github/actions/install-main-aer
         with:
           os: ${{ matrix.os }}
+          cache-path: aer-cache
+          cache-hit: ${{ steps.aer-cache.outputs.cache-hit }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
