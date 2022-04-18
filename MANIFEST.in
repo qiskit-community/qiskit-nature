@@ -1,7 +1,6 @@
 include LICENSE.txt
 include requirements.txt
 recursive-include qiskit_nature *.txt
-graft qiskit_nature/drivers/gaussiand/gauopen
 graft qiskit_nature/drivers/second_quantization/gaussiand/gauopen
 graft test
 prune docs

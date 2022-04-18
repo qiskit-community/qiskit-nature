@@ -14,6 +14,8 @@ ang
 anharmonic
 ansatz
 ansatzes
+anticommutation
+antisymmetric
 antisymmetrized
 ao
 april
@@ -36,6 +38,7 @@ bergholm
 berlin
 bitstring
 bksf
+bogoliubov
 bohr
 boltzmann
 bool
@@ -97,6 +100,7 @@ debye
 deepcopy
 dft
 diag
+diagonalize
 diagonalizes
 diagonalizing
 dicts
@@ -244,6 +248,7 @@ logfile
 lookback
 lysine
 macos
+majorana
 makefile
 matplotlib
 maxdepth
@@ -281,6 +286,7 @@ natom
 nd
 ndarray
 nelec
+neq
 networkx
 neuropeptide
 nicholas
@@ -327,6 +333,7 @@ perturbative
 pes
 phenylalanine
 phonons
+pmatrix
 polypeptides
 popovas
 pos
@@ -392,6 +399,7 @@ rzz
 scalable
 scf
 schroedinger
+schur
 scikit
 scipy
 sd
@@ -476,7 +484,9 @@ uvcc
 über
 valine
 vals
+varepsilon
 variational
+vdots
 verbatim
 versa
 vibrational
