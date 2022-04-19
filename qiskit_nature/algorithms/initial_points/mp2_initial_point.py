@@ -142,7 +142,7 @@ class MP2InitialPoint(InitialPoint):
         """The energy threshold for MP2 computation.
 
         Computed initial point and energy deltas will be set to
-        zero if their value is below this threshold.
+        zero if their absolute value is below this threshold.
         """
         if threshold < 0.0:
             raise ValueError("The energy threshold cannot be negative.")
@@ -212,7 +212,7 @@ class MP2InitialPoint(InitialPoint):
     ) -> tuple[float, float]:
         """Compute the MP2 coefficient and energy corrections given a double excitation.
 
-        Each double excitation with indexed by ::math`i,a,j,b` has a correction coefficient,
+        Each double excitation indexed by ::math`i,a,j,b` has a correction coefficient,
 
         ..math::
             c_{i,a,j,b} = -\\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
