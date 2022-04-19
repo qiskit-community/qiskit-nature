@@ -22,7 +22,8 @@ import numpy as np
 
 from qiskit.algorithms import VQE
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import OperatorBase, PauliSumOp
+from qiskit.opflow import OperatorBase, PauliSumOp, CircuitSampler
+from qiskit.opflow.gradients import GradientBase, Gradient
 from qiskit.utils.validation import validate_min
 from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
@@ -32,6 +33,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult
+from qiskit_nature.deprecation import deprecate_arguments
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
@@ -40,15 +42,36 @@ logger = logging.getLogger(__name__)
 
 
 class AdaptVQE(GroundStateEigensolver):
-    """A ground state calculation employing the AdaptVQE algorithm."""
+    """A ground state calculation employing the AdaptVQE algorithm.
 
+    The performance of AdaptVQE significantly depends on the choice of `gradient` (see also
+    `qiskit.opflow.gradients`) and its parameters such as `grad_method`, `qfi_method` (if
+    applicable) and `epilson`.
+
+    To reproduce the default behavior of AdaptVQE prior to Qiskit Nature 0.4 you should supply
+    `delta=1` explicitly. This will use a finite difference scheme for the gradient evaluation
+    whereas after version 0.4 a parameter shift gradient will be used.
+    For more information refer to the gradient framework of Qiskit Terra:
+    https://qiskit.org/documentation/tutorials/operators/02_gradients_framework.html
+    """
+
+    @deprecate_arguments(
+        "0.4.0",
+        {"delta": "gradient"},
+        additional_msg=(
+            "Instead of `delta=1.0` you have to construct a gradient, like so "
+            "`gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`."
+        ),
+    )
+    # pylint: disable=unused-argument
     def __init__(
         self,
         qubit_converter: QubitConverter,
         solver: MinimumEigensolverFactory,
         threshold: float = 1e-5,
-        delta: float = 1,
+        delta: float = 1.0,  # delta is copied into gradient by the deprecate_arguments wrapper
         max_iterations: Optional[int] = None,
+        gradient: Optional[GradientBase] = None,
     ) -> None:
         """
         Args:
@@ -58,23 +81,43 @@ class AdaptVQE(GroundStateEigensolver):
             delta: the finite difference step size for the gradient computation. It has a minimum
                 value of 1e-5.
             max_iterations: the maximum number of iterations of the AdaptVQE algorithm.
+            gradient: a class that converts operator expression to the first-order gradient based
+                on the method mentioned.
         """
         validate_min("threshold", threshold, 1e-15)
-        validate_min("delta", delta, 1e-5)
+
+        if isinstance(gradient, float):
+            # this scenario can only occur while using the deprecate_arguments wrapper which will
+            # move any argument supplied to delta into gradient.
+            gradient = Gradient(grad_method="fin_diff", epsilon=gradient)
 
         super().__init__(qubit_converter, solver)
 
         self._threshold = threshold
-        self._delta = delta
         self._max_iterations = max_iterations
+        self.gradient = gradient  # use the property setter to handle `None` case consistently
 
         self._excitation_pool: List[OperatorBase] = []
         self._excitation_list: List[OperatorBase] = []
 
         self._main_operator: PauliSumOp = None
         self._ansatz: QuantumCircuit = None
+        self._sampler: CircuitSampler = None
+
+    @property
+    def gradient(self) -> GradientBase:
+        """Returns the gradient."""
+        return self._gradient
+
+    @gradient.setter
+    def gradient(self, grad: Optional[GradientBase] = None) -> None:
+        """Sets the gradient."""
+        if grad is None:
+            grad = Gradient(grad_method="param_shift")
+        self._gradient = grad
 
     def returns_groundstate(self) -> bool:
+        """Whether this class returns only the ground state energy or also the ground state itself."""
         return True
 
     def _compute_gradients(
@@ -97,16 +140,22 @@ class AdaptVQE(GroundStateEigensolver):
         for exc in self._excitation_pool:
             # add next excitation to ansatz
             self._ansatz.operators = self._excitation_list + [exc]
-            # set the current ansatz
-            vqe.ansatz = self._ansatz
-            # evaluate energies
-            parameter_sets = theta + [-self._delta] + theta + [self._delta]
-            energy_evaluation = vqe.get_energy_evaluation(self._main_operator)
-            energy_results = energy_evaluation(np.asarray(parameter_sets))
+            # Due to an outstanding issue in Terra, the ansatz needs to be decomposed for all
+            # gradient to work correctly. Once this issue is resolved, this workaround can be
+            # removed.
+            vqe.ansatz = self._ansatz.decompose()
+            # We need to explicitly convert this to a list in order to make the object hash-able
+            param_sets = list(vqe.ansatz.parameters)
+            # zip will only iterate the length of the shorter list
+            theta1 = dict(zip(vqe.ansatz.parameters, theta))
+            op = vqe.construct_expectation(theta1, self._main_operator)
             # compute gradient
-            gradient = (energy_results[0] - energy_results[1]) / (2 * self._delta)
-            res.append((np.abs(gradient), exc))
-
+            state_grad = self.gradient.convert(operator=op, params=param_sets)
+            # Assign the parameters and evaluate the gradient
+            value_dict = {param_sets[-1]: 0.0}
+            state_grad_result = self._sampler.convert(state_grad, params=value_dict).eval()
+            logger.info("Gradient computed : %s", str(state_grad_result))
+            res.append((np.abs(state_grad_result[-1]), exc))
         return res
 
     @staticmethod
@@ -155,6 +204,7 @@ class AdaptVQE(GroundStateEigensolver):
                 with an internally constructed auxiliary operator. Note: the names used for the
                 internal auxiliary operators correspond to the `Property.name` attributes which
                 generated the respective operators.
+            QiskitNatureError: if the chosen gradient method appears to result in all-zero gradients.
 
         Returns:
             An AdaptVQEResult which is an ElectronicStructureResult but also includes runtime
@@ -214,6 +264,9 @@ class AdaptVQE(GroundStateEigensolver):
         if not isinstance(vqe.ansatz, UCC):
             raise QiskitNatureError("The AdaptVQE algorithm requires the use of the UCC ansatz")
 
+        # setup circuit sampler
+        self._sampler = CircuitSampler(vqe.quantum_instance)
+
         # We construct the ansatz once to be able to extract the full set of excitation operators.
         self._ansatz = copy.deepcopy(vqe.ansatz)
         self._ansatz._build()
@@ -248,6 +301,11 @@ class AdaptVQE(GroundStateEigensolver):
                         gradlog += "\t(*)"
                 logger.info(gradlog)
             if np.abs(max_grad[0]) < self._threshold:
+                if iteration == 1:
+                    raise QiskitNatureError(
+                        "Gradient choice is not suited as it leads to all zero gradients gradients. "
+                        "Try a different gradient method."
+                    )
                 logger.info(
                     "Adaptive VQE terminated successfully with a final maximum gradient: %s",
                     str(np.abs(max_grad[0])),
