@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The vibrational structure result."""
+"""The lattice model result class"""
 
 from typing import List, Optional
 
@@ -21,7 +21,7 @@ from .eigenstate_result import EigenstateResult
 
 
 class LatticeModelResult(EigenstateResult):
-    """The vibrational structure result."""
+    """The lattice model result."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -54,44 +54,14 @@ class LatticeModelResult(EigenstateResult):
 
     def __str__(self) -> str:
         """Printable formatted result"""
-        return 'energies'+str(self.computed_lattice_energies)
+        return "\n".join(self.formatted())
 
-
-    # def __str__(self) -> str:
-    #     """Printable formatted result"""
-    #     return "\n".join(self.formatted())
-
-    # def formatted(self) -> List[str]:
-    #     """Formatted result as a list of strings"""
-    #     lines = []
-    #     lines.append("=== GROUND STATE ===")
-    #     lines.append(" ")
-    #     lines.append(
-    #         "* Vibrational ground state energy "
-    #         f"(cm^-1): {np.round(self.computed_lattice_energies[0], 12)}"
-    #     )
-    #     if len(self.num_occupied_modals_per_mode) > 0:
-    #         lines.append("The number of occupied modals for each mode is: ")
-    #         for i, m in enumerate(self.num_occupied_modals_per_mode[0]):
-    #             lines.append(f"- Mode {i}: {np.round(m, 12)}")
-
-    #     if (
-    #         self.computed_lattice_energies is not None
-    #         and len(self.computed_lattice_energies) > 1
-    #     ):
-    #         lines.append(" ")
-    #         lines.append("=== EXCITED STATES ===")
-    #         lines.append(" ")
-
-    #         for idx, vib_energy in enumerate(self.computed_lattice_energies[1:]):
-    #             lines.append(
-    #                 f"* {(idx + 1): 3d}: Vibrational excited state energy "
-    #                 f"(cm^-1): {np.round(vib_energy, 12)}"
-    #             )
-    #             if idx < len(self.num_occupied_modals_per_mode):
-    #                 lines.append("The number of occupied modals for each mode is")
-    #                 for i, m in enumerate(self.num_occupied_modals_per_mode[idx]):
-    #                     lines.append(f"- Mode {i}: {np.round(m, 12)}")
-    #             lines.append(" ")
-
-    #     return lines
+    def formatted(self) -> List[str]:
+        """Formatted result as a list of strings"""
+        lines = []
+        lines.append("=== GROUND STATE ===")
+        lines.append(" ")
+        lines.append(
+            "* Lattice ground state energy " f": {np.round(self.computed_lattice_energies[0], 12)}"
+        )
+        return lines

@@ -46,5 +46,5 @@ __all__ = [
     "EigenstateResult",
     "ElectronicStructureResult",
     "VibrationalStructureResult",
-    "LatticeModelResult"
+    "LatticeModelResult",
 ]

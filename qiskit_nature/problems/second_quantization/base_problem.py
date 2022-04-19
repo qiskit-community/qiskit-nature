@@ -172,11 +172,13 @@ class BaseProblem(ABC):
             List[int],
             Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
         ] = "sd",
-    ) -> Optional[Tuple[
-        Dict[str, PauliSumOp],
-        Dict[str, List[bool]],
-        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
-    ]]:
+    ) -> Optional[
+        Tuple[
+            Dict[str, PauliSumOp],
+            Dict[str, List[bool]],
+            Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+        ]
+    ]:
         """Generates the hopping operators and their commutativity information for the specified set
         of excitations.
 

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,12 +25,13 @@ from .. import BaseProblem
 
 
 class LatticeModelProblem(BaseProblem):
-    """Lattice Model Problem"""
+    """Lattice Model Problem class to create second quantized operators from a lattice model."""
 
-    def __init__(
-        self,
-        lattice_model=LatticeModel
-    ):
+    def __init__(self, lattice_model=LatticeModel) -> None:
+        """
+        Args:
+            lattice_model: A lattice model class to create second quantized operators.
+        """
         super().__init__()
         self._lattice_model = lattice_model
         self._main_property_name = "LatticeEnergy"
@@ -39,7 +40,8 @@ class LatticeModelProblem(BaseProblem):
         """Returns the second quantized operators created based on the lattice models.
 
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A ``list`` or ``dict`` of
+            :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`
         """
         return [self._lattice_model.second_q_ops()]
 
@@ -47,11 +49,13 @@ class LatticeModelProblem(BaseProblem):
         self,
         raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
     ) -> LatticeModelResult:
-        """Interprets an EigenstateResult in the context of this transformation.
+        """Interprets a raw result in the context of this transformation.
+
         Args:
-            raw_result: an eigenstate result object.
+            raw_result: a raw result to be interpreted
+
         Returns:
-            An lattice model result.
+            A lattice model result.
         """
         eigenstate_result = None
         if isinstance(raw_result, EigenstateResult):
@@ -70,7 +74,6 @@ class LatticeModelProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = LatticeModelResult()
         result.combine(eigenstate_result)
-        # self._grouped_property_transformed.interpret(result)
         result.computed_lattice_energies = eigenstate_result.eigenenergies
         return result
 

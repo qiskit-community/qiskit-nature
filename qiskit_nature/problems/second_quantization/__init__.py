@@ -37,13 +37,13 @@ Submodules
 
 from .base_problem import BaseProblem
 from .electronic import ElectronicStructureProblem
-from .vibrational.vibrational_structure_problem import VibrationalStructureProblem
 from .lattice.lattice_model_problem import LatticeModelProblem
+from .vibrational.vibrational_structure_problem import VibrationalStructureProblem
 
 
 __all__ = [
     "BaseProblem",
     "ElectronicStructureProblem",
+    "LatticeModelProblem",
     "VibrationalStructureProblem",
-    "LatticeModelProblem"
 ]
