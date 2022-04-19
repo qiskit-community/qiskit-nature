@@ -353,6 +353,7 @@ qasm
 qbit
 qcmatrixio
 qeom
+qfi
 qiskit
 qiskit's
 qmolecule
