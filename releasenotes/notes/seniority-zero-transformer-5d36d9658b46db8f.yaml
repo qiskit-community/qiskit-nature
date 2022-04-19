@@ -1,0 +1,4 @@
+features:
+  - |
+    Add SeniorityZeroTransformer to solve a chemistry problem in second quantization
+    with the restricted Hartree-Fock formalism.
