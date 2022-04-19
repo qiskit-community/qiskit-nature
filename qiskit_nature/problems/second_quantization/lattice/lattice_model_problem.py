@@ -21,7 +21,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult, LatticeModelResult
 from .models.lattice_model import LatticeModel
-from .. import BaseProblem
+from ..base_problem import BaseProblem
 
 
 class LatticeModelProblem(BaseProblem):
