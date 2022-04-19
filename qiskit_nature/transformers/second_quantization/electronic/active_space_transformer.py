@@ -31,6 +31,9 @@ from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
+from qiskit_nature.properties.second_quantization.electronic.electronic_structure_driver_result import (
+    ElectronicStructureDriverResult,
+)
 from qiskit_nature.properties.second_quantization.electronic.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
@@ -365,26 +368,17 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         transformed_property: Property
         if isinstance(prop, GroupedProperty):
-            transformed_property = deepcopy(prop)
+            transformed_property = prop.__class__()  # type: ignore[call-arg]
+            transformed_property.name = prop.name
 
-            # Get the iterator of the Group's properties. We access __iter__() directly to make
-            # mypy happy :-)
-            iterator = transformed_property.__iter__()
+            if isinstance(prop, ElectronicStructureDriverResult):
+                transformed_property.molecule = prop.molecule
 
-            transformed_internal_property = None
-            while True:
-                try:
-                    # Send the transformed internal property to the GroupedProperty generator.
-                    # NOTE: in the first iteration, this variable is None, which is equivalent to
-                    # starting the iterator.
-                    # NOTE: a Generator's send method returns the iterators next value [2].
-                    # [2]: https://docs.python.org/3/reference/expressions.html#generator.send
-                    internal_property = iterator.send(transformed_internal_property)
-                except StopIteration:
-                    break
-
+            for internal_property in iter(prop):
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
+                    if transformed_internal_property is not None:
+                        transformed_property.add_property(transformed_internal_property)
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed!",
@@ -392,6 +386,10 @@ class ActiveSpaceTransformer(BaseTransformer):
                         type(internal_property),
                     )
                     continue
+
+            # Removing emtpy GroupedProperty
+            if len(transformed_property._properties) == 0:
+                transformed_property = None
 
         elif isinstance(prop, IntegralProperty):
             # get matrix operator of IntegralProperty
