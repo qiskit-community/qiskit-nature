@@ -20,9 +20,6 @@ class ProteinPlotter():
         """
         Plots the molecule in 3D.
         """
-        print(main_positions)
-        
-        print(side_positions)
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         
