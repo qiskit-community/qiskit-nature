@@ -24,6 +24,9 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 from qiskit_nature.circuit.library import UCC
+from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals import (
+    ElectronicIntegrals,
+)
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
@@ -69,39 +72,37 @@ class MP2InitialPoint(InitialPoint):
         """The grouped property.
 
         The grouped property is required to contain the ElectronicEnergy, which must contain
-        the two-body molecular orbital matrix, the orbital energies. Optionally it can will use
+        the two-body molecular orbital matrix and the orbital energies. Optionally, it will also use
         the Hartree-Fock reference energy to compute the absolute energy.
 
         Raises:
             QiskitNatureError: If the ``ElectronicEnergy`` is missing or the two-body molecular
-            orbital matrix, the orbital energies, and/or the Hartree-Fock reference energy are
-            missing from ``ElectronicEnergy``.
+                orbital matrix or the orbital energies are missing from ``ElectronicEnergy``.
         """
         self._invalidate_computation()
 
-        electronic_energy: ElectronicEnergy = grouped_property.get_property(ElectronicEnergy)
+        electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
+        if electronic_energy is None:
+            raise QiskitNatureError(f"ElectronicEnergy not in grouped property: {grouped_property}")
+
+        two_body_mo_integral: ElectronicIntegrals | None = (
+            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+        )
         if electronic_energy is None:
             raise QiskitNatureError(
-                f"ElectronicEnergy not found in grouped property: {grouped_property}"
+                f"Two body MO electronic integral not in grouped property: {grouped_property}"
             )
+        self._integral_matrix: np.ndarray = two_body_mo_integral.get_matrix()
 
-        try:
-            self._integral_matrix: np.ndarray = electronic_energy.get_electronic_integral(
-                ElectronicBasis.MO, 2
-            ).get_matrix()
-
-            # Infer the number of molecular orbitals from the MO matrix.
-            self._num_molecular_orbitals: int = self._integral_matrix.shape[0]
-        except TypeError as missing_two_body_mo_matrix:
-            raise QiskitNatureError from missing_two_body_mo_matrix
-
-        self._orbital_energies: np.ndarray = electronic_energy.orbital_energies
+        self._orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
         if self._orbital_energies is None:
-            raise QiskitNatureError(
-                f"Orbital energies not found in grouped property: {grouped_property}"
-            )
+            raise QiskitNatureError(f"Orbital energies not in grouped property: {grouped_property}")
 
         self._reference_energy: float = electronic_energy.reference_energy if not None else 0.0
+
+        # Infer the number of molecular orbitals from the MO matrix.
+        self._num_molecular_orbitals: int = self._integral_matrix.shape[0]
+
         self._grouped_property = grouped_property
 
     @property

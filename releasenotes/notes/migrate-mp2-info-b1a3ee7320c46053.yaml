@@ -10,12 +10,13 @@ features:
     :class:`~qiskit_nature.algorithms.MP2InitialPoint` inherits from the
     abstract base class (interface)
     :class:`~qiskit_nature.algorithms.InitialPoint`, which takes a driver
-    result and a UCC ansatz via the ``get_initial_point`` method.
+    result and a UCC ansatz either directly via the ``compute`` method or via
+    their respective property setters.
 
-    The MP2 computation requires the number of spin orbitals and the electronic
-    energy from the second quantized properties of the driver result. The
-    electronic energy must contain the ``orbital_energies`` for a valid
-    calculation. If this is missing an error will be raised.
+    The MP2 computation requires the `grouped_property` to contain the
+    ElectronicEnergy, which must contain the two-body molecular orbital matrix
+    and the orbital energies. Optionally, it will also use the Hartree-Fock
+    reference energy to compute the absolute energy.
 
     When using :class:`~qiskit_nature.algorithms.VQEUCCFactory`, an
     :class:`~qiskit_nature.algorithms.MP2InitialPoint` object can be passed via
@@ -33,8 +34,9 @@ features:
 
     .. code-block:: python
 
-      mp2 = MP2InitialPoint()
-      initial_point = mp2.get_initial_point(driver_result, ansatz)
+      mp2_initial_point = MP2InitialPoint()
+      mp2_initial_point.compute(driver_result, ansatz)
+      initial_point = mp2_initial_point.x
 
       algorithm = VQE(
         ansatz,
