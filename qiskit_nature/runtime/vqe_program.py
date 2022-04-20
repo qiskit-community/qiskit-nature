@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,7 +13,7 @@
 """The Qiskit Nature VQE Quantum Program."""
 
 
-from typing import List, Callable, Optional, Any, Dict, Union
+from typing import Callable, Optional, Any, Dict, Union
 import warnings
 import numpy as np
 
@@ -23,6 +23,7 @@ from qiskit.providers.backend import Backend
 from qiskit.algorithms import MinimumEigensolverResult
 from qiskit.algorithms.optimizers import Optimizer
 from qiskit.opflow import OperatorBase
+from qiskit_nature import ListOrDictType
 
 from ..deprecation import warn_deprecated, DeprecatedType
 
@@ -67,7 +68,7 @@ class VQEProgram(VQEClient):
         )
 
     def compute_minimum_eigenvalue(
-        self, operator: OperatorBase, aux_operators: Optional[List[Optional[OperatorBase]]] = None
+        self, operator: OperatorBase, aux_operators: Optional[ListOrDictType[OperatorBase]] = None
     ) -> MinimumEigensolverResult:
         result = super().compute_minimum_eigenvalue(operator, aux_operators)
 
