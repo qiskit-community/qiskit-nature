@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -72,7 +72,7 @@ class FakeVQERuntime:
 
         allowed_inputs = {
             "operator": PauliSumOp,
-            "aux_operators": (list, type(None)),
+            "aux_operators": (list, dict, type(None)),
             "ansatz": QuantumCircuit,
             "initial_point": (np.ndarray, str),
             "optimizer": (Optimizer, dict),
