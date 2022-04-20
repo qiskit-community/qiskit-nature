@@ -12,6 +12,8 @@
 
 """The initial point interface."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -27,18 +29,38 @@ class InitialPoint(ABC):
     """
 
     def __init__(self):
-        self._driver_result: GroupedSecondQuantizedProperty = None
+        self._grouped_property: GroupedSecondQuantizedProperty = None
         self._ansatz: UCC = None
 
     @property
     @abstractmethod
     def initial_point(self) -> np.ndarray:
-        """Returns the initial point."""
+        """The initial point."""
         raise NotImplementedError
 
     @abstractmethod
     def get_initial_point(
-        self, driver_result: GroupedSecondQuantizedProperty, ansatz: UCC
+        self, grouped_property: GroupedSecondQuantizedProperty | None, ansatz: UCC | None
     ) -> np.ndarray:
         """Computes the initial point."""
         raise NotImplementedError
+
+    @property
+    def grouped_property(self) -> GroupedSecondQuantizedProperty:
+        """The grouped property."""
+        return self._grouped_property
+
+    @grouped_property.setter
+    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+        """The grouped property."""
+        self._grouped_property = grouped_property
+
+    @property
+    def ansatz(self) -> UCC:
+        """The UCC ansatz."""
+        return self._ansatz
+
+    @ansatz.setter
+    def ansatz(self, ansatz: UCC) -> None:
+        """The UCC ansatz."""
+        self._ansatz = ansatz
