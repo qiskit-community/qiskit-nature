@@ -59,39 +59,40 @@ class MP2InitialPoint(InitialPoint):
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
         """The grouped property.
 
-        Requires the two-body molecular orbital matrix, the orbital energies,
-        and the Hartree-Fock reference energy from ``ElectronicEnergy``.
+        The grouped property is required to contain the ElectronicEnergy, which must contain
+        the two-body molecular orbital matrix, the orbital energies, and the Hartree-Fock
+        reference energy.
 
         Raises:
             QiskitNatureError: If the ``ElectronicEnergy`` is missing or the two-body molecular
             orbital matrix, the orbital energies, and/or the Hartree-Fock reference energy are
             missing from ``ElectronicEnergy``.
         """
-        error_message = (
-            f"The grouped property is required to contain the ElectronicEnergy, which must contain "
-            f"the two-body molecular orbital matrix, the orbital energies, and the Hartree-Fock "
-            f"reference energy. Got grouped property: {grouped_property}"
-        )
         try:
-            # Try to get the ElectronicEnergy from the grouped property.
             electronic_energy: ElectronicEnergy = grouped_property.get_property(ElectronicEnergy)
+        except TypeError as invalid_grouped_property:
+            raise QiskitNatureError from invalid_grouped_property
 
-            # Get the two-body molecular orbital (MO) matrix.
+        try:
             self._integral_matrix: np.ndarray = electronic_energy.get_electronic_integral(
                 ElectronicBasis.MO, 2
             ).get_matrix()
-
             # Infer the number of molecular orbitals from the MO matrix.
             self._num_molecular_orbitals: int = self._integral_matrix.shape[0]
+        except TypeError as missing_two_body_mo_matrix:
+            raise QiskitNatureError from missing_two_body_mo_matrix
 
-            # Get the orbital energies and Hartree-Fock reference energy.
-            self._orbital_energies: np.ndarray = electronic_energy.orbital_energies
-            self._reference_energy: float = electronic_energy.reference_energy
-        except (TypeError):
-            raise QiskitNatureError(error_message)
+        self._orbital_energies: np.ndarray = electronic_energy.orbital_energies
+        if self._orbital_energies is None:
+            raise QiskitNatureError(
+                f"Orbital energies not found in grouped property: {grouped_property}"
+            )
 
-        if self._orbital_energies is None or self._reference_energy is None:
-            raise QiskitNatureError(error_message)
+        self._reference_energy: float = electronic_energy.reference_energy
+        if self._reference_energy is None:
+            raise QiskitNatureError(
+                f"Hartree-Fock reference energy not found in grouped property: {grouped_property}"
+            )
 
     @property
     def ansatz(self) -> UCC:
