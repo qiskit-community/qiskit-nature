@@ -13,7 +13,7 @@
 """The Logarithmic Mapper."""
 
 import operator
-
+from enum import Enum
 from fractions import Fraction
 from functools import reduce
 from typing import List, Union
@@ -28,32 +28,41 @@ from .spin_mapper import SpinMapper
 
 class LogarithmicMapper(SpinMapper):
     """A mapper for Logarithmic spin-to-qubit mapping [1].
+    In this local encoding transformation each individual spin S system is represented via
+    the lowest lying 2S+1 states in a qubit system with the minimal number of qubits needed to
+    represent >= 2S+1 distinct states.
 
 
-    [1]: Mathis, S. V., Gauglielmo, M., & Ivano, T. (2020).
-         Toward scalable simulations of Lattice Gauge Theories on quantum computer.
-         `arXiv:2005.10271 <https://arxiv.org/abs/2005.10271>`_
+    [1]: Mathis, S. V., Guglielmo, M., & Ivano, T. (2020).
+         Toward scalable simulations of lattice gauge theories on quantum computers.
+         Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
     """
 
-    def __init__(self, embed_padding: float = 1, embed_location: str = "upper") -> None:
+    def __init__(self, padding: float = 1, location: str = "upper") -> None:
         """
         Args:
-            embed_padding:
-                The value of the diagonal elements of the upper left  block of the embedded matrix.
-            embed_location:
+            padding:
+                When embedding a matrix into the upper/lower diagonal block of a 2^num_qubits by
+                2^num_qubits matrix, pads the diagonal of the block matrix with
+                the value of `padding`.
+            location:
                 Must be one of ['upper', 'lower']. This parameters sets whether
                 the given matrix is embedded in the upper left hand corner or
                 the lower right hand corner of the larger matrix.
+                I.e. using location = 'upper' returns the matrix:
+                    [[ matrix,    0             ],
+                    [   0   , padding * I]]
+                Using location = 'lower' returns the matrix:
+                    [[ padding * I,    0    ],
+                    [      0           ,  matrix ]]
+
         """
         super().__init__(allows_two_qubit_reduction=False)
-        self._embed_padding = embed_padding
-        self._embed_location = embed_location
+        self._padding = padding
+        self._location = location
 
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
         """Map spins to qubits using the Logarithmic encoding.
-        In this local encoding transformation each individual spin S system is represented via
-        the lowest lying 2S+1 states in a qubit system with the minimal number of qubits needed to
-        represent >= 2S+1 distinct states.
 
         Args:
             second_q_op: Spins mapped to qubits.
@@ -120,8 +129,8 @@ class LogarithmicMapper(SpinMapper):
         embed = lambda matrix: self._embed_matrix(
             matrix,
             num_qubits,
-            embed_padding=self._embed_padding,
-            embed_location=self._embed_location,
+            padding=self._padding,
+            location=self._location,
         )
         embedded_spin_matrices = list(map(embed, spin_matrices))
 
@@ -138,36 +147,36 @@ class LogarithmicMapper(SpinMapper):
         self,
         matrix: np.ndarray,
         num_qubits: int,
-        embed_padding: float = 1,
-        embed_location: str = "upper",
+        padding: float = 1,
+        location: str = "upper",
     ) -> np.ndarray:
         """
         Embeds `matrix` into the upper/lower diagonal block of a 2^num_qubits by 2^num_qubits matrix
-        and pads the diagonal of the upper left block matrix with the value of `embed_padding`.
-        Whether the upper/lower diagonal block is used depends on `embed_location`.
-        I.e. using embed_location = 'upper' returns the matrix:
+        and pads the diagonal of the upper left block matrix with the value of `padding`.
+        Whether the upper/lower diagonal block is used depends on `location`.
+        I.e. using location = 'upper' returns the matrix:
             [[ matrix,    0             ],
-            [   0   , embed_padding * I]]
-        Using embed_location = 'lower' returns the matrix:
-            [[ embed_padding * I,    0    ],
+            [   0   , padding * I]]
+        Using location = 'lower' returns the matrix:
+            [[ padding * I,    0    ],
             [      0           ,  matrix ]]
         Args:
             matrix: The matrix (2D-array) to embed.
             num_qubits: The number of qubits on which the embedded matrix should act on.
-            embed_padding:
+            padding:
                 The value of the diagonal elements of the upper left block of the embedded matrix.
-            embed_location: Must be one of ['upper', 'lower']. This parameters sets
+            location: Must be one of ['upper', 'lower']. This parameters sets
                 whether the given matrix is embedded in the
                 upper left hand corner or the lower right hand corner of the larger matrix.
 
         Returns:
             If `matrix` is of size 2^num_qubits, returns `matrix`.
             Else it returns the block matrix (I = identity)
-            [[ embed_padding * I,    0    ],
+            [[ padding * I,    0    ],
             [      0           , `matrix`]]
 
         Raises:
-            ValueError: If embed_location is neither "upper" nor "lower".
+            ValueError: If location is neither "upper" nor "lower".
             ValueError: If the passed matrix does not fit into the space spanned by num_qubits.
         """
         full_dim = 1 << num_qubits
@@ -178,18 +187,18 @@ class LogarithmicMapper(SpinMapper):
             full_matrix = matrix
 
         elif dim_diff > 0:
-            if embed_location == "lower":
+            if location == "lower":
                 full_matrix = np.zeros((full_dim, full_dim), dtype=complex)
-                full_matrix[:dim_diff, :dim_diff] = np.eye(dim_diff) * embed_padding
+                full_matrix[:dim_diff, :dim_diff] = np.eye(dim_diff) * padding
                 full_matrix[dim_diff:, dim_diff:] = matrix
 
-            elif embed_location == "upper":
+            elif location == "upper":
                 full_matrix = np.zeros((full_dim, full_dim), dtype=complex)
                 full_matrix[:subs_dim, :subs_dim] = matrix
-                full_matrix[subs_dim:, subs_dim:] = np.eye(dim_diff) * embed_padding
+                full_matrix[subs_dim:, subs_dim:] = np.eye(dim_diff) * padding
 
             else:
-                raise ValueError("embed_location must be one of upper or lower")
+                raise ValueError("location must be one of upper or lower")
 
         else:
             raise ValueError(
@@ -197,3 +206,12 @@ class LogarithmicMapper(SpinMapper):
             )
 
         return full_matrix
+
+class EmbedLocation(Enum):
+    """Embed location type"""
+
+    NUMBER = 1
+    EXCITATION = 2
+    DOUBLE_EXCITATION = 3
+    NUMBER_EXCITATION = 4
+    COULOMB_EXCHANGE = 5
