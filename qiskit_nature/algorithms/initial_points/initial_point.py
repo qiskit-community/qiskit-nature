@@ -31,15 +31,15 @@ class InitialPoint(ABC):
     def __init__(self):
         self._grouped_property: GroupedSecondQuantizedProperty = None
         self._ansatz: UCC = None
+        self._x: np.ndarray = None  # pylint: disable=invalid-name
 
     @property
-    @abstractmethod
-    def initial_point(self) -> np.ndarray:
-        """The initial point."""
-        raise NotImplementedError
+    def x(self):
+        """The initial point as an array."""
+        return self._x
 
     @abstractmethod
-    def get_initial_point(
+    def compute(
         self, grouped_property: GroupedSecondQuantizedProperty | None, ansatz: UCC | None
     ) -> np.ndarray:
         """Computes the initial point."""

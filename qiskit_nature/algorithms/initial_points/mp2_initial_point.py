@@ -14,6 +14,10 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
+import warnings
+
 import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 
@@ -41,14 +45,19 @@ class MP2InitialPoint(InitialPoint):
     the coefficients are mapped correctly in the initial point. Only initial point values that
     correspond to double-excitations will be non-zero.
 
-    The coefficients and energy deltas are computed using the ``get_initial_point`` method.
+    The coefficients and energy deltas are computed using the ``compute_initial_point`` method.
     Thereafter, they can be accessed via the ``initial_point`` and ``energy_deltas`` properties.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, threshold: float = 1e-12) -> None:
         super().__init__()
-        self.threshold = 1e-12
-        self._corrections: dict[str, tuple[float, float]] = None
+        self._threshold: float = threshold
+
+        # Computed attributes
+        self._x: Optional[np.ndarray] = None
+        self._energy_deltas: Optional[np.ndarray] = None
+        self._energy_delta: Optional[float] = None
+        self._energy: Optional[float] = None
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty:
@@ -60,23 +69,27 @@ class MP2InitialPoint(InitialPoint):
         """The grouped property.
 
         The grouped property is required to contain the ElectronicEnergy, which must contain
-        the two-body molecular orbital matrix, the orbital energies, and the Hartree-Fock
-        reference energy.
+        the two-body molecular orbital matrix, the orbital energies. Optionally it can will use
+        the Hartree-Fock reference energy to compute the absolute energy.
 
         Raises:
             QiskitNatureError: If the ``ElectronicEnergy`` is missing or the two-body molecular
             orbital matrix, the orbital energies, and/or the Hartree-Fock reference energy are
             missing from ``ElectronicEnergy``.
         """
-        try:
-            electronic_energy: ElectronicEnergy = grouped_property.get_property(ElectronicEnergy)
-        except TypeError as invalid_grouped_property:
-            raise QiskitNatureError from invalid_grouped_property
+        self._invalidate_computation()
+
+        electronic_energy: ElectronicEnergy = grouped_property.get_property(ElectronicEnergy)
+        if electronic_energy is None:
+            raise QiskitNatureError(
+                f"ElectronicEnergy not found in grouped property: {grouped_property}"
+            )
 
         try:
             self._integral_matrix: np.ndarray = electronic_energy.get_electronic_integral(
                 ElectronicBasis.MO, 2
             ).get_matrix()
+
             # Infer the number of molecular orbitals from the MO matrix.
             self._num_molecular_orbitals: int = self._integral_matrix.shape[0]
         except TypeError as missing_two_body_mo_matrix:
@@ -88,11 +101,8 @@ class MP2InitialPoint(InitialPoint):
                 f"Orbital energies not found in grouped property: {grouped_property}"
             )
 
-        self._reference_energy: float = electronic_energy.reference_energy
-        if self._reference_energy is None:
-            raise QiskitNatureError(
-                f"Hartree-Fock reference energy not found in grouped property: {grouped_property}"
-            )
+        self._reference_energy: float = electronic_energy.reference_energy if not None else 0.0
+        self._grouped_property = grouped_property
 
     @property
     def ansatz(self) -> UCC:
@@ -102,9 +112,11 @@ class MP2InitialPoint(InitialPoint):
     @ansatz.setter
     def ansatz(self, ansatz: UCC) -> None:
         """The UCC ansatz."""
+        self._invalidate_computation()
+
         # Operators must be built early to compute excitation list.
         _ = ansatz.operators
-        self.excitations = ansatz.excitation_list
+        self._excitations = ansatz.excitation_list
         self._ansatz = ansatz
 
     @property
@@ -125,6 +137,7 @@ class MP2InitialPoint(InitialPoint):
         """
         if threshold < 0.0:
             raise ValueError("The energy threshold cannot be negative.")
+        self._invalidate_computation()
         self._threshold = threshold
 
     @property
@@ -137,6 +150,7 @@ class MP2InitialPoint(InitialPoint):
         """The list of excitations.
 
         If set externally, this will overwrite the excitation list from the ansatz."""
+        self._invalidate_computation()
         self._excitations = excitations
 
     @property
@@ -150,30 +164,49 @@ class MP2InitialPoint(InitialPoint):
         return self._num_molecular_orbitals
 
     @property
-    def initial_point(self) -> np.ndarray:
-        """The MP2 coefficients as an initial_point."""
-        return np.asarray([val[0] for val in self._corrections.values()])
+    def x(self) -> np.ndarray:
+        """The initial point as an array of MP2 correction coefficients."""
+        if self._x is None:
+            self._try_compute()
+        return self._x
 
     @property
     def energy_deltas(self) -> np.ndarray:
         """The MP2 energy correction deltas for each excitation."""
-        return np.asarray([val[1] for val in self._corrections.values()])
+        if self._energy_deltas is None:
+            self._try_compute()
+        return self._energy_deltas
 
     @property
     def energy_delta(self) -> float:
         """The MP2 delta energy correction for the molecule."""
-        return sum(self.energy_deltas)
+        if self._energy_delta is None:
+            self._try_compute()
+        return self._energy_delta
 
     @property
     def energy(self) -> float:
         """The absolute MP2 energy for the molecule."""
-        return self._reference_energy + self.energy_delta
+        if self._energy is None:
+            self._try_compute()
+        return self._energy
 
-    def get_initial_point(
+    def _try_compute(self):
+        try:
+            self.compute()
+        except QiskitNatureError:
+            warnings.warn(
+                "The MP2 initial point computation has not been performed. "
+                "Call the compute method after setting grouped_property and ansatz via their "
+                "properties or call compute with them as arguments.",
+                RuntimeWarning,
+            )
+
+    def compute(
         self,
         grouped_property: GroupedSecondQuantizedProperty | None = None,
         ansatz: UCC | None = None,
-    ) -> np.ndarray:
+    ) -> None:
         """Computes an MP2-informed initial point for the VQE algorithm.
 
         Computes the Moller-Plesset second order (MP2) corrections to use as an initial point with
@@ -205,11 +238,11 @@ class MP2InitialPoint(InitialPoint):
             The computed initial point.
         """
         error_message = (
-            "Set this property of MP2InitialPoint or pass as an argument to get_initial_point."
+            "Set this property of MP2InitialPoint or pass as an argument to the compute method."
         )
         if grouped_property is None:
             if self._grouped_property is None:
-                raise QiskitNatureError(f"The grouped property cannot be None. {error_message}")
+                raise QiskitNatureError(f"The grouped_property cannot be None. {error_message}")
         else:
             self.grouped_property = grouped_property
 
@@ -219,8 +252,11 @@ class MP2InitialPoint(InitialPoint):
         else:
             self.ansatz = ansatz
 
-        self._corrections = self._compute_corrections()
-        return self.initial_point
+        corrections = self._compute_corrections()
+        self._x = np.asarray([value[0] for value in corrections.values()])
+        self._energy_deltas = np.asarray([value[1] for value in corrections.values()])
+        self._energy_delta = self._energy_deltas.sum()
+        self._energy = self._reference_energy + self._energy_delta
 
     def _compute_corrections(
         self,
@@ -239,12 +275,12 @@ class MP2InitialPoint(InitialPoint):
         for excitation in self._excitations:
             if len(excitation[0]) == 2:
                 # Compute MP2 corrections using double excitations.
-                coeff, e_delta = self._compute_correction(excitation)
+                coefficient, energy_delta = self._compute_correction(excitation)
             else:
                 # No corrections for single, triple, and higher excitations.
-                coeff, e_delta = 0.0, 0.0
+                coefficient, energy_delta = 0.0, 0.0
 
-            corrections[str(excitation)] = (coeff, e_delta)
+            corrections[str(excitation)] = (coefficient, energy_delta)
 
         return corrections
 
@@ -300,3 +336,10 @@ class MP2InitialPoint(InitialPoint):
         energy_delta = energy_delta if abs(energy_delta) > threshold else 0.0
 
         return correction_coeff, energy_delta
+
+    def _invalidate_computation(self):
+        """Reset computed properties."""
+        self._x = None
+        self._energy_deltas = None
+        self._energy_delta = None
+        self._energy = None

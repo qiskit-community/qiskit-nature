@@ -65,24 +65,26 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     ):
         """Test MP2InitialPoint raises errors for some bad input."""
 
+        # TODO trigger all inputs properly.
+
         self._mock_result = Mock()
 
         with self.subTest("no result; no ansatz") and self.assertRaises(QiskitNatureError):
             mp2 = MP2InitialPoint()
-            _ = mp2.get_initial_point(None, None)
+            _ = mp2.compute(None, None)
 
         with self.subTest("no result") and self.assertRaises(QiskitNatureError):
             mp2 = MP2InitialPoint()
-            _ = mp2.get_initial_point(None, self._mock_ansatz)
+            _ = mp2.compute(None, self._mock_ansatz)
 
         with self.subTest("no ansatz") and self.assertRaises(QiskitNatureError):
             mp2 = MP2InitialPoint()
-            _ = mp2.get_initial_point(self._mock_result, None)
+            _ = mp2.compute(self._mock_result, None)
 
         with self.subTest("no orbital energies") and self.assertRaises(QiskitNatureError):
             mp2 = MP2InitialPoint()
             self._mock_result.orbital_energies = None
-            _ = mp2.get_initial_point(self._mock_result, self._mock_ansatz)
+            _ = mp2.compute(self._mock_result, self._mock_ansatz)
 
     @file_data("./resources/test_data_mp2_point_generator.json")
     def test_mp2_point_generator(
@@ -115,21 +117,19 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self._mock_ansatz.excitation_list = excitations
 
         mp2 = MP2InitialPoint()
+        mp2.grouped_property = driver_result
+        mp2.ansatz = self._mock_ansatz
 
-        with self.subTest("Test MP2 initial point"):
-            np.testing.assert_array_almost_equal(
-                mp2.get_initial_point(driver_result, self._mock_ansatz),
-                initial_point,
-                decimal=6,
-            )
+        with self.subTest("MP2 initial point array"):
+            np.testing.assert_array_almost_equal(mp2.x, initial_point, decimal=6)
 
-        with self.subTest("Test MP2 energy deltas"):
+        with self.subTest("MP2 energy deltas"):
             np.testing.assert_array_almost_equal(mp2.energy_deltas, energy_deltas, decimal=6)
 
-        with self.subTest("Test overall energy delta"):
+        with self.subTest("overall MP2 energy delta"):
             np.testing.assert_array_almost_equal(mp2.energy_delta, energy_delta, decimal=6)
 
-        with self.subTest("Test absolute energy"):
+        with self.subTest("absolute MP2 energy"):
             np.testing.assert_array_almost_equal(mp2.energy, energy, decimal=6)
 
 
