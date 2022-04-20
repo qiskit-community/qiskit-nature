@@ -69,6 +69,7 @@ from .fermionic_mapper import FermionicMapper
 from .jordan_wigner_mapper import JordanWignerMapper
 from .linear_mapper import LinearMapper
 from .logarithmic_mapper import LogarithmicMapper
+from .logarithmic_mapper import EmbedLocation
 from .parity_mapper import ParityMapper
 from .qubit_mapper import QubitMapper
 from .spin_mapper import SpinMapper
@@ -78,6 +79,7 @@ __all__ = [
     "BravyiKitaevMapper",
     "BravyiKitaevSuperFastMapper",
     "DirectMapper",
+    "EmbedLocation",
     "FermionicMapper",
     "JordanWignerMapper",
     "LinearMapper",

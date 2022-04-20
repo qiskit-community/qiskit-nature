@@ -20,7 +20,7 @@ from ddt import ddt, data, unpack
 
 from qiskit.opflow import X, Y, Z, I
 from qiskit_nature.operators.second_quantization import SpinOp
-from qiskit_nature.mappers.second_quantization import LogarithmicMapper
+from qiskit_nature.mappers.second_quantization import LogarithmicMapper, EmbedLocation
 
 
 @ddt
@@ -63,15 +63,13 @@ class TestLogarithmicMapper(QiskitNatureTestCase):
         (spin_op4, ref_qubit_op4),
         (spin_op5, ref_qubit_op5),
         (spin_op6, ref_qubit_op6, 2),
-        (spin_op6, ref_qubit_op7, 2, "lower"),
+        (spin_op6, ref_qubit_op7, 2, EmbedLocation.LOWER),
     )
     @unpack
-    def test_mapping(self, spin_op, ref_qubit_op, embed_padding=1, embed_location="upper"):
+    def test_mapping(self, spin_op, ref_qubit_op, padding=1, location=EmbedLocation.UPPER):
         """Test mapping to qubit operator"""
-        mapper = LogarithmicMapper(embed_padding, embed_location)
+        mapper = LogarithmicMapper(padding, location)
         qubit_op = mapper.map(spin_op)
-        print("qubit_op", qubit_op)
-        print("ref_qubit_op", ref_qubit_op)
         self.assertEqual(qubit_op, ref_qubit_op)
 
 

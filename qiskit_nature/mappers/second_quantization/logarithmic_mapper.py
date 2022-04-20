@@ -13,10 +13,11 @@
 """The Logarithmic Mapper."""
 
 import operator
+
 from enum import Enum
 from fractions import Fraction
 from functools import reduce
-from typing import List, Union
+from typing import List, Union, Tuple
 
 import numpy as np
 
@@ -24,6 +25,13 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import SparsePauliOp, Operator
 from qiskit_nature.operators.second_quantization import SpinOp
 from .spin_mapper import SpinMapper
+
+
+class EmbedLocation(Enum):
+    """Embed location type"""
+
+    UPPER = "upper"
+    LOWER = "lower"
 
 
 class LogarithmicMapper(SpinMapper):
@@ -38,7 +46,7 @@ class LogarithmicMapper(SpinMapper):
          Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
     """
 
-    def __init__(self, padding: float = 1, location: str = "upper") -> None:
+    def __init__(self, padding: float = 1, location: EmbedLocation = EmbedLocation.UPPER) -> None:
         """
         Args:
             padding:
@@ -46,13 +54,13 @@ class LogarithmicMapper(SpinMapper):
                 2^num_qubits matrix, pads the diagonal of the block matrix with
                 the value of `padding`.
             location:
-                Must be one of ['upper', 'lower']. This parameters sets whether
+                Must be one of [`EmbedLocation.UPPER`, `EmbedLocation.LOWER`]. This parameter sets whether
                 the given matrix is embedded in the upper left hand corner or
                 the lower right hand corner of the larger matrix.
-                I.e. using location = 'upper' returns the matrix:
+                I.e. using location = `EmbedLocation.UPPER` returns the matrix:
                     [[ matrix,    0             ],
                     [   0   , padding * I]]
-                Using location = 'lower' returns the matrix:
+                Using location = `EmbedLocation.LOWER` returns the matrix:
                     [[ padding * I,    0    ],
                     [      0           ,  matrix ]]
 
@@ -74,7 +82,6 @@ class LogarithmicMapper(SpinMapper):
 
         # get logarithmic encoding of the general spin matrices.
         spinx, spiny, spinz, identity = self._logarithmic_encoding(second_q_op.spin)
-
         for idx, (_, coeff) in enumerate(second_q_op.to_list()):
 
             operatorlist: List[PauliSumOp] = []
@@ -92,9 +99,9 @@ class LogarithmicMapper(SpinMapper):
                 if n_z > 0:
                     operator_on_spin_i.append(reduce(operator.matmul, [spinz] * int(n_z)))
 
-                if np.any([n_x, n_y, n_z]) > 0:
+                if operator_on_spin_i:
                     single_operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
-                    operatorlist.append(single_operator_on_spin_i.reduce())
+                    operatorlist.append(single_operator_on_spin_i)
 
                 else:
                     # If n_x=n_y=n_z=0, simply add the embedded Identity operator.
@@ -107,32 +114,28 @@ class LogarithmicMapper(SpinMapper):
 
         return qubit_op
 
-    def _logarithmic_encoding(self, spin: Union[Fraction, float]) -> List[PauliSumOp]:
+    def _logarithmic_encoding(
+        self, spin: Union[Fraction, int]
+    ) -> Tuple[PauliSumOp, PauliSumOp, PauliSumOp, PauliSumOp]:
         """The logarithmic encoding.
 
         Args:
             spin: Positive half-integer (integer or half-odd-integer) that represents spin.
 
         Returns:
-            A list of PauliSumOp for qubit operators
+            A tuple containing four PauliSumOp.
         """
         spin_op_encoding: List[PauliSumOp] = []
         dspin = int(2 * spin + 1)
         num_qubits = int(np.ceil(np.log2(dspin)))
 
         # Get the spin matrices
-        spin_matrices = [np.asarray(SpinOp(symbol, spin=spin).to_matrix()) for symbol in "XYZ"]
+        spin_matrices = [SpinOp(symbol, spin=spin).to_matrix() for symbol in "XYZ"]
         # Append the identity
         spin_matrices.append(np.eye(dspin))
 
         # Embed the spin matrices in a larger matrix of size 2**num_qubits x 2**num_qubits
-        embed = lambda matrix: self._embed_matrix(
-            matrix,
-            num_qubits,
-            padding=self._padding,
-            location=self._location,
-        )
-        embedded_spin_matrices = list(map(embed, spin_matrices))
+        embedded_spin_matrices = [self._embed_matrix(matrix, num_qubits) for matrix in spin_matrices]
 
         # Generate operators from these embedded spin matrices
         embedded_operators = [Operator(matrix) for matrix in embedded_spin_matrices]
@@ -141,23 +144,21 @@ class LogarithmicMapper(SpinMapper):
             op.chop()
             spin_op_encoding.append(PauliSumOp(1.0 * op))
 
-        return spin_op_encoding
+        return tuple(spin_op_encoding)
 
     def _embed_matrix(
         self,
         matrix: np.ndarray,
         num_qubits: int,
-        padding: float = 1,
-        location: str = "upper",
     ) -> np.ndarray:
         """
         Embeds `matrix` into the upper/lower diagonal block of a 2^num_qubits by 2^num_qubits matrix
         and pads the diagonal of the upper left block matrix with the value of `padding`.
         Whether the upper/lower diagonal block is used depends on `location`.
-        I.e. using location = 'upper' returns the matrix:
+        I.e. using location = 'EmbedLocation.UPPER' returns the matrix:
             [[ matrix,    0             ],
             [   0   , padding * I]]
-        Using location = 'lower' returns the matrix:
+        Using location = 'EmbedLocation.LOWER' returns the matrix:
             [[ padding * I,    0    ],
             [      0           ,  matrix ]]
         Args:
@@ -165,7 +166,7 @@ class LogarithmicMapper(SpinMapper):
             num_qubits: The number of qubits on which the embedded matrix should act on.
             padding:
                 The value of the diagonal elements of the upper left block of the embedded matrix.
-            location: Must be one of ['upper', 'lower']. This parameters sets
+            location: Must be one of [`EmbedLocation.UPPER`, `EmbedLocation.LOWER`]. This parameter sets
                 whether the given matrix is embedded in the
                 upper left hand corner or the lower right hand corner of the larger matrix.
 
@@ -176,7 +177,7 @@ class LogarithmicMapper(SpinMapper):
             [      0           , `matrix`]]
 
         Raises:
-            ValueError: If location is neither "upper" nor "lower".
+            ValueError: If location is neither "EmbedLocation.UPPER" nor "EmbedLocation.LOWER".
             ValueError: If the passed matrix does not fit into the space spanned by num_qubits.
         """
         full_dim = 1 << num_qubits
@@ -187,18 +188,19 @@ class LogarithmicMapper(SpinMapper):
             full_matrix = matrix
 
         elif dim_diff > 0:
-            if location == "lower":
+            if self._location == EmbedLocation.LOWER:
                 full_matrix = np.zeros((full_dim, full_dim), dtype=complex)
-                full_matrix[:dim_diff, :dim_diff] = np.eye(dim_diff) * padding
+                full_matrix[:dim_diff, :dim_diff] = np.eye(dim_diff) * self._padding
                 full_matrix[dim_diff:, dim_diff:] = matrix
 
-            elif location == "upper":
+            elif self._location == EmbedLocation.UPPER:
                 full_matrix = np.zeros((full_dim, full_dim), dtype=complex)
                 full_matrix[:subs_dim, :subs_dim] = matrix
-                full_matrix[subs_dim:, subs_dim:] = np.eye(dim_diff) * padding
-
+                full_matrix[subs_dim:, subs_dim:] = np.eye(dim_diff) * self._padding
             else:
-                raise ValueError("location must be one of upper or lower")
+                raise ValueError(
+                    "location must be one of" "EmbedLocation.UPPER or EmbedLocation.LOWER"
+                )
 
         else:
             raise ValueError(
@@ -206,12 +208,3 @@ class LogarithmicMapper(SpinMapper):
             )
 
         return full_matrix
-
-class EmbedLocation(Enum):
-    """Embed location type"""
-
-    NUMBER = 1
-    EXCITATION = 2
-    DOUBLE_EXCITATION = 3
-    NUMBER_EXCITATION = 4
-    COULOMB_EXCHANGE = 5
