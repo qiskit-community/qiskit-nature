@@ -43,23 +43,19 @@ class ProteinFoldingResult(EigenstateResult):
         self._protein_folding_problem = protein_folding_problem
         self._best_sequence  = best_sequence
         self._unused_qubits = self._protein_folding_problem.unused_qubits
-        
-        
-        self._main_chain_aminoacid_list = list(self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence)
-        self._side_chain_aminoacid_list = self._protein_folding_problem.peptide.get_side_chains()
-        
-        
-        self._main_chain_lenght = len(self._main_chain_aminoacid_list)
+        self._main_chain_lenght = len(self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence)
         self._side_chain_hot_vector = self._protein_folding_problem.peptide.get_side_chain_hot_vector()
         
     @property
     def protein_decoder(self):
+        """Returns (and generates if needed) a ProteinDecoder. This class will interpret the result bitstring and return the encoded information."""
         if not hasattr(self,'_protein_decoder'):
             self._protein_decoder = ProteinDecoder(self._best_sequence, self._side_chain_hot_vector, self._unused_qubits)
         return self._protein_decoder
     
     @property
     def protein_xyz(self):
+        """Returns (and generates if needed) a ProteinXYZ. This class will take the encoded turns and generate the position of every bead in the main and side chains."""
         if not hasattr(self,'_protein_xyz'):
             self._protein_xyz = ProteinXYZ(self.protein_decoder.get_main_turns(),self.protein_decoder.get_side_turns(),self._protein_folding_problem.peptide)
         return self._protein_xyz
