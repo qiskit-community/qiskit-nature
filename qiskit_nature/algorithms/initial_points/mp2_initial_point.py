@@ -237,17 +237,19 @@ class MP2InitialPoint(InitialPoint):
         Raises:
             QiskitNatureError: If :attr:`grouped_property` and/or :attr`ansatz` are not set.
         """
-        if not isinstance(grouped_property, GroupedSecondQuantizedProperty):
+        if isinstance(grouped_property, GroupedSecondQuantizedProperty):
+            self.grouped_property = grouped_property
+        else:
             if not isinstance(self._grouped_property, GroupedSecondQuantizedProperty):
                 raise QiskitNatureError("Cannot compute. `grouped_property` has not been set.")
-        else:
-            self.grouped_property = grouped_property
 
-        if not isinstance(ansatz, UCC):
-            if not isinstance(self._ansatz, UCC):
-                raise QiskitNatureError("Cannot compute. `ansatz` has not been set.")
-        else:
+        if isinstance(ansatz, UCC):
             self.ansatz = ansatz
+        else:
+            if not isinstance(self._excitation_list, list):
+                raise QiskitNatureError(
+                    "Cannot compute. `excitation_list` has not been set directly or via `ansatz`."
+                )
 
         self._corrections = self._compute_corrections()
 
@@ -285,18 +287,18 @@ class MP2InitialPoint(InitialPoint):
         Each double excitation indexed by ::math`i,a,j,b` has a correction coefficient,
 
         ..math::
-            c_{i,a,j,b} = -\\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
+            c_{i,a,j,b} = -\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
 
         where ::math::`E` is the orbital energy and ::math::`T` is the integral matrix.
         And an energy correction,
 
         ..math..
-            \\correction E_{i, a, j, b} = c_{i,a,j,b} T_{i,a,j,b}.
+            correction = E_{i, a, j, b} = c_{i,a,j,b} T_{i,a,j,b}.
 
         These computations use molecular orbitals, but the indices used in the excitation
         information passed in and out use the block spin orbital numbering common to Qiskit Nature:
-          - ::math::`\\alpha` runs from ``0`` to ``num_molecular_orbitals - 1``,
-          - ::math::`\\beta` runs from ``num_molecular_orbitals`` to
+          - ::math::`\alpha` runs from ``0`` to ``num_molecular_orbitals - 1``,
+          - ::math::`\beta` runs from ``num_molecular_orbitals`` to
             ``num_molecular_orbitals * 2 - 1``.
 
         Args:

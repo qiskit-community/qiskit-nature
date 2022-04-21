@@ -93,7 +93,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         ansatz = Mock(spec=UCC)
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(grouped_property, None)
+            mp2_initial_point.compute(grouped_property, ansatz)
 
     def test_no_two_body_mo_integrals(self):
         electronic_energy = Mock(spec=ElectronicEnergy)
@@ -123,6 +123,19 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(grouped_property, ansatz)
+
+    def test_set_excitations_directly(self):
+        electronic_integrals = Mock(spec=ElectronicIntegrals)
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.orbital_energies = Mock(np.ndarray)
+        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=electronic_energy)
+
+        mp2_initial_point = MP2InitialPoint()
+        mp2_initial_point.excitation_list = [[[0], [1]]]
+        mp2_initial_point.compute(grouped_property, None)
+        self.assertEqual(mp2_initial_point.get_energy_correction(), 0.0)
 
     @file_data("./resources/test_data_mp2_point_generator.json")
     def test_mp2_point_generator(
