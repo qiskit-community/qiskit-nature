@@ -116,6 +116,16 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._optimizer = optimizer
 
     @property
+    def initial_point(self) -> Optional[np.ndarray]:
+        """Getter of the initial point."""
+        return self._initial_point
+
+    @initial_point.setter
+    def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
+        """Setter of the initial point."""
+        self._initial_point = initial_point
+
+    @property
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """Getter of the gradient function"""
         return self._gradient
