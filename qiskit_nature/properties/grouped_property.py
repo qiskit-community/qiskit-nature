@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from optparse import Option
 from typing import Generator, Generic, Optional, Type, TypeVar, Union
 
 import h5py
@@ -69,6 +70,24 @@ class GroupedProperty(Property, Iterable, Generic[T]):
             except AttributeError:
                 name = prop.__class__.__name__
             self._properties[name] = prop
+
+    def remove_property(self, prop: Union[str, Type[Property], Property]) -> Optional[T]:
+        """Removes a property from the group.
+        
+        Args:
+            prop: the name or type of the property to remove from the group.
+            
+        Returns:
+            The removed property (or None).
+        """
+        name: str
+        if isinstance(prop, str):
+            name = prop
+        elif isinstance(prop, Property):
+            name = prop.name
+        else:
+            name = prop.__name__
+        return self._properties.pop(name, None)
 
     def get_property(self, prop: Union[str, Type[Property]]) -> Optional[T]:
         """Gets a property from the group.
