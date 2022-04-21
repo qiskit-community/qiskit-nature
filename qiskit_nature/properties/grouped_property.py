@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from optparse import Option
 from typing import Generator, Generic, Optional, Type, TypeVar, Union
 
 import h5py
@@ -73,10 +72,10 @@ class GroupedProperty(Property, Iterable, Generic[T]):
 
     def remove_property(self, prop: Union[str, Type[Property], Property]) -> Optional[T]:
         """Removes a property from the group.
-        
+
         Args:
             prop: the name or type of the property to remove from the group.
-            
+
         Returns:
             The removed property (or None).
         """

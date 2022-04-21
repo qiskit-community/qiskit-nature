@@ -12,6 +12,7 @@
 
 """The Seniority-Zero Restriction interface."""
 
+from copy import deepcopy
 import logging
 
 from functools import partial
@@ -34,11 +35,7 @@ from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasisTransform,
     ElectronicBasis,
 )
-from qiskit_nature.properties.second_quantization.electronic.electronic_structure_driver_result import (
-    ElectronicStructureDriverResult,
-)
 from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
-from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 logger = logging.getLogger(__name__)
@@ -102,17 +99,15 @@ class SeniorityZeroTransformer(BaseTransformer):
         transformed_property: Property
         # Code for recursion is copied from ActivateSpaceTransformer
         if isinstance(prop, GroupedProperty):
-            transformed_property = prop.__class__()  # type: ignore[call-arg]
-            transformed_property.name = prop.name
-
-            if isinstance(prop, ElectronicStructureDriverResult):
-                transformed_property.molecule = prop.molecule  # type: ignore[attr-defined]
+            transformed_property = deepcopy(prop)
 
             for internal_property in iter(prop):
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
                     if transformed_internal_property is not None:
                         transformed_property.add_property(transformed_internal_property)
+                    else:
+                        transformed_property.remove_property(internal_property)
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed!",
@@ -121,7 +116,6 @@ class SeniorityZeroTransformer(BaseTransformer):
                     )
                     continue
 
-            # Removing empty GroupedProperty
             if len(transformed_property._properties) == 0:
                 transformed_property = None
 
