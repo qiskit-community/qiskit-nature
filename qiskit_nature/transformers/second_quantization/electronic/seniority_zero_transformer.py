@@ -38,6 +38,7 @@ from qiskit_nature.properties.second_quantization.electronic.electronic_structur
     ElectronicStructureDriverResult,
 )
 from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
+from qiskit_nature.results.electronic_structure_result import ElectronicStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 logger = logging.getLogger(__name__)
@@ -82,12 +83,12 @@ class SeniorityZeroTransformer(BaseTransformer):
 
         grouped_property_transformed = self._transform_property(grouped_property)
 
-        return grouped_property_transformed
+        return grouped_property_transformed  # type: ignore[return-value]
 
     def _transform_property(self, prop: Property) -> Property:
         """Transforms a `Property` object.
 
-        This is a recursive reduction, interating `GroupedProperty` objects when encountering one.
+        This is a recursive reduction, iterating `GroupedProperty` objects when encountering one.
 
         Args:
             property: the property object to transform.
@@ -105,7 +106,7 @@ class SeniorityZeroTransformer(BaseTransformer):
             transformed_property.name = prop.name
 
             if isinstance(prop, ElectronicStructureDriverResult):
-                transformed_property.molecule = prop.molecule
+                transformed_property.molecule = prop.molecule  # type: ignore[attr-defined]
 
             for internal_property in iter(prop):
                 try:
@@ -120,7 +121,7 @@ class SeniorityZeroTransformer(BaseTransformer):
                     )
                     continue
 
-            # Removing emtpy GroupedProperty
+            # Removing empty GroupedProperty
             if len(transformed_property._properties) == 0:
                 transformed_property = None
 
@@ -137,14 +138,14 @@ class SeniorityZeroTransformer(BaseTransformer):
             transformed_property.nuclear_repulsion_energy = prop.nuclear_repulsion_energy
             transformed_property.reference_energy = prop.reference_energy
 
-            transformed_property.second_q_ops = partial(
+            transformed_property.second_q_ops = partial(  # type: ignore[assignment]
                 second_q_ops_electronic_energy, transformed_property
             )
 
         elif isinstance(prop, ParticleNumber):
             transformed_property = prop
 
-            transformed_property.second_q_ops = partial(
+            transformed_property.second_q_ops = partial(  # type: ignore[assignment]
                 second_q_ops_particle_number, transformed_property
             )
         elif isinstance(prop, DriverMetadata):
@@ -161,21 +162,21 @@ class SeniorityZeroTransformer(BaseTransformer):
 
     def _restricted_electronic_integrals(
         self, h_1: np.ndarray, h_2: np.ndarray
-    ) -> Tuple[np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Transform PyScf integrals to the restricted formalism
         arxiv: 2002.00035, Appendix A, Equations (A10),(A11),(A12)
         https://arxiv.org/pdf/2002.00035.pdf
 
         Args:
-            h_1 (np.ndarray): one-body integrals, (NxN)
-            h_2 (np.ndarray): two-body integrals, (NxNxNxN)
+            h_1 (np.ndarray): one-body integrals, (N x N)
+            h_2 (np.ndarray): two-body integrals, (N x N x N x N)
 
         Returns:
-            hr_1 (np.ndarray): restricted one-body integrals, (NxN)
-            hr_2 (np.ndarray): restricted two-body integrals, (NxN)
+            hr_1 (np.ndarray): restricted one-body integrals, (N x N)
+            hr_2 (np.ndarray): restricted two-body integrals, (N x N)
         """
-        # change of notation (may only be valid for PySCF -> restrictied formalism)
+        # change of notation (may only be valid for PySCF -> restricted formalism)
         h_2 = np.einsum("ijkl->ljik", h_2)
 
         hr_1 = np.zeros((self._num_modes, self._num_modes))

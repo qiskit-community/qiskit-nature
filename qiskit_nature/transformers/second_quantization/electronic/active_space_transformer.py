@@ -372,7 +372,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             transformed_property.name = prop.name
 
             if isinstance(prop, ElectronicStructureDriverResult):
-                transformed_property.molecule = prop.molecule
+                transformed_property.molecule = prop.molecule  # type: ignore[attr-defined]
 
             for internal_property in iter(prop):
                 try:
@@ -387,7 +387,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                     )
                     continue
 
-            # Removing emtpy GroupedProperty
+            # Removing empty GroupedProperty
             if len(transformed_property._properties) == 0:
                 transformed_property = None
 
