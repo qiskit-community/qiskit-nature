@@ -89,7 +89,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._ansatz = ansatz
         self._initial_state = initial_state
 
-        # Not needed
+        # Not needed Delete
         self._quantum_instance = quantum_instance
         self._optimizer = optimizer
         self._initial_point = initial_point
