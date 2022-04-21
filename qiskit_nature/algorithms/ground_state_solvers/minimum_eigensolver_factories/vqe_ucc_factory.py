@@ -214,7 +214,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             self.initial_point.ansatz = ansatz
 
             # Override the initial_point with the computed array.
-            self.initial_point = self.initial_point.x
+            self.initial_point = self.initial_point.to_numpy_array()
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093

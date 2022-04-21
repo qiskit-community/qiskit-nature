@@ -29,14 +29,13 @@ class InitialPoint(ABC):
     """
 
     def __init__(self):
-        self._grouped_property: GroupedSecondQuantizedProperty = None
-        self._ansatz: UCC = None
-        self._x: np.ndarray = None  # pylint: disable=invalid-name
+        self._grouped_property: GroupedSecondQuantizedProperty | None = None
+        self._ansatz: UCC | None = None
 
-    @property
-    def x(self):
-        """The initial point as an array."""
-        return self._x
+    @abstractmethod
+    def to_numpy_array(self) -> np.ndarray:
+        """Returns a numpy array of the computed initial point."""
+        raise NotImplementedError
 
     @abstractmethod
     def compute(
@@ -46,21 +45,23 @@ class InitialPoint(ABC):
         raise NotImplementedError
 
     @property
+    @abstractmethod
     def grouped_property(self) -> GroupedSecondQuantizedProperty:
         """The grouped property."""
-        return self._grouped_property
+        raise NotImplementedError
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
         """The grouped property."""
-        self._grouped_property = grouped_property
+        raise NotImplementedError
 
     @property
+    @abstractmethod
     def ansatz(self) -> UCC:
         """The UCC ansatz."""
-        return self._ansatz
+        raise NotImplementedError
 
     @ansatz.setter
     def ansatz(self, ansatz: UCC) -> None:
         """The UCC ansatz."""
-        self._ansatz = ansatz
+        raise NotImplementedError

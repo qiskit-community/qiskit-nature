@@ -36,7 +36,7 @@ features:
 
       mp2_initial_point = MP2InitialPoint()
       mp2_initial_point.compute(driver_result, ansatz)
-      initial_point = mp2_initial_point.x
+      initial_point = mp2_initial_point.to_numpy_array()
 
       algorithm = VQE(
         ansatz,
