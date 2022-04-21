@@ -29,9 +29,13 @@ from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_dri
 from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
-
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.second_quantized_property import (
+    GroupedSecondQuantizedProperty,
+)
 from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.circuit.library import UCC
 from qiskit_nature.algorithms import MP2InitialPoint
 
 
@@ -55,36 +59,64 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         super().setUp()
         settings.dict_aux_operators = True
 
-        # Stub the ansatz
-        self._mock_ansatz = Mock()
-        self._mock_ansatz.operators = None
-        self._mock_ansatz.excitation_list = None
+    def test_no_threshold(self):
+        mp2_initial_point = MP2InitialPoint(threshold=None)
+        self.assertEqual(mp2_initial_point.threshold, 0.0)
 
-    # def test_mp2_bad_input(
-    #     self,
-    # ):
-    #     """Test MP2InitialPoint raises errors for some bad input."""
+    def test_negative_threshold(self):
+        mp2_initial_point = MP2InitialPoint(threshold=-3.0)
+        self.assertEqual(mp2_initial_point.threshold, 3.0)
 
-    #     # TODO trigger all inputs properly.
+    def test_no_grouped_property_and_no_ansatz(self):
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(None, None)
 
-    #     self._mock_result = Mock()
+    def test_no_grouped_property(self):
+        ansatz = Mock(spec=UCC)
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(None, ansatz)
 
-    #     with self.subTest("no result; no ansatz") and self.assertRaises(QiskitNatureError):
-    #         mp2_initial_point = MP2InitialPoint()
-    #         _ = mp2_initial_point.compute(None, None)
+    def test_no_ansatz(self):
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(grouped_property, None)
 
-    #     with self.subTest("no result") and self.assertRaises(QiskitNatureError):
-    #         mp2_initial_point = MP2InitialPoint()
-    #         _ = mp2_initial_point.compute(None, self._mock_ansatz)
+    def test_no_electronic_energy(self):
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=None)
+        ansatz = Mock(spec=UCC)
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(grouped_property, None)
 
-    #     with self.subTest("no ansatz") and self.assertRaises(QiskitNatureError):
-    #         mp2_initial_point = MP2InitialPoint()
-    #         _ = mp2_initial_point.compute(self._mock_result, None)
+    def test_no_two_body_mo_integrals(self):
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.orbital_energies = Mock(np.ndarray)
+        electronic_energy.get_electronic_integral(return_value=None)
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=electronic_energy)
 
-    #     with self.subTest("no orbital energies") and self.assertRaises(QiskitNatureError):
-    #         mp2_initial_point = MP2InitialPoint()
-    #         self._mock_result.orbital_energies = None
-    #         _ = mp2_initial_point.compute(self._mock_result, self._mock_ansatz)
+        ansatz = Mock(spec=UCC)
+        ansatz.excitation_list = [[[0], [1]]]
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(grouped_property, ansatz)
+
+    def test_no_orbital_energies(self):
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.orbital_energies = None
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=electronic_energy)
+
+        ansatz = Mock(spec=UCC)
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(grouped_property, ansatz)
 
     @file_data("./resources/test_data_mp2_point_generator.json")
     def test_mp2_point_generator(
@@ -113,12 +145,12 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
         driver_result = problem.grouped_property_transformed
 
-        # We just need the excitation list from the ansatz stub.
-        self._mock_ansatz.excitation_list = excitations
+        ansatz = Mock(spec=UCC)
+        ansatz.excitation_list = excitations
 
         mp2_initial_point = MP2InitialPoint()
         mp2_initial_point.grouped_property = driver_result
-        mp2_initial_point.ansatz = self._mock_ansatz
+        mp2_initial_point.ansatz = ansatz
 
         with self.subTest("MP2 initial point array"):
             np.testing.assert_array_almost_equal(

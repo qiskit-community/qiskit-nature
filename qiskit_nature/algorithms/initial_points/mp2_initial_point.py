@@ -60,7 +60,7 @@ class MP2InitialPoint(InitialPoint):
         self._reference_energy: float = 0.0
 
         self._ansatz: UCC | None = None
-        self._excitations: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
+        self._excitations_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
 
         self._corrections: dict[str, tuple[float, float]] | None = None
         self._missing_input_error_message: str = (
@@ -87,19 +87,19 @@ class MP2InitialPoint(InitialPoint):
         """
 
         electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
-        if electronic_energy is None:
+        if not isinstance(electronic_energy, ElectronicEnergy):
             raise QiskitNatureError(f"ElectronicEnergy not in grouped property: {grouped_property}")
 
         two_body_mo_integral: ElectronicIntegrals | None = (
             electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         )
-        if two_body_mo_integral is None:
+        if not isinstance(two_body_mo_integral, ElectronicIntegrals):
             raise QiskitNatureError(
                 f"Two body MO electronic integral not in grouped property: {grouped_property}"
             )
 
         orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
-        if orbital_energies is None:
+        if not isinstance(orbital_energies, np.ndarray):
             raise QiskitNatureError(f"Orbital energies not in grouped property: {grouped_property}")
 
         # Invalidate any previous computation.
@@ -125,7 +125,7 @@ class MP2InitialPoint(InitialPoint):
         # Invalidate any previous computation.
         self._corrections = None
 
-        self._excitations = ansatz.excitation_list
+        self._excitations_list = ansatz.excitation_list
         self._ansatz = ansatz
 
     @property
@@ -144,20 +144,20 @@ class MP2InitialPoint(InitialPoint):
         Computed initial point and energy deltas will be set to zero if their absolute value is
         below this threshold.
         """
-        if threshold is None:
+        try:
+            threshold = abs(float(threshold))
+        except TypeError:
             threshold = 0.0
-        if threshold < 0.0:
-            raise ValueError("The energy threshold cannot be negative.")
 
         # Invalidate any previous computation.
         self._corrections = None
 
-        self._threshold = threshold
+        self._threshold = float(threshold)
 
     @property
     def excitations(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
         """The list of excitations."""
-        return self._excitations
+        return self._excitations_list
 
     @excitations.setter
     def excitations(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
@@ -168,7 +168,7 @@ class MP2InitialPoint(InitialPoint):
         # Invalidate any previous computation.
         self._corrections = None
 
-        self._excitations = excitations
+        self._excitations_list = excitations
 
     def to_numpy_array(self) -> np.ndarray:
         """Convert the computed initial point to a numpy array.
@@ -206,7 +206,7 @@ class MP2InitialPoint(InitialPoint):
         Args:
             grouped_property: A grouped second-quantized property that is required to contain the
                 ``ElectronicEnergy``. Additionally, ``ElectronicEnergy`` is required to contain the
-                two-body molecular orbital matrix, the orbital energies, and the Hartree-Fock
+                two-body molecular orbital matrix and the orbital energies, and the Hartree-Fock
                 reference energy. If this has already been set, it doesn't need to be passed again
                 as an argument. If it is passed, it will overwrite the previous grouped property.
                 If it is not passed and has not been set an error will be raised.
@@ -220,18 +220,15 @@ class MP2InitialPoint(InitialPoint):
         Return:
             The computed initial point.
         """
-        error_message = (
-            "Set this property of MP2InitialPoint or pass as an argument to the compute method."
-        )
-        if grouped_property is None:
-            if self._grouped_property is None:
-                raise QiskitNatureError(f"The grouped_property cannot be None. {error_message}")
+        if not isinstance(grouped_property, GroupedSecondQuantizedProperty):
+            if not isinstance(self._grouped_property, GroupedSecondQuantizedProperty):
+                raise QiskitNatureError("Cannot compute. `grouped_property` has not been set.")
         else:
             self.grouped_property = grouped_property
 
-        if ansatz is None:
-            if self._ansatz is None:
-                raise QiskitNatureError(f"The ansatz cannot be None. {error_message}")
+        if not isinstance(ansatz, UCC):
+            if not isinstance(self._ansatz, UCC):
+                raise QiskitNatureError("Cannot compute. `ansatz` has not been set.")
         else:
             self.ansatz = ansatz
 
@@ -251,7 +248,7 @@ class MP2InitialPoint(InitialPoint):
             Dictionary with MP2 coefficients and energy_deltas for each excitation.
         """
         corrections = {}
-        for excitation in self._excitations:
+        for excitation in self._excitations_list:
             if len(excitation[0]) == 2:
                 # Compute MP2 corrections using double excitations.
                 coefficient, energy_delta = self._compute_correction(excitation)
