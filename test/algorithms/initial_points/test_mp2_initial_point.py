@@ -14,7 +14,9 @@
 
 import unittest
 from unittest.mock import Mock
-from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals import ElectronicIntegrals
+from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals import (
+    ElectronicIntegrals,
+)
 
 from test import QiskitNatureTestCase
 
@@ -128,9 +130,9 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         atom1,
         atom2,
         distance,
-        initial_point,
-        energy_delta,
-        energy_deltas,
+        coefficients,
+        energy_correction,
+        energy_corrections,
         energy,
         excitations,
     ):
@@ -158,17 +160,17 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
         with self.subTest("MP2 initial point array"):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point.to_numpy_array(), initial_point, decimal=6
+                mp2_initial_point.to_numpy_array(), coefficients, decimal=6
             )
 
-        with self.subTest("MP2 energy deltas"):
+        with self.subTest("MP2 energy corrections"):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point.get_energy_deltas(), energy_deltas, decimal=6
+                mp2_initial_point.get_energy_corrections(), energy_corrections, decimal=6
             )
 
-        with self.subTest("overall MP2 energy delta"):
+        with self.subTest("overall MP2 energy correction"):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point.get_energy_delta(), energy_delta, decimal=6
+                mp2_initial_point.get_energy_correction(), energy_correction, decimal=6
             )
 
         with self.subTest("absolute MP2 energy"):
