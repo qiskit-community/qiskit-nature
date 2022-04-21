@@ -1,6 +1,6 @@
 features:
   - |
-    Adds a class to compute the Moller-Plesset 2nd Order (MP2) corrections.
+    Adds a class to compute the Møller-Plesset 2nd Order (MP2) corrections.
     The corresponding double-excitation coefficients are intended to be used as
     an initial point for the VQE parameters (cluster operator coefficients)
     when using a UCC ansatz. This should introduce an initial point that is
@@ -24,8 +24,8 @@ features:
 
     .. code-block:: python
 
-      mp2 = MP2InitialPoint()
-      vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=mp2)
+      mp2_initial_point = MP2InitialPoint()
+      vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=mp2_initial_point)
 
     In this case the driver result and ansatz will be used to compute the
     initial point automatically. This will then be passed to the VQE.
