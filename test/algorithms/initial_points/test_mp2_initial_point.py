@@ -14,6 +14,7 @@
 
 import unittest
 from unittest.mock import Mock
+from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals import ElectronicIntegrals
 
 from test import QiskitNatureTestCase
 
@@ -95,7 +96,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_no_two_body_mo_integrals(self):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = Mock(np.ndarray)
-        electronic_energy.get_electronic_integral(return_value=None)
+        electronic_energy.get_electronic_integral = Mock(return_value=None)
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         grouped_property.get_property = Mock(return_value=electronic_energy)
 
@@ -107,12 +108,15 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             mp2_initial_point.compute(grouped_property, ansatz)
 
     def test_no_orbital_energies(self):
+        electronic_integrals = Mock(spec=ElectronicIntegrals)
         electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         electronic_energy.orbital_energies = None
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         grouped_property.get_property = Mock(return_value=electronic_energy)
 
         ansatz = Mock(spec=UCC)
+        ansatz.excitation_list = [[[0], [1]]]
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
