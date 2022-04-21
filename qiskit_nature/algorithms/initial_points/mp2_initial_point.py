@@ -287,7 +287,7 @@ class MP2InitialPoint(InitialPoint):
         Each double excitation indexed by ::math`i,a,j,b` has a correction coefficient,
 
         ..math::
-            c_{i,a,j,b} = -\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
+            c_{i,a,j,b} = -\\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
 
         where ::math::`E` is the orbital energy and ::math::`T` is the integral matrix.
         And an energy correction,
@@ -297,8 +297,8 @@ class MP2InitialPoint(InitialPoint):
 
         These computations use molecular orbitals, but the indices used in the excitation
         information passed in and out use the block spin orbital numbering common to Qiskit Nature:
-          - ::math::`\alpha` runs from ``0`` to ``num_molecular_orbitals - 1``,
-          - ::math::`\beta` runs from ``num_molecular_orbitals`` to
+          - ::math::`\\alpha` runs from ``0`` to ``num_molecular_orbitals - 1``,
+          - ::math::`'\\'beta` runs from ``num_molecular_orbitals`` to
             ``num_molecular_orbitals * 2 - 1``.
 
         Args:
