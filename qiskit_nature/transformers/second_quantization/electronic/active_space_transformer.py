@@ -373,7 +373,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                     if transformed_internal_property is not None:
                         transformed_property.add_property(transformed_internal_property)
                     else:
-                        transformed_property.remove_property(internal_property)
+                        transformed_property.remove_property(internal_property.name)
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed!",

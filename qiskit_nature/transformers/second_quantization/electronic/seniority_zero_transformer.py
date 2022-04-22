@@ -107,7 +107,7 @@ class SeniorityZeroTransformer(BaseTransformer):
                     if transformed_internal_property is not None:
                         transformed_property.add_property(transformed_internal_property)
                     else:
-                        transformed_property.remove_property(internal_property)
+                        transformed_property.remove_property(internal_property.name)
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed!",
@@ -158,9 +158,9 @@ class SeniorityZeroTransformer(BaseTransformer):
         self, h_1: np.ndarray, h_2: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Transform PyScf integrals to the restricted formalism
-        arxiv: 2002.00035, Appendix A, Equations (A10),(A11),(A12)
-        https://arxiv.org/pdf/2002.00035.pdf
+        Transform integrals to the restricted formalism
+        arxiv:2002.00035, Appendix A, Equations (A10),(A11),(A12)
+        https://arxiv.org/abs/2002.00035
 
         Args:
             h_1 (np.ndarray): one-body integrals, (N x N)
@@ -170,7 +170,7 @@ class SeniorityZeroTransformer(BaseTransformer):
             hr_1 (np.ndarray): restricted one-body integrals, (N x N)
             hr_2 (np.ndarray): restricted two-body integrals, (N x N)
         """
-        # change of notation (may only be valid for PySCF -> restricted formalism)
+        # change of notation
         h_2 = np.einsum("ijkl->ljik", h_2)
 
         hr_1 = np.zeros((self._num_modes, self._num_modes))
@@ -198,12 +198,18 @@ def second_q_ops_electronic_energy(self: ElectronicEnergy) -> ListOrDictType[Vib
 
     num_modes = hr_1.shape[0]
 
+    # Functions to create labels for the VibrationalOp. This will prevent the
+    # VibrationalOp from triggering a warning about not conserving the number
+    # of excitations in each mode (which we violate intentionally).
     label_m = lambda x: "I" * x + "-" + "I" * (num_modes - x - 1)
     label_p = lambda x: "I" * x + "+" + "I" * (num_modes - x - 1)
 
     # Create pair creation and annihilation operators for the spatial orbitals
     b = [VibrationalOp(label_m(i), num_modes=num_modes, num_modals=1) for i in range(num_modes)]
     b_dag = [VibrationalOp(label_p(i), num_modes=num_modes, num_modals=1) for i in range(num_modes)]
+
+    # TODO: refactor to construct `VibrationalOp` from a list of labels
+    # rather than summing multiple instances
 
     # Build the operators
     op = VibrationalOp(("I" * num_modes, 0.0), num_modes=num_modes, num_modals=1)
@@ -213,7 +219,7 @@ def second_q_ops_electronic_energy(self: ElectronicEnergy) -> ListOrDictType[Vib
 
             if i != j:
                 op += b_dag[i] @ b[i] @ b_dag[j] @ b[j] * hr_2[i, j]
-    op = op.reduce()
+    op = op.simplify()
 
     if not settings.dict_aux_operators:
         return [op]
@@ -228,10 +234,8 @@ def second_q_ops_particle_number(self) -> ListOrDictType[VibrationalOp]:
     Returns:
         A `list` or `dict` of `VibrationalOp` objects.
     """
-    label = lambda x: "I" * x + "N" + "I" * (self._num_spin_orbitals // 2 - x - 1)
-
     op = VibrationalOp(
-        [(label(o), 2.0) for o in range(self._num_spin_orbitals // 2)],
+        [(f"+_{o}*0 -_{o}*0", 2.0) for o in range(self._num_spin_orbitals // 2)],
         num_modes=self._num_spin_orbitals // 2,
         num_modals=1,
     )

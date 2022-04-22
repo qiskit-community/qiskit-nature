@@ -70,7 +70,7 @@ class GroupedProperty(Property, Iterable, Generic[T_co]):
                 name = prop.__class__.__name__
             self._properties[name] = prop
 
-    def remove_property(self, prop: Union[str, Type[Property], Property]) -> Optional[T_co]:
+    def remove_property(self, prop: Union[str, Type[Property]]) -> Optional[T_co]:
         """Removes a property from the group.
 
         Args:
@@ -82,8 +82,6 @@ class GroupedProperty(Property, Iterable, Generic[T_co]):
         name: str
         if isinstance(prop, str):
             name = prop
-        elif isinstance(prop, Property):
-            name = prop.name
         else:
             name = prop.__name__
         return self._properties.pop(name, None)
