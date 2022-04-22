@@ -39,19 +39,19 @@ class MP2InitialPoint(InitialPoint):
 
     :class:`MP2InitialPoint` requires two-body molecular orbital electronic integrals and orbital
     energies from
-    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
+    :class:`qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
     which should be passed in via the :attr:`grouped_property` attribute.
 
-    :class:`MP2InitialPoint` also requires the :attr:`~excitation_list` from the :attr:`~ansatz`
+    :class:`MP2InitialPoint` also requires the :attr:`excitation_list` from the :attr:`ansatz`
     to ensure that the coefficients are mapped correctly in the initial point array. This can be
-    overwritten by setting :attr:`~excitation_list` directly.
+    overwritten by setting :attr:`excitation_list` directly.
 
-    The coefficients and energy corrections are computed using :meth:`~compute`, which requires
-    :attr:`grouped_property` and :attr:`~ansatz` to be set or passed as arguments to
-    :meth:`~compute`.
+    The coefficients and energy corrections are computed using :meth:`compute`, which requires
+    :attr:`grouped_property` and :attr:`ansatz` to be set or passed as arguments to
+    :meth:`compute`.
 
     Following computation, the initial point array can be extracted via :meth:`to_numpy_array`.
-    Array elements with indices corresponding to double excitations in the :attr:`~excitation_list`
+    Array elements with indices corresponding to double excitations in the :attr:`excitation_list`
     will use the computed MP2 coefficient, while those that correspond to single, triple, or
     higher excitations will be zero.
 
@@ -60,8 +60,8 @@ class MP2InitialPoint(InitialPoint):
     :meth:`get_energy_correction`.
 
     If the Hartree-Fock reference energy was found in
-    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, it will
-    be used to compute the absolute MP2 energy via :meth:`~get_energy`.
+    :class:`qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, it will
+    be used to compute the absolute MP2 energy via :meth:`get_energy`.
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
@@ -122,8 +122,6 @@ class MP2InitialPoint(InitialPoint):
         self._corrections = None
 
         self._integral_matrix = two_body_mo_integral.get_matrix()
-        if not np.allclose(self._integral_matrix, two_body_mo_integral.get_matrix(2)):
-            raise NotImplementedError("MP2InitialPoint only supports restricted-spin setups.")
         self._orbital_energies = orbital_energies
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
@@ -140,6 +138,11 @@ class MP2InitialPoint(InitialPoint):
         This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
         will be used with the VQE algorithm.
         """
+        if not isinstance(ansatz, UCC):
+            raise QiskitNatureError(
+                f"MP2InitialPoint requires a UCC ansatz, but got type: {type(ansatz)}"
+            )
+
         # Operators must be built early to compute excitation list.
         _ = ansatz.operators
 
