@@ -234,8 +234,7 @@ class MP2InitialPoint(InitialPoint):
         else:
             if not isinstance(self._grouped_property, GroupedSecondQuantizedProperty):
                 raise QiskitNatureError(
-                    f"Cannot compute. The grouped property has not been set. "
-                    + missing_input_error_message
+                    f"The grouped property has not been set. " + missing_input_error_message
                 )
 
         if isinstance(ansatz, UCC):
@@ -243,8 +242,8 @@ class MP2InitialPoint(InitialPoint):
         else:
             if not isinstance(self._excitation_list, list):
                 raise QiskitNatureError(
-                    f"Cannot compute. The excitation list has not been set directly or via the "
-                    f"ansatz. " + missing_input_error_message
+                    f"The excitation list has not been set directly or via the ansatz. "
+                    + missing_input_error_message
                 )
 
         self._corrections = self._compute_corrections()
