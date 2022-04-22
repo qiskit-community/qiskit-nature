@@ -37,7 +37,7 @@ class MP2InitialPoint(InitialPoint):
     parameters in combination with a :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC`
     ansatz.
 
-    :class:`MP2InitialPoint` requires two-body molecular orbital electronic integrals and orbital
+    :class:`MP2InitialPoint` requires two-body molecular orbitals electronic integrals and orbital
     energies from the
     :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
     which should be passed in via the :attr:`grouped_property` attribute. It also requires the
@@ -79,13 +79,13 @@ class MP2InitialPoint(InitialPoint):
 
         The grouped property is required to contain the
         :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, which
-        must contain the two-body molecular orbital matrix and the orbital energies. Optionally,
+        must contain the two-body molecular orbitals matrix and the orbital energies. Optionally,
         it will also use the Hartree-Fock reference energy to compute the absolute energy.
 
         Raises:
             QiskitNatureError: If
                 :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
-                is missing or the two-body molecular orbital matrix or the orbital energies are not
+                is missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
             NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
         """
@@ -185,7 +185,7 @@ class MP2InitialPoint(InitialPoint):
         self._excitation_list = excitations
 
     def to_numpy_array(self) -> np.ndarray:
-        """The initial point as an array of MP2 correction coefficients.
+        """The initial point as an array of MP2 coefficients.
 
         Array elements with indices corresponding to double excitations in the
         :attr:`excitation_list` will have a value corresponding to the appropriate MP2 coefficient,
@@ -198,7 +198,7 @@ class MP2InitialPoint(InitialPoint):
     def get_energy_corrections(self) -> np.ndarray:
         """The MP2 energy corrections for each excitation.
 
-        Array elements with indices corresponding to double excitations in theƒ
+        Array elements with indices corresponding to double excitations in the
         :attr:`excitation_list` will have a value corresponding to the appropriate MP2 energy
         correction while those that correspond to single, triple, or higher excitations will have
         zero value.
@@ -232,7 +232,7 @@ class MP2InitialPoint(InitialPoint):
         Args:
             grouped_property: A grouped second-quantized property that is required to contain the
                 :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`.
-                From this we require the two-body molecular orbital electronic integrals and orbital
+                From this we require the two-body molecular orbitals electronic integrals and orbital
                 energies. Optionally, it also obtain the Hartree-Fock reference energy to compute
                 the absolute MP2 energy.
             ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
