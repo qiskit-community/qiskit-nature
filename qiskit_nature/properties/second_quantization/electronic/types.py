@@ -22,8 +22,8 @@ class ElectronicProperty(SecondQuantizedProperty):
 
 
 # pylint: disable=invalid-name
-T = TypeVar("T", bound=ElectronicProperty, covariant=True)
+T_co = TypeVar("T_co", bound=ElectronicProperty, covariant=True)
 
 
-class GroupedElectronicProperty(GroupedSecondQuantizedProperty[T], ElectronicProperty):
+class GroupedElectronicProperty(GroupedSecondQuantizedProperty[T_co], ElectronicProperty):
     """A GroupedProperty subtype containing purely electronic properties."""

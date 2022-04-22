@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Alter :class:`~qiskit_nature.circuit.library.UVCC` to build the ``operators`` on demand
+    when requested via the property, rather than, as before, when the circuit is built. This
+    is a similar change as was done to :class:`~qiskit_nature.circuit.library.UCC`.

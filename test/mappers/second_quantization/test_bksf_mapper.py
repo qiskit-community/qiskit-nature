@@ -160,7 +160,7 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             self.assertEqual(op1, op2)
 
         with self.subTest("Sparse FermionicOp input"):
-            h2_fop_sparse = h2_fop.to_normal_order()
+            h2_fop_sparse = h2_fop.normal_ordered()
             pauli_sum_op_from_sparse = BravyiKitaevSuperFastMapper().map(h2_fop_sparse)
             op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse.primitive)
             self.assertEqual(op1, op2_from_sparse)
