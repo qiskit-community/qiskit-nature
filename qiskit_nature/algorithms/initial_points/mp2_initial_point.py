@@ -31,7 +31,7 @@ from .initial_point import InitialPoint
 
 
 class MP2InitialPoint(InitialPoint):
-    """A Class for second-order Møller-Plesset perturbation theory (MP2) computation.
+    """Compute second-order Møller-Plesset perturbation theory (MP2) corrections.
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
     parameters in combination with a :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC`
