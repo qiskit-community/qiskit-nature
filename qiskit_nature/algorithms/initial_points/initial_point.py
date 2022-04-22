@@ -25,12 +25,33 @@ from qiskit_nature.circuit.library import UCC
 class InitialPoint(ABC):
     """The initial point interface.
 
-    Interface for algorithms that can compute initial points for particular ansatzes.
+    Interface for algorithms that can compute an initial point for the VQE parameters when using a
+    UCC ansatz.
     """
 
     def __init__(self):
         self._grouped_property: GroupedSecondQuantizedProperty | None = None
         self._ansatz: UCC | None = None
+
+    @property
+    @abstractmethod
+    def grouped_property(self) -> GroupedSecondQuantizedProperty:
+        """The grouped property."""
+        raise NotImplementedError
+
+    @grouped_property.setter
+    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def ansatz(self) -> UCC:
+        """The UCC ansatz."""
+        raise NotImplementedError
+
+    @ansatz.setter
+    def ansatz(self, ansatz: UCC) -> None:
+        raise NotImplementedError
 
     @abstractmethod
     def to_numpy_array(self) -> np.ndarray:
@@ -42,26 +63,4 @@ class InitialPoint(ABC):
         self, grouped_property: GroupedSecondQuantizedProperty | None, ansatz: UCC | None
     ) -> np.ndarray:
         """Computes the initial point."""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def grouped_property(self) -> GroupedSecondQuantizedProperty:
-        """The grouped property."""
-        raise NotImplementedError
-
-    @grouped_property.setter
-    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
-        """The grouped property."""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def ansatz(self) -> UCC:
-        """The UCC ansatz."""
-        raise NotImplementedError
-
-    @ansatz.setter
-    def ansatz(self, ansatz: UCC) -> None:
-        """The UCC ansatz."""
         raise NotImplementedError

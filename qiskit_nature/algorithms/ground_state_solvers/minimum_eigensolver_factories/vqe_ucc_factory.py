@@ -57,8 +57,9 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_point: An optional initial point (i.e., initial parameter values) for the
                 optimizer. If ``None`` then VQE will use an all-zero initial point, which then
                 defaults to the Hartree-Fock (HF) state when the HF circuit is prepended to the
-                the ansatz circuit. If an :class:`~qiskit_nature.algorithms.InitialPoint` instance,
-                this is used to compute an initial point for the VQE ansatz parameters.
+                the ansatz circuit. If an
+                :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
+                instance, this is used to compute an initial point for the VQE ansatz parameters.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
