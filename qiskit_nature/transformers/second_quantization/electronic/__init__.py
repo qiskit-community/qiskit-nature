@@ -35,4 +35,8 @@ from .active_space_transformer import ActiveSpaceTransformer
 from .freeze_core_transformer import FreezeCoreTransformer
 from .seniority_zero_transformer import SeniorityZeroTransformer
 
-__all__ = ["ActiveSpaceTransformer", "FreezeCoreTransformer", "SeniorityZeroTransformer"]
+__all__ = [
+    "ActiveSpaceTransformer",
+    "FreezeCoreTransformer",
+    "SeniorityZeroTransformer",
+]
