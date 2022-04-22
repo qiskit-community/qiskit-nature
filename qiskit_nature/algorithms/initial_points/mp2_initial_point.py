@@ -210,7 +210,7 @@ class MP2InitialPoint(InitialPoint):
     ) -> None:
         """Compute the second-order Møller-Plesset perturbation theory (MP2) corrections.
 
-        See :class:`MP2InitialPoint`.
+        See :class:`MP2InitialPoint` for more information.
 
         Args:
             grouped_property: A grouped second-quantized property that is required to contain the
