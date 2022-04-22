@@ -42,7 +42,7 @@ class MP2InitialPoint(InitialPoint):
     :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
     which should be passed in via the :attr:`grouped_property` attribute.
 
-    :class:`MP2InitialPoint` also requires the :attr:`excitation list` from the :attr:`~ansatz`
+    :class:`MP2InitialPoint` also requires the :attr:`~excitation_list` from the :attr:`~ansatz`
     to ensure that the coefficients are mapped correctly in the initial point array. This can be
     overwritten by setting :attr:`~excitation_list` directly.
 
@@ -50,13 +50,13 @@ class MP2InitialPoint(InitialPoint):
     :attr:`grouped_property` and :attr:`~ansatz` to be set or passed as arguments to
     :meth:`~compute`.
 
-    Following computation, the initial point array can be extracted via `:meth:to_numpy_array`.
-    Array elements with indices corresponding double excitations in the :attr:`~excitation_list`
+    Following computation, the initial point array can be extracted via :meth:`to_numpy_array`.
+    Array elements with indices corresponding to double excitations in the :attr:`~excitation_list`
     will use the computed MP2 coefficient, while those that correspond to single, triple, or
     higher excitations will be zero.
 
     The array of energy corrections for each excitation can be
-    recovered using :meth:`get_energy_corrections`. The overall correction is got via
+    recovered using :meth:`get_energy_corrections`. The overall correction can be obtained via
     :meth:`get_energy_correction`.
 
     If the Hartree-Fock reference energy was found in
@@ -122,6 +122,8 @@ class MP2InitialPoint(InitialPoint):
         self._corrections = None
 
         self._integral_matrix = two_body_mo_integral.get_matrix()
+        if not np.allclose(self._integral_matrix, two_body_mo_integral.get_matrix(2)):
+            raise NotImplementedError("MP2InitialPoint only supports restricted-spin setups.")
         self._orbital_energies = orbital_energies
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
