@@ -100,6 +100,7 @@ class MP2InitialPoint(InitialPoint):
                 :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
                 is missing or the two-body molecular orbital matrix or the orbital energies are not
                 found.
+            NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
         """
 
         electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
@@ -122,6 +123,8 @@ class MP2InitialPoint(InitialPoint):
         self._corrections = None
 
         self._integral_matrix = two_body_mo_integral.get_matrix()
+        if not np.allclose(self._integral_matrix, two_body_mo_integral.get_matrix(2)):
+            raise NotImplementedError("MP2InitialPoint only supports restricted-spin setups.")
         self._orbital_energies = orbital_energies
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
