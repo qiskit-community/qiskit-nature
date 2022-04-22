@@ -269,17 +269,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        self._vqe = VQE(
-            quantum_instance=self.quantum_instance,
-            optimizer=self.optimizer,
-            initial_point=self.initial_point,
-            gradient=self.gradient,
-            expectation=self.expectation,
-            include_custom=self.include_custom,
-            callback=self.callback,
-            **self._kwargs,
-        )
-
+        
         ansatz = self.ansatz
         if ansatz is None:
             ansatz = UVCCSD()
@@ -288,7 +278,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.initial_state = initial_state
 
         self._vqe.ansatz = ansatz
-        return self._vqe
+        return self.minimum_eigensolver
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()

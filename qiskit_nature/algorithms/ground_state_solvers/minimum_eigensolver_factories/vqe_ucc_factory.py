@@ -89,16 +89,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._ansatz = ansatz
         self._initial_state = initial_state
 
-        # Not needed Delete
-        self._quantum_instance = quantum_instance
-        self._optimizer = optimizer
-        self._initial_point = initial_point
-        self._gradient = gradient
-        self._expectation = expectation
-        self._include_custom = include_custom
-        self._callback = callback
-        self._kwargs = kwargs
-
         self._vqe = VQE(
             quantum_instance=quantum_instance,
             optimizer=optimizer,
@@ -117,13 +107,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def quantum_instance(self) -> QuantumInstance:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns quantum instance."""
-        return self._quantum_instance
+        return self.minimum_eigensolver.quantum_instance
 
     @quantum_instance.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def quantum_instance(self, q_instance: QuantumInstance) -> None:
         """DEPRECATED. Use the constructor instead. Sets the quantum instance."""
-        self._quantum_instance = q_instance
+        self.minimum_eigensolver.quantum_instance = q_instance
 
     @property  # type: ignore
     @deprecate_property(
@@ -132,13 +122,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def optimizer(self) -> Optional[Optimizer]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns optimizer."""
-        return self._optimizer
+        return self.minimum_eigensolver.optimizer
 
     @optimizer.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the optimizer."""
-        self._optimizer = optimizer
+        self.minimum_eigensolver.optimizer = optimizer
 
     @property  # type: ignore
     @deprecate_property(
@@ -147,13 +137,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def initial_point(self) -> Optional[np.ndarray]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns initial_point."""
-        return self._initial_point
+        return self.minimum_eigensolver.initial_point
 
     @initial_point.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        self._initial_point = initial_point
+        self.minimum_eigensolver.initial_point = initial_point
 
     @property  # type: ignore
     @deprecate_property(
@@ -162,13 +152,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns gradient."""
-        return self._gradient
+        return self.minimum_eigensolver.gradient
 
     @gradient.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        self._gradient = gradient
+        self.minimum_eigensolver.gradient = gradient
 
     @property  # type: ignore
     @deprecate_property(
@@ -177,13 +167,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def expectation(self) -> Optional[ExpectationBase]:
         """DEPRECATED. Use ``minimum_eigensolver`` and solver properties instead.
         Returns gradient."""
-        return self._expectation
+        return self.minimum_eigensolver.expectation
 
     @expectation.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        self._expectation = expectation
+        self.minimum_eigensolver.expectation = expectation
 
     @property  # type: ignore
     @deprecate_property(
@@ -192,14 +182,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def include_custom(self) -> bool:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the ``include_custom`` setting for the ``expectation`` setting."""
-        return self._include_custom
+        return self.minimum_eigensolver.include_custom
 
     @include_custom.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def include_custom(self, include_custom: bool) -> None:
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         setting for the ``expectation`` setting."""
-        self._include_custom = include_custom
+        self.minimum_eigensolver.include_custom = include_custom
 
     @property  # type: ignore
     @deprecate_property(
@@ -208,7 +198,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def ansatz(self) -> Optional[UCC]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the ansatz"""
-        return self._ansatz
+        return self.minimum_eigensolver.ansatz
 
     @ansatz.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
@@ -216,14 +206,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
         :class:`~.UCCSD` Ansatz."""
-        self._ansatz = ansatz
+        self.minimum_eigensolver.ansatz = ansatz
 
     @property  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def initial_state(self) -> Optional[QuantumCircuit]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the initial state."""
-        return self._initial_state
+        return self.minimum_eigensolver.initial_state
 
     @initial_state.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
@@ -231,7 +221,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """DEPRECATED. Use the constructor instead.
         Setter of the initial state. If ``None`` is passed, this factory will default to using
         the :class:`~.HartreeFock`."""
-        self._initial_state = initial_state
+        self.minimum_eigensolver.initial_state = initial_state
 
     @property  # type: ignore
     @deprecate_method(
@@ -240,14 +230,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
         """DEPRECATED. Use ``minimum_eigensolver`` and solver properties instead.
         Returns the callback."""
-        return self._callback
+        return self.minimum_eigensolver.callback
 
     @callback.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def callback(self, callback: Optional[Callable[[int, np.ndarray, float, float], None]]) -> None:
         """DEPRECATED. Use the constructor instead.
         Sets the callback."""
-        self._callback = callback
+        self.minimum_eigensolver.callback = callback
 
     def get_solver(  # type: ignore[override]
         self,
@@ -279,7 +269,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._vqe.ansatz.num_particles = num_particles
         self._vqe.ansatz.num_spin_orbitals = num_spin_orbitals
         self._vqe.ansatz.initial_state = initial_state
-        return self._vqe
+        
+        return self.minimum_eigensolver
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()
