@@ -146,7 +146,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point.compute(grouped_property, None)
         self.assertEqual(mp2_initial_point.get_energy_correction(), 0.0)
 
-    @file_data("./resources/test_data_mp2_point_generator.json")
+    @file_data("./resources/test_mp2_initial_point.json")
     def test_mp2_point_generator(
         self,
         atom1,
