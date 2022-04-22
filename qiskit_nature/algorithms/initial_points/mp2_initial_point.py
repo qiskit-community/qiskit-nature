@@ -136,6 +136,10 @@ class MP2InitialPoint(InitialPoint):
 
         This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
         will be used with the VQE algorithm.
+
+        Raises:
+            QiskitNatureError: If not passed a valid
+                :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC` instance.
         """
         if not isinstance(ansatz, UCC):
             raise QiskitNatureError(
