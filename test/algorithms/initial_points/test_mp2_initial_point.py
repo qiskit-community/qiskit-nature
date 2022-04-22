@@ -133,9 +133,10 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             mp2_initial_point.compute(grouped_property, ansatz)
 
     def test_set_excitations_directly(self):
-        electronic_integrals = Mock(spec=ElectronicIntegrals)
         electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.orbital_energies = Mock(np.ndarray)
+        electronic_energy.orbital_energies = Mock(spec=np.ndarray)
+        electronic_integrals = Mock(spec=ElectronicIntegrals)
+        electronic_integrals.get_matrix = Mock(return_value=[0])
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         grouped_property.get_property = Mock(return_value=electronic_energy)
