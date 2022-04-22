@@ -226,7 +226,7 @@ class MP2InitialPoint(InitialPoint):
         missing_input_error_message: str = (
             "Not enough information has been provided to compute the MP2 corrections. "
             "Set the grouped property and the ansatz or call compute with them as arguments. "
-            "The ansatz is not required if the excitation_list has been set directly."
+            "The ansatz is not required if the excitation list has been set directly."
         )
 
         if isinstance(grouped_property, GroupedSecondQuantizedProperty):
