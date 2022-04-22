@@ -91,13 +91,16 @@ class ProteinXYZ():
         main_data = np.column_stack([self._main_chain_aminoacid_list,self.main_positions])
 
         #We will discard the None values corresponding to emtpy side chains.
-
         side_data = np.column_stack(
                                     [self._side_chain_aminoacid_list[self._side_chain_aminoacid_list != None],
                                      [side_pos for side_pos in self.side_positions if type(side_pos) != type(None)]
                                      ]) 
+        if side_data.size != 0:
         
-        data = np.append(main_data , side_data , axis=0)    
+            data = np.append(main_data , side_data , axis=0)    
+            
+        else:
+            data=main_data
         
         if output_data:
             np.savetxt(name+'.xyz',data , delimiter=' ', fmt = '%s')
