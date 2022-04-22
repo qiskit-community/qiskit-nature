@@ -77,10 +77,6 @@ class MP2InitialPoint(InitialPoint):
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
 
         self._corrections: dict[str, tuple[float, float]] | None = None
-        self._missing_input_error_message: str = (
-            "Not enough information has been provided to compute the MP2 corrections. "
-            "Set `grouped_property` and `ansatz` or call `compute` with them as arguments."
-        )
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty:
@@ -143,10 +139,10 @@ class MP2InitialPoint(InitialPoint):
         """
         if not isinstance(ansatz, UCC):
             raise QiskitNatureError(
-                f"MP2InitialPoint requires a UCC ansatz, but got type: {type(ansatz)}"
+                f"MP2InitialPoint requires a UCC ansatz, but got type: {type(ansatz)}."
             )
 
-        # Operators must be built early to compute excitation list.
+        # Operators must be built early to compute the excitation list.
         _ = ansatz.operators
 
         # Invalidate any previous computation.
@@ -200,15 +196,10 @@ class MP2InitialPoint(InitialPoint):
     def to_numpy_array(self) -> np.ndarray:
         """Convert the computed initial point to a numpy array.
 
-        Raises:
-            QiskitNatureError: If the initial point has not and cannot yet be computed.
-
         Returns:
             The initial point as a numpy array of MP2 correction coefficients.
         """
         if self._corrections is None:
-            if self._grouped_property is None or self._ansatz is None:
-                raise QiskitNatureError(self._missing_input_error_message)
             self.compute()
         return np.asarray([value[0] for value in self._corrections.values()])
 
@@ -219,44 +210,41 @@ class MP2InitialPoint(InitialPoint):
     ) -> None:
         """Compute the second-order Møller-Plesset perturbation theory (MP2) corrections.
 
-        This is intended for use as an initial point for the VQE parameters in combination with a UCC
-        ansatz.
-
-        :meth:`~compute` requires two-body molecular orbital electronic integrals and orbital
-        energies from
-        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
-        which should be passed in via the :attr:`grouped_property` attribute.
-
-        :meth:`compute` also requires the :attr:`excitation list` from the :attr:`~ansatz` to
-        ensure that the coefficients are mapped correctly in the initial point array. This can be
-        overwritten by setting :attr:`~excitation_list` directly.
-
-        :attr:`grouped_property` and :attr:`~ansatz` can be set externally or passed as arguments
-        to :meth:`~compute`.
+        See :class:`MP2InitialPoint`.
 
         Args:
             grouped_property: A grouped second-quantized property that is required to contain the
                 :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`.
                 From this we require the two-body molecular orbital electronic integrals and orbital
                 energies.
-            ansatz: The UCC ansatz. Required to set the :attr:`excitation list` to ensure that the
-            coefficients are mapped correctly in the initial point array.
+            ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
+                coefficients are mapped correctly in the initial point array.
 
         Raises:
             QiskitNatureError: If :attr:`grouped_property` and/or :attr`ansatz` are not set.
         """
+        missing_input_error_message: str = (
+            "Not enough information has been provided to compute the MP2 corrections. "
+            "Set the grouped property and the ansatz or call compute with them as arguments. "
+            "The ansatz is not required if the excitation_list has been set directly."
+        )
+
         if isinstance(grouped_property, GroupedSecondQuantizedProperty):
             self.grouped_property = grouped_property
         else:
             if not isinstance(self._grouped_property, GroupedSecondQuantizedProperty):
-                raise QiskitNatureError("Cannot compute. `grouped_property` has not been set.")
+                raise QiskitNatureError(
+                    f"Cannot compute. The grouped property has not been set. "
+                    + missing_input_error_message
+                )
 
         if isinstance(ansatz, UCC):
             self.ansatz = ansatz
         else:
             if not isinstance(self._excitation_list, list):
                 raise QiskitNatureError(
-                    "Cannot compute. `excitation_list` has not been set directly or via `ansatz`."
+                    f"Cannot compute. The excitation list has not been set directly or via the "
+                    f"ansatz. " + missing_input_error_message
                 )
 
         self._corrections = self._compute_corrections()
@@ -345,15 +333,10 @@ class MP2InitialPoint(InitialPoint):
     def get_energy_corrections(self) -> np.ndarray:
         """The individual MP2 energy corrections for each excitation.
 
-        Raises:
-            QiskitNatureError: If the initial point has not and cannot yet be computed.
-
         Returns:
             The individual MP2 energy corrections for each excitation.
         """
         if self._corrections is None:
-            if self._grouped_property is None or self._ansatz is None:
-                raise QiskitNatureError(self._missing_input_error_message)
             self.compute()
         return np.asarray([value[1] for value in self._corrections.values()])
 
@@ -364,7 +347,7 @@ class MP2InitialPoint(InitialPoint):
     def get_energy(self) -> float:
         """Returns the absolute MP2 energy for the molecule.
 
-        If the reference energy has not been recovered from
+        If the reference energy was not obtained from
         :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
         this will be equal to :meth:`get_energy_corrrection`.
         """

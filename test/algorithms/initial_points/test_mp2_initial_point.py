@@ -83,17 +83,30 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             mp2_initial_point.compute(None, ansatz)
 
     def test_no_ansatz(self):
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.orbital_energies = Mock(spec=np.ndarray)
+        electronic_integrals = Mock(spec=ElectronicIntegrals)
+        electronic_integrals.get_matrix = Mock(return_value=[0])
+        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=electronic_energy)
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(grouped_property, None)
 
     def test_not_ucc_ansatz(self):
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.orbital_energies = Mock(spec=np.ndarray)
+        electronic_integrals = Mock(spec=ElectronicIntegrals)
+        electronic_integrals.get_matrix = Mock(return_value=[0])
+        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=electronic_energy)
+
         mp2_initial_point = MP2InitialPoint()
         ansatz = Mock(spec=EvolvedOperatorAnsatz)
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(grouped_property, None)
+            mp2_initial_point.compute(grouped_property, ansatz)
 
     def test_no_electronic_energy(self):
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
