@@ -37,26 +37,25 @@ class MP2InitialPoint(InitialPoint):
     parameters in combination with a :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC`
     ansatz.
 
-    :class:`MP2InitialPoint` requires two-body molecular orbitals electronic integrals and orbital
-    energies from the
-    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
-    which should be passed in via the :attr:`grouped_property` attribute. It also requires the
-    :attr:`excitation_list` from the :attr:`ansatz` to ensure that the coefficients are mapped
-    correctly in the initial point array. This can be substituted by setting the
-    :attr:`excitation_list` directly.
-
     The coefficients and energy corrections are computed using the :meth:`compute` method, which
-    requires the :attr:`grouped_property` and :attr:`ansatz` attributes to be set already or passed
-    as arguments.
+    requires the :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
+    :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
+
+    :class:`MP2InitialPoint` requires the
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
+    which should be passed in via the :attr:`grouped_property` attribute.
+    From this it must obtain the two-body molecular orbital electronic integrals and orbital
+    energies. If the Hartree-Fock reference energy is also obtained, it will be used to compute the
+    absolute MP2 energy using the :meth:`get_energy` method.
+
+    :class:`MP2InitialPoint` also requires the :attr:`excitation_list` from the :attr:`ansatz` to
+    ensure that the coefficients map correctly to the initial point array. However, this can be
+    substituted by setting the :attr:`excitation_list` attribute directly.
 
     Following computation, the initial point array can be extracted via the :meth:`to_numpy_array`
-    method. The array of energy corrections for each excitation can be recovered using the
+    method. The array of energy corrections indexed by excitation can be recovered using the
     :meth:`get_energy_corrections` method. The overall energy correction can be obtained via the
     :meth:`get_energy_correction` method.
-
-    If the Hartree-Fock reference energy was obtained via the
-    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, it can
-    be used to compute the absolute MP2 energy using the :meth:`get_energy` method.
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
