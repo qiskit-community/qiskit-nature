@@ -113,6 +113,7 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
         self.assertEqual(self.test_result_2.best_sequence,"0011011")
         
     def test_turns_sequence(self):
+        """ Tests if the turn decoding works for the main chain and the side chain."""
         #Tests for case 1
         self.assertEqual(self.test_result_1.protein_decoder.get_main_turns(),[1,0,3,2,0,3])
         self.assertEqual(self.test_result_1.protein_decoder.get_side_turns(),[None]*7)
@@ -121,6 +122,7 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
         self.assertEqual(self.test_result_2.protein_decoder.get_side_turns(),[None,None,3,3,None])
     
     def test_positions(self):
+        """Tests if the coordinates of the main and side chains are correct. """
         #Tests for case 1
         self.assertTrue( np.allclose(self.test_result_1.protein_xyz.main_positions ,  np.array(  [[ 0.          ,0.          ,0.        ],
                                                                                                                     [ 0.57735027  ,0.57735027 ,-0.57735027],
