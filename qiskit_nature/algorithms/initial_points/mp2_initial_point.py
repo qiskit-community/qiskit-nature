@@ -39,7 +39,7 @@ class MP2InitialPoint(InitialPoint):
 
     :class:`MP2InitialPoint` requires two-body molecular orbital electronic integrals and orbital
     energies from
-    :class:`qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
     which should be passed in via the :attr:`grouped_property` attribute.
 
     :class:`MP2InitialPoint` also requires the :attr:`excitation_list` from the :attr:`ansatz`
@@ -55,12 +55,12 @@ class MP2InitialPoint(InitialPoint):
     will use the computed MP2 coefficient, while those that correspond to single, triple, or
     higher excitations will be zero.
 
-    The array of energy corrections for each excitation can be
-    recovered using :meth:`get_energy_corrections`. The overall correction can be obtained via
+    The array of energy corrections for each excitation can be recovered using
+    :meth:`get_energy_corrections`. The overall correction can be obtained via
     :meth:`get_energy_correction`.
 
     If the Hartree-Fock reference energy was found in
-    :class:`qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, it will
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, it will
     be used to compute the absolute MP2 energy via :meth:`get_energy`.
     """
 

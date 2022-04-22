@@ -24,6 +24,7 @@ import numpy as np
 from ddt import ddt, file_data
 
 from qiskit.exceptions import MissingOptionalLibraryError
+from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit_nature.drivers.molecule import Molecule
 from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_driver import (
     ElectronicStructureDriverType,
@@ -84,6 +85,13 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_no_ansatz(self):
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(grouped_property, None)
+
+    def test_not_ucc_ansatz(self):
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        mp2_initial_point = MP2InitialPoint()
+        ansatz = Mock(spec=EvolvedOperatorAnsatz)
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(grouped_property, None)
 
