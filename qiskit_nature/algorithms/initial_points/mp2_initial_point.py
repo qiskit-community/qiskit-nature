@@ -157,7 +157,7 @@ class MP2InitialPoint(InitialPoint):
 
     @property
     def threshold(self) -> float:
-        """The energy threshold for MP2 computation.
+        """The energy threshold for individual MP2 energy corrections.
 
         Computed initial point and energy corrections will be set to zero if their absolute value
         is below this threshold.
@@ -166,7 +166,7 @@ class MP2InitialPoint(InitialPoint):
 
     @threshold.setter
     def threshold(self, threshold: float) -> None:
-        """The energy threshold for the MP2 computation.
+        """The energy threshold for individual MP2 energy corrections.
 
         Computed coefficients and energy corrections will be set to zero if their absolute value is
         below this threshold.
@@ -238,7 +238,7 @@ class MP2InitialPoint(InitialPoint):
         else:
             if not isinstance(self._grouped_property, GroupedSecondQuantizedProperty):
                 raise QiskitNatureError(
-                    f"The grouped property has not been set. " + missing_input_error_message
+                    "The grouped property has not been set. " + missing_input_error_message
                 )
 
         if isinstance(ansatz, UCC):
@@ -246,7 +246,7 @@ class MP2InitialPoint(InitialPoint):
         else:
             if not isinstance(self._excitation_list, list):
                 raise QiskitNatureError(
-                    f"The excitation list has not been set directly or via the ansatz. "
+                    "The excitation list has not been set directly or via the ansatz. "
                     + missing_input_error_message
                 )
 
