@@ -68,6 +68,31 @@ class SeniorityZeroTransformer(BaseTransformer):
                 f"not objects of type, {type(grouped_property)}."
             )
 
+        electronic_energy = grouped_property.get_property(ElectronicEnergy)
+        if electronic_energy is None:
+            raise QiskitNatureError(
+                "The provided `GroupedElectronicProperty` does not contain a `ElectronicEnergy` "
+                "property, which is required by this transformer!"
+            )
+        electronic_energy = cast(ElectronicEnergy, electronic_energy)
+
+        if not np.allclose(
+            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).get_matrix(0),
+            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).get_matrix(1),
+        ):
+            raise QiskitNatureError(
+                "One-body integrals for alpha and beta electrons are not identical, "
+                "which is required by this transformer."
+            )
+        if not np.allclose(
+            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix(0),
+            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix(1),
+        ):
+            raise QiskitNatureError(
+                "Two-body integrals for alpha and beta electrons are not identical, "
+                "which is required by this transformer."
+            )
+
         particle_number = grouped_property.get_property(ParticleNumber)
         if particle_number is None:
             raise QiskitNatureError(
