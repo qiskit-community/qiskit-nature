@@ -112,7 +112,7 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
         self.auxiliary_tester("Include Custom", "include_custom", (False,True))
         self.auxiliary_tester("Callback","callback",(None,None))
         self.auxiliary_tester_isinstance("Ansatz", "ansatz", (RealAmplitudes,UCCSD))
-        self.auxiliary_tester_isinstance("Optimizer2", "optimizer", (SLSQP,COBYLA))
+        self.auxiliary_tester_isinstance("Optimizer", "optimizer", (SLSQP,COBYLA))
                
 
         with self.subTest("Initial State"):

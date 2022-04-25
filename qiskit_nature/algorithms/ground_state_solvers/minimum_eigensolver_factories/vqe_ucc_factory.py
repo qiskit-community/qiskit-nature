@@ -207,13 +207,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
         :class:`~.UCCSD` Ansatz."""
         self.minimum_eigensolver.ansatz = ansatz
+        self._ansatz = ansatz
 
     @property  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def initial_state(self) -> Optional[QuantumCircuit]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the initial state."""
-        return self.minimum_eigensolver.initial_state
+        return self._initial_state
 
     @initial_state.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
@@ -221,7 +222,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """DEPRECATED. Use the constructor instead.
         Setter of the initial state. If ``None`` is passed, this factory will default to using
         the :class:`~.HartreeFock`."""
-        self.minimum_eigensolver.initial_state = initial_state
+        self._initial_state = initial_state
 
     @property  # type: ignore
     @deprecate_method(
