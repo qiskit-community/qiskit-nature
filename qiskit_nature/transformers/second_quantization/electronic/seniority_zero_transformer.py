@@ -158,14 +158,14 @@ class SeniorityZeroTransformer(BaseTransformer):
             transformed_property.reference_energy = prop.reference_energy
 
             transformed_property.second_q_ops = partial(  # type: ignore[assignment]
-                second_q_ops_electronic_energy, transformed_property
+                _second_q_ops_electronic_energy, transformed_property
             )
 
         elif isinstance(prop, ParticleNumber):
             transformed_property = prop
 
             transformed_property.second_q_ops = partial(  # type: ignore[assignment]
-                second_q_ops_particle_number, transformed_property
+                _second_q_ops_particle_number, transformed_property
             )
         elif isinstance(prop, DriverMetadata):
             transformed_property = prop
@@ -211,11 +211,18 @@ class SeniorityZeroTransformer(BaseTransformer):
 
         return hr_1, hr_2
 
-
-def second_q_ops_electronic_energy(self: ElectronicEnergy) -> ListOrDictType[VibrationalOp]:
-    """Creates the second quantization operators in the restricted formalism
+def _second_q_ops_electronic_energy(self: ElectronicEnergy) -> ListOrDictType[VibrationalOp]:
+    """Creates the second quantization operators in the restricted formalism.
     arxiv: 2002.00035, Equation (2)
-    https://arxiv.org/pdf/2002.00035.pdf
+    https://arxiv.org/abs/2002.00035
+
+    The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+    Args:
+        self: Target of monkey-patching.
+
+    Returns:
+        A `list` or `dict` of `VibrationalOp` objects.
     """
 
     hr_1 = self.get_electronic_integral(ElectronicBasis.MO, 1).get_matrix()
@@ -252,9 +259,13 @@ def second_q_ops_electronic_energy(self: ElectronicEnergy) -> ListOrDictType[Vib
     return {self.name: op}
 
 
-def second_q_ops_particle_number(self) -> ListOrDictType[VibrationalOp]:
-    """Returns the second quantized particle number operator.
+def _second_q_ops_particle_number(self: ParticleNumber) -> ListOrDictType[VibrationalOp]:
+    """Creates the second quantized particle number operator in the restricted formalism.
+
     The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+    Args:
+        self: Target of monkey-patching.
 
     Returns:
         A `list` or `dict` of `VibrationalOp` objects.
