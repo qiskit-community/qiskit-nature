@@ -12,16 +12,10 @@
 """The protein folding result."""
 from __future__ import annotations
 
-from typing import Union, List, Tuple
-
+from typing import Union
 from qiskit.opflow import PauliOp
 import numpy as np
-import random
-import matplotlib.pyplot as plt
-
-
 from qiskit_nature.results import EigenstateResult
-from qiskit.algorithms import MinimumEigensolverResult
 from .protein_folding_tools.protein_decoder import ProteinDecoder
 from .protein_folding_tools.protein_xyz import ProteinXYZ
 from .protein_folding_tools.protein_plotter import ProteinPlotter
@@ -47,14 +41,14 @@ class ProteinFoldingResult(EigenstateResult):
         self._side_chain_hot_vector = self._protein_folding_problem.peptide.get_side_chain_hot_vector()
         
     @property
-    def protein_decoder(self):
+    def protein_decoder(self) -> ProteinDecoder:
         """Returns (and generates if needed) a ProteinDecoder. This class will interpret the result bitstring and return the encoded information."""
         if not hasattr(self,'_protein_decoder'):
             self._protein_decoder = ProteinDecoder(self._best_sequence, self._side_chain_hot_vector, self._unused_qubits)
         return self._protein_decoder
     
     @property
-    def protein_xyz(self):
+    def protein_xyz(self) -> ProteinXYZ:
         """Returns (and generates if needed) a ProteinXYZ. This class will take the encoded turns and generate the position of every bead in the main and side chains."""
         if not hasattr(self,'_protein_xyz'):
             self._protein_xyz = ProteinXYZ(self.protein_decoder.get_main_turns(),self.protein_decoder.get_side_turns(),self._protein_folding_problem.peptide)
@@ -90,53 +84,4 @@ class ProteinFoldingResult(EigenstateResult):
     
     def plotstructure(self) -> None:
         protein_plotter = ProteinPlotter()
-        protein_plotter.plot(self.protein_xyz.main_positions,self.protein_xyz.side_positions)
-        return
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        protein_plotter.plot()

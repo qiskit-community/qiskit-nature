@@ -18,18 +18,17 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jerni
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
-from qiskit_nature.problems.sampling.protein_folding.interactions.random_interaction import (    RandomInteraction,)
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.circuit.library import RealAmplitudes
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit.algorithms import NumPyMinimumEigensolver, VQE
+from qiskit.algorithms import VQE
 from qiskit.opflow import PauliExpectation, CVaRExpectation
-from qiskit import execute, Aer
+from qiskit import Aer
 
 
 
 
-def create_protein_folding_result(main_chain,side_chains):
+def create_protein_folding_result(main_chain,side_chains) -> ProteinFoldingResult:
     """
     Creates a protein_folding_problem, solves it and uses the result to create a protein_folding_result instance.
     Args:
@@ -39,10 +38,7 @@ def create_protein_folding_result(main_chain,side_chains):
         Protein Folding Result
     """
     algorithm_globals.random_seed = 23
-    
     peptide = Peptide(main_chain, side_chains)
-
-    random_interaction = RandomInteraction()
     mj_interaction = MiyazawaJerniganInteraction()
 
     penalty_back = 10
@@ -104,7 +100,9 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
 
     test_result_1 = create_protein_folding_result("APRLRFY", [""] * 7)
     test_result_2 = create_protein_folding_result("APRLR", ["","","F","Y",""])
-    
+    def __init__(self):
+        test_result_1
+        
     def test_best_sequence(self):
         """Tests if the best sequence obtained is the correct one and if it gets passed to the constructor correctly. """
         #Tests for case 1

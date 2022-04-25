@@ -11,15 +11,17 @@ import numpy as np
 class ProteinPlotter():
     """This class is a plotter class for the ProteinFoldingResult """
     
-    def __init__(self):
+    def __init__(self,proteinfoldingresult) -> None:
+        self._proteinfoldingresult = proteinfoldingresult
         
-        return
-        
-    
-    def plot(self,main_positions,side_positions) -> None:
+    def plot(self) -> None:
         """
         Plots the molecule in 3D.
         """
+        main_positions = self._proteinfoldingresult.protein_xyz.main_positions
+        side_positions = self.proteinfoldingresult.protein_xyz.side_positions
+        
+        
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         
@@ -55,7 +57,5 @@ class ProteinPlotter():
         
         plt.draw()
         
-                           
-        return
 
 

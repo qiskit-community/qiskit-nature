@@ -14,7 +14,7 @@ class ProteinDecoder():
     """
     
     
-    def __init__(self, best_sequence:str ,side_chain_hot_vector: List[int], unused_qubits: List[int]):
+    def __init__(self, best_sequence:str ,side_chain_hot_vector: List[int], unused_qubits: List[int]) -> None:
         
         self._best_sequence = best_sequence
         self._side_chain_hot_vector = side_chain_hot_vector

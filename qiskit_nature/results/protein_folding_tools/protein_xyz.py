@@ -5,8 +5,9 @@ Created on Wed Apr 13 10:43:29 2022
 @author: 7G5381848
 """
 
-from typing import Union, List, Tuple
+from typing import Union, List
 import numpy as np
+from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 class ProteinXYZ():
     """This class handles the creation of cartesian coordinates for each aminoacid in a protein and generates a .xyz file.
@@ -19,7 +20,7 @@ class ProteinXYZ():
                                               [-1,-1,-1],
                                               [1,-1,1]])
     
-    def __init__(self,main_chain_turns:List[int],side_chain_turns:List[Union[None,int]],peptide) -> None:
+    def __init__(self,main_chain_turns:List[int],side_chain_turns:List[Union[None,int]],peptide: Peptide) -> None:
         """
         Args:
             main_chain_turns : a list of integers encoding the turns of the main chain
