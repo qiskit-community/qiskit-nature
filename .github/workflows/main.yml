@@ -58,6 +58,7 @@ jobs:
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -159,7 +160,8 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda create -n psi4env python=${{ matrix.python-version }}
         shell: bash
-      - uses: ./.github/actions/install-psi4
+      - name: Install PSI4
+        uses: ./.github/actions/install-psi4
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
@@ -167,6 +169,7 @@ jobs:
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -248,6 +251,7 @@ jobs:
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
