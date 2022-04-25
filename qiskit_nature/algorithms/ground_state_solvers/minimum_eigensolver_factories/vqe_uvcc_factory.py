@@ -262,7 +262,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        
         ansatz = self.ansatz
         if ansatz is None:
             ansatz = UVCCSD()

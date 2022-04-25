@@ -270,7 +270,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._vqe.ansatz.num_particles = num_particles
         self._vqe.ansatz.num_spin_orbitals = num_spin_orbitals
         self._vqe.ansatz.initial_state = initial_state
-        
+
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):
