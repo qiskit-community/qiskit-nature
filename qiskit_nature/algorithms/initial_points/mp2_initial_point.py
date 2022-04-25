@@ -152,7 +152,7 @@ class MP2InitialPoint(InitialPoint):
         """The energy threshold for MP2 corrections.
 
         Computed coefficients and energy corrections will be set to zero if their absolute value is
-        below this threshold.
+        below this threshold's absolute value.
         """
         return self._threshold
 
@@ -166,7 +166,7 @@ class MP2InitialPoint(InitialPoint):
         # Invalidate any previous computation.
         self._corrections = None
 
-        self._threshold = float(threshold)
+        self._threshold = threshold
 
     @property
     def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
