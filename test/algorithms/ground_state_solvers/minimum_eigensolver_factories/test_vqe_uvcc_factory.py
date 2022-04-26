@@ -52,7 +52,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
             seed_transpiler=self.seed,
         )
 
-        self._vqe_uvcc_factory = VQEUVCCFactory(self.quantum_instance)
+        self._vqe_uvcc_factory = VQEUVCCFactory(quantum_instance = self.quantum_instance)
 
     def auxiliary_tester(self, title: str, prop: str, cases: tuple):
         """
@@ -64,7 +64,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
         """
 
         with self.subTest(title):
-            # Check inizialization
+            # Check initialization
             self.assertEqual(getattr(self._vqe_uvcc_factory, prop), cases[0])
             self.assertEqual(getattr(self._vqe_uvcc_factory.minimum_eigensolver, prop), cases[0])
             # Check factory setter
@@ -78,7 +78,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
 
     def auxiliary_tester_isinstance(self, title: str, prop: str, cases: tuple):
         """
-        Tests a getter and setter of a given property.Only checks if the type of the propety is correct.
+        Tests a getter and setter of a given property.Only checks if the type of the property is correct.
         Args:
             title: A string that will be the name of the subTest
             prop: A string making reference to the getter/setter to be tested
@@ -86,7 +86,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
         """
 
         with self.subTest(title):
-            # Check inizialization
+            # Check initialization
             self.assertTrue(isinstance(getattr(self._vqe_uvcc_factory, prop), cases[0]))
             self.assertTrue(
                 isinstance(getattr(self._vqe_uvcc_factory.minimum_eigensolver, prop), cases[0])

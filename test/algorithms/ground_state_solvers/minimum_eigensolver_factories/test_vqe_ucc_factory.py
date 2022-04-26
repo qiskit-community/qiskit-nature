@@ -15,9 +15,6 @@
 import unittest
 
 from test import QiskitNatureTestCase
-
-from ddt import data, ddt, unpack
-
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
@@ -66,7 +63,7 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
         """
 
         with self.subTest(title):
-            # Check inizialization
+            # Check initialization
             self.assertEqual(getattr(self._vqe_ucc_factory, prop), cases[0])
             self.assertEqual(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[0])
             # Check factory setter
@@ -80,7 +77,7 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
 
     def auxiliary_tester_isinstance(self, title: str, prop: str, cases: tuple):
         """
-        Tests a getter and setter of a given property.Only checks if the type of the propety is correct.
+        Tests a getter and setter of a given property.Only checks if the type of the property is correct.
         Args:
             title: A string that will be the name of the subTest
             prop: A string making reference to the getter/setter to be tested
@@ -88,7 +85,7 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
         """
 
         with self.subTest(title):
-            # Check inizialization
+            # Check initialization
             self.assertTrue(isinstance(getattr(self._vqe_ucc_factory, prop), cases[0]))
             self.assertTrue(
                 isinstance(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[0])
