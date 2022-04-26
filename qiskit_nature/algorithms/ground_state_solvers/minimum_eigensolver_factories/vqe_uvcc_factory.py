@@ -35,7 +35,6 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 from qiskit_nature.deprecation import deprecate_property
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
-from .numpy_minimum_eigensolver_factory import NumPyMinimumEigensolver
 
 logger = logging.getLogger(__name__)
 
@@ -268,6 +267,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         return VQE.supports_aux_operators()
 
     @property
-    def minimum_eigensolver(self) -> NumPyMinimumEigensolver:
+    def minimum_eigensolver(self) -> VQE:
         """Returns the solver instance."""
         return self._vqe

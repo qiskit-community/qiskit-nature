@@ -114,6 +114,6 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         return NumPyMinimumEigensolver.supports_aux_operators()
 
     @property
-    def minimum_eigensolver(self):
+    def minimum_eigensolver(self) -> NumPyMinimumEigensolver:
         """Returns the solver instance."""
         return self._minimum_eigensolver
