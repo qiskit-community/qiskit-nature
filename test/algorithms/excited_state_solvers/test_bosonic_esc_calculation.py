@@ -114,7 +114,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         """Test with VQE plus UVCCSD"""
         optimizer = COBYLA(maxiter=5000)
         solver = VQEUVCCFactory(
-            quantum_instance = QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector")),
+            quantum_instance=QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector")),
             optimizer=optimizer,
         )
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -132,7 +132,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=5000)
         solver = VQEUVCCFactory(
-            quantum_instance = QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector")),
+            quantum_instance=QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector")),
             optimizer=optimizer,
             callback=cb_callback,
         )
