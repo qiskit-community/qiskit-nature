@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 import importlib
-import itertools
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Generator, Optional, Union
@@ -356,32 +355,20 @@ class ElectronicIntegrals(ABC):
         if not np.any(spin_matrix):
             return FermionicOp.zero(register_length)
 
-        return sum(  # type: ignore
-            self._create_base_op(indices, spin_matrix[indices], register_length)
-            for indices in itertools.product(
-                range(register_length), repeat=2 * self._num_body_terms
-            )
-            if spin_matrix[indices]
-        )
+        spin_matrix_iter = spin_matrix.flat
+        # NOTE: we need to access `.coords` before `.next()` is called for the first time!
+        coords = spin_matrix_iter.coords
+        op_data = []
+        for coeff in spin_matrix_iter:
+            if coeff:
+                op_data.append((self._calc_coeffs_with_ops(coords), coeff))
+            coords = spin_matrix_iter.coords
 
-    def _create_base_op(self, indices: tuple[int, ...], coeff: complex, length: int) -> FermionicOp:
-        """Creates a single base operator for the given coefficient.
+        return FermionicOp(op_data, register_length=register_length, display_format="sparse")
 
-        Args:
-            indices: the indices of the current integral.
-            coeff: the current integral value.
-            length: the register length of the created operator.
-
-        Returns:
-            The base operator.
-        """
-        base_op = FermionicOp(("I_0", coeff), register_length=length, display_format="sparse")
-        for i, op in self._calc_coeffs_with_ops(indices):
-            base_op @= FermionicOp(f"{op}_{i}", display_format="sparse")
-        return base_op
-
+    @staticmethod
     @abstractmethod
-    def _calc_coeffs_with_ops(self, indices: tuple[int, ...]) -> list[tuple[int, str]]:
+    def _calc_coeffs_with_ops(indices: tuple[int, ...]) -> list[tuple[str, int]]:
         """Maps indices to creation/annihilation operator symbols.
 
         Args:

@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes a bug in VQEClient using dict based `aux_operators` instead of deprecated
+    list based ones (enabled via `qiskit_nature.settings.dict_aux_operators = True`).

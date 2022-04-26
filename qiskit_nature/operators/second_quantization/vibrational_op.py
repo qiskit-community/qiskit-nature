@@ -291,14 +291,14 @@ class VibrationalOp(SecondQuantizedOp):
             atol = self.atol
 
         label_list, indices = np.unique(self._labels, return_inverse=True, axis=0)
-        coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
-        for i, val in zip(indices, self._coeffs):
-            coeff_list[i] += val
-        non_zero = [i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol)]
-        if not non_zero:
+        coeff_list = np.zeros(label_list.shape[0], dtype=np.complex128)
+        np.add.at(coeff_list, indices, self._coeffs)
+        is_zero = np.isclose(coeff_list, 0, atol=atol)
+        if np.all(is_zero):
             return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
+        non_zero = np.logical_not(is_zero)
         return VibrationalOp(
-            list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
+            list(zip(label_list[non_zero], coeff_list[non_zero])),
             self._num_modes,
             self._num_modals,
         )
