@@ -1,6 +1,38 @@
-from typing import Union, List, Optional, Dict, Tuple
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 
-from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
+"""The orbital optimization VQE algorithm"""
+
+from typing import Union, List, Optional
+import warnings
+import copy
+from time import time
+import logging
+from functools import partial
+
+import numpy as np
+
+from qiskit.exceptions import QiskitError
+from qiskit.opflow import OperatorBase, PauliSumOp, StateFn
+from qiskit.opflow.gradients import GradientBase
+from qiskit.algorithms.minimum_eigen_solvers.vqe import (
+    VQEResult,
+    _validate_bounds,
+    _validate_initial_point,
+)
+from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
+    MinimumEigensolver,
+    MinimumEigensolverResult,
+)
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -10,276 +42,45 @@ from qiskit_nature.results import EigenstateResult
 
 from qiskit_nature.algorithms import GroundStateEigensolver
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import MinimumEigensolverFactory
-from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import MinimumEigensolver, MinimumEigensolverResult, ListOrDict
-
+from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
+    MinimumEigensolverFactory,
+)
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
 
-import copy
-import numpy as np
-from time import time
-from scipy.linalg import expm
+from qiskit_nature.algorithms.ground_state_solvers.custom_problem import CustomProblem
+from qiskit_nature.algorithms.ground_state_solvers.orbital_rotation import OrbitalRotation
 
-import logging
 logger = logging.getLogger(__name__)
 
-from qiskit.opflow.gradients import GradientBase
-import warnings
-from qiskit.exceptions import QiskitError
-from qiskit.algorithms.minimum_eigen_solvers.vqe import VQEResult, _validate_bounds, _validate_initial_point
-
-from functools import partial
-
-from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
-from qiskit_nature.transformers.second_quantization import BaseTransformer
-from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
-
-class CustomProblem(ElectronicStructureProblem):
+class OrbitalOptimizationVQE(GroundStateEigensolver):
+    """Solver for ooVQE"""
 
     def __init__(
         self,
-        driver: ElectronicStructureDriver,
-        transformers: Optional[List[BaseTransformer]] = None,
-    ):
-        super().__init__(driver, transformers)
-
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
-
-        if self._grouped_property is None:
-            driver_result = self.driver.run()
-            self._grouped_property = driver_result
-
-        self._grouped_property_transformed = self._transform(self._grouped_property)
-        second_quantized_ops = self._grouped_property_transformed.second_q_ops()
-
-        return second_quantized_ops
-
-    @property
-    def grouped_property_transformed(self) -> Optional[GroupedSecondQuantizedProperty]:
-        return self._grouped_property_transformed
-
-    @grouped_property_transformed.setter
-    def grouped_property_transformed(self, gpt):
-        self._grouped_property_transformed = gpt
-
-class OrbitalRotation:
-    r""" Class that regroups methods for creation of matrices that rotate the MOs.
-    It allows to create the unitary matrix U = exp(-kappa) that is parameterized with kappa's
-    elements. The parameters are the off-diagonal elements of the anti-hermitian matrix kappa.
-    """
-
-    def __init__(self,
-                 num_qubits: int,
-                 qubit_converter: QubitConverter,
-                 orbital_rotations: list = None,
-                 orbital_rotations_beta: list = None,
-                 parameters: list = None,
-                 parameter_bounds: list = None,
-                 parameter_initial_value: float = 0.1,
-                 parameter_bound_value: Tuple[float, float] = (-2 * np.pi, 2 * np.pi)) -> None:
-        """
-        Args:
-            num_qubits: number of qubits necessary to simulate a particular system.
-            transformation: a fermionic driver to operator transformation strategy.
-            qmolecule: instance of the :class:`~qiskit_nature.drivers.QMolecule`
-                class which has methods
-                needed to recompute one-/two-electron/dipole integrals after orbital rotation
-                (C = C0 * exp(-kappa)). It is not required but can be used if user wished to
-                provide custom integrals for instance.
-            orbital_rotations: list of alpha orbitals that are rotated (i.e. [[0,1], ...] the
-                0-th orbital is rotated with 1-st, which corresponds to non-zero entry 01 of
-                the matrix kappa).
-            orbital_rotations_beta: list of beta orbitals that are rotated.
-            parameters: orbital rotation parameter list of matrix elements that rotate the MOs,
-                each associated to a pair of orbitals that are rotated
-                (non-zero elements in matrix kappa), or elements in the orbital_rotation(_beta)
-                lists.
-            parameter_bounds: parameter bounds
-            parameter_initial_value: initial value for all the parameters.
-            parameter_bound_value: value for the bounds on all the parameters
-        """
-
-        self._num_qubits = num_qubits
-        self._qubit_converter = qubit_converter
-
-        self._orbital_rotations = orbital_rotations
-        self._orbital_rotations_beta = orbital_rotations_beta
-        self._parameter_initial_value = parameter_initial_value
-        self._parameter_bound_value = parameter_bound_value
-        self._parameters = parameters
-        if self._parameters is None:
-            self._create_parameter_list_for_orbital_rotations()
-
-        self._num_parameters = len(self._parameters)
-        self._parameter_bounds = parameter_bounds
-        if self._parameter_bounds is None:
-            self._create_parameter_bounds()
-
-        # self._freeze_core = False
-        # for transformer in self._molecular_problem.transformers:
-        #     if isinstance(transformer, FreezeCoreTransformer):
-        #         self._freeze_core = True
-        # self._core_list = self._qmolecule.core_orbitals if self._freeze_core else None
-
-        if self._qubit_converter.two_qubit_reduction is True:
-            self._dim_kappa_matrix = int((self._num_qubits + 2) / 2)
-        else:
-            self._dim_kappa_matrix = int(self._num_qubits / 2)
-
-        self._check_for_errors()
-        self._matrix_a = None
-        self._matrix_b = None
-
-    def _check_for_errors(self) -> None:
-        """ Checks for errors such as incorrect number of parameters and indices of orbitals. """
-
-        # number of parameters check
-        if self._orbital_rotations_beta is None and self._orbital_rotations is not None:
-            if len(self._orbital_rotations) != len(self._parameters):
-                raise QiskitNatureError(
-                    'Please specify same number of params ({}) as there are '
-                    'orbital rotations ({})'.format(len(self._parameters),
-                                                    len(self._orbital_rotations)))
-        elif self._orbital_rotations_beta is not None and self._orbital_rotations is not None:
-            if len(self._orbital_rotations) + len(self._orbital_rotations_beta) != len(
-                    self._parameters):
-                raise QiskitNatureError(
-                    'Please specify same number of params ({}) as there are '
-                    'orbital rotations ({})'.format(len(self._parameters),
-                                                    len(self._orbital_rotations)))
-        # indices of rotated orbitals check
-        for exc in self._orbital_rotations:
-            if exc[0] > (self._dim_kappa_matrix - 1):
-                raise QiskitNatureError(
-                    'You specified entries that go outside '
-                    'the orbital rotation matrix dimensions {}, '.format(exc[0]))
-            if exc[1] > (self._dim_kappa_matrix - 1):
-                raise QiskitNatureError(
-                    'You specified entries that go outside '
-                    'the orbital rotation matrix dimensions {}'.format(exc[1]))
-        if self._orbital_rotations_beta is not None:
-            for exc in self._orbital_rotations_beta:
-                if exc[0] > (self._dim_kappa_matrix - 1):
-                    raise QiskitNatureError(
-                        'You specified entries that go outside '
-                        'the orbital rotation matrix dimensions {}'.format(exc[0]))
-                if exc[1] > (self._dim_kappa_matrix - 1):
-                    raise QiskitNatureError(
-                        'You specified entries that go outside '
-                        'the orbital rotation matrix dimensions {}'.format(exc[1]))
-
-    def _create_orbital_rotation_list(self) -> None:
-        """ Creates a list of indices of matrix kappa that denote the pairs of orbitals that
-        will be rotated. For instance, a list of pairs of orbital such as [[0,1], [0,2]]. """
-
-        if self._qubit_converter.two_qubit_reduction:
-            half_as = int((self._num_qubits + 2) / 2)
-        else:
-            half_as = int(self._num_qubits / 2)
-
-        self._orbital_rotations = []
-        for i in range(half_as):
-            for j in range(half_as):
-                if i < j:
-                    self._orbital_rotations.append([i, j])
-
-    def _create_parameter_list_for_orbital_rotations(self) -> None:
-        """ Initializes the initial values of orbital rotation matrix kappa. """
-
-        # creates the indices of matrix kappa and prevent user from trying to rotate only betas
-        if self._orbital_rotations is None:
-            self._create_orbital_rotation_list()
-        elif self._orbital_rotations is None and self._orbital_rotations_beta is not None:
-            raise QiskitNatureError(
-                'Only beta orbitals labels (orbital_rotations_beta) have been provided.'
-                'Please also specify the alpha orbitals (orbital_rotations) '
-                'that are rotated as well. Do not specify anything to have by default '
-                'all orbitals rotated.')
-
-        if self._orbital_rotations_beta is not None:
-            num_parameters = len(self._orbital_rotations + self._orbital_rotations_beta)
-        else:
-            num_parameters = len(self._orbital_rotations)
-        self._parameters = [self._parameter_initial_value for _ in range(num_parameters)]
-
-    def _create_parameter_bounds(self) -> None:
-        """ Create bounds for parameters. """
-        self._parameter_bounds = [self._parameter_bound_value for _ in range(self._num_parameters)]
-
-    def get_orbital_rotation_matrix(self, parameters: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """ Creates 2 matrices K_alpha, K_beta that rotate the orbitals through MO coefficient
-        C_alpha = C_RHF * U_alpha where U = e^(K_alpha), similarly for beta orbitals. """
-
-        self._parameters = parameters  # type: ignore
-        k_matrix_alpha = np.zeros((self._dim_kappa_matrix, self._dim_kappa_matrix))
-        k_matrix_beta = np.zeros((self._dim_kappa_matrix, self._dim_kappa_matrix))
-
-        # allows to selectively rotate pairs of orbitals
-        if self._orbital_rotations_beta is None:
-            for i, exc in enumerate(self._orbital_rotations):
-                k_matrix_alpha[exc[0]][exc[1]] = self._parameters[i]
-                k_matrix_alpha[exc[1]][exc[0]] = -self._parameters[i]
-                k_matrix_beta[exc[0]][exc[1]] = self._parameters[i]
-                k_matrix_beta[exc[1]][exc[0]] = -self._parameters[i]
-        else:
-            for i, exc in enumerate(self._orbital_rotations):
-                k_matrix_alpha[exc[0]][exc[1]] = self._parameters[i]
-                k_matrix_alpha[exc[1]][exc[0]] = -self._parameters[i]
-
-            for j, exc in enumerate(self._orbital_rotations_beta):
-                k_matrix_beta[exc[0]][exc[1]] = self._parameters[j + len(self._orbital_rotations)]
-                k_matrix_beta[exc[1]][exc[0]] = -self._parameters[j + len(self._orbital_rotations)]
-
-        self._matrix_a = expm(k_matrix_alpha)
-        self._matrix_b = expm(k_matrix_beta)
-
-        return self._matrix_a, self._matrix_b
-
-    @property
-    def matrix_a(self) -> np.ndarray:
-        """Returns matrix A."""
-        return self._matrix_a
-
-    @property
-    def matrix_b(self) -> np.ndarray:
-        """Returns matrix B. """
-        return self._matrix_b
-
-    @property
-    def num_parameters(self) -> int:
-        """Returns the number of parameters."""
-        return self._num_parameters
-
-    @property
-    def parameter_bound_value(self) -> Tuple[float, float]:
-        """Returns a value for the bounds on all the parameters."""
-        return self._parameter_bound_value
-
-class OrbitalOptimizationVQE(GroundStateEigensolver):
-
-    def __init__(
-            self,
-            qubit_converter: QubitConverter,
-            solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
+        qubit_converter: QubitConverter,
+        solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
     ) -> None:
         super().__init__(qubit_converter, solver)
 
         # Store problem to have access during energy eval. function.
-        self.problem: CustomProblem = None  # I am using temporarily the CustomProblem class, that avoids
-                                            # running the driver every time .second_q_ops() is called
+        self.problem: CustomProblem = (
+            None  # I am using temporarily the CustomProblem class, that avoids
+        )
+        # running the driver every time .second_q_ops() is called
 
-        self.initial_point = None # in the future: set by user
-        self.bounds_oo: np.array = None # in the future: set by user
-        self.bounds: np.array = None # ansatz + oo
+        self.initial_point = None  # in the future: set by user
+        self.bounds_oo: np.array = None  # in the future: set by user
+        self.bounds: np.array = None  # ansatz + oo
 
-        self.orbital_rotation = OrbitalRotation(num_qubits=self.solver.ansatz.num_qubits,
-                                                qubit_converter=qubit_converter)
-        self.num_parameters_oovqe = \
+        self.orbital_rotation = OrbitalRotation(
+            num_qubits=self.solver.ansatz.num_qubits, qubit_converter=qubit_converter
+        )
+        self.num_parameters_oovqe = (
             self.solver.ansatz.num_parameters + self.orbital_rotation.num_parameters
+        )
 
         # the initial point of the full ooVQE alg.
         if self.initial_point is None:
@@ -289,9 +90,10 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             # but is kept for the future
             if len(self.initial_point) is not self.num_parameters_oovqe:
                 raise QiskitNatureError(
-                    'Number of parameters of OOVQE ({}) does not match the length of the '
-                    'intitial_point ({})'.format(self.num_parameters_oovqe,
-                                                 len(self.initial_point)))
+                    f"Number of parameters of OOVQE ({self.num_parameters_oovqe,}) "
+                    f"does not match the length of the "
+                    f"intitial_point ({len(self.initial_point)})"
+                )
 
         if self.bounds is None:
             # set bounds sets both ansatz and oo bounds
@@ -299,25 +101,27 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
             self.set_bounds(self.orbital_rotation.parameter_bound_value)
 
     def set_initial_point(self, initial_pt_scalar: float = 1e-1) -> None:
-        """ Initializes the initial point for the algorithm if the user does not provide his own.
+        """Initializes the initial point for the algorithm if the user does not provide his own.
         Args:
             initial_pt_scalar: value of the initial parameters for wavefunction and orbital rotation
         """
         self.initial_point = np.asarray(
-            [initial_pt_scalar for _ in range(self.num_parameters_oovqe)])
+            [initial_pt_scalar for _ in range(self.num_parameters_oovqe)]
+        )
 
-    def set_bounds(self,
-                    bounds_ansatz_value: tuple = (-2 * np.pi, 2 * np.pi),
-                    bounds_oo_value: tuple = (-2 * np.pi, 2 * np.pi)) -> None:
-
+    def set_bounds(
+        self,
+        bounds_ansatz_value: tuple = (-2 * np.pi, 2 * np.pi),
+        bounds_oo_value: tuple = (-2 * np.pi, 2 * np.pi),
+    ) -> None:
+        """Doctstring"""
         bounds_ansatz = [bounds_ansatz_value for _ in range(self.solver.ansatz.num_parameters)]
-        self.bounds_oo = \
-            [bounds_oo_value for _ in range(self.orbital_rotation.num_parameters)]
+        self.bounds_oo = [bounds_oo_value for _ in range(self.orbital_rotation.num_parameters)]
         bounds = bounds_ansatz + self.bounds_oo
         self.bounds = np.array(bounds)
 
     def get_operators(self, problem, aux_operators):
-
+        """Doctstring"""
         second_q_ops = problem.second_q_ops()
 
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
@@ -368,28 +172,30 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         return main_operator, aux_ops
 
     def rotate_orbitals(self, matrix_a, matrix_b):
-
+        """Doctstring"""
         problem = copy.copy(self.problem)
         grouped_property_transformed = problem.grouped_property_transformed
 
         # use ElectronicBasisTransform
-        transform = ElectronicBasisTransform(ElectronicBasis.MO, ElectronicBasis.MO, matrix_a, matrix_b)
+        transform = ElectronicBasisTransform(
+            ElectronicBasis.MO, ElectronicBasis.MO, matrix_a, matrix_b
+        )
 
         # only 1 & 2 body integrals have the "transform_basis" method,
         # so I access them through the electronic energy
-        ee = grouped_property_transformed.get_property('ElectronicEnergy')
-        one_body_integrals = ee.get_electronic_integral(ElectronicBasis.MO, 1)
-        two_body_integrals = ee.get_electronic_integral(ElectronicBasis.MO, 2)
+        e_energy = grouped_property_transformed.get_property("ElectronicEnergy")
+        one_body_integrals = e_energy.get_electronic_integral(ElectronicBasis.MO, 1)
+        two_body_integrals = e_energy.get_electronic_integral(ElectronicBasis.MO, 2)
 
         # the basis transform should be applied in place, but it's not???
         # unless I manually add the integrals, the result of second_q_ops()
         # doesn't change.
         # I have to look further into this.
-        ee.add_electronic_integral(one_body_integrals.transform_basis(transform))
-        ee.add_electronic_integral(two_body_integrals.transform_basis(transform))
+        e_energy.add_electronic_integral(one_body_integrals.transform_basis(transform))
+        e_energy.add_electronic_integral(two_body_integrals.transform_basis(transform))
 
         # after applying the rotation, recompute operator
-        rotated_main_second_q_op = ee.second_q_ops()
+        rotated_main_second_q_op = e_energy.second_q_ops()
         rotated_operator = self._qubit_converter.convert(
             rotated_main_second_q_op,
             num_particles=problem.num_particles,
@@ -397,12 +203,8 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         )
         return rotated_operator
 
-    def energy_evaluation_oo(
-            self,
-            solver,
-            parameters: np.ndarray
-    ) -> Union[float, List[float]]:
-
+    def energy_evaluation_oo(self, solver, parameters: np.ndarray) -> Union[float, List[float]]:
+        """Doctstring"""
         num_parameters_ansatz = solver.ansatz.num_parameters
         if num_parameters_ansatz == 0:
             raise RuntimeError("The ansatz must be parameterized, but has 0 free parameters.")
@@ -410,11 +212,13 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         ansatz_params = solver.ansatz.parameters
 
         ansatz_parameter_values = parameters[:num_parameters_ansatz]
-        rotation_parameter_values = parameters[num_parameters_ansatz:] # is this the correct order?
+        rotation_parameter_values = parameters[num_parameters_ansatz:]  # is this the correct order?
 
         # CALCULATE COEFFICIENTS OF ROTATION MATRIX HERE:
         # matrix_a, matrix_b = np.eye(2), np.eye(2)
-        matrix_a, matrix_b = self.orbital_rotation.get_orbital_rotation_matrix(rotation_parameter_values)
+        matrix_a, matrix_b = self.orbital_rotation.get_orbital_rotation_matrix(
+            rotation_parameter_values
+        )
 
         # ROTATE AND RECOMPUTE OPERATOR HERE:
         # what about aux_ops??? They should be rotated too.
@@ -456,12 +260,12 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         return means if len(means) > 1 else means[0]
 
     def compute_minimum_eigenvalue_oo(
-            self,
-            solver,
-            operator: OperatorBase,
-            aux_operators: Optional[ListOrDict[OperatorBase]] = None
+        self,
+        solver,
+        operator: OperatorBase,
+        aux_operators: Optional[ListOrDict[OperatorBase]] = None,
     ) -> MinimumEigensolverResult:
-
+        """Doctstring"""
         if solver.quantum_instance is None:
             raise QiskitError(
                 "A QuantumInstance or Backend must be supplied to run the quantum algorithm."
@@ -481,11 +285,11 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         initial_pt_scalar: float = 1e-1
 
         initial_point_oo = np.asarray(
-                        [initial_pt_scalar for _ in range(self.orbital_rotation.num_parameters)])
-        bounds_oo = np.asarray(
-                        [bounds_oo_val for _ in range(self.orbital_rotation.num_parameters)])
+            [initial_pt_scalar for _ in range(self.orbital_rotation.num_parameters)]
+        )
+        bounds_oo = np.asarray([bounds_oo_val for _ in range(self.orbital_rotation.num_parameters)])
 
-        initial_point = np.concatenate((initial_point_ansatz,initial_point_oo))
+        initial_point = np.concatenate((initial_point_ansatz, initial_point_oo))
         bounds = np.concatenate((bounds_ansatz, bounds_oo))
 
         # HERE: for the moment, not taking care of aux_operators
@@ -573,11 +377,11 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
         if aux_operators is not None:
             # construct expectation AFTER optimization loop is finished, with rotated operator
-            rotated_operator = self.operator
+            rotated_operator = operator
             # ADD ROTATION LOGIC HERE
             ansatz_params = solver.ansatz.parameters
 
-            expect_op, expectation = solver.construct_expectation(
+            _, expectation = solver.construct_expectation(
                 ansatz_params, rotated_operator, return_expectation=True
             )
 
@@ -617,7 +421,9 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
         # override VQE's compute_minimum_eigenvalue, giving it access to the problem data
         # contained in self.problem
-        self.solver.compute_minimum_eigenvalue = partial(self.compute_minimum_eigenvalue_oo, self.solver)
+        self.solver.compute_minimum_eigenvalue = partial(
+            self.compute_minimum_eigenvalue_oo, self.solver
+        )
 
         main_operator, aux_ops = self.get_operators(problem, aux_operators)
         raw_mes_result = self.solver.compute_minimum_eigenvalue(main_operator, aux_ops)
@@ -625,4 +431,3 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         result = problem.interpret(raw_mes_result)
 
         return result
-
