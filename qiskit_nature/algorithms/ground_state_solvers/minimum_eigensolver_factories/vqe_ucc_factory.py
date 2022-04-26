@@ -34,6 +34,7 @@ from qiskit_nature.properties.second_quantization.electronic import (
     ParticleNumber,
 )
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
+from .numpy_minimum_eigensolver_factory import NumPyMinimumEigensolver
 
 logger = logging.getLogger(__name__)
 
@@ -270,6 +271,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         return VQE.supports_aux_operators()
 
     @property
-    def minimum_eigensolver(self) -> MinimumEigensolverFactory:
+    def minimum_eigensolver(self) -> NumPyMinimumEigensolver:
         """Returns the solver instance."""
         return self._vqe
