@@ -267,6 +267,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         return VQE.supports_aux_operators()
 
     @property
-    def minimum_eigensolver(self):
+    def minimum_eigensolver(self) -> MinimumEigensolverFactory:
         """Returns the solver instance."""
         return self._vqe
