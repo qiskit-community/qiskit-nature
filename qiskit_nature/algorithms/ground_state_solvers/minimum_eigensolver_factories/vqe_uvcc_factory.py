@@ -80,10 +80,10 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-        self._ansatz = ansatz
         self._initial_state = initial_state
 
         self._vqe = VQE(
+            ansatz=ansatz,
             quantum_instance=kwargs.get("quantum_instance"),
             optimizer=kwargs.get("optimizer", None),
             initial_point=kwargs.get("initial_point", None),
@@ -200,7 +200,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
         :class:`~.UCCSD` Ansatz."""
         self.minimum_eigensolver.ansatz = ansatz
-        self._ansatz = ansatz
 
     @property
     def initial_state(self) -> Optional[QuantumCircuit]:

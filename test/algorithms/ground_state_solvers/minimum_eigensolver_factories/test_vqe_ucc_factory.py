@@ -19,8 +19,8 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
 from qiskit.algorithms.optimizers import COBYLA, SLSQP
-from qiskit_nature.circuit.library import HartreeFock, UCCSD
 from qiskit.circuit.library import RealAmplitudes
+from qiskit_nature.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.algorithms import VQEUCCFactory
