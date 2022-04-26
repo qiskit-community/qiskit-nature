@@ -43,15 +43,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     def __init__(
         self,
-        # quantum_instance: QuantumInstance,
-        # optimizer: Optional[Optimizer] = None,
-        # initial_point: Optional[np.ndarray] = None,
-        # gradient: Optional[Union[GradientBase, Callable]] = None,
-        # expectation: Optional[ExpectationBase] = None,
-        # include_custom: bool = False,
         ansatz: Optional[UCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
-        # callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
         """
@@ -88,16 +81,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """
         self._ansatz = ansatz
         self._initial_state = initial_state
-        
+
         self._vqe = VQE(
             quantum_instance=kwargs.get("quantum_instance"),
-            optimizer=kwargs.get("optimizer",None),
-            initial_point=kwargs.get("initial_point",None),
-            gradient=kwargs.get("gradient",None),
-            expectation=kwargs.get("expectation",None),
-            include_custom=kwargs.get("include_custom",False),
-            callback=kwargs.get("callback",None),
-            **kwargs
+            optimizer=kwargs.get("optimizer", None),
+            initial_point=kwargs.get("initial_point", None),
+            gradient=kwargs.get("gradient", None),
+            expectation=kwargs.get("expectation", None),
+            include_custom=kwargs.get("include_custom", False),
+            callback=kwargs.get("callback", None),
         )
 
     @property  # type: ignore
@@ -267,7 +259,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
         if self.ansatz is None:
             self._vqe.ansatz = UCCSD()
-            
+
         self._vqe.ansatz.qubit_converter = qubit_converter
         self._vqe.ansatz.num_particles = num_particles
         self._vqe.ansatz.num_spin_orbitals = num_spin_orbitals

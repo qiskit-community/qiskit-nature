@@ -52,7 +52,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
             seed_transpiler=self.seed,
         )
 
-        self._vqe_uvcc_factory = VQEUVCCFactory(quantum_instance = self.quantum_instance)
+        self._vqe_uvcc_factory = VQEUVCCFactory(quantum_instance=self.quantum_instance)
 
     def auxiliary_tester(self, title: str, prop: str, cases: tuple):
         """
@@ -60,7 +60,8 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
         Args:
             title: A string that will be the name of the subTest
             prop: A string making reference to the getter/setter to be tested
-            cases: A tuple containing 2 possible instances for that property. The first instance needs to be the same used in the constructor.
+            cases: A tuple containing 2 possible instances for that property.
+            The first instance needs to be the same used in the constructor.
         """
 
         with self.subTest(title):
@@ -82,7 +83,8 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
         Args:
             title: A string that will be the name of the subTest
             prop: A string making reference to the getter/setter to be tested
-            cases: A tuple containing 2 possible types (or classes) for that property. The first class (or type) needs to be the same used in the constructor.
+            cases: A tuple containing 2 possible types (or classes) for that property.
+            The first class (or type) needs to be the same used in the constructor.
         """
 
         with self.subTest(title):
