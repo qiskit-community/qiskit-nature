@@ -46,6 +46,7 @@ from qiskit_nature.algorithms.ground_state_solvers.oovqe_solver import compute_m
 
 logger = logging.getLogger(__name__)
 
+
 class OrbitalOptimizationVQE(GroundStateEigensolver):
     """Solver for ooVQE"""
 
@@ -53,43 +54,20 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         self,
         qubit_converter: QubitConverter,
         solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
+        initial_point: Union[ListOrDict, np.ndarray] = None,
     ) -> None:
         super().__init__(qubit_converter, solver)
 
         # Store problem to have access during energy eval. function.
-        self.problem: CustomProblem = (
-            None  # I am using temporarily the CustomProblem class, that avoids
-        )
+        self.problem: CustomProblem = None
+        # I am using temporarily the CustomProblem class, that avoids
         # running the driver every time .second_q_ops() is called
+        self.orbital_rotation = None  # to set during solve()
+        self.num_parameters_oovqe = None  # to set during solve()
 
-        self.initial_point = None  # in the future: set by user
-        self.bounds_oo: np.array = None  # in the future: set by user
-        self.bounds: np.array = None  # ansatz + oo
-
-        self.orbital_rotation = OrbitalRotation(
-            num_qubits=self.solver.ansatz.num_qubits, qubit_converter=qubit_converter
-        )
-        self.num_parameters_oovqe = (
-            self.solver.ansatz.num_parameters + self.orbital_rotation.num_parameters
-        )
-
-        # the initial point of the full ooVQE alg.
-        if self.initial_point is None:
-            self.set_initial_point()
-        else:
-            # this will never really happen with the current code
-            # but is kept for the future
-            if len(self.initial_point) is not self.num_parameters_oovqe:
-                raise QiskitNatureError(
-                    f"Number of parameters of OOVQE ({self.num_parameters_oovqe,}) "
-                    f"does not match the length of the "
-                    f"intitial_point ({len(self.initial_point)})"
-                )
-
-        if self.bounds is None:
-            # set bounds sets both ansatz and oo bounds
-            # do we want to change the ansatz bounds here??
-            self.set_bounds(self.orbital_rotation.parameter_bound_value)
+        self.initial_point = initial_point  #
+        self.bounds_oo = None  # in the future: set by user
+        self.bounds = None  # ansatz + oo
 
     def set_initial_point(self, initial_pt_scalar: float = 1e-1) -> None:
         """Initializes the initial point for the algorithm if the user does not provide his own.
@@ -151,7 +129,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
                     if name in aux_ops.keys():
                         raise QiskitNatureError(
                             f"The key '{name}' is already taken by an internally constructed "
-                            "auxliliary operator! Please use a different name for your custom "
+                            "auxiliary operator! Please use a different name for your custom "
                             "operator."
                         )
                     aux_ops[name] = converted_aux_op
@@ -188,7 +166,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         # after applying the rotation, recompute operator
         rotated_main_second_q_op = e_energy.second_q_ops()
         rotated_operator = self._qubit_converter.convert(
-            rotated_main_second_q_op,
+            rotated_main_second_q_op[0],  # The rotation operation outputs a list
             num_particles=problem.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
@@ -223,13 +201,46 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
 
         self.problem = problem
 
+        # IF WE DON'T CALL SECOND_Q_OPS, THE DRIVER DOESN'T RUN AND THE
+        # PROPERTIES DON'T GET POPULATED -> CHANGE?
+        main_operator, aux_ops = self.get_operators(self.problem, aux_operators)
+
+        # these settings require the problem, so they cannot happen during init
+        if isinstance(self.solver, MinimumEigensolverFactory):
+            # this must be called after transformation.transform
+            self.solver = self.solver.get_solver(problem, self.qubit_converter)
+
+        self.orbital_rotation = OrbitalRotation(
+            num_qubits=self.solver.ansatz.num_qubits, qubit_converter=self.qubit_converter
+        )
+        self.num_parameters_oovqe = (
+            self.solver.ansatz.num_parameters + self.orbital_rotation.num_parameters
+        )
+
+        # the initial point of the full ooVQE alg.
+        if self.initial_point is None:
+            self.set_initial_point()
+        else:
+            # this will never really happen with the current code
+            # but is kept for the future
+            if len(self.initial_point) is not self.num_parameters_oovqe:
+                raise QiskitNatureError(
+                    f"Number of parameters of OOVQE ({self.num_parameters_oovqe,}) "
+                    f"does not match the length of the "
+                    f"intitial_point ({len(self.initial_point)})"
+                )
+
+        if self.bounds is None:
+            # set bounds sets both ansatz and oo bounds
+            # do we want to change the ansatz bounds here??
+            self.set_bounds(self.orbital_rotation.parameter_bound_value)
+
         # override VQE's compute_minimum_eigenvalue, giving it access to the problem data
         # contained in self.problem
         self.solver.compute_minimum_eigenvalue = partial(
             compute_minimum_eigenvalue_oo, self, self.solver
         )
 
-        main_operator, aux_ops = self.get_operators(problem, aux_operators)
         raw_mes_result = self.solver.compute_minimum_eigenvalue(main_operator, aux_ops)
 
         result = problem.interpret(raw_mes_result)

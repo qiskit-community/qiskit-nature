@@ -23,6 +23,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 
 logger = logging.getLogger(__name__)
 
+
 class OrbitalRotation:
     """Class that regroups methods for creation of matrices that rotate the MOs.
     It allows to create the unitary matrix U = exp(-kappa) that is parameterized with kappa's

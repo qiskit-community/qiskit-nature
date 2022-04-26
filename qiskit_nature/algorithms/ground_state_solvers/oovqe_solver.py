@@ -60,6 +60,7 @@ def energy_evaluation_oo(
     # ROTATE AND RECOMPUTE OPERATOR HERE:
     # what about aux_ops??? They should be rotated too.
     # Not implemented yet.
+
     rotated_operator = ground_state_eigensolver.rotate_orbitals(matrix_a, matrix_b)
 
     # use rotated operator for constructing expect_op
@@ -225,7 +226,9 @@ def compute_minimum_eigenvalue_oo(
             ansatz_params, rotated_operator, return_expectation=True
         )
 
-        aux_values = solver._eval_aux_ops(opt_result.x, aux_operators, expectation=expectation)
+        aux_values = solver._eval_aux_ops(
+            opt_result.x[: solver.ansatz.num_parameters], aux_operators, expectation=expectation
+        )
         result.aux_operator_eigenvalues = aux_values
 
     return result
