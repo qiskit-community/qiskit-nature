@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds a new problem class,
+    :class:`qiskit_nature.problems.second_quantization.lattice.LatticeModelProblem`,
+    for lattice models. It can create second quantized operators from a lattice model. 

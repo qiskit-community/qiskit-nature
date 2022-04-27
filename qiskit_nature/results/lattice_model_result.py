@@ -39,9 +39,6 @@ class LatticeModelResult(EigenstateResult):
         """Sets raw algorithm result"""
         self._algorithm_result = value
 
-    # TODO we need to be able to extract the statevector or the optimal parameters that can
-    # construct the circuit of the GS from here (if the algorithm supports this)
-
     @property
     def computed_lattice_energies(self) -> Optional[np.ndarray]:
         """Returns computed electronic part of ground state energy"""
