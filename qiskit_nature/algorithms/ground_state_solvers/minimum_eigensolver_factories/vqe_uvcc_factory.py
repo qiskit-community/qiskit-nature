@@ -253,7 +253,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        self.initial_state = initial_state
+        self._initial_state = initial_state
 
         ansatz = self.ansatz
         if ansatz is None:
@@ -262,7 +262,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
 
-        self._vqe.ansatz = ansatz
+        self.minimum_eigensolver.ansatz = ansatz
+
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):
