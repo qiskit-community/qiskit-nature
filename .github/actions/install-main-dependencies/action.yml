@@ -68,7 +68,7 @@ runs:
         if [ "$build_from_main" == "true" ]; then
           echo 'Create wheel file from main'
           pip install -U setuptools_rust
-          git clone https://github.com/Qiskit/qiskit-terra.git /tmp/qiskit-terra
+          git clone --depth 1 --branch main https://github.com/Qiskit/qiskit-terra.git /tmp/qiskit-terra
           pushd /tmp/qiskit-terra
           python setup.py bdist_wheel
           popd
@@ -91,7 +91,7 @@ runs:
           sudo apt-get -y install libspdlog-dev
           sudo apt-get -y install libmuparserx-dev
         fi
-        git clone https://github.com/Qiskit/qiskit-aer.git /tmp/qiskit-aer
+        git clone --depth 1 --branch main https://github.com/Qiskit/qiskit-aer.git /tmp/qiskit-aer
         BASE_DIR=aer-cache
         build_from_main=true
         cache_hit=${{ steps.aer-cache.outputs.cache-hit }}

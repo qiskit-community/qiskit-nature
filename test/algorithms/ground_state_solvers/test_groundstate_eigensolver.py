@@ -48,6 +48,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 from qiskit_nature import settings
+from qiskit_nature.algorithms import MP2InitialPoint
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):
@@ -538,6 +539,31 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """
         for truth, expected in zip(out.getvalue().split("\n"), expected.split("\n")):
             assert truth.strip().startswith(expected.strip())
+
+    def test_default_initial_point(self):
+        """Test when using the default initial point."""
+
+        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        self.assertIsNone(solver.initial_point)
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_mp2(self):
+        """Test when using MP2InitialPoint to generate the initial point."""
+
+        informed_start = MP2InitialPoint()
+
+        solver = VQEUCCFactory(
+            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            initial_point=informed_start,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, -0.07197145])
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
 
 if __name__ == "__main__":
