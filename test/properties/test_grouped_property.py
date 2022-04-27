@@ -12,6 +12,7 @@
 
 """General GroupedProperty base class tests."""
 
+from numbers import Integral
 from test import QiskitNatureTestCase
 
 from qiskit_nature.properties.grouped_property import GroupedProperty
@@ -43,6 +44,19 @@ class TestGroupedProperty(QiskitNatureTestCase):
         prop = GroupedProperty("Dummy Group")
         prop.add_property(dummy_prop)
         self.assertEqual(prop._properties, {"IntegralProperty": dummy_prop})
+
+    def test_remove_property(self):
+        """Test remove_property."""
+        with self.subTest("Remove with name of property instance"):
+            self.prop.remove_property(self.dummy_prop_1.name)
+            self.assertEqual(self.prop._properties, {"Dummy 2": self.dummy_prop_2})
+
+        with self.subTest("Remove with property class"):
+            dummy_prop = IntegralProperty("IntegralProperty", [])
+            prop = GroupedProperty("Dummy Group")
+            prop.add_property(dummy_prop)
+            prop.remove_property(IntegralProperty)
+            self.assertEqual(prop._properties, {})
 
     def test_get_property(self):
         """Test get_property."""
