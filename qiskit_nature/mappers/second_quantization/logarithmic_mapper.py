@@ -40,10 +40,10 @@ class LogarithmicMapper(SpinMapper):
     the lowest lying 2S+1 states in a qubit system with the minimal number of qubits needed to
     represent >= 2S+1 distinct states.
 
-
     [1]: Mathis, S. V., Guglielmo, M., & Ivano, T. (2020).
-         Toward scalable simulations of lattice gauge theories on quantum computers.
-         Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
+        Toward scalable simulations of lattice gauge theories on quantum computers.
+        Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
+
     """
 
     def __init__(self, padding: float = 1, location: EmbedLocation = EmbedLocation.UPPER) -> None:
