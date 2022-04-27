@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -101,6 +101,28 @@ of various potentials. More detail may be found in the sub-module linked below
 
    pes_samplers
 
+Initial Points
++++++++++++++++++++++++++++++++++
+Algorithms that can compute initial points to use with particular ansatzes.
+
+.. currentmodule:: qiskit_nature.algorithms.initial_points
+
+The initial point interface.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   InitialPoint
+
+The MP2 initial point algorithm.
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MP2InitialPoint
+
 """
 
 from .excited_states_solvers import (
@@ -120,6 +142,7 @@ from .ground_state_solvers import (
     VQEUVCCFactory,
 )
 from .pes_samplers import BOPESSampler
+from .initial_points import InitialPoint, MP2InitialPoint
 
 __all__ = [
     "ExcitedStatesEigensolver",
@@ -135,4 +158,6 @@ __all__ = [
     "VQEUCCFactory",
     "VQEUVCCFactory",
     "BOPESSampler",
+    "InitialPoint",
+    "MP2InitialPoint",
 ]
