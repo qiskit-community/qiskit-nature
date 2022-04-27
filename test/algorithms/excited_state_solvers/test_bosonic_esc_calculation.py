@@ -117,14 +117,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             quantum_instance=QuantumInstance(qiskit.Aer.get_backend("aer_simulator_statevector")),
             optimizer=optimizer,
         )
-
-        print("first print:")
-        print(type(solver.ansatz))
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)
-        print("second print:")
-        print(type(solver.ansatz))
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
 
