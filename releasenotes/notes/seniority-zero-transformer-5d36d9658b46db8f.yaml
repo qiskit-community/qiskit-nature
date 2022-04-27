@@ -12,6 +12,8 @@ features:
     a bosonic operator. For the mapping to a qubit operator we therefore have to use a
     suitable mapper (e.g. :class:`~qiskit_nature.mappers.second_quantization.DirectMapper`).
 
+    For more details on the restricted approximation refer to https://arxiv.org/abs/2002.00035.
+
     Example how to use the 
     :class:`~qiskit_nature.transformers.second_quantization.electronic.SeniorityZeroTransformer`:
 
@@ -20,8 +22,8 @@ features:
         from qiskit_nature.converters.second_quantization import QubitConverter
         from qiskit_nature.drivers import Molecule
         from qiskit_nature.drivers.second_quantization import (
-          ElectronicStructureDriverType, 
-          ElectronicStructureMoleculeDriver,
+            ElectronicStructureDriverType, 
+            ElectronicStructureMoleculeDriver,
         )
         from qiskit_nature.mappers.second_quantization import DirectMapper
         from qiskit_nature.problems.second_quantization import ElectronicStructureProblem

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,6 @@
 
 """General GroupedProperty base class tests."""
 
-from numbers import Integral
 from test import QiskitNatureTestCase
 
 from qiskit_nature.properties.grouped_property import GroupedProperty

@@ -42,34 +42,42 @@ logger = logging.getLogger(__name__)
 
 
 class SeniorityZeroTransformer(BaseTransformer):
+    # pylint: disable=line-too-long
     """The transformer to the restricted Hartree-Fock formalism.
 
     The `SeniorityZeroTransformer` transforms a chemistry problem into the restricted Hartree-Fock
-    formalism. In the restricted approximation of the many-body Hamiltonian the electrons are modeled 
-    as singlet pairs instead of individual fermions. This reduces the required number of qubits by a 
+    formalism. In the restricted approximation of the many-body Hamiltonian the electrons are modeled
+    as singlet pairs instead of individual fermions. This reduces the required number of qubits by a
     factor of two with only a little loss of accuracy.
 
     After the transformation the Hamiltonian is no longer fermionic, but an operator of fermion-pairs,
-    and effectively behaves like a bosonic operator. To map the restricted Hamiltonian to a qubit 
+    and effectively behaves like a bosonic operator. To map the restricted Hamiltonian to a qubit
     operator we can use the :class:`~qiskit_nature.mappers.second_quantization.DirectMapper`.
 
     For more details on the restricted approximation refer to https://arxiv.org/abs/2002.00035.
 
     Example:
-        Hydrogen molecule in STO-3G basis, which is encoded on four qubits in the standard HF method,
+        The hydrogen molecule in STO-3G basis, which is encoded on four qubits in the standard HF method,
         while it is encoded on two qubits in the restricted HF formalism.
 
-        >>> molecule = Molecule(geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.8]]], charge=0, multiplicity=1)
-        >>> driver = ElectronicStructureMoleculeDriver(molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF)
-        >>> problem = ElectronicStructureProblem(driver, [SeniorityZeroTransformer()])
-        >>> converter = QubitConverter(DirectMapper())
-        >>> converter.convert(problem.second_q_ops()[0])
-        0.09231339177803059 * XX
-        + 0.09231339177803059 * YY
-        - 0.49127508156818156 * II
-        - 0.39488587399511604 * ZI
-        + 0.325032974977433 * IZ
-        + 0.5611279805858645 * ZZ
+        .. code-block:: python
+            from qiskit_nature.converters.second_quantization import QubitConverter
+            from qiskit_nature.drivers import Molecule
+            from qiskit_nature.drivers.second_quantization import (
+                ElectronicStructureDriverType, 
+                ElectronicStructureMoleculeDriver,
+            )
+            from qiskit_nature.mappers.second_quantization import DirectMapper
+            from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+            from qiskit_nature.transformers.second_quantization.electronic import SeniorityZeroTransformer
+
+            molecule = Molecule(geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.8]]], charge=0, multiplicity=1)
+            driver = ElectronicStructureMoleculeDriver(molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF)
+
+            problem = ElectronicStructureProblem(driver, transformers=[SeniorityZeroTransformer()])
+            converter = QubitConverter(DirectMapper())
+
+            qubit_op = converter.convert(problem.second_q_ops()[0])
     """
 
     def __init__(self):
@@ -106,18 +114,15 @@ class SeniorityZeroTransformer(BaseTransformer):
             )
         electronic_energy = cast(ElectronicEnergy, electronic_energy)
 
-        if not np.allclose(
-            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).get_matrix(0),
-            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).get_matrix(1),
-        ):
+        one_body = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
+        if not np.allclose(one_body.get_matrix(0), one_body.get_matrix(1)):
             raise QiskitNatureError(
                 "One-body integrals for alpha and beta electrons are not identical, "
                 "which is required by this transformer."
             )
-        if not np.allclose(
-            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix(0),
-            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix(1),
-        ):
+        
+        two_body = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+        if not np.allclose(two_body.get_matrix(0), two_body.get_matrix(1)):
             raise QiskitNatureError(
                 "Two-body integrals for alpha and beta electrons are not identical, "
                 "which is required by this transformer."
