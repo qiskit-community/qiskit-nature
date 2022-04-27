@@ -41,9 +41,8 @@ class LogarithmicMapper(SpinMapper):
     represent >= 2S+1 distinct states.
 
     [1]: Mathis, S. V., Guglielmo, M., & Ivano, T. (2020).
-        Toward scalable simulations of lattice gauge theories on quantum computers.
-        Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
-
+         Toward scalable simulations of lattice gauge theories on quantum computers.
+         Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
     """
 
     def __init__(self, padding: float = 1, location: EmbedLocation = EmbedLocation.UPPER) -> None:
@@ -53,17 +52,19 @@ class LogarithmicMapper(SpinMapper):
                 When embedding a matrix into the upper/lower diagonal block of a 2^num_qubits by
                 2^num_qubits matrix, pads the diagonal of the block matrix with
                 the value of `padding`.
+
             location:
                 Must be one of [`EmbedLocation.UPPER`, `EmbedLocation.LOWER`].
                 This parameter sets whether
                 the given matrix is embedded in the upper left hand corner or
                 the lower right hand corner of the larger matrix.
                 I.e. using location = `EmbedLocation.UPPER` returns the matrix:
-                    [[ matrix,    0             ],
-                    [   0   , padding * I]]
+                [[ matrix,    0             ],
+                [   0   , padding * I]]
+
                 Using location = `EmbedLocation.LOWER` returns the matrix:
-                    [[ padding * I,    0    ],
-                    [      0           ,  matrix ]]
+                [[ padding * I,    0    ],
+                [      0           ,  matrix ]]
 
         """
         super().__init__(allows_two_qubit_reduction=False)
@@ -159,11 +160,13 @@ class LogarithmicMapper(SpinMapper):
         and pads the diagonal of the upper left block matrix with the value of `padding`.
         Whether the upper/lower diagonal block is used depends on `location`.
         I.e. using location = 'EmbedLocation.UPPER' returns the matrix:
-            [[ matrix,    0             ],
-            [   0   , padding * I]]
+        [[ matrix,    0             ],
+        [   0   , padding * I]]
+
         Using location = 'EmbedLocation.LOWER' returns the matrix:
-            [[ padding * I,    0    ],
-            [      0           ,  matrix ]]
+        [[ padding * I,    0    ],
+        [      0           ,  matrix ]]
+
         Args:
             matrix: The matrix (2D-array) to embed.
             num_qubits: The number of qubits on which the embedded matrix should act on.
