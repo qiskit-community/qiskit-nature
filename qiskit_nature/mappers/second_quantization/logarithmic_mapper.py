@@ -36,7 +36,7 @@ class EmbedLocation(Enum):
 
 class LogarithmicMapper(SpinMapper):
     """A mapper for Logarithmic spin-to-qubit mapping [1].
-    In this local encoding transformation each individual spin S system is represented via
+    In this local encoding transformation, each individual spin S system is represented via
     the lowest lying 2S+1 states in a qubit system with the minimal number of qubits needed to
     represent >= 2S+1 distinct states.
 
@@ -54,7 +54,8 @@ class LogarithmicMapper(SpinMapper):
                 2^num_qubits matrix, pads the diagonal of the block matrix with
                 the value of `padding`.
             location:
-                Must be one of [`EmbedLocation.UPPER`, `EmbedLocation.LOWER`]. This parameter sets whether
+                Must be one of [`EmbedLocation.UPPER`, `EmbedLocation.LOWER`].
+                This parameter sets whether
                 the given matrix is embedded in the upper left hand corner or
                 the lower right hand corner of the larger matrix.
                 I.e. using location = `EmbedLocation.UPPER` returns the matrix:
@@ -135,7 +136,9 @@ class LogarithmicMapper(SpinMapper):
         spin_matrices.append(np.eye(dspin))
 
         # Embed the spin matrices in a larger matrix of size 2**num_qubits x 2**num_qubits
-        embedded_spin_matrices = [self._embed_matrix(matrix, num_qubits) for matrix in spin_matrices]
+        embedded_spin_matrices = [
+            self._embed_matrix(matrix, num_qubits) for matrix in spin_matrices
+        ]
 
         # Generate operators from these embedded spin matrices
         embedded_operators = [Operator(matrix) for matrix in embedded_spin_matrices]
@@ -144,7 +147,7 @@ class LogarithmicMapper(SpinMapper):
             op.chop()
             spin_op_encoding.append(PauliSumOp(1.0 * op))
 
-        return tuple(spin_op_encoding)
+        return tuple(spin_op_encoding)  # type: ignore
 
     def _embed_matrix(
         self,
@@ -189,17 +192,32 @@ class LogarithmicMapper(SpinMapper):
 
         elif dim_diff > 0:
             if self._location == EmbedLocation.LOWER:
-                full_matrix = np.zeros((full_dim, full_dim), dtype=complex)
-                full_matrix[:dim_diff, :dim_diff] = np.eye(dim_diff) * self._padding
-                full_matrix[dim_diff:, dim_diff:] = matrix
+
+                full_matrix = np.block(
+                    [
+                        [
+                            np.eye(dim_diff) * self._padding,
+                            np.zeros((dim_diff, subs_dim), dtype=complex),
+                        ],
+                        [np.zeros((subs_dim, dim_diff), dtype=complex), matrix],
+                    ]
+                )
 
             elif self._location == EmbedLocation.UPPER:
-                full_matrix = np.zeros((full_dim, full_dim), dtype=complex)
-                full_matrix[:subs_dim, :subs_dim] = matrix
-                full_matrix[subs_dim:, subs_dim:] = np.eye(dim_diff) * self._padding
+
+                full_matrix = np.block(
+                    [
+                        [matrix, np.zeros((subs_dim, dim_diff), dtype=complex)],
+                        [
+                            np.zeros((dim_diff, subs_dim), dtype=complex),
+                            np.eye(dim_diff) * self._padding,
+                        ],
+                    ]
+                )
+
             else:
                 raise ValueError(
-                    "location must be one of" "EmbedLocation.UPPER or EmbedLocation.LOWER"
+                    "location must be one of " "EmbedLocation.UPPER or EmbedLocation.LOWER"
                 )
 
         else:

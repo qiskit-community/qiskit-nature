@@ -1,0 +1,6 @@
+features:
+  - |
+    Adds :class:`qiskit_nature.mappers.second_quantization.logarithmic_mapper`.
+    This class is a mapper for Logarithmic spin-to-qubit mapping. In this local encoding transformation, each individual spin S system is represented via
+    the lowest lying 2S+1 states in a qubit system with the minimal number of qubits needed to
+    represent >= 2S+1 distinct states.
