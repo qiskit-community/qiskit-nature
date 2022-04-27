@@ -39,7 +39,17 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction."""
+    """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction.
+
+    Note: get_solver will overwrite any value that we directly set onto the vqe for both
+    the ansatz and the initial point. For example:
+    .. code-block:: python
+        factory = VQEUCCFactory()
+        factory.minimum_eigensolver.ansatz = UCCD()
+        vqe = factory.get_solver()
+        print(type(vqe.ansatz))  # UCCSD
+    .. code-block:: python
+    """
 
     def __init__(
         self,
@@ -84,12 +94,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
         self._initial_state = initial_state
+        self._initial_point = initial_point
+        self._factory_ansatz = ansatz
 
         self._vqe = VQE(
-            ansatz=ansatz,
             quantum_instance=kwargs.get("quantum_instance"),
             optimizer=kwargs.get("optimizer", None),
-            initial_point=initial_point,
             gradient=kwargs.get("gradient", None),
             expectation=kwargs.get("expectation", None),
             include_custom=kwargs.get("include_custom", False),
@@ -130,7 +140,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
     )
-
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns gradient."""
@@ -173,36 +182,34 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         setting for the ``expectation`` setting."""
         self.minimum_eigensolver.include_custom = include_custom
 
-    @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
-    )
+    @property
     def ansatz(self) -> Optional[UCC]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
-        Getter of the ansatz"""
+        """Gets the ansatz of future VQEs produced by the factory."""
+        return self._factory_ansatz
 
-        return self.minimum_eigensolver.ansatz
-
-    @ansatz.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @ansatz.setter
     def ansatz(self, ansatz: Optional[UCC]) -> None:
-        """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
-        Setter of the ansatz. If ``None`` is passed, this factory will default to using the
-        :class:`~.UCCSD` Ansatz."""
-        self.minimum_eigensolver.ansatz = ansatz
+        """Sets the ansatz of future VQEs produced by the factory."""
+        self._factory_ansatz = ansatz
 
-    @property  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @property
+    def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:
+        """Gets the initial point of future VQEs produced by the factory."""
+        return self._initial_point
+
+    @initial_point.setter
+    def initial_point(self, initial_point: Optional[Union[np.ndarray, InitialPoint]]) -> None:
+        """Sets the initial point of future VQEs produced by the factory."""
+        self._initial_point = initial_point
+
+    @property
     def initial_state(self) -> Optional[QuantumCircuit]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
-        Getter of the initial state."""
+        """Getter of the initial state."""
         return self._initial_state
 
-    @initial_state.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @initial_state.setter
     def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
-        """DEPRECATED. Use the constructor instead.
-        Setter of the initial state. If ``None`` is passed, this factory will default to using
+        """Setter of the initial state. If ``None`` is passed, this factory will default to using
         the :class:`~.HartreeFock`."""
         self._initial_state = initial_state
 
@@ -253,28 +260,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_particles = num_particles
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
+        self._vqe.ansatz = ansatz
 
         if isinstance(self.initial_point, InitialPoint):
             self.initial_point.grouped_property = driver_result
             self.initial_point.ansatz = ansatz
-
             # Override the initial_point with the computed array.
             self.initial_point = self.initial_point.to_numpy_array()
 
-        # TODO: leverage re-usability of VQE after fixing
-        # https://github.com/Qiskit/qiskit-terra/issues/7093
-        vqe = VQE(
-            ansatz=ansatz,
-            quantum_instance=self.quantum_instance,
-            optimizer=self.optimizer,
-            initial_point=self.initial_point,
-            gradient=self.gradient,
-            expectation=self.expectation,
-            include_custom=self.include_custom,
-            callback=self.callback,
-            **self._kwargs,
-        )
-        self._vqe = vqe
+        self._vqe.initial_point = self.initial_point
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):

@@ -40,7 +40,17 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """A factory to construct a VQE minimum eigensolver with UVCCSD ansatz wavefunction."""
+    """A factory to construct a VQE minimum eigensolver with UVCCSD ansatz wavefunction.
+
+    Note: get_solver will overwrite any value that we directly set onto the vqe for the ansatz.
+    For example:
+    .. code-block:: python
+        factory = VQEUCCFactory()
+        factory.minimum_eigensolver.ansatz = UCCD()
+        vqe = factory.get_solver()
+        print(type(vqe.ansatz))  # UCCSD
+    .. code-block:: python
+    """
 
     def __init__(
         self,
@@ -48,6 +58,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         initial_state: Optional[QuantumCircuit] = None,
         **kwargs,
     ) -> None:
+
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
@@ -80,10 +91,10 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
+        self._factory_ansatz = ansatz
         self._initial_state = initial_state
 
         self._vqe = VQE(
-            ansatz=ansatz,
             quantum_instance=kwargs.get("quantum_instance"),
             optimizer=kwargs.get("optimizer", None),
             initial_point=kwargs.get("initial_point", None),
@@ -191,7 +202,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def ansatz(self) -> Optional[UVCC]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the ansatz"""
-        return self.minimum_eigensolver.ansatz
+        return self._factory_ansatz
 
     @ansatz.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
@@ -199,18 +210,16 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
         :class:`~.UCCSD` Ansatz."""
-        self.minimum_eigensolver.ansatz = ansatz
+        self._factory_ansatz = ansatz
 
     @property
     def initial_state(self) -> Optional[QuantumCircuit]:
         """Getter of the initial state."""
         return self._initial_state
 
-    @initial_state.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @initial_state.setter
     def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
-        """DEPRECATED. Use the constructor instead.
-        Setter of the initial state. If ``None`` is passed, this factory will default to using
+        """Setter of the initial state. If ``None`` is passed, this factory will default to using
         the :class:`~.HartreeFock`."""
         self._initial_state = initial_state
 
@@ -255,7 +264,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
         self._initial_state = initial_state
 
-        ansatz = self.ansatz
+        ansatz = self._factory_ansatz
         if ansatz is None:
             ansatz = UVCCSD()
         ansatz.qubit_converter = qubit_converter

@@ -547,7 +547,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_default_initial_point(self):
         """Test when using the default initial point."""
 
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        solver = VQEUCCFactory(
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
+        )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -560,7 +562,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         informed_start = MP2InitialPoint()
 
         solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
             initial_point=informed_start,
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)

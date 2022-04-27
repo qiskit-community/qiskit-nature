@@ -19,8 +19,7 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
 from qiskit.algorithms.optimizers import COBYLA, SLSQP
-from qiskit.circuit.library import RealAmplitudes
-from qiskit_nature.circuit.library import HartreeFock, UCCSD
+from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.algorithms import VQEUCCFactory
@@ -110,12 +109,9 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
         self.auxiliary_tester(
             "Quantum Instance", "quantum_instance", (self.quantum_instance, self.quantum_instance_2)
         )
-        self.auxiliary_tester("Initial Point", "initial_point", (None, [1, 2, 3]))
-        # self.auxiliary_tester("Gradient","gradient",(None,None))
         self.auxiliary_tester("Expectation", "expectation", (None, AerPauliExpectation()))
         self.auxiliary_tester("Include Custom", "include_custom", (False, True))
         self.auxiliary_tester("Callback", "callback", (None, None))
-        self.auxiliary_tester_isinstance("Ansatz", "ansatz", (RealAmplitudes, UCCSD))
         self.auxiliary_tester_isinstance("Optimizer", "optimizer", (SLSQP, COBYLA))
 
         with self.subTest("Initial State"):
