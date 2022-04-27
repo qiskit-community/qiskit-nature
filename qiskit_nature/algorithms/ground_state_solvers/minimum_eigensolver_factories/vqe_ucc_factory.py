@@ -98,7 +98,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._factory_ansatz = ansatz
 
         self._vqe = VQE(
-            quantum_instance=kwargs.get("quantum_instance",None),
+            quantum_instance=kwargs.get("quantum_instance", None),
             optimizer=kwargs.get("optimizer", None),
             gradient=kwargs.get("gradient", None),
             expectation=kwargs.get("expectation", None),
