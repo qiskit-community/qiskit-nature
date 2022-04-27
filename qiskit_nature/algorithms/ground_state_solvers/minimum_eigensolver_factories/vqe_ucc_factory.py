@@ -30,9 +30,9 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
-from qiskit_nature.properties.second_quantization.electronic import (
-    ParticleNumber,
-)
+from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
+
+from ...initial_points import InitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 logger = logging.getLogger(__name__)
@@ -43,6 +43,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     def __init__(
         self,
+        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
         ansatz: Optional[UCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
         **kwargs,
@@ -51,9 +52,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
             optimizer: A classical optimizer.
-            initial_point: An optional initial point (i.e. initial parameter values)
-                for the optimizer. If ``None`` then VQE will look to the ansatz for a preferred
-                point and if not will simply compute a random one.
+            initial_point: An optional initial point (i.e., initial parameter values) for the
+                optimizer. If ``None`` then VQE will use an all-zero initial point, which then
+                defaults to the Hartree-Fock (HF) state when the HF circuit is prepended to the
+                the ansatz circuit. If an
+                :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
+                instance, this is used to compute an initial point for the VQE ansatz parameters.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -85,7 +89,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             ansatz=ansatz,
             quantum_instance=kwargs.get("quantum_instance"),
             optimizer=kwargs.get("optimizer", None),
-            initial_point=kwargs.get("initial_point", None),
+            initial_point=initial_point,
             gradient=kwargs.get("gradient", None),
             expectation=kwargs.get("expectation", None),
             include_custom=kwargs.get("include_custom", False),
@@ -126,21 +130,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
     )
-    def initial_point(self) -> Optional[np.ndarray]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
-        Returns initial_point."""
-        return self.minimum_eigensolver.initial_point
 
-    @initial_point.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
-    def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        self.minimum_eigensolver.initial_point = initial_point
-
-    @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
-    )
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Returns gradient."""
@@ -256,14 +246,35 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
 
-        if self.ansatz is None:
-            self._vqe.ansatz = UCCSD()
+        ansatz = self.ansatz
+        if ansatz is None:
+            ansatz = UCCSD()
+        ansatz.qubit_converter = qubit_converter
+        ansatz.num_particles = num_particles
+        ansatz.num_spin_orbitals = num_spin_orbitals
+        ansatz.initial_state = initial_state
 
-        self._vqe.ansatz.qubit_converter = qubit_converter
-        self._vqe.ansatz.num_particles = num_particles
-        self._vqe.ansatz.num_spin_orbitals = num_spin_orbitals
-        self._vqe.ansatz.initial_state = initial_state
+        if isinstance(self.initial_point, InitialPoint):
+            self.initial_point.grouped_property = driver_result
+            self.initial_point.ansatz = ansatz
 
+            # Override the initial_point with the computed array.
+            self.initial_point = self.initial_point.to_numpy_array()
+
+        # TODO: leverage re-usability of VQE after fixing
+        # https://github.com/Qiskit/qiskit-terra/issues/7093
+        vqe = VQE(
+            ansatz=ansatz,
+            quantum_instance=self.quantum_instance,
+            optimizer=self.optimizer,
+            initial_point=self.initial_point,
+            gradient=self.gradient,
+            expectation=self.expectation,
+            include_custom=self.include_custom,
+            callback=self.callback,
+            **self._kwargs,
+        )
+        self._vqe = vqe
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):
