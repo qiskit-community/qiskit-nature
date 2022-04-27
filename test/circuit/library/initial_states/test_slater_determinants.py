@@ -15,10 +15,10 @@
 from test import QiskitNatureTestCase
 
 import numpy as np
-from qiskit.quantum_info import random_hermitian, Statevector
+from qiskit.quantum_info import Statevector, random_hermitian
 from qiskit_nature.circuit.library import SlaterDeterminant
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper, BravyiKitaevMapper
+from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
 
 

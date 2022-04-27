@@ -15,7 +15,6 @@
 from typing import Iterable, List, Sequence, Tuple, Union
 
 import numpy as np
-
 from qiskit import QuantumRegister
 from qiskit.circuit import Gate, Qubit
 from qiskit.circuit.library import RZGate, XGate, XXPlusYYGate

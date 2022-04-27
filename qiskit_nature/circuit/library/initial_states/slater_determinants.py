@@ -15,9 +15,7 @@
 from typing import Optional
 
 import numpy as np
-
-from qiskit import QuantumRegister, QuantumCircuit
-
+from qiskit import QuantumCircuit, QuantumRegister
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 
