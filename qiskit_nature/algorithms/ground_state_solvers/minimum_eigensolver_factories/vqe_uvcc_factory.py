@@ -95,7 +95,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self._initial_state = initial_state
 
         self._vqe = VQE(
-            quantum_instance=kwargs.get("quantum_instance"),
+            quantum_instance=kwargs.get("quantum_instance",None),
             optimizer=kwargs.get("optimizer", None),
             initial_point=kwargs.get("initial_point", None),
             gradient=kwargs.get("gradient", None),
