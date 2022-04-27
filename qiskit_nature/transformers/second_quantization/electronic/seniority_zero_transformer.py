@@ -42,7 +42,35 @@ logger = logging.getLogger(__name__)
 
 
 class SeniorityZeroTransformer(BaseTransformer):
-    """The Seniority-Zero restriction."""
+    """The transformer to the restricted Hartree-Fock formalism.
+
+    The `SeniorityZeroTransformer` transforms a chemistry problem into the restricted Hartree-Fock
+    formalism. In the restricted approximation of the many-body Hamiltonian the electrons are modeled 
+    as singlet pairs instead of individual fermions. This reduces the required number of qubits by a 
+    factor of two with only a little loss of accuracy.
+
+    After the transformation the Hamiltonian is no longer fermionic, but an operator of fermion-pairs,
+    and effectively behaves like a bosonic operator. To map the restricted Hamiltonian to a qubit 
+    operator we can use the :class:`~qiskit_nature.mappers.second_quantization.DirectMapper`.
+
+    For more details on the restricted approximation refer to https://arxiv.org/abs/2002.00035.
+
+    Example:
+        Hydrogen molecule in STO-3G basis, which is encoded on four qubits in the standard HF method,
+        while it is encoded on two qubits in the restricted HF formalism.
+
+        >>> molecule = Molecule(geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.8]]], charge=0, multiplicity=1)
+        >>> driver = ElectronicStructureMoleculeDriver(molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF)
+        >>> problem = ElectronicStructureProblem(driver, [SeniorityZeroTransformer()])
+        >>> converter = QubitConverter(DirectMapper())
+        >>> converter.convert(problem.second_q_ops()[0])
+        0.09231339177803059 * XX
+        + 0.09231339177803059 * YY
+        - 0.49127508156818156 * II
+        - 0.39488587399511604 * ZI
+        + 0.325032974977433 * IZ
+        + 0.5611279805858645 * ZZ
+    """
 
     def __init__(self):
         self._num_modes: int = None
@@ -60,7 +88,9 @@ class SeniorityZeroTransformer(BaseTransformer):
 
         Raises:
             QiskitNatureError: If the provided `GroupedElectronicProperty` does not contain a
-                               `ParticleNumber` instance.
+                               `ElectronicEnergy` or a `ParticleNumber` instance, or if the
+                               alpha and beta integrals stored in the `ElectronicEnergy` are
+                               not identical.
         """
         if not isinstance(grouped_property, GroupedElectronicProperty):
             raise QiskitNatureError(
@@ -210,6 +240,7 @@ class SeniorityZeroTransformer(BaseTransformer):
                     hr_2[i, j] = 2 * h_2[i, j, j, i] - h_2[i, j, i, j]
 
         return hr_1, hr_2
+
 
 def _second_q_ops_electronic_energy(self: ElectronicEnergy) -> ListOrDictType[VibrationalOp]:
     """Creates the second quantization operators in the restricted formalism.

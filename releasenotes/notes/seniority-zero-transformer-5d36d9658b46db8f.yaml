@@ -1,4 +1,37 @@
 features:
   - |
-    Add SeniorityZeroTransformer to solve a chemistry problem in second quantization
-    with the restricted Hartree-Fock formalism.
+    Add :class:`~qiskit_nature.transformers.second_quantization.electronic.SeniorityZeroTransformer` 
+    to transform a chemistry problem in second quantization to the restricted Hartree-Fock 
+    formalism. The restricted approximation of a many-body Hamiltonian models electrons 
+    as pairs instead of individual fermions and thus reduces the number of required qubits 
+    by a factor of two. Alternatively, one can keep the number of qubits fixed and use a 
+    bigger molecular basis set. The cost of the approximation is a loss in accuracy as we 
+    neglect single-electron excitations.
+
+    In the restricted formalism the Hamiltonian is no longer fermionic, but behaves like 
+    a bosonic operator. For the mapping to a qubit operator we therefore have to use a
+    suitable mapper (e.g. :class:`~qiskit_nature.mappers.second_quantization.DirectMapper`).
+
+    Example how to use the 
+    :class:`~qiskit_nature.transformers.second_quantization.electronic.SeniorityZeroTransformer`:
+
+    .. code-block:: python
+
+        from qiskit_nature.converters.second_quantization import QubitConverter
+        from qiskit_nature.drivers import Molecule
+        from qiskit_nature.drivers.second_quantization import (
+          ElectronicStructureDriverType, 
+          ElectronicStructureMoleculeDriver,
+        )
+        from qiskit_nature.mappers.second_quantization import DirectMapper
+        from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+        from qiskit_nature.transformers.second_quantization.electronic import SeniorityZeroTransformer
+
+        molecule = Molecule(geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.8]]], charge=0, multiplicity=1)
+        driver = ElectronicStructureMoleculeDriver(
+            molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF)
+
+        problem = ElectronicStructureProblem(driver, transformers=[SeniorityZeroTransformer()])
+        converter = QubitConverter(DirectMapper())
+
+        qubit_op = converter.convert(problem.second_q_ops()[0])
