@@ -61,10 +61,11 @@ class SeniorityZeroTransformer(BaseTransformer):
         while it is encoded on two qubits in the restricted HF formalism.
 
         .. code-block:: python
+
             from qiskit_nature.converters.second_quantization import QubitConverter
             from qiskit_nature.drivers import Molecule
             from qiskit_nature.drivers.second_quantization import (
-                ElectronicStructureDriverType, 
+                ElectronicStructureDriverType,
                 ElectronicStructureMoleculeDriver,
             )
             from qiskit_nature.mappers.second_quantization import DirectMapper
@@ -120,7 +121,7 @@ class SeniorityZeroTransformer(BaseTransformer):
                 "One-body integrals for alpha and beta electrons are not identical, "
                 "which is required by this transformer."
             )
-        
+
         two_body = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         if not np.allclose(two_body.get_matrix(0), two_body.get_matrix(1)):
             raise QiskitNatureError(
