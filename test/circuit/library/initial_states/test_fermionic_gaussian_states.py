@@ -17,8 +17,8 @@ from test import QiskitNatureTestCase
 import numpy as np
 from qiskit.quantum_info import random_hermitian, Statevector
 from qiskit_nature.circuit.library import FermionicGaussianState
-from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.converters.second_quantization import QubitConverter, qubit_converter
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper, BravyiKitaevMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
 
 
@@ -56,7 +56,9 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
             range(n_orbitals),
         ]
         for occupied_orbitals in occupied_orbitals_lists:
-            circuit = FermionicGaussianState(transformation_matrix, occupied_orbitals, converter)
+            circuit = FermionicGaussianState(
+                transformation_matrix, occupied_orbitals, qubit_converter=converter
+            )
             final_state = np.array(Statevector(circuit))
             eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
             np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-7)
@@ -64,7 +66,6 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
     def test_no_side_effects(self):
         """Test that the routines don't mutate the input array."""
         n_orbitals = 5
-        converter = QubitConverter(JordanWignerMapper())
         hermitian_part = random_hermitian(n_orbitals).data
         antisymmetric_part = _random_antisymmetric(n_orbitals)
         constant = np.random.uniform(-10, 10)
@@ -72,9 +73,7 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant=constant)
         transformation_matrix, _, _ = quad_ham.diagonalizing_bogoliubov_transform()
         original = transformation_matrix.copy()
-        _ = FermionicGaussianState(
-            transformation_matrix, occupied_orbitals=[2, 3], qubit_converter=converter
-        )
+        _ = FermionicGaussianState(transformation_matrix, occupied_orbitals=[2, 3])
         np.testing.assert_allclose(transformation_matrix, original, atol=1e-7)
 
     def test_validation(self):
@@ -92,3 +91,11 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
             np.array([[0.5, 0.5, 0.5, -0.5], [0.5, 0.5, -0.5, 0.5]]), name="efgh"
         )
         assert circuit.name == "efgh"
+
+    def test_unsupported_mapper(self):
+        """Test passing unsupported mapper fails gracefully."""
+        with self.assertRaisesRegex(ValueError, "supported"):
+            _ = FermionicGaussianState(
+                np.block([np.eye(2), np.zeros((2, 2))]),
+                qubit_converter=QubitConverter(BravyiKitaevMapper()),
+            )

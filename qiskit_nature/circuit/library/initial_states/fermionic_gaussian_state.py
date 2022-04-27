@@ -153,7 +153,7 @@ class FermionicGaussianState(QuantumCircuit):
             for gate, qubits in operations:
                 self.append(gate, qubits)
         else:
-            raise NotImplementedError(
+            raise ValueError(
                 "Currently, only the Jordan-Wigner Transform is supported. "
                 "Please use "
                 "qiskit_nature.mappers.second_quantization.JordanWignerMapper "
