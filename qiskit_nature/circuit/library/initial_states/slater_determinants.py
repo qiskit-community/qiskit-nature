@@ -21,7 +21,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 
-from ._helper import _prepare_slater_determinant_jordan_wigner
+from .utils.givens_rotations import _prepare_slater_determinant_jordan_wigner
 
 
 def _rows_are_orthonormal(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
