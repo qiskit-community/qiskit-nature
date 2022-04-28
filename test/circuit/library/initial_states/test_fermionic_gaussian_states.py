@@ -94,7 +94,7 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
 
     def test_unsupported_mapper(self):
         """Test passing unsupported mapper fails gracefully."""
-        with self.assertRaisesRegex(ValueError, "supported"):
+        with self.assertRaisesRegex(NotImplementedError, "supported"):
             _ = FermionicGaussianState(
                 np.block([np.eye(2), np.zeros((2, 2))]),
                 qubit_converter=QubitConverter(BravyiKitaevMapper()),

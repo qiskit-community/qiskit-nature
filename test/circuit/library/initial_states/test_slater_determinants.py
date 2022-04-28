@@ -77,5 +77,5 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
 
     def test_unsupported_mapper(self):
         """Test passing unsupported mapper fails gracefully."""
-        with self.assertRaisesRegex(ValueError, "supported"):
+        with self.assertRaisesRegex(NotImplementedError, "supported"):
             _ = SlaterDeterminant(np.eye(2), qubit_converter=QubitConverter(BravyiKitaevMapper()))
