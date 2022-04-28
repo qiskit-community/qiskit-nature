@@ -42,7 +42,6 @@ logger = logging.getLogger(__name__)
 
 
 class SeniorityZeroTransformer(BaseTransformer):
-    # pylint: disable=line-too-long
     """The transformer to the restricted Hartree-Fock formalism.
 
     The `SeniorityZeroTransformer` transforms a chemistry problem into the restricted Hartree-Fock
@@ -70,10 +69,14 @@ class SeniorityZeroTransformer(BaseTransformer):
             )
             from qiskit_nature.mappers.second_quantization import DirectMapper
             from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-            from qiskit_nature.transformers.second_quantization.electronic import SeniorityZeroTransformer
+            from qiskit_nature.transformers.second_quantization.electronic import (
+                SeniorityZeroTransformer,
+            )
 
-            molecule = Molecule(geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.8]]], charge=0, multiplicity=1)
-            driver = ElectronicStructureMoleculeDriver(molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF)
+            molecule = Molecule(
+                geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.8]]], charge=0, multiplicity=1)
+            driver = ElectronicStructureMoleculeDriver(
+                molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF)
 
             problem = ElectronicStructureProblem(driver, transformers=[SeniorityZeroTransformer()])
             converter = QubitConverter(DirectMapper())
