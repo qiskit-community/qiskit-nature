@@ -42,16 +42,20 @@ class ProteinFoldingResult(EigenstateResult):
         
     @property
     def protein_decoder(self) -> ProteinDecoder:
-        """Returns (and generates if needed) a ProteinDecoder. This class will interpret the result bitstring and return the encoded information."""
+        """Returns (and generates if needed) a ProteinDecoder.
+        This class will interpret the result bitstring and return the encoded information."""
         if not hasattr(self,'_protein_decoder'):
             self._protein_decoder = ProteinDecoder(self._best_sequence, self._side_chain_hot_vector, self._unused_qubits)
         return self._protein_decoder
     
     @property
     def protein_xyz(self) -> ProteinXYZ:
-        """Returns (and generates if needed) a ProteinXYZ. This class will take the encoded turns and generate the position of every bead in the main and side chains."""
+        """Returns (and generates if needed) a ProteinXYZ. This class will take the encoded turns and 
+        generate the position of every bead in the main and side chains."""
         if not hasattr(self,'_protein_xyz'):
-            self._protein_xyz = ProteinXYZ(self.protein_decoder.get_main_turns(),self.protein_decoder.get_side_turns(),self._protein_folding_problem.peptide)
+            self._protein_xyz = ProteinXYZ(self.protein_decoder.get_main_turns(),
+                                           self.protein_decoder.get_side_turns(),
+                                           self._protein_folding_problem.peptide)
         return self._protein_xyz
     
     @property
