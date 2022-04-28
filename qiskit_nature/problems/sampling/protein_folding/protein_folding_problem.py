@@ -28,6 +28,7 @@ import qiskit_nature.results.protein_folding_result as pfr
 
 from qiskit.algorithms import MinimumEigensolverResult
 
+
 class ProteinFoldingProblem(SamplingProblem):
     """Defines a protein folding problem that can be passed to algorithms. Example initialization:
 
@@ -95,53 +96,22 @@ class ProteinFoldingProblem(SamplingProblem):
         return qubit_operator
 
     # TODO will be implemented in another issue, including the type hint
-    def interpret(self,raw_result : MinimumEigensolverResult) -> pfr.ProteinFoldingResult:
+    def interpret(self, raw_result: MinimumEigensolverResult) -> pfr.ProteinFoldingResult:
         """
         Returns a ProteinFoldingResult object that will allow us to interpret the result obtained.
         For now we are only interested in the sequence with the biggest amplitude from the eigenstate.
         """
         best_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
-        return pfr.ProteinFoldingResult(self,best_sequence)
+        return pfr.ProteinFoldingResult(self, best_sequence)
 
     @property
     def unused_qubits(self) -> List[int]:
         """Returns the list of indices for qubits in the original problem formulation that were
         removed during compression."""
         return self._unused_qubits
-    
-        
+
     @property
-    def peptide(self) ->Peptide:
+    def peptide(self) -> Peptide:
         """Returns the list of indices for qubits in the original problem formulation that were
         removed during compression."""
         return self._peptide
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

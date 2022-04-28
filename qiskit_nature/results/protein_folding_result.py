@@ -28,42 +28,50 @@ class ProteinFoldingResult(EigenstateResult):
     """
     The Protein Folding Result
     """
+
     def __init__(
         self,
-        protein_folding_problem : pfp.ProteinFoldingProblem,
+        protein_folding_problem: pfp.ProteinFoldingProblem,
         best_sequence: Union[str, PauliOp],
     ) -> None:
         super().__init__()
         self._protein_folding_problem = protein_folding_problem
-        self._best_sequence  = best_sequence
+        self._best_sequence = best_sequence
         self._unused_qubits = self._protein_folding_problem.unused_qubits
-        self._main_chain_lenght = len(self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence)
-        self._side_chain_hot_vector = self._protein_folding_problem.peptide.get_side_chain_hot_vector()
-        
+        self._main_chain_lenght = len(
+            self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence
+        )
+        self._side_chain_hot_vector = (
+            self._protein_folding_problem.peptide.get_side_chain_hot_vector()
+        )
+
     @property
     def protein_decoder(self) -> ProteinDecoder:
         """Returns (and generates if needed) a ProteinDecoder.
         This class will interpret the result bitstring and return the encoded information."""
-        if not hasattr(self,'_protein_decoder'):
-            self._protein_decoder = ProteinDecoder(self._best_sequence, self._side_chain_hot_vector, self._unused_qubits)
+        if not hasattr(self, "_protein_decoder"):
+            self._protein_decoder = ProteinDecoder(
+                self._best_sequence, self._side_chain_hot_vector, self._unused_qubits
+            )
         return self._protein_decoder
-    
+
     @property
     def protein_xyz(self) -> ProteinXYZ:
-        """Returns (and generates if needed) a ProteinXYZ. This class will take the encoded turns and 
+        """Returns (and generates if needed) a ProteinXYZ. This class will take the encoded turns and
         generate the position of every bead in the main and side chains."""
-        if not hasattr(self,'_protein_xyz'):
-            self._protein_xyz = ProteinXYZ(self.protein_decoder.get_main_turns(),
-                                           self.protein_decoder.get_side_turns(),
-                                           self._protein_folding_problem.peptide)
+        if not hasattr(self, "_protein_xyz"):
+            self._protein_xyz = ProteinXYZ(
+                self.protein_decoder.get_main_turns(),
+                self.protein_decoder.get_side_turns(),
+                self._protein_folding_problem.peptide,
+            )
         return self._protein_xyz
-    
+
     @property
     def best_sequence(self) -> str:
         """Returns the best sequence."""
         return self._best_sequence
-    
-   
+
     def get_result_binary_vector(self) -> str:
         """Returns a string that encodes a solution of the ProteinFoldingProblem.
         The ProteinFoldingProblem uses a compressed optimization problem that does not match the
@@ -82,10 +90,10 @@ class ProteinFoldingResult(EigenstateResult):
             result.append(self._best_sequence[index])
 
         return "".join(result[::-1])
-    
-    def get_xyz_file(self,name : str ='default', output_data=False) -> np.array:
-        return self.protein_xyz.get_xyz_file(name,output_data)
-    
+
+    def get_xyz_file(self, name: str = "default", output_data=False) -> np.array:
+        return self.protein_xyz.get_xyz_file(name, output_data)
+
     def plotstructure(self) -> None:
-        protein_plotter = ProteinPlotter()
+        protein_plotter = ProteinPlotter(self)
         protein_plotter.plot()
