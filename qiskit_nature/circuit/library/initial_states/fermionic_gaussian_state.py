@@ -48,7 +48,60 @@ def _validate_transformation_matrix(
 
 
 class FermionicGaussianState(QuantumCircuit):
-    """A circuit that prepares a fermionic Gaussian state."""
+    r"""A circuit that prepares a fermionic Gaussian state.
+
+    A fermionic Gaussian state is a state of the form
+
+    .. math::
+        b^\dagger_1 \cdots b^\dagger_{N_p} \lvert \overline{\text{vac}} \rangle
+
+    where
+
+    .. math::
+        \begin{pmatrix}
+            b^\dagger_1 \\
+            \vdots \\
+            b^\dagger_N \\
+        \end{pmatrix}
+        = W
+        \begin{pmatrix}
+            a^\dagger_1 \\
+            \vdots \\
+            a^\dagger_N \\
+            a_1 \\
+            \vdots \\
+            a_N
+        \end{pmatrix},
+
+    - :math:`a^\dagger_1, \ldots, a^\dagger_{N}` are the fermionic creation operators
+    - :math:`W` is an :math:`N \times 2N` matrix such that
+      :math:`b^\dagger_1, \ldots, b^\dagger_{N}` also satisfy the
+      fermionic anticommutation relations
+    - :math:`\lvert \overline{\text{vac}} \rangle` is the mutual 0-eigenvector of
+      the operators :math:`\{b_j^\dagger b_j\}`
+
+    The matrix :math:`W` has the block form
+
+    .. math::
+        \begin{pmatrix}
+            W_1 & W_2
+        \end{pmatrix}
+
+    where :math:`W_1` and :math:`W_2` must satisfy
+
+    .. math::
+        W_1 W_1^\dagger + W_2 W_2^\dagger = I \\
+        W_1 W_2^T + W_2 W_1^T = 0
+
+    The matrix :math:`W` is commonly obtained by calling
+    :meth:`qiskit_nature.operators.second_quantization.QuadraticHamiltonian.diagonalizing_bogoliubov_transform`.
+    This matrix is used to create circuits that prepare eigenstates of the
+    quadratic Hamiltonian.
+
+    Currently, only the Jordan-Wigner Transformation is supported.
+
+    Reference: arXiv:1711.05395
+    """
 
     def __init__(
         self,
@@ -60,55 +113,7 @@ class FermionicGaussianState(QuantumCircuit):
         atol: float = 1e-8,
         **circuit_kwargs,
     ) -> None:
-        r"""Initialize a circuit that prepares a fermionic Gaussian state.
-
-        A fermionic Gaussian state is a state of the form
-
-        .. math::
-            b^\dagger_1 \cdots b^\dagger_{N_p} \lvert \overline{\text{vac}} \rangle
-
-        where
-
-        .. math::
-           \begin{pmatrix}
-                b^\dagger_1 \\
-                \vdots \\
-                b^\dagger_N \\
-           \end{pmatrix}
-           = W
-           \begin{pmatrix}
-                a^\dagger_1 \\
-                \vdots \\
-                a^\dagger_N \\
-                a_1 \\
-                \vdots \\
-                a_N
-           \end{pmatrix},
-
-        - :math:`a^\dagger_1, \ldots, a^\dagger_{N}` are the fermionic creation operators
-        - :math:`W` is an :math:`N \times 2N` matrix such that
-          :math:`b^\dagger_1, \ldots, b^\dagger_{N}` also satisfy the
-          fermionic anticommutation relations
-        - :math:`\lvert \overline{\text{vac}} \rangle` is the mutual 0-eigenvector of
-          the operators :math:`\{b_j^\dagger b_j\}`
-
-        The matrix :math:`W` has the block form
-
-        .. math::
-           \begin{pmatrix}
-                W_1 & W_2
-           \end{pmatrix}
-
-        where :math:`W_1` and :math:`W_2` must satisfy
-
-        .. math::
-            W_1 W_1^\dagger + W_2 W_2^\dagger = I \\
-            W_1 W_2^T + W_2 W_1^T = 0
-
-        Currently, only the Jordan-Wigner Transformation is supported.
-
-        Reference: arXiv:1711.05395
-
+        r"""
         Args:
             transformation_matrix: The matrix :math:`W` that specifies the coefficients of the
                 new creation operators in terms of the original creation and annihilation operators.

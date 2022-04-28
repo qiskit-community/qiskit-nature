@@ -28,7 +28,27 @@ def _rows_are_orthonormal(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-
 
 
 class SlaterDeterminant(QuantumCircuit):
-    """A circuit that prepares a Slater determinant."""
+    r"""A circuit that prepares a Slater determinant.
+
+    A Slater determinant is a state of the form
+
+    .. math::
+        b^\dagger_1 \cdots b^\dagger_{N_f} \lvert \text{vac} \rangle
+
+    where
+
+    .. math::
+        b^\dagger_j = \sum_{k = 1}^N Q_{jk} a^\dagger_k,
+
+    - :math:`Q` is an :math:`N_f \times N` matrix with orthonormal rows
+    - :math:`a^\dagger_1, \ldots, a^\dagger_{N}` are the fermionic creation operators
+    - :math:`\lvert \text{vac} \rangle` is the vacuum state
+      (mutual 0-eigenvector of the fermionic number operators :math:`\{a^\dagger_j a_j\}`)
+
+    Currently, only the Jordan-Wigner Transformation is supported.
+
+    Reference: arXiv:1711.05395
+    """
 
     def __init__(
         self,
@@ -39,27 +59,7 @@ class SlaterDeterminant(QuantumCircuit):
         atol: float = 1e-8,
         **circuit_kwargs,
     ) -> None:
-        r"""Initialize a circuit that prepares a Slater determinant.
-
-        A Slater determinant is a state of the form
-
-        .. math::
-            b^\dagger_1 \cdots b^\dagger_{N_f} \lvert \text{vac} \rangle
-
-        where
-
-        .. math::
-            b^\dagger_j = \sum_{k = 1}^N Q_{jk} a^\dagger_k,
-
-        - :math:`Q` is an :math:`N_f \times N` matrix with orthonormal rows
-        - :math:`a^\dagger_1, \ldots, a^\dagger_{N}` are the fermionic creation operators
-        - :math:`\lvert \text{vac} \rangle` is the vacuum state
-          (mutual 0-eigenvector of the fermionic number operators :math:`\{a^\dagger_j a_j\}`)
-
-        Currently, only the Jordan-Wigner Transformation is supported.
-
-        Reference: arXiv:1711.05395
-
+        r"""
         Args:
             transformation_matrix: The matrix :math:`Q` that specifies the coefficients of the
                 new creation operators in terms of the original creation operators.
