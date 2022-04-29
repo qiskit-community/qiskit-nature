@@ -11,17 +11,17 @@
 # that they have been altered from the originals.
 """The protein folding result."""
 from __future__ import annotations
-
 from typing import Union
-from qiskit.opflow import PauliOp
 import numpy as np
+
+from qiskit.opflow import PauliOp
+
+import qiskit_nature.problems.sampling.protein_folding.protein_folding_problem as pfp
+
 from qiskit_nature.results import EigenstateResult
 from .protein_folding_tools.protein_decoder import ProteinDecoder
 from .protein_folding_tools.protein_xyz import ProteinXYZ
 from .protein_folding_tools.protein_plotter import ProteinPlotter
-
-
-import qiskit_nature.problems.sampling.protein_folding.protein_folding_problem as pfp
 
 
 class ProteinFoldingResult(EigenstateResult):
@@ -34,6 +34,12 @@ class ProteinFoldingResult(EigenstateResult):
         protein_folding_problem: pfp.ProteinFoldingProblem,
         best_sequence: Union[str, PauliOp],
     ) -> None:
+        """
+        Args:
+            protein_folding_problem: The protein folding problem that created the result.
+            best_sequence: The best sequence in the result eigenstate.
+            
+        """
         super().__init__()
         self._protein_folding_problem = protein_folding_problem
         self._best_sequence = best_sequence
@@ -45,26 +51,28 @@ class ProteinFoldingResult(EigenstateResult):
             self._protein_folding_problem.peptide.get_side_chain_hot_vector()
         )
 
+        self._protein_decoder = ProteinDecoder(
+            best_sequence = self._best_sequence,
+            side_chain_hot_vector = self._side_chain_hot_vector,
+            fifth_bit = 5 in self._unused_qubits[:6]
+        )
+
+        self._protein_xyz = ProteinXYZ(
+            self.protein_decoder.get_main_turns(),
+            self.protein_decoder.get_side_turns(),
+            self._protein_folding_problem.peptide,
+        )
+
     @property
     def protein_decoder(self) -> ProteinDecoder:
-        """Returns (and generates if needed) a ProteinDecoder.
+        """Returns a ProteinDecoder.
         This class will interpret the result bitstring and return the encoded information."""
-        if not hasattr(self, "_protein_decoder"):
-            self._protein_decoder = ProteinDecoder(
-                self._best_sequence, self._side_chain_hot_vector, self._unused_qubits
-            )
         return self._protein_decoder
 
     @property
     def protein_xyz(self) -> ProteinXYZ:
-        """Returns (and generates if needed) a ProteinXYZ. This class will take the encoded turns and
+        """Returns a ProteinXYZ. This class will take the encoded turns and
         generate the position of every bead in the main and side chains."""
-        if not hasattr(self, "_protein_xyz"):
-            self._protein_xyz = ProteinXYZ(
-                self.protein_decoder.get_main_turns(),
-                self.protein_decoder.get_side_turns(),
-                self._protein_folding_problem.peptide,
-            )
         return self._protein_xyz
 
     @property
@@ -91,9 +99,16 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def get_xyz_file(self, name: str = "default", output_data=False) -> np.array:
+    def get_xyz_file(self, name: str = "default", output_data=False) -> np.ndarray:
+        """
+        Generates an xyz_file and returns an array with the data in that file.
+        Args:
+            name: name of the file to be generated
+            output_data: boolean indicating whether we want to generate the file or not
+        """
         return self.protein_xyz.get_xyz_file(name, output_data)
 
     def plotstructure(self) -> None:
+        """Plots the molecule in 3D"""
         protein_plotter = ProteinPlotter(self)
         protein_plotter.plot()

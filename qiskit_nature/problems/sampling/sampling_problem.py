@@ -14,6 +14,9 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 from qiskit.opflow import PauliSumOp, PauliOp
+from qiskit.algorithms import MinimumEigensolverResult
+
+from qiskit_nature.results import EigenstateResult
 
 
 class SamplingProblem(ABC):
@@ -26,6 +29,6 @@ class SamplingProblem(ABC):
 
     # TODO type hint will be addressed later on
     @abstractmethod
-    def interpret(self):
+    def interpret(self, raw_result: MinimumEigensolverResult) -> EigenstateResult:
         """Interprets results of an optimization."""
         pass

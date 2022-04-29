@@ -15,6 +15,9 @@ from __future__ import annotations
 from typing import Union, List
 
 from qiskit.opflow import PauliSumOp, PauliOp
+from qiskit.algorithms import MinimumEigensolverResult
+
+import qiskit_nature.results.protein_folding_result as pfr
 
 from .peptide.peptide import Peptide
 from .interactions.interaction import Interaction
@@ -22,11 +25,6 @@ from .penalty_parameters import PenaltyParameters
 from .qubit_op_builder import QubitOpBuilder
 from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
-
-
-import qiskit_nature.results.protein_folding_result as pfr
-
-from qiskit.algorithms import MinimumEigensolverResult
 
 
 class ProteinFoldingProblem(SamplingProblem):
