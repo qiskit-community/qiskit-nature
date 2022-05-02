@@ -12,4 +12,4 @@
 
 """Utility functions to detect and transform the index-ordering convention of two-body integrals"""
 
-from ._electronic_integrals_utils import find_index_order, phys_to_chem, chem_to_phys
+from .two_body_symmetry_conversion import find_index_order, phys_to_chem, chem_to_phys

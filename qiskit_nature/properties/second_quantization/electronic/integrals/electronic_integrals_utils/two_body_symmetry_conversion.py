@@ -12,6 +12,7 @@
 
 """Utility functions to detect and transform the index-ordering convention of two-body integrals"""
 
+from enum import Enum
 import numpy
 
 ## These are the permutation symmetries satisfied by
@@ -27,7 +28,6 @@ CHEM_INDEX_PERMUTATIONS = [
     "pqrs->srpq",  # 2 and 4
     "pqrs->srqp",  # 3 and 4
 ]
-
 
 def phys_to_chem(two_body_tensor):
     """
@@ -55,25 +55,25 @@ def chem_to_phys(two_body_tensor):
     return permuted_tensor
 
 
-def _check_two_body_symmetry(tensor, test_number):
+def _check_two_body_symmetry(tensor, permutation):
     """
     Return `True` if `tensor` passes symmetry test number `test_number`. Otherwise,
     return `False`.
     """
-    permuted_tensor = numpy.einsum(CHEM_INDEX_PERMUTATIONS[test_number], tensor)
+    permuted_tensor = numpy.einsum(permutation, tensor)
     return numpy.allclose(tensor, permuted_tensor)
 
 
 def _check_two_body_symmetries(two_body_tensor, chemist=True):
     """
-    Return `True` if the rank-4 tensor `two_body_tensor` has the required symmetries for coefficents
+    Return `True` if the rank-4 tensor `two_body_tensor` has the required symmetries for coefficients
     of the two-electron terms.  If `chemist` is `True`, assume the input is in chemists' order,
     otherwise in physicists' order.
 
     If `two_body_tensor` is a correct tensor of indices, with the correct index order, it must pass the
-    tests. If `two_body_tensor` is a correct tensor of indicies, but the flag `chemist` is incorrect,
+    tests. If `two_body_tensor` is a correct tensor of indices, but the flag `chemist` is incorrect,
     it will fail the tests, unless the tensor has accidental symmetries.
-    This test may be used with care to discriminiate between the orderings.
+    This test may be used with care to discriminate between the orderings.
 
     References: HJO Molecular Electronic-Structure Theory (1.4.17), (1.4.38)
 
@@ -81,8 +81,8 @@ def _check_two_body_symmetries(two_body_tensor, chemist=True):
     """
     if not chemist:
         two_body_tensor = phys_to_chem(two_body_tensor)
-    for test_number in range(len(CHEM_INDEX_PERMUTATIONS)):
-        if not _check_two_body_symmetry(two_body_tensor, test_number):
+    for permutation in ChemIndexPermutations:
+        if not _check_two_body_symmetry(two_body_tensor, permutation):
             return False
     return True
 
@@ -107,12 +107,33 @@ def find_index_order(two_body_tensor):
     symmetries for all three index orders are satisfied.
     """
     if _check_two_body_symmetries(two_body_tensor):
-        return "chemist"
+        return IndexType.CHEM
     permuted_tensor = phys_to_chem(two_body_tensor)
     if _check_two_body_symmetries(permuted_tensor):
-        return "physicist"
+        return IndexType.PHYS
     permuted_tensor = phys_to_chem(permuted_tensor)
     if _check_two_body_symmetries(permuted_tensor):
-        return "intermediate"
+        return IndexType.INT
     else:
-        return "unknown"
+        return IndexType.UNKNOWN
+
+
+class ChemIndexPermutations(Enum):
+    """This ``Enum`` defines the permutation symmetries satisfied by a rank-4 tensor of real
+    two-body integrals in chemists' index order, naming each permutation in order of appearance
+    in Molecular Electronic Structure Theory by Helgaker, Jørgensen, Olsen (HJO)."""
+
+    PERM_1 = "pqrs->rspq" # HJO (1.4.17) 
+    PERM_2_AB = "pqrs->qprs" # HJO (1.4.38)
+    PERM_2_AC = "pqrs->pqsr" # HJO (1.4.38)
+    PERM_2_AD = "pqrs->qpsr" # HJO (1.4.38)
+    PERM_3 = "pqrs->rsqp" # ??
+    PERM_4 = "pqrs->srpq" # ??
+
+class IndexType(Enum):
+    """This ``Enum`` names the different permutation index orders that could be encountered."""
+    
+    CHEM = "chemist"
+    PHYS = "physicist"
+    INT = "intermediate"
+    UNKNOWN = "unknown"
