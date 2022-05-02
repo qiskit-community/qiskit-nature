@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,9 @@
 
 """The 1-body electronic integrals."""
 
-from typing import List, Optional, Tuple, Union
+from __future__ import annotations
+
+from typing import Optional, Union
 
 import numpy as np
 
@@ -25,10 +27,12 @@ from ..bases import ElectronicBasis, ElectronicBasisTransform
 class OneBodyElectronicIntegrals(ElectronicIntegrals):
     """The 1-body electronic integrals."""
 
+    _MATRIX_REPRESENTATIONS = ["Alpha", "Beta"]
+
     def __init__(
         self,
         basis: ElectronicBasis,
-        matrices: Union[np.ndarray, Tuple[Optional[np.ndarray], ...]],
+        matrices: Union[np.ndarray, tuple[Optional[np.ndarray], ...]],
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
         # pylint: disable=line-too-long
@@ -48,9 +52,8 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         """
         num_body_terms = 1
         super().__init__(num_body_terms, basis, matrices, threshold)
-        self._matrix_representations = ["Alpha", "Beta"]
 
-    def transform_basis(self, transform: ElectronicBasisTransform) -> "OneBodyElectronicIntegrals":
+    def transform_basis(self, transform: ElectronicBasisTransform) -> OneBodyElectronicIntegrals:
         # pylint: disable=line-too-long
         """Transforms the integrals according to the given transform object.
 
@@ -78,9 +81,9 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         matrix_a = np.dot(np.dot(transform.coeff_alpha.T, self._matrices[0]), transform.coeff_alpha)
         matrix_b = None
-        if self._matrices[1] is not None:
+        if self._matrices[1] is not None or not transform.is_alpha_equal_beta():
             matrix_b = np.dot(
-                np.dot(transform.coeff_beta.T, self._matrices[1]), transform.coeff_beta
+                np.dot(transform.coeff_beta.T, self.get_matrix(1)), transform.coeff_beta
             )
         return OneBodyElectronicIntegrals(transform.final_basis, (matrix_a, matrix_b))
 
@@ -98,15 +101,16 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         if self._basis == ElectronicBasis.SO:
             return self._matrices  # type: ignore
 
-        matrix_a = self._matrices[0]
-        matrix_b = matrix_a if self._matrices[1] is None else self._matrices[1]
+        matrix_a = self.get_matrix(0)
+        matrix_b = self.get_matrix(1)
         zeros = np.zeros(matrix_a.shape)
         so_matrix = np.block([[matrix_a, zeros], [zeros, matrix_b]])
 
         return np.where(np.abs(so_matrix) > self._threshold, so_matrix, 0.0)
 
-    def _calc_coeffs_with_ops(self, indices: Tuple[int, ...]) -> List[Tuple[int, str]]:
-        return [(indices[0], "+"), (indices[1], "-")]
+    @staticmethod
+    def _calc_coeffs_with_ops(indices: tuple[int, ...]) -> list[tuple[str, int]]:
+        return [("+", indices[0]), ("-", indices[1])]
 
     def compose(self, other: ElectronicIntegrals, einsum_subscript: str = "ij,ji") -> complex:
         """Composes these ``OneBodyElectronicIntegrals`` with another instance thereof.
@@ -135,7 +139,11 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             )
 
         product = 0.0
-        for front, back in zip(self._matrices, other._matrices):
+        for idx, (front, back) in enumerate(zip(self._matrices, other._matrices)):
+            if front is None:
+                front = self.get_matrix(idx)
+            if back is None:
+                back = other.get_matrix(idx)
             product += np.einsum(einsum_subscript, front, back)
 
         return complex(product)

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,19 +14,19 @@
 
 import unittest
 
-from test import requires_extra_library
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver, MethodType
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, ParityMapper
 from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverMethodsPySCF(TestDriverMethods):
     """Driver Methods PySCF tests"""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         PySCFDriver(atom=self.lih)

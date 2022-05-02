@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,8 +15,12 @@
 import unittest
 from test import QiskitNatureTestCase
 
+from test.mappers.second_quantization.resources.bksf_lih import (
+    FERMIONIC_HAMILTONIAN,
+    QUBIT_HAMILTONIAN,
+)
 import numpy as np
-from qiskit.quantum_info import SparsePauliOp
+from qiskit.quantum_info import SparsePauliOp, PauliList
 
 from qiskit_nature.operators.second_quantization import FermionicOp
 from qiskit_nature.mappers.second_quantization import BravyiKitaevSuperFastMapper
@@ -156,10 +160,29 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             self.assertEqual(op1, op2)
 
         with self.subTest("Sparse FermionicOp input"):
-            h2_fop_sparse = h2_fop.to_normal_order()
+            h2_fop_sparse = h2_fop.normal_ordered()
             pauli_sum_op_from_sparse = BravyiKitaevSuperFastMapper().map(h2_fop_sparse)
             op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse.primitive)
             self.assertEqual(op1, op2_from_sparse)
+
+        with self.subTest("Test accepting identity with zero coefficient"):
+            h2_fop_zero_term = h2_fop + FermionicOp([("IIII", 0.0)], display_format="dense")
+            pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
+            op3 = _sort_simplify(pauli_sum_op_extra.primitive)
+            self.assertEqual(op1, op3)
+
+        with self.subTest("Test zero FermiOp"):
+            fermi_op = FermionicOp([("++--", 0.0)], display_format="dense")
+            pauli_op = BravyiKitaevSuperFastMapper().map(fermi_op).primitive
+            x = np.array([], dtype="bool")
+            z = np.array([], dtype="bool")
+            expected_pauli_op = SparsePauliOp(PauliList.from_symplectic(x, z), coeffs=[0.0])
+            self.assertEqual(pauli_op, expected_pauli_op)
+
+    def test_LiH(self):
+        """Test LiH molecule"""
+        pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
+        self.assertEqual(pauli_sum_op._primitive, QUBIT_HAMILTONIAN)
 
 
 if __name__ == "__main__":

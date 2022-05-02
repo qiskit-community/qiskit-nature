@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 
 """ Test Driver Methods """
 
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import unittest
 
@@ -23,7 +23,6 @@ from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-from qiskit_nature.transformers import BaseTransformer as LegacyBaseTransformer
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 
@@ -41,7 +40,7 @@ class TestDriverMethods(QiskitNatureTestCase):
     def _run_driver(
         driver: ElectronicStructureDriver,
         converter: QubitConverter = QubitConverter(JordanWignerMapper()),
-        transformers: Optional[List[Union[LegacyBaseTransformer, BaseTransformer]]] = None,
+        transformers: Optional[List[BaseTransformer]] = None,
     ):
 
         problem = ElectronicStructureProblem(driver, transformers)

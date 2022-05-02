@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,6 +20,7 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import FCIDumpDriver, PySCFDriver
+import qiskit_nature.optionals as _optionals
 
 
 class BaseTestDriverFCIDumpDumper(ABC):
@@ -107,6 +108,7 @@ class BaseTestDriverFCIDumpDumper(ABC):
 class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper):
     """RHF FCIDump Driver tests."""
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         self.core_energy = 0.7199
@@ -129,14 +131,12 @@ class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper)
 
             with tempfile.NamedTemporaryFile() as dump:
                 FCIDumpDriver.dump(driver_result, dump.name)
-                # pylint: disable=import-outside-toplevel
+                # pylint: disable=import-outside-toplevel,import-error
                 from pyscf.tools import fcidump as pyscf_fcidump
 
                 self.dumped = pyscf_fcidump.read(dump.name)
-        except QiskitNatureError:
-            self.skipTest("PYSCF driver does not appear to be installed.")
-        except ImportError:
-            self.skipTest("PYSCF driver does not appear to be installed.")
+        except QiskitNatureError as ex:
+            self.skipTest(str(ex))
 
 
 if __name__ == "__main__":

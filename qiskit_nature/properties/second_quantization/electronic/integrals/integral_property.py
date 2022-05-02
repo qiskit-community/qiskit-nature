@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,11 @@
 
 """The IntegralProperty property."""
 
-from typing import Dict, List, Optional
+from __future__ import annotations
+
+from typing import Generator, Optional
+
+import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.operators.second_quantization import FermionicOp
@@ -39,8 +43,8 @@ class IntegralProperty(ElectronicProperty):
     def __init__(
         self,
         name: str,
-        electronic_integrals: List[ElectronicIntegrals],
-        shift: Optional[Dict[str, complex]] = None,
+        electronic_integrals: list[ElectronicIntegrals],
+        shift: Optional[dict[str, complex]] = None,
     ) -> None:
         # pylint: disable=line-too-long
         """
@@ -51,21 +55,33 @@ class IntegralProperty(ElectronicProperty):
             shift: an optional dictionary of value shifts.
         """
         super().__init__(name)
-        self._electronic_integrals: Dict[ElectronicBasis, Dict[int, ElectronicIntegrals]] = {}
+        self._electronic_integrals: dict[ElectronicBasis, dict[int, ElectronicIntegrals]] = {}
         for integral in electronic_integrals:
             self.add_electronic_integral(integral)
         self._shift = shift or {}
 
     def __str__(self) -> str:
         string = [super().__str__()]
-        for basis_ints in self._electronic_integrals.values():
-            for ints in basis_ints.values():
-                string += ["\t" + "\n\t".join(str(ints).split("\n"))]
+        for ints in self:
+            string += ["\t" + "\n\t".join(str(ints).split("\n"))]
         if self._shift:
             string += ["\tEnergy Shifts:"]
             for name, shift in self._shift.items():
                 string += [f"\t\t{name} = {shift}"]
         return "\n".join(string)
+
+    def __iter__(self) -> Generator[ElectronicIntegrals, None, None]:
+        """Returns the generator-iterator method."""
+        return self._generator()
+
+    def _generator(self) -> Generator[ElectronicIntegrals, None, None]:
+        """A generator-iterator method [1] iterating over all internal ``ElectronicIntegrals``.
+
+        [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
+        """
+        for basis_ints in self._electronic_integrals.values():
+            for ints in basis_ints.values():
+                yield ints
 
     def add_electronic_integral(self, integral: ElectronicIntegrals) -> None:
         """Adds an ElectronicIntegrals instance to the internal storage.
@@ -144,7 +160,7 @@ class IntegralProperty(ElectronicProperty):
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
 
-        op = sum(int.to_second_q_op() for int in ints.values()).reduce()  # type: ignore[union-attr]
+        op = sum(int.to_second_q_op() for int in ints.values())
 
         if not settings.dict_aux_operators:
             return [op]
@@ -152,7 +168,7 @@ class IntegralProperty(ElectronicProperty):
         return {self.name: op}
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "IntegralProperty":
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> IntegralProperty:
         """This property does not support construction from a legacy driver result (yet).
 
         Args:
@@ -173,3 +189,49 @@ class IntegralProperty(ElectronicProperty):
             NotImplementedError
         """
         raise NotImplementedError()
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        ints_group = group.create_group("electronic_integrals")
+        for basis, integrals in self._electronic_integrals.items():
+            basis_group = ints_group.create_group(basis.name)
+            for integral in integrals.values():
+                integral.to_hdf5(basis_group)
+
+        shift_group = group.create_group("shift")
+        for name, shift in self._shift.items():
+            shift_group.attrs[name] = shift
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> IntegralProperty:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        ints = []
+        for basis_group in h5py_group["electronic_integrals"].values():
+            for int_group in basis_group.values():
+                ints.append(ElectronicIntegrals.from_hdf5(int_group))
+
+        shifts = {}
+        for name, shift in h5py_group["shift"].attrs.items():
+            shifts[name] = shift
+
+        class_name = h5py_group.attrs.get("__class__", "")
+
+        return IntegralProperty(class_name, ints, shifts)

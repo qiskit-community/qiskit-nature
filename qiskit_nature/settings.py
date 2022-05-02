@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,6 +20,7 @@ class QiskitNatureSettings:
 
     def __init__(self):
         self._dict_aux_operators: bool = False
+        self._optimize_einsum: bool = True
 
     @property
     def dict_aux_operators(self) -> bool:
@@ -50,6 +51,24 @@ class QiskitNatureSettings:
             )
 
         self._dict_aux_operators = dict_aux_operators
+
+    @property
+    def optimize_einsum(self) -> bool:
+        """Returns the setting used for `numpy.einsum(optimize=...)`.
+
+        This is only used for calls with 3 or more operands. For more details refer to:
+        https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
+        """
+        return self._optimize_einsum
+
+    @optimize_einsum.setter
+    def optimize_einsum(self, optimize_einsum: bool) -> None:
+        """Sets the setting used for `numpy.einsum(optimize=...)`.
+
+        This is only used for calls with 3 or more operands. For more details refer to:
+        https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
+        """
+        self._optimize_einsum = optimize_einsum
 
 
 settings = QiskitNatureSettings()

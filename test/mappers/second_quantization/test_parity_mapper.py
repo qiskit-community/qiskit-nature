@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -51,7 +51,7 @@ class TestParityMapper(QiskitNatureTestCase):
             )
         )
         driver_result = driver.run()
-        fermionic_op = driver_result.second_q_ops()[0]
+        fermionic_op = driver_result.second_q_ops()["ElectronicEnergy"]
         mapper = ParityMapper()
         qubit_op = mapper.map(fermionic_op)
 
@@ -70,27 +70,27 @@ class TestParityMapper(QiskitNatureTestCase):
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):
-            op = FermionicOp("+")
+            op = FermionicOp("+", display_format="dense")
             expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
             self.assertEqual(ParityMapper().map(op), expected)
 
         with self.subTest("test -"):
-            op = FermionicOp("-")
+            op = FermionicOp("-", display_format="dense")
             expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
             self.assertEqual(ParityMapper().map(op), expected)
 
         with self.subTest("test N"):
-            op = FermionicOp("N")
+            op = FermionicOp("N", display_format="dense")
             expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
             self.assertEqual(ParityMapper().map(op), expected)
 
         with self.subTest("test E"):
-            op = FermionicOp("E")
+            op = FermionicOp("E", display_format="dense")
             expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
             self.assertEqual(ParityMapper().map(op), expected)
 
         with self.subTest("test I"):
-            op = FermionicOp("I")
+            op = FermionicOp("I", display_format="dense")
             expected = PauliSumOp.from_list([("I", 1)])
             self.assertEqual(ParityMapper().map(op), expected)
 

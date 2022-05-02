@@ -12,7 +12,6 @@
 
 """The PySCF Driver."""
 
-import importlib
 import inspect
 import logging
 import os
@@ -23,7 +22,7 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 
 import numpy as np
 from qiskit.utils.validation import validate_min
-from qiskit.exceptions import MissingOptionalLibraryError
+
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicStructureDriverResult,
@@ -42,6 +41,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+import qiskit_nature.optionals as _optionals
 
 from ....exceptions import QiskitNatureError
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
@@ -50,17 +50,7 @@ from ...units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 
-try:
-    from pyscf import __version__ as pyscf_version
-    from pyscf import dft, gto, scf
-    from pyscf.lib import chkfile as lib_chkfile
-    from pyscf.lib import logger as pylogger
-    from pyscf.lib import param
-    from pyscf.tools import dump_mat
-
-    warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
-except ImportError:
-    logger.info("PySCF is not installed. See https://pyscf.org/install.html")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
 
 
 class InitialGuess(Enum):
@@ -72,6 +62,7 @@ class InitialGuess(Enum):
     ATOM = "atom"
 
 
+@_optionals.HAS_PYSCF.require_in_instance
 class PySCFDriver(ElectronicStructureDriver):
     """A Second-Quantization driver for Qiskit Nature using the PySCF library.
 
@@ -143,8 +134,10 @@ class PySCFDriver(ElectronicStructureDriver):
         .. _7: https://pyscf.org/pyscf_api_docs/pyscf.lib.html#module-pyscf.lib.chkfile
         """
         super().__init__()
-        # First, ensure that PySCF is actually installed
-        PySCFDriver.check_installed()
+        # pylint: disable=import-error
+        from pyscf import gto, scf
+
+        # First, ensure that PySCF supports the method
         PySCFDriver.check_method_supported(method)
 
         if isinstance(atom, list):
@@ -313,6 +306,7 @@ class PySCFDriver(ElectronicStructureDriver):
         self._chkfile = chkfile
 
     @staticmethod
+    @_optionals.HAS_PYSCF.require_in_call
     def from_molecule(
         molecule: Molecule,
         basis: str = "sto3g",
@@ -328,11 +322,10 @@ class PySCFDriver(ElectronicStructureDriver):
         Returns:
             driver
         """
-        PySCFDriver.check_installed()
         PySCFDriver.check_method_supported(method)
         kwargs = {}
         if driver_kwargs:
-            args = inspect.getfullargspec(PySCFDriver.__init__).args
+            args = inspect.signature(PySCFDriver.__init__).parameters.keys()
             for key, value in driver_kwargs.items():
                 if key not in ["self"] and key in args:
                     kwargs[key] = value
@@ -355,33 +348,6 @@ class PySCFDriver(ElectronicStructureDriver):
             driver acceptable basis
         """
         return basis
-
-    @staticmethod
-    def check_installed() -> None:
-        """Checks that PySCF is actually installed.
-
-        Raises:
-            MissingOptionalLibraryError: If PySCF is not installed.
-        """
-        try:
-            spec = importlib.util.find_spec("pyscf")
-            if spec is not None:
-                return
-        except Exception as ex:
-            logger.debug("PySCF check error %s", str(ex))
-            raise MissingOptionalLibraryError(
-                libname="PySCF",
-                name="PySCFDriver",
-                pip_install="pip install 'qiskit-nature[pyscf]'",
-                msg="See https://pyscf.org/install.html",
-            ) from ex
-
-        raise MissingOptionalLibraryError(
-            libname="PySCF",
-            name="PySCFDriver",
-            pip_install="pip install 'qiskit-nature[pyscf]'",
-            msg="See https://pyscf.org/install.html",
-        )
 
     @staticmethod
     def check_method_supported(method: MethodType) -> None:
@@ -420,6 +386,10 @@ class PySCFDriver(ElectronicStructureDriver):
         # molecule is in PySCF atom string format e.g. "H .0 .0 .0; H .0 .0 0.2"
         #          or in Z-Matrix format e.g. "H; O 1 1.08; H 2 1.08 1 107.5"
         # other parameters are as per PySCF got.Mole format
+        # pylint: disable=import-error
+        from pyscf import gto
+        from pyscf.lib import logger as pylogger
+        from pyscf.lib import param
 
         atom = self._check_molecule_format(self.atom)
         if self._max_memory is None:
@@ -471,13 +441,16 @@ class PySCFDriver(ElectronicStructureDriver):
         Returns:
             The coordinates in XYZ format.
         """
+        # pylint: disable=import-error
+        from pyscf import gto
+
         atoms = [x.strip() for x in val.split(";")]
         if atoms is None or len(atoms) < 1:
             raise QiskitNatureError("Molecule format error: " + val)
 
         # An xyz format has 4 parts in each atom, if not then do zmatrix convert
         # Allows dummy atoms, using symbol 'X' in zmatrix format for coord computation to xyz
-        parts = [x.strip() for x in atoms[0].split(" ")]
+        parts = [x.strip() for x in atoms[0].split()]
         if len(parts) != 4:
             try:
                 newval = []
@@ -499,6 +472,10 @@ class PySCFDriver(ElectronicStructureDriver):
         Raises:
             QiskitNatureError: If an invalid HF method type was supplied.
         """
+        # pylint: disable=import-error
+        from pyscf import dft, scf
+        from pyscf.lib import chkfile as lib_chkfile
+
         method_name = None
         method_cls = None
         try:
@@ -540,9 +517,9 @@ class PySCFDriver(ElectronicStructureDriver):
         self._populate_driver_result_electronic_energy(driver_result)
         self._populate_driver_result_electronic_dipole_moment(driver_result)
 
-        # TODO: once https://github.com/Qiskit/qiskit-terra/issues/6772 is resolved, we no longer
-        # _have_ to add these properties. However, until then the interpret method relies on indices
-        # of the aux_operators which are incorrect if these properties are not added.
+        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
+        # these properties by default.
+        # if not settings.dict_aux_operators:
         driver_result.add_property(AngularMomentum(self._mol.nao * 2))
         driver_result.add_property(Magnetization(self._mol.nao * 2))
 
@@ -564,6 +541,9 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_metadata(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
+        # pylint: disable=import-error
+        from pyscf import __version__ as pyscf_version
+
         cfg = [
             f"atom={self._atom}",
             f"unit={self._unit.value}",
@@ -590,6 +570,9 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_basis_transform(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
+        # pylint: disable=import-error
+        from pyscf.tools import dump_mat
+
         mo_coeff, mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
 
         if logger.isEnabledFor(logging.DEBUG):
@@ -631,6 +614,9 @@ class PySCFDriver(ElectronicStructureDriver):
     def _populate_driver_result_electronic_energy(
         self, driver_result: ElectronicStructureDriverResult
     ) -> None:
+        # pylint: disable=import-error
+        from pyscf import gto
+
         basis_transform = driver_result.get_property(ElectronicBasisTransform)
 
         one_body_ao = OneBodyElectronicIntegrals(

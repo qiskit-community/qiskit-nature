@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,13 @@
 
 """The Vibrational basis base class."""
 
+from __future__ import annotations
+
+import importlib
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Optional
+
+import h5py
 
 
 class VibrationalBasis(ABC):
@@ -24,9 +29,11 @@ class VibrationalBasis(ABC):
     to the documentation of :class:`~qiskit_nature.properties.vibrational.integrals` for more details.
     """
 
+    VERSION = 1
+
     def __init__(
         self,
-        num_modals_per_mode: List[int],
+        num_modals_per_mode: list[int],
         threshold: float = 1e-6,
     ) -> None:
         """
@@ -34,11 +41,12 @@ class VibrationalBasis(ABC):
             num_modals_per_mode: the number of modals to be used for each mode.
             threshold: the threshold value below which an integral coefficient gets neglected.
         """
+        self.name = self.__class__.__name__
         self._num_modals_per_mode = num_modals_per_mode
         self._threshold = threshold
 
     @property
-    def num_modals_per_mode(self) -> List[int]:
+    def num_modals_per_mode(self) -> list[int]:
         """Returns the number of modals per mode."""
         return self._num_modals_per_mode
 
@@ -46,6 +54,44 @@ class VibrationalBasis(ABC):
         string = [self.__class__.__name__ + ":"]
         string += [f"\tModals: {self._num_modals_per_mode}"]
         return "\n".join(string)
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        group = parent.require_group(self.name)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
+
+        group.attrs["threshold"] = self._threshold
+        group.attrs["num_modals_per_mode"] = self.num_modals_per_mode
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalBasis:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        class_name = h5py_group.attrs["__class__"]
+        module_path = h5py_group.attrs["__module__"]
+
+        loaded_module = importlib.import_module(module_path)
+        loaded_class = getattr(loaded_module, class_name, None)
+
+        return loaded_class(
+            h5py_group.attrs["num_modals_per_mode"], h5py_group.attrs.get("threshold", None)
+        )
 
     @abstractmethod
     def eval_integral(

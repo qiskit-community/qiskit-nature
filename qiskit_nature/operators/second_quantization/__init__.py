@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,18 +23,21 @@ Second-Quantization Operators
    :toctree: ../stubs/
 
    FermionicOp
+   QuadraticHamiltonian
    SpinOp
    SecondQuantizedOp
    VibrationalOp
 """
 
 from .fermionic_op import FermionicOp
+from .quadratic_hamiltonian import QuadraticHamiltonian
 from .second_quantized_op import SecondQuantizedOp
 from .spin_op import SpinOp
 from .vibrational_op import VibrationalOp
 
 __all__ = [
     "FermionicOp",
+    "QuadraticHamiltonian",
     "SecondQuantizedOp",
     "SpinOp",
     "VibrationalOp",

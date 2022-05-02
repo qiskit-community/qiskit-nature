@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -29,6 +29,15 @@ The top-level classes and submodules of qiskit_nature are:
    QiskitNatureError
    UnsupportMethodError
 
+Globals
+=======
+
+.. autosummary::
+   :toctree:
+
+   logging
+   settings
+
 Submodules
 ==========
 
@@ -39,6 +48,7 @@ Submodules
    circuit
    converters
    drivers
+   hdf5
    mappers
    operators
    problems
@@ -54,6 +64,7 @@ from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
 )
 
 from .exceptions import QiskitNatureError, UnsupportMethodError
+from .logging import logging
 from .settings import settings
 from .version import __version__
 
@@ -63,5 +74,6 @@ __all__ = [
     "ListOrDictType",
     "QiskitNatureError",
     "UnsupportMethodError",
+    "logging",
     "settings",
 ]

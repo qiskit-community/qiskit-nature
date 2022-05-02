@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,11 @@
 
 """The ElectronicEnergy property."""
 
-from typing import Dict, List, Optional, cast
+from __future__ import annotations
 
+from typing import Optional, cast
+
+import h5py
 import numpy as np
 
 from qiskit_nature.drivers import QMolecule
@@ -27,6 +30,7 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+from ....deprecation import deprecate_method
 
 
 class ElectronicEnergy(IntegralProperty):
@@ -44,8 +48,8 @@ class ElectronicEnergy(IntegralProperty):
 
     def __init__(
         self,
-        electronic_integrals: List[ElectronicIntegrals],
-        energy_shift: Optional[Dict[str, complex]] = None,
+        electronic_integrals: list[ElectronicIntegrals],
+        energy_shift: Optional[dict[str, complex]] = None,
         nuclear_repulsion_energy: Optional[float] = None,
         reference_energy: Optional[float] = None,
     ) -> None:
@@ -66,6 +70,66 @@ class ElectronicEnergy(IntegralProperty):
         self._orbital_energies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
+
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        if self.nuclear_repulsion_energy is not None:
+            group.attrs["nuclear_repulsion_energy"] = self.nuclear_repulsion_energy
+
+        if self.reference_energy is not None:
+            group.attrs["reference_energy"] = self.reference_energy
+
+        if self.orbital_energies is not None:
+            group.attrs["orbital_energies"] = self.orbital_energies
+
+        if self.kinetic is not None:
+            kinetic_group = group.create_group("kinetic")
+            self.kinetic.to_hdf5(kinetic_group)
+
+        if self.overlap is not None:
+            overlap_group = group.create_group("overlap")
+            self.overlap.to_hdf5(overlap_group)
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> ElectronicEnergy:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        integral_property = IntegralProperty.from_hdf5(h5py_group)
+
+        ret = ElectronicEnergy(list(integral_property), energy_shift=integral_property._shift)
+
+        ret.nuclear_repulsion_energy = h5py_group.attrs.get("nuclear_repulsion_energy", None)
+        ret.reference_energy = h5py_group.attrs.get("reference_energy", None)
+        ret.orbital_energies = h5py_group.attrs.get("orbital_energies", None)
+
+        if "kinetic" in h5py_group.keys():
+            ret.kinetic = ElectronicIntegrals.from_hdf5(
+                h5py_group["kinetic"]["OneBodyElectronicIntegrals"]
+            )
+
+        if "overlap" in h5py_group.keys():
+            ret.overlap = ElectronicIntegrals.from_hdf5(
+                h5py_group["overlap"]["OneBodyElectronicIntegrals"]
+            )
+
+        return ret
 
     @property
     def nuclear_repulsion_energy(self) -> Optional[float]:
@@ -121,7 +185,8 @@ class ElectronicEnergy(IntegralProperty):
         self._overlap = overlap
 
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "ElectronicEnergy":
+    @deprecate_method("0.4.0")
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ElectronicEnergy:
         """Construct an ``ElectronicEnergy`` instance from a :class:`~qiskit_nature.drivers.QMolecule`.
 
         Args:
@@ -140,7 +205,7 @@ class ElectronicEnergy(IntegralProperty):
 
         energy_shift = qmol.energy_shift.copy()
 
-        integrals: List[ElectronicIntegrals] = []
+        integrals: list[ElectronicIntegrals] = []
         if qmol.hcore is not None:
             integrals.append(
                 OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b))
@@ -194,7 +259,7 @@ class ElectronicEnergy(IntegralProperty):
         h2_bb: Optional[np.ndarray] = None,
         h2_ba: Optional[np.ndarray] = None,
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
-    ) -> "ElectronicEnergy":
+    ) -> ElectronicEnergy:
         """Construct an ``ElectronicEnergy`` from raw integrals in a given basis.
 
         When setting the basis to
@@ -254,9 +319,9 @@ class ElectronicEnergy(IntegralProperty):
         op = one_e_ints
 
         coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
-        # by reversing the order of the matrices we can construct the (beta, alpha)-ordered Coulomb
-        # integrals
-        coulomb_inv = OneBodyElectronicIntegrals(ElectronicBasis.AO, coulomb._matrices[::-1])
+        coulomb_inv = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (coulomb.get_matrix(1), coulomb.get_matrix(0))
+        )
         exchange = two_e_ints.compose(density, "ijkl,jk->il")
         op += coulomb + coulomb_inv - exchange
 

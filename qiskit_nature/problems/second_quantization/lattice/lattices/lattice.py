@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,18 +11,24 @@
 # that they have been altered from the originals.
 
 """General Lattice."""
+
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
+import numbers
 
 import numpy as np
-from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix
+
+from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix, networkx_converter
 from retworkx.visualization import mpl_draw
 
-from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit.tools.visualization import HAS_MATPLOTLIB
+from qiskit.utils import optionals as _optionals
 
-if HAS_MATPLOTLIB:
+if _optionals.HAS_NETWORKX:
+    # pylint: disable=unused-import
+    import networkx as nx
+
+if _optionals.HAS_MATPLOTLIB:
     # pylint: disable=unused-import
     from matplotlib.axes import Axes
     from matplotlib.colors import Colormap
@@ -107,23 +113,36 @@ class LatticeDrawStyle:
 class Lattice:
     """General Lattice."""
 
-    def __init__(self, graph: PyGraph) -> None:
+    def __init__(self, graph: Union[PyGraph, "nx.Graph"]) -> None:
         """
         Args:
-            graph: Input graph for Lattice. `graph.multigraph` must be False.
+            graph: Input graph for Lattice. Can be provided as ``retworkx.PyGraph``, which is
+                used internally, or, for convenience, as ``networkx.Graph``. The graph
+                cannot be a multigraph.
 
         Raises:
-            ValueError: If `graph.multigraph` is True for a given graph, it is invalid.
+            ValueError: If the input graph is a multigraph.
+            ValueError: If the graph edges are non-numeric.
         """
+        if not isinstance(graph, PyGraph):
+            _optionals.HAS_NETWORKX.require_now("Lattice construction from networkx.Graph")
+            graph = networkx_converter(graph)
+
         if graph.multigraph:
             raise ValueError(
                 f"Invalid `graph.multigraph` {graph.multigraph} is given. "
                 "`graph.multigraph` must be `False`."
             )
-        if graph.edges() == [None] * graph.num_edges():
-            weighted_edges = [edge + (1.0,) for edge in graph.edge_list()]
-            for start, end, weight in weighted_edges:
-                graph.update_edge(start, end, weight)
+
+        # validate the edge weights
+        for edge_index, edge in graph.edge_index_map().items():
+            weight = edge[2]
+            if weight is None or weight == {}:
+                # None or {} is updated to be 1
+                graph.update_edge_by_index(edge_index, 1)
+            elif not isinstance(weight, numbers.Number):
+                raise ValueError(f"Unsupported weight {weight} on edge with index {edge_index}.")
+
         self._graph = graph
 
         self.pos: Optional[dict] = None
@@ -193,6 +212,7 @@ class Lattice:
         return ad_mat
 
     @staticmethod
+    @_optionals.HAS_MATPLOTLIB.require_in_call
     def _mpl(graph: PyGraph, self_loop: bool, **kwargs):
         """
         Auxiliary function for drawing the lattice using matplotlib.
@@ -205,10 +225,7 @@ class Lattice:
         Raises:
             MissingOptionalLibraryError: Requires matplotlib.
         """
-        if not HAS_MATPLOTLIB:
-            raise MissingOptionalLibraryError(
-                libname="Matplotlib", name="_mpl", pip_install="pip install matplotlib"
-            )
+        # pylint: disable=unused-import
         from matplotlib import pyplot as plt
 
         if not self_loop:

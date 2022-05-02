@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,11 @@
 
 """The VibrationalEnergy property."""
 
-from typing import cast, Dict, List, Optional, Tuple
+from __future__ import annotations
+
+from typing import cast, Generator, Optional
+
+import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
@@ -23,6 +27,7 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
+from ....deprecation import deprecate_method
 
 
 class VibrationalEnergy(VibrationalProperty):
@@ -34,7 +39,7 @@ class VibrationalEnergy(VibrationalProperty):
 
     def __init__(
         self,
-        vibrational_integrals: List[VibrationalIntegrals],
+        vibrational_integrals: list[VibrationalIntegrals],
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
     ) -> None:
@@ -51,7 +56,7 @@ class VibrationalEnergy(VibrationalProperty):
                 be set before the second-quantized operator can be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
-        self._vibrational_integrals: Dict[int, VibrationalIntegrals] = {}
+        self._vibrational_integrals: dict[int, VibrationalIntegrals] = {}
         for integral in vibrational_integrals:
             self.add_vibrational_integral(integral)
         self._truncation_order = truncation_order
@@ -72,8 +77,45 @@ class VibrationalEnergy(VibrationalProperty):
             string += [f"\t{ints}"]
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        super().to_hdf5(parent)
+        group = parent.require_group(self.name)
+
+        ints_group = group.create_group("vibrational_integrals")
+        for integral in self._vibrational_integrals.values():
+            integral.to_hdf5(ints_group)
+
+        if self.truncation_order:
+            group.attrs["truncation_order"] = self.truncation_order
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalEnergy:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        ints = []
+        for int_group in h5py_group["vibrational_integrals"].values():
+            ints.append(VibrationalIntegrals.from_hdf5(int_group))
+
+        return VibrationalEnergy(ints, h5py_group.attrs.get("truncation_order", None))
+
     @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> "VibrationalEnergy":
+    @deprecate_method("0.4.0")
+    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> VibrationalEnergy:
         """Construct a VibrationalEnergy instance from a
         :class:`~qiskit_nature.drivers.WatsonHamiltonian`.
 
@@ -91,7 +133,7 @@ class VibrationalEnergy(VibrationalProperty):
 
         w_h = cast(WatsonHamiltonian, result)
 
-        sorted_integrals: Dict[int, List[Tuple[float, Tuple[int, ...]]]] = {1: [], 2: [], 3: []}
+        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
         for coeff, *indices in w_h.data:
             ints = [int(i) for i in indices]
             num_body = len(set(ints))
@@ -100,6 +142,18 @@ class VibrationalEnergy(VibrationalProperty):
         return cls(
             [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
         )
+
+    def __iter__(self) -> Generator[VibrationalIntegrals, None, None]:
+        """Returns the generator-iterator method."""
+        return self._generator()
+
+    def _generator(self) -> Generator[VibrationalIntegrals, None, None]:
+        """A generator-iterator method [1] iterating over all internal ``VibrationalIntegrals``.
+
+        [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
+        """
+        for ints in self._vibrational_integrals.values():
+            yield ints
 
     def add_vibrational_integral(self, integral: VibrationalIntegrals) -> None:
         # pylint: disable=line-too-long

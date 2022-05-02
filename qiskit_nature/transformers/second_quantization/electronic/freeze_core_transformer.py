@@ -15,6 +15,7 @@
 from typing import List, Optional, Tuple
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.constants import PERIODIC_TABLE
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
 
@@ -82,7 +83,9 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         molecule = grouped_property.molecule
         particle_number = grouped_property.get_property("ParticleNumber")
 
-        inactive_orbs_idxs = list(range(self.count_core_orbitals(molecule.atoms)))
+        inactive_orbs_idxs: List[int] = []
+        if self._freeze_core:
+            inactive_orbs_idxs.extend(range(self.count_core_orbitals(molecule.atoms)))
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
@@ -128,20 +131,4 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         Returns:
             The atomic number of the queried atom kind.
         """
-        return self.periodic_table.index(atom.lower().capitalize())
-
-    periodic_table = [
-        # pylint: disable=line-too-long
-        # fmt: off
-        "_",
-         "H", "He",
-        "Li", "Be",                                                              "B",  "C",  "N",  "O",  "F", "Ne",
-        "Na", "Mg",                                                             "Al", "Si",  "P",  "S", "Cl", "Ar",
-         "K", "Ca", "Sc", "Ti",  "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
-        "Rb", "Sr",  "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te",  "I", "Xe",
-        "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
-                          "Hf", "Ta",  "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
-        "Fr", "Ra", "Ac", "Th", "Pa",  "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
-                          "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
-        # fmt: on
-    ]
+        return PERIODIC_TABLE.index(atom.lower().capitalize())

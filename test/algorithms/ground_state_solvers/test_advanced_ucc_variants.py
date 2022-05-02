@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase, requires_extra_library
+from test import QiskitNatureTestCase
 
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
@@ -29,7 +29,7 @@ from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
-
+import qiskit_nature.optionals as _optionals
 
 # pylint: disable=invalid-name
 
@@ -37,7 +37,7 @@ from qiskit_nature.transformers.second_quantization.electronic import FreezeCore
 class TestUCCSDHartreeFock(QiskitNatureTestCase):
     """Test for these extensions."""
 
-    @requires_extra_library
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
         self.driver = PySCFDriver(atom="H 0 0 0.735; H 0 0 0", basis="631g")
@@ -54,7 +54,10 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         # because we create the initial state and ansatzes early, we need to ensure the qubit
         # converter already ran such that convert_match works as expected
         _ = self.qubit_converter.convert(
-            self.electronic_structure_problem.second_q_ops()[0], self.num_particles
+            self.electronic_structure_problem.second_q_ops()[
+                self.electronic_structure_problem.main_property_name
+            ],
+            self.num_particles,
         )
 
         self.reference_energy_pUCCD = -1.1434447924298028

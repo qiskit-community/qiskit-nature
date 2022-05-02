@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,11 +12,14 @@
 
 """A container for arbitrary ``n-body`` vibrational integrals."""
 
+from __future__ import annotations
+
 from abc import ABC
 from collections import Counter
 from itertools import chain, cycle, permutations, product, tee
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
+import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
@@ -33,12 +36,14 @@ class VibrationalIntegrals(ABC):
     ``VibrationalIntegrals.set_truncation`` to change this value.
     """
 
+    VERSION = 1
+
     _truncate = 5
 
     def __init__(
         self,
         num_body_terms: int,
-        integrals: List[Tuple[float, Tuple[int, ...]]],
+        integrals: list[tuple[float, tuple[int, ...]]],
     ) -> None:
         """
         Args:
@@ -52,10 +57,8 @@ class VibrationalIntegrals(ABC):
         Raises:
             ValueError: if the number of body terms is less than 1.
         """
-        if num_body_terms < 1:
-            raise ValueError(
-                f"The number of body terms must be greater than 0, not '{num_body_terms}'."
-            )
+        self._validate_num_body_terms(num_body_terms)
+        self.name = f"{num_body_terms}Body{self.__class__.__name__}"
         self._num_body_terms = num_body_terms
         self._integrals = integrals
         self._basis: VibrationalBasis = None
@@ -71,12 +74,22 @@ class VibrationalIntegrals(ABC):
         self._basis = basis
 
     @property
-    def integrals(self) -> List[Tuple[float, Tuple[int, ...]]]:
+    def num_body_terms(self) -> int:
+        """Returns the num_body_terms."""
+        return self._num_body_terms
+
+    @num_body_terms.setter
+    def num_body_terms(self, num_body_terms: int) -> None:
+        """Sets the num_body_terms."""
+        self._num_body_terms = num_body_terms
+
+    @property
+    def integrals(self) -> list[tuple[float, tuple[int, ...]]]:
         """Returns the integrals."""
         return self._integrals
 
     @integrals.setter
-    def integrals(self, integrals: List[Tuple[float, Tuple[int, ...]]]) -> None:
+    def integrals(self, integrals: list[tuple[float, tuple[int, ...]]]) -> None:
         """Sets the integrals."""
         self._integrals = integrals
 
@@ -95,6 +108,51 @@ class VibrationalIntegrals(ABC):
             count += 1
         return "\n".join(string)
 
+    def to_hdf5(self, parent: h5py.Group) -> None:
+        """Stores this instance in an HDF5 group inside of the provided parent group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
+
+        Args:
+            parent: the parent HDF5 group.
+        """
+        group = parent.require_group(self.name)
+        group.attrs["__class__"] = self.__class__.__name__
+        group.attrs["__module__"] = self.__class__.__module__
+        group.attrs["__version__"] = self.VERSION
+
+        group.attrs["num_body_terms"] = self._num_body_terms
+
+        dtype = h5py.vlen_dtype(np.dtype("int32"))
+        integrals_dset = group.create_dataset("integrals", (len(self.integrals),), dtype=dtype)
+        coeffs_dset = group.create_dataset("coefficients", (len(self.integrals),), dtype=float)
+
+        for idx, ints in enumerate(self.integrals):
+            coeffs_dset[idx] = ints[0]
+            integrals_dset[idx] = list(ints[1])
+
+    @staticmethod
+    def from_hdf5(h5py_group: h5py.Group) -> VibrationalIntegrals:
+        """Constructs a new instance from the data stored in the provided HDF5 group.
+
+        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
+
+        Args:
+            h5py_group: the HDF5 group from which to load the data.
+
+        Returns:
+            A new instance of this class.
+        """
+        integrals = []
+        for coeff, ints in zip(
+            h5py_group["coefficients"][Ellipsis], h5py_group["integrals"][Ellipsis]
+        ):
+            integrals.append((coeff, tuple(ints)))
+
+        ret = VibrationalIntegrals(h5py_group.attrs["num_body_terms"], integrals)
+
+        return ret
+
     @staticmethod
     def set_truncation(max_num_entries: int) -> None:
         """Set the maximum number of integral values to display before truncation.
@@ -106,6 +164,14 @@ class VibrationalIntegrals(ABC):
             Truncation will be disabled if `max_num_entries` is set to 0.
         """
         VibrationalIntegrals._truncate = max_num_entries
+
+    @staticmethod
+    def _validate_num_body_terms(num_body_terms: int) -> None:
+        """Validates the number of body terms."""
+        if num_body_terms < 1:
+            raise ValueError(
+                f"The number of body terms must be greater than 0, not '{num_body_terms}'."
+            )
 
     def to_basis(self) -> np.ndarray:
         """Maps the integrals into a basis which permits mapping into second-quantization.
@@ -128,7 +194,7 @@ class VibrationalIntegrals(ABC):
 
         # we can cache already evaluated integrals to improve cases in which a basis is very
         # expensive to compute
-        coeff_cache: Dict[Tuple[int, int, int, int, bool], Optional[float]] = {}
+        coeff_cache: dict[tuple[int, int, int, int, bool], Optional[float]] = {}
 
         for coeff0, indices in self._integrals:
             if len(set(indices)) != self._num_body_terms:
@@ -145,7 +211,7 @@ class VibrationalIntegrals(ABC):
                 indices_np = np.absolute(indices_np)
 
             # the number of times which an index occurs corresponds to the power of the operator
-            powers: Dict[int, int] = Counter(indices_np)
+            powers: dict[int, int] = Counter(indices_np)
 
             index_list = []
 
@@ -226,7 +292,7 @@ class VibrationalIntegrals(ABC):
         return VibrationalOp(labels, num_modes, num_modals_per_mode)
 
     @staticmethod
-    def _create_label_for_coeff(indices: List[Tuple[int, ...]]) -> str:
+    def _create_label_for_coeff(indices: list[tuple[int, ...]]) -> str:
         """Generates the operator label for the given indices.
 
         Args:
