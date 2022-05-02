@@ -44,12 +44,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     Note: get_solver will overwrite any value that we directly set onto the vqe for both
     the ansatz and the initial point. For example:
     .. code-block:: python
-    
+
         factory = VQEUCCFactory()
         factory.minimum_eigensolver.ansatz = UCCD()
         vqe = factory.get_solver()
         print(type(vqe.ansatz))  # UCCSD
-        
+
     """
 
     def __init__(
