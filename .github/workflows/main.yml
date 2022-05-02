@@ -58,7 +58,7 @@ jobs:
       - name: Create conda environment
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
-          conda create -n psi4env python=${{ matrix.python-version }}
+          conda create -y -n psi4env python=${{ matrix.python-version }}
         shell: bash
       - uses: ./.github/actions/install-main-dependencies
         with:
@@ -168,7 +168,7 @@ jobs:
             sudo chown -R $USER: "$CONDA"
           fi
           source "$CONDA/etc/profile.d/conda.sh"
-          conda create -n psi4env python=${{ matrix.python-version }}
+          conda create -y -n psi4env python=${{ matrix.python-version }}
         shell: bash
       - name: Install PSI4
         uses: ./.github/actions/install-psi4
@@ -186,7 +186,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          conda install -c rpmuller pyquante2_pure
+          conda install -y -c rpmuller pyquante2_pure
         if: ${{ matrix.python-version != '3.10' }}
         shell: bash
       - name: Set up problem matches
@@ -261,7 +261,7 @@ jobs:
       - name: Create conda environment
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
-          conda create -n psi4env python=${{ matrix.python-version }}
+          conda create -y -n psi4env python=${{ matrix.python-version }}
         shell: bash
       - uses: ./.github/actions/install-main-dependencies
         with:
