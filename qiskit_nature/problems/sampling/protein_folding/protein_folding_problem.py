@@ -93,7 +93,6 @@ class ProteinFoldingProblem(SamplingProblem):
         qubit_operator = self._qubit_op_builder._build_qubit_op()
         return qubit_operator
 
-    # TODO will be implemented in another issue, including the type hint
     def interpret(self, raw_result: MinimumEigensolverResult) -> pfr.ProteinFoldingResult:
         """
         Returns a ProteinFoldingResult object that will allow us to interpret the result obtained.

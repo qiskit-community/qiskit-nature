@@ -38,7 +38,7 @@ class ProteinFoldingResult(EigenstateResult):
         Args:
             protein_folding_problem: The protein folding problem that created the result.
             best_sequence: The best sequence in the result eigenstate.
-            
+
         """
         super().__init__()
         self._protein_folding_problem = protein_folding_problem
@@ -52,9 +52,9 @@ class ProteinFoldingResult(EigenstateResult):
         )
 
         self._protein_decoder = ProteinDecoder(
-            best_sequence = self._best_sequence,
-            side_chain_hot_vector = self._side_chain_hot_vector,
-            fifth_bit = 5 in self._unused_qubits[:6]
+            best_sequence=self._best_sequence,
+            side_chain_hot_vector=self._side_chain_hot_vector,
+            fifth_bit=5 in self._unused_qubits[:6],
         )
 
         self._protein_xyz = ProteinXYZ(
@@ -99,16 +99,27 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def get_xyz_file(self, name: str = "default", output_data=False) -> np.ndarray:
+    def get_xyz_file(self, name: str = "default", output_data: bool = False) -> np.ndarray:
         """
         Generates an xyz_file and returns an array with the data in that file.
         Args:
-            name: name of the file to be generated
-            output_data: boolean indicating whether we want to generate the file or not
+            name: name of the file to be generated.
+            output_data: boolean indicating whether we want to generate the file or not.
+        Returns:
+            An array with the data to be stored in the xyz file.
         """
         return self.protein_xyz.get_xyz_file(name, output_data)
 
-    def plotstructure(self) -> None:
-        """Plots the molecule in 3D"""
+    def plotstructure(
+        self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
+    ) -> None:
+        """
+        Plots the molecule in 3D
+        Args:
+            title: The title of the plot
+            ticks: Boolean for showing ticks in the graphic
+            grid: Boolean for showing the grid in the graphic
+
+        """
         protein_plotter = ProteinPlotter(self)
-        protein_plotter.plot()
+        protein_plotter.plot(title=title, ticks=ticks, grid=grid)

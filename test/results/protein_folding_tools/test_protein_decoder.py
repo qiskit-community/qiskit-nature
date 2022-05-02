@@ -20,20 +20,20 @@ class TestProteinDecoder(QiskitNatureTestCase):
     test_decoder_1 = ProteinDecoder(
         best_sequence="101100011",
         side_chain_hot_vector=[False, False, False, False, False, False, False],
-        unused_qubits=True
+        fifth_bit=True,
     )
 
     test_decoder_2 = ProteinDecoder(
         best_sequence="0011011",
         side_chain_hot_vector=[False, False, True, True, False],
-        unused_qubits=True
+        fifth_bit=True,
     )
-    
+
     test_decoder_3 = ProteinDecoder(
-        best_sequence = "10110110",
-        side_chain_hot_vector = [False, True, False, True, False],
-        unused_qubits = False
-        )
+        best_sequence="10110110",
+        side_chain_hot_vector=[False, True, False, True, False],
+        fifth_bit=False,
+    )
 
     def test_bitstring2turns(self):
         """Tests the method transforming a bitstring to an array of turns."""

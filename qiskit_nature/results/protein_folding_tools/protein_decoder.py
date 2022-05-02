@@ -35,12 +35,12 @@ class ProteinDecoder:
         self._fifth_bit = fifth_bit
         self._main_chain_lenght = len(side_chain_hot_vector)
 
-    def _bitstring2turns(self, bitstring) -> List[int]:
+    def _bitstring2turns(self, bitstring: str) -> List[int]:
         """
         Turns a bitstring encoding the shape of the molecule and decodes it.
 
         Args:
-            result_bitstring: string containing the encoded information.
+            bitstring: string containing the encoded information.
         Returns:
             A list of integers decoding the bitstring.
         """
@@ -52,9 +52,7 @@ class ProteinDecoder:
     def _split_bitstring(self) -> Tuple[int, int]:
         """Returns the amount of bits in the compact solution corresponding
         to each property they encode."""
-        n_qbits_encoding_main_turns = 2 * (self._main_chain_lenght - 3) - (
-           self._fifth_bit
-        )
+        n_qbits_encoding_main_turns = 2 * (self._main_chain_lenght - 3) - (self._fifth_bit)
         n_qbits_encoding_side_turns = 2 * sum(self._side_chain_hot_vector)
         return n_qbits_encoding_main_turns, n_qbits_encoding_side_turns
 
@@ -63,14 +61,14 @@ class ProteinDecoder:
         Returns the list of turns for the molecule corresponding to best_sequence.
         The first element of the list corresponds to the turn of the second aminoacid in the peptide.
         Returns:
-                -A list of integers representing the sequence of turns on the molecule
+                A list of integers representing the sequence of turns on the molecule
 
         Notes:
-                -The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00)
-                -If the second bead doesn't have a side chain the 6th bit
+                The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00)
+                If the second bead doesn't have a side chain the 6th bit
                 can be set to 1 without loss of generality.
                 In that case index (5) will belong to the list of unused qubits
-                -The amount of qubits needed to encode the turns will be 2(N-3) - 1
+                The amount of qubits needed to encode the turns will be 2(N-3) - 1
                 if no side chain on second main bead or 2(N-3) otherwise.
         """
 
@@ -96,7 +94,7 @@ class ProteinDecoder:
         side_turns_bitstring = self._best_sequence[-n - m : -n]
 
         side_turns = self._bitstring2turns(side_turns_bitstring)
-        
+
         result = []
         counter = 0
         for element in self._side_chain_hot_vector:
@@ -105,5 +103,5 @@ class ProteinDecoder:
                 counter += 1
             else:
                 result += [None]
-            
+
         return result

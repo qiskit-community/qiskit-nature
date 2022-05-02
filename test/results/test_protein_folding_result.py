@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests ProteinFoldingResult."""
+from typing import List
+
 from test import QiskitNatureTestCase
 from qiskit.utils import algorithm_globals
 from qiskit_nature.problems.sampling.protein_folding.protein_folding_problem import (
@@ -24,14 +26,16 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import PenaltyParameters
 
 
-def create_protein_folding_result(main_chain, side_chains, best_sequence) -> ProteinFoldingResult:
+def create_protein_folding_result(
+    main_chain: str, side_chains: List[str], best_sequence: str
+) -> ProteinFoldingResult:
     """
     Creates a protein_folding_problem, solves it and uses the result
     to create a protein_folding_result instance.
     Args:
-        -main_chain: The desired main_chain for the molecules to be optimized
-        -side_chain: The desired side_chains for the molecules to be optimized
-        -best_sequence: The best sequence found by ProteinFoldingResult pre-computed
+        main_chain: The desired main_chain for the molecules to be optimized
+        side_chains: The desired side_chains for the molecules to be optimized
+        best_sequence: The best sequence found by ProteinFoldingResult pre-computed
     Returns:
         Protein Folding Result
     """
@@ -56,7 +60,7 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
 
     test_result_1 = create_protein_folding_result("APRLRFY", [""] * 7, "101100011")
     test_result_2 = create_protein_folding_result("APRLR", ["", "", "F", "Y", ""], "0011011")
-    test_result_3 = create_protein_folding_result("APRLR", ["", "F", "", "Y", ""],"10110110")
+    test_result_3 = create_protein_folding_result("APRLR", ["", "F", "", "Y", ""], "10110110")
 
     def test_best_sequence(self):
         """Tests if the best sequence obtained is the correct one and if
@@ -81,6 +85,7 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
         self.assertEqual(self.test_result_2.get_result_binary_vector(), "0011****01*1****")
         # Test for case 3
         self.assertEqual(self.test_result_3.get_result_binary_vector(), "10**11**0110****")
+
     def test_side_chain_hot_vector(self):
         """Tests if the hot vector from the side chain is correct"""
         # Test for case 1
@@ -96,6 +101,7 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
         self.assertEqual(
             self.test_result_3._side_chain_hot_vector, [False, True, False, True, False]
         )
+
     def test_unused_qubits(self):
         """Tests the list of unused qubits"""
         # Test for case 1
@@ -343,84 +349,85 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
                 79,
             ],
         )
-        
+
         # Test for case 3
         self.assertEqual(
             self.test_result_3._unused_qubits,
-            [0,
-             1,
-             2,
-             3,
-             8,
-             9,
-             12,
-             13,
-             16,
-             17,
-             18,
-             19,
-             20,
-             21,
-             22,
-             23,
-             24,
-             25,
-             26,
-             27,
-             28,
-             29,
-             30,
-             31,
-             32,
-             33,
-             34,
-             35,
-             36,
-             37,
-             38,
-             39,
-             40,
-             41,
-             42,
-             43,
-             44,
-             45,
-             46,
-             47,
-             48,
-             49,
-             50,
-             51,
-             52,
-             53,
-             54,
-             55,
-             56,
-             57,
-             58,
-             59,
-             60,
-             61,
-             62,
-             63,
-             64,
-             65,
-             66,
-             67,
-             68,
-             69,
-             70,
-             71,
-             72,
-             73,
-             74,
-             75,
-             76,
-             77,
-             78,
-             79,
-             ],
-            )
+            [
+                0,
+                1,
+                2,
+                3,
+                8,
+                9,
+                12,
+                13,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39,
+                40,
+                41,
+                42,
+                43,
+                44,
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63,
+                64,
+                65,
+                66,
+                67,
+                68,
+                69,
+                70,
+                71,
+                72,
+                73,
+                74,
+                75,
+                76,
+                77,
+                78,
+                79,
+            ],
+        )
 
     def test_main_chain_length(self):
         """Tests the main chain length"""
@@ -430,4 +437,3 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
         self.assertEqual(self.test_result_2._main_chain_lenght, 5)
         # Test for case 3
         self.assertEqual(self.test_result_2._main_chain_lenght, 5)
-        
