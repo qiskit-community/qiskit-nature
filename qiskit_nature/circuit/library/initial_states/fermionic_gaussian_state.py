@@ -93,8 +93,9 @@ class FermionicGaussianState(QuantumCircuit):
         W_1 W_1^\dagger + W_2 W_2^\dagger = I \\
         W_1 W_2^T + W_2 W_1^T = 0
 
-    The matrix :math:`W` is commonly obtained by calling
-    :meth:`qiskit_nature.operators.second_quantization.QuadraticHamiltonian.diagonalizing_bogoliubov_transform`.
+    The matrix :math:`W` is commonly obtained by calling the
+    :meth:`~.QuadraticHamiltonian.diagonalizing_bogoliubov_transform`
+    method of the :class:`~.QuadraticHamiltonian` class.
     This matrix is used to create circuits that prepare eigenstates of the
     quadratic Hamiltonian.
 
