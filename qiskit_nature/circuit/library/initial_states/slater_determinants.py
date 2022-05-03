@@ -76,11 +76,14 @@ class SlaterDeterminant(QuantumCircuit):
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
                 :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
-                to construct the qubit mapper.
+                to construct the qubit mapper used to construct `qubit_converter`.
         """
         if validate:
             if not len(transformation_matrix.shape) == 2:
-                raise ValueError("transformation_matrix must be a 2-dimensional array.")
+                raise ValueError(
+                    "transformation_matrix must be a 2-dimensional array. "
+                    f"Instead, got shape {transformation_matrix.shape}."
+                )
             if not _rows_are_orthonormal(transformation_matrix, rtol=rtol, atol=atol):
                 raise ValueError("transformation_matrix must have orthonormal rows.")
 
@@ -100,5 +103,5 @@ class SlaterDeterminant(QuantumCircuit):
                 "Currently, only the Jordan-Wigner Transform is supported. "
                 "Please use "
                 "qiskit_nature.mappers.second_quantization.JordanWignerMapper "
-                "to construct the qubit mapper."
+                "to construct the qubit mapper used to construct qubit_converter."
             )

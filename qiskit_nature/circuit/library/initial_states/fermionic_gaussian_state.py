@@ -26,11 +26,17 @@ def _validate_transformation_matrix(
     mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8
 ) -> None:
     if not len(mat.shape) == 2:
-        raise ValueError("transformation_matrix must be a 2-dimensional array.")
+        raise ValueError(
+            "transformation_matrix must be a 2-dimensional array. "
+            f"Instead, got shape {mat.shape}."
+        )
 
     n, p = mat.shape  # pylint: disable=invalid-name
     if p != n * 2:
-        raise ValueError("transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).")
+        raise ValueError(
+            "transformation_matrix must have shape (n_orbitals, 2 * n_orbitals). "
+            f"Instead, got shape {mat.shape}."
+        )
 
     left = mat[:, :n]
     right = mat[:, n:]
@@ -119,7 +125,7 @@ class FermionicGaussianState(QuantumCircuit):
             transformation_matrix: The matrix :math:`W` that specifies the coefficients of the
                 new creation operators in terms of the original creation and annihilation operators.
                 This matrix must satisfy special constraints; see the main body of the docstring
-                of this function.
+                of this class.
             occupied_orbitals: The pseudo-particle orbitals to fill. These refer to the indices
                 of the operators :math:`\{b^\dagger_j\}` from the main body of the docstring
                 of this function. The default behavior is to use the empty set of orbitals,
@@ -136,7 +142,7 @@ class FermionicGaussianState(QuantumCircuit):
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
                 :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
-                to construct the qubit mapper.
+                to construct the qubit mapper used to construct `qubit_converter`.
         """
         if validate:
             _validate_transformation_matrix(transformation_matrix, rtol=rtol, atol=atol)
@@ -161,5 +167,5 @@ class FermionicGaussianState(QuantumCircuit):
                 "Currently, only the Jordan-Wigner Transform is supported. "
                 "Please use "
                 "qiskit_nature.mappers.second_quantization.JordanWignerMapper "
-                "to construct the qubit mapper."
+                "to construct the qubit mapper used to construct qubit_converter."
             )
