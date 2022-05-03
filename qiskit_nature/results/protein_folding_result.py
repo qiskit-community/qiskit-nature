@@ -103,8 +103,8 @@ class ProteinFoldingResult(EigenstateResult):
         """
         Generates an xyz_file and returns an array with the data in that file.
         Args:
-            name: name of the file to be generated.
-            output_data: boolean indicating whether we want to generate the file or not.
+            name: Name of the file to be generated.
+            output_data: Boolean indicating whether we want to generate the file or not.
         Returns:
             An array with the data to be stored in the xyz file.
         """
