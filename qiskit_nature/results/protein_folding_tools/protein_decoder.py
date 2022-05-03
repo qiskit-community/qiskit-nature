@@ -99,9 +99,9 @@ class ProteinDecoder:
         counter = 0
         for element in self._side_chain_hot_vector:
             if element:
-                result += [side_turns[counter]]
+                result.append(side_turns[counter])
                 counter += 1
             else:
-                result += [None]
+                result.append(None)
 
         return result
