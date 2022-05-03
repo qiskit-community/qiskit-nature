@@ -100,38 +100,36 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-        
+
         if quantum_instance_depracated is not None:
-            #Depracation Warning
+            # Deprecation Warning
             kwargs["quantum_instance"] = quantum_instance_depracated
-            
+
         if optimizer_depracated is not None:
-            #Depracation Warning
+            # Deprecation Warning
             kwargs["optimizer"] = optimizer_depracated
-        
+
         if gradient_depracated is not None:
-            #Depracation Warning
+            # Deprecation Warning
             kwargs["gradient"] = gradient_depracated
-        
+
         if expectation_depracated is not None:
-            #Depracation Warning
+            # Deprecation Warning
             kwargs["expectation"] = expectation_depracated
-            
+
         if include_custom_depracated is not None:
-            #Depracation Warning
+            # Deprecation Warning
             kwargs["include_custom"] = include_custom_depracated
-        
+
         if callback_depracated is not None:
-            #Depracation Warning
+            # Deprecation Warning
             kwargs["callback"] = callback_depracated
-        
-        
+
         self._initial_state = initial_state
         self._initial_point = initial_point
         self._factory_ansatz = ansatz
 
         self._vqe = VQE(**kwargs)
-        
 
     @property  # type: ignore
     @deprecate_property(
@@ -290,7 +288,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         initial_state = self.initial_state
         if initial_state is None:
             initial_state = VSCF(num_modals)
-
 
         ansatz = self._factory_ansatz
         if ansatz is None:
