@@ -26,7 +26,7 @@ from .protein_folding_tools.protein_plotter import ProteinPlotter
 
 class ProteinFoldingResult(EigenstateResult):
     """
-    The Protein Folding Result
+    The Protein Folding Result.
     """
 
     def __init__(
