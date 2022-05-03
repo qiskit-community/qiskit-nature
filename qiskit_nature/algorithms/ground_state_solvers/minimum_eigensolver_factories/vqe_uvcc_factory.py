@@ -56,15 +56,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     def __init__(
         self,
-        quantum_instance: QuantumInstance,
-        optimizer: Optional[Optimizer] = None,
+        quantum_instance_depracated: QuantumInstance = None,
+        optimizer_depracated: Optional[Optimizer] = None,
         initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
-        gradient: Optional[Union[GradientBase, Callable]] = None,
-        expectation: Optional[ExpectationBase] = None,
-        include_custom: bool = False,
+        gradient_depracated: Optional[Union[GradientBase, Callable]] = None,
+        expectation_depracated: Optional[ExpectationBase] = None,
+        include_custom_depracated: bool = False,
         ansatz: Optional[UVCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
-        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
+        callback_depracated: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
 
@@ -100,19 +100,38 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
+        
+        if quantum_instance_depracated is not None:
+            #Depracation Warning
+            kwargs["quantum_instance"] = quantum_instance_depracated
+            
+        if optimizer_depracated is not None:
+            #Depracation Warning
+            kwargs["optimizer"] = optimizer_depracated
+        
+        if gradient_depracated is not None:
+            #Depracation Warning
+            kwargs["gradient"] = gradient_depracated
+        
+        if expectation_depracated is not None:
+            #Depracation Warning
+            kwargs["expectation"] = expectation_depracated
+            
+        if include_custom_depracated is not None:
+            #Depracation Warning
+            kwargs["include_custom"] = include_custom_depracated
+        
+        if callback_depracated is not None:
+            #Depracation Warning
+            kwargs["callback"] = callback_depracated
+        
+        
         self._initial_state = initial_state
+        self._initial_point = initial_point
         self._factory_ansatz = ansatz
 
-        self._vqe = VQE(
-            quantum_instance = quantum_instance,
-            initial_point = initial_point,
-            optimizer = optimizer,
-            gradient = gradient,
-            expectation = expectation,
-            include_custom = include_custom,
-            callback = callback,
-            **kwargs
-        )
+        self._vqe = VQE(**kwargs)
+        
 
     @property  # type: ignore
     @deprecate_property(
@@ -272,7 +291,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        self._initial_state = initial_state
 
         ansatz = self._factory_ansatz
         if ansatz is None:
