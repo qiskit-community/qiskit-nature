@@ -54,9 +54,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     def __init__(
         self,
+        quantum_instance: QuantumInstance,
+        optimizer: Optional[Optimizer] = None,
         initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
+        gradient: Optional[Union[GradientBase, Callable]] = None,
+        expectation: Optional[ExpectationBase] = None,
+        include_custom: bool = False,
         ansatz: Optional[UCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
+        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
         """
@@ -99,12 +105,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._factory_ansatz = ansatz
 
         self._vqe = VQE(
-            quantum_instance=kwargs.get("quantum_instance", None),
-            optimizer=kwargs.get("optimizer", None),
-            gradient=kwargs.get("gradient", None),
-            expectation=kwargs.get("expectation", None),
-            include_custom=kwargs.get("include_custom", False),
-            callback=kwargs.get("callback", None),
+            quantum_instance = quantum_instance,
+            optimizer = optimizer,
+            gradient = gradient,
+            expectation = expectation,
+            include_custom = include_custom,
+            callback = callback,
+            **kwargs
         )
 
     @property  # type: ignore

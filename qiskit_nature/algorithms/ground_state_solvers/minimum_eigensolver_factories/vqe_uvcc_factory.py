@@ -34,6 +34,7 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 )
 from qiskit_nature.deprecation import deprecate_property
 
+from ...initial_points import InitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 logger = logging.getLogger(__name__)
@@ -55,8 +56,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     def __init__(
         self,
+        quantum_instance: QuantumInstance,
+        optimizer: Optional[Optimizer] = None,
+        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
+        gradient: Optional[Union[GradientBase, Callable]] = None,
+        expectation: Optional[ExpectationBase] = None,
+        include_custom: bool = False,
         ansatz: Optional[UVCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
+        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
 
@@ -92,17 +100,18 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-        self._factory_ansatz = ansatz
         self._initial_state = initial_state
+        self._factory_ansatz = ansatz
 
         self._vqe = VQE(
-            quantum_instance=kwargs.get("quantum_instance", None),
-            optimizer=kwargs.get("optimizer", None),
-            initial_point=kwargs.get("initial_point", None),
-            gradient=kwargs.get("gradient", None),
-            expectation=kwargs.get("expectation", None),
-            include_custom=kwargs.get("include_custom", False),
-            callback=kwargs.get("callback", None),
+            quantum_instance = quantum_instance,
+            initial_point = initial_point,
+            optimizer = optimizer,
+            gradient = gradient,
+            expectation = expectation,
+            include_custom = include_custom,
+            callback = callback,
+            **kwargs
         )
 
     @property  # type: ignore
