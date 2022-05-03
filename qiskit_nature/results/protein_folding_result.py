@@ -123,5 +123,4 @@ class ProteinFoldingResult(EigenstateResult):
             grid: Boolean for showing the grid in the graphic
 
         """
-        protein_plotter = ProteinPlotter(self)
-        protein_plotter.plot(title=title, ticks=ticks, grid=grid)
+        ProteinPlotter(self).plot(title=title, ticks=ticks, grid=grid)
