@@ -30,7 +30,7 @@ class ProteinPlotter:
         self._protein_folding_result = protein_folding_result
 
     def plot(
-        self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
+        self, title: str = "Protein Structure", ticks: bool = False, grid: bool = False
     ) -> None:
         """
         Plots the molecule in 3D.
@@ -70,20 +70,21 @@ class ProteinPlotter:
                     zorder=10,
                     color="k",
                 )
-
+                
         ax_graph.set_box_aspect([1, 1, 1])
 
         ax_graph.grid(grid)
-        if ticks:
+        
+        if not ticks:
             ax_graph.set_xticks([])
             ax_graph.set_yticks([])
             ax_graph.set_zticks([])
 
-        ax_graph.set_xlabel("x")
+        ax_graph.set_xlabel("x")        
         ax_graph.set_ylabel("y")
         ax_graph.set_zlabel("z")
 
-        ax_graph.legend(handles=[main_scatter, side_scatter], loc="best", labelspacing=2)
+        fig.legend(handles=[main_scatter, side_scatter], labelspacing=2,markerscale = 0.5)
         ax_graph.set_title(title)
 
         plt.draw()
