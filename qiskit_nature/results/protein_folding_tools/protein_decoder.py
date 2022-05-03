@@ -67,7 +67,7 @@ class ProteinDecoder:
                 The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00)
                 If the second bead doesn't have a side chain the 6th bit
                 can be set to 1 without loss of generality.
-                In that case index (5) will belong to the list of unused qubits
+                In that case index (5) will belong to the list of unused qubits.
                 The amount of qubits needed to encode the turns will be 2(N-3) - 1
                 if no side chain on second main bead or 2(N-3) otherwise.
         """
