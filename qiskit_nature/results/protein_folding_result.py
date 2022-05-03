@@ -110,7 +110,7 @@ class ProteinFoldingResult(EigenstateResult):
         """
         return self.protein_xyz.get_xyz_file(name, output_data)
 
-    def plotstructure(
+    def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
     ) -> None:
         """
