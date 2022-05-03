@@ -99,7 +99,7 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def get_xyz_file(self, name: str = "default", output_data: bool = False) -> np.ndarray:
+    def get_xyz_file(self, name: str = None, output_data: bool = False) -> np.ndarray:
         """
         Generates an xyz_file and returns an array with the data in that file.
         Args:
@@ -108,6 +108,8 @@ class ProteinFoldingResult(EigenstateResult):
         Returns:
             An array with the data to be stored in the xyz file.
         """
+        if name is None:
+            name = str(self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence)
         return self.protein_xyz.get_xyz_file(name, output_data)
 
     def plot_folded_protein(

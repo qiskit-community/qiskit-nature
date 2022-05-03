@@ -35,9 +35,9 @@ class ProteinDecoder:
         self._fifth_bit = fifth_bit
         self._main_chain_lenght = len(side_chain_hot_vector)
 
-    def _bitstring2turns(self, bitstring: str) -> List[int]:
+    def _bitstring_to_turns(self, bitstring: str) -> List[int]:
         """
-        Turns a bitstring encoding the shape of the molecule and decodes it.
+        Takes a bitstring encoding the turns of a chain and retuns the turns as a list of int.
 
         Args:
             bitstring: string containing the encoded information.
@@ -77,7 +77,7 @@ class ProteinDecoder:
         if self._fifth_bit:
             main_turns_bitstring = main_turns_bitstring[:-5] + "1" + main_turns_bitstring[-5:]
 
-        return self._bitstring2turns(main_turns_bitstring)
+        return self._bitstring_to_turns(main_turns_bitstring)
 
     def get_side_turns(self) -> List[Union[None, int]]:
         """
@@ -93,7 +93,7 @@ class ProteinDecoder:
 
         side_turns_bitstring = self._best_sequence[-n - m : -n]
 
-        side_turns = self._bitstring2turns(side_turns_bitstring)
+        side_turns = self._bitstring_to_turns(side_turns_bitstring)
 
         result = []
         counter = 0

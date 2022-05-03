@@ -111,16 +111,16 @@ class ProteinXYZ:
         main_data = np.column_stack([self._main_chain_aminoacid_list, self.main_positions])
 
         # We will discard the None values corresponding to empty side chains.
-
-        side_aminoacid = np.array(
-            self._side_chain_aminoacid_list[self._side_chain_aminoacid_list is not None],
-            dtype="<U32",
-        )
+        side_aminoacid = np.array(self._side_chain_aminoacid_list)
+        side_aminoacid = side_aminoacid[side_aminoacid != None]
+        side_aminoacid = side_aminoacid.astype("<U32")
+        
         side_position = np.array(
-            [side_pos for side_pos in self.side_positions if side_pos is None],
+            [side_pos for side_pos in self.side_positions if side_pos is not None],
             dtype="<U32",
         )
 
+        
         side_data = np.column_stack([side_aminoacid, side_position])
         if side_data.size != 0:
 
