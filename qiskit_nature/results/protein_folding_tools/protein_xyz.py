@@ -20,7 +20,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 class ProteinXYZ:
     """This class handles the creation of cartesian coordinates for
     each aminoacid in a protein and generates a .xyz file.
-    It is used by Protein_Folding_result.
+    It is used by the ProteinFoldingResult class.
     """
 
     coordinates = (1.0 / np.sqrt(3)) * np.array([[-1, 1, 1], [1, 1, -1], [-1, -1, -1], [1, -1, 1]])
