@@ -9,8 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""An auxiliary class that gets the coordinates of the aminoacids of a molecule
- in ProteinFoldingResult """
+"""An auxiliary class that gets the coordinates of aminoacids of a molecule
+ in ProteinFoldingResult."""
 from typing import Union, List, Optional
 import numpy as np
 
