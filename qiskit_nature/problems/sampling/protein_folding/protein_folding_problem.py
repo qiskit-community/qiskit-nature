@@ -109,6 +109,5 @@ class ProteinFoldingProblem(SamplingProblem):
 
     @property
     def peptide(self) -> Peptide:
-        """Returns the list of indices for qubits in the original problem formulation that were
-        removed during compression."""
+        """Returns the peptide defining the protein subject to the folding problem."""
         return self._peptide
