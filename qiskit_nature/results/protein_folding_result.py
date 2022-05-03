@@ -36,7 +36,7 @@ class ProteinFoldingResult(EigenstateResult):
     ) -> None:
         """
         Args:
-            protein_folding_problem: The protein folding problem that created the result.
+            protein_folding_problem: The protein folding problem that led to the result.
             best_sequence: The best sequence in the result eigenstate.
 
         """
