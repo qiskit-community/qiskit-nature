@@ -82,6 +82,12 @@ class SeniorityZeroTransformer(BaseTransformer):
             converter = QubitConverter(DirectMapper())
 
             qubit_op = converter.convert(problem.second_q_ops()[0])
+
+    The `SeniorityZeroTransformer` only transforms the 
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
+    and :class:`~qiskit_nature.properties.second_quantization.electronic.ParticleNumber` property.
+    All other properties (except 
+    :class:`~qiskit_nature.properties.second_quantization.driver_metadata.DriverMetadata`) are dropped.
     """
 
     def __init__(self):
