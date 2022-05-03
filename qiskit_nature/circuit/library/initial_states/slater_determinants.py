@@ -27,6 +27,18 @@ def _rows_are_orthonormal(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-
     return np.allclose(mat @ mat.T.conj(), np.eye(m), rtol=rtol, atol=atol)
 
 
+def _validate_transformation_matrix(
+    mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8
+) -> None:
+    if not len(mat.shape) == 2:
+        raise ValueError(
+            "transformation_matrix must be a 2-dimensional array. "
+            f"Instead, got shape {mat.shape}."
+        )
+    if not _rows_are_orthonormal(mat, rtol=rtol, atol=atol):
+        raise ValueError("transformation_matrix must have orthonormal rows.")
+
+
 class SlaterDeterminant(QuantumCircuit):
     r"""A circuit that prepares a Slater determinant.
 
@@ -79,13 +91,7 @@ class SlaterDeterminant(QuantumCircuit):
                 to construct the qubit mapper used to construct `qubit_converter`.
         """
         if validate:
-            if not len(transformation_matrix.shape) == 2:
-                raise ValueError(
-                    "transformation_matrix must be a 2-dimensional array. "
-                    f"Instead, got shape {transformation_matrix.shape}."
-                )
-            if not _rows_are_orthonormal(transformation_matrix, rtol=rtol, atol=atol):
-                raise ValueError("transformation_matrix must have orthonormal rows.")
+            _validate_transformation_matrix(transformation_matrix, rtol=rtol, atol=atol)
 
         if qubit_converter is None:
             qubit_converter = QubitConverter(JordanWignerMapper())
