@@ -24,7 +24,6 @@ from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.properties import GroupedProperty, Property
 from qiskit_nature.properties.second_quantization import (
     GroupedSecondQuantizedProperty,
-    SecondQuantizedProperty,
 )
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import (
@@ -32,7 +31,6 @@ from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicEnergy,
 )
 from qiskit_nature.properties.second_quantization.electronic.bases import (
-    ElectronicBasisTransform,
     ElectronicBasis,
 )
 from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
