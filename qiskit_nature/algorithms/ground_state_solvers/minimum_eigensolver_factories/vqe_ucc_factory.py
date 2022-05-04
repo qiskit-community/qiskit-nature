@@ -13,7 +13,6 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, Callable, cast
-import warnings
 import logging
 import numpy as np
 
@@ -23,7 +22,11 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
-from qiskit_nature.deprecation import deprecate_property, deprecate_method,deprecate_positional_arguments
+from qiskit_nature.deprecation import (
+    deprecate_property,
+    deprecate_method,
+    deprecate_positional_arguments,
+)
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -53,9 +56,17 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     """
 
     @deprecate_positional_arguments(
-        version = "some_version",
-        kw_pos_deprecated = ("quantum_instance","optimizer","gradient","expectation","include_custom","callback"),
-        stack_level = 5)
+        version="some_version",
+        kw_pos_deprecated=(
+            "quantum_instance",
+            "optimizer",
+            "gradient",
+            "expectation",
+            "include_custom",
+            "callback",
+        ),
+        stack_level=5,
+    )
     def __init__(
         self,
         quantum_instance: QuantumInstance = None,
@@ -69,6 +80,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
+        # pylint: disable=unused-argument
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
@@ -104,19 +116,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-        
+
         self._initial_state = initial_state
         self._initial_point = initial_point
         self._factory_ansatz = ansatz
 
         self._vqe = VQE(**kwargs)
-
-
-
-
-
-
-
 
     @property  # type: ignore
     @deprecate_property(

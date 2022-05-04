@@ -228,35 +228,57 @@ def deprecate_arguments(
     return decorator
 
 
-
 def deprecate_positional_arguments(
     version: str,
     kw_pos_deprecated: Tuple[str],
     additional_msg: Optional[str] = None,
     stack_level: int = 3,
 ) -> Callable:
+    """Decorator to convert positional arguments into keyword arguments and warn upon use.
+    .. code-block:: python
+
+        @deprecate_positional_arguments("0.1",(b,d))
+        def function(a,b,c,d,**kwargs):
+            returns a+c+sum(kwargs.values())
+
+        #This two calls would be equivalent
+        function(1,2,3,4) #Would raise deprecation warning for arguments b and d.
+        function(a=1,b=2,c=3,d=4) #Would not raise any warning.
+
+    Args:
+        version: Version to be used
+        kw_pos_deprecated: Tuple of arguments to be deprecated
+        additional_msg: any additional message
+        stack_level: stack level
+
+    Returns:
+        The decorated function
+    """
 
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            
+
             keyword_list = inspect.getfullargspec(func)[0]
-            for i,arg in enumerate(args):
+            for i, arg in enumerate(args):
                 kwargs[keyword_list[i]] = arg
                 if keyword_list[i] in kw_pos_deprecated:
-                    warnings.warn(f"Please, refer from using '{keyword_list[i]}' as positional to construct a VQEFactory:"
-                                  f"As of version {version} this are no longer properties of the factories but are passed to the VQE "
-                                  "via keyword arguments."
-                                  +f"{additional_msg}"
-                                  ,
-                                  DeprecationWarning,
-                                  stack_level)
+                    msg = (
+                        f"Please, refer from using '{keyword_list[i]}' positionally to"
+                        f"construct a VQEFactory. As of version {version} this are no longer"
+                        " properties of the factories but are passed to the VQE via keyword"
+                        " arguments. The option to pass the arguments positionally will be "
+                        "removed no sooner than 3 months after release."
+                    )
+                    if additional_msg:
+                        msg += f"{additional_msg}" + "."
+
+                    warnings.warn(msg, DeprecationWarning, stack_level)
             return func(**kwargs)
 
         return wrapper
 
     return decorator
-
 
 
 def _check_values(version, qualname, args, kwargs, kwarg_map, additional_msg, stack_level):
