@@ -57,6 +57,13 @@ class SlaterDeterminant(QuantumCircuit):
     - :math:`\lvert \text{vac} \rangle` is the vacuum state
       (mutual 0-eigenvector of the fermionic number operators :math:`\{a^\dagger_j a_j\}`)
 
+    The matrix :math:`W` is can be obtained by calling the
+    :meth:`~.QuadraticHamiltonian.diagonalizing_bogoliubov_transform`
+    method of the :class:`~.QuadraticHamiltonian` class when the
+    quadratic Hamiltonian conserves particle number.
+    This matrix is used to create circuits that prepare eigenstates of the
+    quadratic Hamiltonian.
+
     Currently, only the Jordan-Wigner Transformation is supported.
 
     Reference: arXiv:1711.05395
