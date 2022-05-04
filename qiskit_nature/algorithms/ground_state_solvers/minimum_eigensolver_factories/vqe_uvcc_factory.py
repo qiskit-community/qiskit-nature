@@ -32,7 +32,7 @@ from qiskit_nature.problems.second_quantization.vibrational import (
 from qiskit_nature.properties.second_quantization.vibrational import (
     VibrationalStructureDriverResult,
 )
-from qiskit_nature.deprecation import deprecate_property
+from qiskit_nature.deprecation import deprecate_property, deprecate_positional_arguments
 
 from ...initial_points import InitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -53,7 +53,18 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         print(type(vqe.ansatz))  # UCCSD
 
     """
-
+    @deprecate_positional_arguments(
+        version="some_version",
+        kw_pos_deprecated=(
+            "quantum_instance",
+            "optimizer",
+            "gradient",
+            "expectation",
+            "include_custom",
+            "callback",
+        ),
+        stack_level=5,
+    )
     def __init__(
         self,
         quantum_instance_depracated: QuantumInstance = None,
@@ -100,31 +111,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-
-        if quantum_instance_depracated is not None:
-            # Deprecation Warning
-            kwargs["quantum_instance"] = quantum_instance_depracated
-
-        if optimizer_depracated is not None:
-            # Deprecation Warning
-            kwargs["optimizer"] = optimizer_depracated
-
-        if gradient_depracated is not None:
-            # Deprecation Warning
-            kwargs["gradient"] = gradient_depracated
-
-        if expectation_depracated is not None:
-            # Deprecation Warning
-            kwargs["expectation"] = expectation_depracated
-
-        if include_custom_depracated is not None:
-            # Deprecation Warning
-            kwargs["include_custom"] = include_custom_depracated
-
-        if callback_depracated is not None:
-            # Deprecation Warning
-            kwargs["callback"] = callback_depracated
-
         self._initial_state = initial_state
         self._initial_point = initial_point
         self._factory_ansatz = ansatz
