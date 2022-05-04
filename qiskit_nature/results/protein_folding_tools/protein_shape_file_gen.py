@@ -9,8 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""An auxiliary class that gets the coordinates of the aminoacids of a molecule
- in ProteinFoldingResult """
+"""An auxiliary class that gets the coordinates of aminoacids of a molecule
+ in ProteinFoldingResult."""
 from typing import Union, List, Optional
 import numpy as np
 
@@ -20,7 +20,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 class ProteinShapeFileGen:
     """This class handles the creation of cartesian coordinates for
     each aminoacid in a protein and generates a .xyz file.
-    It is used by Protein_Folding_result.
+    It is used by the ProteinFoldingResult class.
     """
 
     coordinates = (1.0 / np.sqrt(3)) * np.array([[-1, 1, 1], [1, 1, -1], [-1, -1, -1], [1, -1, 1]])
@@ -36,7 +36,7 @@ class ProteinShapeFileGen:
             main_chain_turns : a list of integers encoding the turns of the main chain.
             side_chain_turns : a list of integers and None encoding the turns of the main chain
                                or None.
-            peptide :  the peptide we are getting the positions for.
+            peptide: the peptide we are getting the positions for.
 
         """
         self._main_chain_turns = main_chain_turns

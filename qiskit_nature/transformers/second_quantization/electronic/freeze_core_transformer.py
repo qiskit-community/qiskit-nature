@@ -83,7 +83,9 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         molecule = grouped_property.molecule
         particle_number = grouped_property.get_property("ParticleNumber")
 
-        inactive_orbs_idxs = list(range(self.count_core_orbitals(molecule.atoms)))
+        inactive_orbs_idxs: List[int] = []
+        if self._freeze_core:
+            inactive_orbs_idxs.extend(range(self.count_core_orbitals(molecule.atoms)))
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
