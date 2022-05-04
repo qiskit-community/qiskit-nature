@@ -20,7 +20,7 @@ import qiskit_nature.problems.sampling.protein_folding.protein_folding_problem a
 
 from qiskit_nature.results import EigenstateResult
 from .protein_folding_tools.protein_decoder import ProteinDecoder
-from .protein_folding_tools.protein_xyz import ProteinXYZ
+from .protein_folding_tools.protein_shape_file_gen import ProteinShapeFileGen
 from .protein_folding_tools.protein_plotter import ProteinPlotter
 
 
@@ -57,7 +57,7 @@ class ProteinFoldingResult(EigenstateResult):
             fifth_bit=5 in self._unused_qubits[:6],
         )
 
-        self._protein_xyz = ProteinXYZ(
+        self._protein_shape_file_gen = ProteinShapeFileGen(
             self.protein_decoder.get_main_turns(),
             self.protein_decoder.get_side_turns(),
             self._protein_folding_problem.peptide,
@@ -70,10 +70,10 @@ class ProteinFoldingResult(EigenstateResult):
         return self._protein_decoder
 
     @property
-    def protein_xyz(self) -> ProteinXYZ:
-        """Returns a ProteinXYZ. This class will take the encoded turns and
+    def protein_shape_file_gen(self) -> ProteinShapeFileGen:
+        """Returns a ProteinShapeFileGen. This class will take the encoded turns and
         generate the position of every bead in the main and side chains."""
-        return self._protein_xyz
+        return self._protein_shape_file_gen
 
     @property
     def best_sequence(self) -> str:
@@ -101,7 +101,7 @@ class ProteinFoldingResult(EigenstateResult):
 
     def get_xyz_file(self, name: str = None, output_data: bool = False) -> np.ndarray:
         """
-        Generates an xyz_file and returns an array with the data in that file.
+        Generates an xyz file and returns an array with the data in that file.
         Args:
             name: Name of the file to be generated.
             output_data: Boolean indicating whether we want to generate the file or not.
@@ -110,7 +110,7 @@ class ProteinFoldingResult(EigenstateResult):
         """
         if name is None:
             name = str(self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence)
-        return self.protein_xyz.get_xyz_file(name, output_data)
+        return self.protein_shape_file_gen.get_xyz_file(name, output_data)
 
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
