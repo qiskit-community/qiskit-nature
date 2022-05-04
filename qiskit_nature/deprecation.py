@@ -16,7 +16,7 @@ from abc import abstractmethod
 import warnings
 import functools
 import inspect
-from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any
+from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any, Tuple
 from enum import Enum, EnumMeta
 
 
@@ -226,6 +226,37 @@ def deprecate_arguments(
         return wrapper
 
     return decorator
+
+
+
+def deprecate_positional_arguments(
+    version: str,
+    kw_pos_deprecated: Tuple[str],
+    additional_msg: Optional[str] = None,
+    stack_level: int = 3,
+) -> Callable:
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            
+            keyword_list = inspect.getfullargspec(func)[0]
+            for i,arg in enumerate(args):
+                kwargs[keyword_list[i]] = arg
+                if keyword_list[i] in kw_pos_deprecated:
+                    warnings.warn(f"Please, refer from using '{keyword_list[i]}' as positional to construct a VQEFactory:"
+                                  f"As of version {version} this are no longer properties of the factories but are passed to the VQE "
+                                  "via keyword arguments."
+                                  +f"{additional_msg}"
+                                  ,
+                                  DeprecationWarning,
+                                  stack_level)
+            return func(**kwargs)
+
+        return wrapper
+
+    return decorator
+
 
 
 def _check_values(version, qualname, args, kwargs, kwarg_map, additional_msg, stack_level):

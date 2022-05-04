@@ -13,7 +13,7 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 from typing import Optional, Union, Callable, cast
-
+import warnings
 import logging
 import numpy as np
 
@@ -23,7 +23,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
-from qiskit_nature.deprecation import deprecate_property, deprecate_method
+from qiskit_nature.deprecation import deprecate_property, deprecate_method,deprecate_positional_arguments
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -52,17 +52,21 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     """
 
+    @deprecate_positional_arguments(
+        version = "some_cersion",
+        kw_pos_deprecated = ("quantum_instance","optimizer","gradient","expectation","include_custom","callback"),
+        stack_level = 5)
     def __init__(
         self,
-        quantum_instance_depracated: QuantumInstance = None,
-        optimizer_depracated: Optional[Optimizer] = None,
+        quantum_instance: QuantumInstance = None,
+        optimizer: Optional[Optimizer] = None,
         initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
-        gradient_depracated: Optional[Union[GradientBase, Callable]] = None,
-        expectation_depracated: Optional[ExpectationBase] = None,
-        include_custom_depracated: bool = False,
+        gradient: Optional[Union[GradientBase, Callable]] = None,
+        expectation: Optional[ExpectationBase] = None,
+        include_custom: bool = False,
         ansatz: Optional[UCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
-        callback_depracated: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
+        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
         """
@@ -100,36 +104,19 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
-
-        if quantum_instance_depracated is not None:
-            # Deprecation Warning
-            kwargs["quantum_instance"] = quantum_instance_depracated
-
-        if optimizer_depracated is not None:
-            # Deprecation Warning
-            kwargs["optimizer"] = optimizer_depracated
-
-        if gradient_depracated is not None:
-            # Deprecation Warning
-            kwargs["gradient"] = gradient_depracated
-
-        if expectation_depracated is not None:
-            # Deprecation Warning
-            kwargs["expectation"] = expectation_depracated
-
-        if include_custom_depracated is not None:
-            # Deprecation Warning
-            kwargs["include_custom"] = include_custom_depracated
-
-        if callback_depracated is not None:
-            # Deprecation Warning
-            kwargs["callback"] = callback_depracated
-
+        
         self._initial_state = initial_state
         self._initial_point = initial_point
         self._factory_ansatz = ansatz
 
         self._vqe = VQE(**kwargs)
+
+
+
+
+
+
+
 
     @property  # type: ignore
     @deprecate_property(
