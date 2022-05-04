@@ -153,7 +153,8 @@ class QuadraticHamiltonian(TolerancesMixin):
                 terms.append(([("+", j), ("-", i)], self.hermitian_part[j, i]))
                 terms.append(([("+", i), ("+", j)], self.antisymmetric_part[i, j]))
                 terms.append(([("-", j), ("-", i)], self.antisymmetric_part[i, j].conjugate()))
-        return FermionicOp(terms, register_length=self._num_modes)
+        # TODO remove display_format="sparse" once it's no longer needed to suppress warning
+        return FermionicOp(terms, register_length=self._num_modes, display_format="sparse")
 
     def conserves_particle_number(self) -> bool:
         """Whether the Hamiltonian conserves particle number."""
