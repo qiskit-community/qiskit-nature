@@ -53,7 +53,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     """
 
     @deprecate_positional_arguments(
-        version = "some_cersion",
+        version = "some_version",
         kw_pos_deprecated = ("quantum_instance","optimizer","gradient","expectation","include_custom","callback"),
         stack_level = 5)
     def __init__(
