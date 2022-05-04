@@ -36,7 +36,7 @@ class ProteinXYZ:
             main_chain_turns : a list of integers encoding the turns of the main chain.
             side_chain_turns : a list of integers and None encoding the turns of the main chain
                                or None.
-            peptide :  the peptide we are getting the positions for.
+            peptide: the peptide we are getting the positions for.
 
         """
         self._main_chain_turns = main_chain_turns
