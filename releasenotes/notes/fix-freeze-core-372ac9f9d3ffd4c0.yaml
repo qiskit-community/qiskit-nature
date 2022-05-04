@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the ability to disable the `freeze_core` argument of the
+    :class:`~qiskit_nature.transformers.second_quantization.electronic.FreezeCoreTransformer`

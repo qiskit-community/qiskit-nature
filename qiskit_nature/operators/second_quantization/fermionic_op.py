@@ -17,15 +17,15 @@ from __future__ import annotations
 import re
 import warnings
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator
 from itertools import product
 from typing import Optional, Union, cast
 
 import numpy as np
 from scipy.sparse import csc_matrix
+
 from qiskit_nature.deprecation import deprecate_function
 from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
-
 
 _ZERO_LABELS = {
     ("+", "+"),
@@ -229,7 +229,8 @@ class FermionicOp(SecondQuantizedOp):
             tuple[str, complex],
             list[tuple[str, complex]],
             list[tuple[str, float]],
-            Sequence[tuple[Iterable[tuple[str, int]], complex]],
+            list[tuple[list[tuple[str, int]], complex]],
+            list[tuple[tuple[tuple[str, int], ...], complex]],
         ],
         register_length: Optional[int] = None,
         display_format: Optional[str] = None,
@@ -262,6 +263,14 @@ class FermionicOp(SecondQuantizedOp):
         self._data: list[tuple[tuple[tuple[str, int], ...], complex]]
 
         if (
+            isinstance(data, list)
+            and isinstance(data[0], tuple)
+            and isinstance(data[0][0], tuple)
+            and not isinstance(data[0][0], str)
+        ):
+            data = cast("list[tuple[tuple[tuple[str, int], ...], complex]]", data)
+            self._data = data
+        elif (
             isinstance(data, list)
             and isinstance(data[0], tuple)
             and isinstance(data[0][0], Iterable)
