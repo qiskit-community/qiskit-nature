@@ -349,7 +349,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     # TODO: can we efficiently extract this into the base class? At least the logic dealing with
     # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(self, prop: Property) -> Property:
+    def _transform_property(self, prop: Property) -> Optional[Property]:
         """Transforms a Property object.
 
         This is a recursive reduction, iterating GroupedProperty objects when encountering one.
@@ -358,29 +358,24 @@ class ActiveSpaceTransformer(BaseTransformer):
             property: the property object to transform.
 
         Returns:
-            The transformed property object.
-
-        Raises:
-            TypeError: if an unexpected Property subtype is encountered.
+            The transformed property object if supported, otherwise None.
         """
-        transformed_property: Property
+        transformed_property: Property = None
         if isinstance(prop, GroupedProperty):
             transformed_property = deepcopy(prop)
 
             for internal_property in iter(prop):
-                try:
-                    transformed_internal_property = self._transform_property(internal_property)
-                    if transformed_internal_property is not None:
-                        transformed_property.add_property(transformed_internal_property)
-                    else:
-                        transformed_property.remove_property(internal_property.name)
-                except TypeError:
+                transformed_internal_property = self._transform_property(internal_property)
+                if transformed_internal_property is not None:
+                    transformed_property.add_property(transformed_internal_property)
+                else:
                     logger.warning(
-                        "The Property %s of type %s could not be transformed!",
+                        "The Property %s of type %s is not transformed by the "
+                        "ActiveSpaceTransformer, and will be removed from the GroupedProperty.",
                         internal_property.name,
                         type(internal_property),
                     )
-                    continue
+                    transformed_property.remove_property(internal_property.name)
 
             if len(transformed_property._properties) == 0:
                 transformed_property = None
@@ -423,8 +418,5 @@ class ActiveSpaceTransformer(BaseTransformer):
             # for the time being we manually catch this to avoid unnecessary warnings
             # TODO: support storing transformer information in the DriverMetadata container
             transformed_property = prop
-
-        else:
-            raise TypeError(f"{type(prop)} is an unsupported Property-type for this Transformer!")
 
         return transformed_property

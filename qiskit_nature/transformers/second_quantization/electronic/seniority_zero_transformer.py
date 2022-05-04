@@ -16,7 +16,7 @@ from copy import deepcopy
 import logging
 
 from functools import partial
-from typing import cast, Tuple
+from typing import cast, Tuple, Optional
 import numpy as np
 
 from qiskit_nature import QiskitNatureError, ListOrDictType, settings
@@ -83,10 +83,10 @@ class SeniorityZeroTransformer(BaseTransformer):
 
             qubit_op = converter.convert(problem.second_q_ops()[0])
 
-    The `SeniorityZeroTransformer` only transforms the 
+    The `SeniorityZeroTransformer` only transforms the
     :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
     and :class:`~qiskit_nature.properties.second_quantization.electronic.ParticleNumber` property.
-    All other properties (except 
+    All other properties (except
     :class:`~qiskit_nature.properties.second_quantization.driver_metadata.DriverMetadata`) are dropped.
     """
 
@@ -152,7 +152,7 @@ class SeniorityZeroTransformer(BaseTransformer):
 
         return grouped_property_transformed  # type: ignore[return-value]
 
-    def _transform_property(self, prop: Property) -> Property:
+    def _transform_property(self, prop: Property) -> Optional[Property]:
         """Transforms a `Property` object.
 
         This is a recursive reduction, iterating `GroupedProperty` objects when encountering one.
@@ -161,30 +161,25 @@ class SeniorityZeroTransformer(BaseTransformer):
             property: the property object to transform.
 
         Returns:
-            The transformed property object.
-
-        Raises:
-            TypeError: if an unexpected Property subtype is encountered.
+            The transformed property object if supported, otherwise None.
         """
-        transformed_property: Property
+        transformed_property: Property = None
         # Code for recursion is copied from ActivateSpaceTransformer
         if isinstance(prop, GroupedProperty):
             transformed_property = deepcopy(prop)
 
             for internal_property in iter(prop):
-                try:
-                    transformed_internal_property = self._transform_property(internal_property)
-                    if transformed_internal_property is not None:
-                        transformed_property.add_property(transformed_internal_property)
-                    else:
-                        transformed_property.remove_property(internal_property.name)
-                except TypeError:
+                transformed_internal_property = self._transform_property(internal_property)
+                if transformed_internal_property is not None:
+                    transformed_property.add_property(transformed_internal_property)
+                else:
                     logger.warning(
-                        "The Property %s of type %s could not be transformed!",
+                        "The Property %s of type %s is not transformed by the "
+                        "SeniorityZeroTransformer, and will be removed from the GroupedProperty.",
                         internal_property.name,
                         type(internal_property),
                     )
-                    continue
+                    transformed_property.remove_property(internal_property.name)
 
             if len(transformed_property._properties) == 0:
                 transformed_property = None
@@ -214,13 +209,6 @@ class SeniorityZeroTransformer(BaseTransformer):
             )
         elif isinstance(prop, DriverMetadata):
             transformed_property = prop
-        elif isinstance(prop, SecondQuantizedProperty):
-            transformed_property = None
-        elif isinstance(prop, ElectronicBasisTransform):
-            transformed_property = None
-
-        else:
-            raise TypeError(f"{type(prop)} is an unsupported Property-type for this Transformer!")
 
         return transformed_property
 
