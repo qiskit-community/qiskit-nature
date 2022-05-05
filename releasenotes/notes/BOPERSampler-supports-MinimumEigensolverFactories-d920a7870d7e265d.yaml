@@ -1,8 +1,9 @@
 ---
-issues:
+fixes:
   - |
-    Fixes: :class:`~qiskit_nature.algorithms.per_samplers.boper_sampler.BOPESSampler` does not support MinimumEigensolverFactories.
-    Now, the factory can be used as following:
+    The :class:`~qiskit_nature.algorithms.per_samplers.boper_sampler.BOPESSampler` did not support 
+    GroundStateSolvers when built out with MinimumEigensolverFactories.
+    This is fixed, so code like the following now functions correctly:
 
     .. code-block:: python
 

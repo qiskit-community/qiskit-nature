@@ -27,6 +27,7 @@ from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuant
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -184,6 +185,9 @@ class UCC(EvolvedOperatorAnsatz):
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
+        # To give read access to the excitation list that UCC is using.
+        self._excitation_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None
+
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
@@ -236,6 +240,20 @@ class UCC(EvolvedOperatorAnsatz):
         self._operators = None
         self._invalidate()
         self._excitations = exc
+
+    @property
+    def excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+        """The excitation list that UCC is using, in the required format.
+
+        Raises:
+            QiskitNatureError: If private excitation list is None.
+
+        """
+        if self._excitation_list is None:
+            raise QiskitNatureError(
+                "The excitation list is None. Build the operators to construct it."
+            )
+        return self._excitation_list
 
     @EvolvedOperatorAnsatz.operators.getter
     def operators(self):  # pylint: disable=invalid-overridden-method
@@ -347,13 +365,14 @@ class UCC(EvolvedOperatorAnsatz):
         if self._excitation_ops is not None:
             return self._excitation_ops
 
-        excitations = self._get_excitation_list()
+        excitation_list = self._get_excitation_list()
 
-        self._check_excitation_list(excitations)
+        self._check_excitation_list(excitation_list)
 
         logger.debug("Converting excitations into SecondQuantizedOps...")
-        excitation_ops = self._build_fermionic_excitation_ops(excitations)
+        excitation_ops = self._build_fermionic_excitation_ops(excitation_list)
 
+        self._excitation_list = excitation_list
         self._excitation_ops = excitation_ops
         return excitation_ops
 

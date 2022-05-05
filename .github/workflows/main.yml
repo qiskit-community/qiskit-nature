@@ -47,17 +47,23 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            setup.py
+            requirements.txt
+            requirements-dev.txt
       - name: Create conda environment
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
-          conda create -n psi4env python=${{ matrix.python-version }}
+          conda create -y -n psi4env python=${{ matrix.python-version }}
         shell: bash
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -111,7 +117,7 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           make clean_sphinx
-          make html SPHINXOPTS=-W
+          make html
           cd docs/_build/html
           mkdir artifacts
           tar -zcvf artifacts/documentation.tar.gz --exclude=./artifacts .
@@ -148,18 +154,24 @@ jobs:
             python-version: '3.10'
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            setup.py
+            requirements.txt
+            requirements-dev.txt
       - name: Create conda environment
         run: |
           if [ "${{ matrix.os }}" == "macos-latest" ]; then
             sudo chown -R $USER: "$CONDA"
           fi
           source "$CONDA/etc/profile.d/conda.sh"
-          conda create -n psi4env python=${{ matrix.python-version }}
+          conda create -y -n psi4env python=${{ matrix.python-version }}
         shell: bash
-      - uses: ./.github/actions/install-psi4
+      - name: Install PSI4
+        uses: ./.github/actions/install-psi4
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
@@ -167,13 +179,14 @@ jobs:
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          conda install -c rpmuller pyquante2_pure
+          conda install -y -c rpmuller pyquante2_pure
         if: ${{ matrix.python-version != '3.10' }}
         shell: bash
       - name: Set up problem matches
@@ -237,17 +250,23 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            setup.py
+            requirements.txt
+            requirements-dev.txt
       - name: Create conda environment
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
-          conda create -n psi4env python=${{ matrix.python-version }}
+          conda create -y -n psi4env python=${{ matrix.python-version }}
         shell: bash
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
       - name: Install Dependencies
@@ -265,7 +284,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          make html SPHINXOPTS=-W
+          make html
           cd docs/_build/html
           mkdir artifacts
           tar -zcvf artifacts/tutorials.tar.gz --exclude=./artifacts .
@@ -296,7 +315,7 @@ jobs:
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
           # ignore unreleased/untagged notes
           tools/ignore_untagged_notes.sh
-          make html SPHINXOPTS=-W
+          make html
           cd docs/_build/html
           mkdir artifacts
           tar -zcvf artifacts/tutorials.tar.gz --exclude=./artifacts .
@@ -316,7 +335,7 @@ jobs:
         python-version: [3.7]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - uses: actions/download-artifact@v2

@@ -108,8 +108,9 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         return np.where(np.abs(so_matrix) > self._threshold, so_matrix, 0.0)
 
-    def _calc_coeffs_with_ops(self, indices: tuple[int, ...]) -> list[tuple[int, str]]:
-        return [(indices[0], "+"), (indices[1], "-")]
+    @staticmethod
+    def _calc_coeffs_with_ops(indices: tuple[int, ...]) -> list[tuple[str, int]]:
+        return [("+", indices[0]), ("-", indices[1])]
 
     def compose(self, other: ElectronicIntegrals, einsum_subscript: str = "ij,ji") -> complex:
         """Composes these ``OneBodyElectronicIntegrals`` with another instance thereof.

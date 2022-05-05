@@ -278,6 +278,7 @@ multi
 multigraph
 multinomial
 mypy
+møller
 namelist
 nan
 nannichini
@@ -333,6 +334,7 @@ pes
 phenylalanine
 phonons
 physik
+plesset
 pmatrix
 polypeptides
 popovas
@@ -341,6 +343,7 @@ posteriori
 pre
 prebuilt
 prepend
+prepended
 preprint
 preprocesses
 proline
@@ -355,6 +358,7 @@ qasm
 qbit
 qcmatrixio
 qeom
+qfi
 qiskit
 qiskit's
 qmolecule
