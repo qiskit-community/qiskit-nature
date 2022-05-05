@@ -157,6 +157,8 @@ class IntegralProperty(ElectronicProperty):
         ints = None
         if ElectronicBasis.SO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.SO]
+        elif ElectronicBasis.MOR in self._electronic_integrals:
+            ints = self._electronic_integrals[ElectronicBasis.MOR]
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
 

@@ -53,7 +53,7 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
     def __init__(
         self,
         qubit_converter: QubitConverter,
-        solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
+        solver: Union[MinimumEigensolver, MinimumEigensolverFactory] = None,
         initial_point: Union[ListOrDict, np.ndarray] = None,
     ) -> None:
         super().__init__(qubit_converter, solver)
@@ -68,6 +68,8 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         self.initial_point = initial_point  #
         self.bounds_oo = None  # in the future: set by user
         self.bounds = None  # ansatz + oo
+
+        self.operator = None
 
     def set_initial_point(self, initial_pt_scalar: float = 1e-1) -> None:
         """Initializes the initial point for the algorithm if the user does not provide his own.
@@ -110,8 +112,9 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
             num_particles=problem.num_particles,
-            sector_locator=problem.symmetry_sector_locator,
+            sector_locator=None,
         )
+        self.operator = main_operator
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
         if aux_operators is not None:
@@ -144,24 +147,27 @@ class OrbitalOptimizationVQE(GroundStateEigensolver):
         """Doctstring"""
         problem = copy.copy(self.problem)
         grouped_property_transformed = problem.grouped_property_transformed
+        basis_transform = grouped_property_transformed.get_property("ElectronicBasisTransform")
+        e_energy = grouped_property_transformed.get_property("ElectronicEnergy")
+
+        new_coeff_alpha = np.matmul(basis_transform.coeff_alpha, matrix_a)
+        new_coeff_beta = np.matmul(basis_transform.coeff_beta, matrix_b)
 
         # use ElectronicBasisTransform
-        transform = ElectronicBasisTransform(
-            ElectronicBasis.MO, ElectronicBasis.MO, matrix_a, matrix_b
+        new_basis_transform = ElectronicBasisTransform(
+            ElectronicBasis.AO, ElectronicBasis.MO, new_coeff_alpha, new_coeff_beta
         )
 
         # only 1 & 2 body integrals have the "transform_basis" method,
         # so I access them through the electronic energy
-        e_energy = grouped_property_transformed.get_property("ElectronicEnergy")
-        one_body_integrals = e_energy.get_electronic_integral(ElectronicBasis.MO, 1)
-        two_body_integrals = e_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+        one_body_integrals_ao = e_energy.get_electronic_integral(ElectronicBasis.AO, 1)
+        two_body_integrals_ao = e_energy.get_electronic_integral(ElectronicBasis.AO, 2)
 
-        # the basis transform should be applied in place, but it's not???
-        # unless I manually add the integrals, the result of second_q_ops()
-        # doesn't change.
-        # I have to look further into this.
-        e_energy.add_electronic_integral(one_body_integrals.transform_basis(transform))
-        e_energy.add_electronic_integral(two_body_integrals.transform_basis(transform))
+        one_body_integrals_mo_rot = one_body_integrals_ao.transform_basis(new_basis_transform)
+        two_body_integrals_mo_rot = two_body_integrals_ao.transform_basis(new_basis_transform)
+
+        e_energy.add_electronic_integral(one_body_integrals_mo_rot)
+        e_energy.add_electronic_integral(two_body_integrals_mo_rot)
 
         # after applying the rotation, recompute operator
         rotated_main_second_q_op = e_energy.second_q_ops()

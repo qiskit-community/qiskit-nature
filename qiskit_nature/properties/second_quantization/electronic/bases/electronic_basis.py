@@ -27,4 +27,5 @@ class ElectronicBasis(Enum):
 
     AO = "atomic"
     MO = "molecular"
+    MOR = "rotated_molecular"
     SO = "spin"

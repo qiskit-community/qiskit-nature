@@ -42,6 +42,7 @@ def energy_evaluation_oo(
     ground_state_eigensolver, solver, parameters: np.ndarray
 ) -> Union[float, List[float]]:
     """Doctstring"""
+    print("parameters: ", parameters)
     num_parameters_ansatz = solver.ansatz.num_parameters
     if num_parameters_ansatz == 0:
         raise RuntimeError("The ansatz must be parameterized, but has 0 free parameters.")
@@ -51,18 +52,21 @@ def energy_evaluation_oo(
     ansatz_parameter_values = parameters[:num_parameters_ansatz]
     rotation_parameter_values = parameters[num_parameters_ansatz:]  # is this the correct order?
 
+    print('Parameters of wavefunction are: \n%s', repr(ansatz_parameter_values))
+    print('Parameters of orbital rotation are: \n%s', repr(rotation_parameter_values))
+
     # CALCULATE COEFFICIENTS OF ROTATION MATRIX HERE:
-    # matrix_a, matrix_b = np.eye(2), np.eye(2)
     matrix_a, matrix_b = ground_state_eigensolver.orbital_rotation.get_orbital_rotation_matrix(
         rotation_parameter_values
     )
 
+    print("Nature matrix a: ", matrix_a)
+    print("Nature matrix b: ", matrix_b)
     # ROTATE AND RECOMPUTE OPERATOR HERE:
-    # what about aux_ops??? They should be rotated too.
-    # Not implemented yet.
-
+    # what about aux_ops???
     rotated_operator = ground_state_eigensolver.rotate_orbitals(matrix_a, matrix_b)
 
+    print("Rotated operator: ", rotated_operator[:5])
     # use rotated operator for constructing expect_op
     expect_op, expectation = solver.construct_expectation(
         ansatz_params, rotated_operator, return_expectation=True
@@ -88,6 +92,12 @@ def energy_evaluation_oo(
         solver._eval_count += len(means)
 
     end_time = time()
+    print(
+        "Energy evaluation returned %s - %.5f (ms), eval count: %s",
+        means,
+        (end_time - start_time) * 1000,
+        solver._eval_count,
+    )
     logger.info(
         "Energy evaluation returned %s - %.5f (ms), eval count: %s",
         means,
@@ -115,23 +125,25 @@ def compute_minimum_eigenvalue_oo(
     # validation
     solver._check_operator_ansatz(operator)
 
-    # set an expectation for this algorithm run (will be reset to None at the end)
-    initial_point_ansatz = _validate_initial_point(solver.initial_point, solver.ansatz)
-    bounds_ansatz = _validate_bounds(solver.ansatz)
+    # # set an expectation for this algorithm run (will be reset to None at the end)
+    # initial_point_ansatz = _validate_initial_point(solver.initial_point, solver.ansatz)
+    # bounds_ansatz = _validate_bounds(solver.ansatz)
+    #
+    # # HERE: the real initial point and bounds include the ansatz and the oo parameters:
+    # bounds_oo_val: tuple = (-2 * np.pi, 2 * np.pi)
+    # initial_pt_scalar: float = 1e-1
+    #
+    # initial_point_oo = np.asarray(
+    #     [initial_pt_scalar for _ in range(ground_state_eigensolver.orbital_rotation.num_parameters)]
+    # )
+    # bounds_oo = np.asarray(
+    #     [bounds_oo_val for _ in range(ground_state_eigensolver.orbital_rotation.num_parameters)]
+    # )
 
-    # HERE: the real initial point and bounds include the ansatz and the oo parameters:
-    bounds_oo_val: tuple = (-2 * np.pi, 2 * np.pi)
-    initial_pt_scalar: float = 1e-1
+    initial_point = ground_state_eigensolver.initial_point
+    bounds = ground_state_eigensolver.bounds
 
-    initial_point_oo = np.asarray(
-        [initial_pt_scalar for _ in range(ground_state_eigensolver.orbital_rotation.num_parameters)]
-    )
-    bounds_oo = np.asarray(
-        [bounds_oo_val for _ in range(ground_state_eigensolver.orbital_rotation.num_parameters)]
-    )
-
-    initial_point = np.concatenate((initial_point_ansatz, initial_point_oo))
-    bounds = np.concatenate((bounds_ansatz, bounds_oo))
+    # np.concatenate((bounds_ansatz, bounds_oo))
 
     # HERE: for the moment, not taking care of aux_operators
     # Does the orbital rotation affect them???
@@ -216,6 +228,7 @@ def compute_minimum_eigenvalue_oo(
     # TODO delete as soon as get_optimal_vector etc are removed
     solver._ret = result
 
+    print("result: ", result)
     if aux_operators is not None:
         # construct expectation AFTER optimization loop is finished, with rotated operator
         rotated_operator = operator

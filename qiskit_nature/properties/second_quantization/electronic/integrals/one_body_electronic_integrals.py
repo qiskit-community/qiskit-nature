@@ -22,7 +22,7 @@ from qiskit_nature import QiskitNatureError
 
 from .electronic_integrals import ElectronicIntegrals
 from ..bases import ElectronicBasis, ElectronicBasisTransform
-
+from ..bases.electronic_rotation_transform import ElectronicRotationTransform
 
 class OneBodyElectronicIntegrals(ElectronicIntegrals):
     """The 1-body electronic integrals."""
@@ -70,8 +70,8 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             QiskitNatureError: if the integrals do not match
                 :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasisTransform.initial_basis`.
         """
-        if self._basis == transform.final_basis:
-            return self
+        # if self._basis == transform.final_basis:
+        #     return self
 
         if self._basis != transform.initial_basis:
             raise QiskitNatureError(
@@ -85,7 +85,27 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             matrix_b = np.dot(
                 np.dot(transform.coeff_beta.T, self.get_matrix(1)), transform.coeff_beta
             )
+
         return OneBodyElectronicIntegrals(transform.final_basis, (matrix_a, matrix_b))
+
+    # def rotate_orbitals(self, transform: ElectronicRotationTransform) -> OneBodyElectronicIntegrals:
+    #
+    #     if self._basis != transform.basis:
+    #         raise QiskitNatureError(
+    #             f"The integrals' basis, {self._basis}, does not match the initial basis of the "
+    #             f"rotation transform, {transform.initial_basis}."
+    #         )
+    #
+    #     print("mo coeff nature: ", self._matrices[0])
+    #     matrix_a = np.matmul(self._matrices[0], transform.coeff_alpha)
+    #     matrix_b = None
+    #     if self._matrices[1] is not None or not transform.is_alpha_equal_beta():
+    #         matrix_b = np.matmul(self.get_matrix(1), transform.coeff_beta)
+    #
+    #     print("mo coeff nature after: ", matrix_a)
+    #
+    #     return OneBodyElectronicIntegrals(transform.basis, (matrix_a, matrix_b))
+
 
     def to_spin(self) -> np.ndarray:
         """Transforms the integrals into the special

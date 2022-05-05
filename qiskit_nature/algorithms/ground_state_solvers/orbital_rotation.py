@@ -23,7 +23,6 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 
 logger = logging.getLogger(__name__)
 
-
 class OrbitalRotation:
     """Class that regroups methods for creation of matrices that rotate the MOs.
     It allows to create the unitary matrix U = exp(-kappa) that is parameterized with kappa's
@@ -78,12 +77,6 @@ class OrbitalRotation:
         self._parameter_bounds = parameter_bounds
         if self._parameter_bounds is None:
             self._create_parameter_bounds()
-
-        # self._freeze_core = False
-        # for transformer in self._molecular_problem.transformers:
-        #     if isinstance(transformer, FreezeCoreTransformer):
-        #         self._freeze_core = True
-        # self._core_list = self._qmolecule.core_orbitals if self._freeze_core else None
 
         if self._qubit_converter.two_qubit_reduction is True:
             self._dim_kappa_matrix = int((self._num_qubits + 2) / 2)
@@ -183,7 +176,6 @@ class OrbitalRotation:
         self._parameters = parameters  # type: ignore
         k_matrix_alpha = np.zeros((self._dim_kappa_matrix, self._dim_kappa_matrix))
         k_matrix_beta = np.zeros((self._dim_kappa_matrix, self._dim_kappa_matrix))
-
         # allows to selectively rotate pairs of orbitals
         if self._orbital_rotations_beta is None:
             for i, exc in enumerate(self._orbital_rotations):
