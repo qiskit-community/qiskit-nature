@@ -22,6 +22,7 @@ from qiskit.opflow import X, Y, Z, I
 from qiskit_nature.operators.second_quantization import SpinOp
 from qiskit_nature.mappers.second_quantization import LogarithmicMapper
 
+
 @ddt
 class TestLogarithmicMapper(QiskitNatureTestCase):
     """Test Logarithmic Mapper"""
