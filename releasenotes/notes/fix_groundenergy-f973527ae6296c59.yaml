@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix the `groundenergy` to return a correct value in :class:`~qiskit_nature.results.EigenstateResult`.
+
