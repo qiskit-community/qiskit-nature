@@ -131,6 +131,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
+# pylint
+.pylint.d/
 # stestr repostiory
 .stestr/
