@@ -48,7 +48,7 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         line_lattice = LineLattice(num_nodes=num_nodes, boundary_condition=boundary_condition)
         fhm = FermiHubbardModel(lattice=line_lattice, onsite_interaction=5.0)
         lmp = LatticeModelProblem(fhm)
-        self._compare_second_q_op(fhm.second_q_ops(), lmp.second_q_ops()[0])
+        self._compare_second_q_op(fhm.second_q_ops(), lmp.second_q_ops()[lmp.main_property_name])
 
     def test_interpret(self):
         """Tests that the result is interpreted"""
