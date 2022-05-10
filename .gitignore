@@ -134,7 +134,5 @@ venv.bak/
 # pylint
 .pylint.d/
 
-mytest.py
-
 # stestr repostiory
 .stestr/
