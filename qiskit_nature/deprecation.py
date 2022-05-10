@@ -236,7 +236,7 @@ def deprecate_positional_arguments(
     stack_level: int = 3,
 ) -> Callable:
     """Decorator to convert positional arguments into keyword arguments and warn upon use.
-    
+
     .. code-block:: python
 
         @deprecate_positional_arguments("0.1", (b, d))

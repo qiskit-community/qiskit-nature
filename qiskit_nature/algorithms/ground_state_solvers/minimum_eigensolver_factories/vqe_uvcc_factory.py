@@ -69,18 +69,11 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     )
     def __init__(
         self,
-        quantum_instance: QuantumInstance = None,
-        optimizer: Optional[Optimizer] = None,
         initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
-        gradient: Optional[Union[GradientBase, Callable]] = None,
-        expectation: Optional[ExpectationBase] = None,
-        include_custom: bool = False,
         ansatz: Optional[UVCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
-        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
-        # pylint: disable=unused-argument
 
         """
         Args:
