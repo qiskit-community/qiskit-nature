@@ -17,6 +17,7 @@ import io
 import unittest
 import warnings
 
+from qiskit.opflow import MatrixExpectation
 from test import QiskitNatureTestCase
 
 import numpy as np
