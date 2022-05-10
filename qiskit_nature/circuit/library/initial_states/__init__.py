@@ -16,4 +16,9 @@ from .hartree_fock import HartreeFock
 from .slater_determinants import SlaterDeterminant
 from .vscf import VSCF
 
-__all__ = ["FermionicGaussianState", "HartreeFock", "SlaterDeterminant", "VSCF"]
+__all__ = [
+    "FermionicGaussianState",
+    "HartreeFock",
+    "SlaterDeterminant",
+    "VSCF",
+]
