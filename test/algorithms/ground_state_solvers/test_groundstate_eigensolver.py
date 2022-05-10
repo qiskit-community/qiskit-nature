@@ -128,7 +128,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         # Regression test against #1475
         solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.qubit_converter, solver)
-
+        
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
@@ -143,11 +143,14 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             .values()
         )
         aux_ops_copy = copy.deepcopy(aux_ops)
-
+        
+        print("All good until here")
         _ = calc.solve(self.electronic_structure_problem)
+        print("Not anymore")
         assert all(
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
+        
 
     def test_list_based_aux_ops(self):
         """Test the list based aux ops variant"""
