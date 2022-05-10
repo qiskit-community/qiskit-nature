@@ -250,7 +250,7 @@ def deprecate_positional_arguments(
         version: Version to be used
         func_name: Name of the function where the deprecation takes place will be used to
         write the deprecation message.
-        pre_positional_kw: List of arguments of the function before the depracation
+        pre_positional_kw: List of arguments of the function before the deprecation.
         additional_msg: any additional message
         stack_level: stack level
 
