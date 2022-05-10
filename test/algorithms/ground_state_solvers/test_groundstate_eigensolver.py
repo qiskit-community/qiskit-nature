@@ -144,9 +144,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         )
         aux_ops_copy = copy.deepcopy(aux_ops)
 
-        print("All good until here")
         _ = calc.solve(self.electronic_structure_problem)
-        print("Not anymore")
+
         assert all(
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
@@ -570,7 +569,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
-        np.testing.assert_array_almost_equal(solver.initial_point, [0.0, 0.0, -0.07197145])
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), [0.0, 0.0, -0.07197145]
+        )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
 

@@ -231,12 +231,11 @@ def deprecate_arguments(
 def deprecate_positional_arguments(
     version: str,
     func_name: str,
-    kw_pos_deprecated: List[str],
+    pre_positional_kw: List[str],
     additional_msg: Optional[str] = None,
     stack_level: int = 3,
 ) -> Callable:
     """Decorator to convert positional arguments into keyword arguments and warn upon use.
-
     .. code-block:: python
 
         @deprecate_positional_arguments("0.1", (b, d))
@@ -251,7 +250,7 @@ def deprecate_positional_arguments(
         version: Version to be used
         func_name: Name of the function where the deprecation takes place will be used to
         write the deprecation message.
-        kw_pos_deprecated: Tuple of arguments to be deprecated
+        pre_positional_kw: List of arguments of the function before the depracation
         additional_msg: any additional message
         stack_level: stack level
 
@@ -263,12 +262,13 @@ def deprecate_positional_arguments(
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
 
-            keyword_list = inspect.getfullargspec(func)[0]
+            current_positional_kw = inspect.getfullargspec(func)[0]
+
             for i, arg in enumerate(args):
-                kwargs[keyword_list[i]] = arg
-                if keyword_list[i] in kw_pos_deprecated:
+                kwargs[pre_positional_kw[i]] = arg
+                if pre_positional_kw[i] not in current_positional_kw:
                     msg = (
-                        f"{func_name}: {keyword_list[i]} is no longer a positional argument "
+                        f"{func_name}: {pre_positional_kw[i]} is no longer a positional argument "
                         f"as of version {version} and will be removed no sooner "
                         "than 3 months after the release. Instead use it as a keyword argument"
                     )

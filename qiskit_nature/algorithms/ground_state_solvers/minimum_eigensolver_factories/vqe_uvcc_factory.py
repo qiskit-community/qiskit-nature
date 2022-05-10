@@ -47,22 +47,26 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     For example:
     .. code-block:: python
 
-        factory = VQEUCCFactory()
-        factory.minimum_eigensolver.ansatz = UCCD()
+        factory = VQEUVCCFactory()
+        factory.minimum_eigensolver.ansatz = UVCCD()
         vqe = factory.get_solver()
-        print(type(vqe.ansatz))  # UCCSD
+        print(type(vqe.ansatz))  # UVCCSD
 
     """
 
     @deprecate_positional_arguments(
         version="0.4",
         func_name="VQEUVCCFactory Constructor",
-        kw_pos_deprecated=[
+        pre_positional_kw=[
+            "self",
             "quantum_instance",
             "optimizer",
+            "initial_point",
             "gradient",
             "expectation",
             "include_custom",
+            "ansatz",
+            "initial_state",
             "callback",
         ],
         stack_level=5,

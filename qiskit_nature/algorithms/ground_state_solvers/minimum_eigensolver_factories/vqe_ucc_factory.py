@@ -58,15 +58,19 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @deprecate_positional_arguments(
         version="0.4",
         func_name="VQEUCCFactory Constructor",
-        kw_pos_deprecated=[
+        pre_positional_kw=[
+            "self",
             "quantum_instance",
             "optimizer",
+            "initial_point",
             "gradient",
             "expectation",
             "include_custom",
+            "ansatz",
+            "initial_state",
             "callback",
         ],
-        stack_level=5,
+        stack_level=2,
     )
     def __init__(
         self,
@@ -75,6 +79,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         initial_state: Optional[QuantumCircuit] = None,
         **kwargs,
     ) -> None:
+        # pylint: disable=unused-argument
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
@@ -114,6 +119,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._initial_state = initial_state
         self._initial_point = initial_point
         self._factory_ansatz = ansatz
+        print()
         self._vqe = VQE(**kwargs)
 
     @property  # type: ignore

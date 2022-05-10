@@ -15,7 +15,11 @@
 from typing import Optional, Union, List, Callable
 import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
-from qiskit_nature.deprecation import DeprecatedType, deprecate_property
+from qiskit_nature.deprecation import (
+    DeprecatedType,
+    deprecate_property,
+    deprecate_positional_arguments,
+)
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -24,27 +28,24 @@ from .minimum_eigensolver_factory import MinimumEigensolverFactory
 class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
     """A factory to construct a NumPyMinimumEigensolver."""
 
+    @deprecate_positional_arguments(
+        version="0.4",
+        func_name="NumPyMinimumEigensolver Constructor",
+        pre_positional_kw=["self", "filter_criterion", "use_default_filter_criterion"],
+        stack_level=2,
+    )
     def __init__(
         self,
-        filter_criterion: Callable[
-            [Union[List, np.ndarray], float, Optional[List[float]]], bool
-        ] = None,
         use_default_filter_criterion: bool = False,
+        **kwargs,
     ) -> None:
         """
         Args:
-            filter_criterion: callable that allows to filter eigenvalues/eigenstates. The minimum
-                eigensolver is only searching over feasible states and returns an eigenstate that
-                has the smallest eigenvalue among feasible states. The callable has the signature
-                `filter(eigenstate, eigenvalue, aux_values)` and must return a boolean to indicate
-                whether to consider this value or not. If there is no
-                feasible element, the result can even be empty.
             use_default_filter_criterion: whether to use the transformation's default filter
                 criterion if ``filter_criterion`` is ``None``.
         """
-        self._filter_criterion = filter_criterion
         self._use_default_filter_criterion = use_default_filter_criterion
-        self._minimum_eigensolver = NumPyMinimumEigensolver(filter_criterion=filter_criterion)
+        self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
 
     @property  # type: ignore
     @deprecate_property(
@@ -56,7 +57,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self,
     ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
         """returns filter criterion"""
-        return self._filter_criterion
+        return self.minimum_eigensolver._filter_criterion
 
     @filter_criterion.setter  # type: ignore
     @deprecate_property(
@@ -69,7 +70,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
     ) -> None:
         """sets filter criterion"""
-        self._filter_criterion = value
+        self.minimum_eigensolver._filter_criterion = value
 
     @property  # type: ignore
     @deprecate_property(
@@ -104,7 +105,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         Returns:
             A NumPyMinimumEigensolver suitable to compute the ground state of the molecule.
         """
-        filter_criterion = self._filter_criterion
+        filter_criterion = self.minimum_eigensolver.filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:
             filter_criterion = problem.get_default_filter_criterion()
             self._minimum_eigensolver.filter_criterion = filter_criterion
