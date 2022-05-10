@@ -236,15 +236,16 @@ def deprecate_positional_arguments(
     stack_level: int = 3,
 ) -> Callable:
     """Decorator to convert positional arguments into keyword arguments and warn upon use.
+    
     .. code-block:: python
 
-        @deprecate_positional_arguments("0.1",(b,d))
-        def function(a,b,c,d,**kwargs):
-            returns a+c+sum(kwargs.values())
+        @deprecate_positional_arguments("0.1", (b, d))
+        def function(a, b, c, d, **kwargs):
+            returns a + c + sum(kwargs.values())
 
-        #This two calls would be equivalent
-        function(1,2,3,4) #Would raise deprecation warning for arguments b and d.
-        function(a=1,b=2,c=3,d=4) #Would not raise any warning.
+        # The following two calls would be equivalent
+        function(1, 2, 3, 4)  # Would raise deprecation warning for arguments b and d.
+        function(a=1, b=2, c=3, d=4)  # Would not raise any warning.
 
     Args:
         version: Version to be used
