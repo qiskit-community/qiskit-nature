@@ -55,8 +55,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     """
 
     @deprecate_positional_arguments(
-        version="some_version",
-        func_name="VQEUCCFactory Constructor",
+        version="0.4",
+        func_name="VQEUVCCFactory Constructor",
         kw_pos_deprecated=[
             "quantum_instance",
             "optimizer",

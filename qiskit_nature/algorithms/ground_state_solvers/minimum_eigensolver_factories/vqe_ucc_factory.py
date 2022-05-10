@@ -56,7 +56,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     """
 
     @deprecate_positional_arguments(
-        version="some_version",
+        version="0.4",
         func_name="VQEUCCFactory Constructor",
         kw_pos_deprecated=[
             "quantum_instance",
@@ -281,11 +281,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._vqe.ansatz = ansatz
 
         if isinstance(self.initial_point, InitialPoint):
-            init_point = self.initial_point
-            init_point.grouped_property = driver_result
-            init_point.ansatz = ansatz
+            self.initial_point.grouped_property = driver_result
+            self.initial_point.ansatz = ansatz
 
-        self._vqe.initial_point = init_point.to_numpy_array()
+            # Converts to numpy array
+            init_point = self.initial_point.to_numpy_array()
+        else:
+            init_point = self.initial_point
+
+        self._vqe.initial_point = init_point
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):
