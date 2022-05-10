@@ -16,7 +16,7 @@ from typing import Union, Callable, List, Tuple
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult, LatticeModelResult
@@ -43,7 +43,13 @@ class LatticeModelProblem(BaseProblem):
             A ``list`` or ``dict`` of
             :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`
         """
-        return [self._lattice_model.second_q_ops()]
+        second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
+        if settings.dict_aux_operators:
+            second_q_ops = {"LatticeEnergy": second_q_ops}
+        else:
+            second_q_ops = [second_q_ops]
+
+        return second_q_ops
 
     def interpret(
         self,
@@ -107,4 +113,4 @@ class LatticeModelProblem(BaseProblem):
         Returns:
             None
         """
-        return None
+        raise NotImplementedError()
