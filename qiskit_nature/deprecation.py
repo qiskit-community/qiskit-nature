@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021,2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,7 +16,7 @@ from abc import abstractmethod
 import warnings
 import functools
 import inspect
-from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any, Tuple
+from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any, List
 from enum import Enum, EnumMeta
 
 
@@ -230,7 +230,8 @@ def deprecate_arguments(
 
 def deprecate_positional_arguments(
     version: str,
-    kw_pos_deprecated: Tuple[str],
+    func_name: str,
+    kw_pos_deprecated: List[str],
     additional_msg: Optional[str] = None,
     stack_level: int = 3,
 ) -> Callable:
@@ -247,6 +248,8 @@ def deprecate_positional_arguments(
 
     Args:
         version: Version to be used
+        func_name: Name of the function where the deprecation takes place will be used to
+        write the deprecation message.
         kw_pos_deprecated: Tuple of arguments to be deprecated
         additional_msg: any additional message
         stack_level: stack level
@@ -264,11 +267,9 @@ def deprecate_positional_arguments(
                 kwargs[keyword_list[i]] = arg
                 if keyword_list[i] in kw_pos_deprecated:
                     msg = (
-                        f"Please, refer from using '{keyword_list[i]}' positionally to"
-                        f"construct a VQEFactory. As of version {version} this are no longer"
-                        " properties of the factories but are passed to the VQE via keyword"
-                        " arguments. The option to pass the arguments positionally will be "
-                        "removed no sooner than 3 months after release."
+                        f"{func_name}: {keyword_list[i]} is no longer a positional argument "
+                        f"as of version {version} and will be removed no sooner "
+                        "than 3 months after the release. Instead use it as a keyword argument"
                     )
                     if additional_msg:
                         msg += f"{additional_msg}" + "."

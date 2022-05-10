@@ -53,31 +53,34 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         print(type(vqe.ansatz))  # UCCSD
 
     """
+
     @deprecate_positional_arguments(
         version="some_version",
-        kw_pos_deprecated=(
+        func_name="VQEUCCFactory Constructor",
+        kw_pos_deprecated=[
             "quantum_instance",
             "optimizer",
             "gradient",
             "expectation",
             "include_custom",
             "callback",
-        ),
+        ],
         stack_level=5,
     )
     def __init__(
         self,
-        quantum_instance_depracated: QuantumInstance = None,
-        optimizer_depracated: Optional[Optimizer] = None,
+        quantum_instance: QuantumInstance = None,
+        optimizer: Optional[Optimizer] = None,
         initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
-        gradient_depracated: Optional[Union[GradientBase, Callable]] = None,
-        expectation_depracated: Optional[ExpectationBase] = None,
-        include_custom_depracated: bool = False,
+        gradient: Optional[Union[GradientBase, Callable]] = None,
+        expectation: Optional[ExpectationBase] = None,
+        include_custom: bool = False,
         ansatz: Optional[UVCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
-        callback_depracated: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
+        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
+        # pylint: disable=unused-argument
 
         """
         Args:
