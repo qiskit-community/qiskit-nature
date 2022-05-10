@@ -42,6 +42,13 @@ class QuadraticHamiltonian(TolerancesMixin):
         + \text{constant}
 
     where :math:`M` is a Hermitian matrix and :math:`\Delta` is an antisymmetric matrix.
+
+    Note:
+        The :class:`~.FermionicOp` class can also be used to represent any quadratic Hamiltonian.
+        The reason to have a class specifically for quadratic Hamiltonians is that they
+        support special numerical routines that involve performing linear algebra on the
+        matrices :math:`M` and :math:`\Delta`. The internal representation format
+        of :class:`~.FermionicOp` is not suitable for these routines.
     """
 
     def __init__(
