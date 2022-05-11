@@ -27,35 +27,43 @@ from .spin_mapper import SpinMapper
 
 
 class LogarithmicMapper(SpinMapper):
-    """A mapper for Logarithmic spin-to-qubit mapping [1].
+    r"""A mapper for Logarithmic spin-to-qubit mapping.
     In this local encoding transformation, each individual spin S system is represented via
-    the lowest lying 2S+1 states in a qubit system with the minimal number of qubits needed to
-    represent >= 2S+1 distinct states.
+    the lowest lying :math:`2S+1` states in a qubit system with the minimal number of qubits needed to
+    represent :math:`>= 2S+1` distinct states [1].
 
-    [1]: Mathis, S. V., Guglielmo, M., & Ivano, T. (2020).
-         Toward scalable simulations of lattice gauge theories on quantum computers.
-         Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
+    References:
+        [1]: S. V. Mathis, G. Mazzola and I. Tavernelli (2020).
+            Toward scalable simulations of lattice gauge theories on quantum computers.
+            Phys. Rev. D, 102 (9), 094501. 10.1103/PhysRevD.102.094501
     """
 
     def __init__(self, padding: float = 1, embed_upper: bool = True) -> None:
-        """
+        r"""
         Args:
             padding:
-                When embedding a matrix into the upper/lower diagonal block of a 2^num_qubits by
-                2^num_qubits matrix, pads the diagonal of the block matrix with
-                the value of `padding`.
+                When embedding a matrix into the upper/lower diagonal block of a
+                :math:`2^n` by :math:`2^n` matrix ,where :math:`n` is the number of qubits, pads
+                the diagonal of the block matrix with the value of `padding`.
 
             embed_upper:
-                This parameter sets whether
-                the given matrix is embedded in the upper left hand corner or
-                the lower right hand corner of the larger matrix.
-                I.e. using embed_upper = True returns the matrix:
-                [[ matrix,    0             ],
-                [   0   , padding * I]]
+                This parameter sets whether the given matrix is embedded in the upper left hand
+                corner or the lower right hand corner of the larger matrix.
+                I.e. using `embed_upper` = `True` returns the matrix:
 
-                Using embed_upper = False returns the matrix:
-                [[ padding * I,    0    ],
-                [      0           ,  matrix ]]
+                .. math::
+                    \begin{pmatrix}
+                        \text{matrix} & 0 \\
+                        0 & \text{padding} * I
+                    \end{pmatrix}
+
+                Using `embed_upper` = `False` returns the matrix:
+
+                .. math::
+                    \begin{pmatrix}
+                        \text{padding} * I & 0 \\
+                        0 & \text{matrix}
+                    \end{pmatrix}
 
         """
         super().__init__(allows_two_qubit_reduction=False)
@@ -146,27 +154,33 @@ class LogarithmicMapper(SpinMapper):
         matrix: np.ndarray,
         num_qubits: int,
     ) -> np.ndarray:
-        """
-        Embeds `matrix` into the upper/lower diagonal block of a 2^num_qubits by 2^num_qubits matrix
-        and pads the diagonal of the upper left block matrix with the value of `padding`.
-        Whether the upper/lower diagonal block is used depends on `embed_upper`.
-        I.e. using embed_upper = True returns the matrix:
-        [[ matrix,    0             ],
-        [   0   , padding * I]]
+        r"""
+        Embeds `matrix` into the upper/lower diagonal block of a :math:`2^\text{num_qubits}`
+        by :math:`2^\text{num_qubits}` matrix and pads the diagonal of the upper left block matrix
+        with the value of `padding`. Whether the upper/lower diagonal block is used depends on
+        `embed_upper`. I.e. using `embed_upper` = `True` returns the matrix:
 
-        Using embed_upper = False returns the matrix:
-        [[ padding * I,    0    ],
-        [      0           ,  matrix ]]
+        .. math::
+            \begin{pmatrix}
+                \text{matrix} & 0 \\
+                0 & \text{padding} * I
+            \end{pmatrix}
+
+        Using `embed_upper` = `False` returns the matrix:
+
+        .. math::
+            \begin{pmatrix}
+                \text{padding} * I & 0 \\
+                0 & \text{matrix}
+            \end{pmatrix}
 
         Args:
             matrix: The matrix (2D-array) to embed.
             num_qubits: The number of qubits on which the embedded matrix should act on.
 
         Returns:
-            If `matrix` is of size 2^num_qubits, returns `matrix`.
-            Else it returns the block matrix (I = identity)
-            [[ padding * I,    0    ],
-            [      0           , `matrix`]]
+            If `matrix` is of size :math: `2^\text{num_qubits}`, returns `matrix`.
+            Else it returns the block matrix (:math: `I` = identity)
 
         Raises:
             ValueError: If the passed matrix does not fit into the space spanned by num_qubits.
