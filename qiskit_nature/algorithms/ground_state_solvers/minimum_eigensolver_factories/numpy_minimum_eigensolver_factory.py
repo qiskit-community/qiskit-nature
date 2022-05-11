@@ -108,10 +108,10 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         Returns:
             A NumPyMinimumEigensolver suitable to compute the ground state of the molecule.
         """
-        filter_criterion = self.minimum_eigensolver.filter_criterion
-        if not filter_criterion and self._use_default_filter_criterion:
-            filter_criterion = problem.get_default_filter_criterion()
-            self._minimum_eigensolver.filter_criterion = filter_criterion
+
+        if not self.minimum_eigensolver.filter_criterion and self._use_default_filter_criterion:
+            self._minimum_eigensolver.filter_criterion = problem.get_default_filter_criterion()
+
         return self._minimum_eigensolver
 
     def supports_aux_operators(self):
