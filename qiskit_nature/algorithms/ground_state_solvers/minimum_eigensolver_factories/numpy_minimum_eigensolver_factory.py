@@ -43,6 +43,8 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         Args:
             use_default_filter_criterion: whether to use the transformation's default filter
                 criterion if ``filter_criterion`` is ``None``.
+            kwargs: keyword arguments passed to NumpyMinimumEigensolver to construct self._minimum_eigensolver.
+            Note that filter_criterion is now accessed through NumpyMinimumEigensolver.
         """
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
@@ -57,7 +59,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self,
     ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
         """returns filter criterion"""
-        return self.minimum_eigensolver._filter_criterion
+        return self.minimum_eigensolver.filter_criterion
 
     @filter_criterion.setter  # type: ignore
     @deprecate_property(
@@ -70,7 +72,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
     ) -> None:
         """sets filter criterion"""
-        self.minimum_eigensolver._filter_criterion = value
+        self.minimum_eigensolver.filter_criterion = value
 
     @property  # type: ignore
     @deprecate_property(
