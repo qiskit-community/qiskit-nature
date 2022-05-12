@@ -32,7 +32,7 @@ class ProteinFoldingResult(EigenstateResult):
     def __init__(
         self,
         protein_folding_problem: pfp.ProteinFoldingProblem,
-        best_sequence: Union[str, PauliOp],
+        best_sequence: str,
     ) -> None:
         """
         Args:
@@ -99,18 +99,19 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def get_xyz_file(self, name: str = None, output_data: bool = False) -> np.ndarray:
+    def save_xyz_file(self, name: str = None, path:str = "") -> np.ndarray:
         """
         Generates an xyz file and returns an array with the data in that file.
         Args:
             name: Name of the file to be generated.
-            output_data: Boolean indicating whether we want to generate the file or not.
         Returns:
             An array with the data to be stored in the xyz file.
         """
         if name is None:
-            name = str(self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence)
-        return self.protein_shape_file_gen.get_xyz_file(name, output_data)
+            name = str(
+                self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence
+            )
+        return self.protein_shape_file_gen.save_xyz_file(name=name, path = path)
 
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False

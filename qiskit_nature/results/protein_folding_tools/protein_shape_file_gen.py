@@ -83,10 +83,10 @@ class ProteinShapeFileGen:
 
     def generate_main_positions(self) -> np.ndarray:
         """Generates the positions of the main chain."""
-        lenght_turns = len(self._main_chain_turns)
-        relative_positions = np.zeros((lenght_turns + 1, 3), dtype=float)
+        length_turns = len(self._main_chain_turns)
+        relative_positions = np.zeros((length_turns + 1, 3), dtype=float)
 
-        for i in range(lenght_turns):
+        for i in range(length_turns):
             relative_positions[i + 1] = (-1) ** i * self.coordinates[self._main_chain_turns[i]]
 
         return relative_positions.cumsum(axis=0)
@@ -104,7 +104,25 @@ class ProteinShapeFileGen:
 
         return self._main_positions
 
-    def get_xyz_file(self, name: str, output_data: bool) -> np.ndarray:
+    def save_xyz_file(self, name: str, path: str = "") -> None:
+        """
+        Saves the data as an .xyz file.
+        For more information about .xyz files: https://en.wikipedia.org/wiki/XYZ_file_format
+        Args:
+            name: the file will be called name.xyz.
+            path: path under which the file will be saved.
+        """
+        data = self.get_xyz_file()
+        number_of_particles = data.shape[0]
+        np.savetxt(
+            fname=path + name + ".xyz",
+            header=f"{number_of_particles}",
+            X=data,
+            delimiter=" ",
+            fmt="%s",
+        )
+
+    def get_xyz_file(self) -> np.ndarray:
         """
         Creates a .xyz file and saves it in the current directory.
         """
@@ -112,15 +130,13 @@ class ProteinShapeFileGen:
 
         # We will discard the None values corresponding to empty side chains.
         side_aminoacid = np.array(self._side_chain_aminoacid_list)
-        side_aminoacid = side_aminoacid[side_aminoacid != None]
+        side_aminoacid = side_aminoacid[side_aminoacid != np.array(None)]
         side_aminoacid = side_aminoacid.astype("<U32")
-        
+
         side_position = np.array(
             [side_pos for side_pos in self.side_positions if side_pos is not None],
             dtype="<U32",
         )
-
-        
         side_data = np.column_stack([side_aminoacid, side_position])
         if side_data.size != 0:
 
@@ -128,8 +144,5 @@ class ProteinShapeFileGen:
 
         else:
             data = main_data
-
-        if output_data:
-            np.savetxt(name + ".xyz", data, delimiter=" ", fmt="%s")
 
         return data

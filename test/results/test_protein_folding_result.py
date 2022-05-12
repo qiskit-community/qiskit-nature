@@ -432,8 +432,8 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
     def test_main_chain_length(self):
         """Tests the main chain length"""
         # Test for case 1
-        self.assertEqual(self.test_result_1._main_chain_lenght, 7)
+        self.assertEqual(self.test_result_1._main_chain_length, 7)
         # Test for case 2
-        self.assertEqual(self.test_result_2._main_chain_lenght, 5)
+        self.assertEqual(self.test_result_2._main_chain_length, 5)
         # Test for case 3
-        self.assertEqual(self.test_result_2._main_chain_lenght, 5)
+        self.assertEqual(self.test_result_2._main_chain_length, 5)

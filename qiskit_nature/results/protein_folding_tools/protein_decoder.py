@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """An auxiliary class that gets the turns in the main and side chain of a molecule
  in ProteinFoldingResult """
-from typing import Union, List, Tuple
+from typing import List, Tuple, Optional
 
 
 class ProteinDecoder:
@@ -28,12 +28,12 @@ class ProteinDecoder:
         Args:
             best_sequence: Will be the sequence decoded.
             side_chain_hot_vector: boolean list with the position of the side chains
-            unused_qubits: list of qubits compressed in the ProteinFoldingProblem.
+            fifth_bit: True if the fifth bit has defaulted to 1.
         """
         self._best_sequence = best_sequence
         self._side_chain_hot_vector = side_chain_hot_vector
         self._fifth_bit = fifth_bit
-        self._main_chain_lenght = len(side_chain_hot_vector)
+        self._main_chain_length = len(side_chain_hot_vector)
 
     def _bitstring_to_turns(self, bitstring: str) -> List[int]:
         """
@@ -46,13 +46,13 @@ class ProteinDecoder:
         """
         bitstring = bitstring[::-1]
         encoding = {"00": 0, "01": 1, "10": 2, "11": 3}
-        lenght_turns = len(bitstring) // 2
-        return [encoding[bitstring[2 * i : 2 * (i + 1)]] for i in range(lenght_turns)]
+        length_turns = len(bitstring) // 2
+        return [encoding[bitstring[2 * i : 2 * (i + 1)]] for i in range(length_turns)]
 
     def _split_bitstring(self) -> Tuple[int, int]:
         """Returns the amount of bits in the compact solution corresponding
         to each property they encode."""
-        n_qbits_encoding_main_turns = 2 * (self._main_chain_lenght - 3) - (self._fifth_bit)
+        n_qbits_encoding_main_turns = 2 * (self._main_chain_length - 3) - (self._fifth_bit)
         n_qbits_encoding_side_turns = 2 * sum(self._side_chain_hot_vector)
         return n_qbits_encoding_main_turns, n_qbits_encoding_side_turns
 
@@ -79,7 +79,7 @@ class ProteinDecoder:
 
         return self._bitstring_to_turns(main_turns_bitstring)
 
-    def get_side_turns(self) -> List[Union[None, int]]:
+    def get_side_turns(self) -> List[Optional[int]]:
         """
         Returns the list of turns from the main bead corresponding to the side chains.
         None corresponds to no side chain from that main bead.

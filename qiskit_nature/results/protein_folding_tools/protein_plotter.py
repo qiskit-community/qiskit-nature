@@ -20,7 +20,7 @@ import qiskit_nature.results.protein_folding_result as pfr
 
 
 class ProteinPlotter:
-    """This class is a plotter class for the ProteinFoldingResult"""
+    """Plotter class for ProteinFoldingResult."""
 
     def __init__(self, protein_folding_result: pfr.ProteinFoldingResult) -> None:
         """
@@ -29,85 +29,98 @@ class ProteinPlotter:
         """
 
         self._protein_folding_result = protein_folding_result
-        
-        self.x_main,self.y_main,self.z_main = np.split(self._protein_folding_result.protein_shape_file_gen.main_positions.transpose(),3,0)
-        self.x_main,self.y_main,self.z_main =self.x_main[0], self.y_main[0], self.z_main[0]
-        
-        
-        self.fig = plt.figure()
-        self.ax_graph = self.fig.add_subplot(projection="3d")
 
-        
-        
+        self._x_main, self._y_main, self._z_main = np.split(
+            self._protein_folding_result.protein_shape_file_gen.main_positions.transpose(), 3, 0
+        )
+        self._x_main, self._y_main, self._z_main = self._x_main[0], self._y_main[0], self._z_main[0]
 
-    def draw_main_chain(self):
+        self._fig = plt.figure()
+        self._ax_graph = self._fig.add_subplot(projection="3d")
+
+    def _draw_main_chain(self):
         """
-        Draws the main chain on a subplot object.
+        Draws the main chain.
 
-        """        
+        """
         for i, main_aminoacid in enumerate(
-            self._protein_folding_result.protein_shape_file_gen._main_chain_aminoacid_list):
-            self.ax_graph.text(self.x_main[i], self.y_main[i], self.z_main[i], main_aminoacid, size=10, zorder=10, color="k")
-            
-        self.ax_graph.plot3D(self.x_main, self.y_main, self.z_main)
-        return self.ax_graph.scatter3D(self.x_main, self.y_main, self.z_main, s=500, label="Main Chain")
+            self._protein_folding_result.protein_shape_file_gen._main_chain_aminoacid_list
+        ):
+            self._ax_graph.text(
+                self._x_main[i],
+                self._y_main[i],
+                self._z_main[i],
+                main_aminoacid,
+                size=10,
+                zorder=10,
+                color="k",
+            )
 
+        self._ax_graph.plot3D(self._x_main, self._y_main, self._z_main)
+        return self._ax_graph.scatter3D(
+            self._x_main, self._y_main, self._z_main, s=500, label="Main Chain"
+        )
 
-
-    def draw_side_chains(self):
+    def _draw_side_chains(self):
         """
-        Draws the side chain on a subplot object.
-
+        Draws the side chain.
         """
         side_positions = self._protein_folding_result.protein_shape_file_gen.side_positions
-        side_aminoacids = self._protein_folding_result.protein_shape_file_gen._main_chain_aminoacid_list
+        side_aminoacids = (
+            self._protein_folding_result.protein_shape_file_gen._main_chain_aminoacid_list
+        )
         for i, side_chain in enumerate(side_positions):
             if side_chain is not None:
                 x_side, y_side, z_side = side_chain
-                side_scatter = self.ax_graph.scatter3D(
+                side_scatter = self._ax_graph.scatter3D(
                     x_side, y_side, z_side, s=600, c="green", label="Side Chain"
                 )
-                self.ax_graph.plot3D([self.x_main[i], x_side], [self.y_main[i], y_side], [self.z_main[i], z_side], c="green")
-                self.ax_graph.text(
-                                    x_side,
-                                    y_side,
-                                    z_side,
-                                    side_aminoacids[i],
-                                    size=10,
-                                    zorder=10,
-                                    color="k",
-                                )
+                self._ax_graph.plot3D(
+                    [self._x_main[i], x_side],
+                    [self._y_main[i], y_side],
+                    [self._z_main[i], z_side],
+                    c="green",
+                )
+                self._ax_graph.text(
+                    x_side,
+                    y_side,
+                    z_side,
+                    side_aminoacids[i],
+                    size=10,
+                    zorder=10,
+                    color="k",
+                )
         return side_scatter
-    
-    def format_graph(self,title,ticks,grid):
+
+    def _format_graph(
+        self, title: str, ticks: bool, grid: bool, main_scatter: plt.Axes, side_scatter: plt.Axes
+    ):
         """
         Formats the plot.
         Args:
             title: The title of the plot.
             ticks: Boolean for showing ticks in the graphic.
             grid: Boolean for showing the grid in the graphic.
-            ax_graph: Subplot that we want to edit.
-            fig: Figure that we want to modify.
             main_scatter: Scattering object that we will use for the legend.
             side_scatter: Scattering object that we will use for the legend.
         """
-                
-        self.ax_graph.set_box_aspect([1, 1, 1])
 
-        self.ax_graph.grid(grid)
-        
+        self._ax_graph.set_box_aspect([1, 1, 1])
+
+        self._ax_graph.grid(grid)
+
         if not ticks:
-            self.ax_graph.set_xticks([])
-            self.ax_graph.set_yticks([])
-            self.ax_graph.set_zticks([])
+            self._ax_graph.set_xticks([])
+            self._ax_graph.set_yticks([])
+            self._ax_graph.set_zticks([])
 
-        self.ax_graph.set_xlabel("x")        
-        self.ax_graph.set_ylabel("y")
-        self.ax_graph.set_zlabel("z")
+        self._ax_graph.set_xlabel("x")
+        self._ax_graph.set_ylabel("y")
+        self._ax_graph.set_zlabel("z")
 
-        self.fig.legend(handles=[self.main_scatter, self.side_scatter], labelspacing=2,markerscale = 0.5)
-        self.ax_graph.set_title(title)
-    
+        self._fig.legend(handles=[main_scatter, side_scatter], labelspacing=2, markerscale=0.5)
+        self._ax_graph.set_title(title)
+
     def plot(
         self, title: str = "Protein Structure", ticks: bool = False, grid: bool = False
     ) -> None:
@@ -117,56 +130,17 @@ class ProteinPlotter:
             title: The title of the plot.
             ticks: Boolean for showing ticks in the graphic.
             grid: Boolean for showing the grid in the graphic.
-        """        
-        
+        """
 
-        self.main_scatter = self.draw_main_chain()
-        self.side_scatter = self.draw_side_chains()
-        
-        self.format_graph(title=title,
-                          ticks = ticks,
-                          grid=grid)
-        
+        main_scatter = self._draw_main_chain()
+        side_scatter = self._draw_side_chains()
+
+        self._format_graph(
+            title=title,
+            ticks=ticks,
+            grid=grid,
+            main_scatter=main_scatter,
+            side_scatter=side_scatter,
+        )
 
         plt.draw()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
