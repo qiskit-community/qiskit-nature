@@ -31,7 +31,7 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 )
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
-from ...initial_points import InitialPoint, VSCFInitialPoint
+from ...initial_points import VSCFInitialPoint
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
@@ -41,7 +41,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self,
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
-        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
+        initial_point: Optional[Union[np.ndarray, VSCFInitialPoint]] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -60,7 +60,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint`.
                 This then defaults to the VSCF state when the VSCF circuit is prepended
                 to the the ansatz circuit. If another
-                :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
+                :class:`~qiskit_nature.algorithms.initial_points.initial_point.VSCFInitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
                 If a user-provided NumPy array, this is used directly.
             gradient: An optional gradient function or operator for optimizer.
@@ -120,12 +120,12 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self._optimizer = optimizer
 
     @property
-    def initial_point(self) -> Union[np.ndarray, InitialPoint]:
+    def initial_point(self) -> Union[np.ndarray, VSCFInitialPoint]:
         """Getter of the initial point."""
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: Union[np.ndarray, InitialPoint]) -> None:
+    def initial_point(self, initial_point: Union[np.ndarray, VSCFInitialPoint]) -> None:
         """Setter of the initial point."""
         self._initial_point = initial_point
 
@@ -225,7 +225,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
 
-        if isinstance(self.initial_point, InitialPoint):
+        if isinstance(self.initial_point, VSCFInitialPoint):
             self.initial_point.ansatz = ansatz
             initial_point = self.initial_point.to_numpy_array()
         else:

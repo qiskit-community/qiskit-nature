@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-import logging
+import warnings
 
 import numpy as np
 
@@ -26,8 +26,6 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 )
 
 from .initial_point import InitialPoint
-
-logger = logging.getLogger(__name__)
 
 
 class HFInitialPoint(InitialPoint):
@@ -46,13 +44,10 @@ class HFInitialPoint(InitialPoint):
 
     def __init__(self) -> None:
         super().__init__()
-        self._reference_energy: float = 0.0
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
+        self._grouped_property: GroupedSecondQuantizedProperty | None = None
+        self._reference_energy: float = 0.0
         self._parameters: np.ndarray | None = None
-
-    def __len__(self) -> int:
-        """The length of the computed initial point array."""
-        return len(self.to_numpy_array())
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty:
@@ -65,7 +60,7 @@ class HFInitialPoint(InitialPoint):
     @grouped_property.setter
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
         if not isinstance(grouped_property, GroupedSecondQuantizedProperty):
-            logger.warning(
+            warnings.warn(
                 "grouped_property is not of type GroupedSecondQuantizedProperty; "
                 "grouped_property and reference_energy will not be set."
             )
@@ -73,7 +68,7 @@ class HFInitialPoint(InitialPoint):
 
         electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
         if not isinstance(electronic_energy, ElectronicEnergy):
-            logger.warning(
+            warnings.warn(
                 "ElectronicEnergy not obtained from grouped_property; "
                 "grouped_property and reference_energy will not be set."
             )
@@ -163,15 +158,8 @@ class HFInitialPoint(InitialPoint):
 
         self._parameters = np.zeros(len(self._excitation_list))
 
-    def get_energy_corrections(self) -> np.ndarray:
-        """Returns the energy correction corresponding to each parameter value."""
-        # The energy correction array is identical to the parameter array in this case.
-        if self._parameters is None:
-            self.compute()
-        return self._parameters
-
     def get_energy(self) -> float:
-        """Returns the absolute energy.
+        """The reference energy.
 
         If the reference energy was not obtained from
         :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`

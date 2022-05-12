@@ -14,19 +14,12 @@
 
 from __future__ import annotations
 
-import logging
-
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UVCC
-from qiskit_nature.properties.second_quantization.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
 
 from .initial_point import InitialPoint
-
-logger = logging.getLogger(__name__)
 
 
 class VSCFInitialPoint(InitialPoint):
@@ -46,31 +39,6 @@ class VSCFInitialPoint(InitialPoint):
         super().__init__()
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._parameters: np.ndarray | None = None
-
-    def __len__(self) -> int:
-        """The length of the computed initial point array."""
-        if self._parameters is None:
-            self.compute()
-        return len(self._parameters)
-
-    @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty:
-        """The grouped property.
-
-        The grouped property is not required to compute the VSCF initial point.
-        """
-        return self._grouped_property
-
-    @grouped_property.setter
-    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
-        if not isinstance(grouped_property, GroupedSecondQuantizedProperty):
-            logger.warning(
-                "grouped_property is not of type GroupedSecondQuantizedProperty; "
-                "grouped_property will not be set. This is not required anyway."
-            )
-            return
-
-        self._grouped_property = grouped_property
 
     @property
     def ansatz(self) -> UVCC:
@@ -123,7 +91,6 @@ class VSCFInitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UVCC | None = None,
-        grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
         """Compute the initial point.
 
@@ -132,14 +99,10 @@ class VSCFInitialPoint(InitialPoint):
         Args:
             ansatz: The UVCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
                     coefficients are mapped correctly in the initial point array.
-            grouped_property: The grouped second-quantized property. Not required.
 
         Raises:
             QiskitNatureError: If :attr`ansatz` is not set.
         """
-        if isinstance(grouped_property, GroupedSecondQuantizedProperty):
-            self.grouped_property = grouped_property
-
         if isinstance(ansatz, UVCC):
             self.ansatz = ansatz
         elif not isinstance(self._excitation_list, list):
@@ -151,10 +114,3 @@ class VSCFInitialPoint(InitialPoint):
             )
 
         self._parameters = np.zeros(len(self._excitation_list))
-
-    def get_energy_corrections(self) -> np.ndarray:
-        """The energy correction corresponding to each parameter value."""
-        # The energy correction array is identical to the parameter array in this case.
-        if self._parameters is None:
-            self.compute()
-        return self._parameters

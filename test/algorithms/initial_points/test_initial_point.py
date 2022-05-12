@@ -28,30 +28,15 @@ class TestInitialPoint(QiskitNatureTestCase):
         # pylint: disable=abstract-class-instantiated
         self.initial_point = InitialPoint()  # type: ignore
 
-    def test_length(self):
-        """Test length."""
-        with self.assertRaises(NotImplementedError):
-            _ = len(self.initial_point)
-
     def test_compute(self):
         """Test compute."""
         with self.assertRaises(NotImplementedError):
-            self.initial_point.compute(None, None)
+            self.initial_point.compute(None)
 
     def test_to_numpy_array(self):
         """Test to_numpy_array."""
         with self.assertRaises(NotImplementedError):
             self.initial_point.to_numpy_array()
-
-    def test_get_grouped_property(self):
-        """Test get grouped_property."""
-        with self.assertRaises(NotImplementedError):
-            _ = self.initial_point.grouped_property
-
-    def test_set_grouped_property(self):
-        """Test set grouped_property."""
-        with self.assertRaises(NotImplementedError):
-            self.initial_point.grouped_property = None
 
     def test_get_ansatz(self):
         """Test get ansatz."""
@@ -62,19 +47,6 @@ class TestInitialPoint(QiskitNatureTestCase):
         """Test set ansatz."""
         with self.assertRaises(NotImplementedError):
             self.initial_point.ansatz = None
-
-    def test_get_energy_corrections(self):
-        """Test get energy corrections."""
-        with self.assertRaises(NotImplementedError):
-            _ = self.initial_point.get_energy_corrections()
-
-    def test_get_energy_correction(self):
-        """Test get_energy_correction."""
-        self.assertEqual(self.initial_point.get_energy_correction(), 0.0)
-
-    def test_get_energy(self):
-        """Test get_energy."""
-        self.assertEqual(self.initial_point.get_energy(), 0.0)
 
 
 if __name__ == "__main__":

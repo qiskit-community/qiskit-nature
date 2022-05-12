@@ -182,9 +182,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         with self.subTest("Test energy is computed on demand."):
             mp2_initial_point._corrections = None
             np.testing.assert_array_equal(mp2_initial_point.get_energy(), 123.45)
-        with self.subTest("Test length is computed on demand."):
-            mp2_initial_point._corrections = None
-            np.testing.assert_array_equal(len(mp2_initial_point), 1)
 
     def test_raises_error_for_non_restricted_spins(self):
         """Test when grouped_property and ansatz are set via compute."""

@@ -33,7 +33,7 @@ from .hf_initial_point import HFInitialPoint
 
 
 @dataclass(frozen=True)
-class Correction:
+class _Correction:
     """Data class for storing corrections."""
 
     excitation: tuple[tuple[int, ...], tuple[int, ...]]
@@ -79,11 +79,7 @@ class MP2InitialPoint(HFInitialPoint):
         self.threshold: float = threshold
         self._integral_matrix: np.ndarray | None = None
         self._orbital_energies: np.ndarray | None = None
-        self._corrections: list[Correction] | None = None
-
-    def __len__(self) -> int:
-        """The length of the computed initial point array."""
-        return len(self.to_numpy_array())
+        self._corrections: list[_Correction] | None = None
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
@@ -203,7 +199,7 @@ class MP2InitialPoint(HFInitialPoint):
 
     def _compute_corrections(
         self,
-    ) -> list[Correction]:
+    ) -> list[_Correction]:
         """Compute the MP2 coefficients and energy corrections.
 
         Non-double excitations will have zero coefficient and energy_correction.
@@ -211,20 +207,20 @@ class MP2InitialPoint(HFInitialPoint):
         Returns:
             Dictionary with MP2 coefficients and energy_corrections for each excitation.
         """
-        corrections: list[Correction] = []
+        corrections: list[_Correction] = []
         for excitation in self._excitation_list:
             if len(excitation[0]) == 2:
                 # Compute MP2 corrections using double excitations.
                 corrections.append(self._compute_correction(excitation))
             else:
                 # No computation for single, triple, and higher excitations.
-                corrections.append(Correction(excitation=excitation))
+                corrections.append(_Correction(excitation=excitation))
 
         return corrections
 
     def _compute_correction(
         self, excitation: tuple[tuple[int, ...], tuple[int, ...]]
-    ) -> Correction:
+    ) -> _Correction:
         r"""Compute the MP2 coefficient and energy correction given a double excitation.
 
         Each double excitation indexed by :math:`i,a,j,b` has a correction coefficient,
@@ -277,7 +273,7 @@ class MP2InitialPoint(HFInitialPoint):
         energy_correction = coefficient * expectation_value_iajb
         energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
 
-        return Correction(excitation=excitation, coefficient=coefficient, energy=energy_correction)
+        return _Correction(excitation=excitation, coefficient=coefficient, energy=energy_correction)
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""

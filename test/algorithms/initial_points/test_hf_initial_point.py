@@ -72,7 +72,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         """Test set missing ElectronicEnergy."""
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         grouped_property.get_property = Mock(return_value=None)
-        with self.assertLogs():
+        with self.assertWarns(UserWarning):
             self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point.grouped_property, None)
 
@@ -82,7 +82,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         electronic_energy.reference_energy = None
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         grouped_property.get_property = Mock(return_value=None)
-        with self.assertLogs():
+        with self.assertWarns(UserWarning):
             self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point._reference_energy, 0.0)
 
@@ -112,18 +112,6 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         initial_point = self.hf_initial_point.to_numpy_array()
         np.testing.assert_array_equal(initial_point, np.asarray([0.0]))
 
-    def test_hf_energy_corrections_are_all_zero(self):
-        """Test HF energy corrections are all zero."""
-        self.hf_initial_point.excitation_list = self.excitation_list
-        energy_corrections = self.hf_initial_point.get_energy_corrections()
-        np.testing.assert_array_equal(energy_corrections, np.asarray([0.0]))
-
-    def test_hf_energy_correction_is_zero(self):
-        """Test HF energy corrections are all zero."""
-        self.hf_initial_point.excitation_list = self.excitation_list
-        energy_correction = self.hf_initial_point.get_energy_correction()
-        self.assertEqual(energy_correction, 0.0)
-
     def test_hf_energy(self):
         """Test HF energy."""
         reference_energy = 123.0
@@ -135,11 +123,6 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         self.hf_initial_point.excitation_list = self.excitation_list
         energy = self.hf_initial_point.get_energy()
         self.assertEqual(energy, 123.0)
-
-    def test_length_of_hf_initial_point(self):
-        """Test length of HF initial point."""
-        self.hf_initial_point.excitation_list = self.excitation_list
-        np.testing.assert_equal(len(self.hf_initial_point), 1)
 
 
 if __name__ == "__main__":
