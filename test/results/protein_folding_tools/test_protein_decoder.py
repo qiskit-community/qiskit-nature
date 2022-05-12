@@ -45,16 +45,16 @@ class TestProteinDecoder(QiskitNatureTestCase):
         self.assertEqual(self.test_decoder_2._split_bitstring(), (3, 4))
         self.assertEqual(self.test_decoder_3._split_bitstring(), (4, 4))
 
-    def test_get_main_turns(self):
+    def test_main_turns(self):
         """Tests the main turn list."""
-        self.assertEqual(self.test_decoder_1.get_main_turns(), [1, 0, 3, 2, 0, 3])
-        self.assertEqual(self.test_decoder_2.get_main_turns(), [1, 0, 3, 2])
-        self.assertEqual(self.test_decoder_3.get_main_turns(), [1, 0, 1, 2])
+        self.assertEqual(self.test_decoder_1.main_turns(), [1, 0, 3, 2, 0, 3])
+        self.assertEqual(self.test_decoder_2.main_turns(), [1, 0, 3, 2])
+        self.assertEqual(self.test_decoder_3.main_turns(), [1, 0, 1, 2])
 
-    def test_get_side_turns(self):
+    def test_side_turns(self):
         """Tests the side chain turn list"""
         self.assertEqual(
-            self.test_decoder_1.get_side_turns(), [None, None, None, None, None, None, None]
+            self.test_decoder_1.side_turns(), [None, None, None, None, None, None, None]
         )
-        self.assertEqual(self.test_decoder_2.get_side_turns(), [None, None, 3, 3, None])
-        self.assertEqual(self.test_decoder_3.get_side_turns(), [None, 3, None, 1, None])
+        self.assertEqual(self.test_decoder_2.side_turns(), [None, None, 3, 3, None])
+        self.assertEqual(self.test_decoder_3.side_turns(), [None, 3, None, 1, None])

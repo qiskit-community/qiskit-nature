@@ -34,6 +34,8 @@ class ProteinDecoder:
         self._side_chain_hot_vector = side_chain_hot_vector
         self._fifth_bit = fifth_bit
         self._main_chain_length = len(side_chain_hot_vector)
+        self.main_turns = self._get_main_turns()
+        self.side_turns = self._get_side_turns()
 
     def _bitstring_to_turns(self, bitstring: str) -> List[int]:
         """
@@ -56,7 +58,7 @@ class ProteinDecoder:
         n_qbits_encoding_side_turns = 2 * sum(self._side_chain_hot_vector)
         return n_qbits_encoding_main_turns, n_qbits_encoding_side_turns
 
-    def get_main_turns(self) -> List[int]:
+    def _get_main_turns(self) -> List[int]:
         """
         Returns the list of turns for the molecule corresponding to best_sequence.
         The first element of the list corresponds to the turn of the second aminoacid in the peptide.
@@ -79,7 +81,7 @@ class ProteinDecoder:
 
         return self._bitstring_to_turns(main_turns_bitstring)
 
-    def get_side_turns(self) -> List[Optional[int]]:
+    def _get_side_turns(self) -> List[Optional[int]]:
         """
         Returns the list of turns from the main bead corresponding to the side chains.
         None corresponds to no side chain from that main bead.

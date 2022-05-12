@@ -17,7 +17,7 @@ import numpy as np
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
-class ProteinShapeFileGen:
+class  ProteinShapeFileGen:
     """This class handles the creation of cartesian coordinates for
     each aminoacid in a protein and generates a .xyz file.
     It is used by the ProteinFoldingResult class.

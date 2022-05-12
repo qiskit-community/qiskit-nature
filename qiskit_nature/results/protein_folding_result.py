@@ -56,8 +56,8 @@ class ProteinFoldingResult(EigenstateResult):
         )
 
         self._protein_shape_file_gen = ProteinShapeFileGen(
-            self.protein_decoder.get_main_turns(),
-            self.protein_decoder.get_side_turns(),
+            self.protein_decoder.main_turns,
+            self.protein_decoder.side_turns,
             self._protein_folding_problem.peptide,
         )
 
