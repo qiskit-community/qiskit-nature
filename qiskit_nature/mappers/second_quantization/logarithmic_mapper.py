@@ -35,7 +35,8 @@ class LogarithmicMapper(SpinMapper):
     References:
         [1]: S. V. Mathis, G. Mazzola and I. Tavernelli.
             Toward scalable simulations of lattice gauge theories on quantum computers.
-            Phys. Rev. D, 2020, 102 (9), 094501. 10.1103/PhysRevD.102.094501
+            Phys. Rev. D, 102 (9), 094501 (2020).
+            https://doi.org/10.1103/PhysRevD.102.094501
     """
 
     def __init__(self, padding: float = 1, embed_upper: bool = True) -> None:
