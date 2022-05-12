@@ -43,7 +43,7 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
-from qiskit_nature.algorithms import MP2InitialPoint
+from qiskit_nature.algorithms.initial_points import MP2InitialPoint
 
 
 @ddt

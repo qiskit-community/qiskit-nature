@@ -52,16 +52,16 @@ class MP2InitialPoint(HFInitialPoint):
     requires the :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
-    :class:`MP2InitialPoint` requires the
-    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
-    which should be passed in via the :attr:`grouped_property` attribute.
-    From this it must obtain the two-body molecular orbital electronic integrals and orbital
-    energies. If the Hartree-Fock reference energy is also obtained, it will be used to compute the
-    absolute MP2 energy using the :meth:`get_energy` method.
+    ``MP2InitialPoint`` requires the
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, which should
+    be passed in via the :attr:`grouped_property` attribute. From this it must obtain the two-body
+    molecular orbital electronic integrals and orbital energies. If the Hartree-Fock reference
+    energy is also obtained, it will be used to compute the absolute MP2 energy using the
+    :meth:`get_energy` method.
 
-    :class:`MP2InitialPoint` also requires the :attr:`excitation_list` from the :attr:`ansatz` to
-    ensure that the coefficients map correctly to the initial point array. However, this can be
-    substituted by setting the :attr:`excitation_list` attribute directly.
+    ``MP2InitialPoint`` also requires the :attr:`excitation_list` from the :attr:`ansatz` to ensure
+    that the coefficients map correctly to the initial point array. However, this can be substituted
+    by setting the :attr:`excitation_list` attribute directly.
 
     Following computation, the initial point array can be extracted via the :meth:`to_numpy_array`
     method. The array of energy corrections indexed by excitation can be recovered using the

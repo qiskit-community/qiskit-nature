@@ -139,10 +139,10 @@ class UVCC(EvolvedOperatorAnsatz):
 
     @property
     def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
-        """The excitation list that UVCC is using, in the required format.
+        """The excitation list that UVCC is using.
 
         Raises:
-            QiskitNatureError: If private excitation list is None.
+            QiskitNatureError: If the private excitation list is ``None``.
 
         """
         if self._excitation_list is None:
@@ -177,13 +177,11 @@ class UVCC(EvolvedOperatorAnsatz):
                 # Convert operators according to saved state in converter from the conversion of the
                 # main operator since these need to be compatible. If Z2 Symmetry tapering was done
                 # it may be that one or more excitation operators do not commute with the symmetry.
-                # The converted operators are maintained at the same index by the converter inserting
-                # None as the result if an operator did not commute.
+                # The converted operators are maintained at the same index by the converter
+                # inserting ``None`` as the result if an operator did not commute. To ensure that
+                # the ``excitation_list`` is transformed identically to the operators, we retain
+                # ``None`` for non-commuting operators in order to manually remove them in unison.
                 operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
-
-                # Here we are only interested in getting the valid set of operators. To ensure that
-                # a VQE initial point is suitably transformed, we also remove these indices from the
-                # excitation list.
                 valid_operators, valid_excitations = [], []
                 for op, ex in zip(operators, self._excitation_list):
                     if op is not None:

@@ -25,9 +25,8 @@ from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedP
 class InitialPoint(ABC):
     r"""The initial point interface.
 
-    The interface for utility classes that can compute an initial point for the
-    :class:`~qiskit.algorithms.VQE` parameters for a particular
-    :class:`~qiskit.circuit.library.EvolvedOperatorAnsatz.`
+    The interface for utility classes that can compute an initial point for the ``VQE`` parameters
+    for a particular ``EvolvedOperatorAnsatz``.
     """
 
     @abstractmethod

@@ -24,7 +24,8 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.algorithms import VQEUCCFactory, HFInitialPoint
+from qiskit_nature.algorithms import VQEUCCFactory
+from qiskit_nature.algorithms.initial_points import HFInitialPoint
 
 
 class TestVQEUCCFactory(QiskitNatureTestCase):

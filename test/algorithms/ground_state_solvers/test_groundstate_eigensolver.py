@@ -48,7 +48,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
 )
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 from qiskit_nature import settings
-from qiskit_nature.algorithms import MP2InitialPoint
+from qiskit_nature.algorithms.initial_points import MP2InitialPoint
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):

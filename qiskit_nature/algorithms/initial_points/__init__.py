@@ -11,45 +11,19 @@
 # that they have been altered from the originals.
 
 """
-====================================================================================
-Initial Points
-(:mod:`qiskit_nature.algorithms.initial_points`)
-====================================================================================
-
-Algorithms that can compute initial points to use with particular ansatzes.
+Initial Points (:mod:`qiskit_nature.algorithms.initial_points`)
+===============================================================
+Utility classes to compute initial points to use with specific ansatzes.
 
 .. currentmodule:: qiskit_nature.algorithms.initial_points
-
-The initial point interface.
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
    InitialPoint
-
-The HF initial point.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
    HFInitialPoint
-
-The MP2 initial point.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
    MP2InitialPoint
-
-The VSCF initial point.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
    VSCFInitialPoint
 
 """
