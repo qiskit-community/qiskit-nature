@@ -11,10 +11,8 @@
 # that they have been altered from the originals.
 """The protein folding result."""
 from __future__ import annotations
-from typing import Union
 import numpy as np
 
-from qiskit.opflow import PauliOp
 
 import qiskit_nature.problems.sampling.protein_folding.protein_folding_problem as pfp
 
@@ -44,7 +42,7 @@ class ProteinFoldingResult(EigenstateResult):
         self._protein_folding_problem = protein_folding_problem
         self._best_sequence = best_sequence
         self._unused_qubits = self._protein_folding_problem.unused_qubits
-        self._main_chain_lenght = len(
+        self._main_chain_length = len(
             self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence
         )
         self._side_chain_hot_vector = (
@@ -99,19 +97,18 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def save_xyz_file(self, name: str = None, path:str = "") -> np.ndarray:
+    def save_xyz_file(self, name: str = None, path: str = "") -> np.ndarray:
         """
-        Generates an xyz file and returns an array with the data in that file.
+        Generates a .xyz file.
         Args:
             name: Name of the file to be generated.
-        Returns:
-            An array with the data to be stored in the xyz file.
+            path: Path where the file will be generated.
         """
         if name is None:
             name = str(
                 self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence
             )
-        return self.protein_shape_file_gen.save_xyz_file(name=name, path = path)
+        self.protein_shape_file_gen.save_xyz_file(name=name, path=path)
 
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False

@@ -30,7 +30,7 @@ class ProteinPlotter:
 
         self._protein_folding_result = protein_folding_result
 
-        self._x_main, self._y_main, self._z_main = np.split(
+        self._x_main, self._y_main, self._z_main = np.split( # pylint: disable=unbalanced-tuple-unpacking
             self._protein_folding_result.protein_shape_file_gen.main_positions.transpose(), 3, 0
         )
         self._x_main, self._y_main, self._z_main = self._x_main[0], self._y_main[0], self._z_main[0]
