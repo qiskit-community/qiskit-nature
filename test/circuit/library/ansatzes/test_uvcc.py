@@ -22,7 +22,6 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UVCC, VSCF
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.operators.second_quantization import VibrationalOp
@@ -142,13 +141,10 @@ class TestUVCCVSCF(QiskitNatureTestCase):
             self.assertIsNone(uvcc.excitations)
             self.assertIsNone(uvcc.qubit_converter)
             self.assertIsNone(uvcc.operators)
+            self.assertIsNone(uvcc.excitation_list)
             self.assertEqual(uvcc.num_qubits, 0)
             with self.assertRaises(ValueError):
                 _ = uvcc.data
-
-        with self.subTest("Try to get excitation list too early"):
-            with self.assertRaises(QiskitNatureError):
-                _ = uvcc.excitation_list
 
         with self.subTest("Set num modals"):
             uvcc.num_modals = [2, 2]

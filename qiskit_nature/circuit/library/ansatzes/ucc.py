@@ -185,7 +185,7 @@ class UCC(EvolvedOperatorAnsatz):
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
         # To give read access to the actual excitation list that UCC is using.
-        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] = None
+        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
 
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
@@ -241,7 +241,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._excitations = exc
 
     @property
-    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]] | None:
         """The excitation list that UCC is using.
 
         Raises:
@@ -249,9 +249,9 @@ class UCC(EvolvedOperatorAnsatz):
 
         """
         if self._excitation_list is None:
-            raise QiskitNatureError(
-                "The excitation list is None. Build the operators to construct it."
-            )
+            # If the excitation_list is None build it out alongside the operators if the ucc config
+            # checks out ok, otherwise it will be left as None to be built at some later time.
+            _ = self.operators
         return self._excitation_list
 
     @EvolvedOperatorAnsatz.operators.getter
