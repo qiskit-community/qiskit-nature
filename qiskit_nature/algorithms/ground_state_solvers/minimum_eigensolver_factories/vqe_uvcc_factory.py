@@ -41,7 +41,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self,
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
-        initial_point: Union[np.ndarray, InitialPoint] = VSCFInitialPoint(),
+        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -54,9 +54,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
             optimizer: A classical optimizer.
-            initial_point: An optional initial point (i.e. initial parameter values)
-                for the optimizer. If ``None`` then VQE will look to the ansatz for a preferred
-                point and if not will simply compute a random one.
+            initial_point: An optional initial point (i.e., initial parameter values for the VQE
+                optimizer). If ``None`` then VQE will use an all-zero initial point of the
+                appropriate length computed using
+                :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint`.
+                This then defaults to the VSCF state when the VSCF circuit is prepended
+                to the the ansatz circuit. If another
+                :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
+                instance, this is used to compute an initial point for the VQE ansatz parameters.
+                If a user-provided NumPy array, this is used directly.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -84,7 +90,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
-        self.initial_point = initial_point
+        self.initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
         self.gradient = gradient
         self.expectation = expectation
         self.include_custom = include_custom
