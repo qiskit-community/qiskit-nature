@@ -24,8 +24,8 @@ from qiskit.circuit.library import EvolvedOperatorAnsatz
 class InitialPoint(ABC):
     r"""The initial point interface.
 
-    The interface for utility classes that can compute an initial point for the ``VQE`` parameters
-    for a particular ``EvolvedOperatorAnsatz``.
+    The interface for utility classes that provide an initial point for the ``VQE`` parameters for a
+    particular ``EvolvedOperatorAnsatz``.
     """
 
     @abstractmethod
@@ -49,18 +49,6 @@ class InitialPoint(ABC):
     @abstractmethod
     def to_numpy_array(self) -> np.ndarray:
         """Returns a numpy array of the computed initial point.
-
-        Raises:
-            NotImplementedError
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def compute(
-        self,
-        ansatz: EvolvedOperatorAnsatz | None,
-    ) -> np.ndarray:
-        """Computes the initial point.
 
         Raises:
             NotImplementedError

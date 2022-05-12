@@ -13,7 +13,7 @@
 """
 Initial Points (:mod:`qiskit_nature.algorithms.initial_points`)
 ===============================================================
-Utility classes to compute initial points to use with specific ansatzes.
+Utility classes that provide initial points to use with specific ansatzes.
 
 .. currentmodule:: qiskit_nature.algorithms.initial_points
 

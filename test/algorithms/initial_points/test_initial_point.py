@@ -28,11 +28,6 @@ class TestInitialPoint(QiskitNatureTestCase):
         # pylint: disable=abstract-class-instantiated
         self.initial_point = InitialPoint()  # type: ignore
 
-    def test_compute(self):
-        """Test compute."""
-        with self.assertRaises(NotImplementedError):
-            self.initial_point.compute(None)
-
     def test_to_numpy_array(self):
         """Test to_numpy_array."""
         with self.assertRaises(NotImplementedError):
