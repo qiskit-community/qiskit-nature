@@ -119,7 +119,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._initial_state = initial_state
         self._initial_point = initial_point
         self._factory_ansatz = ansatz
-        print()
+
         self._vqe = VQE(**kwargs)
 
     @property  # type: ignore
