@@ -553,15 +553,15 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_vqe_ucc_factory_with_user_initial_point(self):
         """Test VQEUCCFactory when using it with a user defined initial point."""
 
-        initial_point = [1, 2, 3]
+        initial_point = np.asarray([1.28074029e-19, 5.92226076e-08, 1.11762559e-01])
         solver = VQEUCCFactory(
             QuantumInstance(BasicAer.get_backend("statevector_simulator")),
             initial_point=initial_point,
+            optimizer=SLSQP(maxiter=1),
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-        np.testing.assert_array_equal(calc.solver.initial_point, initial_point)
-        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+        np.testing.assert_array_almost_equal(res.raw_result.optimal_point, initial_point)
 
     def test_vqe_ucc_factory_with_mp2(self):
         """Test when using MP2InitialPoint to generate the initial point."""
