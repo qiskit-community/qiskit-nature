@@ -24,6 +24,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals.electroni
     IndexType,
 )
 
+
 class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     """Tests for two body symmetry conversion utils"""
 
