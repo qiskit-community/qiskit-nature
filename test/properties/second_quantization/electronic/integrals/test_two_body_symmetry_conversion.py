@@ -12,17 +12,17 @@
 
 """Test two body symmetry conversion utils"""
 
-import numpy as np
-
 from test import QiskitNatureTestCase
 
+import numpy as np
+
+# pylint: disable=line-too-long
 from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals_utils.two_body_symmetry_conversion import (
     phys_to_chem,
     chem_to_phys,
     find_index_order,
     IndexType,
 )
-
 
 class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     """Tests for two body symmetry conversion utils"""
