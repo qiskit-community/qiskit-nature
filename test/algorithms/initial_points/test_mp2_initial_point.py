@@ -23,7 +23,6 @@ import numpy as np
 from ddt import ddt, file_data
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit.circuit.library import EvolvedOperatorAnsatz
 
 from qiskit_nature.drivers.molecule import Molecule
 from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_driver import (
@@ -99,14 +98,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
-
-    def test_not_ucc_ansatz(self):
-        """Test when the provided ansatz is not UCC."""
-
-        mp2_initial_point = MP2InitialPoint()
-        ansatz = Mock(spec=EvolvedOperatorAnsatz)
-        with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=ansatz, grouped_property=self.mock_grouped_property)
 
     def test_no_electronic_energy(self):
         """Test when the electronic energy is missing."""

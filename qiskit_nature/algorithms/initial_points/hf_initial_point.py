@@ -18,12 +18,12 @@ import warnings
 
 import numpy as np
 
-from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 from qiskit_nature.circuit.library import UCC
+from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
+from qiskit_nature.exceptions import QiskitNatureError
 
 from .initial_point import InitialPoint
 
@@ -44,33 +44,28 @@ class HFInitialPoint(InitialPoint):
 
     def __init__(self) -> None:
         super().__init__()
+        self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._grouped_property: GroupedSecondQuantizedProperty | None = None
         self._reference_energy: float = 0.0
         self._parameters: np.ndarray | None = None
 
     @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty:
+    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
         """The grouped property.
 
-        The grouped property is not required to compute the HF initial point.
+        The grouped property is not required to compute the HF initial point. If it is provided we
+        will attempt to obtain the HF ``reference_energy``.
         """
         return self._grouped_property
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
-        if not isinstance(grouped_property, GroupedSecondQuantizedProperty):
-            warnings.warn(
-                "grouped_property is not of type GroupedSecondQuantizedProperty; "
-                "grouped_property and reference_energy will not be set."
-            )
-            return
-
         electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
-        if not isinstance(electronic_energy, ElectronicEnergy):
+        if electronic_energy is None:
             warnings.warn(
-                "ElectronicEnergy not obtained from grouped_property; "
-                "grouped_property and reference_energy will not be set."
+                "The ElectronicEnergy was not obtained from the grouped_property. "
+                "The grouped_property and reference_energy will not be set."
             )
             return
 
@@ -83,18 +78,11 @@ class HFInitialPoint(InitialPoint):
 
         This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
         will be used with the VQE algorithm.
-
-        Raises:
-            QiskitNatureError: If not set using a valid
-                :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC` instance.
         """
         return self._ansatz
 
     @ansatz.setter
     def ansatz(self, ansatz: UCC) -> None:
-        if not isinstance(ansatz, UCC):
-            raise QiskitNatureError(f"Expected a UCC ansatz, but got type: {type(ansatz)}.")
-
         # Operators must be built early to compute the excitation list.
         _ = ansatz.operators
 
@@ -143,12 +131,13 @@ class HFInitialPoint(InitialPoint):
         Raises:
             QiskitNatureError: If :attr`ansatz` is not set.
         """
-        if isinstance(grouped_property, GroupedSecondQuantizedProperty):
+        if grouped_property is not None:
             self.grouped_property = grouped_property
 
-        if isinstance(ansatz, UCC):
+        if ansatz is not None:
             self.ansatz = ansatz
-        elif not isinstance(self._excitation_list, list):
+
+        if self._excitation_list is None:
             raise QiskitNatureError(
                 "The excitation list has not been set directly or via the ansatz. "
                 "Not enough information has been provided to compute the initial point. "
@@ -156,6 +145,9 @@ class HFInitialPoint(InitialPoint):
                 "The ansatz is not required if the excitation list has been set directly."
             )
 
+        self._compute()
+
+    def _compute(self) -> None:
         self._parameters = np.zeros(len(self._excitation_list))
 
     def get_energy(self) -> float:

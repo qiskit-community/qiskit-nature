@@ -19,9 +19,9 @@ from dataclasses import dataclass
 import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 
+from qiskit_nature.circuit.library import UCC
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
-from qiskit_nature.circuit.library import UCC
 from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals import (
     ElectronicIntegrals,
 )
@@ -34,7 +34,7 @@ from .hf_initial_point import HFInitialPoint
 
 @dataclass(frozen=True)
 class _Correction:
-    """Data class for storing corrections."""
+    """Class for storing data about each MP2 correction term."""
 
     excitation: tuple[tuple[int, ...], tuple[int, ...]]
     coefficient: float = 0.0
@@ -101,24 +101,26 @@ class MP2InitialPoint(HFInitialPoint):
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+
         electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
-        if not isinstance(electronic_energy, ElectronicEnergy):
-            raise QiskitNatureError(f"ElectronicEnergy not in grouped property: {grouped_property}")
+        if electronic_energy is None:
+            raise QiskitNatureError(
+                "The ElectronicEnergy cannot be obtained from the grouped_property."
+            )
 
         two_body_mo_integral: ElectronicIntegrals | None = (
             electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         )
-        if not isinstance(two_body_mo_integral, ElectronicIntegrals):
+        if two_body_mo_integral is None:
             raise QiskitNatureError(
-                f"Two body MO electronic integral not in grouped property: {grouped_property}"
+                "The two body MO electronic integral cannot be obtained from the grouped property."
             )
 
         orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
-        if not isinstance(orbital_energies, np.ndarray):
-            raise QiskitNatureError(f"Orbital energies not in grouped property: {grouped_property}")
-
-        # Invalidate any previous computation.
-        self._corrections = None
+        if orbital_energies is None:
+            raise QiskitNatureError(
+                "The orbital_energies cannot be obtained from the grouped property."
+            )
 
         self._integral_matrix = two_body_mo_integral.get_matrix()
         if not np.allclose(self._integral_matrix, two_body_mo_integral.get_matrix(2)):
@@ -127,6 +129,9 @@ class MP2InitialPoint(HFInitialPoint):
                 "Alpha and beta spin orbitals must be identical. "
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
+
+        # Invalidate any previous computation.
+        self._corrections = None
 
         self._orbital_energies = orbital_energies
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
@@ -158,48 +163,39 @@ class MP2InitialPoint(HFInitialPoint):
         ansatz: UCC | None = None,
         grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
-        """Compute the MP2 coefficients and energy corrections.
+        """Compute the coefficients and energy corrections.
 
         See further up for more information.
 
         Args:
-            grouped_property: A grouped second-quantized property that is required to contain the
-                :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`.
-                From this we require the two-body molecular orbitals electronic integrals and orbital
-                energies. Optionally, it also obtain the Hartree-Fock reference energy to compute
-                the absolute MP2 energy.
+            grouped_property: A grouped second-quantized property that may optionally contain the
+                Hartree-Fock reference energy. This is for consistency with other initial points.
             ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
                 coefficients are mapped correctly in the initial point array.
 
         Raises:
-            QiskitNatureError: If :attr:`grouped_property` and/or :attr`ansatz` are not set.
+            QiskitNatureError: If :attr:`_excitation_list` or :attr:`_grouped_property` is not set.
         """
-        missing_input_error_message: str = (
-            "Not enough information has been provided to compute the MP2 corrections. "
-            "Set the grouped property and the ansatz or call compute with them as arguments. "
-            "The ansatz is not required if the excitation list has been set directly."
-        )
-
-        if isinstance(grouped_property, GroupedSecondQuantizedProperty):
+        if grouped_property is not None:
             self.grouped_property = grouped_property
-        elif not isinstance(self._grouped_property, GroupedSecondQuantizedProperty):
-            raise QiskitNatureError(
-                "The grouped property has not been set. " + missing_input_error_message
-            )
 
-        if isinstance(ansatz, UCC):
+        if self._grouped_property is None:
+            raise QiskitNatureError("The grouped_property has not been set.")
+
+        if ansatz is not None:
             self.ansatz = ansatz
-        elif not isinstance(self._excitation_list, list):
+
+        if self._excitation_list is None:
             raise QiskitNatureError(
                 "The excitation list has not been set directly or via the ansatz. "
-                + missing_input_error_message
+                "Not enough information has been provided to compute the initial point. "
+                "Set the ansatz or call compute with it as an argument. "
+                "The ansatz is not required if the excitation list has been set directly."
             )
 
-        self._corrections = self._compute_corrections()
+        self._compute()
 
-    def _compute_corrections(
-        self,
-    ) -> list[_Correction]:
+    def _compute(self) -> None:
         """Compute the MP2 coefficients and energy corrections.
 
         Non-double excitations will have zero coefficient and energy_correction.
@@ -216,12 +212,12 @@ class MP2InitialPoint(HFInitialPoint):
                 # No computation for single, triple, and higher excitations.
                 corrections.append(_Correction(excitation=excitation))
 
-        return corrections
+        self._corrections = corrections
 
     def _compute_correction(
         self, excitation: tuple[tuple[int, ...], tuple[int, ...]]
     ) -> _Correction:
-        r"""Compute the MP2 coefficient and energy correction given a double excitation.
+        r"""Compute the MP2 coefficient and energy correction for a single term.
 
         Each double excitation indexed by :math:`i,a,j,b` has a correction coefficient,
 
@@ -229,8 +225,8 @@ class MP2InitialPoint(HFInitialPoint):
 
             c_{i,a,j,b} = -\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
 
-        where :math:`E` is the orbital energy and :math:`T` is the integral matrix.
-        And an energy correction,
+        where :math:`E` is the orbital energy and :math:`T` is the integral matrix, and an energy
+        correction,
 
         ..math::
 
@@ -239,8 +235,7 @@ class MP2InitialPoint(HFInitialPoint):
         These computations use molecular orbitals, but the indices used in the excitation
         information passed in and out use the block spin orbital numbering common to Qiskit Nature:
           - :math:`\alpha` runs from `0` to `num_molecular_orbitals - 1`,
-          - :math:`\beta` runs from `num_molecular_orbitals` to
-            `num_molecular_orbitals * 2 - 1`.
+          - :math:`\beta` runs from `num_molecular_orbitals` to `num_molecular_orbitals * 2 - 1`.
 
         Args:
             excitations: List of excitations.

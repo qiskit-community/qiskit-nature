@@ -62,12 +62,6 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         self.assertEqual(self.hf_initial_point.grouped_property, grouped_property)
         self.assertEqual(self.hf_initial_point._reference_energy, reference_energy)
 
-    def test_set_bad_grouped_property(self):
-        """Test set bad grouped_property."""
-        grouped_property = Mock()
-        self.hf_initial_point.grouped_property = grouped_property
-        self.assertEqual(self.hf_initial_point.grouped_property, None)
-
     def test_set_missing_electronic_energy(self):
         """Test set missing ElectronicEnergy."""
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
@@ -85,12 +79,6 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         with self.assertWarns(UserWarning):
             self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point._reference_energy, 0.0)
-
-    def test_set_bad_ansatz(self):
-        """Test set bad ansatz."""
-        ansatz = Mock()
-        with self.assertRaises(QiskitNatureError):
-            self.hf_initial_point.ansatz = ansatz
 
     def test_set_get_excitation_list(self):
         """Test set get excitation list."""

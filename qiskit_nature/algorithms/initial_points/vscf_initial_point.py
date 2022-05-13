@@ -37,11 +37,12 @@ class VSCFInitialPoint(InitialPoint):
 
     def __init__(self) -> None:
         super().__init__()
+        self._ansatz: UVCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._parameters: np.ndarray | None = None
 
     @property
-    def ansatz(self) -> UVCC:
+    def ansatz(self) -> UVCC | None:
         """The UVCC ansatz.
 
         This is used to ensure that the :attr:`excitation_list` matches with the UVCC ansatz that
@@ -55,9 +56,6 @@ class VSCFInitialPoint(InitialPoint):
 
     @ansatz.setter
     def ansatz(self, ansatz: UVCC) -> None:
-        if not isinstance(ansatz, UVCC):
-            raise QiskitNatureError(f"Expected a UVCC ansatz, but got type: {type(ansatz)}.")
-
         # Operators must be built early to compute the excitation list.
         _ = ansatz.operators
 
@@ -103,9 +101,11 @@ class VSCFInitialPoint(InitialPoint):
         Raises:
             QiskitNatureError: If :attr`ansatz` is not set.
         """
-        if isinstance(ansatz, UVCC):
+        if ansatz is not None:
+            # The ansatz setter also sets the private excitation_list.
             self.ansatz = ansatz
-        elif not isinstance(self._excitation_list, list):
+
+        if self._excitation_list is None:
             raise QiskitNatureError(
                 "The excitation list has not been set directly or via the ansatz. "
                 "Not enough information has been provided to compute the initial point. "

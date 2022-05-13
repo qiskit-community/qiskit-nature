@@ -45,25 +45,6 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
         self.assertEqual(ansatz, self.vscf_initial_point.ansatz)
         self.assertEqual(self.excitation_list, self.vscf_initial_point.excitation_list)
 
-    def test_set_bad_ansatz(self):
-        """Test set bad ansatz."""
-        ansatz = Mock()
-        with self.assertRaises(QiskitNatureError):
-            self.vscf_initial_point.ansatz = ansatz
-
-    def test_set_get_excitation_list(self):
-        """Test set get excitation list."""
-        self.vscf_initial_point.excitation_list = self.excitation_list
-        self.assertEqual(self.excitation_list, self.vscf_initial_point.excitation_list)
-
-    def test_compute(self):
-        """Test length of VSCF initial point array."""
-        ansatz = Mock(spec=UVCC)
-        ansatz.excitation_list = self.excitation_list
-        self.vscf_initial_point.compute(ansatz)
-        initial_point = self.vscf_initial_point.to_numpy_array()
-        np.testing.assert_equal(initial_point, np.asarray([0.0]))
-
     def test_vscf_initial_point_is_all_zero(self):
         """Test VSCF initial point is all zero."""
         self.vscf_initial_point.excitation_list = self.excitation_list
