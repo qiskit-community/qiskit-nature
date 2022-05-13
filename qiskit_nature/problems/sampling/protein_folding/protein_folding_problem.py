@@ -35,13 +35,11 @@ class ProteinFoldingProblem(SamplingProblem):
         penalty_terms = PenaltyParameters(15, 15, 15)
         main_chain_residue_seq = "SAASSASAAG"
         side_chain_residue_sequences = ["", "", "A", "A", "A", "A", "A", "A", "S", ""]
-
         peptide = Peptide(main_chain_residue_seq, side_chain_residue_sequences)
-
         mj_interaction = MiyazawaJerniganInteraction()
-
         protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
         qubit_op = protein_folding_problem.qubit_op()
+
     """
 
     def __init__(
