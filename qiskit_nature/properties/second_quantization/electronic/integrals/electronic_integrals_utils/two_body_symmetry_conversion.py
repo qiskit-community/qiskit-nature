@@ -15,19 +15,6 @@
 from enum import Enum
 import numpy
 
-## These are the permutation symmetries satisfied by
-## a rank-4 tensor of real two-body integrals in chemists'
-## index order.
-## HJO is Molecular Electronic Structure Theory by Helgaker, Jørgensen, Olsen
-CHEM_INDEX_PERMUTATIONS = [
-    "pqrs->qprs",  # (1.4.38) HJO (1)
-    "pqrs->pqsr",  # (1.4.38) HJO (2)
-    "pqrs->qpsr",  # (1.4.38) HJO (3)
-    "pqrs->rspq",  # (1.4.17) HJO (4)
-    "pqrs->rsqp",  # 1 and 4
-    "pqrs->srpq",  # 2 and 4
-    "pqrs->srqp",  # 3 and 4
-]
 
 def phys_to_chem(two_body_tensor):
     """
@@ -82,7 +69,7 @@ def _check_two_body_symmetries(two_body_tensor, chemist=True):
     if not chemist:
         two_body_tensor = phys_to_chem(two_body_tensor)
     for permutation in ChemIndexPermutations:
-        if not _check_two_body_symmetry(two_body_tensor, permutation):
+        if not _check_two_body_symmetry(two_body_tensor, permutation.value):
             return False
     return True
 
@@ -123,16 +110,18 @@ class ChemIndexPermutations(Enum):
     two-body integrals in chemists' index order, naming each permutation in order of appearance
     in Molecular Electronic Structure Theory by Helgaker, Jørgensen, Olsen (HJO)."""
 
-    PERM_1 = "pqrs->rspq" # HJO (1.4.17) 
-    PERM_2_AB = "pqrs->qprs" # HJO (1.4.38)
-    PERM_2_AC = "pqrs->pqsr" # HJO (1.4.38)
-    PERM_2_AD = "pqrs->qpsr" # HJO (1.4.38)
-    PERM_3 = "pqrs->rsqp" # ??
-    PERM_4 = "pqrs->srpq" # ??
+    PERM_1 = "pqrs->rspq"  # HJO (1.4.17)
+    PERM_2_AB = "pqrs->qprs"  # HJO (1.4.38)
+    PERM_2_AC = "pqrs->pqsr"  # HJO (1.4.38)
+    PERM_2_AD = "pqrs->qpsr"  # HJO (1.4.38)
+    PERM_3 = "pqrs->rsqp"  # PERM_2_AB and PERM_1
+    PERM_4 = "pqrs->srpq"  # PERM_2_AC and PERM_1
+    PERM_5 = "pqrs->srqp"  # PERM_2_AD and PERM_1
+
 
 class IndexType(Enum):
     """This ``Enum`` names the different permutation index orders that could be encountered."""
-    
+
     CHEM = "chemist"
     PHYS = "physicist"
     INT = "intermediate"
