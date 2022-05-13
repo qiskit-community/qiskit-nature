@@ -7,6 +7,7 @@ features:
     We can use the Ground State Eigensolver with it to calculate the ground state energy.
 
     .. code-block:: python
+
         from qiskit_nature.problems.second_quantization.lattice import (
           BoundaryCondition, FermiHubbardModel, LineLattice, LatticeModelProblem
         )

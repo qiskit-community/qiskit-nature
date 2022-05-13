@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -78,7 +78,7 @@ class FermiHubbardModel(LatticeModel):
         """
         return cls(cls._generate_lattice_from_parameters(interaction_matrix), onsite_interaction)
 
-    def second_q_ops(self, display_format: Optional[str] = 'sparse') -> FermionicOp:
+    def second_q_ops(self, display_format: Optional[str] = "sparse") -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
 
         Args:
