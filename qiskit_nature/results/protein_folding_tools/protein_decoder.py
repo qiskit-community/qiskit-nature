@@ -39,7 +39,7 @@ class ProteinDecoder:
 
     def _bitstring_to_turns(self, bitstring: str) -> List[int]:
         """
-        Takes a bitstring encoding the turns of a chain and retuns the turns as a list of int.
+        Takes a bitstring encoding the turns of a chain and returns the turns as a list of int.
 
         Args:
             bitstring: string containing the encoded information.
