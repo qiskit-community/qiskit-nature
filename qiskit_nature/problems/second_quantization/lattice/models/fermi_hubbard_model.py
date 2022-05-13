@@ -78,7 +78,7 @@ class FermiHubbardModel(LatticeModel):
         """
         return cls(cls._generate_lattice_from_parameters(interaction_matrix), onsite_interaction)
 
-    def second_q_ops(self, display_format: Optional[str] = None) -> FermionicOp:
+    def second_q_ops(self, display_format: Optional[str] = 'sparse') -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
 
         Args:
