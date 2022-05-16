@@ -22,6 +22,9 @@ import numpy as np
 from qiskit_nature.algorithms.initial_points import VSCFInitialPoint
 from qiskit_nature.circuit.library import UVCC
 from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.properties.second_quantization.second_quantized_property import (
+    GroupedSecondQuantizedProperty,
+)
 
 
 class TestVSCFInitialPoint(QiskitNatureTestCase):
@@ -44,6 +47,13 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
         self.vscf_initial_point.ansatz = ansatz
         self.assertEqual(ansatz, self.vscf_initial_point.ansatz)
         self.assertEqual(self.excitation_list, self.vscf_initial_point.excitation_list)
+
+    def test_set_grouped_property(self):
+        """Test set get grouped_property (not used for VSCF)."""
+        self.assertIsNone(self.vscf_initial_point.grouped_property)
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        self.vscf_initial_point.grouped_property = grouped_property
+        self.assertEqual(grouped_property, self.vscf_initial_point.grouped_property)
 
     def test_vscf_initial_point_is_all_zero(self):
         """Test VSCF initial point is all zero."""

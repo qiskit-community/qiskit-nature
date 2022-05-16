@@ -29,7 +29,7 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
     GroupedSecondQuantizedProperty,
 )
 
-from .hf_initial_point import HFInitialPoint
+from .initial_point import InitialPoint
 
 
 @dataclass(frozen=True)
@@ -41,7 +41,7 @@ class _Correction:
     energy: float = 0.0
 
 
-class MP2InitialPoint(HFInitialPoint):
+class MP2InitialPoint(InitialPoint):
     """Compute the second-order Møller-Plesset perturbation theory (MP2) initial point.
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
@@ -76,10 +76,48 @@ class MP2InitialPoint(HFInitialPoint):
 
     def __init__(self, threshold: float = 1e-12) -> None:
         super().__init__()
+        self._ansatz: UCC | None = None
+        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self.threshold: float = threshold
         self._integral_matrix: np.ndarray | None = None
         self._orbital_energies: np.ndarray | None = None
+        self._reference_energy: float = 0.0
         self._corrections: list[_Correction] | None = None
+
+    @property
+    def ansatz(self) -> UCC:
+        """The UCC ansatz.
+
+        This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
+        will be used with the VQE algorithm.
+        """
+        return self._ansatz
+
+    @ansatz.setter
+    def ansatz(self, ansatz: UCC) -> None:
+        # Operators must be built early to compute the excitation list.
+        _ = ansatz.operators
+
+        # Invalidate any previous computation.
+        self._corrections = None
+
+        self._excitation_list = ansatz.excitation_list
+        self._ansatz = ansatz
+
+    @property
+    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+        """The list of excitations.
+
+        Setting this will overwrite the excitation list from the ansatz.
+        """
+        return self._excitation_list
+
+    @excitation_list.setter
+    def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
+        # Invalidate any previous computation.
+        self._corrections = None
+
+        self._excitation_list = excitations
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:

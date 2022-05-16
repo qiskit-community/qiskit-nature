@@ -46,7 +46,6 @@ class HFInitialPoint(InitialPoint):
         super().__init__()
         self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
-        self._grouped_property: GroupedSecondQuantizedProperty | None = None
         self._reference_energy: float = 0.0
         self._parameters: np.ndarray | None = None
 

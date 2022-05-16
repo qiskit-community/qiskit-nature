@@ -19,6 +19,9 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from qiskit.circuit.library import EvolvedOperatorAnsatz
+from qiskit_nature.properties.second_quantization.second_quantized_property import (
+    GroupedSecondQuantizedProperty,
+)
 
 
 class InitialPoint(ABC):
@@ -31,6 +34,7 @@ class InitialPoint(ABC):
     @abstractmethod
     def __init__(self):
         self._ansatz: EvolvedOperatorAnsatz | None = None
+        self._grouped_property: GroupedSecondQuantizedProperty | None = None
 
     @property
     @abstractmethod
@@ -46,6 +50,19 @@ class InitialPoint(ABC):
     def ansatz(self, ansatz: EvolvedOperatorAnsatz) -> None:
         raise NotImplementedError
 
+    @property
+    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+        """The grouped property.
+
+        Raises:
+            NotImplementedError
+        """
+        raise NotImplementedError
+
+    @grouped_property.setter
+    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+        raise NotImplementedError
+
     @abstractmethod
     def to_numpy_array(self) -> np.ndarray:
         """Returns a numpy array of the computed initial point.
@@ -53,4 +70,12 @@ class InitialPoint(ABC):
         Raises:
             NotImplementedError
         """
+        raise NotImplementedError
+
+    def compute(
+        self,
+        ansatz: EvolvedOperatorAnsatz | None = None,
+        grouped_property: GroupedSecondQuantizedProperty | None = None,
+    ) -> None:
+        """Compute the initial point array"""
         raise NotImplementedError

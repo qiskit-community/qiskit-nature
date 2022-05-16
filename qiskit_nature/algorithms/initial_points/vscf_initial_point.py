@@ -18,6 +18,9 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UVCC
+from qiskit_nature.properties.second_quantization.second_quantized_property import (
+    GroupedSecondQuantizedProperty,
+)
 
 from .initial_point import InitialPoint
 
@@ -80,6 +83,18 @@ class VSCFInitialPoint(InitialPoint):
 
         self._excitation_list = excitations
 
+    @property
+    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+        """The grouped property.
+
+        The grouped property is not required to compute the VSCF initial point.
+        """
+        return self._grouped_property
+
+    @grouped_property.setter
+    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+        self._grouped_property = grouped_property
+
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
         if self._parameters is None:
@@ -89,6 +104,7 @@ class VSCFInitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UVCC | None = None,
+        grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
         """Compute the initial point.
 
@@ -97,6 +113,7 @@ class VSCFInitialPoint(InitialPoint):
         Args:
             ansatz: The UVCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
                     coefficients are mapped correctly in the initial point array.
+            grouped_property: Not required to compute the VSCF initial point.
 
         Raises:
             QiskitNatureError: If :attr`ansatz` is not set.
