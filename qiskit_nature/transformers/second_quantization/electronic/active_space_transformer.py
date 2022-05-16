@@ -26,7 +26,10 @@ from qiskit_nature.properties.second_quantization import (
     GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
-from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
+from qiskit_nature.properties.second_quantization.electronic import (
+    ElectronicStructureDriverResult,
+    ParticleNumber,
+)
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
@@ -36,7 +39,6 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
 )
 from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
-from qiskit_nature.results import ElectronicStructureResult
 
 from ..base_transformer import BaseTransformer
 
@@ -248,7 +250,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         )
 
         # construct new GroupedElectronicProperty
-        grouped_property_transformed = ElectronicStructureResult()
+        grouped_property_transformed = ElectronicStructureDriverResult()
         grouped_property_transformed.electronic_basis_transform = self._transform_active
         grouped_property_transformed = self._transform_property(grouped_property)  # type: ignore
 
