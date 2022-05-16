@@ -145,6 +145,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point = MP2InitialPoint()
         mp2_initial_point.excitation_list = self.excitation_list
         mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
+        self.assertEqual(mp2_initial_point.excitation_list, self.excitation_list)
         self.assertEqual(mp2_initial_point.to_numpy_array(), [0.0])
 
     def test_compute(self):

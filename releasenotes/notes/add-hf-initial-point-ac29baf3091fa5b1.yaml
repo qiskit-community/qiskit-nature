@@ -11,10 +11,9 @@ features:
     :class:`~qiskit_nature.algorithms.initial_points.mp2_initial_point.MP2InitialPoint` for
     computing the initial point using the Møller-Plesset 2nd Order (MP2) corrections.
 
-    :class:`~qiskit_nature.algorithms.initial_points.mp2_initial_point.MP2InitialPoint` now inherits
-    from :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint`, while
-    :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint` and
-    :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint` both
+    :class:`~qiskit_nature.algorithms.initial_points.mp2_initial_point.MP2InitialPoint`,
+    :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint`, and
+    :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint` all
     inherit from the abstract base class
     :class:`~qiskit_nature.algorithms.initial_points.InitialPoint`.
 
