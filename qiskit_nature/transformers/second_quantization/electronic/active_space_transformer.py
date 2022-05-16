@@ -365,7 +365,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         Raises:
             TypeError: if an unexpected Property subtype is encountered.
         """
-        transformed_property: Property = None
+        transformed_property: Optional[Property] = None
         if isinstance(prop, GroupedProperty):
             transformed_property = prop.__class__()  # type: ignore[call-arg]
             transformed_property.name = prop.name
