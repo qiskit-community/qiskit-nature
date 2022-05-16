@@ -44,13 +44,15 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
 
     def test_phys_to_chem(self):
         """Test correct conversion to chemists' index order"""
-        expected = np.einsum("ijkl->iljk", self.TWO_BODY_PHYS)
+        # expected = np.einsum("ijkl->iljk", self.TWO_BODY_PHYS)
+        expected = self.TWO_BODY_CHEM
         actual = phys_to_chem(self.TWO_BODY_PHYS)
         self.assertTrue(np.allclose(expected, actual))
 
     def test_chem_to_phys(self):
         """Test correctly conversion to physicists' index order"""
-        expected = np.einsum("pqrs->prsq", self.TWO_BODY_CHEM)
+        # expected = np.einsum("pqrs->prsq", self.TWO_BODY_CHEM)
+        expected = self.TWO_BODY_PHYS
         actual = chem_to_phys(self.TWO_BODY_CHEM)
         self.assertTrue(np.allclose(expected, actual))
 
