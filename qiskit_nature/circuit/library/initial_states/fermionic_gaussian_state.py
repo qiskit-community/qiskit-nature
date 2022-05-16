@@ -107,7 +107,9 @@ class FermionicGaussianState(QuantumCircuit):
 
     Currently, only the Jordan-Wigner Transformation is supported.
 
-    Reference: arXiv:1711.05395
+    Reference: `arXiv:1711.05395`_
+
+    .. _arXiv:1711.05395: https://arxiv.org/abs/1711.05395
     """
 
     def __init__(
