@@ -4,5 +4,6 @@ features:
     Adds functionality to prepare Slater determinants and fermionic Gaussian states
     using the Givens rotation strategy. This functionality is accessed via the
     following classes:
+
     * :class:`qiskit_nature.circuit.library.SlaterDeterminant`
     * :class:`qiskit_nature.circuit.library.FermionicGaussianState`
