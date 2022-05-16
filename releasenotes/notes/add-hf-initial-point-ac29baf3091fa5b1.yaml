@@ -2,42 +2,63 @@
 features:
   - |
     Adds Hartree-Fock (HF) and vibrational self-consistent field (VSCF) initial point classes.
-    :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint` and
-    :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint`, are to be
-    used with :class:`~qiskit_nature.circuit.library.UCC`, and
-    :class:`~qiskit_nature.circuit.library.UVCC`, respectively.
+    :class:`~qiskit_nature.algorithms.initial_points.HFInitialPoint` and
+    :class:`~qiskit_nature.algorithms.initial_points.VSCFInitialPoint`, are to be used with
+    :class:`~qiskit_nature.circuit.library.UCC`, and :class:`~qiskit_nature.circuit.library.UVCC`,
+    respectively.
 
     This follows the introduction of
-    :class:`~qiskit_nature.algorithms.initial_points.mp2_initial_point.MP2InitialPoint` for
-    computing the initial point using the Møller-Plesset 2nd Order (MP2) corrections.
+    :class:`~qiskit_nature.algorithms.initial_points.MP2InitialPoint` for computing the initial
+    point using the Møller-Plesset 2nd Order (MP2) corrections.
 
-    :class:`~qiskit_nature.algorithms.initial_points.mp2_initial_point.MP2InitialPoint`,
-    :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint`, and
-    :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint` all
-    inherit from the abstract base class
-    :class:`~qiskit_nature.algorithms.initial_points.InitialPoint`.
+    :class:`~qiskit_nature.algorithms.initial_points.MP2InitialPoint`,
+    :class:`~qiskit_nature.algorithms.initial_points.HFInitialPoint`, and
+    :class:`~qiskit_nature.algorithms.initial_points.VSCFInitialPoint` all inherit from the abstract
+    base class :class:`~qiskit_nature.algorithms.initial_points.InitialPoint`.
 
     These initial points are intended to be used as starting VQE parameters when using a UCC ansatz
     (cluster operator coefficients). This should introduce an initial point that is closer to the
     ground state point, leading to fewer overall evaluations for VQE.
 
     Instances of the appropriate classes are now the default :attr:`initial_point` arguments in
-    :class:`~qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factory.vqe_ucc_factory.VQEUCCFactory`
-    and
-    :class:`~qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factory.vqe_uvcc_factory.VQEUVCCFactory`.
+    :class:`~qiskit_nature.algorithms.VQEUCCFactory` and
+    :class:`~qiskit_nature.algorithms.VQEUVCCFactory`. Additionally, one may pass an explicit
+    :class:`~qiskit_nature.algorithms.initial_points.InitialPoint` instance to the factories.
+    Following are some example snippets.
 
-    They can also be used by following the snippets below and passing the result via
-    ``initial_point`` to the VQE.
-
-    UCC with HF initial point:
+    VQE UCC with a HFInitialPoint:
 
     .. code-block:: python
 
-      hf_initial_point = HFInitialPoint()
+      hf_intial_point = HFInitialPoint()
+      vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=hf_initial_point)
+
+    VQE UCC with an MP2InitialPoint:
+
+    .. code-block:: python
+
+      mp2_intial_point = MP2InitialPoint()
+      vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=mp2_initial_point)
+      
+    VQE UVCC with a VSCFInitialPoint:
+
+    .. code-block:: python
+
+      vscf_intial_point = VSCFInitialPoint()
+      vqe_uvcc_factory = VQEUVCCFactory(quantum_instance, initial_point=vscf_initial_point)
+    
+    They can also be used by following the snippets below and passing the result via
+    ``initial_point`` to the VQE.
+
+    UCC with a HF initial point:
+
+    .. code-block:: python
+
+      hf_intial_point = HFInitialPoint()
       hf_initial_point.ansatz = your_ucc_ansatz
       initial_point = hf_initial_point.to_numpy_array()
 
-    UVCC with VSCF initial point:
+    UVCC with a VSCF initial point:
 
     .. code-block:: python
 
