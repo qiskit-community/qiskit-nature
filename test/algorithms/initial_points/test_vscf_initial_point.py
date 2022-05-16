@@ -56,13 +56,13 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
         self.assertEqual(grouped_property, self.vscf_initial_point.grouped_property)
 
     def test_vscf_with_excitation_list_set_directly(self):
-        """Test VSCF initial point is all zero."""
+        """Test VSCF initial point is all zero when called on demand."""
         self.vscf_initial_point.excitation_list = self.excitation_list
         initial_point = self.vscf_initial_point.to_numpy_array()
         np.testing.assert_array_equal(initial_point, np.asarray([0.0]))
 
     def test_vscf_compute(self):
-        """Test VSCF initial point is all zero."""
+        """Test VSCF initial point is all zero when called via compute."""
         ansatz = Mock(spec=UVCC)
         ansatz.excitation_list = self.excitation_list
         self.vscf_initial_point.compute(ansatz)
