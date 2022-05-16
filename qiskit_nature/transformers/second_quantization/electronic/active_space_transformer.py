@@ -28,6 +28,7 @@ from qiskit_nature.properties.second_quantization import (
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
 from qiskit_nature.properties.second_quantization.electronic import (
     ElectronicStructureDriverResult,
+    ElectronicDipoleMoment,
     ParticleNumber,
 )
 from qiskit_nature.properties.second_quantization.electronic.bases import (
@@ -381,6 +382,14 @@ class ActiveSpaceTransformer(BaseTransformer):
                         type(internal_property),
                     )
                     continue
+
+            if isinstance(prop, ElectronicDipoleMoment):
+                transformed_property.reverse_dipole_sign = (  # type: ignore[attr-defined]
+                    prop.reverse_dipole_sign
+                )
+                transformed_property.nuclear_dipole_moment = (  # type: ignore[attr-defined]
+                    prop.nuclear_dipole_moment
+                )
 
             if len(list(transformed_property)) == 0:
                 # empty GroupedProperty instance
