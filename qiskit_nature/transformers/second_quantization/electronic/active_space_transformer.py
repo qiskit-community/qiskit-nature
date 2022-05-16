@@ -251,7 +251,6 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         # construct new GroupedElectronicProperty
         grouped_property_transformed = ElectronicStructureDriverResult()
-        grouped_property_transformed.electronic_basis_transform = self._transform_active
         grouped_property_transformed = self._transform_property(grouped_property)  # type: ignore
 
         return grouped_property_transformed
@@ -419,7 +418,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         elif isinstance(prop, ElectronicBasisTransform):
             # transformation done manually during `transform`
-            transformed_property = prop
+            transformed_property = self._transform_active
 
         elif isinstance(prop, DriverMetadata):
             # for the time being we manually catch this to avoid unnecessary warnings
