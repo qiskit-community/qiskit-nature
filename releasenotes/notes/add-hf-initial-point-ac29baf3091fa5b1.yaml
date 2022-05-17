@@ -38,14 +38,14 @@ features:
     .. code-block:: python
 
       mp2_intial_point = MP2InitialPoint()
-      vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=mp2_initial_point)
+      vqe_ucc_factory = VQEUCCFactory(your_quantum_instance, initial_point=mp2_initial_point)
       
     VQE UVCC with a VSCFInitialPoint:
 
     .. code-block:: python
 
       vscf_intial_point = VSCFInitialPoint()
-      vqe_uvcc_factory = VQEUVCCFactory(quantum_instance, initial_point=vscf_initial_point)
+      vqe_uvcc_factory = VQEUVCCFactory(your_quantum_instance, initial_point=vscf_initial_point)
     
     They can also be used by following the snippets below and passing the result via
     ``initial_point`` to the VQE.
