@@ -253,6 +253,9 @@ class ActiveSpaceTransformer(BaseTransformer):
         # construct new GroupedElectronicProperty
         grouped_property_transformed = ElectronicStructureDriverResult()
         grouped_property_transformed = self._transform_property(grouped_property)  # type: ignore
+        grouped_property_transformed.molecule = (
+            grouped_property.molecule  # type: ignore[attr-defined]
+        )
 
         return grouped_property_transformed
 
