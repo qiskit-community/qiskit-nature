@@ -26,7 +26,11 @@ from qiskit_nature.properties.second_quantization import (
     GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
-from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
+from qiskit_nature.properties.second_quantization.electronic import (
+    ElectronicStructureDriverResult,
+    ElectronicDipoleMoment,
+    ParticleNumber,
+)
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
@@ -36,7 +40,6 @@ from qiskit_nature.properties.second_quantization.electronic.integrals import (
     OneBodyElectronicIntegrals,
 )
 from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
-from qiskit_nature.results import ElectronicStructureResult
 
 from ..base_transformer import BaseTransformer
 
@@ -248,9 +251,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         )
 
         # construct new GroupedElectronicProperty
-        grouped_property_transformed = ElectronicStructureResult()
-        grouped_property_transformed.electronic_basis_transform = self._transform_active
+        grouped_property_transformed = ElectronicStructureDriverResult()
         grouped_property_transformed = self._transform_property(grouped_property)  # type: ignore
+        grouped_property_transformed.molecule = (
+            grouped_property.molecule  # type: ignore[attr-defined]
+        )
 
         return grouped_property_transformed
 
@@ -349,7 +354,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     # TODO: can we efficiently extract this into the base class? At least the logic dealing with
     # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(self, prop: Property) -> Property:
+    def _transform_property(self, prop: Property) -> Optional[Property]:
         """Transforms a Property object.
 
         This is a recursive reduction, iterating GroupedProperty objects when encountering one.
@@ -363,28 +368,16 @@ class ActiveSpaceTransformer(BaseTransformer):
         Raises:
             TypeError: if an unexpected Property subtype is encountered.
         """
-        transformed_property: Property
+        transformed_property: Optional[Property] = None
         if isinstance(prop, GroupedProperty):
-            transformed_property = deepcopy(prop)
+            transformed_property = prop.__class__()  # type: ignore[call-arg]
+            transformed_property.name = prop.name
 
-            # Get the iterator of the Group's properties. We access __iter__() directly to make
-            # mypy happy :-)
-            iterator = transformed_property.__iter__()
-
-            transformed_internal_property = None
-            while True:
-                try:
-                    # Send the transformed internal property to the GroupedProperty generator.
-                    # NOTE: in the first iteration, this variable is None, which is equivalent to
-                    # starting the iterator.
-                    # NOTE: a Generator's send method returns the iterators next value [2].
-                    # [2]: https://docs.python.org/3/reference/expressions.html#generator.send
-                    internal_property = iterator.send(transformed_internal_property)
-                except StopIteration:
-                    break
-
+            for internal_property in iter(prop):
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
+                    if transformed_internal_property is not None:
+                        transformed_property.add_property(transformed_internal_property)
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed!",
@@ -392,6 +385,18 @@ class ActiveSpaceTransformer(BaseTransformer):
                         type(internal_property),
                     )
                     continue
+
+            if isinstance(prop, ElectronicDipoleMoment):
+                transformed_property.reverse_dipole_sign = (  # type: ignore[attr-defined]
+                    prop.reverse_dipole_sign
+                )
+                transformed_property.nuclear_dipole_moment = (  # type: ignore[attr-defined]
+                    prop.nuclear_dipole_moment
+                )
+
+            if len(list(transformed_property)) == 0:
+                # empty GroupedProperty instance
+                transformed_property = None
 
         elif isinstance(prop, IntegralProperty):
             # get matrix operator of IntegralProperty
@@ -425,14 +430,11 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         elif isinstance(prop, ElectronicBasisTransform):
             # transformation done manually during `transform`
-            transformed_property = prop
+            transformed_property = self._transform_active
 
         elif isinstance(prop, DriverMetadata):
             # for the time being we manually catch this to avoid unnecessary warnings
             # TODO: support storing transformer information in the DriverMetadata container
             transformed_property = prop
-
-        else:
-            raise TypeError(f"{type(prop)} is an unsupported Property-type for this Transformer!")
 
         return transformed_property
