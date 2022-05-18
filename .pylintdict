@@ -154,6 +154,7 @@ fock
 formatter
 fortran
 fredkin
+für
 gauopen
 gaussian
 gaussiand
@@ -213,6 +214,7 @@ iten
 iterable
 iteratively
 itertools
+ivano
 iz
 james
 jb
@@ -258,6 +260,7 @@ matplotlib
 maxdepth
 maxiter
 maxiters
+mazzola
 mcp
 mcrx
 mcry
@@ -283,6 +286,7 @@ multi
 multigraph
 multinomial
 mypy
+møller
 namelist
 nan
 nannichini
@@ -338,6 +342,9 @@ perturbative
 pes
 phenylalanine
 phonons
+physrevd
+physik
+plesset
 pmatrix
 polypeptides
 popovas
@@ -346,6 +353,7 @@ posteriori
 pre
 prebuilt
 prepend
+prepended
 preprint
 preprocesses
 proline
@@ -360,6 +368,7 @@ qasm
 qbit
 qcmatrixio
 qeom
+qfi
 qiskit
 qiskit's
 qmolecule
@@ -402,6 +411,7 @@ ryy
 rz
 rzx
 rzz
+scalable
 scf
 schroedinger
 schur
@@ -521,6 +531,7 @@ xyz
 ydata
 yx
 yy
+zeitschrift
 zi
 zmatrix
 zsh
