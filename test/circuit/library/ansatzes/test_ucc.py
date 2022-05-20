@@ -144,6 +144,7 @@ class TestUCC(QiskitNatureTestCase):
             self.assertIsNone(ucc.excitations)
             self.assertIsNone(ucc.qubit_converter)
             self.assertIsNone(ucc.operators)
+            self.assertIsNone(ucc.excitation_list)
             self.assertEqual(ucc.num_qubits, 0)
             with self.assertRaises(ValueError):
                 _ = ucc.data

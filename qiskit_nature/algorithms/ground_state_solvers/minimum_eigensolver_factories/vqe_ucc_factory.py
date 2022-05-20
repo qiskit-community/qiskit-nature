@@ -30,7 +30,7 @@ from qiskit_nature.problems.second_quantization.electronic import (
 )
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
-from ...initial_points import InitialPoint
+from ...initial_points import InitialPoint, HFInitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -54,12 +54,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
             optimizer: A classical optimizer.
-            initial_point: An optional initial point (i.e., initial parameter values) for the
-                optimizer. If ``None`` then VQE will use an all-zero initial point, which then
-                defaults to the Hartree-Fock (HF) state when the HF circuit is prepended to the
-                the ansatz circuit. If an
+            initial_point: An optional initial point (i.e., initial parameter values for the VQE
+                optimizer). If ``None`` then VQE will use an all-zero initial point of the
+                appropriate length computed using
+                :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint`.
+                This then defaults to the Hartree-Fock (HF) state when the HF circuit is prepended
+                to the the ansatz circuit. If another
                 :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
+                If a user-provided NumPy array, this is used directly.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -87,7 +90,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
-        self.initial_point = initial_point
+        self.initial_point = initial_point if initial_point is not None else HFInitialPoint()
         self.gradient = gradient
         self.expectation = expectation
         self.include_custom = include_custom
@@ -211,11 +214,11 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):
-            self.initial_point.grouped_property = driver_result
             self.initial_point.ansatz = ansatz
-
-            # Override the initial_point with the computed array.
-            self.initial_point = self.initial_point.to_numpy_array()
+            self.initial_point.grouped_property = driver_result
+            initial_point = self.initial_point.to_numpy_array()
+        else:
+            initial_point = self.initial_point
 
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
@@ -223,7 +226,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             ansatz=ansatz,
             quantum_instance=self.quantum_instance,
             optimizer=self.optimizer,
-            initial_point=self.initial_point,
+            initial_point=initial_point,
             gradient=self.gradient,
             expectation=self.expectation,
             include_custom=self.include_custom,

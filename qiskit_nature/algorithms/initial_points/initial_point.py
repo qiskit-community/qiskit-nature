@@ -18,49 +18,64 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
-from qiskit_nature.circuit.library import UCC
+from qiskit.circuit.library import EvolvedOperatorAnsatz
+from qiskit_nature.properties.second_quantization.second_quantized_property import (
+    GroupedSecondQuantizedProperty,
+)
 
 
 class InitialPoint(ABC):
-    """The initial point interface.
+    r"""The initial point interface.
 
-    Interface for algorithms that can compute an initial point for the VQE parameters when using a
-    UCC ansatz.
+    The interface for utility classes that provide an initial point for the ``VQE`` parameters for a
+    particular ``EvolvedOperatorAnsatz``.
     """
 
+    @abstractmethod
     def __init__(self):
+        self._ansatz: EvolvedOperatorAnsatz | None = None
         self._grouped_property: GroupedSecondQuantizedProperty | None = None
-        self._ansatz: UCC | None = None
 
     @property
     @abstractmethod
-    def grouped_property(self) -> GroupedSecondQuantizedProperty:
-        """The grouped property."""
+    def ansatz(self) -> EvolvedOperatorAnsatz | None:
+        """The evolved operator ansatz.
+
+        Raises:
+            NotImplementedError
+        """
+        raise NotImplementedError
+
+    @ansatz.setter
+    def ansatz(self, ansatz: EvolvedOperatorAnsatz) -> None:
+        raise NotImplementedError
+
+    @property
+    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+        """The grouped property.
+
+        Raises:
+            NotImplementedError
+        """
         raise NotImplementedError
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def ansatz(self) -> UCC:
-        """The UCC ansatz."""
-        raise NotImplementedError
-
-    @ansatz.setter
-    def ansatz(self, ansatz: UCC) -> None:
-        raise NotImplementedError
-
     @abstractmethod
     def to_numpy_array(self) -> np.ndarray:
-        """Returns a numpy array of the computed initial point."""
+        """Returns a numpy array of the computed initial point.
+
+        Raises:
+            NotImplementedError
+        """
         raise NotImplementedError
 
-    @abstractmethod
     def compute(
-        self, grouped_property: GroupedSecondQuantizedProperty | None, ansatz: UCC | None
-    ) -> np.ndarray:
-        """Computes the initial point."""
+        self,
+        ansatz: EvolvedOperatorAnsatz | None = None,
+        grouped_property: GroupedSecondQuantizedProperty | None = None,
+    ) -> None:
+        """Compute the initial point array"""
         raise NotImplementedError
