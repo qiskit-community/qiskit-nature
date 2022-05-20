@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Some minor issues in the :class:`~qiskit_nature.transformers.second_quantization.electronic.ActiveSpaceTransformer`
+    were fixed. Namely:
+
+    - iterated properties are no longer deep-copied resulting in non-transformed ones actually being dropped rather than carried on
+    - the correct return type object is being constructed and returned

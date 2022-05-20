@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -106,7 +106,7 @@ class EigenstateResult(AlgorithmResult):
     def groundenergy(self) -> Optional[float]:
         """returns ground energy"""
         energies = self.eigenenergies
-        if isinstance(energies, np.ndarray) and not energies.size:
+        if isinstance(energies, np.ndarray) and energies.size:
             return energies[0].real
         return None
 
