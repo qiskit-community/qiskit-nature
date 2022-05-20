@@ -51,9 +51,9 @@ class LatticeModelResult(EigenstateResult):
 
     def __str__(self) -> str:
         """Printable formatted result"""
-        return "\n".join(self.formatted())
+        return "\n".join(self._formatted())
 
-    def formatted(self) -> List[str]:
+    def _formatted(self) -> List[str]:
         """Formatted result as a list of strings"""
         lines = []
         lines.append("=== GROUND STATE ===")

@@ -27,7 +27,7 @@ from ..base_problem import BaseProblem
 class LatticeModelProblem(BaseProblem):
     """Lattice Model Problem class to create second quantized operators from a lattice model."""
 
-    def __init__(self, lattice_model=LatticeModel) -> None:
+    def __init__(self, lattice_model: LatticeModel) -> None:
         """
         Args:
             lattice_model: A lattice model class to create second quantized operators.
@@ -45,7 +45,7 @@ class LatticeModelProblem(BaseProblem):
         """
         second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
         if settings.dict_aux_operators:
-            second_q_ops = {"LatticeEnergy": second_q_ops}
+            second_q_ops = {self._main_property_name : second_q_ops}
         else:
             second_q_ops = [second_q_ops]
 
@@ -94,7 +94,8 @@ class LatticeModelProblem(BaseProblem):
         ] = "sd",
     ) -> None:
         """Generates the hopping operators and their commutativity information
-        for the specified set of excitations. Returns None for the `LatticeProblemModel` class.
+        for the specified set of excitations. Raises `NotImplementedError` for the
+        `LatticeProblemModel` class.
 
         Args:
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
@@ -111,6 +112,7 @@ class LatticeModelProblem(BaseProblem):
                     :meth:`generate_vibrational_excitations`.
 
         Returns:
-            None
+            Currently, this function is not implemented in the `LtticeProblemModel` class and
+            always raises `NotImplementedError`.
         """
         raise NotImplementedError()
