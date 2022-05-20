@@ -26,7 +26,7 @@ runs:
         source "$CONDA/etc/profile.d/conda.sh"
         conda activate psi4env
         if [[ "${{ inputs.os }}" == "windows-2019" ]]; then
-          release=1.5
+          release=1.6
           echo "installs psi4 release $release"
           conda install -y psi4=$release python=${{ inputs.python-version }} -c conda-forge -c psi4/label/dev
           psi4 --test
