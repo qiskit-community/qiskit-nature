@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 name: 'Install PSI4'
-description: 'Installs Miniconda with PSI4'
+description: 'Installs conda PSI4'
 inputs:
   os:
     description: 'OS'
@@ -25,11 +25,21 @@ runs:
     - run : |
         source "$CONDA/etc/profile.d/conda.sh"
         conda activate psi4env
-        if [ "${{ inputs.os }}" == "windows-2019" ]; then
-          conda install -y psi4=1.5 python=${{ inputs.python-version }} -c conda-forge -c psi4/label/dev
+        if [[ "${{ inputs.os }}" == "windows-2019" ]]; then
+          release=1.5
+          echo "installs psi4 release $release"
+          conda install -y psi4=$release python=${{ inputs.python-version }} -c conda-forge -c psi4/label/dev
           psi4 --test
-        else
-          conda install -y psi4 python=${{ inputs.python-version }} -c psi4
+        elif [[ "${{ inputs.os }}" == "ubuntu-latest" && "${{ inputs.python-version }}" == "3.7" ]]; then
+          release=2.6.0
+          echo "installs libint2 release $release"
+          conda install -y libint2=$release -c psi4
+          release=1.5
+          echo "installs psi4 release $release"
+          conda install -y psi4=$release python=${{ inputs.python-version }} -c psi4
           pip install -U numpy
+        else
+          echo 'installs psi4 stable release'
+          conda install -y psi4 python=${{ inputs.python-version }} -c psi4
         fi
       shell: bash
