@@ -175,7 +175,7 @@ jobs:
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-        if: ${{ (matrix.os == 'ubuntu-latest' && !contains('3.8 3.9 3.10', matrix.python-version)) || (matrix.os != 'ubuntu-latest' && matrix.python-version != '3.10') }}
+        if: ${{ matrix.python-version != '3.10' }}
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
@@ -187,7 +187,7 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           conda install -y -c rpmuller pyquante2_pure
-        if: ${{ (matrix.os == 'ubuntu-latest' && !contains('3.8 3.9 3.10', matrix.python-version)) || (matrix.os != 'ubuntu-latest' && matrix.python-version != '3.10') }}
+        if: ${{ matrix.python-version != '3.10' }}
         shell: bash
       - name: Set up problem matches
         run: |
