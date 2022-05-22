@@ -12,7 +12,7 @@
 
 """Hartree-Fock initial state."""
 
-from typing import List, Tuple
+from __future__ import annotations
 
 import numpy as np
 
@@ -31,7 +31,7 @@ class HartreeFock(QuantumCircuit):
     def __init__(
         self,
         num_spin_orbitals: int,
-        num_particles: Tuple[int, int],
+        num_particles: tuple[int, int],
         qubit_converter: QubitConverter,
     ) -> None:
         """
@@ -69,10 +69,10 @@ class HartreeFock(QuantumCircuit):
 
 def hartree_fock_bitstring_mapped(
     num_spin_orbitals: int,
-    num_particles: Tuple[int, int],
+    num_particles: tuple[int, int],
     qubit_converter: QubitConverter,
     match_convert: bool = True,
-) -> List[bool]:
+) -> list[bool]:
     """Compute the bitstring representing the mapped Hartree-Fock state for the specified system.
 
     Args:
@@ -112,7 +112,7 @@ def hartree_fock_bitstring_mapped(
     return bits
 
 
-def hartree_fock_bitstring(num_spin_orbitals: int, num_particles: Tuple[int, int]) -> List[bool]:
+def hartree_fock_bitstring(num_spin_orbitals: int, num_particles: tuple[int, int]) -> list[bool]:
     """Compute the bitstring representing the Hartree-Fock state for the specified system.
 
     Args:

@@ -14,20 +14,28 @@
 
 from typing import cast
 
+import re
 import unittest
+import warnings
+
 from test import QiskitNatureTestCase
 from ddt import ddt, data
+
 from qiskit.exceptions import MissingOptionalLibraryError
+
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import (
     MethodType,
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
     VibrationalStructureDriverType,
     VibrationalStructureMoleculeDriver,
+    GaussianLogDriver,
 )
-from qiskit_nature.drivers import Molecule
+from qiskit_nature.drivers import Molecule, WatsonHamiltonian
 from qiskit_nature.exceptions import UnsupportMethodError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
+from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
 import qiskit_nature.optionals as _optionals
 
 
@@ -97,7 +105,7 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
 class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
     """Vibrational structure Molecule Driver tests."""
 
-    _MOLECULE_EXPECTED = [
+    _C01_REV_EXPECTED = [
         [352.3005875, 2, 2],
         [-352.3005875, -2, -2],
         [631.6153975, 1, 1],
@@ -108,21 +116,71 @@ class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
         [-115.653915, -3, -3],
         [-15.341901966295344, 2, 2, 2],
         [-88.2017421687633, 1, 1, 2],
-        [38.72849649956234, 4, 4, 2],
-        [38.72849649956234, 3, 3, 2],
+        [42.675273102831454, 4, 4, 2],
+        [42.675273102831454, 3, 3, 2],
+        [0.420735625, 2, 2, 2, 2],
+        [4.9425425, 1, 1, 2, 2],
+        [1.6122932291666665, 1, 1, 1, 1],
+        [-4.194299375, 4, 4, 2, 2],
+        [-4.194299375, 3, 3, 2, 2],
+        [-10.20589125, 4, 4, 1, 1],
+        [-10.20589125, 3, 3, 1, 1],
+        [2.335859166666667, 4, 4, 4, 4],
+        [2.6559641666666667, 4, 4, 4, 3],
+        [7.09835, 4, 4, 3, 3],
+        [-2.6559641666666667, 4, 3, 3, 3],
+        [2.335859166666667, 3, 3, 3, 3],
+    ]
+
+    _A03_REV_EXPECTED = [
+        [352.3005875, 2, 2],
+        [-352.3005875, -2, -2],
+        [631.6153975, 1, 1],
+        [-631.6153975, -1, -1],
+        [115.653915, 4, 4],
+        [-115.653915, -4, -4],
+        [115.653915, 3, 3],
+        [-115.653915, -3, -3],
+        [-15.341901966295344, 2, 2, 2],
+        [-88.2017421687633, 1, 1, 2],
+        [42.40478531359112, 4, 4, 2],
+        [26.25167512727164, 4, 3, 2],
+        [2.2874639206341865, 3, 3, 2],
         [0.4207357291666667, 2, 2, 2, 2],
         [4.9425425, 1, 1, 2, 2],
         [1.6122932291666665, 1, 1, 1, 1],
         [-4.194299375, 4, 4, 2, 2],
         [-4.194299375, 3, 3, 2, 2],
-        [-10.205891875, 4, 4, 1, 1],
-        [-10.205891875, 3, 3, 1, 1],
-        [1.8255064583333331, 4, 4, 4, 4],
-        [3.507156666666667, 4, 4, 4, 3],
-        [10.160466875, 4, 4, 3, 3],
-        [-3.507156666666667, 4, 3, 3, 3],
-        [1.8255065625, 3, 3, 3, 3],
+        [-10.20589125, 4, 4, 1, 1],
+        [-10.20589125, 3, 3, 1, 1],
+        [2.2973803125, 4, 4, 4, 4],
+        [2.7821204166666664, 4, 4, 4, 3],
+        [7.329224375, 4, 4, 3, 3],
+        [-2.7821200000000004, 4, 3, 3, 3],
+        [2.2973803125, 3, 3, 3, 3],
     ]
+
+    def _get_expected_values(self):
+        """Get expected values based on revision of Gaussian 16 being used."""
+        jcf = "\n\n"  # Empty job control file will error out
+        log_driver = GaussianLogDriver(jcf=jcf)
+        version = "Not found by regex"
+        try:
+            _ = log_driver.run()
+        except QiskitNatureError as qne:
+            matched = re.search("G16Rev\\w+\\.\\w+", qne.message)
+            if matched is not None:
+                version = matched[0]
+        if version == "G16RevA.03":
+            exp_vals = TestVibrationalStructureMoleculeDriver._A03_REV_EXPECTED
+        elif version == "G16RevB.01":
+            exp_vals = TestVibrationalStructureMoleculeDriver._A03_REV_EXPECTED
+        elif version == "G16RevC.01":
+            exp_vals = TestVibrationalStructureMoleculeDriver._C01_REV_EXPECTED
+        else:
+            self.fail(f"Unknown gaussian version '{version}'")
+
+        return exp_vals
 
     def setUp(self):
         super().setUp()
@@ -135,12 +193,6 @@ class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
             multiplicity=1,
             charge=0,
         )
-
-    def _check_driver_result(self, expected, watson):
-        for i, entry in enumerate(watson.data):
-            msg = f"mode[{i}]={entry} does not match expected {expected[i]}"
-            self.assertAlmostEqual(entry[0], expected[i][0], msg=msg)
-            self.assertListEqual(entry[1:], expected[i][1:], msg=msg)
 
     @data(
         VibrationalStructureDriverType.AUTO,
@@ -155,7 +207,34 @@ class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
             result = driver.run()
         except MissingOptionalLibraryError as ex:
             self.skipTest(str(ex))
-        self._check_driver_result(TestVibrationalStructureMoleculeDriver._MOLECULE_EXPECTED, result)
+        self._check_driver_result(self._get_expected_values(), result)
+
+    def _check_driver_result(self, expected_watson_data, watson):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            expected_watson = WatsonHamiltonian(expected_watson_data, 4)
+            expected = VibrationalEnergy.from_legacy_driver_result(expected_watson)
+        true_vib_energy = cast(VibrationalEnergy, watson.get_property(VibrationalEnergy))
+
+        with self.subTest("one-body terms"):
+            expected_one_body = expected.get_vibrational_integral(1)
+            true_one_body = true_vib_energy.get_vibrational_integral(1)
+            self._check_integrals_are_close(expected_one_body, true_one_body)
+
+        with self.subTest("two-body terms"):
+            expected_two_body = expected.get_vibrational_integral(2)
+            true_two_body = true_vib_energy.get_vibrational_integral(2)
+            self._check_integrals_are_close(expected_two_body, true_two_body)
+
+        with self.subTest("three-body terms"):
+            expected_three_body = expected.get_vibrational_integral(3)
+            true_three_body = true_vib_energy.get_vibrational_integral(3)
+            self._check_integrals_are_close(expected_three_body, true_three_body)
+
+    def _check_integrals_are_close(self, expected, truth):
+        for exp, true in zip(expected.integrals, truth.integrals):
+            self.assertAlmostEqual(true[0], exp[0])
+            self.assertEqual(true[1], exp[1])
 
 
 if __name__ == "__main__":

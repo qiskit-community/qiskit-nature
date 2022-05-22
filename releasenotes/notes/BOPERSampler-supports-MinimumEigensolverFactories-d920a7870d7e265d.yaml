@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    The :class:`~qiskit_nature.algorithms.per_samplers.boper_sampler.BOPESSampler` did not support 
+    GroundStateSolvers when built out with MinimumEigensolverFactories.
+    This is fixed, so code like the following now functions correctly:
+
+    .. code-block:: python
+
+        solver = GroundStateEigensolver(converter, VQEUCCFactory(quantum_instance))
+        sampler = BOPESSampler(solver, bootstrap=True, num_bootstrap=None, extrapolator=None)

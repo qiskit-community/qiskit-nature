@@ -13,19 +13,22 @@
 The Unitary Coupled-Cluster Ansatz.
 """
 
+from __future__ import annotations
+
 import logging
 from functools import partial
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import OperatorBase, PauliTrotterEvolution
+from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
+
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +76,8 @@ class UCC(EvolvedOperatorAnsatz):
         # you can even define a fully custom list of excitations:
 
         def custom_excitation_list(num_spin_orbitals: int,
-                                   num_particles: Tuple[int, int]
-                                   ) -> List[Tuple[Tuple[Any, ...], ...]]:
+                                   num_particles: tuple[int, int]
+                                   ) -> list[tuple[tuple[Any, ...], ...]]:
             # generate your list of excitations...
             my_excitation_list = [...]
             # For more information about the required format of the return statement, please take a
@@ -86,6 +89,7 @@ class UCC(EvolvedOperatorAnsatz):
 
     Keep in mind, that in all of the examples above we have not set any of the following keyword
     arguments, which must be specified before the Ansatz becomes usable:
+
     - `qubit_converter`
     - `num_particles`
     - `num_spin_orbitals`
@@ -108,27 +112,24 @@ class UCC(EvolvedOperatorAnsatz):
 
     def __init__(
         self,
-        qubit_converter: Optional[QubitConverter] = None,
-        num_particles: Optional[Tuple[int, int]] = None,
-        num_spin_orbitals: Optional[int] = None,
-        excitations: Optional[
-            Union[
-                str,
-                int,
-                List[int],
-                Callable[
-                    [int, Tuple[int, int]],
-                    List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
-                ],
-            ]
-        ] = None,
+        qubit_converter: QubitConverter | None = None,
+        num_particles: tuple[int, int] | None = None,
+        num_spin_orbitals: int | None = None,
+        excitations: str
+        | int
+        | list[int]
+        | Callable[
+            [int, tuple[int, int]],
+            list[tuple[tuple[int, ...], tuple[int, ...]]],
+        ]
+        | None = None,
         alpha_spin: bool = True,
         beta_spin: bool = True,
-        max_spin_excitation: Optional[int] = None,
+        max_spin_excitation: int | None = None,
         generalized: bool = False,
         preserve_spin: bool = True,
         reps: int = 1,
-        initial_state: Optional[QuantumCircuit] = None,
+        initial_state: QuantumCircuit | None = None,
     ):
         """
 
@@ -147,11 +148,11 @@ class UCC(EvolvedOperatorAnsatz):
                     + `q` for quadruples
                 :`int`: a single, positive integer which denotes the number of excitations
                     (1 == `s`, etc.)
-                :`List[int]`: a list of positive integers generalizing the above
+                :`list[int]`: a list of positive integers generalizing the above
                 :`Callable`: a function which is used to generate the excitations.
                     The callable must take the __keyword__ arguments `num_spin_orbitals` and
                     `num_particles` (with identical types to those explained above) and must return
-                    a `List[Tuple[Tuple[int, ...], Tuple[int, ...]]]`. For more information on how
+                    a `list[tuple[tuple[int, ...], tuple[int, ...]]]`. For more information on how
                     to write such a callable refer to the default method
                     :meth:`~qiskit_nature.circuit.library.ansatzes.utils.generate_fermionic_excitations`.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
@@ -183,10 +184,13 @@ class UCC(EvolvedOperatorAnsatz):
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
+        # To give read access to the actual excitation list that UCC is using.
+        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
+
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
-        self._excitation_ops: List[SecondQuantizedOp] = None
+        self._excitation_ops: list[SecondQuantizedOp] = None
 
     @property
     def qubit_converter(self) -> QubitConverter:
@@ -196,6 +200,7 @@ class UCC(EvolvedOperatorAnsatz):
     @qubit_converter.setter
     def qubit_converter(self, conv: QubitConverter) -> None:
         """Sets the qubit operator converter."""
+        self._operators = None
         self._invalidate()
         self._qubit_converter = conv
 
@@ -207,44 +212,138 @@ class UCC(EvolvedOperatorAnsatz):
     @num_spin_orbitals.setter
     def num_spin_orbitals(self, n: int) -> None:
         """Sets the number of spin orbitals."""
+        self._operators = None
         self._invalidate()
         self._num_spin_orbitals = n
 
     @property
-    def num_particles(self) -> Tuple[int, int]:
+    def num_particles(self) -> tuple[int, int]:
         """The number of particles."""
         return self._num_particles
 
     @num_particles.setter
-    def num_particles(self, n: Tuple[int, int]) -> None:
+    def num_particles(self, n: tuple[int, int]) -> None:
         """Sets the number of particles."""
+        self._operators = None
         self._invalidate()
         self._num_particles = n
 
     @property
-    def excitations(self) -> Union[str, int, List[int], Callable]:
+    def excitations(self) -> str | int | list[int] | Callable | None:
         """The excitations."""
         return self._excitations
 
     @excitations.setter
-    def excitations(self, exc: Union[str, int, List[int], Callable]) -> None:
+    def excitations(self, exc: str | int | list[int] | Callable | None) -> None:
         """Sets the excitations."""
+        self._operators = None
         self._invalidate()
         self._excitations = exc
+
+    @property
+    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]] | None:
+        """The excitation list that UCC is using.
+
+        Raises:
+            QiskitNatureError: If private the excitation list is ``None``.
+
+        """
+        if self._excitation_list is None:
+            # If the excitation_list is None build it out alongside the operators if the ucc config
+            # checks out ok, otherwise it will be left as None to be built at some later time.
+            _ = self.operators
+        return self._excitation_list
+
+    @EvolvedOperatorAnsatz.operators.getter
+    def operators(self):  # pylint: disable=invalid-overridden-method
+        """The operators that are evolved in this circuit.
+
+        Returns:
+            list: The operators to be evolved contained in this ansatz or
+                  None if the configuration is not complete
+        """
+        # Overriding the getter to build the operators on demand when they are
+        # requested, if they are still set to None.
+        operators = super(UCC, self.__class__).operators.__get__(self)
+
+        if operators is None or operators == [None]:
+            # If the operators are None build them out if the ucc config checks out ok, otherwise
+            # they will be left as None to be built at some later time.
+            if self._check_ucc_configuration(raise_on_failure=False):
+                # The qubit operators are cached by `EvolvedOperatorAnsatz` class. We only generate
+                # them from the `SecondQuantizedOp`s produced by the generators, if they're not
+                # already present. This behavior also enables the adaptive usage of the `UCC` class
+                # by algorithms such as `AdaptVQE`.
+                excitation_ops = self.excitation_ops()
+
+                logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
+                # Convert operators according to saved state in converter from the conversion of the
+                # main operator since these need to be compatible. If Z2 Symmetry tapering was done
+                # it may be that one or more excitation operators do not commute with the symmetry.
+                # The converted operators are maintained at the same index by the converter
+                # inserting ``None`` as the result if an operator did not commute. To ensure that
+                # the ``excitation_list`` is transformed identically to the operators, we retain
+                # ``None`` for non-commuting operators in order to manually remove them in unison.
+                operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
+                valid_operators, valid_excitations = [], []
+                for op, ex in zip(operators, self._excitation_list):
+                    if op is not None:
+                        valid_operators.append(op)
+                        valid_excitations.append(ex)
+
+                self._excitation_list = valid_excitations
+                self.operators = valid_operators
+
+        return super(UCC, self.__class__).operators.__get__(self)
 
     def _invalidate(self):
         self._excitation_ops = None
         super()._invalidate()
 
     def _check_configuration(self, raise_on_failure: bool = True) -> bool:
-        if self.num_spin_orbitals < 0:
+        # Check our local config is valid first. The super class will check the
+        # operators by getting them, and if we detect they are still None they
+        # will be built so that its valid check will end up passing in that regard.
+        if not self._check_ucc_configuration(raise_on_failure):
+            return False
+
+        return super()._check_configuration(raise_on_failure)
+
+    # pylint: disable=too-many-return-statements
+    def _check_ucc_configuration(self, raise_on_failure: bool = True) -> bool:
+        # Check the local config, separated out that it can be checked via build
+        # or ahead of building operators to make sure everything needed is present.
+        if self.num_spin_orbitals is None:
             if raise_on_failure:
-                raise ValueError("The number of spin orbitals cannot be smaller than 0.")
+                raise ValueError("The number of spin orbitals cannot be 'None'.")
+            return False
+
+        if self.num_spin_orbitals <= 0:
+            if raise_on_failure:
+                raise ValueError(
+                    f"The number of spin orbitals must be > 0 was {self.num_spin_orbitals}."
+                )
+            return False
+
+        if self.num_particles is None:
+            if raise_on_failure:
+                raise ValueError("The number of particles cannot be 'None'.")
             return False
 
         if any(n < 0 for n in self.num_particles):
             if raise_on_failure:
-                raise ValueError("The number of particles cannot be smaller than 0.")
+                raise ValueError(
+                    f"The number of particles cannot be smaller than 0 was {self.num_particles}."
+                )
+            return False
+
+        if sum(self.num_particles) >= self.num_spin_orbitals:
+            if raise_on_failure:
+                raise ValueError(
+                    f"The number of spin orbitals {self.num_spin_orbitals}"
+                    f"must be greater than total number of particles "
+                    f"{sum(self.num_particles)}."
+                )
             return False
 
         if self.excitations is None:
@@ -259,33 +358,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         return True
 
-    def _build(self) -> None:
-        if self._is_built:
-            return
-
-        self.operators: Optional[Union[OperatorBase, QuantumCircuit, list]]
-
-        if self.operators is None or self.operators == [None]:
-            # The qubit operators are cached by the `EvolvedOperatorAnsatz` class. We only generate
-            # them from the `SecondQuantizedOp`s produced by the generators, if they are not already
-            # present. This behavior also enables the adaptive usage of the `UCC` class by
-            # algorithms such as `AdaptVQE`.
-            excitation_ops = self.excitation_ops()
-
-            logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
-            # Convert operators according to saved state in converter from the conversion of the
-            # main operator since these need to be compatible. If Z2 Symmetry tapering was done
-            # it may be that one or more excitation operators do not commute with the
-            # symmetry. Normally the converted operators are maintained at the same index by
-            # the converter inserting None as the result if an operator did not commute. Here
-            # we are not interested in that just getting the valid set of operators so that
-            # behavior is suppressed.
-            self.operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=True)
-
-        logger.debug("Building QuantumCircuit...")
-        super()._build()
-
-    def excitation_ops(self) -> List[SecondQuantizedOp]:
+    def excitation_ops(self) -> list[SecondQuantizedOp]:
         """Parses the excitations and generates the list of operators.
 
         Raises:
@@ -297,17 +370,18 @@ class UCC(EvolvedOperatorAnsatz):
         if self._excitation_ops is not None:
             return self._excitation_ops
 
-        excitations = self._get_excitation_list()
+        excitation_list = self._get_excitation_list()
 
-        self._check_excitation_list(excitations)
+        self._check_excitation_list(excitation_list)
 
         logger.debug("Converting excitations into SecondQuantizedOps...")
-        excitation_ops = self._build_fermionic_excitation_ops(excitations)
+        excitation_ops = self._build_fermionic_excitation_ops(excitation_list)
 
+        self._excitation_list = excitation_list
         self._excitation_ops = excitation_ops
         return excitation_ops
 
-    def _get_excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+    def _get_excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
         generators = self._get_excitation_generators()
 
         logger.debug("Generating excitation list...")
@@ -322,9 +396,9 @@ class UCC(EvolvedOperatorAnsatz):
 
         return excitations
 
-    def _get_excitation_generators(self) -> List[Callable]:
+    def _get_excitation_generators(self) -> list[Callable]:
         logger.debug("Gathering excitation generators...")
-        generators: List[Callable] = []
+        generators: list[Callable] = []
 
         extra_kwargs = {
             "alpha_spin": self._alpha_spin,
@@ -401,7 +475,7 @@ class UCC(EvolvedOperatorAnsatz):
                     error_message.format(error="Duplicated indices", excitation=excitation)
                 )
 
-    def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
+    def _build_fermionic_excitation_ops(self, excitations: Sequence) -> list[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 

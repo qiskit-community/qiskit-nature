@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,7 +11,14 @@
 # that they have been altered from the originals.
 """Qiskit Nature Circuit Library Initial States."""
 
+from .fermionic_gaussian_state import FermionicGaussianState
 from .hartree_fock import HartreeFock
+from .slater_determinants import SlaterDeterminant
 from .vscf import VSCF
 
-__all__ = ["HartreeFock", "VSCF"]
+__all__ = [
+    "FermionicGaussianState",
+    "HartreeFock",
+    "SlaterDeterminant",
+    "VSCF",
+]
