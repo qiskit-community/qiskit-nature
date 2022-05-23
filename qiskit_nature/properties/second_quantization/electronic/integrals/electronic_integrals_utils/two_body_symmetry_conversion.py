@@ -15,6 +15,8 @@
 from enum import Enum
 import numpy
 
+from qiskit_nature import QiskitNatureError
+
 
 def to_chem(two_body_tensor):
     """
@@ -30,6 +32,13 @@ def to_chem(two_body_tensor):
     if index_order == IndexType.INT:
         chem_tensor = _chem_to_phys(two_body_tensor)
         return chem_tensor
+    elif index_order == IndexType.UNKNOWN:
+        raise QiskitNatureError(
+            """
+            Unknown index order type, input tensor must be chemists', physicists',
+            or intermediate index order
+            """
+        )
 
 
 def to_phys(two_body_tensor):
@@ -46,6 +55,13 @@ def to_phys(two_body_tensor):
     if index_order == IndexType.INT:
         phys_tensor = _phys_to_chem(two_body_tensor)
         return phys_tensor
+    elif index_order == IndexType.UNKNOWN:
+        raise QiskitNatureError(
+            """
+            Unknown index order type, input tensor must be chemists', physicists',
+            or intermediate index order
+            """
+        )
 
 
 def _phys_to_chem(two_body_tensor):

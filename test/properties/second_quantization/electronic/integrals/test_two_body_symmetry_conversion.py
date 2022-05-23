@@ -23,6 +23,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals.electroni
     find_index_order,
     IndexType,
 )
+from qiskit_nature.exceptions import QiskitNatureError
 
 
 class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
@@ -49,6 +50,13 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         ]
     )
 
+    TWO_BODY_UNKNOWN = np.asarray(
+        [
+            [[[0.67571015, 0.0], [0.0, 0.1809312]], [[0.0, 0.0], [0.1809312, 0.0]]],
+            [[[0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.69857372]]],
+        ]
+    )
+
     def test_phys_to_chem(self):
         """Test correct conversion from physicists' to chemists' index order"""
         expected = self.TWO_BODY_CHEM
@@ -72,6 +80,16 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         expected = self.TWO_BODY_PHYS
         actual = to_phys(self.TWO_BODY_INTERMEDIATE)
         self.assertTrue(np.allclose(expected, actual))
+
+    def test_unknown_to_chem(self):
+        """Test correct conversion from intermediate to chemists' index order"""
+        with self.assertRaises(QiskitNatureError):
+            to_chem(self.TWO_BODY_UNKNOWN)
+
+    def test_unknown_to_phys(self):
+        """Test correctly conversion from intermediate to physicists' index order"""
+        with self.assertRaises(QiskitNatureError):
+            to_phys(self.TWO_BODY_UNKNOWN)
 
     def test_find_index_order_chem(self):
         """Test correctly identifies chemists' index order"""
