@@ -61,4 +61,14 @@ class LatticeModelResult(EigenstateResult):
         lines.append(
             "* Lattice ground state energy " f": {np.round(self.computed_lattice_energies[0], 12)}"
         )
+
+        if self.computed_lattice_energies is not None and len(self.computed_lattice_energies) > 1:
+            lines.append(" ")
+            lines.append("=== EXCITED STATES ===")
+            lines.append(" ")
+
+            for idx, lattice_energy in enumerate(self.computed_lattice_energies[1:]):
+                lines.append(
+                    f"* {(idx + 1): 3d}: Lattice excited state energy: {np.round(lattice_energy, 12)}"
+                )
         return lines

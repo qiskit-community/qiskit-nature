@@ -45,7 +45,7 @@ class LatticeModelProblem(BaseProblem):
         """
         second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
         if settings.dict_aux_operators:
-            second_q_ops = {self._main_property_name : second_q_ops}
+            second_q_ops = {self._main_property_name: second_q_ops}
         else:
             second_q_ops = [second_q_ops]
 
@@ -95,7 +95,7 @@ class LatticeModelProblem(BaseProblem):
     ) -> None:
         """Generates the hopping operators and their commutativity information
         for the specified set of excitations. Raises `NotImplementedError` for the
-        `LatticeProblemModel` class.
+        `LatticeProblemModel` class, currently.
 
         Args:
             qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
@@ -115,4 +115,6 @@ class LatticeModelProblem(BaseProblem):
             Currently, this function is not implemented in the `LtticeProblemModel` class and
             always raises `NotImplementedError`.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            "Currently, it's not implemented in the `LtticeProblemModel` class."
+        )
