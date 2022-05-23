@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,10 +20,12 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
 from qiskit.algorithms.optimizers import COBYLA
+
 from qiskit_nature.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.algorithms import VQEUCCFactory
+from qiskit_nature.algorithms.initial_points import HFInitialPoint
 
 
 class TestVQEUCCFactory(QiskitNatureTestCase):
@@ -62,7 +64,7 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
             self.assertEqual(self._vqe_ucc_factory.optimizer, optimizer)
 
         with self.subTest("Initial Point"):
-            self.assertEqual(self._vqe_ucc_factory.initial_point, None)
+            self.assertTrue(isinstance(self._vqe_ucc_factory.initial_point, HFInitialPoint))
             initial_point = [1, 2, 3]
             self._vqe_ucc_factory.initial_point = initial_point
             self.assertEqual(self._vqe_ucc_factory.initial_point, initial_point)

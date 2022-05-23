@@ -141,6 +141,7 @@ class TestUVCCVSCF(QiskitNatureTestCase):
             self.assertIsNone(uvcc.excitations)
             self.assertIsNone(uvcc.qubit_converter)
             self.assertIsNone(uvcc.operators)
+            self.assertIsNone(uvcc.excitation_list)
             self.assertEqual(uvcc.num_qubits, 0)
             with self.assertRaises(ValueError):
                 _ = uvcc.data

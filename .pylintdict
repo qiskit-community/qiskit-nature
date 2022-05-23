@@ -53,6 +53,7 @@ cargs
 cartesian
 cbit
 ccx
+cdots
 cfg
 chc
 chiral
@@ -101,6 +102,7 @@ debye
 deepcopy
 dft
 diag
+diagonalization
 diagonalize
 diagonalizes
 diagonalizing
@@ -110,6 +112,7 @@ dimensionality
 discoverable
 distinguishability
 dll
+docstring
 dof
 doi
 dt
@@ -123,6 +126,7 @@ eigensolvers
 eigenstate
 eigenstateresult
 eigenstates
+eigenvector
 einact
 einsum
 endian
@@ -233,6 +237,7 @@ kwargs
 kwds
 labelled
 lda
+ldots
 len
 leucine
 levinthal
@@ -247,6 +252,7 @@ ljik
 lk
 logfile
 lookback
+lvert
 lysine
 macos
 majorana
@@ -274,6 +280,7 @@ moc
 mohij
 mohijkl
 mol
+moller
 morse
 mpl
 mul
@@ -323,6 +330,7 @@ ortho
 orthonormal
 otimes
 outpath
+overline
 pac
 param
 parameterized
@@ -375,6 +383,7 @@ qubit
 qubits
 qutrit
 radians
+rangle
 rcccx
 rccx
 readme
@@ -418,6 +427,7 @@ setia
 setted
 shende
 sklearn
+slater
 spinop
 springer
 spsa
