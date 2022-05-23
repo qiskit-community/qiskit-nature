@@ -52,11 +52,15 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
 
     def test_interpret(self):
         """Tests that the result is interpreted"""
+        num_nodes = 4
+        boundary_condition = BoundaryCondition.OPEN
+        line_lattice = LineLattice(num_nodes=num_nodes, boundary_condition=boundary_condition)
+        fhm = FermiHubbardModel(lattice=line_lattice, onsite_interaction=5.0)
         eigenenergies = np.array([-1])
         eigenstates = [np.array([1, 0])]
         aux_operator_eigenvalues = [(1, 2)]
         # For EigenstateResult
-        lmp = LatticeModelProblem()
+        lmp = LatticeModelProblem(fhm)
         eigenstate_result = EigenstateResult()
         eigenstate_result.eigenenergies = eigenenergies
         eigenstate_result.eigenstates = eigenstates
@@ -66,7 +70,7 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         self.assertEqual(lmr.eigenstates, eigenstate_result.eigenstates)
         self.assertEqual(lmr.aux_operator_eigenvalues, eigenstate_result.aux_operator_eigenvalues)
         # For EigenSOlverResult
-        lmp = LatticeModelProblem()
+        lmp = LatticeModelProblem(fhm)
         eigensolver_result = EigensolverResult()
         eigensolver_result.eigenvalues = eigenenergies
         eigensolver_result.eigenstates = eigenstates
@@ -76,7 +80,7 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         self.assertEqual(lmr.eigenstates, eigensolver_result.eigenstates)
         self.assertEqual(lmr.aux_operator_eigenvalues, eigensolver_result.aux_operator_eigenvalues)
         # For MinimumEigensolverResult
-        lmp = LatticeModelProblem()
+        lmp = LatticeModelProblem(fhm)
         mes_result = MinimumEigensolverResult()
         mes_result.eigenvalue = -1
         mes_result.eigenstate = np.array([1, 0])
