@@ -22,7 +22,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.settings import settings
 
 from .electronic_integrals import ElectronicIntegrals
-from .electronic_integrals_utils import find_index_order, phys_to_chem
+from .electronic_integrals_utils import find_index_order, to_chem
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 
@@ -68,7 +68,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         if isinstance(matrices, np.ndarray):
             index_order = find_index_order(matrices)
             if index_order == "physicist":
-                matrices = phys_to_chem(matrices)
+                matrices = to_chem(matrices)
             elif (
                 index_order == "intermediate"
             ):  # TODO: Point to a longer explanation, or give it here.

@@ -16,18 +16,46 @@ from enum import Enum
 import numpy
 
 
-def phys_to_chem(two_body_tensor):
+def to_chem(two_body_tensor):
+    """
+    Convert the rank-four tensor `two_body_tensor` representing two-body integrals from physicists'
+    , or intermediate, index order to chemists' index order: i,j,k,l -> i,l,j,k
+    """
+    index_order = find_index_order(two_body_tensor)
+    if index_order == IndexType.CHEM:
+        return two_body_tensor
+    if index_order == IndexType.PHYS:
+        return _phys_to_chem(two_body_tensor)
+    if index_order == IndexType.INT:
+        return _chem_to_phys(two_body_tensor)
+
+
+def to_phys(two_body_tensor):
+    """
+    Convert the rank-four tensor `two_body_tensor` representing two-body integrals from chemists'
+    , or intermediate, index order to physicists' index order: i,j,k,l -> i,l,j,k
+    """
+    index_order = find_index_order(two_body_tensor)
+    if index_order == IndexType.PHYS:
+        return two_body_tensor
+    if index_order == IndexType.CHEM:
+        return _chem_to_phys(two_body_tensor)
+    if index_order == IndexType.INT:
+        return _phys_to_chem(two_body_tensor)
+
+
+def _phys_to_chem(two_body_tensor):
     """
     Convert the rank-four tensor `two_body_tensor` representing two-body integrals from physicists'
     index order to chemists' index order: i,j,k,l -> i,l,j,k
 
-    See `chem_to_phys`, `check_two_body_symmetries`.
+    See `_chem_to_phys`, `_check_two_body_symmetries`.
     """
     permuted_tensor = numpy.einsum("ijkl->iljk", two_body_tensor)
     return permuted_tensor
 
 
-def chem_to_phys(two_body_tensor):
+def _chem_to_phys(two_body_tensor):
     """
     Convert the rank-four tensor `two_body_tensor` representing two-body integrals from chemists'
     index order to physicists' index order: i,j,k,l -> i,k,l,j
@@ -64,10 +92,10 @@ def _check_two_body_symmetries(two_body_tensor, chemist=True):
 
     References: HJO Molecular Electronic-Structure Theory (1.4.17), (1.4.38)
 
-    See `phys_to_chem`, `chem_to_phys`.
+    See `_phys_to_chem`, `_chem_to_phys`.
     """
     if not chemist:
-        two_body_tensor = phys_to_chem(two_body_tensor)
+        two_body_tensor = _phys_to_chem(two_body_tensor)
     for permutation in ChemIndexPermutations:
         if not _check_two_body_symmetry(two_body_tensor, permutation.value):
             return False
@@ -85,7 +113,7 @@ def find_index_order(two_body_tensor):
     `phys_to_chem` to the chemists' convention. If the tests for each of these
     conventions fail, then `:unknown` is returned.
 
-    See also: `chem_to_phys`, `phys_to_chem`.
+    See also: `_chem_to_phys`, `_phys_to_chem`.
 
     Note:
     The first of `:chemist`, `:physicist`, and `:intermediate`, in that order, to pass the tests
@@ -95,10 +123,10 @@ def find_index_order(two_body_tensor):
     """
     if _check_two_body_symmetries(two_body_tensor):
         return IndexType.CHEM
-    permuted_tensor = phys_to_chem(two_body_tensor)
+    permuted_tensor = _phys_to_chem(two_body_tensor)
     if _check_two_body_symmetries(permuted_tensor):
         return IndexType.PHYS
-    permuted_tensor = phys_to_chem(permuted_tensor)
+    permuted_tensor = _phys_to_chem(permuted_tensor)
     if _check_two_body_symmetries(permuted_tensor):
         return IndexType.INT
     else:

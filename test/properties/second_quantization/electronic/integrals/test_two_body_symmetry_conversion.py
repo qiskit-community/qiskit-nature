@@ -18,8 +18,8 @@ import numpy as np
 
 # pylint: disable=line-too-long
 from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals_utils.two_body_symmetry_conversion import (
-    phys_to_chem,
-    chem_to_phys,
+    to_chem,
+    to_phys,
     find_index_order,
     IndexType,
 )
@@ -42,16 +42,35 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         ]
     )
 
+    TWO_BODY_INTERMEDIATE = np.asarray(
+        [
+            [[[0.67571015, 0.0], [0.0, 0.1809312]], [[0.0, 0.66458173], [0.1809312, 0.0]]],
+            [[[0.0, 0.1809312], [0.66458173, 0.0]], [[0.1809312, 0.0], [0.0, 0.69857372]]],
+        ]
+    )
+
     def test_phys_to_chem(self):
-        """Test correct conversion to chemists' index order"""
+        """Test correct conversion from physicists' to chemists' index order"""
         expected = self.TWO_BODY_CHEM
-        actual = phys_to_chem(self.TWO_BODY_PHYS)
+        actual = to_chem(self.TWO_BODY_PHYS)
         self.assertTrue(np.allclose(expected, actual))
 
     def test_chem_to_phys(self):
-        """Test correctly conversion to physicists' index order"""
+        """Test correctly conversion from chemists' to physicists' index order"""
         expected = self.TWO_BODY_PHYS
-        actual = chem_to_phys(self.TWO_BODY_CHEM)
+        actual = to_phys(self.TWO_BODY_CHEM)
+        self.assertTrue(np.allclose(expected, actual))
+
+    def test_int_to_chem(self):
+        """Test correct conversion from intermediate to chemists' index order"""
+        expected = self.TWO_BODY_CHEM
+        actual = to_chem(self.TWO_BODY_INTERMEDIATE)
+        self.assertTrue(np.allclose(expected, actual))
+
+    def test_int_to_phys(self):
+        """Test correctly conversion from intermediate to physicists' index order"""
+        expected = self.TWO_BODY_PHYS
+        actual = to_phys(self.TWO_BODY_INTERMEDIATE)
         self.assertTrue(np.allclose(expected, actual))
 
     def test_find_index_order_chem(self):
@@ -66,6 +85,8 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
 
     def test_find_index_order_intermediate(self):
         """Test correctly identifies intermediate index order"""
+        result = find_index_order(self.TWO_BODY_INTERMEDIATE)
+        self.assertEqual(result, IndexType.INT)
 
     def test_find_index_order_unknown(self):
         """Test correct return for unknown index order"""
