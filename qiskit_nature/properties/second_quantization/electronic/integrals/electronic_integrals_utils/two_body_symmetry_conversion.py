@@ -25,9 +25,11 @@ def to_chem(two_body_tensor):
     if index_order == IndexType.CHEM:
         return two_body_tensor
     if index_order == IndexType.PHYS:
-        return _phys_to_chem(two_body_tensor)
+        chem_tensor = _phys_to_chem(two_body_tensor)
+        return chem_tensor
     if index_order == IndexType.INT:
-        return _chem_to_phys(two_body_tensor)
+        chem_tensor = _chem_to_phys(two_body_tensor)
+        return chem_tensor
 
 
 def to_phys(two_body_tensor):
@@ -39,9 +41,11 @@ def to_phys(two_body_tensor):
     if index_order == IndexType.PHYS:
         return two_body_tensor
     if index_order == IndexType.CHEM:
-        return _chem_to_phys(two_body_tensor)
+        phys_tensor = _chem_to_phys(two_body_tensor)
+        return phys_tensor
     if index_order == IndexType.INT:
-        return _phys_to_chem(two_body_tensor)
+        phys_tensor = _phys_to_chem(two_body_tensor)
+        return phys_tensor
 
 
 def _phys_to_chem(two_body_tensor):
