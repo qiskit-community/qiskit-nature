@@ -32,7 +32,7 @@ def to_chem(two_body_tensor):
     if index_order == IndexType.INT:
         chem_tensor = _chem_to_phys(two_body_tensor)
         return chem_tensor
-    elif index_order == IndexType.UNKNOWN:
+    else:
         raise QiskitNatureError(
             """
             Unknown index order type, input tensor must be chemists', physicists',
@@ -55,7 +55,7 @@ def to_phys(two_body_tensor):
     if index_order == IndexType.INT:
         phys_tensor = _phys_to_chem(two_body_tensor)
         return phys_tensor
-    elif index_order == IndexType.UNKNOWN:
+    else:
         raise QiskitNatureError(
             """
             Unknown index order type, input tensor must be chemists', physicists',
