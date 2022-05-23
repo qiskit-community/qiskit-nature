@@ -116,5 +116,5 @@ class LatticeModelProblem(BaseProblem):
             always raises `NotImplementedError`.
         """
         raise NotImplementedError(
-            "Currently, it's not implemented in the `LtticeProblemModel` class."
+            "Currently, it's not implemented in the `LatticeProblemModel` class."
         )
