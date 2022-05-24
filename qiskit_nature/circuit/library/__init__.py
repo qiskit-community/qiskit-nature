@@ -18,6 +18,15 @@ A collection of circuits used as building blocks or inputs for algorithms.
 
 .. currentmodule:: qiskit_nature.circuit.library
 
+Primitives
+==========
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   BogoliubovTransform
+
 Initial states
 ==============
 
@@ -68,6 +77,8 @@ from .ansatzes import (
 
 from .initial_states import FermionicGaussianState, HartreeFock, SlaterDeterminant, VSCF
 
+from .primitives import BogoliubovTransform
+
 __all__ = [
     "UCC",
     "UCCSD",
@@ -80,4 +91,5 @@ __all__ = [
     "VSCF",
     "FermionicGaussianState",
     "SlaterDeterminant",
+    "BogoliubovTransform",
 ]

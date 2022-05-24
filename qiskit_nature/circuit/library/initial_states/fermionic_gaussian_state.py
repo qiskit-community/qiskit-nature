@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 
-from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jordan_wigner
+from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jw
 
 
 def _validate_transformation_matrix(
@@ -141,6 +141,8 @@ class FermionicGaussianState(QuantumCircuit):
         Raises:
             ValueError: transformation_matrix must be a 2-dimensional array.
             ValueError: transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).
+            ValueError: transformation_matrix does not describe a valid transformation
+                of fermionic ladder operators
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
                 :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
@@ -159,7 +161,7 @@ class FermionicGaussianState(QuantumCircuit):
         super().__init__(register, **circuit_kwargs)
 
         if isinstance(qubit_converter.mapper, JordanWignerMapper):
-            operations = _prepare_fermionic_gaussian_state_jordan_wigner(
+            operations = _prepare_fermionic_gaussian_state_jw(
                 register, transformation_matrix, occupied_orbitals
             )
             for gate, qubits in operations:

@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 
-from .utils.givens_rotations import _prepare_slater_determinant_jordan_wigner
+from .utils.givens_rotations import _prepare_slater_determinant_jw
 
 
 def _rows_are_orthonormal(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
@@ -57,7 +57,7 @@ class SlaterDeterminant(QuantumCircuit):
     - :math:`\lvert \text{vac} \rangle` is the vacuum state
       (mutual 0-eigenvector of the fermionic number operators :math:`\{a^\dagger_j a_j\}`)
 
-    The matrix :math:`W` can be obtained by calling the
+    The matrix :math:`Q` can be obtained by calling the
     :meth:`~.QuadraticHamiltonian.diagonalizing_bogoliubov_transform`
     method of the :class:`~.QuadraticHamiltonian` class when the
     quadratic Hamiltonian conserves particle number.
@@ -110,7 +110,7 @@ class SlaterDeterminant(QuantumCircuit):
         super().__init__(register, **circuit_kwargs)
 
         if isinstance(qubit_converter.mapper, JordanWignerMapper):
-            operations = _prepare_slater_determinant_jordan_wigner(register, transformation_matrix)
+            operations = _prepare_slater_determinant_jw(register, transformation_matrix)
             for gate, qubits in operations:
                 self.append(gate, qubits)
         else:
