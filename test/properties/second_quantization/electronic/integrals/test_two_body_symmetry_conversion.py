@@ -64,7 +64,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         self.assertTrue(np.allclose(expected, actual))
 
     def test_chem_to_phys(self):
-        """Test correctly conversion from chemists' to physicists' index order"""
+        """Test correct conversion from chemists' to physicists' index order"""
         expected = self.TWO_BODY_PHYS
         actual = to_phys(self.TWO_BODY_CHEM)
         self.assertTrue(np.allclose(expected, actual))
@@ -76,7 +76,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         self.assertTrue(np.allclose(expected, actual))
 
     def test_int_to_phys(self):
-        """Test correctly conversion from intermediate to physicists' index order"""
+        """Test correct conversion from intermediate to physicists' index order"""
         expected = self.TWO_BODY_PHYS
         actual = to_phys(self.TWO_BODY_INTERMEDIATE)
         self.assertTrue(np.allclose(expected, actual))
@@ -87,7 +87,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
             to_chem(self.TWO_BODY_UNKNOWN)
 
     def test_unknown_to_phys(self):
-        """Test correctly conversion from intermediate to physicists' index order"""
+        """Test correct conversion from intermediate to physicists' index order"""
         with self.assertRaises(QiskitNatureError):
             to_phys(self.TWO_BODY_UNKNOWN)
 
@@ -108,3 +108,5 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
 
     def test_find_index_order_unknown(self):
         """Test correct return for unknown index order"""
+        result = find_index_order(self.TWO_BODY_UNKNOWN)
+        self.assertEqual(result, IndexType.UNKNOWN)
