@@ -22,6 +22,7 @@ from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.algorithms import VQEUVCCFactory
+from qiskit_nature.algorithms.initial_points import VSCFInitialPoint
 
 
 class TestVQEUVCCFactory(QiskitNatureTestCase):
@@ -103,10 +104,8 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
             self.assertTrue(
                 isinstance(getattr(self._vqe_uvcc_factory.minimum_eigensolver, prop), cases[0])
             )
-
-    def test_setters_getters(self):
-        """Test Getter/Setter"""
-
+    def deprecation_setters_getters(self):
+      """Test Getter/Setter for the deprecated properties. Can be removed once the properties are removed."""
         self.auxiliary_tester(
             "Quantum Instance", "quantum_instance", (self.quantum_instance, self.quantum_instance_2)
         )
@@ -114,6 +113,41 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
         self.auxiliary_tester("Include Custom", "include_custom", (False, True))
         self.auxiliary_tester("Callback", "callback", (None, None))
         self.auxiliary_tester_isinstance("Optimizer", "optimizer", (SLSQP, COBYLA))
+    def test_setters_getters(self):
+        """Test Getter/Setter"""
+        with self.subTest("Quantum Instance"):
+            self.assertEqual(self._vqe_uvcc_factory.quantum_instance, self.quantum_instance)
+            self._vqe_uvcc_factory.quantum_instance = None
+            self.assertEqual(self._vqe_uvcc_factory.quantum_instance, None)
+
+        with self.subTest("Optimizer"):
+            self.assertEqual(self._vqe_uvcc_factory.optimizer, None)
+            optimizer = COBYLA()
+            self._vqe_uvcc_factory.optimizer = optimizer
+            self.assertEqual(self._vqe_uvcc_factory.optimizer, optimizer)
+
+        with self.subTest("Initial Point"):
+            self.assertTrue(isinstance(self._vqe_uvcc_factory.initial_point, VSCFInitialPoint))
+            initial_point = [1, 2, 3]
+            self._vqe_uvcc_factory.initial_point = initial_point
+            self.assertEqual(self._vqe_uvcc_factory.initial_point, initial_point)
+
+        with self.subTest("Expectation"):
+            self.assertEqual(self._vqe_uvcc_factory.expectation, None)
+            expectation = AerPauliExpectation()
+            self._vqe_uvcc_factory.expectation = expectation
+            self.assertEqual(self._vqe_uvcc_factory.expectation, expectation)
+
+        with self.subTest("Include Custom"):
+            self.assertEqual(self._vqe_uvcc_factory.include_custom, False)
+            self._vqe_uvcc_factory.include_custom = True
+            self.assertEqual(self._vqe_uvcc_factory.include_custom, True)
+
+        with self.subTest("Ansatz"):
+            self.assertEqual(self._vqe_uvcc_factory.ansatz, None)
+            ansatz = UVCCSD()
+            self._vqe_uvcc_factory.ansatz = ansatz
+            self.assertTrue(isinstance(self._vqe_uvcc_factory.ansatz, UVCCSD))
 
         with self.subTest("Initial State"):
             self.assertEqual(self._vqe_uvcc_factory.initial_state, None)

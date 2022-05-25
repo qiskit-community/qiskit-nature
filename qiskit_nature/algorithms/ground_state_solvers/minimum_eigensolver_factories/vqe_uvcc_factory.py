@@ -36,6 +36,7 @@ from qiskit_nature.deprecation import deprecate_property, deprecate_positional_a
 
 from ...initial_points import InitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
+from ...initial_points import InitialPoint, VSCFInitialPoint
 
 logger = logging.getLogger(__name__)
 
@@ -83,9 +84,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
             optimizer: A classical optimizer.
-            initial_point: An optional initial point (i.e. initial parameter values)
-                for the optimizer. If ``None`` then VQE will look to the ansatz for a preferred
-                point and if not will simply compute a random one.
+            initial_point: An optional initial point (i.e., initial parameter values for the VQE
+                optimizer). If ``None`` then VQE will use an all-zero initial point of the
+                appropriate length computed using
+                :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint`.
+                This then defaults to the VSCF state when the VSCF circuit is prepended
+                to the the ansatz circuit. If another
+                :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
+                instance, this is used to compute an initial point for the VQE ansatz parameters.
+                If a user-provided NumPy array, this is used directly.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -111,9 +118,11 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 ansatz, the evaluated mean and the evaluated standard deviation.`
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
+
         self._initial_state = initial_state
-        self._initial_point = initial_point
+        self.initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
         self._factory_ansatz = ansatz
+
 
         self._vqe = VQE(**kwargs)
 
@@ -147,20 +156,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """DEPRECATED. Use the constructor instead. Sets the optimizer."""
         self.minimum_eigensolver.optimizer = optimizer
 
-    @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
-    )
-    def initial_point(self) -> Optional[np.ndarray]:
-        """DEPRECATED. Use ``minimum_eigensolver`` and solver properties instead.
-        Returns initial_point."""
-        return self.minimum_eigensolver.initial_point
-
-    @initial_point.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
-    def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the initial_point."""
-        self.minimum_eigensolver.initial_point = initial_point
 
     @property  # type: ignore
     @deprecate_property(
@@ -282,8 +277,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
 
-        self.minimum_eigensolver.ansatz = ansatz
 
+        if isinstance(self.initial_point, InitialPoint):
+            self.initial_point.ansatz = ansatz
+            initial_point = self.initial_point.to_numpy_array()
+        else:
+            initial_point = self.initial_point
+
+        self.minimum_eigensolver.initial_point = initial_point
+        self.minimum_eigensolver.ansatz = ansatz
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):

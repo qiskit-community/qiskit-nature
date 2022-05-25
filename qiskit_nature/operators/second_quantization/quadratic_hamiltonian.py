@@ -42,6 +42,13 @@ class QuadraticHamiltonian(TolerancesMixin):
         + \text{constant}
 
     where :math:`M` is a Hermitian matrix and :math:`\Delta` is an antisymmetric matrix.
+
+    Note:
+        The :class:`~.FermionicOp` class can also be used to represent any quadratic Hamiltonian.
+        The reason to have a class specifically for quadratic Hamiltonians is that they
+        support special numerical routines that involve performing linear algebra on the
+        matrices :math:`M` and :math:`\Delta`. The internal representation format
+        of :class:`~.FermionicOp` is not suitable for these routines.
     """
 
     def __init__(
@@ -153,7 +160,8 @@ class QuadraticHamiltonian(TolerancesMixin):
                 terms.append(([("+", j), ("-", i)], self.hermitian_part[j, i]))
                 terms.append(([("+", i), ("+", j)], self.antisymmetric_part[i, j]))
                 terms.append(([("-", j), ("-", i)], self.antisymmetric_part[i, j].conjugate()))
-        return FermionicOp(terms, register_length=self._num_modes)
+        # TODO remove display_format="sparse" once it's no longer needed to suppress warning
+        return FermionicOp(terms, register_length=self._num_modes, display_format="sparse")
 
     def conserves_particle_number(self) -> bool:
         """Whether the Hamiltonian conserves particle number."""

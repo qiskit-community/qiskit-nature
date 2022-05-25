@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -58,6 +58,7 @@ SpinOp Mappers
 
    SpinMapper
    LinearMapper
+   LogarithmicMapper
 
 """
 
@@ -67,6 +68,7 @@ from .direct_mapper import DirectMapper
 from .fermionic_mapper import FermionicMapper
 from .jordan_wigner_mapper import JordanWignerMapper
 from .linear_mapper import LinearMapper
+from .logarithmic_mapper import LogarithmicMapper
 from .parity_mapper import ParityMapper
 from .qubit_mapper import QubitMapper
 from .spin_mapper import SpinMapper
@@ -79,6 +81,7 @@ __all__ = [
     "FermionicMapper",
     "JordanWignerMapper",
     "LinearMapper",
+    "LogarithmicMapper",
     "ParityMapper",
     "QubitMapper",
     "SpinMapper",

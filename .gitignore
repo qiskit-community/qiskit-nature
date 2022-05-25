@@ -55,8 +55,6 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-*.hdf5
-!test/chemistry/*.hdf5
 htmlcov/
 .tox/
 .coverage
