@@ -135,7 +135,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             seed_simulator=algorithm_globals.random_seed,
             seed_transpiler=algorithm_globals.random_seed,
         )
-        solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer, initial_point=initial_point)
+        solver = VQEUVCCFactory(quantum_instance=quantum_instance, optimizer=optimizer, initial_point=initial_point)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)

@@ -562,7 +562,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         initial_point = np.asarray([1.28074029e-19, 5.92226076e-08, 1.11762559e-01])
         solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            quantum_instance = QuantumInstance(BasicAer.get_backend("statevector_simulator")),
             initial_point=initial_point,
             optimizer=SLSQP(maxiter=1),
         )
