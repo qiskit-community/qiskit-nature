@@ -173,7 +173,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         if self._basis == ElectronicBasis.SO:
             return self._matrices  # type: ignore
 
-        so_matrix = np.zeros([2 * s for s in self._matrices[0].shape],dtype = 'complex')
+        so_matrix = np.zeros([2 * s for s in self._matrices[0].shape], dtype="complex")
         one_indices = (
             (0, 0, 0, 0),  # alpha-alpha-spin
             (0, 1, 1, 0),  # beta-alpha-spin
