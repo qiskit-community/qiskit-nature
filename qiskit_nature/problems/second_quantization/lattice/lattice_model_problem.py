@@ -118,3 +118,8 @@ class LatticeModelProblem(BaseProblem):
         raise NotImplementedError(
             "Currently, it's not implemented in the `LatticeProblemModel` class."
         )
+
+    def get_default_filter_criterion(
+        self,
+    ) -> None:
+        return None

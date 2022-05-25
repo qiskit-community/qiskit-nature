@@ -150,6 +150,7 @@ class BaseProblem(ABC):
         """
         raise NotImplementedError()
 
+    @abstractmethod
     def get_default_filter_criterion(
         self,
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
@@ -160,7 +161,7 @@ class BaseProblem(ABC):
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
         """
-        return None
+        raise NotImplementedError()
 
     @abstractmethod
     def hopping_qeom_ops(
