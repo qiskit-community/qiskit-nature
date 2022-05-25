@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import Callable, Sequence
+from typing import Callable, Sequence, Optional
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
@@ -509,7 +509,8 @@ class UCC(EvolvedOperatorAnsatz):
             op = FermionicOp("".join(label), display_format="dense")
             op_adj = op.adjoint()
             op_minus = 1j * (op - op_adj)
-            # we need to account for an additional imaginary phase in the exponent hence multiplied by 1j (see also
+            # we need to account for an additional imaginary phase in the exponent
+            # hence multiplied by 1j (see also
             # `PauliTrotterEvolution.convert`)
             operators.append(op_minus)
 

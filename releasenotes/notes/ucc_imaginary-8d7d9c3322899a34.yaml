@@ -1,6 +1,6 @@
 ---
 features:
   - |
-    Imaginary contributions to the UCC ansatze can be added along with the real contributions by 
+    Imaginary contributions to the UCC ansatz can be added along with the real contributions by 
     setting the boolean flag 'include_imaginary' to True. A separate parameter is used for the real 
     and the imaginary contribution coming from a single excitation 

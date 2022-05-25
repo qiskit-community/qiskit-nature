@@ -51,8 +51,8 @@ class UCCSD(UCC):
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
             preserve_spin: Boolean flag whether or not to preserve the particle spins.
-            include_imaginary: boolean flag whether or not to include imaginary contributions to the wave-function
-                               using twice the number of free parameters
+            include_imaginary: boolean flag whether or not to include imaginary contributions
+                               to the wave-function using twice the number of free parameters
         """
 
         super().__init__(
