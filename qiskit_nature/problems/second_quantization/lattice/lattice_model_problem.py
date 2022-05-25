@@ -11,17 +11,19 @@
 # that they have been altered from the originals.
 """The Lattice Model Problem class."""
 
-from typing import Union, Callable, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult, LatticeModelResult
-from .models.lattice_model import LatticeModel
+
 from ..base_problem import BaseProblem
+from .models.lattice_model import LatticeModel
 
 
 class LatticeModelProblem(BaseProblem):
@@ -92,7 +94,13 @@ class LatticeModelProblem(BaseProblem):
             List[int],
             Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
         ] = "sd",
-    ) -> None:
+    ) -> Optional[
+        Tuple[
+            Dict[str, PauliSumOp],
+            Dict[str, List[bool]],
+            Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+        ]
+    ]:
         """Generates the hopping operators and their commutativity information
         for the specified set of excitations. Raises `NotImplementedError` for the
         `LatticeProblemModel` class, currently.
@@ -111,8 +119,8 @@ class LatticeModelProblem(BaseProblem):
                     methods, :meth:`generate_fermionic_excitations` or
                     :meth:`generate_vibrational_excitations`.
 
-        Returns:
-            Currently, this function is not implemented in the `LtticeProblemModel` class and
+        Raises:
+            Currently, this function is not implemented in the `LatticeProblemModel` class and
             always raises `NotImplementedError`.
         """
         raise NotImplementedError(
@@ -121,5 +129,5 @@ class LatticeModelProblem(BaseProblem):
 
     def get_default_filter_criterion(
         self,
-    ) -> None:
+    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         return None
