@@ -119,7 +119,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             kwargs: any additional keyword arguments will be passed on to the VQE.
         """
 
-
         self._initial_state = initial_state
         self.initial_point = initial_point if initial_point is not None else HFInitialPoint()
         self._factory_ansatz = ansatz
@@ -288,7 +287,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_point = self.initial_point.to_numpy_array()
         else:
             initial_point = self.initial_point
-            
+
         self._vqe.initial_point = initial_point
         return self.minimum_eigensolver
 

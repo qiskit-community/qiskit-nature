@@ -19,7 +19,7 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
 from qiskit.algorithms.optimizers import COBYLA, SLSQP
-from qiskit_nature.circuit.library import HartreeFock,UVCCSD
+from qiskit_nature.circuit.library import HartreeFock, UVCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.algorithms import VQEUVCCFactory
@@ -105,12 +105,18 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
             self.assertTrue(
                 isinstance(getattr(self._vqe_uvcc_factory.minimum_eigensolver, prop), cases[0])
             )
+
     def deprecation_setters_getters(self):
-        """Test Getter/Setter for the deprecated properties. Can be removed once the properties are removed."""
+        """
+        Test Getter/Setter for the deprecated properties.
+        Can be removed once the properties are removed.
+        """
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.auxiliary_tester(
-                "Quantum Instance", "quantum_instance", (self.quantum_instance, self.quantum_instance_2)
+                "Quantum Instance",
+                "quantum_instance",
+                (self.quantum_instance, self.quantum_instance_2),
             )
             self.auxiliary_tester("Expectation", "expectation", (None, AerPauliExpectation()))
             self.auxiliary_tester("Include Custom", "include_custom", (False, True))

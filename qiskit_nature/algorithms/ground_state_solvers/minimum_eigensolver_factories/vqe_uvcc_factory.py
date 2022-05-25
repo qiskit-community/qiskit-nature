@@ -123,7 +123,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self.initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
         self._factory_ansatz = ansatz
 
-
         self._vqe = VQE(**kwargs)
 
     @property  # type: ignore
@@ -155,7 +154,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """DEPRECATED. Use the constructor instead. Sets the optimizer."""
         self.minimum_eigensolver.optimizer = optimizer
-
 
     @property  # type: ignore
     @deprecate_property(
@@ -276,7 +274,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.qubit_converter = qubit_converter
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
-
 
         if isinstance(self.initial_point, InitialPoint):
             self.initial_point.ansatz = ansatz

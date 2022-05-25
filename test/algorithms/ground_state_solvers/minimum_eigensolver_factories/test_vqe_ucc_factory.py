@@ -107,12 +107,18 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
             self.assertTrue(
                 isinstance(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[0])
             )
+
     def deprecation_setters_getters(self):
-        """Test Getter/Setter for the deprecated properties. Can be removed once the properties are removed."""
+        """
+        Test Getter/Setter for the deprecated properties.
+        Can be removed once the properties are removed.
+        """
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.auxiliary_tester(
-                "Quantum Instance", "quantum_instance", (self.quantum_instance, self.quantum_instance_2)
+                "Quantum Instance",
+                "quantum_instance",
+                (self.quantum_instance, self.quantum_instance_2),
             )
             self.auxiliary_tester("Expectation", "expectation", (None, AerPauliExpectation()))
             self.auxiliary_tester("Include Custom", "include_custom", (False, True))
@@ -120,7 +126,7 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
             self.auxiliary_tester_isinstance("Optimizer", "optimizer", (SLSQP, COBYLA))
 
     def test_setters_getters(self):
-        """Test Getter/Setter. These tests are using the getter/setter from the """
+        """Test Getter/Setter. These tests are using the getter/setter from the"""
 
         with self.subTest("Initial Point"):
             self.assertTrue(isinstance(self._vqe_ucc_factory.initial_point, HFInitialPoint))
