@@ -38,7 +38,7 @@ class BaseProblem(ABC):
         self,
         driver: BaseDriver,
         transformers: Optional[List[BaseTransformer]] = None,
-        main_property_name: Optional[str] = None,
+        main_property_name: str = "",
     ):
         """
 
