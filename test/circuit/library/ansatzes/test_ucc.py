@@ -27,7 +27,6 @@ from qiskit_nature.operators.second_quantization import FermionicOp
 def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
     """Assertion utility."""
 
-    # excitation_ops = ansatz.excitation_ops()[::2] if include_imaginary else ansatz.excitation_ops()
     excitation_ops = ansatz.excitation_ops()
     test_case.assertEqual(len(excitation_ops), len(expected_ops))
     for op, exp in zip(excitation_ops, expected_ops):
