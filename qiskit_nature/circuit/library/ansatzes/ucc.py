@@ -173,8 +173,7 @@ class UCC(EvolvedOperatorAnsatz):
                 generation method (i.e. not providing a `Callable` to `excitations`), these will
                 always be constructed with respect to a `HartreeFock` reference state.
             include_imaginary: boolean flag which when set to 'True' expands the ansatz to include
-                imaginary parts using twice the number of free parameters. Additional operators
-                are appended by the '_build_fermionic_excitation_ops()'
+                imaginary parts using twice the number of free parameters.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
