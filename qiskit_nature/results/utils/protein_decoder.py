@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """An auxiliary class that gets the turns in the main and side chain of a molecule
- in ProteinFoldingResult """
+ in ProteinFoldingResult."""
 from typing import List, Tuple, Optional
 
 
@@ -87,7 +87,7 @@ class ProteinDecoder:
         None corresponds to no side chain from that main bead.
 
         Returns:
-            A list with either an number associated to a turn from
+            A list with either a number associated to a turn from
             the main bead or None if there is no side bead.
 
         """

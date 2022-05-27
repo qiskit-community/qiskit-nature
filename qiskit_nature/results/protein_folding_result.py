@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """The protein folding result."""
 from __future__ import annotations
-import numpy as np
 
 
 import qiskit_nature.problems.sampling.protein_folding.protein_folding_problem as pfp
@@ -113,7 +112,7 @@ class ProteinFoldingResult(EigenstateResult):
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
     ) -> None:
         """
-        Plots the molecule in 3D
+        Plots the molecule in 3D.
         Args:
             title: The title of the plot
             ticks: Boolean for showing ticks in the graphic

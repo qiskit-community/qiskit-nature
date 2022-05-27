@@ -12,6 +12,8 @@
 """Tests ProteinFoldingResult."""
 from typing import List
 
+from ddt import ddt, data, unpack
+
 from test import QiskitNatureTestCase
 from qiskit.utils import algorithm_globals
 from qiskit_nature.problems.sampling.protein_folding.protein_folding_problem import (
@@ -55,85 +57,75 @@ def create_protein_folding_result(
     return ProteinFoldingResult(protein_folding_problem, best_sequence)
 
 
+@ddt
 class TestProteinFoldingResult(QiskitNatureTestCase):
     """Tests ProteinFoldingResult."""
 
-    test_result_1 = create_protein_folding_result("APRLRFY", [""] * 7, "101100011")
-    test_result_2 = create_protein_folding_result("APRLR", ["", "", "F", "Y", ""], "0011011")
-    test_result_3 = create_protein_folding_result("APRLR", ["", "F", "", "Y", ""], "10110110")
-
-    def test_best_sequence(self):
-        """Tests if the best sequence obtained is the correct one and if
-        it gets passed to the constructor correctly."""
-        # Tests for case 1
-        self.assertEqual(self.test_result_1.best_sequence, "101100011")
-        # Tests for case 2
-        self.assertEqual(self.test_result_2.best_sequence, "0011011")
-        # Tests for case 3
-        self.assertEqual(self.test_result_3.best_sequence, "10110110")
-
-    def test_binary_vector(self):
-        """Tests if the result binary vector is expanded correctly"""
-        # Test for case 1
-        self.assertEqual(
-            self.test_result_1.get_result_binary_vector(),
+    @unpack
+    @data(
+        (
+            "APRLRFY",
+            [""] * 7,
+            "101100011",
             "1******0*************************************"
             + "*********************************************"
             + "*******************************************110001*1****",
-        )
-        # Test for case 2
-        self.assertEqual(self.test_result_2.get_result_binary_vector(), "0011****01*1****")
-        # Test for case 3
-        self.assertEqual(self.test_result_3.get_result_binary_vector(), "10**11**0110****")
-
-    def test_side_chain_hot_vector(self):
-        """Tests if the hot vector from the side chain is correct"""
-        # Test for case 1
-        self.assertEqual(
-            self.test_result_1._side_chain_hot_vector,
             [False, False, False, False, False, False, False],
-        )
-        # Test for case 2
-        self.assertEqual(
-            self.test_result_2._side_chain_hot_vector, [False, False, True, True, False]
-        )
-        # Test for case 3
-        self.assertEqual(
-            self.test_result_3._side_chain_hot_vector, [False, True, False, True, False]
+            (167, [4, 6, 7, 8, 9, 10, 11, 137, 144]),
+            7,
+        ),
+        (
+            "APRLR",
+            ["", "", "F", "Y", ""],
+            "0011011",
+            "0011****01*1****",
+            [False, False, True, True, False],
+            (79, [4, 6, 7, 12, 13, 14, 15]),
+            5,
+        ),
+        (
+            "APRLR",
+            ["", "F", "", "Y", ""],
+            "10110110",
+            "10**11**0110****",
+            [False, True, False, True, False],
+            (79, [4, 5, 6, 7, 10, 11, 14, 15]),
+            5,
+        ),
+    )
+    def test_result(
+        self,
+        main_chain,
+        side_chain,
+        best_sequence,
+        binary_vector,
+        hot_vector,
+        unused_qubits_compact,
+        main_chain_length,
+    ):
+        result = create_protein_folding_result(
+            main_chain=main_chain, side_chains=side_chain, best_sequence=best_sequence
         )
 
-    def test_unused_qubits(self):
-        """Tests the list of unused qubits"""
-        # Test for case 1
-        max_index_1, used_qubits_1 = 167, [4, 6, 7, 8, 9, 10, 11, 137, 144]
-        expected_unused_qubits_1 = [n for n in range(max_index_1 + 1) if n not in used_qubits_1]
-        self.assertEqual(
-            self.test_result_1._unused_qubits,
-            expected_unused_qubits_1,
-        )
+        with self.subTest("Best Sequence"):
+            self.assertEqual(result.best_sequence, best_sequence)
 
-        # Test for case 2
-        max_index_2, used_qubits_2 = 79, [4, 6, 7, 12, 13, 14, 15]
-        expected_unused_qubits_2 = [n for n in range(max_index_2 + 1) if n not in used_qubits_2]
-        self.assertEqual(
-            self.test_result_2._unused_qubits,
-            expected_unused_qubits_2,
-        )
+        with self.subTest("Binary Vector"):
+            self.assertEqual(result.get_result_binary_vector(), binary_vector)
 
-        # Test for case 3
-        max_index_3, used_qubits_3 = 79, [4, 5, 6, 7, 10, 11, 14, 15]
-        expected_unused_qubits_3 = [n for n in range(max_index_3 + 1) if n not in used_qubits_3]
+        with self.subTest("Hot Vector"):
+            self.assertEqual(
+                result._side_chain_hot_vector,
+                hot_vector,
+            )
 
-        self.assertEqual(
-            self.test_result_3._unused_qubits,
-            expected_unused_qubits_3,
-        )
+        with self.subTest("Unused Qubits"):
+            max_index, used_qubits = unused_qubits_compact
+            expected_unused_qubits = [n for n in range(max_index + 1) if n not in used_qubits]
+            self.assertEqual(
+                result._unused_qubits,
+                expected_unused_qubits,
+            )
 
-    def test_main_chain_length(self):
-        """Tests the main chain length"""
-        # Test for case 1
-        self.assertEqual(self.test_result_1._main_chain_length, 7)
-        # Test for case 2
-        self.assertEqual(self.test_result_2._main_chain_length, 5)
-        # Test for case 3
-        self.assertEqual(self.test_result_2._main_chain_length, 5)
+        with self.subTest("Main Chain Length"):
+            self.assertEqual(result._main_chain_length, main_chain_length)

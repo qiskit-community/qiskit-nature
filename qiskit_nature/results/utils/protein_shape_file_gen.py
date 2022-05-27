@@ -33,9 +33,9 @@ class ProteinShapeFileGen:
     ) -> None:
         """
         Args:
-            main_chain_turns : a list of integers encoding the turns of the main chain.
-            side_chain_turns : a list of integers and None encoding the turns of the main chain
-                               or None.
+            main_chain_turns: a list of integers encoding the turns of the main chain.
+            side_chain_turns: a list of integers and None encoding the turns of the main chain
+                              or None.
             peptide: the peptide we are getting the positions for.
 
         """
@@ -107,7 +107,7 @@ class ProteinShapeFileGen:
     def save_xyz_file(self, name: str, path: str = "") -> None:
         """
         Saves the data as an .xyz file.
-        For more information about .xyz files: https://en.wikipedia.org/wiki/XYZ_file_format
+        For more information about .xyz files see: https://en.wikipedia.org/wiki/XYZ_file_format
         Args:
             name: the file will be called name.xyz.
             path: path under which the file will be saved.
@@ -124,7 +124,7 @@ class ProteinShapeFileGen:
 
     def get_xyz_file(self) -> np.ndarray:
         """
-        Creates a .xyz file and saves it in the current directory.
+        Returns an array with the symbols of the atoms and their cartesian coordinates.
         """
         main_data = np.column_stack([self._main_chain_aminoacid_list, self.main_positions])
 

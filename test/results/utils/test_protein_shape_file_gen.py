@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 """Tests ProteinShapeFileGen."""
 from test import QiskitNatureTestCase
-from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
-from qiskit_nature.results.protein_folding_tools.protein_shape_file_gen import ProteinShapeFileGen
 import numpy as np
+from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
+from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
 
 
 class TestProteinShapeFileGen(QiskitNatureTestCase):
