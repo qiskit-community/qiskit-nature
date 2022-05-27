@@ -97,7 +97,7 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def save_xyz_file(self, name: str = None, path: str = "") -> np.ndarray:
+    def save_xyz_file(self, name: str = None, path: str = "") -> None:
         """
         Generates a .xyz file.
         Args:
