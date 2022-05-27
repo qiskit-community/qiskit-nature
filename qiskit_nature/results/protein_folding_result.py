@@ -17,9 +17,9 @@ import numpy as np
 import qiskit_nature.problems.sampling.protein_folding.protein_folding_problem as pfp
 
 from qiskit_nature.results import EigenstateResult
-from .protein_folding_tools.protein_decoder import ProteinDecoder
-from .protein_folding_tools.protein_shape_file_gen import ProteinShapeFileGen
-from .protein_folding_tools.protein_plotter import ProteinPlotter
+from .utils.protein_decoder import ProteinDecoder
+from .utils.protein_shape_file_gen import ProteinShapeFileGen
+from .utils.protein_plotter import ProteinPlotter
 
 
 class ProteinFoldingResult(EigenstateResult):
@@ -63,14 +63,13 @@ class ProteinFoldingResult(EigenstateResult):
 
     @property
     def protein_decoder(self) -> ProteinDecoder:
-        """Returns a ProteinDecoder.
+        """Returns the ProteinDecoder of the result.
         This class will interpret the result bitstring and return the encoded information."""
         return self._protein_decoder
 
     @property
     def protein_shape_file_gen(self) -> ProteinShapeFileGen:
-        """Returns a ProteinShapeFileGen. This class will take the encoded turns and
-        generate the position of every bead in the main and side chains."""
+        """Returns the ProteinShapeFileGen of the result."""
         return self._protein_shape_file_gen
 
     @property
