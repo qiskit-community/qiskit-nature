@@ -34,7 +34,6 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 )
 from qiskit_nature.deprecation import deprecate_property, deprecate_positional_arguments
 
-from ...initial_points import InitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 from ...initial_points import InitialPoint, VSCFInitialPoint
 
