@@ -400,6 +400,38 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         self.assertDriverResult(driver_result_reduced, expected)
 
+    def test_no_deep_copy(self):
+        """Test that objects are not being deeply copied.
+
+        This is a regression test against the fix applied by
+        https://github.com/Qiskit/qiskit-nature/pull/659
+        """
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path(
+                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+            )
+        )
+        driver_result = driver.run()
+
+        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
+        driver_result_reduced = trafo.transform(driver_result)
+
+        active_transform = np.asarray(
+            [
+                [0.32774803333032304, 0.12166492852424596],
+                [0.27055282555225113, 1.7276386116201712],
+                [0.32774803333032265, -0.12166492852424832],
+                [0.2705528255522547, -1.727638611620168],
+            ]
+        )
+
+        self.assertTrue(
+            np.allclose(
+                driver_result_reduced.get_property("ElectronicBasisTransform").coeff_alpha,
+                active_transform,
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

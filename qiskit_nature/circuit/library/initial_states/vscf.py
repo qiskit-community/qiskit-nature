@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 
 """Initial state for vibrational modes."""
 
-from typing import List, Optional
+from __future__ import annotations
 
 import logging
 
@@ -40,8 +40,8 @@ class VSCF(QuantumCircuit):
 
     def __init__(
         self,
-        num_modals: List[int],
-        qubit_converter: Optional[QubitConverter] = None,
+        num_modals: list[int],
+        qubit_converter: QubitConverter | None = None,
     ) -> None:
         """
         Args:
@@ -80,7 +80,7 @@ class VSCF(QuantumCircuit):
                 self.x(i)
 
 
-def vscf_bitstring(num_modals: List[int]) -> List[bool]:
+def vscf_bitstring(num_modals: list[int]) -> list[bool]:
     """Compute the bitstring representing the VSCF initial state based on the modals per mode.
 
     Args:
