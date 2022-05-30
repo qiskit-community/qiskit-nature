@@ -38,13 +38,14 @@ class BaseProblem(ABC):
         self,
         driver: BaseDriver,
         transformers: Optional[List[BaseTransformer]] = None,
+        main_property_name: str = "",
     ):
         """
 
         Args:
             driver: A driver encoding the molecule information.
             transformers: A list of transformations to be applied to the driver result.
-
+            main_property_name: A main property name for the problem
         """
 
         self.driver = driver
@@ -56,7 +57,7 @@ class BaseProblem(ABC):
         self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
         self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
 
-        self._main_property_name: str = ""
+        self._main_property_name: str = main_property_name
 
     @property  # type: ignore[misc]
     @deprecate_property(
