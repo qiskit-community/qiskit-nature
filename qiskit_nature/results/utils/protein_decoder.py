@@ -66,7 +66,7 @@ class ProteinDecoder:
                 A list of integers representing the sequence of turns on the molecule
 
         Notes:
-                The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00)
+                The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00).
                 If the second bead doesn't have a side chain the 6th bit
                 can be set to 1 without loss of generality.
                 In that case index (5) will belong to the list of unused qubits.
