@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests ProteinDecoder."""
-from ddt import ddt, data, unpack
 from test import QiskitNatureTestCase
+from ddt import ddt, data, unpack
 from qiskit_nature.results.utils.protein_decoder import ProteinDecoder
 
 

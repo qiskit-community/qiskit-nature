@@ -11,10 +11,9 @@
 # that they have been altered from the originals.
 """Tests ProteinFoldingResult."""
 from typing import List
-
+from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
 
-from test import QiskitNatureTestCase
 from qiskit.utils import algorithm_globals
 from qiskit_nature.problems.sampling.protein_folding.protein_folding_problem import (
     ProteinFoldingProblem,
@@ -103,6 +102,7 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
         unused_qubits_compact,
         main_chain_length,
     ):
+        """Tests if ProteinFoldingResult is initialized properly and its attributes are properly set."""
         result = create_protein_folding_result(
             main_chain=main_chain, side_chains=side_chain, best_sequence=best_sequence
         )
