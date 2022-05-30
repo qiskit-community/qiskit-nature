@@ -34,9 +34,8 @@ class LatticeModelProblem(BaseProblem):
         Args:
             lattice_model: A lattice model class to create second quantized operators.
         """
-        super().__init__()
+        super().__init__(main_property_name="LatticeEnergy")
         self._lattice_model = lattice_model
-        self._main_property_name = "LatticeEnergy"
 
     def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators created based on the lattice models.
