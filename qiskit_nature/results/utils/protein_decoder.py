@@ -64,7 +64,7 @@ corresponding indices of the main chain.
         Returns the list of turns for the molecule corresponding to best_sequence.
         The first element of the list corresponds to the turn of the second aminoacid in the peptide.
         Returns:
-                A list of integers representing the sequence of turns on the molecule
+                A list of integers representing the sequence of turns of the molecule.
 
         Notes:
                 The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00).
