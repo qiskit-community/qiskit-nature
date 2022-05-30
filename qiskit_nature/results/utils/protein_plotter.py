@@ -17,23 +17,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 import qiskit_nature.optionals as _optionals
 
-import qiskit_nature.results.protein_folding_result as pfr
+from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
+
 
 @_optionals.HAS_MATPLOTLIB.require_in_instance
 class ProteinPlotter:
     """Plotter class for ProteinFoldingResult."""
 
-    def __init__(self, protein_folding_result: pfr.ProteinFoldingResult) -> None:
+    def __init__(self, shape_gen: ProteinShapeFileGen) -> None:
         """
         Args:
             protein_folding_result: The protein folding result to be plotted
         """
 
-        self._protein_folding_result = protein_folding_result
+        self._shape_gen = shape_gen
         # pylint: disable=unbalanced-tuple-unpacking
-        (self._x_main, self._y_main, self._z_main,) = np.split(
-            self._protein_folding_result.protein_shape_file_gen.main_positions.transpose(), 3, 0
-        )
+        (
+            self._x_main,
+            self._y_main,
+            self._z_main,
+        ) = np.split(self._shape_gen.main_positions.transpose(), 3, 0)
         self._x_main, self._y_main, self._z_main = self._x_main[0], self._y_main[0], self._z_main[0]
 
         self._fig = plt.figure()
@@ -44,9 +47,7 @@ class ProteinPlotter:
         Draws the main chain.
 
         """
-        for i, main_aminoacid in enumerate(
-            self._protein_folding_result.protein_shape_file_gen._main_chain_aminoacid_list
-        ):
+        for i, main_aminoacid in enumerate(self._shape_gen._main_chain_aminoacid_list):
             self._ax_graph.text(
                 self._x_main[i],
                 self._y_main[i],
@@ -66,10 +67,8 @@ class ProteinPlotter:
         """
         Draws the side chain.
         """
-        side_positions = self._protein_folding_result.protein_shape_file_gen.side_positions
-        side_aminoacids = (
-            self._protein_folding_result.protein_shape_file_gen._main_chain_aminoacid_list
-        )
+        side_positions = self._shape_gen.side_positions
+        side_aminoacids = self._shape_gen._main_chain_aminoacid_list
         for i, side_chain in enumerate(side_positions):
             if side_chain is not None:
                 x_side, y_side, z_side = side_chain

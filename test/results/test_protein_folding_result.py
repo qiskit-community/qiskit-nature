@@ -53,7 +53,11 @@ def create_protein_folding_result(
     protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
     protein_folding_problem.qubit_op()
 
-    return ProteinFoldingResult(protein_folding_problem, best_sequence)
+    return ProteinFoldingResult(
+        unused_qubits=protein_folding_problem.unused_qubits,
+        peptide=protein_folding_problem.peptide,
+        best_sequence=best_sequence,
+    )
 
 
 @ddt

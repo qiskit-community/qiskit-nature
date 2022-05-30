@@ -17,8 +17,7 @@ from typing import Union, List
 from qiskit.opflow import PauliSumOp, PauliOp
 from qiskit.algorithms import MinimumEigensolverResult
 
-import qiskit_nature.results.protein_folding_result as pfr
-
+from qiskit_nature.results.protein_folding_result import ProteinFoldingResult
 from .peptide.peptide import Peptide
 from .interactions.interaction import Interaction
 from .penalty_parameters import PenaltyParameters
@@ -91,13 +90,15 @@ class ProteinFoldingProblem(SamplingProblem):
         qubit_operator = self._qubit_op_builder._build_qubit_op()
         return qubit_operator
 
-    def interpret(self, raw_result: MinimumEigensolverResult) -> pfr.ProteinFoldingResult:
+    def interpret(self, raw_result: MinimumEigensolverResult) -> ProteinFoldingResult:
         """
         Returns a ProteinFoldingResult object that will allow us to interpret the result obtained.
         For now we are only interested in the sequence with the biggest amplitude from the eigenstate.
         """
         best_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
-        return pfr.ProteinFoldingResult(self, best_sequence)
+        return ProteinFoldingResult(
+            unused_qubits=self.unused_qubits, peptide=self.peptide, best_sequence=best_sequence
+        )
 
     @property
     def unused_qubits(self) -> List[int]:

@@ -92,8 +92,6 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
             ),
         ),
     )
-
-
     def test_shape(self, filegen, side_positions, main_positions, xyz):
         """Tests if ProteinShapeFileGen is properly initialized and its attributes are properly set."""
         with self.subTest("Side Positions"):

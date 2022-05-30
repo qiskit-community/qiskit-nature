@@ -10,11 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """The protein folding result."""
-from __future__ import annotations
-
-
-import qiskit_nature.problems.sampling.protein_folding.protein_folding_problem as pfp
-
+from typing import List
+from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results import EigenstateResult
 from .utils.protein_decoder import ProteinDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
@@ -28,25 +25,25 @@ class ProteinFoldingResult(EigenstateResult):
 
     def __init__(
         self,
-        protein_folding_problem: pfp.ProteinFoldingProblem,
+        unused_qubits: List[int],
+        peptide: Peptide,
         best_sequence: str,
     ) -> None:
         """
         Args:
-            protein_folding_problem: The protein folding problem that led to the result.
+            unused_qubits: The list of indices for qubits in the original problem formulation that were
+            removed during compression.
+            peptide: The peptide defining the protein subject to the folding problem.
             best_sequence: The best sequence in the result eigenstate.
 
         """
         super().__init__()
-        self._protein_folding_problem = protein_folding_problem
+
         self._best_sequence = best_sequence
-        self._unused_qubits = self._protein_folding_problem.unused_qubits
-        self._main_chain_length = len(
-            self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence
-        )
-        self._side_chain_hot_vector = (
-            self._protein_folding_problem.peptide.get_side_chain_hot_vector()
-        )
+        self._unused_qubits = unused_qubits
+        self._peptide = peptide
+        self._main_chain_length = len(self._peptide.get_main_chain.main_chain_residue_sequence)
+        self._side_chain_hot_vector = self._peptide.get_side_chain_hot_vector()
 
         self._protein_decoder = ProteinDecoder(
             best_sequence=self._best_sequence,
@@ -57,7 +54,7 @@ class ProteinFoldingResult(EigenstateResult):
         self._protein_shape_file_gen = ProteinShapeFileGen(
             self.protein_decoder.main_turns,
             self.protein_decoder.side_turns,
-            self._protein_folding_problem.peptide,
+            self._peptide,
         )
 
     @property
@@ -103,9 +100,7 @@ class ProteinFoldingResult(EigenstateResult):
             path: Path where the file will be generated.
         """
         if name is None:
-            name = str(
-                self._protein_folding_problem.peptide.get_main_chain.main_chain_residue_sequence
-            )
+            name = str(self._peptide.get_main_chain.main_chain_residue_sequence)
         self.protein_shape_file_gen.save_xyz_file(name=name, path=path)
 
     def plot_folded_protein(
@@ -119,4 +114,4 @@ class ProteinFoldingResult(EigenstateResult):
             grid: Boolean for showing the grid in the graphic
 
         """
-        ProteinPlotter(self).plot(title=title, ticks=ticks, grid=grid)
+        ProteinPlotter(self.protein_shape_file_gen).plot(title=title, ticks=ticks, grid=grid)
