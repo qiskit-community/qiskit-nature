@@ -16,6 +16,7 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
+from qiskit import transpile
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -124,15 +125,31 @@ class TestUCC(QiskitNatureTestCase):
         def custom_excitations(num_spin_orbitals, num_particles):
             return excitations
 
+        with self.assertRaises(QiskitNatureError):
+            ansatz = UCC(
+                qubit_converter=converter,
+                num_particles=num_particles,
+                num_spin_orbitals=num_spin_orbitals,
+                excitations=custom_excitations,
+            )
+            ansatz.excitation_ops()
+
+    def test_transpile_no_parameters(self):
+        """Test transpilation without parameters"""
+
+        num_spin_orbitals = 8
+        num_particles = (2, 2)
+        qubit_converter = QubitConverter(mapper=JordanWignerMapper())
+
         ansatz = UCC(
-            qubit_converter=converter,
-            num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
-            excitations=custom_excitations,
+            num_particles=num_particles,
+            qubit_converter=qubit_converter,
+            excitations="s",
         )
 
-        with self.assertRaises(QiskitNatureError):
-            ansatz.excitation_ops()
+        ansatz = transpile(ansatz, optimization_level=3)
+        self.assertEqual(ansatz.num_qubits, 8)
 
     def test_build_ucc(self):
         """Test building UCC"""
@@ -144,6 +161,7 @@ class TestUCC(QiskitNatureTestCase):
             self.assertIsNone(ucc.excitations)
             self.assertIsNone(ucc.qubit_converter)
             self.assertIsNone(ucc.operators)
+            self.assertIsNone(ucc.excitation_list)
             self.assertEqual(ucc.num_qubits, 0)
             with self.assertRaises(ValueError):
                 _ = ucc.data
