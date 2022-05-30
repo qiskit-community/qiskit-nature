@@ -297,7 +297,16 @@ class UCC(EvolvedOperatorAnsatz):
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
                 operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
                 valid_operators, valid_excitations = [], []
-                for op, ex in zip(operators, self._excitation_list):
+
+                if self._include_imaginary:
+                    # Duplicate each excitation to account for the real and imaginary parts.
+                    excitations = []
+                    for ex in self._excitation_list:
+                        excitations.extend([ex, ex])
+                else:
+                    excitations = self._excitation_list
+
+                for op, ex in zip(operators, excitations):
                     if op is not None:
                         valid_operators.append(op)
                         valid_excitations.append(ex)
