@@ -27,7 +27,8 @@ class ProteinDecoder:
         """
         Args:
             best_sequence: Will be the sequence decoded.
-            side_chain_hot_vector: boolean list with the position of the side chains
+            side_chain_hot_vector: A list of booleans that indicates the presence of side chains on 
+corresponding indices of the main chain.
             fifth_bit: True if the fifth bit has defaulted to 1.
         """
         self._best_sequence = best_sequence
