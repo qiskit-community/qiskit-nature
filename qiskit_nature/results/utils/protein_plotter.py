@@ -15,10 +15,11 @@
 from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
+import qiskit_nature.optionals as _optionals
 
 import qiskit_nature.results.protein_folding_result as pfr
 
-
+@_optionals.HAS_MATPLOTLIB.require_in_instance
 class ProteinPlotter:
     """Plotter class for ProteinFoldingResult."""
 
