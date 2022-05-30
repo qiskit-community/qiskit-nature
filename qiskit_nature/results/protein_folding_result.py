@@ -109,9 +109,9 @@ class ProteinFoldingResult(EigenstateResult):
         """
         Plots the molecule in 3D.
         Args:
-            title: The title of the plot
-            ticks: Boolean for showing ticks in the graphic
-            grid: Boolean for showing the grid in the graphic
+            title: The title of the plot.
+            ticks: Boolean for showing ticks in the graphic.
+            grid: Boolean for showing the grid in the graphic.
 
         """
         ProteinPlotter(self.protein_shape_file_gen).plot(title=title, ticks=ticks, grid=grid)
