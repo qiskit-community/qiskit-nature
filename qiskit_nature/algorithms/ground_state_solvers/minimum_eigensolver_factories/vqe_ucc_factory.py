@@ -42,17 +42,30 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """A factory to construct a VQE minimum eigensolver with UCCSD ansatz wavefunction.
+    """A factory to construct a :class:`VQE` minimum eigensolver with :class:`UCCSD` ansatz wavefunction.
 
-    Note: get_solver will overwrite any value that we directly set onto the vqe for both
-    the ansatz and the initial point. For example:
+    Note: Changing the ansatz of the minimum_eigensolver of the factory won't affect
+        the ansatz of new solvers produced by the factory. On top of that the default
+        type for :class:`VQE` is not the same as the factory.
     .. code-block:: python
 
         factory = VQEUCCFactory()
-        factory.minimum_eigensolver.ansatz = UCC(excitations="d")
-        vqe = factory.get_solver()
-        print(type(vqe.ansatz))  # UCCSD
+        print(type(factory.minimum_eigensolver.ansatz)) # RealAmplitudes (by default)
+        factory.minimum_eigensolver.ansatz = UCC()
+        print(type(factory.minimum_eigensolver.ansatz)) # UCC
 
+        vqe = factory.get_solver(problem,qubit_converter)
+        print(type(vqe.ansatz))  # UCCSD (and not UCC nor RealAmplitudes)
+
+    If instead one wants to change the ansatz of the factory:
+
+    ..code-block:: python
+        factory = VQEUCCFactory()
+        vqe1 = factory.get_solver(problem,qubit_converter)
+        print(type(vqe1.ansatz))    #UCCSD (default)
+        factory.ansatz = UCC()
+        vqe2 = factory.get_solver(problem,qubit_converter)
+        print(type(vqe2.ansatz))    #UCC
     """
 
     @deprecate_positional_arguments(
