@@ -22,41 +22,42 @@ class TestProteinDecoder(QiskitNatureTestCase):
     @unpack
     @data(
         (
-            ProteinDecoder(
-                best_sequence="101100011",
-                side_chain_hot_vector=[False, False, False, False, False, False, False],
-                fifth_bit=True,
-            ),
+            "101100011",
+            [False, False, False, False, False, False, False],
+            True,
             (7, 0),
             [1, 0, 3, 2, 0, 3],
             [None, None, None, None, None, None, None],
         ),
         (
-            ProteinDecoder(
-                best_sequence="0011011",
-                side_chain_hot_vector=[False, False, True, True, False],
-                fifth_bit=True,
-            ),
+            "0011011",
+            [False, False, True, True, False],
+            True,
             (3, 4),
             [1, 0, 3, 2],
             [None, None, 3, 0, None],
         ),
         (
-            ProteinDecoder(
-                best_sequence="10110110",
-                side_chain_hot_vector=[False, True, False, True, False],
-                fifth_bit=False,
-            ),
+            "10110110",
+            [False, True, False, True, False],
+            False,
             (4, 4),
             [1, 0, 1, 2],
             [None, 3, None, 1, None],
         ),
     )
-    def test_decoder(self, decoder, split, main_turns, side_turns):
+    def test_decoder(
+        self, best_sequence, side_chain_hot_vector, fifth_bit, split, main_turns, side_turns
+    ):
         """
         Tests if the main and side turns are generated correctly and if the separation
         between the bits encoding side turns and main turns is correct.
         """
+        decoder = ProteinDecoder(
+            best_sequence=best_sequence,
+            side_chain_hot_vector=side_chain_hot_vector,
+            fifth_bit=fifth_bit,
+        )
         with self.subTest("Split Bitstring"):
             self.assertEqual(decoder._split_bitstring(), split)
         with self.subTest("Main Turns"):

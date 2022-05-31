@@ -25,15 +25,15 @@ class ProteinFoldingResult(EigenstateResult):
 
     def __init__(
         self,
-        unused_qubits: List[int],
         peptide: Peptide,
+        unused_qubits: List[int],
         best_sequence: str,
     ) -> None:
         """
         Args:
+            peptide: The peptide defining the protein subject to the folding problem.
             unused_qubits: The list of indices for qubits in the original problem formulation that were
             removed during compression.
-            peptide: The peptide defining the protein subject to the folding problem.
             best_sequence: The best sequence in the result eigenstate.
 
         """
