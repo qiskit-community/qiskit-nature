@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """The protein folding result."""
-from typing import List
+from typing import List, Optional
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results import EigenstateResult
 from .utils.protein_decoder import ProteinDecoder
@@ -92,12 +92,14 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def save_xyz_file(self, name: str = None, path: str = "") -> None:
+    def save_xyz_file(self, name: Optional[str] = None, path: str = "") -> None:
         """
         Generates a .xyz file.
         Args:
-            name: Name of the file to be generated.
-            path: Path where the file will be generated.
+            name: Name of the file to be generated. If the name is None the
+            name of the file will be the letters of the aminoacids on the main_chain.
+            path: Path where the file will be generated. If left empty the file will
+            be saved in the working directory.
         """
         if name is None:
             name = str(self._peptide.get_main_chain.main_chain_residue_sequence)
