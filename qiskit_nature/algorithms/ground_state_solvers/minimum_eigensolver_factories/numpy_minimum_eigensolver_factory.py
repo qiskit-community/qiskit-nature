@@ -31,7 +31,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
     @deprecate_positional_arguments(
         version="0.4",
         func_name="NumPyMinimumEigensolver Constructor",
-        pre_positional_kw=["self", "filter_criterion", "use_default_filter_criterion"],
+        old_function_arguments=["self", "filter_criterion", "use_default_filter_criterion"],
         stack_level=2,
     )
     def __init__(

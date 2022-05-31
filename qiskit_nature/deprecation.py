@@ -231,26 +231,31 @@ def deprecate_arguments(
 def deprecate_positional_arguments(
     version: str,
     func_name: str,
-    pre_positional_kw: List[str],
+    old_function_arguments: List[str],
     additional_msg: Optional[str] = None,
     stack_level: int = 3,
 ) -> Callable:
     """Decorator to convert positional arguments into keyword arguments and warn upon use.
+    If we had a function(a,b,c,d) and we now want the user to pass b and d as kwargs we
+    would do the following.
     .. code-block:: python
+        def old_function(a,b,c,d):
+            return a+b+c+d
 
-        @deprecate_positional_arguments("0.1","function", (b, d))
+        @deprecate_positional_arguments("0.1","function", ["a","b","c","d"])
         def function(a, c, **kwargs):
             returns a + c + sum(kwargs.values())
 
         # The following two calls would be equivalent
         function(1, 2, 3, 4)  # Would raise deprecation warning for arguments b and d.
         function(a=1, b=2, c=3, d=4)  # Would not raise any warning.
+        function(1,3,b=2,d=4) #Would not raise any errors either.
 
     Args:
         version: Version to be used
         func_name: Name of the function where the deprecation takes place will be used to
         write the deprecation message.
-        pre_positional_kw: List of arguments of the function before the deprecation.
+        old_function_arguments: List of arguments of the function before the deprecation.
         additional_msg: any additional message
         stack_level: stack level
 
@@ -262,13 +267,13 @@ def deprecate_positional_arguments(
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
 
-            current_positional_kw = inspect.getfullargspec(func)[0]
+            new_function_arguments = inspect.getfullargspec(func)[0]
 
             for i, arg in enumerate(args):
-                kwargs[pre_positional_kw[i]] = arg
-                if pre_positional_kw[i] not in current_positional_kw:
+                kwargs[old_function_arguments[i]] = arg
+                if old_function_arguments[i] not in new_function_arguments:
                     msg = (
-                        f"{func_name}: {pre_positional_kw[i]} is no longer a positional argument "
+                        f"{func_name}: {old_function_arguments[i]} is no longer a positional argument "
                         f"as of version {version} and will be removed no sooner "
                         "than 3 months after the release. Instead use it as a keyword argument"
                     )

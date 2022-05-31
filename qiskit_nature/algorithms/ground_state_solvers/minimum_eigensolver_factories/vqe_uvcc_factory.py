@@ -55,7 +55,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     @deprecate_positional_arguments(
         version="0.4",
         func_name="VQEUVCCFactory Constructor",
-        pre_positional_kw=[
+        old_function_arguments=[
             "self",
             "quantum_instance",
             "optimizer",
