@@ -208,7 +208,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def ansatz(self, ansatz: Optional[UVCC]) -> None:
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
-        :class:`~.UCCSD` Ansatz."""
+        :class:`~.UVCCSD` Ansatz."""
         self._ansatz = ansatz
 
     @property
