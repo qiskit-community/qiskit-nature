@@ -38,7 +38,6 @@ class ProteinFoldingProblem(SamplingProblem):
         mj_interaction = MiyazawaJerniganInteraction()
         protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
         qubit_op = protein_folding_problem.qubit_op()
-
     """
 
     def __init__(
