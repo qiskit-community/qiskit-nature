@@ -25,7 +25,7 @@ class ProteinPlotter:
     def __init__(self, shape_gen: ProteinShapeFileGen) -> None:
         """
         Args:
-            protein_folding_result: The protein folding result to be plotted
+            shape_gen: :class:`ProteinShapeFileGen` with the shape to be plotted.
         """
 
         self._shape_gen = shape_gen
