@@ -120,7 +120,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
         self._initial_state = initial_state
         self.initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
-        self._factory_ansatz = ansatz
+        self._ansatz = ansatz
 
         self._vqe = VQE(**kwargs)
 
@@ -201,21 +201,17 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self.minimum_eigensolver.include_custom = include_custom
 
     @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
-    )
     def ansatz(self) -> Optional[UVCC]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the ansatz"""
-        return self._factory_ansatz
+        return self._ansatz
 
     @ansatz.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def ansatz(self, ansatz: Optional[UVCC]) -> None:
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
         :class:`~.UCCSD` Ansatz."""
-        self._factory_ansatz = ansatz
+        self._ansatz = ansatz
 
     @property
     def initial_state(self) -> Optional[QuantumCircuit]:
@@ -267,7 +263,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        ansatz = self._factory_ansatz
+        ansatz = self._ansatz
         if ansatz is None:
             ansatz = UVCCSD()
         ansatz.qubit_converter = qubit_converter
