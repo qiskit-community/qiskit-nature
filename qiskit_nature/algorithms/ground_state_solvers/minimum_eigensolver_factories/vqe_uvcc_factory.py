@@ -76,7 +76,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         initial_state: Optional[QuantumCircuit] = None,
         **kwargs,
     ) -> None:
-
         """
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
