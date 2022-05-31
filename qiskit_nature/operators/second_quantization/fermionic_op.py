@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 import re
-import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from itertools import product
@@ -241,7 +240,7 @@ class FermionicOp(SecondQuantizedOp):
                   tuple (label, coeff), or list [(label, coeff)].
             register_length: positive integer that represents the length of registers.
             display_format: If sparse, the label is represented sparsely during output.
-                            if dense, the label is represented densely during output. (default: dense)
+                            if dense, the label is represented densely during output. (default: sparse)
 
         Raises:
             ValueError: given data is invalid value.
@@ -599,7 +598,7 @@ class FermionicOp(SecondQuantizedOp):
         if atol is None:
             atol = self.atol
 
-        data = defaultdict(float)  # type: dict[tuple[tuple[str, int], ...], complex]
+        data = defaultdict(complex)  # type: dict[str, complex]
         for label, coeff in self._to_dense_label_data():
             data[label] += coeff
         terms = [
