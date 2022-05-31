@@ -44,7 +44,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
             use_default_filter_criterion: whether to use the transformation's default filter
             criterion if ``filter_criterion`` is ``None``.
             kwargs: keyword arguments passed to NumpyMinimumEigensolver to construct
-            self._minimum_eigensolver. Note that filter_criterion is now accessed through
+            the internal `MinimumEigensolver`. Note that filter_criterion is now accessed through
             NumpyMinimumEigensolver.
         """
         self._use_default_filter_criterion = use_default_filter_criterion
