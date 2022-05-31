@@ -11,8 +11,6 @@
 # that they have been altered from the originals.
 """An auxiliary class that plots aminoacids of a molecule
  in a ProteinFoldingResult."""
-
-from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 import qiskit_nature.optionals as _optionals
