@@ -30,7 +30,7 @@ class ProteinShapeDecoder:
             side_chain_hot_vector: A list of booleans that indicates the presence of side
                 chains on corresponding indices of the main chain.
             fifth_bit: True if the 5th bit has defaulted to 1. In case the second bead,
-            by symmetry, the shapes we get by changing the 5th bit are equivalent.
+                by symmetry, the shapes we get by changing the 5th bit are equivalent.
         """
         self._turns_sequence = turns_sequence
         self._side_chain_hot_vector = side_chain_hot_vector

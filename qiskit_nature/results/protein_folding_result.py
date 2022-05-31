@@ -33,7 +33,7 @@ class ProteinFoldingResult(EigenstateResult):
         Args:
             peptide: The peptide defining the protein subject to the folding problem.
             unused_qubits: The list of indices for qubits in the original problem formulation that were
-            removed during compression.
+                removed during compression.
             turns_sequence: The bit sequence encoding the turns of the shape of the protein.
 
         """
@@ -97,9 +97,9 @@ class ProteinFoldingResult(EigenstateResult):
         Generates a .xyz file.
         Args:
             name: Name of the file to be generated. If the name is ``None`` the
-            name of the file will be the letters of the aminoacids on the main_chain.
+                name of the file will be the letters of the aminoacids on the main_chain.
             path: Path where the file will be generated. If left empty the file will
-            be saved in the working directory.
+                be saved in the working directory.
         """
         if name is None:
             name = str(self._peptide.get_main_chain.main_chain_residue_sequence)
