@@ -247,18 +247,7 @@ class FermionicOp(SecondQuantizedOp):
             ValueError: given data is invalid value.
             TypeError: given data has invalid type.
         """
-        if display_format is None:
-            display_format = "dense"
-            if FermionicOp._display_format_warn:
-                FermionicOp._display_format_warn = False
-                warnings.warn(
-                    "The default value for `display_format` will be changed from 'dense' "
-                    "to 'sparse' in version 0.3.0. Once that happens, you must specify "
-                    "display_format='dense' directly.",
-                    stacklevel=2,
-                )
-
-        self.display_format = display_format
+        self.display_format = display_format or "sparse"
 
         self._data: list[tuple[tuple[tuple[str, int], ...], complex]]
 
@@ -611,7 +600,7 @@ class FermionicOp(SecondQuantizedOp):
             atol = self.atol
 
         data = defaultdict(float)  # type: dict[tuple[tuple[str, int], ...], complex]
-        for label, coeff in self._data:
+        for label, coeff in self._to_dense_label_data():
             data[label] += coeff
         terms = [
             (label, coeff) for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
