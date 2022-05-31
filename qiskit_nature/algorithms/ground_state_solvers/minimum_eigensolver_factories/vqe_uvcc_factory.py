@@ -232,7 +232,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """Sets the initial point of future VQEs produced by the factory."""
         self._initial_point = initial_point
 
-    @property # type: ignore
+    @property  # type: ignore
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
     )
