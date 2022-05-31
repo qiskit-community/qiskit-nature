@@ -13,7 +13,7 @@
 from typing import List, Optional
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results import EigenstateResult
-from .utils.protein_decoder import ProteinDecoder
+from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
 from .utils.protein_plotter import ProteinPlotter
 
@@ -45,27 +45,27 @@ class ProteinFoldingResult(EigenstateResult):
         self._main_chain_length = len(self._peptide.get_main_chain.main_chain_residue_sequence)
         self._side_chain_hot_vector = self._peptide.get_side_chain_hot_vector()
 
-        self._protein_decoder = ProteinDecoder(
+        self._protein_shape_decoder = ProteinShapeDecoder(
             turns_sequence=self._turns_sequence,
             side_chain_hot_vector=self._side_chain_hot_vector,
             fifth_bit=5 in self._unused_qubits[:6],
         )
 
         self._protein_shape_file_gen = ProteinShapeFileGen(
-            self.protein_decoder.main_turns,
-            self.protein_decoder.side_turns,
+            self.protein_shape_decoder.main_turns,
+            self.protein_shape_decoder.side_turns,
             self._peptide,
         )
 
     @property
-    def protein_decoder(self) -> ProteinDecoder:
-        """Returns the ProteinDecoder of the result.
+    def protein_shape_decoder(self) -> ProteinShapeDecoder:
+        """Returns the :class:`ProteinShapeDecoder` of the result.
         This class will interpret the result bitstring and return the encoded information."""
-        return self._protein_decoder
+        return self._protein_shape_decoder
 
     @property
     def protein_shape_file_gen(self) -> ProteinShapeFileGen:
-        """Returns the ProteinShapeFileGen of the result."""
+        """Returns the :class:`ProteinShapeFileGen` of the result."""
         return self._protein_shape_file_gen
 
     @property
@@ -74,8 +74,8 @@ class ProteinFoldingResult(EigenstateResult):
         return self._turns_sequence
 
     def get_result_binary_vector(self) -> str:
-        """Returns a string that encodes a solution of the ProteinFoldingProblem.
-        The ProteinFoldingProblem uses a compressed optimization problem that does not match the
+        """Returns a string that encodes a solution of the :class:`ProteinFoldingProblem`.
+        The :class:`ProteinFoldingProblem` uses a compressed optimization problem that does not match the
         number of qubits in the original objective function. This method calculates the original
         version of the solution vector. Bits that can take any value without changing the
         solution are denoted by '*'."""
@@ -96,7 +96,7 @@ class ProteinFoldingResult(EigenstateResult):
         """
         Generates a .xyz file.
         Args:
-            name: Name of the file to be generated. If the name is None the
+            name: Name of the file to be generated. If the name is ``None`` the
             name of the file will be the letters of the aminoacids on the main_chain.
             path: Path where the file will be generated. If left empty the file will
             be saved in the working directory.

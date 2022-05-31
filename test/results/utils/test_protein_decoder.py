@@ -9,15 +9,15 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Tests ProteinDecoder."""
+"""Tests ProteinShapeDecoder."""
 from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
-from qiskit_nature.results.utils.protein_decoder import ProteinDecoder
+from qiskit_nature.results.utils.protein_shape_decoder import ProteinShapeDecoder
 
 
 @ddt
-class TestProteinDecoder(QiskitNatureTestCase):
-    """Tests ProteinDecoder."""
+class TestProteinShapeDecoder(QiskitNatureTestCase):
+    """Tests ProteinShapeDecoder."""
 
     @unpack
     @data(
@@ -53,7 +53,7 @@ class TestProteinDecoder(QiskitNatureTestCase):
         Tests if the main and side turns are generated correctly and if the separation
         between the bits encoding side turns and main turns is correct.
         """
-        decoder = ProteinDecoder(
+        decoder = ProteinShapeDecoder(
             turns_sequence=turns_sequence,
             side_chain_hot_vector=side_chain_hot_vector,
             fifth_bit=fifth_bit,
@@ -67,7 +67,7 @@ class TestProteinDecoder(QiskitNatureTestCase):
 
     def test_bitstring2turns(self):
         """Tests the method transforming a bitstring to an array of turns."""
-        decoder = ProteinDecoder(
+        decoder = ProteinShapeDecoder(
             turns_sequence="101100011",
             side_chain_hot_vector=[False, False, False, False, False, False, False],
             fifth_bit=True,

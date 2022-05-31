@@ -1,16 +1,16 @@
 ---
 features:
   - |
-    Completed :class:'~qiskit_nature.results.protein_folding_result.ProteinFoldingResult' . 
+    Completed :class:'~qiskit_nature.results.protein_folding_result.ProteinFoldingResult' .
     The result of :class:'~qiskit_nature.problems.sampling.protein_folding.protein_folding_problem.ProteinFoldingProblem'
     is interpreted by this class and translates it into relevant information such as the turns defining the main and side chains
     of the protein, the positions of each aminoacid, as well as a plot of the molecular structure. It does so by using 3 new classes.
-    Added :class:'~qiskit_nature.results.protein_folding_result.protein_folding_tools.protein_decoder.ProteinDecoder'. This class takes a raw bitstring result
+    Added :class:'~qiskit_nature.results.protein_folding_result.protein_folding_tools.protein_shape_decoder.ProteinDecoder'. This class takes a raw bitstring result
     and decodes it to yield the turns defining the shape of the molecule.
     Added :class:'~qiskit_nature.results.protein_folding_result.protein_folding_tools.protein_xyz.ProteinXYZ'. This class converts the shape of the molecule
     into Cartesian coordinates for each aminoacid in the chain.
     Added :class:'~qiskit_nature.results.protein_folding_result.protein_folding_tools.protein_plotterr.ProteinPlotter'. This class creates a plot of the molecule.
-    
+
     .. code-block:: python
         result = protein_folding_problem.interpret()
         #Get xyz file

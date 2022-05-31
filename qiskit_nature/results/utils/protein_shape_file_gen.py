@@ -20,7 +20,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 class ProteinShapeFileGen:
     """This class handles the creation of cartesian coordinates for
     each aminoacid in a protein and generates a .xyz file.
-    It is used by the ProteinFoldingResult class.
+    It is used by :class:`ProteinFoldingResult`.
     """
 
     # Coordinates of the 4 edges of a tetrahedron centered at 0. The vectors are normalized.

@@ -10,13 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """An auxiliary class that gets the turns in the main and side chain of a molecule
- in ProteinFoldingResult."""
+ in :class:`ProteinFoldingResult`."""
 from typing import List, Tuple, Optional
 
 
-class ProteinDecoder:
+class ProteinShapeDecoder:
 
-    """This class handles the decoding of the compact solution in ProteinFoldingProblem
+    """This class handles the decoding of the compact solution in :class:`ProteinFoldingProblem`
     and returns the information encoded in the result about the turns
     associated to the main and side chains.
     """
@@ -25,18 +25,29 @@ class ProteinDecoder:
         self, turns_sequence: str, side_chain_hot_vector: List[bool], fifth_bit: bool
     ) -> None:
         """
-                Args:
-                    turns_sequence: Sequence to be decoded.
-                    side_chain_hot_vector: A list of booleans that indicates the presence of side chains on
-        corresponding indices of the main chain.
-                    fifth_bit: True if the fifth bit has defaulted to 1.
+        Args:
+            turns_sequence: Sequence to be decoded.
+            side_chain_hot_vector: A list of booleans that indicates the presence of side
+                chains on corresponding indices of the main chain.
+            fifth_bit: True if the 5th bit has defaulted to 1. In case the second bead,
+            by symmetry, the shapes we get by changing the 5th bit are equivalent.
         """
         self._turns_sequence = turns_sequence
         self._side_chain_hot_vector = side_chain_hot_vector
         self._fifth_bit = fifth_bit
         self._main_chain_length = len(side_chain_hot_vector)
-        self.main_turns = self._get_main_turns()
-        self.side_turns = self._get_side_turns()
+        self._main_turns = self._get_main_turns()
+        self._side_turns = self._get_side_turns()
+
+    @property
+    def main_turns(self):
+        """Returns the turns of the main chain."""
+        return self._main_turns
+
+    @property
+    def side_turns(self):
+        """Returns the turns of the side chain."""
+        return self._side_turns
 
     def _bitstring_to_turns(self, bitstring: str) -> List[int]:
         """
@@ -53,9 +64,17 @@ class ProteinDecoder:
         return [encoding[bitstring[2 * i : 2 * (i + 1)]] for i in range(length_turns)]
 
     def _split_bitstring(self) -> Tuple[int, int]:
-        """Returns the amount of bits in the compact solution corresponding
-        to each property they encode."""
+        """
+        Returns the amount of bits in the compact solution corresponding
+        to each property they encode.
+        """
+        # Let N be the length of the main chain. Usually it would have N-1 turns (each one encoded
+        # with 2 bits). By symmetry we can always set the firt 2 turns to an arbitrary value.
+        # Therefore we only need to encode N-3 turns. By symmetry as well if we don't have a side
+        # chain in the second beat we only need 1 bit to encode the third turn.
+        # The final formula is # = 2*(N-3) and we substract 1 if we don't have that secondary chain.
         n_qbits_encoding_main_turns = 2 * (self._main_chain_length - 3) - (self._fifth_bit)
+        # The side chains always use 2 qubits to be encoded.
         n_qbits_encoding_side_turns = 2 * sum(self._side_chain_hot_vector)
         return n_qbits_encoding_main_turns, n_qbits_encoding_side_turns
 
@@ -67,7 +86,7 @@ class ProteinDecoder:
                 A list of integers representing the sequence of turns of the molecule.
 
         Notes:
-                The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00).
+                The bitstring will always end in 0010 corresponding to turn1=(01) and turn2=(00).
                 If the second bead doesn't have a side chain the 6th bit
                 can be set to 1 without loss of generality.
                 In that case index (5) will belong to the list of unused qubits.
@@ -85,7 +104,7 @@ class ProteinDecoder:
     def _get_side_turns(self) -> List[Optional[int]]:
         """
         Returns the list of turns from the main bead corresponding to the side chains.
-        None corresponds to no side chain from that main bead.
+        ``None`` corresponds to no side chain from that main bead.
 
         Returns:
             A list with either a number associated to a turn from
