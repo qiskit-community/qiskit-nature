@@ -198,13 +198,13 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         setting for the ``expectation`` setting."""
         self.minimum_eigensolver.include_custom = include_custom
 
-    @property  # type: ignore
+    @property
     def ansatz(self) -> Optional[UVCC]:
         """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
         Getter of the ansatz"""
         return self._ansatz
 
-    @ansatz.setter  # type: ignore
+    @ansatz.setter
     def ansatz(self, ansatz: Optional[UVCC]) -> None:
         """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
         Setter of the ansatz. If ``None`` is passed, this factory will default to using the
@@ -232,7 +232,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """Sets the initial point of future VQEs produced by the factory."""
         self._initial_point = initial_point
 
-    @property
+    @property # type: ignore
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
     )
