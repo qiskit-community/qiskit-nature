@@ -110,7 +110,8 @@ class ProteinShapeFileGen:
         For more information about .xyz files see: https://en.wikipedia.org/wiki/XYZ_file_format
         Args:
             name: the file will be called name.xyz.
-            path: path under which the file will be saved.
+            path: path under which the file will be saved. If no path is specified the file will
+            be saved in the current working directory.
         """
         data = self.get_xyz_file()
         number_of_particles = data.shape[0]

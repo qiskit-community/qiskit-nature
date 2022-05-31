@@ -47,14 +47,14 @@ class TestProteinDecoder(QiskitNatureTestCase):
         ),
     )
     def test_decoder(
-        self, best_sequence, side_chain_hot_vector, fifth_bit, split, main_turns, side_turns
+        self, turns_sequence, side_chain_hot_vector, fifth_bit, split, main_turns, side_turns
     ):
         """
         Tests if the main and side turns are generated correctly and if the separation
         between the bits encoding side turns and main turns is correct.
         """
         decoder = ProteinDecoder(
-            best_sequence=best_sequence,
+            turns_sequence=turns_sequence,
             side_chain_hot_vector=side_chain_hot_vector,
             fifth_bit=fifth_bit,
         )
@@ -68,7 +68,7 @@ class TestProteinDecoder(QiskitNatureTestCase):
     def test_bitstring2turns(self):
         """Tests the method transforming a bitstring to an array of turns."""
         decoder = ProteinDecoder(
-            best_sequence="101100011",
+            turns_sequence="101100011",
             side_chain_hot_vector=[False, False, False, False, False, False, False],
             fifth_bit=True,
         )

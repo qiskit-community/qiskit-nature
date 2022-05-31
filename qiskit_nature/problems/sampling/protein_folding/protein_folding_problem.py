@@ -95,9 +95,9 @@ class ProteinFoldingProblem(SamplingProblem):
         Returns a ProteinFoldingResult object that will allow us to interpret the result obtained.
         For now we are only interested in the sequence with the biggest amplitude from the eigenstate.
         """
-        best_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
+        best_turns_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
         return ProteinFoldingResult(
-            unused_qubits=self.unused_qubits, peptide=self.peptide, best_sequence=best_sequence
+            unused_qubits=self.unused_qubits, peptide=self.peptide, turns_sequence=best_turns_sequence
         )
 
     @property

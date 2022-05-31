@@ -22,16 +22,16 @@ class ProteinDecoder:
     """
 
     def __init__(
-        self, best_sequence: str, side_chain_hot_vector: List[bool], fifth_bit: bool
+        self, turns_sequence: str, side_chain_hot_vector: List[bool], fifth_bit: bool
     ) -> None:
         """
                 Args:
-                    best_sequence: Will be the sequence decoded.
+                    turns_sequence: Sequence to be decoded.
                     side_chain_hot_vector: A list of booleans that indicates the presence of side chains on
         corresponding indices of the main chain.
                     fifth_bit: True if the fifth bit has defaulted to 1.
         """
-        self._best_sequence = best_sequence
+        self._turns_sequence = turns_sequence
         self._side_chain_hot_vector = side_chain_hot_vector
         self._fifth_bit = fifth_bit
         self._main_chain_length = len(side_chain_hot_vector)
@@ -40,10 +40,10 @@ class ProteinDecoder:
 
     def _bitstring_to_turns(self, bitstring: str) -> List[int]:
         """
-        Takes a bitstring encoding the turns of a chain and returns the turns as a list of int.
+        Takes a bitstring encoding the turns of a chain and returns the turns as a list of integers.
 
         Args:
-            bitstring: string containing the encoded information.
+            bitstring: string containing the encoded shape information.
         Returns:
             A list of integers decoding the bitstring.
         """
@@ -61,7 +61,7 @@ class ProteinDecoder:
 
     def _get_main_turns(self) -> List[int]:
         """
-        Returns the list of turns for the molecule corresponding to best_sequence.
+        Returns the list of turns for the molecule corresponding to its turn sequence.
         The first element of the list corresponds to the turn of the second aminoacid in the peptide.
         Returns:
                 A list of integers representing the sequence of turns of the molecule.
@@ -75,7 +75,7 @@ class ProteinDecoder:
                 if no side chain on second main bead or 2(N-3) otherwise.
         """
 
-        main_turns_bitstring = self._best_sequence[-self._split_bitstring()[0] :] + "0010"
+        main_turns_bitstring = self._turns_sequence[-self._split_bitstring()[0] :] + "0010"
 
         if self._fifth_bit:
             main_turns_bitstring = main_turns_bitstring[:-5] + "1" + main_turns_bitstring[-5:]
@@ -94,7 +94,7 @@ class ProteinDecoder:
         """
         n, m = self._split_bitstring()
 
-        side_turns_bitstring = self._best_sequence[-n - m : -n]
+        side_turns_bitstring = self._turns_sequence[-n - m : -n]
 
         side_turns = self._bitstring_to_turns(side_turns_bitstring)
 

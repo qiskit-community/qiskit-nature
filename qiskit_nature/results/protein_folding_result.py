@@ -27,26 +27,26 @@ class ProteinFoldingResult(EigenstateResult):
         self,
         peptide: Peptide,
         unused_qubits: List[int],
-        best_sequence: str,
+        turns_sequence: str,
     ) -> None:
         """
         Args:
             peptide: The peptide defining the protein subject to the folding problem.
             unused_qubits: The list of indices for qubits in the original problem formulation that were
             removed during compression.
-            best_sequence: The best sequence in the result eigenstate.
+            turns_sequence: The bit sequence encoding the turns of the shape of the protein.
 
         """
         super().__init__()
 
-        self._best_sequence = best_sequence
+        self._turns_sequence = turns_sequence
         self._unused_qubits = unused_qubits
         self._peptide = peptide
         self._main_chain_length = len(self._peptide.get_main_chain.main_chain_residue_sequence)
         self._side_chain_hot_vector = self._peptide.get_side_chain_hot_vector()
 
         self._protein_decoder = ProteinDecoder(
-            best_sequence=self._best_sequence,
+            turns_sequence=self._turns_sequence,
             side_chain_hot_vector=self._side_chain_hot_vector,
             fifth_bit=5 in self._unused_qubits[:6],
         )
@@ -69,9 +69,9 @@ class ProteinFoldingResult(EigenstateResult):
         return self._protein_shape_file_gen
 
     @property
-    def best_sequence(self) -> str:
+    def turns_sequence(self) -> str:
         """Returns the best sequence."""
-        return self._best_sequence
+        return self._turns_sequence
 
     def get_result_binary_vector(self) -> str:
         """Returns a string that encodes a solution of the ProteinFoldingProblem.
@@ -82,13 +82,13 @@ class ProteinFoldingResult(EigenstateResult):
         unused_qubits = self._unused_qubits
         result = []
         offset = 0
-        size = len(self._best_sequence)
+        size = len(self._turns_sequence)
         for i in range(size):
             index = size - 1 - i
             while i + offset in unused_qubits:
                 result.append("*")
                 offset += 1
-            result.append(self._best_sequence[index])
+            result.append(self._turns_sequence[index])
 
         return "".join(result[::-1])
 
