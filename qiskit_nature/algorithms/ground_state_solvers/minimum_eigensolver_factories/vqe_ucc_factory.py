@@ -121,7 +121,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
         self._initial_state = initial_state
         self.initial_point = initial_point if initial_point is not None else HFInitialPoint()
-        self._factory_ansatz = ansatz
+        self._ansatz = ansatz
 
         self._vqe = VQE(**kwargs)
 
@@ -167,7 +167,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @gradient.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the initial_point."""
+        """DEPRECATED. Use the constructor instead. Sets the gradient."""
         self.minimum_eigensolver.gradient = gradient
 
     @property  # type: ignore
@@ -176,13 +176,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     )
     def expectation(self) -> Optional[ExpectationBase]:
         """DEPRECATED. Use ``minimum_eigensolver`` and solver properties instead.
-        Returns gradient."""
+        Returns expectation."""
         return self.minimum_eigensolver.expectation
 
     @expectation.setter  # type: ignore
     @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the initial_point."""
+        """DEPRECATED. Use the constructor instead. Sets the expectation."""
         self.minimum_eigensolver.expectation = expectation
 
     @property  # type: ignore
@@ -204,12 +204,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @property
     def ansatz(self) -> Optional[UCC]:
         """Gets the ansatz of future VQEs produced by the factory."""
-        return self._factory_ansatz
+        return self._ansatz
 
     @ansatz.setter
     def ansatz(self, ansatz: Optional[UCC]) -> None:
         """Sets the ansatz of future VQEs produced by the factory."""
-        self._factory_ansatz = ansatz
+        self._ansatz = ansatz
 
     @property
     def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:

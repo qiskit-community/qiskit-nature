@@ -238,8 +238,8 @@ def deprecate_positional_arguments(
     """Decorator to convert positional arguments into keyword arguments and warn upon use.
     .. code-block:: python
 
-        @deprecate_positional_arguments("0.1", (b, d))
-        def function(a, b, c, d, **kwargs):
+        @deprecate_positional_arguments("0.1","function", (b, d))
+        def function(a, c, **kwargs):
             returns a + c + sum(kwargs.values())
 
         # The following two calls would be equivalent
