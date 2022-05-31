@@ -219,7 +219,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     @initial_state.setter
     def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
         """Setter of the initial state. If ``None`` is passed, this factory will default to using
-        the :class:`~.HartreeFock`."""
+        the :class:`~.VSCF`."""
         self._initial_state = initial_state
 
     @property
