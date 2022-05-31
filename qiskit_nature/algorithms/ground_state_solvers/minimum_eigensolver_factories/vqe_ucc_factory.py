@@ -49,7 +49,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     .. code-block:: python
 
         factory = VQEUCCFactory()
-        factory.minimum_eigensolver.ansatz = UCCD()
+        factory.minimum_eigensolver.ansatz = UCC(excitations="d")
         vqe = factory.get_solver()
         print(type(vqe.ansatz))  # UCCSD
 
