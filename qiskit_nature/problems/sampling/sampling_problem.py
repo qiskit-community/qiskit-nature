@@ -27,7 +27,6 @@ class SamplingProblem(ABC):
         """Returns a qubit operator that represents a Hamiltonian encoding the sampling problem."""
         pass
 
-    # TODO type hint will be addressed later on
     @abstractmethod
     def interpret(self, raw_result: MinimumEigensolverResult) -> EigenstateResult:
         """Interprets results of an optimization."""
