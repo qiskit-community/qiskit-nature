@@ -27,7 +27,8 @@ class ProteinDecoder:
         """
         Args:
             best_sequence: Will be the sequence decoded.
-            side_chain_hot_vector: boolean list with the position of the side chains
+            side_chain_hot_vector: A list of booleans that indicates the presence of side chains on 
+corresponding indices of the main chain.
             fifth_bit: True if the fifth bit has defaulted to 1.
         """
         self._best_sequence = best_sequence
@@ -63,10 +64,10 @@ class ProteinDecoder:
         Returns the list of turns for the molecule corresponding to best_sequence.
         The first element of the list corresponds to the turn of the second aminoacid in the peptide.
         Returns:
-                A list of integers representing the sequence of turns on the molecule
+                A list of integers representing the sequence of turns of the molecule.
 
         Notes:
-                The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00)
+                The bitstring will end in 0010 corresponding to turn1=(01) and turn2=(00).
                 If the second bead doesn't have a side chain the 6th bit
                 can be set to 1 without loss of generality.
                 In that case index (5) will belong to the list of unused qubits.
