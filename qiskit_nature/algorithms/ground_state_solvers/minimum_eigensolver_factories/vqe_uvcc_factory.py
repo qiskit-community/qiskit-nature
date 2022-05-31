@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """A factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz wavefunction.
+    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz wavefunction.
 
     Note: Changing the ansatz of the minimum_eigensolver of the factory won't affect
         the ansatz of new solvers produced by the factory. On top of that the default
@@ -64,10 +64,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         vqe2 = factory.get_solver(problem,qubit_converter)
         print(type(vqe2.ansatz))    #UVCC
     """
-
-
-
-
 
     @deprecate_positional_arguments(
         version="0.4",

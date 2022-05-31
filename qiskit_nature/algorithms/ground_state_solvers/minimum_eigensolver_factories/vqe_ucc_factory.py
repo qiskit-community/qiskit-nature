@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """A factory to construct a :class:`VQE` minimum eigensolver with :class:`UCCSD` ansatz wavefunction.
+    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UCCSD` ansatz wavefunction.
 
     Note: Changing the ansatz of the minimum_eigensolver of the factory won't affect
         the ansatz of new solvers produced by the factory. On top of that the default
