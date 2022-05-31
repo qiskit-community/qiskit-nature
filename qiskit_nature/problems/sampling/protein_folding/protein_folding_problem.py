@@ -96,7 +96,9 @@ class ProteinFoldingProblem(SamplingProblem):
         """
         best_turns_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
         return ProteinFoldingResult(
-            unused_qubits=self.unused_qubits, peptide=self.peptide, turns_sequence=best_turns_sequence
+            unused_qubits=self.unused_qubits,
+            peptide=self.peptide,
+            turns_sequence=best_turns_sequence,
         )
 
     @property

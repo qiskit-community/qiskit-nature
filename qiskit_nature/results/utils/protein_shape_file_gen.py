@@ -23,7 +23,8 @@ class ProteinShapeFileGen:
     It is used by the ProteinFoldingResult class.
     """
 
-    coordinates = (1.0 / np.sqrt(3)) * np.array([[-1, 1, 1], [1, 1, -1], [-1, -1, -1], [1, -1, 1]])
+    # Coordinates of the 4 edges of a tetrahedron centered at 0. The vectors are normalized.
+    COORDINATES = (1.0 / np.sqrt(3)) * np.array([[-1, 1, 1], [1, 1, -1], [-1, -1, -1], [1, -1, 1]])
 
     def __init__(
         self,
@@ -62,7 +63,7 @@ class ProteinShapeFileGen:
             if sideturn is None:
                 side_positions.append(None)
             else:
-                side_positions.append(mainpos + (-1) ** counter * self.coordinates[sideturn])
+                side_positions.append(mainpos + (-1) ** counter * self.COORDINATES[sideturn])
 
             counter += 1
         return side_positions
@@ -87,7 +88,7 @@ class ProteinShapeFileGen:
         relative_positions = np.zeros((length_turns + 1, 3), dtype=float)
 
         for i in range(length_turns):
-            relative_positions[i + 1] = (-1) ** i * self.coordinates[self._main_chain_turns[i]]
+            relative_positions[i + 1] = (-1) ** i * self.COORDINATES[self._main_chain_turns[i]]
 
         return relative_positions.cumsum(axis=0)
 
