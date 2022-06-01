@@ -45,7 +45,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         the ansatz of new solvers produced by the factory. On top of that the default
         type for :class:`VQE` is not the same as the factory.
     .. code-block:: python
-
         factory = VQEUVCCFactory()
         print(type(factory.minimum_eigensolver.ansatz)) # RealAmplitudes (by default)
         factory.minimum_eigensolver.ansatz = UVCC()
@@ -55,7 +54,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         print(type(vqe.ansatz))  # UVCCSD (and not UVCC nor RealAmplitudes)
 
     If instead one wants to change the ansatz of the factory:
-
     ..code-block:: python
         factory = VQEUCCFactory()
         vqe1 = factory.get_solver(problem,qubit_converter)
