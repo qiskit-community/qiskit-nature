@@ -53,7 +53,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         print(type(factory.minimum_eigensolver.ansatz)) # RealAmplitudes (by default)
         factory.minimum_eigensolver.ansatz = UCC()
         print(type(factory.minimum_eigensolver.ansatz)) # UCC
-
         vqe = factory.get_solver(problem,qubit_converter)
         print(type(vqe.ansatz))  # UCCSD (and not UCC nor RealAmplitudes)
 
