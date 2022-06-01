@@ -216,8 +216,6 @@ class FermionicOp(SecondQuantizedOp):
     form (action, index), where the action is either "+" or "-" and the index is the integer
     index of the factor in the term.
     """
-    # Warn only once
-    _display_format_warn = True
 
     _truncate = 200
 
@@ -232,7 +230,7 @@ class FermionicOp(SecondQuantizedOp):
             list[tuple[tuple[tuple[str, int], ...], complex]],
         ],
         register_length: Optional[int] = None,
-        display_format: Optional[str] = None,
+        display_format: str = "sparse",
     ):
         """
         Args:
@@ -246,7 +244,7 @@ class FermionicOp(SecondQuantizedOp):
             ValueError: given data is invalid value.
             TypeError: given data has invalid type.
         """
-        self.display_format = display_format or "sparse"
+        self.display_format = display_format
 
         self._data: list[tuple[tuple[tuple[str, int], ...], complex]]
 
