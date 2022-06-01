@@ -2,5 +2,7 @@
 features:
   - |
     Imaginary contributions to the UCC ansatz can be added along with the real contributions by 
-    setting the boolean flag 'include_imaginary' to True. A separate parameter is used for the real 
-    and the imaginary contribution coming from a single excitation 
+    setting the boolean flag `include_imaginary` to True. When True, an extra ansatz parameter is
+    added to each excitation that controls the imaginary contribution to its evolution. This
+    setting then doubles the total number of ansatz parameters, as compared to the default setting
+    of False.
