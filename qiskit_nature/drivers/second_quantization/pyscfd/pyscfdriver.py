@@ -731,11 +731,11 @@ class PySCFDriver(ElectronicStructureDriver):
             logfile: the path of the PySCF logfile.
         """
         with open(logfile, "r", encoding="utf8") as file:
-            content = file.readlines()
+            contents = file.readlines()
 
-        for i, _ in enumerate(content):
-            if content[i].startswith("System:"):
-                content = content[i:]
+        for i, content in enumerate(contents):
+            if content.startswith("System:"):
+                contents = contents[i:]
                 break
 
-        logger.debug("PySCF processing messages log:\n%s", "".join(content))
+        logger.debug("PySCF processing messages log:\n%s", "".join(contents))
