@@ -57,7 +57,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
     def auxiliary_tester(self, title: str, prop: str, cases: tuple):
         """
         Tests the setter and getter of a given property.
-        
+
         Args:
             title: A string that will be the name of the subTest
             prop: A string making reference to the getter/setter to be tested
@@ -80,8 +80,9 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
 
     def auxiliary_tester_isinstance(self, title: str, prop: str, cases: tuple):
         """
-        Tests a getter and setter of a given property. Only checks if the type of the property is correct.
-        
+        Tests a getter and setter of a given property.
+        Only checks if the type of the property is correct.
+
         Args:
             title: A string that will be the name of the subTest
             prop: A string making reference to the getter/setter to be tested

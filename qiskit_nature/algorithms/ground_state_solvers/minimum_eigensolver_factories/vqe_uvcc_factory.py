@@ -59,7 +59,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     ..code-block:: python
         factory = VQEUCCFactory()
         vqe1 = factory.get_solver(problem,qubit_converter)
-        print(type(vqe1.ansatz))    #UVCCSD (default)
+        print(type(vqe1.ansatz))    # UVCCSD (default)
         factory.ansatz = UVCC()
         vqe2 = factory.get_solver(problem,qubit_converter)
         print(type(vqe2.ansatz))    #UVCC
