@@ -121,7 +121,7 @@ class ProteinPlotter:
 
     def plot(
         self, title: str = "Protein Structure", ticks: bool = False, grid: bool = False
-    ) -> plt.figure :
+    ) -> plt.figure:
         """
         Plots the molecule in 3D.
         Args:

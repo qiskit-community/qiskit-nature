@@ -19,7 +19,6 @@ from .utils.protein_shape_file_gen import ProteinShapeFileGen
 from .utils.protein_plotter import ProteinPlotter
 
 
-
 class ProteinFoldingResult(EigenstateResult):
     """
     The Protein Folding Result.
@@ -94,7 +93,7 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def save_xyz_file(self, name: Optional[str] = None, path: str = "",comment:str = "") -> None:
+    def save_xyz_file(self, name: Optional[str] = None, path: str = "", comment: str = "") -> None:
         """
         Generates a .xyz file.
         Args:
@@ -106,7 +105,7 @@ class ProteinFoldingResult(EigenstateResult):
         """
         if name is None:
             name = str(self._peptide.get_main_chain.main_chain_residue_sequence)
-        self.protein_shape_file_gen.save_xyz_file(name=name, path=path,comment=comment)
+        self.protein_shape_file_gen.save_xyz_file(name=name, path=path, comment=comment)
 
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False

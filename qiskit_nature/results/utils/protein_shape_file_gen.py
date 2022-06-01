@@ -105,7 +105,7 @@ class ProteinShapeFileGen:
 
         return self._main_positions
 
-    def save_xyz_file(self, name: str, path: str = "",comment:Optional[str] = "") -> None:
+    def save_xyz_file(self, name: str, path: str = "", comment: Optional[str] = "") -> None:
         """
         Saves the data as an .xyz file.
         For more information about .xyz files see: https://en.wikipedia.org/wiki/XYZ_file_format

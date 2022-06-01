@@ -13,8 +13,8 @@ features:
 
     .. code-block:: python
 
-        result = protein_folding_problem.interpret()
+        result = protein_folding_problem.interpret(raw_result)
         #Get xyz file
-        result.protein_xyz.get_xyz_file()
+        result.protein_xyz.save_xyz_file()
         #Generate plot
-        result.plotstrucutre()
+        figure = result.plot_folded_protein()
