@@ -208,8 +208,7 @@ class QEOM(ExcitedStatesSolver):
         def _build_one_sector(available_hopping_ops, untapered_op, z2_symmetries):
 
             to_be_computed_list = []
-            for idx, _ in enumerate(mus):
-                m_u = mus[idx]
+            for idx, m_u in enumerate(mus):
                 n_u = nus[idx]
                 left_op = available_hopping_ops.get(f"E_{m_u}")
                 right_op_1 = available_hopping_ops.get(f"E_{n_u}")
@@ -353,8 +352,7 @@ class QEOM(ExcitedStatesSolver):
         m_mat_std, v_mat_std, q_mat_std, w_mat_std = 0.0, 0.0, 0.0, 0.0
 
         # evaluate results
-        for idx, _ in enumerate(mus):
-            m_u = mus[idx]
+        for idx, m_u in enumerate(mus):
             n_u = nus[idx]
 
             q_mat[m_u][n_u] = (
