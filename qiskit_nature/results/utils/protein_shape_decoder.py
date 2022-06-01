@@ -27,7 +27,7 @@ class ProteinShapeDecoder:
         """
         Args:
             turns_sequence: Sequence to be decoded.
-            side_chain_hot_vector: A list of booleans that indicates the presence of side
+            side_chain_hot_vector: A list of boolean that indicates the presence of side
                 chains on corresponding indices of the main chain.
             fifth_bit: True if the 5th bit has defaulted to 1. In case the second bead,
                 by symmetry, the shapes we get by changing the 5th bit are equivalent.
@@ -69,10 +69,10 @@ class ProteinShapeDecoder:
         to each property they encode.
         """
         # Let N be the length of the main chain. Usually it would have N-1 turns (each one encoded
-        # with 2 bits). By symmetry we can always set the firt 2 turns to an arbitrary value.
+        # with 2 bits). By symmetry we can always set the first 2 turns to an arbitrary value.
         # Therefore we only need to encode N-3 turns. By symmetry as well if we don't have a side
         # chain in the second beat we only need 1 bit to encode the third turn.
-        # The final formula is # = 2*(N-3) and we substract 1 if we don't have that secondary chain.
+        # The final formula is # = 2*(N-3) and we subtract 1 if we don't have that secondary chain.
         n_qbits_encoding_main_turns = 2 * (self._main_chain_length - 3) - (self._fifth_bit)
         # The side chains always use 2 qubits to be encoded.
         n_qbits_encoding_side_turns = 2 * sum(self._side_chain_hot_vector)

@@ -105,7 +105,7 @@ class ProteinShapeFileGen:
 
         return self._main_positions
 
-    def save_xyz_file(self, name: str, path: str = "",comment:Optional[str] = None) -> None:
+    def save_xyz_file(self, name: str, path: str = "",comment:Optional[str] = "") -> None:
         """
         Saves the data as an .xyz file.
         For more information about .xyz files see: https://en.wikipedia.org/wiki/XYZ_file_format
@@ -113,12 +113,11 @@ class ProteinShapeFileGen:
             name: The file will be called name.xyz.
             path: Path under which the file will be saved. If no path is specified the file will
                 be saved in the current working directory.
+            comment: Comment to be added to the second line of the file.
         """
         data = self.get_xyz_file()
         number_of_particles = data.shape[0]
-        header = f"{number_of_particles}"
-        if comment is not None:
-            header += "\n{comment}"
+        header = f"{number_of_particles}\n{comment}"
         np.savetxt(
             fname=path + name + ".xyz",
             header=header,

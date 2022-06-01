@@ -100,6 +100,7 @@ class ProteinFoldingResult(EigenstateResult):
                 name of the file will be the letters of the aminoacids on the main_chain.
             path: Path where the file will be generated. If left empty the file will
                 be saved in the working directory.
+            comment: Comment to be added to the second line of the file.
         """
         if name is None:
             name = str(self._peptide.get_main_chain.main_chain_residue_sequence)
