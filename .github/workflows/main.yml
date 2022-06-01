@@ -210,7 +210,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip install -U pylint
+          pip install -U -r requirements-dev.txt
           make lint
         shell: bash
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
