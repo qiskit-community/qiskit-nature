@@ -16,6 +16,7 @@ from qiskit_nature.results import EigenstateResult
 from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
 from .utils.protein_plotter import ProteinPlotter
+import matplotlib.pyplot as plt
 
 
 class ProteinFoldingResult(EigenstateResult):
@@ -108,7 +109,7 @@ class ProteinFoldingResult(EigenstateResult):
 
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
-    ) -> None:
+    ) -> plt.figure:
         """
         Plots the molecule in 3D.
         Args:
@@ -117,4 +118,4 @@ class ProteinFoldingResult(EigenstateResult):
             grid: Boolean for showing the grid in the graphic.
 
         """
-        ProteinPlotter(self.protein_shape_file_gen).plot(title=title, ticks=ticks, grid=grid)
+        return ProteinPlotter(self.protein_shape_file_gen).plot(title=title, ticks=ticks, grid=grid)
