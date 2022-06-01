@@ -19,7 +19,6 @@ from typing import Optional
 
 from qiskit.opflow.mixins import StarAlgebraMixin
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
-from qiskit.utils.deprecation import deprecate_function
 
 
 class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
@@ -66,14 +65,3 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         return frozenset(self.simplify().to_list()) == frozenset(
             self.adjoint().simplify().to_list()
         )
-
-    @property  # type: ignore
-    # pylint: disable=bad-docstring-quotes
-    @deprecate_function(
-        "Using the `dagger` property is deprecated as of version 0.2.0 and will be removed no "
-        "earlier than 3 months after the release date. As an alternative, use the `adjoint()` "
-        "method in place of `dagger` as a replacement."
-    )
-    def dagger(self):
-        """DEPRECATED - Alias of :meth:`adjoint()`"""
-        return self.adjoint()
