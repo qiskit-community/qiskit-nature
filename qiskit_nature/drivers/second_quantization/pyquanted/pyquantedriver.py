@@ -304,8 +304,7 @@ class PyQuanteDriver(ElectronicStructureDriver):
         if parts is None or len(parts) < 1:
             raise QiskitNatureError("Molecule format error: " + atoms)
         geom = []
-        for n, _ in enumerate(parts):
-            part = parts[n]
+        for part in parts:
             geom.append(self._parse_atom(part))
 
         if len(geom) < 1:
