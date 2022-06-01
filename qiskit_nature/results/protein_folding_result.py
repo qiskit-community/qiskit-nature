@@ -11,12 +11,13 @@
 # that they have been altered from the originals.
 """The protein folding result."""
 from typing import List, Optional
+import matplotlib.pyplot as plt
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results import EigenstateResult
 from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
 from .utils.protein_plotter import ProteinPlotter
-import matplotlib.pyplot as plt
+
 
 
 class ProteinFoldingResult(EigenstateResult):
@@ -116,6 +117,7 @@ class ProteinFoldingResult(EigenstateResult):
             title: The title of the plot.
             ticks: Boolean for showing ticks in the graphic.
             grid: Boolean for showing the grid in the graphic.
-
+        Returns:
+            A figure with the folded protein.
         """
         return ProteinPlotter(self.protein_shape_file_gen).plot(title=title, ticks=ticks, grid=grid)

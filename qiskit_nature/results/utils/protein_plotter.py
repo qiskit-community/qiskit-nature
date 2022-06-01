@@ -128,6 +128,8 @@ class ProteinPlotter:
             title: The title of the plot.
             ticks: Boolean for showing ticks in the graphic.
             grid: Boolean for showing the grid in the graphic.
+        Returns:
+            A figure with the folded protein.
         """
 
         main_scatter = self._draw_main_chain()
