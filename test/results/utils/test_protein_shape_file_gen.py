@@ -11,10 +11,9 @@
 # that they have been altered from the originals.
 """Tests ProteinShapeFileGen."""
 import os
+import filecmp
 from test import QiskitNatureTestCase
 import numpy as np
-import filecmp
-import tempfile
 from ddt import ddt, data, unpack
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
@@ -107,9 +106,9 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
         name_file,
     ):
         """Tests if ProteinShapeFileGen is properly initialized and its attributes are properly set."""
-        peptide=Peptide(
+        peptide = Peptide(
             main_chain_residue_sequence=main_chain_residue_sequence,
-            side_chain_residue_sequences=side_chain_residue_sequences
+            side_chain_residue_sequences=side_chain_residue_sequences,
         )
         filegen = ProteinShapeFileGen(
             main_chain_turns=main_chain_turns,
@@ -134,12 +133,14 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
 
         with self.subTest("Write file"):
             current_dir = os.path.dirname(__file__)
-            test_path = os.path.join(current_dir, 'test_files')
-            filegen.save_xyz_file(name=name_file+"_temp",path=test_path,comment="This is a dummy comment.")
+            test_path = os.path.join(current_dir, "ressources")
+            filegen.save_xyz_file(
+                name=name_file + "_temp", path=test_path, comment="This is a dummy comment."
+            )
 
-            file_temp = os.path.join(test_path,name_file+"_temp.xyz")
-            file_test = os.path.join(test_path,name_file+"_test.xyz")
+            file_temp = os.path.join(test_path, name_file + "_temp.xyz")
+            file_test = os.path.join(test_path, name_file + "_test.xyz")
 
-            self.assertTrue(filecmp.cmp(file_temp,file_test))
+            self.assertTrue(filecmp.cmp(file_temp, file_test))
 
             os.remove(file_temp)
