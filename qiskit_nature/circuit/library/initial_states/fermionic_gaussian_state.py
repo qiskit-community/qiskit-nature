@@ -126,8 +126,7 @@ class FermionicGaussianState(QuantumCircuit):
         Args:
             transformation_matrix: The matrix :math:`W` that specifies the coefficients of the
                 new creation operators in terms of the original creation and annihilation operators.
-                This matrix must satisfy special constraints; see the main body of the docstring
-                of this class.
+                This matrix must satisfy special constraints, as detailed above.
             occupied_orbitals: The pseudo-particle orbitals to fill. These refer to the indices
                 of the operators :math:`\{b^\dagger_j\}` from the main body of the docstring
                 of this function. The default behavior is to use the empty set of orbitals,
