@@ -118,13 +118,14 @@ class ProteinShapeFileGen:
         """
         data = self.get_xyz_file()
         number_of_particles = data.shape[0]
-        header = f"{number_of_particles}\n{comment}"
+        header = f"{number_of_particles}\n#{comment}"
         np.savetxt(
             fname=os.path.join(path , name + ".xyz"),
             header=header,
             X=data,
             delimiter=" ",
             fmt="%s",
+            comments="",
         )
 
     def get_xyz_file(self) -> np.ndarray:
