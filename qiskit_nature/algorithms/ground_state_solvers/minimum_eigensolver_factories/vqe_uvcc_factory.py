@@ -90,7 +90,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
