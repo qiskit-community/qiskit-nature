@@ -13,6 +13,7 @@
  in ProteinFoldingResult."""
 from typing import Union, List, Optional
 import numpy as np
+import os
 
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
@@ -119,7 +120,7 @@ class ProteinShapeFileGen:
         number_of_particles = data.shape[0]
         header = f"{number_of_particles}\n{comment}"
         np.savetxt(
-            fname=path + name + ".xyz",
+            fname=os.path.join(path , name + ".xyz"),
             header=header,
             X=data,
             delimiter=" ",

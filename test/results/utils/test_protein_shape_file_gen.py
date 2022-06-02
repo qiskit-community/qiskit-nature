@@ -10,8 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests ProteinShapeFileGen."""
+import os
 from test import QiskitNatureTestCase
 import numpy as np
+import filecmp
+import tempfile
 from ddt import ddt, data, unpack
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
@@ -25,11 +28,10 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
     @data(
         # First
         (
-            ProteinShapeFileGen(
-                main_chain_turns=[1, 0, 3, 2, 0, 3],
-                side_chain_turns=[None, None, None, None, None, None, None],
-                peptide=Peptide("APRLRFY", [""] * 7),
-            ),
+            [1, 0, 3, 2, 0, 3],
+            [None, None, None, None, None, None, None],
+            "APRLRFY",
+            [""] * 7,
             [None] * 7,
             np.array(
                 [
@@ -54,14 +56,14 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
                 ],
                 dtype="<U32",
             ),
+            "Only_Main_Chain",
         ),
         # Second
         (
-            ProteinShapeFileGen(
-                main_chain_turns=[1, 0, 3, 2],
-                side_chain_turns=[None, None, 3, 3, None],
-                peptide=Peptide("APRLR", ["", "", "F", "Y", ""]),
-            ),
+            [1, 0, 3, 2],
+            [None, None, 3, 3, None],
+            "APRLR",
+            ["", "", "F", "Y", ""],
             [
                 None,
                 None,
@@ -90,10 +92,30 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
                 ],
                 dtype="<U32",
             ),
+            "Also_Side_Chains",
         ),
     )
-    def test_shape(self, filegen, side_positions, main_positions, xyz):
+    def test_shape(
+        self,
+        main_chain_turns,
+        side_chain_turns,
+        main_chain_residue_sequence,
+        side_chain_residue_sequences,
+        side_positions,
+        main_positions,
+        xyz,
+        name_file,
+    ):
         """Tests if ProteinShapeFileGen is properly initialized and its attributes are properly set."""
+        peptide=Peptide(
+            main_chain_residue_sequence=main_chain_residue_sequence,
+            side_chain_residue_sequences=side_chain_residue_sequences
+        )
+        filegen = ProteinShapeFileGen(
+            main_chain_turns=main_chain_turns,
+            side_chain_turns=side_chain_turns,
+            peptide=peptide,
+        )
         with self.subTest("Side Positions"):
             for result, expected in zip(filegen.side_positions, side_positions):
                 if expected is None:
@@ -107,5 +129,17 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
                 main_positions,
                 decimal=6,
             )
-        with self.subTest("XYZ file array"):
+        with self.subTest("XYZ file data"):
             np.testing.assert_equal(filegen.get_xyz_file(), xyz)
+
+        with self.subTest("Write file"):
+            current_dir = os.path.dirname(__file__)
+            test_path = os.path.join(current_dir, 'test_files')
+            filegen.save_xyz_file(name=name_file+"_temp",path=test_path,comment="This is a dummy comment.")
+
+            file_temp = os.path.join(test_path,name_file+"_temp.xyz")
+            file_test = os.path.join(test_path,name_file+"_test.xyz")
+
+            self.assertTrue(filecmp.cmp(file_temp,file_test))
+
+            os.remove(file_temp)
