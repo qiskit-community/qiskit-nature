@@ -90,8 +90,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-            quantum_instance: The quantum instance used in the minimum eigensolver.
-            optimizer: A classical optimizer.
+
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
@@ -101,30 +100,12 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
                 If a user-provided NumPy array, this is used directly.
-            gradient: An optional gradient function or operator for optimizer.
-            expectation: The Expectation converter for taking the average value of the
-                Observable over the ansatz state function. When ``None`` (the default) an
-                :class:`~qiskit.opflow.expectations.ExpectationFactory` is used to select
-                an appropriate expectation based on the operator and backend. When using Aer
-                qasm_simulator backend, with paulis, it is however much faster to leverage custom
-                Aer function for the computation but, although VQE performs much faster
-                with it, the outcome is ideal, with no shot noise, like using a state vector
-                simulator. If you are just looking for the quickest performance when choosing Aer
-                qasm_simulator and the lack of shot noise is not an issue then set `include_custom`
-                parameter here to ``True`` (defaults to ``False``).
-            include_custom: When `expectation` parameter here is None setting this to ``True`` will
-                allow the factory to include the custom Aer pauli expectation.
-            ansatz: Allows specification of a custom :class:`~.UVCC` instance. If this is never
-                set by the user, the factory will default to the :class:`~.UVCCSD` Ansatz.
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
-            callback: a callback that can access the intermediate data during the optimization.
-                Four parameter values are passed to the callback as follows during each evaluation
-                by the optimizer for its current set of parameters as it works towards the minimum.
-                These are: the evaluation count, the optimizer parameters for the
-                ansatz, the evaluated mean and the evaluated standard deviation.`
-            kwargs: any additional keyword arguments will be passed on to the VQE.
+            ansatz: Allows specification of a custom :class:`~.UVCC` instance. If this is never
+                set by the user, the factory will default to the :class:`~.UVCCSD` Ansatz.
+            kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
         """
 
         self._initial_state = initial_state
