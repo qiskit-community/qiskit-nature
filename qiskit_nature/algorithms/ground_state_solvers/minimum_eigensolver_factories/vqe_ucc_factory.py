@@ -215,12 +215,18 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     @property
     def ansatz(self) -> Optional[UCC]:
-        """Gets the ansatz of future VQEs produced by the factory."""
+        """
+        Gets the ansatz of future VQEs produced by the factory.
+        If value is ``None`` it defaults to :class:`UCCSD`.
+        """
         return self._ansatz
 
     @ansatz.setter
     def ansatz(self, ansatz: Optional[UCC]) -> None:
-        """Sets the ansatz of future VQEs produced by the factory."""
+        """
+        Sets the ansatz of future VQEs produced by the factory.
+        If set to ``None`` it defaults to :class:`UCCSD`.
+        """
         self._ansatz = ansatz
 
     @property
@@ -235,13 +241,18 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     @property
     def initial_state(self) -> Optional[QuantumCircuit]:
-        """Getter of the initial state."""
+        """
+        Getter of the initial state.
+        If value is ``None`` it will default to using the :class:`~.HartreeFock`.
+        """
         return self._initial_state
 
     @initial_state.setter
     def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
-        """Setter of the initial state. If ``None`` is passed, this factory will default to using
-        the :class:`~.HartreeFock`."""
+        """
+        Setter of the initial state.
+        If ``None`` is passed, this factory will default to using the :class:`~.HartreeFock`.
+        """
         self._initial_state = initial_state
 
     @property  # type: ignore

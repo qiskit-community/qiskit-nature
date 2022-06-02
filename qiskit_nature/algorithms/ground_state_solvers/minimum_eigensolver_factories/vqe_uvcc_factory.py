@@ -211,15 +211,18 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     @property
     def ansatz(self) -> Optional[UVCC]:
-        """DEPRECATED. Use ``minimum_eigensolver`` method and solver properties instead.
-        Getter of the ansatz"""
+        """
+        Gets the ansatz of future VQEs produced by the factory.
+        If value is ``None`` it defaults to :class:`UVCCSD`.
+        """
         return self._ansatz
 
     @ansatz.setter
     def ansatz(self, ansatz: Optional[UVCC]) -> None:
-        """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
-        Setter of the ansatz. If ``None`` is passed, this factory will default to using the
-        :class:`~.UVCCSD` Ansatz."""
+        """
+        Sets the ansatz of future VQEs produced by the factory.
+        If set to ``None`` it defaults to :class:`UVCCSD`.
+        """
         self._ansatz = ansatz
 
     @property
@@ -229,13 +232,17 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     @initial_state.setter
     def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
-        """Setter of the initial state. If ``None`` is passed, this factory will default to using
-        the :class:`~.VSCF`."""
+        """
+        Setter of the initial state.
+        If ``None`` is passed, this factory will default to using the :class:`~.VSCF`.
+        """
         self._initial_state = initial_state
 
     @property
     def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:
-        """Gets the initial point of future VQEs produced by the factory."""
+        """
+        Gets the initial point of future VQEs produced by the factory.
+        """
         return self._initial_point
 
     @initial_point.setter
