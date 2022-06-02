@@ -21,11 +21,7 @@ from qiskit_nature.circuit.library import BogoliubovTransform
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
-
-
-def _random_antisymmetric(dim: int):
-    mat = np.random.randn(dim, dim) + 1j * np.random.randn(dim, dim)
-    return mat - mat.T
+from qiskit_nature.utils import random_antisymmetric_matrix
 
 
 @ddt
@@ -60,7 +56,7 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
         """Test general (non-particle-number-conserving) Bogoliubov transform."""
         converter = QubitConverter(JordanWignerMapper())
         hermitian_part = np.array(random_hermitian(n_orbitals))
-        antisymmetric_part = _random_antisymmetric(n_orbitals)
+        antisymmetric_part = random_antisymmetric_matrix(n_orbitals)
         constant = np.random.uniform(-10, 10)
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant)
         (

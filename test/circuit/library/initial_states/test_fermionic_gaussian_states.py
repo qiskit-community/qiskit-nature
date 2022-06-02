@@ -20,11 +20,7 @@ from qiskit_nature.circuit.library import FermionicGaussianState
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
-
-
-def _random_antisymmetric(dim: int):
-    mat = np.random.randn(dim, dim) + 1j * np.random.randn(dim, dim)
-    return mat - mat.T
+from qiskit_nature.utils import random_antisymmetric_matrix
 
 
 class TestFermionicGaussianState(QiskitNatureTestCase):
@@ -35,7 +31,7 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
         n_orbitals = 5
         converter = QubitConverter(JordanWignerMapper())
         hermitian_part = random_hermitian(n_orbitals).data
-        antisymmetric_part = _random_antisymmetric(n_orbitals)
+        antisymmetric_part = random_antisymmetric_matrix(n_orbitals)
         constant = np.random.uniform(-10, 10)
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant)
         (
@@ -67,7 +63,7 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
         """Test that the routines don't mutate the input array."""
         n_orbitals = 5
         hermitian_part = random_hermitian(n_orbitals).data
-        antisymmetric_part = _random_antisymmetric(n_orbitals)
+        antisymmetric_part = random_antisymmetric_matrix(n_orbitals)
         constant = np.random.uniform(-10, 10)
 
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant=constant)

@@ -21,11 +21,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import QuadraticHamiltonian
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
-
-
-def _random_antisymmetric(dim: int):
-    mat = np.random.randn(dim, dim) + 1j * np.random.randn(dim, dim)
-    return mat - mat.T
+from qiskit_nature.utils import random_antisymmetric_matrix
 
 
 @ddt
@@ -143,7 +139,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
     def test_diagonalizing_bogoliubov_transform_non_particle_number_conserving(self, n_orbitals):
         """Test diagonalizing Bogoliubov transform, non-particle-number-conserving case."""
         hermitian_part = random_hermitian(n_orbitals).data
-        antisymmetric_part = _random_antisymmetric(n_orbitals)
+        antisymmetric_part = random_antisymmetric_matrix(n_orbitals)
         constant = np.random.uniform(-10, 10)
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant=constant)
         (

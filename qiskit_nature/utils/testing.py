@@ -10,26 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-Utilities (:mod:`qiskit_nature.utils`)
-==============================================
+"""Testing utilities."""
 
-.. currentmodule:: qiskit_nature.utils
+import numpy as np
 
 
-.. autosummary::
-   :toctree:
-"""
+def random_antisymmetric_matrix(dim: int):
+    """Return a random antisymmetric matrix.
 
-from qiskit_nature.utils.linalg import (
-    apply_matrix_to_slices,
-    givens_matrix,
-)
-
-from qiskit_nature.utils.testing import random_antisymmetric_matrix
-
-__all__ = [
-    "apply_matrix_to_slices",
-    "givens_matrix",
-    "random_antisymmetric_matrix",
-]
+    Args:
+        dim: The width and height of the matrix.
+    """
+    mat = np.random.randn(dim, dim) + 1j * np.random.randn(dim, dim)
+    return mat - mat.T
