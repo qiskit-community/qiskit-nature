@@ -47,20 +47,20 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     .. code-block:: python
 
-        #Wrong way
+        # Wrong way
         factory = VQEUVCCFactory()
-        print(type(factory.minimum_eigensolver.ansatz)) # RealAmplitudes (by default)
+        print(type(factory.minimum_eigensolver.ansatz))  # RealAmplitudes (by default)
         factory.minimum_eigensolver.ansatz = UVCC()
-        print(type(factory.minimum_eigensolver.ansatz)) # UVCC
-        vqe = factory.get_solver(problem,qubit_converter)
+        print(type(factory.minimum_eigensolver.ansatz))  # UVCC
+        vqe = factory.get_solver(problem, qubit_converter)
         print(type(vqe.ansatz))  # UVCCSD (and not UVCC nor RealAmplitudes)
         #Intended way
         factoryB = VQEUCCFactory()
-        vqe1 = factoryB.get_solver(problem,qubit_converter)
-        print(type(vqe1.ansatz))    # UVCCSD (default)
+        vqe1 = factoryB.get_solver(problem, qubit_converter)
+        print(type(vqe1.ansatz))  # UVCCSD (default)
         factoryB.ansatz = UVCC()
-        vqe2 = factory.get_solver(problem,qubit_converter)
-        print(type(vqe2.ansatz))    #UVCC
+        vqe2 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe2.ansatz))  # UVCC
 
     """
 

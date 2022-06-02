@@ -50,20 +50,20 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     .. code-block:: python
 
-        #Wrong way
+        # Wrong way
         factory = VQEUCCFactory()
-        print(type(factory.minimum_eigensolver.ansatz)) # RealAmplitudes (by default)
+        print(type(factory.minimum_eigensolver.ansatz))  # RealAmplitudes (by default)
         factory.minimum_eigensolver.ansatz = UCC()
-        print(type(factory.minimum_eigensolver.ansatz)) # UCC
-        vqe = factory.get_solver(problem,qubit_converter)
-        print(type(vqe.ansatz))  # UCCSD (and not UCC nor RealAmplitudes)
-        #Expected way
+        print(type(factory.minimum_eigensolver.ansatz))  # UCC
+        vqe = factory.get_solver(problem, qubit_converter)
+        print(type(vqe.ansatz))   # UCCSD (and not UCC nor RealAmplitudes)
+        # Expected way
         factory = VQEUCCFactory()
-        vqe1 = factory.get_solver(problem,qubit_converter)
-        print(type(vqe1.ansatz))    #UCCSD (default)
+        vqe1 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe1.ansatz))  # UCCSD (default)
         factory.ansatz = UCC()
-        vqe2 = factory.get_solver(problem,qubit_converter)
-        print(type(vqe2.ansatz))    #UCC
+        vqe2 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe2.ansatz))  # UCC
 
     """
 
