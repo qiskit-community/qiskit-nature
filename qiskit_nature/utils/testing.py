@@ -15,11 +15,14 @@
 import numpy as np
 
 
-def random_antisymmetric_matrix(dim: int):
+def random_antisymmetric_matrix(dim: int) -> np.ndarray:
     """Return a random antisymmetric matrix.
 
     Args:
         dim: The width and height of the matrix.
+
+    Returns:
+        The sampled antisymmetric matrix.
     """
     mat = np.random.randn(dim, dim) + 1j * np.random.randn(dim, dim)
     return mat - mat.T
