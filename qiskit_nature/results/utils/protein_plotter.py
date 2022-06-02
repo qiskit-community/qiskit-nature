@@ -13,7 +13,7 @@
  in a ProteinFoldingResult."""
 import matplotlib.pyplot as plt
 import numpy as np
-import qiskit_nature.optionals as _optionals
+from qiskit.utils import optionals as _optionals
 
 from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
 

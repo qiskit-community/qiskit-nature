@@ -89,9 +89,3 @@ HAS_PSI4 = NatureLazySubprocessTester(
     name=PSI4_DESC,
     msg="See https://psicode.org",
 )
-
-HAS_MATPLOTLIB = LazyImportTester(
-    ("matplotlib.patches", "matplotlib.pyplot"),
-    name="matplotlib",
-    install="pip install matplotlib",
-)
