@@ -16,9 +16,24 @@ Utilities (:mod:`qiskit_nature.utils`)
 
 .. currentmodule:: qiskit_nature.utils
 
+Linear algebra utilities
+------------------------
 
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
+   :nosignatures:
+
+   apply_matrix_to_slices
+   givens_matrix
+
+Testing utilities
+-----------------
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   random_antisymmetric_matrix
 """
 
 from qiskit_nature.utils.linalg import (
