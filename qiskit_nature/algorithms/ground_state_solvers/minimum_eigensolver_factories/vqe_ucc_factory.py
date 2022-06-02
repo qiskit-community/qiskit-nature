@@ -302,7 +302,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         ansatz.num_particles = num_particles
         ansatz.num_spin_orbitals = num_spin_orbitals
         ansatz.initial_state = initial_state
-        self._vqe.ansatz = ansatz
+        self.minimum_eigensolver.ansatz = ansatz
 
         if isinstance(self.initial_point, InitialPoint):
             self.initial_point.ansatz = ansatz
@@ -311,7 +311,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         else:
             initial_point = self.initial_point
 
-        self._vqe.initial_point = initial_point
+        self.minimum_eigensolver.initial_point = initial_point
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):
