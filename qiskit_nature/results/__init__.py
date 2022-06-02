@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -30,6 +30,7 @@ Results
    BOPESSamplerResult
    ElectronicStructureResult
    VibrationalStructureResult
+   LatticeModelResult
 
 """
 
@@ -37,6 +38,7 @@ from .bopes_sampler_result import BOPESSamplerResult
 from .eigenstate_result import EigenstateResult
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
 from .vibrational_structure_result import VibrationalStructureResult
+from .lattice_model_result import LatticeModelResult
 
 __all__ = [
     "BOPESSamplerResult",
@@ -44,4 +46,5 @@ __all__ = [
     "EigenstateResult",
     "ElectronicStructureResult",
     "VibrationalStructureResult",
+    "LatticeModelResult",
 ]
