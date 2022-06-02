@@ -142,7 +142,10 @@ class FermionicGaussianState(QuantumCircuit):
             ValueError: transformation_matrix must be a 2-dimensional array.
             ValueError: transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).
             ValueError: transformation_matrix does not describe a valid transformation
-                of fermionic ladder operators
+                of fermionic ladder operators. A valid matrix has the block form
+                :math:`(W_1 \quad W_2)` where :math:`W_1 W_1^\dagger + W_2 W_2^\dagger = I` and
+                :math:`W_1 W_2^T + W_2 W_1^T = 0`.
+
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
                 :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
