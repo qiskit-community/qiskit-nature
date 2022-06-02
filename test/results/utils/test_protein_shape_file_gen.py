@@ -133,7 +133,7 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
 
         with self.subTest("Write file"):
             current_dir = os.path.dirname(__file__)
-            test_path = os.path.join(current_dir, "ressources")
+            test_path = os.path.join(current_dir, "resources")
             filegen.save_xyz_file(
                 name=name_file + "_temp", path=test_path, comment="This is a dummy comment."
             )
