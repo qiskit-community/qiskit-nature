@@ -126,7 +126,7 @@ class ProteinPlotter:
         self._fig.legend(handles=[main_scatter, side_scatter], labelspacing=2, markerscale=0.5)
         self._ax_graph.set_title(title)
 
-    def plot(
+    def get_figure(
         self, title: str = "Protein Structure", ticks: bool = False, grid: bool = False
     ) -> "figure":
         """

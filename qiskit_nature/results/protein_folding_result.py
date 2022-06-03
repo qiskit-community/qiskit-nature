@@ -124,11 +124,11 @@ class ProteinFoldingResult(EigenstateResult):
         self.protein_shape_file_gen.save_xyz_file(name=name, path=path, comment=comment)
 
     @_optionals.HAS_MATPLOTLIB.require_in_call
-    def plot_folded_protein(
+    def get_figure(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
     ) -> "figure":
         """
-        Plots the molecule in 3D.
+        Generates a figure of the molecule in 3D.
         Args:
             title: The title of the plot.
             ticks: Boolean for showing ticks in the graphic.
@@ -136,4 +136,4 @@ class ProteinFoldingResult(EigenstateResult):
         Returns:
             A figure with the folded protein.
         """
-        return ProteinPlotter(self.protein_shape_file_gen).plot(title=title, ticks=ticks, grid=grid)
+        return ProteinPlotter(self.protein_shape_file_gen).get_figure(title=title, ticks=ticks, grid=grid)
