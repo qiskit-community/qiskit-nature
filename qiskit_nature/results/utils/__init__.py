@@ -10,19 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-utils (:mod:`qiskit_nature.results.utils`)
-===============================================
+Utils (:mod:`qiskit_nature.results.utils`)
+==========================================
 
 .. currentmodule:: qiskit_nature.results.utils
 
-Utils for ProteinFoldingResult
-
-
-utils
-=======
+Support classes for :class:`~qiskit_nature.results.ProteinFoldingResult`.
 
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
    :nosignatures:
 
     ProteinPlotter

@@ -131,6 +131,7 @@ class ProteinPlotter:
     ) -> "figure":
         """
         Plots the molecule in 3D.
+
         Args:
             title: The title of the plot.
             ticks: Boolean for showing ticks in the graphic.
