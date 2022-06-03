@@ -30,6 +30,7 @@ Results
    BOPESSamplerResult
    ElectronicStructureResult
    VibrationalStructureResult
+   LatticeModelResult
 
 """
 
@@ -37,6 +38,7 @@ from .bopes_sampler_result import BOPESSamplerResult
 from .eigenstate_result import EigenstateResult
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
 from .vibrational_structure_result import VibrationalStructureResult
+from .lattice_model_result import LatticeModelResult
 
 __all__ = [
     "BOPESSamplerResult",
@@ -44,4 +46,5 @@ __all__ = [
     "EigenstateResult",
     "ElectronicStructureResult",
     "VibrationalStructureResult",
+    "LatticeModelResult",
 ]

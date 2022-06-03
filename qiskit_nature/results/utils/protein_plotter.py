@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """An auxiliary class that plots aminoacids of a molecule
  in a ProteinFoldingResult."""
 import numpy as np
@@ -17,8 +18,10 @@ from qiskit.utils import optionals as _optionals
 from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
 
 if _optionals.HAS_MATPLOTLIB:
-    # pylint: disable=unused-import
-    import matplotlib.pyplot as plt
+    # pylint: disable=import-error,unused-import
+    from matplotlib.pyplot import figure
+    from matplotlib.axes import Axes
+
 
 @_optionals.HAS_MATPLOTLIB.require_in_instance
 class ProteinPlotter:
@@ -29,6 +32,8 @@ class ProteinPlotter:
         Args:
             shape_gen: :class:`ProteinShapeFileGen` with the shape to be plotted.
         """
+        # pylint: disable=import-error
+        import matplotlib.pyplot as plt
 
         self._shape_gen = shape_gen
         # pylint: disable=unbalanced-tuple-unpacking
@@ -93,7 +98,7 @@ class ProteinPlotter:
         return side_scatter
 
     def _format_graph(
-        self, title: str, ticks: bool, grid: bool, main_scatter: plt.Axes, side_scatter: plt.Axes
+        self, title: str, ticks: bool, grid: bool, main_scatter: "Axes", side_scatter: "Axes"
     ):
         """
         Formats the plot.
@@ -123,7 +128,7 @@ class ProteinPlotter:
 
     def plot(
         self, title: str = "Protein Structure", ticks: bool = False, grid: bool = False
-    ) -> plt.figure:
+    ) -> "figure":
         """
         Plots the molecule in 3D.
         Args:
