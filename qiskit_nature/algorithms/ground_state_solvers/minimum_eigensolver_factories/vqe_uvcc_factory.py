@@ -45,6 +45,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     Note: Any ansatz a user might directly set into VQE via the minumum_eigensolver will be overwritten
         by the factory when producing a solver via .get_solver(). This is due to the fact that the factory
         has its own ansatz property.
+    The following code sample illustrates this:
 
     .. code-block:: python
 
