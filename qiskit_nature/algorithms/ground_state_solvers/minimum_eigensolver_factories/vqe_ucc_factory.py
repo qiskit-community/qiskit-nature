@@ -45,8 +45,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UCCSD` ansatz wavefunction.
 
     Note: Any ansatz a user might directly set into VQE via the minumum_eigensolver will be overwritten
-        by the factory when producing a solver via .get_solver(). This is due to the fact that the factory
-        has its own ansatz property.
+        by the factory when producing a solver via .get_solver(). This is due to the fact that the
+        factory has its own ansatz property.
     The following code sample illustrates this:
     .. code-block:: python
 
@@ -127,7 +127,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         "0.4", additional_msg="Use `minimum_eigensolver.quantum_instance = q_instance` instead."
     )
     def quantum_instance(self, q_instance: QuantumInstance) -> None:
-        """DEPRECATED. Use `minimum_eigensolver.quantum_instance = q_instance` instead. Sets the quantum instance."""
+        """DEPRECATED. Use `minimum_eigensolver.quantum_instance = q_instance` instead.
+        Sets the quantum instance."""
         self.minimum_eigensolver.quantum_instance = q_instance
 
     @property  # type: ignore
@@ -172,7 +173,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         "0.4", additional_msg="Use `minimum.eigensolver.expectation = expectation` instead."
     )
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
-        """DEPRECATED. Use `minimum.eigensolver.expectation = expectation` instead. Sets the expectation."""
+        """DEPRECATED. Use `minimum.eigensolver.expectation = expectation` instead.
+        Sets the expectation."""
         self.minimum_eigensolver.expectation = expectation
 
     @property  # type: ignore
@@ -187,7 +189,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         "0.4", additional_msg="Use `minimum_eigensolver.include_custom = include_custom` instead."
     )
     def include_custom(self, include_custom: bool) -> None:
-        """DEPRECATED. Use `minimum_eigensolver.include_custom = include_custom` instead. Setter of the ``include_custom``
+        """DEPRECATED. Use `minimum_eigensolver.include_custom = include_custom` instead.
+        Setter of the ``include_custom``
         setting for the ``expectation`` setting."""
         self.minimum_eigensolver.include_custom = include_custom
 

@@ -43,8 +43,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
 
     Note: Any ansatz a user might directly set into VQE via the minumum_eigensolver will be overwritten
-        by the factory when producing a solver via .get_solver(). This is due to the fact that the factory
-        has its own ansatz property.
+        by the factory when producing a solver via .get_solver(). This is due to the fact that the
+        factory has its own ansatz property.
     The following code sample illustrates this:
 
     .. code-block:: python
@@ -184,7 +184,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         "0.4", additional_msg="Use `minimum_eigensolver.include_custom = include_custom` instead."
     )
     def include_custom(self, include_custom: bool) -> None:
-        """DEPRECATED. Use `minimum_eigensolver.include_custom = include_custom` instead. Setter of the ``include_custom``
+        """DEPRECATED. Use `minimum_eigensolver.include_custom = include_custom` instead.
+        Setter of the ``include_custom``
         setting for the ``expectation`` setting."""
         self.minimum_eigensolver.include_custom = include_custom
 
