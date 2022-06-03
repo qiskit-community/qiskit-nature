@@ -13,15 +13,15 @@ features:
       saves a .xyz file with the cartesian coordinates of the shape of the molecule.
 
     * Property :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.protein_shape_file_gen`
-      which is an instance of :class:`~qiskit_nature.results.protein_folding_result.utils.ProteinShapeFileGen`.
+      which is an instance of :class:`~qiskit_nature.results.protein_folding_result.utils.protein_shape_file_gen.ProteinShapeFileGen`.
       This class has in its turn a method
-      :meth:`~qiskit_nature.results.protein_folding_result.utils.ProteinShapeFileGen.get_xyz_file` which returns
+      :meth:`~qiskit_nature.results.protein_folding_result.utils.protein_shape_file_gen.ProteinShapeFileGen.get_xyz_file` which returns
       an array with the data contained in the .xyz file without having to generate such a file.
 
     * Property :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.protein_shape_decoder`
-      which is an instance of :class:`~qiskit_nature.results.protein_folding_result.utils.ProteinShapeDecoder`.
-      This class has in its turn two properties :meth:`~qiskit_nature.results.protein_folding_result.utils.ProteinShapeDecoder.main_turns`
-      and :meth:`~qiskit_nature.results.protein_folding_result.utils.ProteinShapeDecoder.side_turns` that return
+      which is an instance of :class:`~qiskit_nature.results.protein_folding_result.utils.protein_shape_decoder.ProteinShapeDecoder`.
+      This class has in its turn two properties :meth:`~qiskit_nature.results.protein_folding_result.utils.protein_shape_decoder.ProteinShapeDecoder.main_turns`
+      and :meth:`~qiskit_nature.results.protein_folding_result.utils.protein_shape_decoder.ProteinShapeDecoder.side_turns` that return
       the turn sequences of the main chain and the side chains respectively.
 
 
