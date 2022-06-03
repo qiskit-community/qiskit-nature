@@ -6,7 +6,7 @@ features:
     :class:`~qiskit_nature.problems.sampling.protein_folding.protein_folding_problem.ProteinFoldingProblem`.
     This class has:
 
-    * Method :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.get_figure`which
+    * Method :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.get_figure` which
       generates a figure of the shape of the protein.
 
     * Method :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.save_xyz_file` which
