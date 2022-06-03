@@ -108,10 +108,11 @@ class ProteinShapeFileGen:
     def save_xyz_file(self, name: str, path: str = "", comment: str = "") -> None:
         """
         Saves the data as an .xyz file.
-        For more information about .xyz files see: https://en.wikipedia.org/wiki/XYZ_file_format
+        For more information about .xyz files see:
+        https://en.wikipedia.org/wiki/XYZ_file_format.
+
         Args:
-            name: The file will be called name.xyz.If a file with the same name already exists it
-                will be overwritten.
+            name: The file will be called name `.xyz`. Can overwrite files.
             path: Path under which the file will be saved. If no path is specified the file will
                 be saved in the current working directory.
             comment: Comment to be added to the second line of the file. By default the line will

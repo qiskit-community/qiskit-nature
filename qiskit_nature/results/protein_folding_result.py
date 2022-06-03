@@ -136,4 +136,6 @@ class ProteinFoldingResult(EigenstateResult):
         Returns:
             A figure with the folded protein.
         """
-        return ProteinPlotter(self.protein_shape_file_gen).get_figure(title=title, ticks=ticks, grid=grid)
+        return ProteinPlotter(self.protein_shape_file_gen).get_figure(
+            title=title, ticks=ticks, grid=grid
+        )

@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 """
 utils (:mod:`qiskit_nature.results.utils`)
-======================================
+===============================================
 
 .. currentmodule:: qiskit_nature.results.utils
 
-    Utils for ProteinFoldingRe
+Utils for ProteinFoldingResult
 
 
 utils
