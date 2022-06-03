@@ -5,16 +5,23 @@ features:
     The result of :class:`~qiskit_nature.problems.sampling.protein_folding.protein_folding_problem.ProteinFoldingProblem`
     is interpreted by this class and translates it into relevant information such as the turns defining the main and side chains
     of the protein, the positions of each aminoacid, as well as a plot of the molecular structure. It does so by using 3 new classes.
-    Added :class:`~qiskit_nature.results.protein_folding_result.protein_folding_tools.protein_shape_decoder.ProteinShapeDecoder`. This class takes a raw bitstring result
-    and decodes it to yield the turns defining the shape of the molecule.
-    Added :class:`~qiskit_nature.results.protein_folding_result.protein_folding_tools.protein_shape_generator.ProteinShapeFileGen`. This class converts the shape of the molecule
-    into Cartesian coordinates for each aminoacid in the chain.
-    Added :class:`~qiskit_nature.results.protein_folding_result.protein_folding_tools.protein_plotter.ProteinPlotter`. This class creates a plot of the molecule.
+
+    Added :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.save_xyz_file()`. This method saves a .xyz file with
+    the cartesian coordinates of the shape of the molecule. The user can also call
+    :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.protein_shape_file_gen.get_xyz_file()` in order to get an array
+    with the data contained in the .xyz file without generating such a file.
+
+    Added :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.plot_folded_protein()` which generates a figure of the shape
+    of the protein.
+
+    Added :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.protein_shape_decoder.main_turns`
+    and :meth:`~qiskit_nature.results.protein_folding_result.ProteinFoldingResult.protein_shape_decoder.side_turns` which return the sequences
+    of turns for the main chain and side chains respectively.
 
     .. code-block:: python
 
         result = protein_folding_problem.interpret(raw_result)
-        #Get xyz file
-        result.protein_xyz.save_xyz_file()
-        #Generate plot
+        #Save xyz file in current directory.
+        result.save_xyz_file()
+        #Generate plot.
         figure = result.plot_folded_protein()

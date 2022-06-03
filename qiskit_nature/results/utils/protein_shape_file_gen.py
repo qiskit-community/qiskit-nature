@@ -14,10 +14,7 @@
 import os
 from typing import Union, List, Optional
 import numpy as np
-
-
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
-
 
 class ProteinShapeFileGen:
     """This class handles the creation of cartesian coordinates for
@@ -107,15 +104,17 @@ class ProteinShapeFileGen:
 
         return self._main_positions
 
-    def save_xyz_file(self, name: str, path: str = "", comment: Optional[str] = "") -> None:
+    def save_xyz_file(self, name: str, path: str = "", comment: str = "") -> None:
         """
         Saves the data as an .xyz file.
         For more information about .xyz files see: https://en.wikipedia.org/wiki/XYZ_file_format
         Args:
-            name: The file will be called name.xyz.
+            name: The file will be called name.xyz.If a file with the same name already exists it
+                will be overwriten.
             path: Path under which the file will be saved. If no path is specified the file will
                 be saved in the current working directory.
-            comment: Comment to be added to the second line of the file.
+            comment: Comment to be added to the second line of the file. By default the line will
+                be left blank.
         """
         data = self.get_xyz_file()
         number_of_particles = data.shape[0]

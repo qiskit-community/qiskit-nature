@@ -91,8 +91,9 @@ class ProteinFoldingProblem(SamplingProblem):
 
     def interpret(self, raw_result: MinimumEigensolverResult) -> ProteinFoldingResult:
         """
-        Returns a ProteinFoldingResult object that will allow us to interpret the result obtained.
-        For now we are only interested in the sequence with the biggest amplitude from the eigenstate.
+        Interprets the raw algorithm result, in the context of this problem, and returns a
+        ProteinFoldingResult. The returned class can plot the protein and generate a
+        .xyz file with the coordinates of each of its atoms.
         """
         best_turns_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
         return ProteinFoldingResult(

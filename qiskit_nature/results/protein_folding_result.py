@@ -11,17 +11,27 @@
 # that they have been altered from the originals.
 """The protein folding result."""
 from typing import List, Optional
-import matplotlib.pyplot as plt
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results import EigenstateResult
+from qiskit.utils import optionals as _optionals
 from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
 from .utils.protein_plotter import ProteinPlotter
+
+if _optionals.HAS_MATPLOTLIB:
+    # pylint: disable=unused-import
+    import matplotlib.pyplot as plt
 
 
 class ProteinFoldingResult(EigenstateResult):
     """
     The Protein Folding Result.
+    This class interprets a bitstring encoding the turns of a protein from
+    :class:`ProteinFoldingProblem` and decodes it. One can generate a .xyz file, which is a file
+    containing the cartesian coordinates of each atom in the protein. This kind of file can be
+    used with other software to generate plots of the molecule.
+    Alternatively, one can use the built in plotter from this class. Note that `mpl` optional needs
+    to be intsalled in order to generate such a figure.
     """
 
     def __init__(
@@ -99,14 +109,17 @@ class ProteinFoldingResult(EigenstateResult):
         Args:
             name: Name of the file to be generated. If the name is ``None`` the
                 name of the file will be the letters of the aminoacids on the main_chain.
+                If a file with the same name already exists it will be overwriten.
             path: Path where the file will be generated. If left empty the file will
                 be saved in the working directory.
-            comment: Comment to be added to the second line of the file.
+            comment: Comment to be added to the second line of the file. By default the line will
+                be left blank.
         """
         if name is None:
             name = str(self._peptide.get_main_chain.main_chain_residue_sequence)
         self.protein_shape_file_gen.save_xyz_file(name=name, path=path, comment=comment)
 
+    @_optionals.HAS_MATPLOTLIB.require_in_call
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
     ) -> plt.figure:

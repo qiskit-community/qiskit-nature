@@ -11,12 +11,14 @@
 # that they have been altered from the originals.
 """An auxiliary class that plots aminoacids of a molecule
  in a ProteinFoldingResult."""
-import matplotlib.pyplot as plt
 import numpy as np
 from qiskit.utils import optionals as _optionals
 
 from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
 
+if _optionals.HAS_MATPLOTLIB:
+    # pylint: disable=unused-import
+    import matplotlib.pyplot as plt
 
 @_optionals.HAS_MATPLOTLIB.require_in_instance
 class ProteinPlotter:

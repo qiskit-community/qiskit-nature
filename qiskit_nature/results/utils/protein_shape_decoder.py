@@ -15,8 +15,9 @@ from typing import List, Tuple, Optional
 
 
 class ProteinShapeDecoder:
-
-    """This class handles the decoding of the compact solution in :class:`ProteinFoldingProblem`
+    """
+    Class decoding bitstring from :class:`ProteinFoldingProblem`.
+    This class handles the decoding of the compact solution in :class:`ProteinFoldingProblem`
     and returns the information encoded in the result about the turns
     associated to the main and side chains.
     """
