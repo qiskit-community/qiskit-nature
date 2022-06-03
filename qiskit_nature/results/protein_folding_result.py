@@ -13,12 +13,18 @@
 """The protein folding result."""
 
 from typing import List, Optional
+from qiskit.utils import optionals as _optionals
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results import EigenstateResult
-from qiskit.utils import optionals as _optionals
+from .utils.protein_plotter import ProteinPlotter
 from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
-from .utils.protein_plotter import ProteinPlotter
+
+
+
+if _optionals.HAS_MATPLOTLIB:
+    # pylint: disable=import-error,unused-import
+    from matplotlib.pyplot import figure
 
 class ProteinFoldingResult(EigenstateResult):
     """
