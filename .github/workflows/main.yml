@@ -239,6 +239,26 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.python-version }}
           path: ./ci-artifact-data/*
+      - name: Nature Unit Tests without matplotlib/pyscf/psi4/pyquante2 under Python ${{ matrix.python-version }}
+        env:
+          PYTHONWARNINGS: default
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate psi4env
+          pip uninstall -y matplotlib pyscf
+          if [[ "${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.10") ]]; then
+              echo 'Uninstall psi4'
+              conda remove -y --force psi4
+          fi
+          echo 'Uninstall pyquante2'
+          conda remove -y --force pyquante2_pure
+          pip uninstall -y pyquante2
+          if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}" == "true" ]; then
+              export QISKIT_TESTS="run_slow"
+          fi
+          stestr --test-path test run
+        if: ${{ !cancelled() }}
+        shell: bash
   Tutorials:
     runs-on: ${{ matrix.os }}
     strategy:
