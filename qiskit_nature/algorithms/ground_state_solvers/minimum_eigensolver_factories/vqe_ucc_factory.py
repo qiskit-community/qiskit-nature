@@ -196,7 +196,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     @property
     def ansatz(self) -> Optional[UCC]:
         """
-        Gets the ansatz of future VQEs produced by the factory.
+        Gets the user provided ansatz of future VQEs produced by the factory.
         If value is ``None`` it defaults to :class:`UCCSD`.
         """
         return self._ansatz
