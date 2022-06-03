@@ -20,11 +20,6 @@ from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
 from .utils.protein_plotter import ProteinPlotter
 
-if _optionals.HAS_MATPLOTLIB:
-    # pylint: disable=unused-import
-    import matplotlib.pyplot as plt
-
-
 class ProteinFoldingResult(EigenstateResult):
     """
     The Protein Folding Result.
@@ -124,7 +119,7 @@ class ProteinFoldingResult(EigenstateResult):
     @_optionals.HAS_MATPLOTLIB.require_in_call
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
-    ) -> ProteinPlotter:
+    ) -> "figure":
         """
         Plots the molecule in 3D.
         Args:
