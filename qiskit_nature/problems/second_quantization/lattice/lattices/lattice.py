@@ -25,11 +25,11 @@ from retworkx.visualization import mpl_draw
 from qiskit.utils import optionals as _optionals
 
 if _optionals.HAS_NETWORKX:
-    # pylint: disable=unused-import
+    # pylint: disable=import-error,unused-import
     import networkx as nx
 
 if _optionals.HAS_MATPLOTLIB:
-    # pylint: disable=unused-import
+    # pylint: disable=import-error,unused-import
     from matplotlib.axes import Axes
     from matplotlib.colors import Colormap
 
@@ -225,7 +225,7 @@ class Lattice:
         Raises:
             MissingOptionalLibraryError: Requires matplotlib.
         """
-        # pylint: disable=unused-import
+        # pylint: disable=import-error,unused-import
         from matplotlib import pyplot as plt
 
         if not self_loop:

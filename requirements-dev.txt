@@ -1,5 +1,5 @@
 coverage>=4.4.0
-matplotlib>=2.1
+matplotlib>=3.3
 black[jupyter]~=22.0
 pylint>=2.9.0,<2.14.0
 pylatexenc>=1.4
@@ -19,4 +19,4 @@ mypy-extensions>=0.4.3
 nbsphinx
 qiskit_sphinx_theme
 networkx>=2.2,<2.6
-matplotlib>=3.3
+

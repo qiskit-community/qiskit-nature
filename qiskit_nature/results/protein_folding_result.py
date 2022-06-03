@@ -9,9 +9,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """The protein folding result."""
+
 from typing import List, Optional
-import matplotlib.pyplot as plt
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 from qiskit_nature.results import EigenstateResult
 from .utils.protein_shape_decoder import ProteinShapeDecoder
@@ -109,7 +110,7 @@ class ProteinFoldingResult(EigenstateResult):
 
     def plot_folded_protein(
         self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
-    ) -> plt.figure:
+    ) -> ProteinPlotter:
         """
         Plots the molecule in 3D.
         Args:
