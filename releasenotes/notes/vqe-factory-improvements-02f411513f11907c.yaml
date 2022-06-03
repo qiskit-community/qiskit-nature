@@ -1,7 +1,9 @@
 ---
 issues:
   - |
-    Solver instance is now created in :class:`~qiskit_nature.algorithms.NumPyMinimumEigensolverFactory`,
-    :class:`~qiskit_nature.algorithms.VQEUCCFactory` and :class:`~qiskit_nature.algorithms.VQEUVCCFactory`
-    constructors instead of get_solver method.
-    Setters for properties are deprecated and the solver instance has to be used instead.
+    The factories had setter/getter properties that set/get the corresponding property of the solver (VQE).
+    These are now deprecated and require you to set/get properties on the solver directly, which can now be
+    accessed via a new `minimum_eigensolver` attribute. Several explicitly named constructor properties that
+    went directly into the solver are deprecated too, in terms of being able to be used as a positional argument
+    - if you were using them as keyword arguments then they continue to work via the kwargs that is the mechanism
+    by which the solver construction can now be tailored.
