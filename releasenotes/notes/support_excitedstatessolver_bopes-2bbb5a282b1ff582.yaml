@@ -1,0 +1,18 @@
+---
+prelude: >
+    Minor changes in the ExcitedStatesEigensolver and in BOPESSampler to allow the 
+    sampling of nuclear coordinates for the calculation of excited state energies 
+    In addition to the ground state energy.
+    
+features:
+  - |
+    The BOPESSampler can now take a 'Union[GroundStateSolver, ExcitedStatesSolver]' instead
+    of only a 'GroundStateSolver'. This generalizes the sampling of nuclear coordinates for 
+    Born Oppenheimer Potential Energy Surfaces of excited states.
+upgrade:
+  - |
+    The tutorial 05_Sampling_potential_energy_surfaces now includes calculations of excited state Born Oppenheimer potential energy surfaces
+other:
+  - |
+    The solve() method of ExcitedStatesEigensolver was split in a get_qubit_operators() and solve() to match the GroundStatesEigensolver.
+    
