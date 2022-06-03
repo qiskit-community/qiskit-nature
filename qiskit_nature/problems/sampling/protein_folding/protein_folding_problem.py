@@ -17,7 +17,7 @@ from typing import Union, List
 from qiskit.opflow import PauliSumOp, PauliOp
 from qiskit.algorithms import MinimumEigensolverResult
 
-from qiskit_nature.results.protein_folding_result import ProteinFoldingResult
+from qiskit_nature.results import ProteinFoldingResult
 from .peptide.peptide import Peptide
 from .interactions.interaction import Interaction
 from .penalty_parameters import PenaltyParameters

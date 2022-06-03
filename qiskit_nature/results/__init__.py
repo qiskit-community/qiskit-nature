@@ -31,6 +31,7 @@ Results
    ElectronicStructureResult
    VibrationalStructureResult
    LatticeModelResult
+   ProteinFoldingResult
 
 """
 
@@ -39,6 +40,7 @@ from .eigenstate_result import EigenstateResult
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
 from .vibrational_structure_result import VibrationalStructureResult
 from .lattice_model_result import LatticeModelResult
+from .protein_folding_result import ProteinFoldingResult
 
 __all__ = [
     "BOPESSamplerResult",
@@ -47,4 +49,6 @@ __all__ = [
     "ElectronicStructureResult",
     "VibrationalStructureResult",
     "LatticeModelResult",
+    "ProteinFoldingResult",
+
 ]
