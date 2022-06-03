@@ -9,3 +9,35 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""
+utils (:mod:`qiskit_nature.results.utils`)
+======================================
+
+.. currentmodule:: qiskit_nature.results.utils
+
+    Utils for ProteinFoldingResult
+
+
+utils
+=======
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+    ProteinPlotter
+    ProteinShapeDecoder
+    ProteinShapeFileGen
+
+"""
+
+
+from .protein_plotter import ProteinPlotter
+from .protein_shape_decoder import ProteinShapeDecoder
+from .protein_shape_file_gen import ProteinShapeFileGen
+
+__all__ = [
+    "ProteinPlotter",
+    "ProteinShapeDecoder",
+    "ProteinShapeFileGen",
+]
