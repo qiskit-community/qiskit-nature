@@ -47,10 +47,10 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     .. note::
 
        Any ansatz a user might directly set into VQE via the :attr:`minimum_eigensolver` will
-       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is due to the fact
-       that the factory is designed to manage the ansatz and set it up according to the problem. Always
-       pass any custom ansatz to be used when constructing the factory or by using its :attr:`ansatz` setter.
-       The following code sample illustrates this behavior:
+       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is
+       due to the fact that the factory is designed to manage the ansatz and set it up according
+       to the problem. Always pass any custom ansatz to be used when constructing the factory or
+       by using its :attr:`ansatz` setter. The following code sample illustrates this behavior:
 
     .. code-block:: python
 
