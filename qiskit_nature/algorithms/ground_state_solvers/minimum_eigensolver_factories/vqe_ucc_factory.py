@@ -118,78 +118,78 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self._vqe = VQE(**kwargs)
 
     @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver.quantum_instance` instead."
-    )
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.quantum_instance` instead.")
     def quantum_instance(self) -> QuantumInstance:
         """DEPRECATED. Use ``minimum_eigensolver.quantum_instance`` instead.
         Returns quantum instance."""
         return self.minimum_eigensolver.quantum_instance
 
     @quantum_instance.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.quantum_instance = q_instance` instead."
+    )
     def quantum_instance(self, q_instance: QuantumInstance) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the quantum instance."""
+        """DEPRECATED. Use `minimum_eigensolver.quantum_instance = q_instance` instead. Sets the quantum instance."""
         self.minimum_eigensolver.quantum_instance = q_instance
 
     @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver.optimizer` instead."
-    )
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.optimizer` instead.")
     def optimizer(self) -> Optional[Optimizer]:
         """DEPRECATED. Use ``minimum_eigensolver.optimizer`` instead.
         Returns optimizer."""
         return self.minimum_eigensolver.optimizer
 
     @optimizer.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.optimizer = optimizer` instead."
+    )
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the optimizer."""
+        """DEPRECATED. Use `minimum_eigensolver.optimizer = optimizer` instead. Sets the optimizer."""
         self.minimum_eigensolver.optimizer = optimizer
 
     @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver.gradient` instead."
-    )
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.gradient` instead.")
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """DEPRECATED. Use ``minimum_eigensolver.gradient`` instead.
         Returns gradient."""
         return self.minimum_eigensolver.gradient
 
     @gradient.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use minimum_eigensolver.gradient = gradient instead."
+    )
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the gradient."""
+        """DEPRECATED. Use minimum_eigensolver.gradient = gradient instead. Sets the gradient."""
         self.minimum_eigensolver.gradient = gradient
 
     @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver.expectation` instead."
-    )
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.expectation` instead.")
     def expectation(self) -> Optional[ExpectationBase]:
         """DEPRECATED. Use ``minimum_eigensolver.expectation`` instead.
         Returns expectation."""
         return self.minimum_eigensolver.expectation
 
     @expectation.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum.eigensolver.expectation = expectation` instead."
+    )
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
-        """DEPRECATED. Use the constructor instead. Sets the expectation."""
+        """DEPRECATED. Use `minimum.eigensolver.expectation = expectation` instead. Sets the expectation."""
         self.minimum_eigensolver.expectation = expectation
 
     @property  # type: ignore
-    @deprecate_property(
-        "0.4", additional_msg="Use `minimum_eigensolver.include_custom` instead."
-    )
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.include_custom` instead.")
     def include_custom(self) -> bool:
         """DEPRECATED. Use ``minimum_eigensolver.include_custom`` instead.
         Getter of the ``include_custom`` setting for the ``expectation`` setting."""
         return self.minimum_eigensolver.include_custom
 
     @include_custom.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.include_custom = include_custom` instead."
+    )
     def include_custom(self, include_custom: bool) -> None:
-        """DEPRECATED. Use the constructor instead. Setter of the ``include_custom``
+        """DEPRECATED. Use `minimum_eigensolver.include_custom = include_custom` instead. Setter of the ``include_custom``
         setting for the ``expectation`` setting."""
         self.minimum_eigensolver.include_custom = include_custom
 
@@ -245,10 +245,11 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         return self.minimum_eigensolver.callback
 
     @callback.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.callback = callback` instead."
+    )
     def callback(self, callback: Optional[Callable[[int, np.ndarray, float, float], None]]) -> None:
-        """DEPRECATED. Use the constructor instead.
-        Sets the callback."""
+        """DEPRECATED.Use `minimum_eigensolver.callback = callback` instead. Sets the callback."""
         self.minimum_eigensolver.callback = callback
 
     def get_solver(  # type: ignore[override]
