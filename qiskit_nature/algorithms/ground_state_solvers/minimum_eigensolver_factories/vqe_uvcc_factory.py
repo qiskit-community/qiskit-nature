@@ -41,22 +41,24 @@ logger = logging.getLogger(__name__)
 class VQEUVCCFactory(MinimumEigensolverFactory):
     """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz wavefunction.
 
+    .. note::
 
-    Note: Any ansatz a user might directly set into VQE via the minumum_eigensolver will be overwritten
-        by the factory when producing a solver via .get_solver(). This is due to the fact that the
-        factory has its own ansatz property.
-    The following code sample illustrates this:
+       Any ansatz a user might directly set into VQE via the :attr:`minimum_eigensolver` will
+       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is due to the fact
+       that the factory is designed to manage the ansatz and set it up according to the problem. Always
+       pass any custom ansatz to be used when constructing the factory or by using its :attr:`ansatz` setter.
+       The following code sample illustrates this behavior:
 
     .. code-block:: python
 
         factory = VQEUVCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
         print(type(vqe1.ansatz))  # UVCC()
-        #Here the minimum_eigensolver ansatz just gets overwritten
+        # Here the minimum_eigensolver ansatz just gets overwritten
         factory.minimum_eigensolver.ansatz = UVCC()
         vqe2 = factory.get_solver(problem, qubit_converter)
         print(type(vqe2.ansatz))  # UVCCSD
-        #Here we change the factory ansatz and thus new VQEs are created with the new ansatz
+        # Here we change the factory ansatz and thus new VQEs are created with the new ansatz
         factory.ansatz = UVCC()
         vqe3 = factory.get_solver(problem, qubit_converter)
         print(type(vqe3.ansatz))  # UVCC
@@ -101,8 +103,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
-            ansatz: Allows specification of a custom :class:`~.UVCC` instance. If this is never
-                set by the user, the factory will default to the :class:`~.UVCCSD` Ansatz.
+            ansatz: Allows specification of a custom :class:`~.UCC` instance. This defaults to None
+                where the factory will internally create and use a :class:`~.UVCCSD` ansatz.
             kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
         """
 
