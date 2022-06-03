@@ -50,5 +50,4 @@ __all__ = [
     "VibrationalStructureResult",
     "LatticeModelResult",
     "ProteinFoldingResult",
-
 ]

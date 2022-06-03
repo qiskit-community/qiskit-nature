@@ -12,18 +12,19 @@
 """Defines a protein folding problem that can be passed to algorithms."""
 from __future__ import annotations
 
-from typing import Union, List
+from typing import Union, List, TYPE_CHECKING
 
 from qiskit.opflow import PauliSumOp, PauliOp
 from qiskit.algorithms import MinimumEigensolverResult
-
-from ....results import ProteinFoldingResult
 from .peptide.peptide import Peptide
 from .interactions.interaction import Interaction
 from .penalty_parameters import PenaltyParameters
 from .qubit_op_builder import QubitOpBuilder
 from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
+
+if TYPE_CHECKING:
+    from ....results.protein_folding_result import ProteinFoldingResult
 
 
 class ProteinFoldingProblem(SamplingProblem):
@@ -89,12 +90,14 @@ class ProteinFoldingProblem(SamplingProblem):
         qubit_operator = self._qubit_op_builder._build_qubit_op()
         return qubit_operator
 
-    def interpret(self, raw_result: MinimumEigensolverResult) -> ProteinFoldingResult:
+    def interpret(self, raw_result: MinimumEigensolverResult) -> "ProteinFoldingResult":
         """
         Interprets the raw algorithm result, in the context of this problem, and returns a
         ProteinFoldingResult. The returned class can plot the protein and generate a
         .xyz file with the coordinates of each of its atoms.
         """
+        from qiskit_nature.results import ProteinFoldingResult
+
         best_turns_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
         return ProteinFoldingResult(
             unused_qubits=self.unused_qubits,

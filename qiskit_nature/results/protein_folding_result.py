@@ -14,17 +14,17 @@
 
 from typing import List, Optional
 from qiskit.utils import optionals as _optionals
-from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
-from qiskit_nature.results import EigenstateResult
+from ..problems.sampling.protein_folding.peptide.peptide import Peptide
+from .eigenstate_result import EigenstateResult
 from .utils.protein_plotter import ProteinPlotter
 from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
 
 
-
 if _optionals.HAS_MATPLOTLIB:
     # pylint: disable=import-error,unused-import
     from matplotlib.pyplot import figure
+
 
 class ProteinFoldingResult(EigenstateResult):
     """
@@ -33,8 +33,8 @@ class ProteinFoldingResult(EigenstateResult):
     :class:`ProteinFoldingProblem` and decodes it. One can generate a .xyz file, which is a file
     containing the cartesian coordinates of each atom in the protein. This kind of file can be
     used with other software to generate plots of the molecule.
-    Alternatively, one can use the built in plotter from this class. Note that `mpl` optional needs
-    to be intsalled in order to generate such a figure.
+    Alternatively, one can use the built-in plotter from this class. Note that `mpl` optional needs
+    to be installed in order to generate such a figure.
     """
 
     def __init__(
@@ -109,13 +109,14 @@ class ProteinFoldingResult(EigenstateResult):
     def save_xyz_file(self, name: Optional[str] = None, path: str = "", comment: str = "") -> None:
         """
         Generates a .xyz file.
+
         Args:
             name: Name of the file to be generated. If the name is ``None`` the
                 name of the file will be the letters of the aminoacids on the main_chain.
-                If a file with the same name already exists it will be overwriten.
+                If a file with the same name already exists it will be overwritten.
             path: Path where the file will be generated. If left empty the file will
                 be saved in the working directory.
-            comment: Comment to be added to the second line of the file. By default the line will
+            comment: Comment to be added to the second line of the file. By default, the line will
                 be left blank.
         """
         if name is None:

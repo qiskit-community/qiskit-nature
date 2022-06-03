@@ -16,6 +16,7 @@ from typing import Union, List, Optional
 import numpy as np
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
+
 class ProteinShapeFileGen:
     """This class handles the creation of cartesian coordinates for
     each aminoacid in a protein and generates a .xyz file.
@@ -110,7 +111,7 @@ class ProteinShapeFileGen:
         For more information about .xyz files see: https://en.wikipedia.org/wiki/XYZ_file_format
         Args:
             name: The file will be called name.xyz.If a file with the same name already exists it
-                will be overwriten.
+                will be overwritten.
             path: Path under which the file will be saved. If no path is specified the file will
                 be saved in the current working directory.
             comment: Comment to be added to the second line of the file. By default the line will
