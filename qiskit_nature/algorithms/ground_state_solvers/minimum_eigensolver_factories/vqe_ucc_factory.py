@@ -44,21 +44,25 @@ logger = logging.getLogger(__name__)
 class VQEUCCFactory(MinimumEigensolverFactory):
     """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UCCSD` ansatz wavefunction.
 
-    Note: Any ansatz a user might directly set into VQE via the minumum_eigensolver will be overwritten
-        by the factory when producing a solver via .get_solver(). This is due to the fact that the
-        factory has its own ansatz property.
-    The following code sample illustrates this:
+    .. note::
+
+       Any ansatz a user might directly set into VQE via the :attr:`minimum_eigensolver` will
+       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is due to the fact
+       that the factory is designed to manage the ansatz and set it up according to the problem. Always
+       pass any custom ansatz to be used when constructing the factory or by using its :attr:`ansatz` setter.
+       The following code sample illustrates this behavior:
+
     .. code-block:: python
 
         factory = VQEUCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
         print(type(vqe1.ansatz))  # UCCSD (default)
         vqe1.ansatz = UCC()
-        #Here the minimum_eigensolver ansatz just gets overwritten
+        # Here the minimum_eigensolver ansatz just gets overwritten
         factory.minimum_eigensolver.ansatz = UCC()
         vqe2 = factory.get_solver(problem, qubit_converter)
         print(type(vqe2.ansatz))  # UCCSD
-        #Here we change the factory ansatz and thus new VQEs are created with the new ansatz
+        # Here we change the factory ansatz and thus new VQEs are created with the new ansatz
         factory.ansatz = UCC()
         vqe3 = factory.get_solver(problem, qubit_converter)
         print(type(vqe3.ansatz))  # UCC
@@ -97,15 +101,15 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 appropriate length computed using
                 :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint`.
                 This then defaults to the Hartree-Fock (HF) state when the HF circuit is prepended
-                to the the ansatz circuit. If another
+                to the ansatz circuit. If another
                 :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
                 If a user-provided NumPy array, this is used directly.
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.HartreeFock` state.
-            ansatz: Allows specification of a custom :class:`~.UCC` instance. If this is never set
-                by the user, the factory will default to the :class:`~.UCCSD` Ansatz.
+            ansatz: Allows specification of a custom :class:`~.UCC` instance. This defaults to None
+                where the factory will internally create and use a :class:`~.UCCSD` ansatz.
             kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
         """
 
