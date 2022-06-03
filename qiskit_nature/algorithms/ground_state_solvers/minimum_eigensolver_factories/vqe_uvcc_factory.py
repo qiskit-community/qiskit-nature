@@ -41,26 +41,24 @@ logger = logging.getLogger(__name__)
 class VQEUVCCFactory(MinimumEigensolverFactory):
     """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz wavefunction.
 
-    Note: Changing the ansatz of the minimum_eigensolver of the factory won't affect
-        the ansatz of new solvers produced by the factory. On top of that the default
-        type for :class:`VQE` is not the same as the factory.
+
+    Note: Any ansatz a user might directly set into VQE via the minumum_eigensolver will be overwritten
+        by the factory when producing a solver via .get_solver(). This is due to the fact that the factory
+        has its own ansatz property.
 
     .. code-block:: python
 
-        # Wrong way
         factory = VQEUVCCFactory()
-        print(type(factory.minimum_eigensolver.ansatz))  # RealAmplitudes (by default)
+        vqe1 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe1.ansatz))  # UVCC()
+        #Here the minimum_eigensolver ansatz just gets overwritten
         factory.minimum_eigensolver.ansatz = UVCC()
-        print(type(factory.minimum_eigensolver.ansatz))  # UVCC
-        vqe = factory.get_solver(problem, qubit_converter)
-        print(type(vqe.ansatz))  # UVCCSD (and not UVCC nor RealAmplitudes)
-        #Intended way
-        factoryB = VQEUCCFactory()
-        vqe1 = factoryB.get_solver(problem, qubit_converter)
-        print(type(vqe1.ansatz))  # UVCCSD (default)
-        factoryB.ansatz = UVCC()
         vqe2 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe2.ansatz))  # UVCC
+        print(type(vqe2.ansatz))  # UVCCSD
+        #Here we change the factory ansatz and thus new VQEs are created with the new ansatz
+        factory.ansatz = UVCC()
+        vqe3 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe3.ansatz))  # UVCC
 
     """
 
@@ -121,7 +119,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         return self.minimum_eigensolver.quantum_instance
 
     @quantum_instance.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.quantum_instance = q_instance` instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.quantum_instance = q_instance` instead."
+    )
     def quantum_instance(self, q_instance: QuantumInstance) -> None:
         """DEPRECATED. Use `minimum_eigensolver.quantum_instance` instead. Sets the quantum instance."""
         self.minimum_eigensolver.quantum_instance = q_instance
@@ -134,7 +134,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         return self.minimum_eigensolver.optimizer
 
     @optimizer.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.optimizer = optimizer` instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.optimizer = optimizer` instead."
+    )
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """DEPRECATED. Use `minimum_eigensolver.optimizer = optimizer` instead. Sets the optimizer."""
         self.minimum_eigensolver.optimizer = optimizer
@@ -147,7 +149,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         return self.minimum_eigensolver.gradient
 
     @gradient.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.gradient = gradient` instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.gradient = gradient` instead."
+    )
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
         """DEPRECATED. Use `minimum_eigensolver.gradient = gradient` instead. Sets the gradient."""
         self.minimum_eigensolver.gradient = gradient
@@ -160,7 +164,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         return self.minimum_eigensolver.expectation
 
     @expectation.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.expectation = expectation` instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.expectation = expectation` instead."
+    )
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
         """DEPRECATED. Use `minimum_eigensolver.expectation = expectation` instead. Sets expectation."""
         self.minimum_eigensolver.expectation = expectation
@@ -173,7 +179,9 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         return self.minimum_eigensolver.include_custom
 
     @include_custom.setter  # type: ignore
-    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.include_custom = include_custom` instead.")
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.include_custom = include_custom` instead."
+    )
     def include_custom(self, include_custom: bool) -> None:
         """DEPRECATED. Use `minimum_eigensolver.include_custom = include_custom` instead. Setter of the ``include_custom``
         setting for the ``expectation`` setting."""

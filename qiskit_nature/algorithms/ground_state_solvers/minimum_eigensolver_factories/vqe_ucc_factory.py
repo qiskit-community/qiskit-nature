@@ -44,26 +44,24 @@ logger = logging.getLogger(__name__)
 class VQEUCCFactory(MinimumEigensolverFactory):
     """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UCCSD` ansatz wavefunction.
 
-    Note: Changing the ansatz of the minimum_eigensolver of the factory won't affect
-        the ansatz of new solvers produced by the factory. On top of that the default
-        type for :class:`VQE` is not the same as the factory.
+    Note: Any ansatz a user might directly set into VQE via the minumum_eigensolver will be overwritten
+        by the factory when producing a solver via .get_solver(). This is due to the fact that the factory
+        has its own ansatz property.
 
     .. code-block:: python
 
-        # Wrong way
-        factory = VQEUCCFactory()
-        print(type(factory.minimum_eigensolver.ansatz))  # RealAmplitudes (by default)
-        factory.minimum_eigensolver.ansatz = UCC()
-        print(type(factory.minimum_eigensolver.ansatz))  # UCC
-        vqe = factory.get_solver(problem, qubit_converter)
-        print(type(vqe.ansatz))   # UCCSD (and not UCC nor RealAmplitudes)
-        # Expected way
         factory = VQEUCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
         print(type(vqe1.ansatz))  # UCCSD (default)
-        factory.ansatz = UCC()
+        vqe1.ansatz = UCC()
+        #Here the minimum_eigensolver ansatz just gets overwritten
+        factory.minimum_eigensolver.ansatz = UCC()
         vqe2 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe2.ansatz))  # UCC
+        print(type(vqe2.ansatz))  # UCCSD
+        #Here we change the factory ansatz and thus new VQEs are created with the new ansatz
+        factory.ansatz = UCC()
+        vqe3 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe3.ansatz))  # UCC
 
     """
 
