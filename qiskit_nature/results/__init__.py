@@ -19,6 +19,7 @@ Results (:mod:`qiskit_nature.results`)
 Qiskit Nature results such as for electronic and vibrational structure. Algorithms
 may extend these to provide algorithm specific aspects in their result.
 
+
 Results
 =======
 
@@ -32,6 +33,14 @@ Results
    VibrationalStructureResult
    LatticeModelResult
    ProteinFoldingResult
+
+Protein Folding Result support classes
+--------------------------------------
+
+.. autosummary::
+   :toctree:
+
+   utils
 
 """
 

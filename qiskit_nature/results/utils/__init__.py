@@ -15,14 +15,14 @@ utils (:mod:`qiskit_nature.results.utils`)
 
 .. currentmodule:: qiskit_nature.results.utils
 
-    Utils for ProteinFoldingResult
+    Utils for ProteinFoldingRe
 
 
 utils
 =======
 
 .. autosummary::
-   :toctree: ../stubs/
+   :toctree:
    :nosignatures:
 
     ProteinPlotter
