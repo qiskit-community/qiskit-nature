@@ -95,8 +95,8 @@ class QEOM(ExcitedStatesSolver):
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
             expectation: Might be different from the one used in VQE. If None, the expectation
-            from the groundstate eigensolver is imported. Please note that the include_custom
-            parameter can be used locally in the groundstate eigensolver to create an
+            from the ground-state eigen-solver is imported. Please note that the include_custom
+            parameter can be used locally in the ground-state eigen-solver to create an
             AerPauliExpectation() but it cannot be retrieved in qeom.solve().
             quantum_instance: quantum instance that can be used when the solver don't have one.
         Returns:
