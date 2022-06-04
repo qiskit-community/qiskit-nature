@@ -17,7 +17,6 @@ import io
 import unittest
 import warnings
 
-from qiskit.opflow import MatrixExpectation
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -92,22 +91,13 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         self.vibrational_problem = VibrationalStructureProblem(
             self.driver, self.basis_size, self.truncation_order
         )
-        self.quantum_instance = QuantumInstance(
-            qiskit.Aer.get_backend("statevector_simulator"),
-            seed_transpiler=90,
-            seed_simulator=12,
-        )
 
     def test_numpy_mes(self):
         """Test with NumPyMinimumEigensolver"""
         solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
-        results = esc.solve(
-            self.vibrational_problem,
-            expectation=MatrixExpectation(),
-            quantum_instance=self.quantum_instance,
-        )
+        results = esc.solve(self.vibrational_problem)
 
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=4)
@@ -129,10 +119,10 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             seed_simulator=algorithm_globals.random_seed,
             seed_transpiler=algorithm_globals.random_seed,
         )
-        solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer, include_custom=True)
+        solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
-        results = esc.solve(self.vibrational_problem, expectation=MatrixExpectation())
+        results = esc.solve(self.vibrational_problem)
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
 
@@ -148,7 +138,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer, initial_point=initial_point)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
-        results = esc.solve(self.vibrational_problem, expectation=MatrixExpectation())
+        results = esc.solve(self.vibrational_problem)
         np.testing.assert_array_almost_equal(
             results.raw_result.ground_state_raw_result.optimal_point, initial_point
         )
@@ -169,7 +159,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         with contextlib.redirect_stdout(io.StringIO()) as out:
-            results = esc.solve(self.vibrational_problem, expectation=MatrixExpectation())
+            results = esc.solve(self.vibrational_problem)
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
         for idx, line in enumerate(out.getvalue().split("\n")):

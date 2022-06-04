@@ -15,10 +15,10 @@
 import unittest
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit import Aer
+from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
-from qiskit.opflow import MatrixExpectation
+
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import (
@@ -65,7 +65,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         solver = NumPyEigensolver()
         self.ref = solver
         self.quantum_instance = QuantumInstance(
-            Aer.get_backend("statevector_simulator"),
+            BasicAer.get_backend("statevector_simulator"),
             seed_transpiler=90,
             seed_simulator=12,
         )
@@ -75,11 +75,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
-        results = esc.solve(
-            self.electronic_structure_problem,
-            expectation=MatrixExpectation(),
-            quantum_instance=self.quantum_instance,
-        )
+        results = esc.solve(self.electronic_structure_problem)
 
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
@@ -130,7 +126,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         solver = VQEUCCFactory(self.quantum_instance)
         gsc = GroundStateEigensolver(converter, solver)
         esc = QEOM(gsc, "sd")
-        results = esc.solve(self.electronic_structure_problem, expectation=MatrixExpectation())
+        results = esc.solve(self.electronic_structure_problem)
+
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
 
