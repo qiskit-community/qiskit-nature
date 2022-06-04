@@ -16,9 +16,11 @@ import unittest
 
 from test import QiskitNatureTestCase
 from ddt import ddt, idata
+import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
 
 @ddt
@@ -99,6 +101,36 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         expected.get_property("ParticleNumber")._num_spin_orbitals = 6
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
+
+    def test_no_freeze_core(self):
+        """Test the disabled `freeze_core` convenience argument.
+
+        Regression test against https://github.com/Qiskit/qiskit-nature/issues/652
+        """
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path(
+                "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
+            )
+        )
+        driver_result = driver.run()
+
+        trafo = FreezeCoreTransformer(freeze_core=False)
+        driver_result_reduced = trafo.transform(driver_result)
+
+        electronic_energy = driver_result_reduced.get_property("ElectronicEnergy")
+        electronic_energy_exp = driver_result.get_property("ElectronicEnergy")
+        with self.subTest("MO 1-electron integrals"):
+            np.testing.assert_array_almost_equal(
+                electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
+                electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
+            )
+        with self.subTest("MO 2-electron integrals"):
+            np.testing.assert_array_almost_equal(
+                electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).to_spin(),
+                electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 2).to_spin(),
+            )
+        with self.subTest("Inactive energy"):
+            self.assertAlmostEqual(electronic_energy._shift["FreezeCoreTransformer"], 0.0)
 
 
 if __name__ == "__main__":

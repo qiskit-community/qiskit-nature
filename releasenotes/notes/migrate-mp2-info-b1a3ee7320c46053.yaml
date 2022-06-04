@@ -1,0 +1,49 @@
+features:
+  - |
+    Adds a class to compute the Møller-Plesset 2nd Order (MP2) corrections.
+    The corresponding double-excitation coefficients are intended to be used as
+    an initial point for the VQE parameters (cluster operator coefficients)
+    when using a UCC ansatz. This should introduce an initial point that is
+    closer to the ground state point, leading to fewer overall evaluations
+    for VQE.
+
+    :class:`~qiskit_nature.algorithms.MP2InitialPoint` inherits from the
+    abstract base class (interface)
+    :class:`~qiskit_nature.algorithms.InitialPoint`, which takes a driver
+    result and a UCC ansatz either directly via the ``compute`` method or via
+    their respective property setters.
+
+    The MP2 computation requires the `grouped_property` to contain the
+    ElectronicEnergy, which must contain the two-body molecular orbital matrix
+    and the orbital energies. Optionally, it will also use the Hartree-Fock
+    reference energy to compute the absolute energy.
+
+    When using :class:`~qiskit_nature.algorithms.VQEUCCFactory`, an
+    :class:`~qiskit_nature.algorithms.MP2InitialPoint` object can be passed via
+    the ``initial_point`` keyword argument:
+
+    .. code-block:: python
+
+      mp2_initial_point = MP2InitialPoint()
+      vqe_ucc_factory = VQEUCCFactory(quantum_instance, initial_point=mp2_initial_point)
+
+    In this case the driver result and ansatz will be used to compute the
+    initial point automatically. This will then be passed to the VQE.
+
+    Outside of the factory, one can do this manually:
+
+    .. code-block:: python
+
+      mp2_initial_point = MP2InitialPoint()
+      mp2_initial_point.compute(driver_result, ansatz)
+      initial_point = mp2_initial_point.to_numpy_array()
+
+      algorithm = VQE(
+        ansatz,
+        optimizer=optimizer,
+        quantum_instance=quantum_instance,
+        initial_point=initial_point
+      )
+
+    The eventual intention is to retire ``preferred_init_points`` from ``VQE``
+    in Terra, so the implementation avoids this property.

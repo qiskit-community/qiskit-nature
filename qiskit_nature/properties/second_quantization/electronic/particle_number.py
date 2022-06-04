@@ -220,8 +220,8 @@ class ParticleNumber(ElectronicProperty):
         return ParticleNumber(
             h5py_group.attrs["num_spin_orbitals"],
             (h5py_group.attrs["num_alpha"], h5py_group.attrs["num_beta"]),
-            h5py_group["occupation_alpha"][...],
-            h5py_group["occupation_beta"][...],
+            h5py_group["occupation_alpha"][Ellipsis],
+            h5py_group["occupation_beta"][Ellipsis],
             h5py_group.attrs["absolute_tolerance"],
             h5py_group.attrs["relative_tolerance"],
         )

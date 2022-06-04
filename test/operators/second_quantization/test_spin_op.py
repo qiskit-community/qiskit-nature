@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -265,8 +265,14 @@ class TestSpinOp(QiskitNatureTestCase):
 
     def test_reduce(self):
         """Test reduce"""
-        with self.subTest("trivial reduce"):
+        with self.assertWarns(DeprecationWarning):
             actual = (self.heisenberg - self.heisenberg).reduce()
+            self.assertListEqual(actual.to_list(), [("I_1", 0)])
+
+    def test_simplify(self):
+        """Test simplify"""
+        with self.subTest("trivial reduce"):
+            actual = (self.heisenberg - self.heisenberg).simplify()
             self.assertListEqual(actual.to_list(), [("I_1", 0)])
 
         with self.subTest("nontrivial reduce"):
@@ -277,7 +283,7 @@ class TestSpinOp(QiskitNatureTestCase):
                 ),
                 spin=3 / 2,
             )
-            actual = test_op.reduce()
+            actual = test_op.simplify()
             self.assertListEqual(actual.to_list(), [("Z_0 X_1", 4)])
 
         with self.subTest("nontrivial reduce 2"):
@@ -294,12 +300,12 @@ class TestSpinOp(QiskitNatureTestCase):
                 ),
                 spin=3 / 2,
             )
-            actual = test_op.reduce()
+            actual = test_op.simplify()
             self.assertListEqual(actual.to_list(), [("Z_0 X_1", 4), ("X_0 X_1", 2)])
 
         with self.subTest("nontrivial reduce 3"):
             test_op = SpinOp([("+_0 -_0", 1)], register_length=4)
-            actual = test_op.reduce()
+            actual = test_op.simplify()
             self.assertListEqual(actual.to_list(), [("Z_0", 1), ("Y_0^2", 1), ("X_0^2", 1)])
 
     @data(*dense_labels(1))

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2021.
+# (C) Copyright IBM 2019, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """
+============================================
 Algorithms (:mod:`qiskit_nature.algorithms`)
 ============================================
 
@@ -94,12 +95,22 @@ Algorithms that can compute potential energy surfaces.
    ~pes_samplers.BOPESSampler
 
 The samplers include extrapolators to facilitate convergence across a set of points and support
-of various potentials. More detail may be found in the sub-module linked below
+of various potentials. More detail may be found in the sub-module linked below.
 
 .. autosummary::
    :toctree:
 
    pes_samplers
+
+Initial Points
+++++++++++++++
+The factories linked above make use of utility classes to compute initial points to use with
+specific ansatzes. More detail may be found in the sub-module linked below.
+
+.. autosummary::
+   :toctree:
+
+   initial_points
 
 """
 

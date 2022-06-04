@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,8 +19,8 @@ from functools import reduce
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.deprecation import deprecate_function
 
 from .second_quantized_op import SecondQuantizedOp
 
@@ -263,23 +263,42 @@ class VibrationalOp(SecondQuantizedOp):
             self._num_modals,
         )
 
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> "VibrationalOp":
+    @deprecate_function("0.4.0", new_name="simplify")
+    def reduce(
+        self,
+        atol: Optional[float] = None,
+        rtol: Optional[float] = None,  # pylint: disable=unused-argument
+    ) -> "VibrationalOp":
+        """Reduce the operator.
+
+        This method is deprecated. Use `simplify` instead.
+        """
+        return self.simplify(atol=atol)
+
+    def simplify(self, atol: Optional[float] = None) -> "VibrationalOp":
+        """Simplify the operator.
+
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+
+        Returns:
+            The simplified operator.
+        """
         if atol is None:
             atol = self.atol
-        if rtol is None:
-            rtol = self.rtol
 
         label_list, indices = np.unique(self._labels, return_inverse=True, axis=0)
-        coeff_list = np.zeros(len(self._coeffs), dtype=np.complex128)
-        for i, val in zip(indices, self._coeffs):
-            coeff_list[i] += val
-        non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
-        ]
-        if not non_zero:
+        coeff_list = np.zeros(label_list.shape[0], dtype=np.complex128)
+        np.add.at(coeff_list, indices, self._coeffs)
+        is_zero = np.isclose(coeff_list, 0, atol=atol)
+        if np.all(is_zero):
             return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
+        non_zero = np.logical_not(is_zero)
         return VibrationalOp(
-            list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
+            list(zip(label_list[non_zero], coeff_list[non_zero])),
             self._num_modes,
             self._num_modals,
         )

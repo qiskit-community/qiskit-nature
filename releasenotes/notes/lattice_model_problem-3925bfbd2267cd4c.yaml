@@ -1,0 +1,31 @@
+---
+features:
+  - |
+    Adds a new problem class,
+    :class:`qiskit_nature.problems.second_quantization.lattice.LatticeModelProblem`,
+    for lattice models. It can create second quantized operators from a lattice model.
+    We can use the Ground State Eigensolver with it to calculate the ground state energy.
+
+    .. code-block:: python
+
+        from qiskit_nature.problems.second_quantization.lattice import (
+          BoundaryCondition, FermiHubbardModel, LineLattice, LatticeModelProblem
+        )
+        from qiskit.algorithms import NumPyMinimumEigensolver
+        from qiskit_nature.algorithms import GroundStateEigensolver
+        from qiskit_nature.converters.second_quantization import QubitConverter
+        from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+
+        solver = NumPyMinimumEigensolver()
+        qubit_converter = QubitConverter(JordanWignerMapper())
+        calc = GroundStateEigensolver(qubit_converter, solver)
+
+        line_lattice = LineLattice(num_nodes=4, boundary_condition=BoundaryCondition.OPEN)
+        fhm = FermiHubbardModel.uniform_parameters(
+          lattice=line_lattice,
+          uniform_interaction=-1.0,
+          uniform_onsite_potential=0.0,
+          onsite_interaction=5.0,
+        )
+        lmp = LatticeModelProblem(lattice_model=fhm)
+        res = calc.solve(lmp)

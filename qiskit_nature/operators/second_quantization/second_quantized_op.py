@@ -19,7 +19,6 @@ from typing import Optional
 
 from qiskit.opflow.mixins import StarAlgebraMixin
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
-from qiskit.utils.deprecation import deprecate_function
 
 
 class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
@@ -42,18 +41,17 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         return super().__pow__(power)
 
     @abstractmethod
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None):
-        """
-        Reduce the operator.
+    def simplify(self, atol: Optional[float] = None):
+        """Simplify the operator.
 
-        `Reduce` merges terms with same labels and chops terms with coefficients close to 0.
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
 
         Args:
             atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-            rtol: Relative tolerance for checking if coefficients are zero (Default: 1e-5).
 
         Returns:
-            The reduced operator`
+            The simplified operator.
         """
         raise NotImplementedError
 
@@ -64,15 +62,6 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
     def is_hermitian(self) -> bool:
         """Checks whether the operator is hermitian"""
-        return frozenset(self.reduce().to_list()) == frozenset(self.adjoint().reduce().to_list())
-
-    @property  # type: ignore
-    # pylint: disable=bad-docstring-quotes
-    @deprecate_function(
-        "Using the `dagger` property is deprecated as of version 0.2.0 and will be removed no "
-        "earlier than 3 months after the release date. As an alternative, use the `adjoint()` "
-        "method in place of `dagger` as a replacement."
-    )
-    def dagger(self):
-        """DEPRECATED - Alias of :meth:`adjoint()`"""
-        return self.adjoint()
+        return frozenset(self.simplify().to_list()) == frozenset(
+            self.adjoint().simplify().to_list()
+        )

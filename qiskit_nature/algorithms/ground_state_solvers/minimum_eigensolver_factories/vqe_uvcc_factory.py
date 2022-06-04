@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -31,6 +31,7 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 )
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
+from ...initial_points import InitialPoint, VSCFInitialPoint
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
@@ -40,7 +41,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self,
         quantum_instance: QuantumInstance,
         optimizer: Optional[Optimizer] = None,
-        initial_point: Optional[np.ndarray] = None,
+        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
         gradient: Optional[Union[GradientBase, Callable]] = None,
         expectation: Optional[ExpectationBase] = None,
         include_custom: bool = False,
@@ -53,9 +54,15 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Args:
             quantum_instance: The quantum instance used in the minimum eigensolver.
             optimizer: A classical optimizer.
-            initial_point: An optional initial point (i.e. initial parameter values)
-                for the optimizer. If ``None`` then VQE will look to the ansatz for a preferred
-                point and if not will simply compute a random one.
+            initial_point: An optional initial point (i.e., initial parameter values for the VQE
+                optimizer). If ``None`` then VQE will use an all-zero initial point of the
+                appropriate length computed using
+                :class:`~qiskit_nature.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint`.
+                This then defaults to the VSCF state when the VSCF circuit is prepended
+                to the the ansatz circuit. If another
+                :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
+                instance, this is used to compute an initial point for the VQE ansatz parameters.
+                If a user-provided NumPy array, this is used directly.
             gradient: An optional gradient function or operator for optimizer.
             expectation: The Expectation converter for taking the average value of the
                 Observable over the ansatz state function. When ``None`` (the default) an
@@ -83,7 +90,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
-        self.initial_point = initial_point
+        self.initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
         self.gradient = gradient
         self.expectation = expectation
         self.include_custom = include_custom
@@ -111,16 +118,6 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
         """Setter of the optimizer."""
         self._optimizer = optimizer
-
-    @property
-    def initial_point(self) -> Optional[np.ndarray]:
-        """Getter of the initial point."""
-        return self._initial_point
-
-    @initial_point.setter
-    def initial_point(self, initial_point: Optional[np.ndarray]) -> None:
-        """Setter of the initial point."""
-        self._initial_point = initial_point
 
     @property
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
@@ -218,13 +215,19 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         ansatz.num_modals = num_modals
         ansatz.initial_state = initial_state
 
+        if isinstance(self.initial_point, InitialPoint):
+            self.initial_point.ansatz = ansatz
+            initial_point = self.initial_point.to_numpy_array()
+        else:
+            initial_point = self.initial_point
+
         # TODO: leverage re-usability of VQE after fixing
         # https://github.com/Qiskit/qiskit-terra/issues/7093
         vqe = VQE(
             ansatz=ansatz,
             quantum_instance=self.quantum_instance,
             optimizer=self.optimizer,
-            initial_point=self.initial_point,
+            initial_point=initial_point,
             gradient=self.gradient,
             expectation=self.expectation,
             include_custom=self.include_custom,

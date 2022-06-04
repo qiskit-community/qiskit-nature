@@ -52,8 +52,7 @@ class ElectronicStructureProblem(BaseProblem):
             driver: A fermionic driver encoding the molecule information.
             transformers: A list of transformations to be applied to the driver result.
         """
-        super().__init__(driver, transformers)
-        self._main_property_name = "ElectronicEnergy"
+        super().__init__(driver, transformers, "ElectronicEnergy")
 
     @property
     def num_particles(self) -> Tuple[int, int]:

@@ -1,0 +1,56 @@
+---
+features:
+  - |
+    Added Qiskit Terra's Gradient Functionality to calculate gradients in
+    :class:`~qiskit_nature.algorithms.AdaptVQE`. You can choose the gradient method and 
+    input it while calling ``AdaptVQE``.
+    for example::
+      
+      from qiskit.providers.basicaer import BasicAer
+      from qiskit.utils import QuantumInstance
+      from qiskit.opflow.gradients import Gradient
+      from qiskit_nature.algorithms import VQEUCCFactory
+      from qiskit_nature.drivers import UnitsType
+      from qiskit_nature.drivers.second_quantization import PySCFDriver
+      from qiskit_nature.mappers.second_quantization import ParityMapper
+      from qiskit_nature.converters.second_quantization import QubitConverter
+      from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+      from qiskit_nature.algorithms.ground_state_solvers.adapt_vqe import AdaptVQE
+      
+      driver = PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
+            )
+      problem = ElectronicStructureProblem(driver)
+      qubit_converter = QubitConverter(ParityMapper())
+      solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+      grad = Gradient(grad_method="lin_comb", epsilon=1.0)
+      calc = AdaptVQE(qubit_converter, solver, gradient=grad)
+      res = calc.solve(problem)
+deprecations:
+  - |
+    The ``delta`` argument of :class:`~qiskit_nature.algorithms.AdaptVQE` is deprecated in favor of
+    supplying a ``gradient`` from Qiskit Terra's ``qiskit.opflow.gradients`` framework. In doing so,
+    the default behavior of ``AdaptVQE`` changes from using a finite difference scheme for the 
+    gradient evaluation to using a parameter shift method. In order to reproduce the original default 
+    behavior you must specify ``delta=1`` explicitly or use the following::
+
+      from qiskit.providers.basicaer import BasicAer
+      from qiskit.utils import QuantumInstance
+      from qiskit.opflow.gradients import Gradient
+      from qiskit_nature.algorithms import VQEUCCFactory
+      from qiskit_nature.drivers import UnitsType
+      from qiskit_nature.drivers.second_quantization import PySCFDriver
+      from qiskit_nature.mappers.second_quantization import ParityMapper
+      from qiskit_nature.converters.second_quantization import QubitConverter
+      from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+      from qiskit_nature.algorithms.ground_state_solvers.adapt_vqe import AdaptVQE
+
+      driver = PySCFDriver(
+            atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
+            )
+      problem = ElectronicStructureProblem(driver)
+      qubit_converter = QubitConverter(ParityMapper())
+      solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+      grad = Gradient(grad_method="fin_diff", epsilon=1.0)
+      calc = AdaptVQE(qubit_converter, solver, gradient=grad)
+      res = calc.solve(problem)
