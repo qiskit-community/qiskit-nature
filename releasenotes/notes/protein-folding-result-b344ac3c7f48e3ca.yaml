@@ -20,8 +20,8 @@ features:
 
     * Property :attr:`~qiskit_nature.results.ProteinFoldingResult.protein_shape_decoder`
       which is an instance of :class:`~qiskit_nature.results.utils.ProteinShapeDecoder`.
-      This class has in its turn two properties :meth:`~qiskit_nature.results.utils.ProteinShapeDecoder.main_turns`
-      and :meth:`~qiskit_nature.results.utils.ProteinShapeDecoder.side_turns` that return
+      This class has in its turn two properties :attr:`~qiskit_nature.results.utils.ProteinShapeDecoder.main_turns`
+      and :attr:`~qiskit_nature.results.utils.ProteinShapeDecoder.side_turns` that return
       the turn sequences of the main chain and the side chains respectively.
 
 
