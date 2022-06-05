@@ -183,9 +183,8 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if (
-            isinstance(self._gss, GroundStateSolver)
-            and isinstance(self._gss.solver, VariationalAlgorithm)
+        if isinstance(self._gss, GroundStateSolver) and isinstance(
+            self._gss.solver, VariationalAlgorithm
         ):  # type: ignore
             self._points_optparams = {}
             self._gss.solver.initial_point = self._initial_point  # type: ignore
@@ -299,7 +298,8 @@ class BOPESSampler:
 
         # find closest previously run point and take optimal parameters
         if (
-            self._bootstrap and hasattr(self._gss, "_gsc")
+            self._bootstrap
+            and hasattr(self._gss, "_gsc")
             and isinstance(self._gss._gsc.solver, VariationalAlgorithm)
         ):  # type: ignore
             prev_points = list(self._points_optparams.keys())

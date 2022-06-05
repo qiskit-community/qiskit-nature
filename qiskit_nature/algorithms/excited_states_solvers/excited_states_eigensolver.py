@@ -62,10 +62,9 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
     ) -> Tuple[Eigensolver, PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
-        # get the operator and auxiliary operators, and transform the provided auxiliary operators
-        # note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
+        # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-
         second_q_ops = problem.second_q_ops()
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
