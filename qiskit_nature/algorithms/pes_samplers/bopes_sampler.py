@@ -29,7 +29,6 @@ from qiskit_nature.results import BOPESSamplerResult, EigenstateResult
 from .extrapolator import Extrapolator, WindowExtrapolator
 from ..ground_state_solvers import GroundStateSolver
 from ..excited_states_solvers import ExcitedStatesSolver
-from ..excited_states_solvers import EigensolverFactory
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +183,10 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if isinstance(self._gss, GroundStateSolver) and isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if (
+            isinstance(self._gss, GroundStateSolver)
+            and isinstance(self._gss.solver, VariationalAlgorithm)
+        ):  # type: ignore
             self._points_optparams = {}
             self._gss.solver.initial_point = self._initial_point  # type: ignore
         if (
@@ -296,7 +298,10 @@ class BOPESSampler:
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters
-        if self._bootstrap and hasattr(self._gss, "_gsc") and isinstance(self._gss._gsc.solver, VariationalAlgorithm):  # type: ignore
+        if (
+            self._bootstrap and hasattr(self._gss, "_gsc")
+            and isinstance(self._gss._gsc.solver, VariationalAlgorithm)
+        ):  # type: ignore
             prev_points = list(self._points_optparams.keys())
             prev_params = list(self._points_optparams.values())
             n_pp = len(prev_points)
