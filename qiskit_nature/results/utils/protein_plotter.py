@@ -73,7 +73,7 @@ class ProteinPlotter:
         Draws the side chain.
         """
         side_positions = self._shape_gen.side_positions
-        side_aminoacids = self._shape_gen._main_chain_aminoacid_list
+        side_aminoacids = self._shape_gen._side_chain_aminoacid_list
         for i, side_chain in enumerate(side_positions):
             if side_chain is not None:
                 x_side, y_side, z_side = side_chain
