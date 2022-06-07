@@ -49,9 +49,9 @@ def _validate_transformation_matrix(
         right = mat[:, n:]
         comm1 = left @ left.T.conj() + right @ right.T.conj()
         comm2 = left @ right.T + right @ left.T
-        one = np.eye(n)
-        zero = np.zeros((n, n))
-        if not np.allclose(comm1, one, rtol=rtol, atol=atol) or not np.allclose(comm2, zero):
+        if not np.allclose(comm1, np.eye(n), rtol=rtol, atol=atol) or not np.allclose(
+            comm2, 0.0, atol=atol
+        ):
             raise ValueError(
                 "transformation_matrix does not describe a valid transformation "
                 "of fermionic ladder operators. A valid matrix should have the block form "
