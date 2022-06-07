@@ -33,15 +33,13 @@ Testing utilities
    :toctree: ../stubs/
    :nosignatures:
 
+   parse_random_seed
    random_antisymmetric_matrix
 """
 
-from qiskit_nature.utils.linalg import (
-    apply_matrix_to_slices,
-    givens_matrix,
-)
+from .linalg import apply_matrix_to_slices, givens_matrix
 
-from qiskit_nature.utils.testing import parse_random_seed, random_antisymmetric_matrix
+from .testing import parse_random_seed, random_antisymmetric_matrix
 
 __all__ = [
     "apply_matrix_to_slices",
