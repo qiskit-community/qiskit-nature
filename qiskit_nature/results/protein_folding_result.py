@@ -125,7 +125,7 @@ class ProteinFoldingResult(EigenstateResult):
 
     @_optionals.HAS_MATPLOTLIB.require_in_call
     def get_figure(
-        self, title: str = "Protein Structure", ticks: bool = True, grid: bool = False
+        self, title: str = "Protein Structure", ticks: bool = False, grid: bool = False
     ) -> "figure":
         """
         Generates a figure of the molecule in 3D.
