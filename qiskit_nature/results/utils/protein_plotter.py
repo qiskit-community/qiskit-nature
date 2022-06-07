@@ -12,8 +12,8 @@
 
 """An auxiliary class that plots aminoacids of a molecule
  in a ProteinFoldingResult."""
-import numpy as np
 from typing import Optional
+import numpy as np
 from qiskit.utils import optionals as _optionals
 
 
