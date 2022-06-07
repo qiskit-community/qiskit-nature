@@ -85,7 +85,8 @@ class SlaterDeterminant(QuantumCircuit):
             transformation_matrix: The matrix :math:`Q` that specifies the coefficients of the
                 new creation operators in terms of the original creation operators.
                 The rows of the matrix must be orthonormal.
-            qubit_converter: A QubitConverter instance.
+            qubit_converter: The qubit converter. The default behavior is to create
+                one using the call `QubitConverter(JordanWignerMapper())`.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
