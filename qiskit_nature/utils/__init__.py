@@ -41,10 +41,11 @@ from qiskit_nature.utils.linalg import (
     givens_matrix,
 )
 
-from qiskit_nature.utils.testing import random_antisymmetric_matrix
+from qiskit_nature.utils.testing import parse_random_seed, random_antisymmetric_matrix
 
 __all__ = [
     "apply_matrix_to_slices",
     "givens_matrix",
+    "parse_random_seed",
     "random_antisymmetric_matrix",
 ]

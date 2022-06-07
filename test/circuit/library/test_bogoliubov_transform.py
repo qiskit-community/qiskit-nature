@@ -56,7 +56,7 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
         """Test general (non-particle-number-conserving) Bogoliubov transform."""
         converter = QubitConverter(JordanWignerMapper())
         hermitian_part = np.array(random_hermitian(n_orbitals))
-        antisymmetric_part = random_antisymmetric_matrix(n_orbitals)
+        antisymmetric_part = random_antisymmetric_matrix(n_orbitals, seed=4744)
         constant = np.random.uniform(-10, 10)
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant)
         (

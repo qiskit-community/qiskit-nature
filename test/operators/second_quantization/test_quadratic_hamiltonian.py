@@ -139,7 +139,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
     def test_diagonalizing_bogoliubov_transform_non_particle_number_conserving(self, n_orbitals):
         """Test diagonalizing Bogoliubov transform, non-particle-number-conserving case."""
         hermitian_part = random_hermitian(n_orbitals).data
-        antisymmetric_part = random_antisymmetric_matrix(n_orbitals)
+        antisymmetric_part = random_antisymmetric_matrix(n_orbitals, seed=9985)
         constant = np.random.uniform(-10, 10)
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant=constant)
         (

@@ -12,10 +12,28 @@
 
 """Testing utilities."""
 
+from typing import Any
+
 import numpy as np
 
 
-def random_antisymmetric_matrix(dim: int) -> np.ndarray:
+def parse_random_seed(seed: Any) -> np.random.Generator:
+    """Parse a random number generator seed and return a Generator.
+
+    Args:
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`
+
+    Returns:
+        The np.random.Generator instance
+    """
+    if isinstance(seed, np.random.Generator):
+        return seed
+    return np.random.default_rng(seed)
+
+
+def random_antisymmetric_matrix(dim: int, seed: Any = None) -> np.ndarray:
     """Return a random antisymmetric matrix.
 
     Args:
@@ -24,5 +42,6 @@ def random_antisymmetric_matrix(dim: int) -> np.ndarray:
     Returns:
         The sampled antisymmetric matrix.
     """
-    mat = np.random.randn(dim, dim) + 1j * np.random.randn(dim, dim)
+    rng = parse_random_seed(seed)
+    mat = rng.standard_normal((dim, dim)) + 1j * rng.standard_normal((dim, dim))
     return mat - mat.T
