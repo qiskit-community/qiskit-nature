@@ -73,6 +73,10 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
     where :math:`r` is a complex number.
     The first column of :math:`G` is guaranteed to contain only real numbers.
 
+    References:
+        - `<https://en.wikipedia.org/wiki/Givens_rotation#Stable_calculation>`_
+        - `<https://www.netlib.org/lapack/lawnspdf/lawn148.pdf>`_
+
     Args:
         a: A complex number representing the first row entry
         b: A complex number representing the second row entry
