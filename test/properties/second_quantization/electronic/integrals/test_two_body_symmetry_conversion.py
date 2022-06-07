@@ -15,6 +15,7 @@
 from test import QiskitNatureTestCase
 
 import numpy as np
+from ddt import data, ddt, unpack
 
 # pylint: disable=line-too-long
 from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals_utils.two_body_symmetry_conversion import (
@@ -26,6 +27,7 @@ from qiskit_nature.properties.second_quantization.electronic.integrals.electroni
 from qiskit_nature.exceptions import QiskitNatureError
 
 
+@ddt
 class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     """Tests for two body symmetry conversion utils"""
 
@@ -57,56 +59,46 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         ]
     )
 
-    def test_phys_to_chem(self):
-        """Test correct conversion from physicists' to chemists' index order"""
-        expected = self.TWO_BODY_CHEM
-        actual = to_chem(self.TWO_BODY_PHYS)
+    @unpack
+    @data(
+        (TWO_BODY_CHEM, TWO_BODY_PHYS),  # test chem to phys
+        (TWO_BODY_PHYS, TWO_BODY_PHYS),  # test phys to phys
+        (TWO_BODY_INTERMEDIATE, TWO_BODY_PHYS),  # test intermediate to phys
+    )
+    def test_to_phys(self, initial, expected):
+        """Test correct conversion to physicists' index order"""
+        actual = to_phys(initial)
         self.assertTrue(np.allclose(expected, actual))
-
-    def test_chem_to_phys(self):
-        """Test correct conversion from chemists' to physicists' index order"""
-        expected = self.TWO_BODY_PHYS
-        actual = to_phys(self.TWO_BODY_CHEM)
-        self.assertTrue(np.allclose(expected, actual))
-
-    def test_int_to_chem(self):
-        """Test correct conversion from intermediate to chemists' index order"""
-        expected = self.TWO_BODY_CHEM
-        actual = to_chem(self.TWO_BODY_INTERMEDIATE)
-        self.assertTrue(np.allclose(expected, actual))
-
-    def test_int_to_phys(self):
-        """Test correct conversion from intermediate to physicists' index order"""
-        expected = self.TWO_BODY_PHYS
-        actual = to_phys(self.TWO_BODY_INTERMEDIATE)
-        self.assertTrue(np.allclose(expected, actual))
-
-    def test_unknown_to_chem(self):
-        """Test correct conversion from intermediate to chemists' index order"""
-        with self.assertRaises(QiskitNatureError):
-            to_chem(self.TWO_BODY_UNKNOWN)
 
     def test_unknown_to_phys(self):
-        """Test correct conversion from intermediate to physicists' index order"""
+        """Test to_phys raises exception with unknown index input"""
         with self.assertRaises(QiskitNatureError):
             to_phys(self.TWO_BODY_UNKNOWN)
 
-    def test_find_index_order_chem(self):
-        """Test correctly identifies chemists' index order"""
-        result = find_index_order(self.TWO_BODY_CHEM)
-        self.assertEqual(result, IndexType.CHEM)
+    @unpack
+    @data(
+        (TWO_BODY_PHYS, TWO_BODY_CHEM),  # test phys to chem
+        (TWO_BODY_CHEM, TWO_BODY_CHEM),  # test chem to chem
+        (TWO_BODY_INTERMEDIATE, TWO_BODY_CHEM),  # test intermediate to chem
+    )
+    def test_to_chem(self, initial, expected):
+        """Test correct conversion to chemists' index order"""
+        actual = to_chem(initial)
+        self.assertTrue(np.allclose(expected, actual))
 
-    def test_find_index_order_phys(self):
-        """Test correctly identifies physicists' index order"""
-        result = find_index_order(self.TWO_BODY_PHYS)
-        self.assertEqual(result, IndexType.PHYS)
+    def test_unknown_to_chem(self):
+        """Test to_chem raises exception with unknown index input"""
+        with self.assertRaises(QiskitNatureError):
+            to_chem(self.TWO_BODY_UNKNOWN)
 
-    def test_find_index_order_intermediate(self):
-        """Test correctly identifies intermediate index order"""
-        result = find_index_order(self.TWO_BODY_INTERMEDIATE)
-        self.assertEqual(result, IndexType.INT)
-
-    def test_find_index_order_unknown(self):
-        """Test correct return for unknown index order"""
-        result = find_index_order(self.TWO_BODY_UNKNOWN)
-        self.assertEqual(result, IndexType.UNKNOWN)
+    @unpack
+    @data(
+        (TWO_BODY_PHYS, IndexType.PHYS),  # find phys index order
+        (TWO_BODY_CHEM, IndexType.CHEM),  # find chem index order
+        (TWO_BODY_INTERMEDIATE, IndexType.INT),  # find intermediate index order
+        (TWO_BODY_UNKNOWN, IndexType.UNKNOWN),  # find unknown index order
+    )
+    def test_find_index_order(self, initial, expected):
+        """Test correctly identifies index order"""
+        result = find_index_order(initial)
+        self.assertEqual(result, expected)
