@@ -100,7 +100,12 @@ class ProteinPlotter:
         return side_scatter
 
     def _format_graph(
-        self, title: str, ticks: bool, grid: bool, main_scatter: "Axes", side_scatter: Optional["Axes"]
+        self,
+        title: str,
+        ticks: bool,
+        grid: bool,
+        main_scatter: "Axes",
+        side_scatter: Optional["Axes"],
     ):
         """
         Formats the plot.
@@ -128,7 +133,7 @@ class ProteinPlotter:
         if side_scatter is not None:
             handles = [main_scatter, side_scatter]
         else:
-            handles =[main_scatter]
+            handles = [main_scatter]
 
         self._fig.legend(handles=handles, labelspacing=2, markerscale=0.5)
         self._ax_graph.set_title(title)
