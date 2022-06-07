@@ -53,7 +53,7 @@ def apply_matrix_to_slices(
     return result
 
 
-def givens_matrix(a: Union[complex, float], b: Union[complex, float]) -> np.ndarray:
+def givens_matrix(a: complex, b: complex) -> np.ndarray:
     """Compute the Givens rotation to zero out a row entry.
 
     Returns a 2x2 unitary matrix G that satisfies
@@ -74,7 +74,7 @@ def givens_matrix(a: Union[complex, float], b: Union[complex, float]) -> np.ndar
     if np.isclose(a, 0.0):
         cosine = 1.0
         sine = 0.0
-        phase: Union[complex, float] = 1.0
+        phase: complex = 1.0
     # Handle case that b is zero and a is nonzero
     elif np.isclose(b, 0.0):
         cosine = 0.0
