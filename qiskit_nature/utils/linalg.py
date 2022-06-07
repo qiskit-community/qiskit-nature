@@ -54,14 +54,24 @@ def apply_matrix_to_slices(
 
 
 def givens_matrix(a: complex, b: complex) -> np.ndarray:
-    """Compute the Givens rotation to zero out a row entry.
+    r"""Compute the Givens rotation to zero out a row entry.
 
-    Returns a 2x2 unitary matrix G that satisfies
-    ```
-    G * [a  b]^T= [0  r]^T
-    ```
-    where `r` is a complex number.
-    The first column of G is guaranteed to contain only real numbers.
+    Returns a :math:`2 \times 2` unitary matrix G that satisfies
+
+    .. math::
+        G
+        \begin{pmatrix}
+            a \\
+            b
+        \end{pmatrix}
+        =
+        \begin{pmatrix}
+            0 \\
+            r
+        \end{pmatrix}
+
+    where :math:`r` is a complex number.
+    The first column of :math:`G` is guaranteed to contain only real numbers.
 
     Args:
         a: A complex number representing the first row entry
