@@ -13,7 +13,9 @@
 """An auxiliary class that plots aminoacids of a molecule
  in a ProteinFoldingResult."""
 import numpy as np
+from typing import Optional
 from qiskit.utils import optionals as _optionals
+
 
 from qiskit_nature.results.utils.protein_shape_file_gen import ProteinShapeFileGen
 
@@ -98,7 +100,7 @@ class ProteinPlotter:
         return side_scatter
 
     def _format_graph(
-        self, title: str, ticks: bool, grid: bool, main_scatter: "Axes", side_scatter: "Axes"
+        self, title: str, ticks: bool, grid: bool, main_scatter: "Axes", side_scatter: Optional["Axes"]
     ):
         """
         Formats the plot.
@@ -123,7 +125,12 @@ class ProteinPlotter:
         self._ax_graph.set_ylabel("y")
         self._ax_graph.set_zlabel("z")
 
-        self._fig.legend(handles=[main_scatter, side_scatter], labelspacing=2, markerscale=0.5)
+        if side_scatter is not None:
+            handles = [main_scatter, side_scatter]
+        else:
+            handles =[main_scatter]
+
+        self._fig.legend(handles=handles, labelspacing=2, markerscale=0.5)
         self._ax_graph.set_title(title)
 
     def get_figure(
@@ -141,7 +148,11 @@ class ProteinPlotter:
         """
 
         main_scatter = self._draw_main_chain()
-        side_scatter = self._draw_side_chains()
+
+        if self._shape_gen._side_chain_aminoacid_list.any() is not None:
+            side_scatter = self._draw_side_chains()
+        else:
+            side_scatter = None
 
         self._format_graph(
             title=title,
