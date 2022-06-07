@@ -17,6 +17,7 @@ from typing import Any
 import numpy as np
 
 
+# TODO see if type of seed can be specified instead of using Any
 def parse_random_seed(seed: Any) -> np.random.Generator:
     """Parse a random number generator seed and return a Generator.
 
@@ -38,6 +39,9 @@ def random_antisymmetric_matrix(dim: int, seed: Any = None) -> np.ndarray:
 
     Args:
         dim: The width and height of the matrix.
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`
 
     Returns:
         The sampled antisymmetric matrix.
