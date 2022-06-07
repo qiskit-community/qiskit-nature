@@ -92,9 +92,9 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
         phase = 1.0
     # Handle case that a and b are both nonzero
     else:
-        denominator = np.sqrt(abs(a) ** 2 + abs(b) ** 2)
-        cosine = abs(b) / denominator
-        sine = abs(a) / denominator
+        hypotenuse = np.hypot(abs(a), abs(b))
+        cosine = abs(b) / hypotenuse
+        sine = abs(a) / hypotenuse
         sign_b = b / abs(b)
         sign_a = a / abs(a)
         phase = sign_a * sign_b.conjugate()
