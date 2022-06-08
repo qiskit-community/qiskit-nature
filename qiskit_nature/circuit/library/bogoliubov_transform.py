@@ -253,6 +253,9 @@ def _bogoliubov_transform_num_conserving_jw(  # pylint: disable=invalid-name
         current_matrix[j, j] = phase_matrix[1, 1]
 
     # yield operations
+    for i in range(n):
+        phi = np.angle(current_matrix[i, i])
+        yield RZGate(phi), (register[i],)
     for givens_mat, (i, j) in reversed(right_rotations):
         theta = np.arcsin(np.real(givens_mat[1, 0]))
         phi = -np.angle(givens_mat[1, 1])

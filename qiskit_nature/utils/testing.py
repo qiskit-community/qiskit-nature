@@ -15,6 +15,8 @@
 from typing import Any
 
 import numpy as np
+from qiskit.quantum_info import random_hermitian
+from qiskit_nature.operators.second_quantization import QuadraticHamiltonian
 
 
 # TODO see if type of seed can be specified instead of using Any
@@ -49,3 +51,29 @@ def random_antisymmetric_matrix(dim: int, seed: Any = None) -> np.ndarray:
     rng = parse_random_seed(seed)
     mat = rng.standard_normal((dim, dim)) + 1j * rng.standard_normal((dim, dim))
     return mat - mat.T
+
+
+def random_quadratic_hamiltonian(
+    n_orbitals: int, num_conserving: bool = False, seed: Any = None
+) -> QuadraticHamiltonian:
+    """Generate a random instance of QuadraticHamiltonian.
+
+    Args:
+        n_orbitals: the number of orbitals
+        num_conserving: whether the Hamiltonian should conserve particle number
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`
+
+    Returns:
+        The sampled QuadraticHamiltonian
+    """
+    rng = parse_random_seed(seed)
+    hermitian_part = np.array(random_hermitian(n_orbitals, seed=rng))
+    antisymmetric_part = (
+        None if num_conserving else random_antisymmetric_matrix(n_orbitals, seed=rng)
+    )
+    constant = rng.standard_normal()
+    return QuadraticHamiltonian(
+        hermitian_part=hermitian_part, antisymmetric_part=antisymmetric_part, constant=constant
+    )
