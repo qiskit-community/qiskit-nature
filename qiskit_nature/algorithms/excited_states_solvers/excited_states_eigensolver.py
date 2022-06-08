@@ -61,7 +61,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[Eigensolver, PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
@@ -109,13 +109,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         if isinstance(self._solver, EigensolverFactory):
             # this must be called after transformation.transform
-            solver = self._solver.get_solver(problem)
-        else:
-            solver = self._solver
+            self._solver = self._solver.get_solver(problem)
+
         # if the eigensolver does not support auxiliary operators, reset them
-        if not solver.supports_aux_operators():
+        if not self._solver.supports_aux_operators():
             aux_ops = None
-        return solver, main_operator, aux_ops
+        return main_operator, aux_ops
 
     def solve(
         self,
@@ -144,8 +143,8 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         # note that ``aux_operators`` contains not only the transformed ``aux_operators`` passed
         # by the user but also additional ones from the transformation
 
-        solver, main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
-        raw_es_result = solver.compute_eigenvalues(main_operator, aux_ops)
+        main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
+        raw_es_result = self._solver.compute_eigenvalues(main_operator, aux_ops)  # type: ignore
 
         eigenstate_result = EigenstateResult()
         eigenstate_result.raw_result = raw_es_result

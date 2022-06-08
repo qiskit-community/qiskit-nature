@@ -120,3 +120,7 @@ class GroundStateSolver(ABC):
     def qubit_converter(self):
         """Returns the qubit converter."""
         return self._qubit_converter
+
+    @abstractmethod
+    def solver(self):
+        """Returns the solver."""

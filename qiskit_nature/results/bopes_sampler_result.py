@@ -12,7 +12,7 @@
 
 """BOPES Sampler result"""
 
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from .eigenstate_result import EigenstateResult
 
@@ -23,7 +23,7 @@ class BOPESSamplerResult:
     def __init__(
         self,
         points: List[float],
-        energies: List[float],
+        energies: List[List[float]],
         raw_results: Dict[float, EigenstateResult],
     ) -> None:
         """
@@ -44,9 +44,14 @@ class BOPESSamplerResult:
         return self._points
 
     @property
-    def energies(self) -> List[float]:
+    def energies(self) -> Union[List[float], List[List[float]]]:
         """returns list of energies."""
-        return self._energies
+        formatted_energies: Union[List[float], List[List[float]]]
+        if len(self._energies[0]) == 1:
+            formatted_energies = [self._energies[k][0] for k in range(len(self._energies))]
+        else:
+            formatted_energies = self._energies
+        return formatted_energies
 
     @property
     def raw_results(self) -> Dict[float, EigenstateResult]:

@@ -13,9 +13,10 @@
 """ The excited states calculation interface """
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 from qiskit.opflow import PauliSumOp
+from qiskit.algorithms import Eigensolver
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -43,3 +44,25 @@ class ExcitedStatesSolver(ABC):
             :meth:`~.BaseProblem.interpret`.
         """
         raise NotImplementedError()
+
+    @abstractmethod
+    def solver(self):
+        """Returns the solver."""
+
+    @abstractmethod
+    def get_qubit_operators(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        """Construct qubit operators by getting the second quantized operators from the problem
+        (potentially running a driver in doing so [can be computationally expensive])
+        and using a QubitConverter to map + reduce the operators to qubit ops
+        Args:
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
+
+        Returns:
+            Qubit operator.
+            Additional auxiliary operators.
+        """

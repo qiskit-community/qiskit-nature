@@ -13,7 +13,7 @@
 """The calculation of points on the Born-Oppenheimer Potential Energy Surface (BOPES)."""
 
 import logging
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Callable
 
 import numpy as np
 
@@ -23,7 +23,10 @@ from qiskit_nature.drivers.second_quantization import (
     ElectronicStructureMoleculeDriver,
     VibrationalStructureMoleculeDriver,
 )
+from qiskit.opflow import PauliSumOp
+from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import BOPESSamplerResult, EigenstateResult
 from .extrapolator import Extrapolator, WindowExtrapolator
@@ -38,7 +41,10 @@ class BOPESSampler:
 
     def __init__(
         self,
-        gss: Union[GroundStateSolver, ExcitedStatesSolver],
+        solver_wrapper: Union[GroundStateSolver, ExcitedStatesSolver],
+        aux_operators: Optional[
+            ListOrDictType[Union[SecondQuantizedOp, PauliSumOp, Callable]]
+        ] = None,
         tolerance: float = 1e-3,
         bootstrap: bool = True,
         num_bootstrap: Optional[int] = None,
@@ -46,7 +52,8 @@ class BOPESSampler:
     ) -> None:
         """
         Args:
-            gss: GroundStateSolver
+            solver_wrapper: GroundStateSolver or ExcitedStatesSolver.
+            aux_operators: Auxiliary operators to pass to the solver_wrapper object. Can be
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -63,13 +70,14 @@ class BOPESSampler:
                 ``WindowExtrapolator``.
         """
 
-        self._gss = gss
+        self._solver_wrapper = solver_wrapper
+        self._aux_operators = aux_operators
         self._tolerance = tolerance
         self._bootstrap = bootstrap
         self._problem: BaseProblem = None
         self._driver: BaseDriver = None
         self._points: List[float] = None
-        self._energies: List[float] = None
+        self._energies: List[List[float]] = None
         self._raw_results: Dict[float, EigenstateResult] = None
         self._points_optparams: Dict[float, List[float]] = None
         self._num_bootstrap = num_bootstrap
@@ -92,20 +100,10 @@ class BOPESSampler:
                     "num_bootstrap must be None or an integer greater than or equal to 2"
                 )
 
-        if isinstance(self._gss, GroundStateSolver) and isinstance(
-            self._gss.solver, VariationalAlgorithm
-        ):  # type: ignore
+        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
-            self._initial_point = self._gss.solver.initial_point  # type: ignore
-        elif (
-            isinstance(self._gss, ExcitedStatesSolver)
-            and hasattr(self._gss, "_gsc")
-            and isinstance(self._gss._gsc.solver, VariationalAlgorithm)
-        ):  # type: ignore
-            # Save initial point passed to min_eigensolver;
-            # this will be used when NOT bootstrapping
-            self._initial_point = self._gss._gsc.solver.initial_point  # type: ignore
+            self._initial_point = self._solver_wrapper.solver.initial_point
 
     def sample(self, problem: BaseProblem, points: List[float]) -> BOPESSamplerResult:
         """Run the sampler at the given points, potentially with repetitions.
@@ -124,27 +122,13 @@ class BOPESSampler:
         self._problem = problem
         self._driver = problem.driver
         # We have to force the creation of the solver so that we work on the same solver
-        # instance before and after _gss.solve
-        if isinstance(self._gss, ExcitedStatesSolver):
-            if hasattr(self._gss, "_gsc"):
-                self._gss._gsc.get_qubit_operators(problem, None)
-        else:
-            self._gss.get_qubit_operators(problem, None)
+        # instance before and after _solver_wrapper.solve
+        self._solver_wrapper.get_qubit_operators(problem=problem, aux_operators=None)
 
-        if isinstance(self._gss, GroundStateSolver) and isinstance(
-            self._gss.solver, VariationalAlgorithm
-        ):  # type: ignore
+        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
-            self._initial_point = self._gss.solver.initial_point  # type: ignore
-        elif (
-            isinstance(self._gss, ExcitedStatesSolver)
-            and hasattr(self._gss, "_gsc")
-            and isinstance(self._gss._gsc.solver, VariationalAlgorithm)
-        ):  # type: ignore
-            # Save initial point passed to min_eigensolver;
-            # this will be used when NOT bootstrapping
-            self._initial_point = self._gss._gsc.solver.initial_point  # type: ignore
+            self._initial_point = self._solver_wrapper.solver.initial_point
 
         if not isinstance(
             self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
@@ -160,14 +144,7 @@ class BOPESSampler:
         self._raw_results = self._run_points(points)
         # create results dictionary with (point, energy)
         self._points = list(self._raw_results.keys())
-        self._energies = []
-        for res in self._raw_results.values():
-            if isinstance(self._gss, ExcitedStatesSolver):
-                energy = res.total_energies
-            elif isinstance(self._gss, GroundStateSolver):
-                energy = res.total_energies[0]
-
-            self._energies.append(energy)
+        self._energies = [res.total_energies for res in self._raw_results.values()]
 
         result = BOPESSamplerResult(self._points, self._energies, self._raw_results)
 
@@ -183,30 +160,15 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if isinstance(self._gss, GroundStateSolver) and isinstance(
-            self._gss.solver, VariationalAlgorithm
-        ):  # type: ignore
+        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
             self._points_optparams = {}
-            self._gss.solver.initial_point = self._initial_point  # type: ignore
-        if (
-            isinstance(self._gss, ExcitedStatesSolver)
-            and hasattr(self._gss, "_gsc")
-            and isinstance(self._gss._gsc.solver, VariationalAlgorithm)
-        ):  # type: ignore
-            self._points_optparams = {}
-            self._gss._gsc.solver.initial_point = self._initial_point  # type: ignore
+            self._solver_wrapper.solver.initial_point = self._initial_point
 
         # Iterate over the points
-        if isinstance(self._gss, GroundStateSolver):
-            for i, point in enumerate(points):
-                logger.info("Point %s of %s", i + 1, len(points))
-                raw_result = self._run_single_point(point)  # dict of results
-                raw_results[point] = raw_result
-        elif isinstance(self._gss, ExcitedStatesSolver):
-            for i, point in enumerate(points):
-                logger.info("Point %s of %s", i + 1, len(points))
-                raw_result = self._run_single_point_excited_solver(point)  # dict of results
-                raw_results[point] = raw_result
+        for i, point in enumerate(points):
+            logger.info("Point %s of %s", i + 1, len(points))
+            raw_result = self._run_single_point(point)  # dict of results
+            raw_results[point] = raw_result
 
         return raw_results
 
@@ -234,7 +196,7 @@ class BOPESSampler:
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters
-        if self._bootstrap and isinstance(self._gss.solver, VariationalAlgorithm):  # type: ignore
+        if self._bootstrap and isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
             prev_points = list(self._points_optparams.keys())
             prev_params = list(self._points_optparams.values())
             n_pp = len(prev_points)
@@ -250,93 +212,45 @@ class BOPESSampler:
                 if n_pp <= n_boot:
                     distances = np.array(point) - np.array(prev_points).reshape(n_pp, -1)
                     # find min 'distance' from point to previous points
-                    min_index = np.argmin(np.linalg.norm(distances, axis=1))
+                    min_index = int(np.argmin(np.linalg.norm(distances, axis=1)))
                     # update initial point
-                    self._gss.solver.initial_point = prev_params[min_index]  # type: ignore
+                    self._solver_wrapper.solver.initial_point = prev_params[min_index]
                 else:  # extrapolate using saved parameters
                     opt_params = self._points_optparams
                     param_sets = self._extrapolator.extrapolate(
                         points=[point], param_dict=opt_params
                     )
                     # update initial point, note param_set is a dictionary
-                    self._gss.solver.initial_point = param_sets.get(point)  # type: ignore
+                    self._solver_wrapper.solver.initial_point = param_sets.get(point)
 
         # the output is an instance of EigenstateResult
-        result = self._gss.solve(self._problem)
+        aux_ops_current_step = self.evaluate_callable_aux_operators()
+        result = self._solver_wrapper.solve(self._problem, aux_ops_current_step)
 
         # Save optimal point to bootstrap
-        if isinstance(self._gss, GroundStateSolver) and isinstance(
-            self._gss.solver, VariationalAlgorithm
-        ):  # type: ignore
-            optimal_params = result.raw_result.optimal_point
+        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
+            if isinstance(self._solver_wrapper, ExcitedStatesSolver):
+                optimal_params = result.raw_result.ground_state_raw_result.optimal_point
+            elif isinstance(self._solver_wrapper, GroundStateSolver):
+                optimal_params = result.raw_result.optimal_point
             self._points_optparams[point] = optimal_params
 
         return result
 
-    def _run_single_point_excited_solver(self, point: float) -> EigenstateResult:
-        """Run the sampler at the given single point
-
-        Args:
-            point: The value of the degree of freedom to evaluate.
-
-        Returns:
-            Results for a single point.
-        Raises:
-            QiskitNatureError: Invalid Driver
+    def evaluate_callable_aux_operators(self):
+        """Convert a dictionary of auxiliary observables into a dictionary of auxiliary observables where
+        the possible callable observables have been evaluated.
+        For example, this can be used to specify nuclear coordinate dependent observables.
+        The aux_ops must then be defined as functional of the `problem` object encapsulating
+        the current properties of the molecule.
         """
 
-        # update molecule geometry and thus resulting Hamiltonian based on specified point
-
-        if not isinstance(
-            self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
-        ):
-            raise QiskitNatureError(
-                "Driver must be ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver."
-            )
-
-        self._driver.molecule.perturbations = [point]
-
-        # find closest previously run point and take optimal parameters
-        if (
-            self._bootstrap
-            and hasattr(self._gss, "_gsc")
-            and isinstance(self._gss._gsc.solver, VariationalAlgorithm)
-        ):  # type: ignore
-            prev_points = list(self._points_optparams.keys())
-            prev_params = list(self._points_optparams.values())
-            n_pp = len(prev_points)
-
-            # set number of points to bootstrap
-            if self._extrapolator is None:
-                n_boot = len(prev_points)  # bootstrap all points
-            else:
-                n_boot = self._num_bootstrap
-
-            # Set initial params # if prev_points not empty
-            if prev_points:
-                if n_pp <= n_boot:
-                    distances = np.array(point) - np.array(prev_points).reshape(n_pp, -1)
-                    # find min 'distance' from point to previous points
-                    min_index = np.argmin(np.linalg.norm(distances, axis=1))
-                    # update initial point
-                    self._gss._gsc.solver.initial_point = prev_params[min_index]  # type: ignore
-                else:  # extrapolate using saved parameters
-                    opt_params = self._points_optparams
-                    param_sets = self._extrapolator.extrapolate(
-                        points=[point], param_dict=opt_params
-                    )
-                    # update initial point, note param_set is a dictionary
-                    self._gss._gsc.solver.initial_point = param_sets.get(point)  # type: ignore
-
-        # the output is an instance of EigenstateResult
-        result = self._gss.solve(self._problem)
-
-        if (
-            isinstance(self._gss, ExcitedStatesSolver)
-            and hasattr(self._gss, "_gsc")
-            and isinstance(self._gss._gsc.solver, VariationalAlgorithm)
-        ):
-            optimal_params = result.raw_result.ground_state_raw_result.optimal_point
-            self._points_optparams[point] = optimal_params
-
-        return result
+        aux_ops_current_step = None
+        if self._aux_operators is not None:
+            aux_ops_current_step = {}
+            for aux_name, aux_op in self._aux_operators.items():
+                if callable(aux_op):
+                    aux_ops_current_step[aux_name] = aux_op(self._problem)
+                else:
+                    aux_ops_current_step[aux_name] = aux_op
+        return aux_ops_current_step
