@@ -1,5 +1,5 @@
 ---
-issues:
+deprecations:
   - |
     The factories had setter/getter properties that set/get the corresponding property of the solver (VQE).
     These are now deprecated and require you to set/get properties on the solver directly, which can now be
