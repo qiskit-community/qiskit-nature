@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,7 +16,6 @@ from abc import ABC, abstractmethod
 from typing import Optional, Union, Tuple
 
 from qiskit.opflow import PauliSumOp
-from qiskit.algorithms import Eigensolver
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
@@ -46,6 +45,7 @@ class ExcitedStatesSolver(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    @property
     def solver(self):
         """Returns the solver."""
 

@@ -20,7 +20,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 import qiskit
-from qiskit.algorithms import NumPyMinimumEigensolver, VQE, NumPyEigensolver
+from qiskit.algorithms import NumPyMinimumEigensolver, VQE
 from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 import qiskit_nature.optionals as _optionals
 
@@ -220,16 +220,17 @@ class TestBOPES(QiskitNatureTestCase):
         )
         problem = ElectronicStructureProblem(driver)
 
+        # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
-            pn = aux_values["ParticleNumber"][0]
-            mg = aux_values["Magnetization"][0]
-            return np.isclose(pn, 2.0) and np.isclose(mg, 0.0)
+            particle_number_filter = np.isclose(aux_values["ParticleNumber"][0], 2.0)
+            magnetization_filter = np.isclose(aux_values["Magnetization"][0], 0.0)
+            return particle_number_filter and magnetization_filter
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
-        numpy_excited_states_eigensolver = ExcitedStatesEigensolver(converter, solver)
+        np_excited_solver = ExcitedStatesEigensolver(converter, solver)
 
         # BOPES sampler
-        sampler = BOPESSampler(solver_wrapper=numpy_excited_states_eigensolver)
+        sampler = BOPESSampler(solver_wrapper=np_excited_solver)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
@@ -258,10 +259,6 @@ class TestBOPES(QiskitNatureTestCase):
             geometry=[["H", [0.0, 0.0, 1.0]], ["H", [0.0, 0.45, 1.0]]],
             degrees_of_freedom=[dof],
         )
-
-        mapper = ParityMapper()
-        converter = QubitConverter(mapper=mapper)
-
         driver = ElectronicStructureMoleculeDriver(
             m, driver_type=ElectronicStructureDriverType.PYSCF
         )
@@ -307,10 +304,6 @@ class TestBOPES(QiskitNatureTestCase):
             geometry=[["H", [0.0, 0.0, 1.0]], ["H", [0.0, 0.45, 1.0]]],
             degrees_of_freedom=[dof],
         )
-
-        mapper = ParityMapper()
-        converter = QubitConverter(mapper=mapper)
-
         driver = ElectronicStructureMoleculeDriver(
             m, driver_type=ElectronicStructureDriverType.PYSCF
         )

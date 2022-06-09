@@ -18,12 +18,13 @@ from typing import Optional, List, Dict, Union, Callable
 import numpy as np
 
 from qiskit.algorithms import VariationalAlgorithm
+from qiskit.opflow import PauliSumOp
+
 from qiskit_nature.drivers.second_quantization import (
     BaseDriver,
     ElectronicStructureMoleculeDriver,
     VibrationalStructureMoleculeDriver,
 )
-from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
