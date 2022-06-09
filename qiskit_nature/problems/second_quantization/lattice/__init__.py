@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -42,6 +42,10 @@ Models
    FermiHubbardModel
    IsingModel
 
+Lattice Model Problems (:mod:`qiskit_nature.problems.second_quantization.lattice`)
+==================================================================================
+
+
 """
 from .lattices import (
     BoundaryCondition,
@@ -53,3 +57,4 @@ from .lattices import (
     TriangularLattice,
 )
 from .models import FermiHubbardModel, IsingModel
+from .lattice_model_problem import LatticeModelProblem
