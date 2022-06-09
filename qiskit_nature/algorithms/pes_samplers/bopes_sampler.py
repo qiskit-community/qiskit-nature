@@ -43,9 +43,6 @@ class BOPESSampler:
     def __init__(
         self,
         solver_wrapper: Union[GroundStateSolver, ExcitedStatesSolver],
-        aux_operators: Optional[
-            ListOrDictType[Union[SecondQuantizedOp, PauliSumOp, Callable]]
-        ] = None,
         tolerance: float = 1e-3,
         bootstrap: bool = True,
         num_bootstrap: Optional[int] = None,
@@ -54,7 +51,6 @@ class BOPESSampler:
         """
         Args:
             solver_wrapper: GroundStateSolver or ExcitedStatesSolver.
-            aux_operators: Auxiliary operators to pass to the solver_wrapper object. Can be
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -72,9 +68,9 @@ class BOPESSampler:
         """
 
         self._solver_wrapper = solver_wrapper
-        self._aux_operators = aux_operators
         self._tolerance = tolerance
         self._bootstrap = bootstrap
+        self._aux_operators = None
         self._problem: BaseProblem = None
         self._driver: BaseDriver = None
         self._points: List[float] = None
@@ -106,13 +102,21 @@ class BOPESSampler:
             # this will be used when NOT bootstrapping
             self._initial_point = self._solver_wrapper.solver.initial_point
 
-    def sample(self, problem: BaseProblem, points: List[float]) -> BOPESSamplerResult:
+    def sample(
+        self,
+        problem: BaseProblem,
+        points: List[float],
+        aux_operators: Optional[
+            ListOrDictType[Union[SecondQuantizedOp, PauliSumOp, Callable]]
+        ] = None,
+    ) -> BOPESSamplerResult:
         """Run the sampler at the given points, potentially with repetitions.
 
         Args:
             problem: BaseProblem whose driver should be based on a Molecule object that has
                      perturbations to be varied.
             points: The points along the degrees of freedom to evaluate.
+            aux_operators: Auxiliary operators to pass to the solver_wrapper object.
 
         Returns:
             BOPES Sampler Result
@@ -122,6 +126,7 @@ class BOPESSampler:
         """
         self._problem = problem
         self._driver = problem.driver
+        self._aux_operators = aux_operators
         # We have to force the creation of the solver so that we work on the same solver
         # instance before and after _solver_wrapper.solve
         self._solver_wrapper.get_qubit_operators(problem=problem, aux_operators=None)

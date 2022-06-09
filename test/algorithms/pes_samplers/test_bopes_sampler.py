@@ -319,12 +319,12 @@ class TestBOPES(QiskitNatureTestCase):
         me_gsc = GroundStateEigensolver(qubit_converter, solver)
 
         # BOPES sampler
-        auxil = {"PN": problem.second_q_ops()["ParticleNumber"]}
-        sampler = BOPESSampler(solver_wrapper=me_gsc, aux_operators=auxil)
+        aux = {"PN": problem.second_q_ops()["ParticleNumber"]}
+        sampler = BOPESSampler(solver_wrapper=me_gsc)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
-        results = sampler.sample(problem, points)
+        results = sampler.sample(problem, points, aux_operators=aux)
 
         points_run = results.points
         particle_number = []
