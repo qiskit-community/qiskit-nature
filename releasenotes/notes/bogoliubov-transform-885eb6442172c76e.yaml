@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds :meth:`~.BogoliubovTransform`.
+    Adds :class:`~.BogoliubovTransform`.
     This class constructs a circuit that performs a Bogoliubov transform,
     which is a single-particle basis change that may or may not conserve
     particle number. See the
