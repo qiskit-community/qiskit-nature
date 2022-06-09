@@ -110,7 +110,10 @@ class ProteinFoldingResult(EigenstateResult):
 
         return "".join(result[::-1])
 
-    def save_xyz_file(self, name: Optional[str] = None, path: str = "", comment: str = "") -> None:
+    def save_xyz_file(
+        self, name: Optional[str] = None, path: str = "", comment: str = "", overwrite: bool = False
+    ) -> None:
+
         """
         Generates a .xyz file.
 
@@ -122,10 +125,15 @@ class ProteinFoldingResult(EigenstateResult):
                 be saved in the working directory.
             comment: Comment to be added to the second line of the file. By default, the line will
                 be left blank.
+            overwrite: If ``True``, the file will be overwritten if it already exists.
+        Raises:
+            FileExistsError: If the file already exists and overwrite is ``False``.
         """
         if name is None:
             name = str(self._peptide.get_main_chain.main_chain_residue_sequence)
-        self.protein_shape_file_gen.save_xyz_file(name=name, path=path, comment=comment)
+        self.protein_shape_file_gen.save_xyz_file(
+            name=name, path=path, comment=comment, overwrite=overwrite
+        )
 
     @_optionals.HAS_MATPLOTLIB.require_in_call
     def get_figure(

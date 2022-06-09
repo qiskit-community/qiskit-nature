@@ -128,10 +128,12 @@ class ProteinShapeFileGen:
                 be saved in the current working directory.
             comment: Comment to be added to the second line of the file. By default the line will
                 be left blank.
-            overwrite: If True, the file will be overwritten if it already exists.
+            overwrite: If ``True``, the file will be overwritten if it already exists.
+        Raises:
+            FileExistsError: If the file already exists and overwrite is False.
         """
         file_path = os.path.join(path, name + ".xyz")
-        if os.path.exists(file_path):
+        if os.path.exists(file_path) and not overwrite:
             raise FileExistsError(f"File {file_path} already exists.")
         data = self.get_xyz_file()
         number_of_particles = data.shape[0]
