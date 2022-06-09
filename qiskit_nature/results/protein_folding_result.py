@@ -36,7 +36,7 @@ class ProteinFoldingResult(EigenstateResult):
     containing the cartesian coordinates of each atom in the protein. This kind of file can be
     used with other software to generate plots of the molecule.
     Alternatively, one can use :meth:`~qiskit_nature.results.ProteinFoldingResult.get_figure`.
-    Note that `mpl` optional needs to be installed in order to generate such a figure.
+    Note that `matplotlib` needs to be installed in order to generate such a figure.
     """
 
     def __init__(
