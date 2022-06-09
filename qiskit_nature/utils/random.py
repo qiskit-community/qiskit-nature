@@ -16,6 +16,7 @@ from typing import Any
 
 import numpy as np
 from qiskit.quantum_info import random_hermitian
+from qiskit.utils import algorithm_globals
 from qiskit_nature.operators.second_quantization import QuadraticHamiltonian
 
 
@@ -31,6 +32,8 @@ def parse_random_seed(seed: Any) -> np.random.Generator:
     Returns:
         The np.random.Generator instance
     """
+    if seed is None:
+        return algorithm_globals.random
     if isinstance(seed, np.random.Generator):
         return seed
     return np.random.default_rng(seed)
