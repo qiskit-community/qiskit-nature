@@ -128,6 +128,7 @@ class ProteinShapeFileGen:
                 be saved in the current working directory.
             comment: Comment to be added to the second line of the file. By default the line will
                 be left blank.
+            overwrite: If True, the file will be overwritten if it already exists.
         """
         file_path = os.path.join(path, name + ".xyz")
         if os.path.exists(file_path):
