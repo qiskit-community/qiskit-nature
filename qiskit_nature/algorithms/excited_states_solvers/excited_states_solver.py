@@ -44,8 +44,8 @@ class ExcitedStatesSolver(ABC):
         """
         raise NotImplementedError()
 
-    @abstractmethod
     @property
+    @abstractmethod
     def solver(self):
         """Returns the solver."""
 
