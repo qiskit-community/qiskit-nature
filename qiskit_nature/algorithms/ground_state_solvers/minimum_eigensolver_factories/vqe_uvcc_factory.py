@@ -39,7 +39,8 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz wavefunction.
+    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz
+    wavefunction.
 
     .. note::
 
@@ -51,6 +52,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     .. code-block:: python
 
+        from qiskit_nature.algorithms import VQEUVCCFactory
+        from qiskit_nature.circuit.library import UVCCSD, UVCC
         factory = VQEUVCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
         print(type(vqe1.ansatz))  # UVCC()
@@ -195,7 +198,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def ansatz(self) -> Optional[UVCC]:
         """
         Gets the user provided ansatz of future VQEs produced by the factory.
-        If value is ``None`` it defaults to :class:`UVCCSD`.
+        If value is ``None`` it defaults to :class:`~.UVCCSD`.
         """
         return self._ansatz
 
@@ -203,7 +206,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def ansatz(self, ansatz: Optional[UVCC]) -> None:
         """
         Sets the ansatz of future VQEs produced by the factory.
-        If set to ``None`` it defaults to :class:`UVCCSD`.
+        If set to ``None`` it defaults to :class:`~.UVCCSD`.
         """
         self._ansatz = ansatz
 
@@ -250,7 +253,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         problem: VibrationalStructureProblem,
         qubit_converter: QubitConverter,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``qubit_converter``.
+        """Returns a VQE with a :class:`~.UVCCSD` wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
             problem: a class encoding a problem to be solved.

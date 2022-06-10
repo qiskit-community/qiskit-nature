@@ -1,26 +1,29 @@
 ---
 deprecations:
   - |
-    :class:`~qiskit_nature.algorithms.InitialPoint`
-    :class:`~qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories.VQEUCCFactory`
+    :class:`~qiskit_nature.algorithms.VQEUCCFactory`
     had setter/getter properties that were repeated with respect to
-    :class:`qiskit.algorithms.minimum_eigen_solvers.VQE`.
+    :class:`qiskit.algorithms.VQE`.
     
     In order to avoid duplicating all of these attributes, potentially leading to inconsistencies
     between the attributes of the different classes, these are now deprecated and require you to use
     the attributes from
-    :attr:`~qiskit_nature.algorithms.minimum_eigensolver_factories.VQEUCCFactory.minimum_eigensolver`
+    :attr:`~qiskit_nature.algorithms.VQEUCCFactory.minimum_eigensolver`
     instead.
     
     For this reason, the constructor of
-    :class:`~qiskit_nature.algorithms.minimum_eigensolver_factories.VQEUCCFactory` has been changed as well.
+    :class:`~qiskit_nature.algorithms.VQEUCCFactory` has been changed as well.
     Now the constructor only has the following positional arguments:
     * initial_point
     * initial_state
     * ansatz
     
-    Any extra keyword arguments are passed to a constructor of `qiskit.algorithms.minimum_eigen_solvers.VQE`
-    which will create the ``VQE`` to be accessed via :attr:`~qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories.VQEUCCFactory.minimum_eigensolver`.
+    Any extra keyword arguments are passed to a constructor of :class:`qiskit.algorithms.VQE`
+    which will create a VQE that can be accessed via
+    :attr:`~qiskit_nature.algorithms.VQEUCCFactory.minimum_eigensolver`.
+
+    The same changes have been done for :class:`~qiskit_nature.algorithms.VQEUVCCFactory`
+    and :class:`~qiskit_nature.algorithms.NumPyMinimumEigensolverFactory`
 
 
 

@@ -38,8 +38,7 @@ from qiskit_nature.properties.second_quantization.electronic import ParticleNumb
 from ...initial_points import InitialPoint, HFInitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__) 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
     """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with :class:`~.UCCSD` ansatz wavefunction.
@@ -54,6 +53,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     .. code-block:: python
 
+        from qiskit_nature.algorithms import VQEUCCFactory
+        from qiskit_nature.circuit.library import UCCSD, UCC
         factory = VQEUCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
         print(type(vqe1.ansatz))  # UCCSD (default)
@@ -202,7 +203,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def ansatz(self) -> Optional[UCC]:
         """
         Gets the user provided ansatz of future VQEs produced by the factory.
-        If value is ``None`` it defaults to :class:`UCCSD`.
+        If value is ``None`` it defaults to :class:`~.UCCSD`.
         """
         return self._ansatz
 
@@ -210,7 +211,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def ansatz(self, ansatz: Optional[UCC]) -> None:
         """
         Sets the ansatz of future VQEs produced by the factory.
-        If set to ``None`` it defaults to :class:`UCCSD`.
+        If set to ``None`` it defaults to :class:`~.UCCSD`.
         """
         self._ansatz = ansatz
 
