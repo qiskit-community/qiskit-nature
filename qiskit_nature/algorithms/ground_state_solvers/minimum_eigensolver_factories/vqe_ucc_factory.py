@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UCCSD` ansatz wavefunction.
+    """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with :class:`~.UCCSD` ansatz wavefunction.
 
     .. note::
 
@@ -110,7 +110,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 default to the :class:`~.HartreeFock` state.
             ansatz: Allows specification of a custom :class:`~.UCC` instance. This defaults to None
                 where the factory will internally create and use a :class:`~.UCCSD` ansatz.
-            kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
+            kwargs: Remaining keyword arguments are passed to the :class:`~.VQE`.
         """
 
         self._initial_state = initial_state
