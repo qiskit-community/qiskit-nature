@@ -14,6 +14,7 @@ deprecations:
     For this reason, the constructor of
     :class:`~qiskit_nature.algorithms.VQEUCCFactory` has been changed as well.
     Now the constructor only has the following positional arguments:
+
     * initial_point
     * initial_state
     * ansatz
