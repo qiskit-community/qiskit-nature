@@ -16,8 +16,8 @@ from typing import List, Tuple, Optional
 
 class ProteinShapeDecoder:
     """
-    Class decoding bitstring from :class:`ProteinFoldingProblem`.
-    This class handles the decoding of the compact solution in :class:`ProteinFoldingProblem`
+    This class handles the decoding of the compact solution in
+    :class:`~qiskit_nature.problems.sampling.protein_folding_problem.ProteinFoldingProblem`
     and returns the information encoded in the result about the turns
     associated to the main and side chains.
     """
@@ -30,8 +30,8 @@ class ProteinShapeDecoder:
             turns_sequence: Sequence to be decoded.
             side_chain_hot_vector: A list of boolean that indicates the presence of side
                 chains on corresponding indices of the main chain.
-            fifth_bit: True if the 5th bit has defaulted to 1. In case the second bead,
-                by symmetry, the shapes we get by changing the 5th bit are equivalent.
+            fifth_bit: True if the 5th bit does not correspond to an unused qubit from the
+                problem.
         """
         self._turns_sequence = turns_sequence
         self._side_chain_hot_vector = side_chain_hot_vector

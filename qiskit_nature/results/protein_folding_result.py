@@ -30,11 +30,13 @@ class ProteinFoldingResult(EigenstateResult):
     """
     The Protein Folding Result.
     This class interprets a bitstring encoding the turns of a protein from
-    :class:`ProteinFoldingProblem` and decodes it. One can generate a .xyz file, which is a file
+    :class:`~qiskit_nature.problems.sampling.protein_folding_problem.ProteinFoldingProblem`
+    and decodes it. One can generate a .xyz file
+    (using :meth:`~qiskit_nature.results.ProteinFoldingResult.save_xyz_file`), which is a file
     containing the cartesian coordinates of each atom in the protein. This kind of file can be
     used with other software to generate plots of the molecule.
-    Alternatively, one can use the built-in plotter from this class. Note that `mpl` optional needs
-    to be installed in order to generate such a figure.
+    Alternatively, one can use :meth:`~qiskit_nature.results.ProteinFoldingResult.get_figure`.
+    Note that `mpl` optional needs to be installed in order to generate such a figure.
     """
 
     def __init__(
@@ -88,11 +90,13 @@ class ProteinFoldingResult(EigenstateResult):
         return self._turns_sequence
 
     def get_result_binary_vector(self) -> str:
-        """Returns a string that encodes a solution of the :class:`ProteinFoldingProblem`.
-        The :class:`ProteinFoldingProblem` uses a compressed optimization problem that does not match the
+        """Returns a string that encodes a solution of the
+        :class:`~qiskit_nature.problems.sampling.protein_folding_problem.ProteinFoldingProblem`.
+        The :class:`~qiskit_nature.problems.sampling.protein_folding_problem.ProteinFoldingProblem`
+        uses a compressed optimization problem that does not match the
         number of qubits in the original objective function. This method calculates the original
         version of the solution vector. Bits that can take any value without changing the
-        solution are denoted by '*'."""
+        solution are denoted by '_'."""
         unused_qubits = self._unused_qubits
         result = []
         offset = 0
@@ -100,7 +104,7 @@ class ProteinFoldingResult(EigenstateResult):
         for i in range(size):
             index = size - 1 - i
             while i + offset in unused_qubits:
-                result.append("*")
+                result.append("_")
                 offset += 1
             result.append(self._turns_sequence[index])
 

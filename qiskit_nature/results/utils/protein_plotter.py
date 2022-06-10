@@ -32,7 +32,8 @@ class ProteinPlotter:
     def __init__(self, shape_gen: ProteinShapeFileGen) -> None:
         """
         Args:
-            shape_gen: :class:`ProteinShapeFileGen` with the shape to be plotted.
+            shape_gen: :class:`~qiskit_nature.resultls.utils.ProteinShapeFileGen`
+            with the shape to be plotted.
         """
         # pylint: disable=import-error
         import matplotlib.pyplot as plt

@@ -20,7 +20,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 class ProteinShapeFileGen:
     """This class handles the creation of cartesian coordinates for
     each aminoacid in a protein and generates a .xyz file.
-    It is used by :class:`ProteinFoldingResult`.
+    It is used by :class:`~qiskit_nature.results.ProteinFoldingResult`.
     """
 
     # Coordinates of the 4 edges of a tetrahedron centered at 0. The vectors are normalized.
@@ -56,7 +56,11 @@ class ProteinShapeFileGen:
         self._side_positions = self.generate_side_positions()
 
     def generate_side_positions(self) -> List[Optional[np.ndarray]]:
-        """Generates the positions of the side chain."""
+        """
+        Generates the positions of the side chain.
+        Returns:
+            A list of arrays with the cartesian coordinates of the side chain.
+        """
         side_positions: List[Optional[np.ndarray]] = []
         counter = 1
         for mainpos, sideturn in zip(self.main_positions, self._side_chain_turns):
@@ -83,7 +87,12 @@ class ProteinShapeFileGen:
         return self._side_positions
 
     def generate_main_positions(self) -> np.ndarray:
-        """Generates the positions of the main chain."""
+        """
+        Generates the positions of the main chain.
+
+        Returns:
+            An array with the cartesian coordinates of the main chain.
+        """
         length_turns = len(self._main_chain_turns)
         relative_positions = np.zeros((length_turns + 1, 3), dtype=float)
 
@@ -112,7 +121,7 @@ class ProteinShapeFileGen:
         https://en.wikipedia.org/wiki/XYZ_file_format.
 
         Args:
-            name: The file will be called name `.xyz`. Can overwrite files.
+            name: The file will be called `"name".xyz`. Can overwrite files.
             path: Path under which the file will be saved. If no path is specified the file will
                 be saved in the current working directory.
             comment: Comment to be added to the second line of the file. By default the line will
@@ -133,6 +142,8 @@ class ProteinShapeFileGen:
     def get_xyz_file(self) -> np.ndarray:
         """
         Returns an array with the symbols of the atoms and their cartesian coordinates.
+        Returns:
+            An array with the symbols of the atoms and their cartesian coordinates.
         """
         main_data = np.column_stack([self._main_chain_aminoacid_list, self.main_positions])
 
