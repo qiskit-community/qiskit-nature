@@ -20,6 +20,7 @@ from qiskit_nature.circuit.library import SlaterDeterminant
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
+from ....random import random_quadratic_hamiltonian
 
 
 class TestSlaterDeterminant(QiskitNatureTestCase):
@@ -29,9 +30,7 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
         """Test preparing Slater determinants."""
         n_orbitals = 5
         converter = QubitConverter(JordanWignerMapper())
-        hermitian_part = random_hermitian(n_orbitals).data
-        constant = np.random.uniform(-10, 10)
-        quad_ham = QuadraticHamiltonian(hermitian_part, constant=constant)
+        quad_ham = random_quadratic_hamiltonian(n_orbitals, num_conserving=True, seed=8839)
         (
             transformation_matrix,
             orbital_energies,
@@ -52,10 +51,7 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
         """Test that the routines don't mutate the input array."""
         n_orbitals = 5
         n_particles = 3
-        hermitian_part = random_hermitian(n_orbitals).data
-        constant = np.random.uniform(-10, 10)
-
-        quad_ham = QuadraticHamiltonian(hermitian_part, constant=constant)
+        quad_ham = random_quadratic_hamiltonian(n_orbitals, num_conserving=True, seed=8839)
         transformation_matrix, _, _ = quad_ham.diagonalizing_bogoliubov_transform()
         original = transformation_matrix.copy()
         _ = SlaterDeterminant(transformation_matrix[:n_particles])

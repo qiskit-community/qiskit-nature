@@ -27,7 +27,7 @@ from qiskit_nature.circuit.library import BogoliubovTransform
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
-from qiskit_nature.utils import random_quadratic_hamiltonian
+from ...random import random_quadratic_hamiltonian
 
 
 def _expand_transformation_matrix(mat: np.ndarray) -> np.ndarray:
